@@ -26,7 +26,6 @@
   a { color: inherit; }
   button { font-family: inherit; }
 
-  /* ===== full-screen login gate — nothing else is reachable before this ===== */
   #gate {
     position: fixed; inset: 0; z-index: 200;
     background: var(--bg); display: flex; align-items: center; justify-content: center; flex-direction: column;
@@ -40,7 +39,6 @@
   #gate .back-link { margin-top: 22px; color: var(--ink-faint); font-size: 0.85rem; text-decoration: none; }
   #gate .back-link:hover { color: var(--ink-dim); }
 
-  /* ===== app shell ===== */
   #app { display: none; height: 100vh; }
   .shell { display: flex; height: 100%; }
 
@@ -65,67 +63,78 @@
   .account-row img { width: 22px; height: 22px; border-radius: 50%; }
   .account-row .logout { margin-left: auto; background: none; border: none; color: var(--ink-faint); font-size: 0.78rem; cursor: pointer; text-decoration: underline; }
 
-  .main { flex: 1; overflow-y: auto; position: relative; }
-  .main-inner { max-width: 760px; margin: 0 auto; padding: 60px 24px 100px; }
+  .main { flex: 1; overflow-y: auto; }
+  .main-inner { max-width: 640px; margin: 0 auto; padding: 50px 24px 80px; }
 
   .mode-badge {
     display: inline-flex; align-items: center; gap: 7px;
     border: 1px solid var(--line); border-radius: 20px; padding: 6px 13px;
-    font-size: 0.78rem; color: var(--ink-dim); margin-bottom: 36px;
+    font-size: 0.78rem; color: var(--ink-dim); margin-bottom: 26px;
   }
   .mode-badge.paid { border-color: color-mix(in srgb, var(--gold) 45%, var(--line)); color: var(--gold); }
   .mode-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--ink-faint); }
   .mode-badge.paid .dot { background: var(--gold); }
 
-  .console-head { text-align: center; margin-bottom: 30px; }
-  .console-head h1 { font-size: clamp(1.6rem, 3.4vw, 2.1rem); font-weight: 600; }
+  .console-head { text-align: center; margin-bottom: 24px; }
+  .console-head h1 { font-size: clamp(1.5rem, 3.2vw, 1.9rem); font-weight: 600; }
 
-  .console-box { background: var(--bg-raised); border: 1px solid var(--line); border-radius: 14px; padding: 18px; }
-  .attach-row { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  .attach-row { display: flex; gap: 8px; margin-bottom: 20px; justify-content: center; flex-wrap: wrap; }
   .attach-btn {
-    display: flex; align-items: center; gap: 6px;
     background: var(--bg-input); border: 1px solid var(--line); color: var(--ink-dim);
-    padding: 8px 13px; border-radius: 8px; font-size: 0.84rem; cursor: pointer;
+    padding: 8px 14px; border-radius: 8px; font-size: 0.84rem; cursor: pointer;
   }
   .attach-btn.active { border-color: var(--gold); color: var(--gold); }
-  .attach-btn:hover { color: var(--ink); }
 
-  #topic-input, #drive-input {
-    width: 100%; background: transparent; border: none; color: var(--ink);
-    font-size: 1rem; font-family: inherit; resize: none; min-height: 64px; padding: 4px;
-  }
-  #topic-input:focus, #drive-input:focus { outline: none; }
-  #topic-input::placeholder, #drive-input::placeholder { color: var(--ink-faint); }
+  /* ===== chat ===== */
+  .chat-box { background: var(--bg-raised); border: 1px solid var(--line); border-radius: 14px; padding: 18px; }
+  .chat-log { display: flex; flex-direction: column; gap: 14px; max-height: 46vh; overflow-y: auto; padding: 2px 2px 10px; }
+  .msg { display: flex; gap: 9px; max-width: 90%; }
+  .msg.bot { align-self: flex-start; }
+  .msg.user { align-self: flex-end; flex-direction: row-reverse; }
+  .msg .avatar { width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0; background: var(--gold); color: var(--on-gold); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; }
+  .msg .bubble { background: var(--bg-input); border: 1px solid var(--line); border-radius: 14px; padding: 10px 14px; font-size: 0.9rem; color: var(--ink); }
+  .msg.user .bubble { background: var(--gold); color: var(--on-gold); border-color: transparent; }
+  .msg.user .avatar { visibility: hidden; width: 0; }
 
-  .console-bottom { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
-  .chip-row { display: flex; gap: 8px; flex-wrap: wrap; }
-  .chip {
+  .chat-input-area { border-top: 1px solid var(--line); margin-top: 14px; padding-top: 14px; }
+  .chat-chip-options { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chat-chip-options button {
     background: var(--bg-input); border: 1px solid var(--line); color: var(--ink-dim);
-    padding: 7px 13px; border-radius: 20px; font-size: 0.8rem; cursor: pointer;
+    padding: 9px 16px; border-radius: 20px; font-size: 0.86rem; cursor: pointer;
   }
-  .chip.active { border-color: var(--gold); color: var(--gold); }
-  select.chip { -webkit-appearance: none; appearance: none; }
-
-  .submit-btn {
+  .chat-chip-options button:hover { border-color: var(--gold); color: var(--ink); }
+  .chat-text-row { display: flex; gap: 8px; }
+  .chat-text-row input {
+    flex: 1; background: var(--bg-input); border: 1px solid var(--line); color: var(--ink);
+    padding: 11px 13px; border-radius: 8px; font-size: 0.92rem; font-family: inherit;
+  }
+  .chat-text-row input:focus { outline: 1px solid var(--gold); }
+  .chat-send-btn {
     width: 38px; height: 38px; border-radius: 50%; background: var(--gold); color: var(--on-gold);
     border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem; flex-shrink: 0;
   }
-  .submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .chat-send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .chat-skip { background: none; border: none; color: var(--ink-faint); font-size: 0.8rem; text-decoration: underline; cursor: pointer; margin-top: 9px; padding: 0; }
 
-  .more-toggle { background: none; border: none; color: var(--ink-faint); font-size: 0.8rem; cursor: pointer; text-decoration: underline; padding: 0; }
-  .more-panel { display: none; margin-top: 18px; border-top: 1px solid var(--line); padding-top: 18px; }
-  .more-panel.open { display: block; }
-  .more-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  .more-field label { display: block; font-size: 0.78rem; color: var(--ink-faint); margin-bottom: 6px; }
-  .more-field input, .more-field select, .more-field textarea {
-    width: 100%; background: var(--bg-input); border: 1px solid var(--line); color: var(--ink);
-    padding: 9px 11px; border-radius: 6px; font-size: 0.88rem; font-family: inherit;
-  }
-  @media (max-width: 560px) { .more-grid { grid-template-columns: 1fr; } }
+  .summary-card { background: var(--bg-input); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-top: 4px; }
+  .summary-row { display: flex; justify-content: space-between; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 0.85rem; }
+  .summary-row:last-child { border-bottom: none; }
+  .summary-row .k { color: var(--ink-faint); flex-shrink: 0; }
+  .summary-row .v { color: var(--ink); text-align: right; }
+  .confirm-consent { display: flex; align-items: flex-start; gap: 8px; margin-top: 14px; font-size: 0.82rem; color: var(--ink-dim); }
+  .confirm-consent a { color: var(--gold); }
+  .confirm-actions { display: flex; gap: 10px; margin-top: 16px; }
+  .btn-gold-sm { flex: 1; background: var(--gold); color: var(--on-gold); border: none; border-radius: 6px; padding: 11px; font-size: 0.9rem; font-weight: 600; cursor: pointer; text-align: center; }
+  .btn-gold-sm:disabled { opacity: 0.45; cursor: not-allowed; }
+  .btn-line-sm { border: 1px solid var(--line); color: var(--ink-dim); background: none; border-radius: 6px; padding: 11px 16px; font-size: 0.9rem; cursor: pointer; }
 
-  .tab-row { display: flex; gap: 22px; flex-wrap: wrap; justify-content: center; margin: 26px 0 40px; }
-  .tab-row button { background: none; border: none; color: var(--ink-faint); font-size: 0.88rem; cursor: pointer; padding-bottom: 8px; border-bottom: 2px solid transparent; }
-  .tab-row button.active { color: var(--ink); border-bottom-color: var(--gold); }
+  .form-status { text-align: center; font-size: 0.86rem; margin-top: 14px; min-height: 1.2em; }
+  .form-status.err { color: var(--err); }
+  .form-status.ok { color: var(--gold); }
+
+  .tab-row { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; margin: 26px 0 30px; }
+  .tab-row button { background: none; border: none; color: var(--ink-faint); font-size: 0.86rem; cursor: pointer; padding-bottom: 8px; border-bottom: 2px solid transparent; }
+  .tab-row button:hover { color: var(--ink-dim); }
 
   .example-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; }
   .example-card { background: var(--bg-raised); border: 1px solid var(--line); border-radius: 10px; padding: 20px 16px; text-align: left; cursor: pointer; }
@@ -135,11 +144,6 @@
   .example-card p { font-size: 0.8rem; color: var(--ink-faint); margin: 0; }
   .example-note { text-align: center; color: var(--ink-faint); font-size: 0.8rem; margin-top: 20px; }
 
-  .form-status { text-align: center; font-size: 0.86rem; margin-top: 16px; min-height: 1.2em; }
-  .form-status.err { color: var(--err); }
-  .form-status.ok { color: var(--gold); }
-
-  /* soon toast */
   #soon-toast {
     position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%) translateY(20px);
     background: var(--bg-raised); border: 1px solid var(--line); border-radius: 8px;
@@ -148,9 +152,7 @@
   }
   #soon-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-  @media (max-width: 760px) {
-    .sidebar { display: none; }
-  }
+  @media (max-width: 760px) { .sidebar { display: none; } }
 </style>
 </head>
 <body>
@@ -195,87 +197,20 @@
           <h1>오늘은 무엇을 만들어볼까요?</h1>
         </div>
 
-        <div class="console-box">
-          <div class="attach-row">
-            <button class="attach-btn active" id="btn-mode-topic">✍️ 주제로 만들기</button>
-            <button class="attach-btn" id="btn-mode-media">📁 내 드라이브 자료로</button>
-          </div>
-
-          <textarea id="topic-input" maxlength="300" placeholder="예: 우리 카페 신메뉴 딸기라떼를 20대에게 홍보하고 싶어요"></textarea>
-          <input id="drive-input" type="url" placeholder="구글 드라이브 폴더 링크를 붙여넣으세요" style="display:none;">
-
-          <div class="console-bottom">
-            <div class="chip-row">
-              <button class="chip active" id="chip-shorts" data-form="쇼츠">📱 쇼츠</button>
-              <button class="chip" id="chip-longform" data-form="롱폼">🖥️ 롱폼</button>
-              <select class="chip" id="chip-tempo">
-                <option value="">속도: 자동</option>
-                <option value="차분">차분하게</option>
-                <option value="중간">보통</option>
-                <option value="빠름">빠르고 경쾌하게</option>
-              </select>
-              <select class="chip" id="chip-voice">
-                <option value="">목소리: 자동</option>
-                <option value="여성">여성</option>
-                <option value="남성">남성</option>
-              </select>
-            </div>
-            <button class="submit-btn" id="submit-btn" disabled>→</button>
-          </div>
+        <div class="attach-row">
+          <button class="attach-btn active" id="btn-mode-topic">✍️ 주제로 만들기</button>
+          <button class="attach-btn" id="btn-mode-media">📁 내 드라이브 자료로</button>
         </div>
 
-        <div style="text-align:center; margin-top:12px;">
-          <button class="more-toggle" id="more-toggle">세부 옵션 더 보기</button>
-        </div>
-        <div class="more-panel" id="more-panel">
-          <div class="more-grid">
-            <div class="more-field">
-              <label for="more-target">시청 타겟 연령대</label>
-              <select id="more-target">
-                <option value="">자동</option>
-                <option value="10~20대">10~20대</option>
-                <option value="20~30대">20~30대</option>
-                <option value="30~40대">30~40대</option>
-                <option value="40~50대">40~50대</option>
-                <option value="50~60대">50~60대</option>
-                <option value="60대 이상">60대 이상</option>
-              </select>
-            </div>
-            <div class="more-field">
-              <label for="more-voice-age">목소리 연령대</label>
-              <select id="more-voice-age">
-                <option value="">자동</option>
-                <option value="10~20대">10~20대</option>
-                <option value="20~30대">20~30대</option>
-                <option value="30~40대">30~40대</option>
-                <option value="40~50대">40~50대</option>
-                <option value="50~60대">50~60대</option>
-                <option value="60대 이상">60대 이상</option>
-              </select>
-            </div>
-            <div class="more-field" id="field-product-link">
-              <label for="more-product-link">제품 링크 (제품 소개인 경우)</label>
-              <input id="more-product-link" type="url" placeholder="https://...">
-            </div>
-            <div class="more-field" id="field-director-note">
-              <label for="more-note">꼭 넣고 싶은 장면·연출 (선택)</label>
-              <input id="more-note" type="text" maxlength="500" placeholder="한 줄로 적어주세요">
-            </div>
-          </div>
-          <div class="consent-row" style="margin-top:16px; font-size:0.82rem; color:var(--ink-dim); display:flex; gap:8px; align-items:flex-start;">
-            <input type="checkbox" id="terms-consent" style="margin-top:3px;">
-            <label for="terms-consent"><a href="./terms.html" target="_blank" style="color:var(--gold);">이용약관 및 개인정보 처리방침</a>에 동의합니다.</label>
-          </div>
-          <div class="consent-row" id="media-consent-row" style="display:none; margin-top:8px; font-size:0.82rem; color:var(--ink-dim); gap:8px; align-items:flex-start;">
-            <input type="checkbox" id="media-consent" style="margin-top:3px;">
-            <label for="media-consent">업로드하신 원본은 구글 드라이브에 그대로 보관되며, 무료체험 후 24시간 안에 결제가 확인되지 않으면 시스템의 분석 정보는 자동 삭제됩니다. 자료 사용 권한과 타인 초상권은 본인이 책임집니다.</label>
-          </div>
+        <div class="chat-box">
+          <div class="chat-log" id="chat-log"></div>
+          <div class="chat-input-area" id="chat-input-area"></div>
         </div>
 
         <p class="form-status" id="form-status"></p>
 
         <div class="tab-row" id="tab-row">
-          <button class="active" data-topic="">카페 신메뉴 홍보</button>
+          <button data-topic="우리 카페의 신메뉴 딸기라떼를 20대에게 홍보하고 싶어요">카페 신메뉴 홍보</button>
           <button data-topic="반려동물 영양제를 소개하는 영상을 만들고 싶어요">반려동물</button>
           <button data-topic="환절기 감기 예방을 위한 건강 정보를 알려주는 영상">건강정보</button>
           <button data-topic="20년지기 친구들과 다녀온 제주도 여행 추억을 담은 영상">추억 영상</button>
@@ -307,7 +242,6 @@
   const GOOGLE_CLIENT_ID = '188637268860-9hj2af4bt8esn506bf5bqs72qnbu0qjs.apps.googleusercontent.com';
 
   let googleIdToken = null;
-  let mode = 'topic'; // topic | media
   const params = new URLSearchParams(location.search);
   const planMode = params.get('mode') === 'paid' ? 'paid' : 'trial';
 
@@ -319,7 +253,6 @@
     } catch (e) { return null; }
   }
 
-  // ---- mode badge ----
   const badge = document.getElementById('mode-badge');
   const modeLabel = document.getElementById('mode-label');
   if (planMode === 'paid') {
@@ -329,153 +262,212 @@
     modeLabel.textContent = '체험 모드 · 무료 3회';
   }
 
-  // ---- topic vs media toggle ----
-  const btnTopic = document.getElementById('btn-mode-topic');
-  const btnMedia = document.getElementById('btn-mode-media');
-  const topicInput = document.getElementById('topic-input');
-  const driveInput = document.getElementById('drive-input');
-  const fieldProductLink = document.getElementById('field-product-link');
-  const fieldDirectorNote = document.getElementById('field-director-note');
-  const mediaConsentRow = document.getElementById('media-consent-row');
+  /* ===================== 채팅 엔진 ===================== */
+  const TOPIC_STEPS = [
+    { key: 'topic', q: '안녕하세요! 오늘은 어떤 영상을 만들어드릴까요? 주제를 편하게 알려주세요.', type: 'text', placeholder: '예: 우리 카페 신메뉴 소개', required: true },
+    { key: 'productLink', q: '혹시 특정 제품을 소개하는 영상인가요? 있다면 링크를 알려주세요.', type: 'text', placeholder: 'https://...', skippable: true },
+    { key: 'target', q: '이 영상은 주로 어떤 분들이 보게 될까요?', type: 'chips',
+      options: [['자동',''],['10~20대','10~20대'],['20~30대','20~30대'],['30~40대','30~40대'],['40~50대','40~50대'],['50~60대','50~60대'],['60대 이상','60대 이상']] },
+    { key: 'form', q: '쇼츠로 만들까요, 롱폼으로 만들까요?', type: 'chips', options: [['📱 쇼츠(세로·짧게)','쇼츠'],['🖥️ 롱폼(가로·길게)','롱폼']] },
+    { key: 'tempo', q: '나레이션은 어떤 느낌이 좋을까요?', type: 'chips', options: [['자동',''],['차분하게','차분'],['보통','중간'],['빠르고 경쾌하게','빠름']] },
+    { key: 'voiceGender', q: '목소리는 어느 쪽이 좋을까요?', type: 'chips', options: [['자동',''],['여성','여성'],['남성','남성']] },
+    { key: 'voiceAge', q: '목소리 연령대는요?', type: 'chips',
+      options: [['자동',''],['10~20대','10~20대'],['20~30대','20~30대'],['30~40대','30~40대'],['40~50대','40~50대'],['50~60대','50~60대'],['60대 이상','60대 이상']] },
+    { key: 'directorNote', q: '마지막으로, 꼭 넣고 싶은 장면이나 연출이 있다면 알려주세요.', type: 'text', placeholder: '없으면 건너뛰어도 돼요', skippable: true },
+  ];
+  const MEDIA_STEPS = [
+    { key: 'driveLink', q: '사진·영상이 담긴 구글 드라이브 폴더 링크를 알려주세요.', type: 'text', placeholder: 'https://drive.google.com/drive/folders/...', required: true,
+      hint: '폴더 공유 설정을 "링크가 있는 모든 사용자"로 바꿔주셔야 열어볼 수 있어요.' },
+    { key: 'mediaNote', q: '어떤 이야기·분위기로 만들어드리면 좋을까요?', type: 'text', placeholder: '없으면 건너뛰어도 돼요', skippable: true },
+    { key: 'voiceGender', q: '목소리는 어느 쪽이 좋을까요?', type: 'chips', options: [['자동',''],['여성','여성'],['남성','남성']] },
+    { key: 'voiceAge', q: '목소리 연령대는요?', type: 'chips',
+      options: [['자동',''],['10~20대','10~20대'],['20~30대','20~30대'],['30~40대','30~40대'],['40~50대','40~50대'],['50~60대','50~60대'],['60대 이상','60대 이상']] },
+  ];
+  const FIELD_LABEL = {
+    topic: '주제', productLink: '제품 링크', target: '타겟', form: '영상 형태', tempo: '말하기 속도',
+    voiceGender: '목소리', voiceAge: '목소리 연령대', directorNote: '연출 메모',
+    driveLink: '드라이브 링크', mediaNote: '분위기 메모'
+  };
 
-  function setMode(next) {
-    mode = next;
-    btnTopic.classList.toggle('active', mode === 'topic');
-    btnMedia.classList.toggle('active', mode === 'media');
-    topicInput.style.display = mode === 'topic' ? 'block' : 'none';
-    driveInput.style.display = mode === 'media' ? 'block' : 'none';
-    fieldProductLink.style.display = mode === 'topic' ? 'block' : 'none';
-    fieldDirectorNote.style.display = mode === 'topic' ? 'block' : 'none';
-    mediaConsentRow.style.display = mode === 'media' ? 'flex' : 'none';
+  let mode = 'topic';
+  let steps = TOPIC_STEPS;
+  let stepIndex = 0;
+  let answers = {};
+  let awaitingConfirm = false;
+
+  const chatLog = document.getElementById('chat-log');
+  const chatInputArea = document.getElementById('chat-input-area');
+
+  function addMsg(role, html) {
+    const el = document.createElement('div');
+    el.className = 'msg ' + role;
+    el.innerHTML = `<div class="avatar">${role === 'bot' ? 'R' : ''}</div><div class="bubble">${html}</div>`;
+    chatLog.appendChild(el);
+    chatLog.scrollTop = chatLog.scrollHeight;
+    return el;
+  }
+  function escapeHtml(s) { return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  function startChat(newMode, prefillTopic) {
+    mode = newMode;
+    steps = mode === 'topic' ? TOPIC_STEPS : MEDIA_STEPS;
+    stepIndex = 0; answers = {}; awaitingConfirm = false;
+    chatLog.innerHTML = '';
+    document.getElementById('btn-mode-topic').classList.toggle('active', mode === 'topic');
+    document.getElementById('btn-mode-media').classList.toggle('active', mode === 'media');
     document.getElementById('tab-row').style.display = mode === 'topic' ? 'flex' : 'none';
-    updateSubmitState();
+    document.getElementById('form-status').textContent = '';
+    askStep();
+    if (prefillTopic) {
+      setTimeout(() => submitAnswer(prefillTopic), 250);
+    }
   }
-  btnTopic.addEventListener('click', () => setMode('topic'));
-  btnMedia.addEventListener('click', () => setMode('media'));
 
-  // ---- form/shorts-longform chip ----
-  const chipShorts = document.getElementById('chip-shorts');
-  const chipLongform = document.getElementById('chip-longform');
-  let formValue = '쇼츠';
-  chipShorts.addEventListener('click', () => { formValue = '쇼츠'; chipShorts.classList.add('active'); chipLongform.classList.remove('active'); });
-  chipLongform.addEventListener('click', () => { formValue = '롱폼'; chipLongform.classList.add('active'); chipShorts.classList.remove('active'); });
-
-  // ---- tabs / example cards fill the topic box ----
-  function fillTopic(text) {
-    if (!text) return;
-    setMode('topic');
-    topicInput.value = text;
-    updateSubmitState();
+  function askStep() {
+    if (stepIndex >= steps.length) { showSummary(); return; }
+    const step = steps[stepIndex];
+    let q = step.q;
+    if (step.hint) q += `<br><span style="color:var(--ink-faint); font-size:0.8rem;">${step.hint}</span>`;
+    addMsg('bot', q);
+    renderInput(step);
   }
-  document.querySelectorAll('#tab-row button').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('#tab-row button').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      if (btn.dataset.topic) fillTopic(btn.dataset.topic);
-    });
-  });
-  document.querySelectorAll('.example-card').forEach(card => {
-    card.addEventListener('click', () => fillTopic(card.dataset.topic));
-  });
 
-  // ---- more options toggle ----
-  document.getElementById('more-toggle').addEventListener('click', () => {
-    document.getElementById('more-panel').classList.toggle('open');
-  });
-
-  // ---- soon buttons ----
-  const toast = document.getElementById('soon-toast');
-  document.querySelectorAll('.soon-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 1800);
-    });
-  });
-  document.getElementById('new-chat-btn').addEventListener('click', () => location.reload());
-
-  // ---- submit gating ----
-  const submitBtn = document.getElementById('submit-btn');
-  const termsConsent = document.getElementById('terms-consent');
-  const mediaConsent = document.getElementById('media-consent');
-  function updateSubmitState() {
-    const hasContent = mode === 'topic' ? topicInput.value.trim().length > 0 : driveInput.value.trim().length > 0;
-    submitBtn.disabled = !hasContent;
+  function renderInput(step) {
+    chatInputArea.innerHTML = '';
+    if (step.type === 'chips') {
+      const wrap = document.createElement('div');
+      wrap.className = 'chat-chip-options';
+      step.options.forEach(([label, value]) => {
+        const btn = document.createElement('button');
+        btn.textContent = label;
+        btn.addEventListener('click', () => submitAnswer(value, label));
+        wrap.appendChild(btn);
+      });
+      chatInputArea.appendChild(wrap);
+    } else {
+      const row = document.createElement('div');
+      row.className = 'chat-text-row';
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.placeholder = step.placeholder || '';
+      input.id = 'chat-text-field';
+      const send = document.createElement('button');
+      send.className = 'chat-send-btn';
+      send.textContent = '→';
+      send.disabled = !!step.required;
+      input.addEventListener('input', () => { send.disabled = step.required && !input.value.trim(); });
+      input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !send.disabled) submitAnswer(input.value.trim()); });
+      send.addEventListener('click', () => submitAnswer(input.value.trim()));
+      row.appendChild(input); row.appendChild(send);
+      chatInputArea.appendChild(row);
+      if (step.skippable) {
+        const skip = document.createElement('button');
+        skip.className = 'chat-skip';
+        skip.textContent = '건너뛰기';
+        skip.addEventListener('click', () => submitAnswer(''));
+        chatInputArea.appendChild(skip);
+      }
+      setTimeout(() => input.focus(), 50);
+    }
   }
-  topicInput.addEventListener('input', updateSubmitState);
-  driveInput.addEventListener('input', updateSubmitState);
 
-  submitBtn.addEventListener('click', async () => {
+  function submitAnswer(value, label) {
+    const step = steps[stepIndex];
+    answers[step.key] = value;
+    addMsg('user', value ? escapeHtml(label || value) : '(건너뛰기)');
+    stepIndex += 1;
+    askStep();
+  }
+
+  function showSummary() {
+    awaitingConfirm = true;
+    const rows = Object.keys(answers)
+      .filter(k => answers[k])
+      .map(k => `<div class="summary-row"><span class="k">${FIELD_LABEL[k] || k}</span><span class="v">${escapeHtml(answers[k]).slice(0, 40)}</span></div>`)
+      .join('');
+    const card = `
+      <div>이렇게 만들어드릴까요?</div>
+      <div class="summary-card">${rows || '<div class="summary-row"><span class="k">입력하신 내용이 없어요</span></div>'}</div>`;
+    addMsg('bot', card);
+
+    chatInputArea.innerHTML = '';
+    const consentWrap = document.createElement('div');
+    consentWrap.className = 'confirm-consent';
+    consentWrap.innerHTML = `
+      <input type="checkbox" id="terms-consent" style="margin-top:3px;">
+      <label for="terms-consent"><a href="./terms.html" target="_blank">이용약관 및 개인정보 처리방침</a>에 동의합니다.${mode === 'media' ? ' 업로드 원본은 구글 드라이브에 보관되며, 무료체험 후 24시간 안에 결제가 확인되지 않으면 시스템의 분석 정보는 자동 삭제됩니다.' : ''}</label>`;
+    chatInputArea.appendChild(consentWrap);
+
+    const actions = document.createElement('div');
+    actions.className = 'confirm-actions';
+    const confirmBtn = document.createElement('button');
+    confirmBtn.className = 'btn-gold-sm';
+    confirmBtn.textContent = '네, 만들어주세요';
+    confirmBtn.disabled = true;
+    const editBtn = document.createElement('button');
+    editBtn.className = 'btn-line-sm';
+    editBtn.textContent = '다시 입력할래요';
+    editBtn.addEventListener('click', () => startChat(mode));
+    actions.appendChild(confirmBtn); actions.appendChild(editBtn);
+    chatInputArea.appendChild(actions);
+
+    const consentBox = consentWrap.querySelector('#terms-consent');
+    consentBox.addEventListener('change', () => { confirmBtn.disabled = !consentBox.checked; });
+    confirmBtn.addEventListener('click', doSubmit);
+  }
+
+  async function doSubmit() {
     const status = document.getElementById('form-status');
     status.textContent = ''; status.className = 'form-status';
 
-    if (!termsConsent.checked) {
-      document.getElementById('more-panel').classList.add('open');
-      status.textContent = '이용약관 동의가 필요해요.';
-      status.className = 'form-status err';
-      return;
-    }
-    if (mode === 'media' && !mediaConsent.checked) {
-      document.getElementById('more-panel').classList.add('open');
-      status.textContent = '자료 자동삭제 안내 동의가 필요해요.';
-      status.className = 'form-status err';
-      return;
-    }
-
     const profile = decodeJwt(googleIdToken);
-    submitBtn.disabled = true;
-
-    const payload = {
-      name: (profile && profile.name) || '',
-      contact: (profile && profile.email) || '',
-      idToken: googleIdToken,
-      termsConsent: true,
-      mode
-    };
-    const tempo = document.getElementById('chip-tempo').value;
-    const voice = document.getElementById('chip-voice').value;
-    const target = document.getElementById('more-target').value;
-    const voiceAge = document.getElementById('more-voice-age').value;
-
+    const payload = { name: (profile && profile.name) || '', contact: (profile && profile.email) || '', idToken: googleIdToken, termsConsent: true, mode };
     if (mode === 'topic') {
-      payload.topic = topicInput.value.trim();
-      payload.form = formValue;
-      if (tempo) payload.tempo = tempo;
-      if (voice) payload.voiceGender = voice;
-      if (target) payload.target = target;
-      if (voiceAge) payload.voiceAge = voiceAge;
-      const productLink = document.getElementById('more-product-link').value.trim();
-      const note = document.getElementById('more-note').value.trim();
-      if (productLink) payload.productLink = productLink;
-      if (note) payload.directorNote = note;
+      payload.topic = answers.topic || '';
+      payload.form = answers.form || '쇼츠';
+      if (answers.productLink) payload.productLink = answers.productLink;
+      if (answers.target) payload.target = answers.target;
+      if (answers.tempo) payload.tempo = answers.tempo;
+      if (answers.voiceGender) payload.voiceGender = answers.voiceGender;
+      if (answers.voiceAge) payload.voiceAge = answers.voiceAge;
+      if (answers.directorNote) payload.directorNote = answers.directorNote;
     } else {
-      payload.driveLink = driveInput.value.trim();
-      if (tempo) payload.tempo = tempo;
-      if (voice) payload.voiceGender = voice;
-      if (voiceAge) payload.voiceAge = voiceAge;
+      payload.driveLink = answers.driveLink || '';
+      if (answers.mediaNote) payload.mediaNote = answers.mediaNote;
+      if (answers.voiceGender) payload.voiceGender = answers.voiceGender;
+      if (answers.voiceAge) payload.voiceAge = answers.voiceAge;
     }
 
     try {
-      const res = await fetch(WEBHOOK_URL, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
-      });
+      const res = await fetch(WEBHOOK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
       const data = await res.json().catch(() => null);
       if (!res.ok || (data && data.ok === false)) throw new Error((data && data.message) || '요청이 거부됐어요.');
-      status.textContent = '신청이 접수됐어요. 잠시 후 내 프로젝트로 이동합니다.';
-      status.className = 'form-status ok';
+      addMsg('bot', '접수됐어요! 잠시 후 내 프로젝트로 이동할게요.');
+      chatInputArea.innerHTML = '';
+      status.textContent = ''; status.className = 'form-status ok';
       setTimeout(() => { location.href = './dashboard.html'; }, 1400);
     } catch (err) {
       status.textContent = err.message || '접수 중 문제가 생겼어요.';
       status.className = 'form-status err';
-      submitBtn.disabled = false;
     }
+  }
+
+  document.getElementById('btn-mode-topic').addEventListener('click', () => { if (mode !== 'topic') startChat('topic'); });
+  document.getElementById('btn-mode-media').addEventListener('click', () => { if (mode !== 'media') startChat('media'); });
+  document.getElementById('new-chat-btn').addEventListener('click', () => startChat(mode));
+
+  document.querySelectorAll('#tab-row button, .example-card').forEach(el => {
+    el.addEventListener('click', () => { if (el.dataset.topic) startChat('topic', el.dataset.topic); });
   });
 
-  document.getElementById('logout-btn').addEventListener('click', () => {
-    sessionStorage.removeItem('rw_id_token');
-    location.reload();
+  const toast = document.getElementById('soon-toast');
+  document.querySelectorAll('.soon-btn').forEach(btn => {
+    btn.addEventListener('click', () => { toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 1800); });
   });
 
-  // ---- login gate ----
+  document.getElementById('logout-btn').addEventListener('click', () => { sessionStorage.removeItem('rw_id_token'); location.reload(); });
+
+  /* ===================== 로그인 게이트 ===================== */
   function enterApp(idToken) {
     const profile = decodeJwt(idToken);
     if (!profile) return;
@@ -484,6 +476,7 @@
     document.getElementById('app').style.display = 'block';
     document.getElementById('account-avatar').src = profile.picture || '';
     document.getElementById('account-name').textContent = profile.name || profile.email || '';
+    startChat('topic');
   }
   window.handleGoogleSignIn = function (response) {
     sessionStorage.setItem('rw_id_token', response.credential);
