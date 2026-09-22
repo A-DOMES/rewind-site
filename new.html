@@ -205,7 +205,8 @@
   const FIELD_LABEL = {
     topic: '주제', productLink: '제품 링크', target: '타겟', form: '영상 형태', tempo: '말하기 속도',
     voiceGender: '목소리', voiceAge: '목소리 연령대', directorNote: '연출 메모',
-    driveLink: '드라이브 링크', mediaNote: '분위기 메모'
+    driveLink: '드라이브 링크', mediaNote: '분위기 메모',
+    sceneCount: '장면 수', videoLength: '영상 길이', estimatedPrice: '예상 비용'
   };
 
   function decodeJwt(token) {
@@ -279,7 +280,13 @@
       if (data.mode) mode = data.mode;
       if (data.collected) Object.assign(answers, data.collected);
       if (data.reply) { addMsg('bot', renderReply(data.reply)); history.push({ role: 'bot', text: data.reply }); }
-      if (data.complete) { showSummary(); } else { renderComposer(); }
+      const 필수충족 = mode === 'media' ? !!answers.driveLink : !!(answers.topic && answers.form);
+      if (data.complete && 필수충족) {
+        showSummary();
+      } else {
+        if (data.complete && !필수충족) console.warn('[전체 상담 Agent] complete:true였지만 필수 항목 누락 - 계속 진행', answers);
+        renderComposer();
+      }
     } catch (e) {
       console.error('[전체 상담 Agent 호출 실패]', e);
       addMsg('bot', '죄송해요, 잠시 문제가 있었어요. 다시 한번 말씀해주시겠어요?');
@@ -345,6 +352,9 @@
       if (answers.voiceAge) payload.voiceAge = answers.voiceAge;
       if (answers.directorNote) payload.directorNote = answers.directorNote;
     }
+    if (answers.sceneCount) payload.sceneCount = answers.sceneCount;
+    if (answers.videoLength) payload.videoLength = answers.videoLength;
+    if (answers.estimatedPrice) payload.estimatedPrice = answers.estimatedPrice;
 
     try {
       const res = await fetch(WEBHOOK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
@@ -372,7 +382,7 @@
     if (pastProjects.length === 0) {
       greeting = (name ? `안녕하세요, ${escapeHtml(name)}님! ` : '안녕하세요! ') +
         '리와인드에 처음 오셨네요. 주제 하나만 말씀해주시면 대본부터 목소리, 장면까지 AI가 전부 만들어드려요. ' +
-        '판매하시는 제품이 있으신가요, 아니면 갖고 계신 사진·영상으로 만들어드릴까요? 위 예시를 눌러보셔도 좋아요.';
+        '어떤 걸 만들어드릴까요? 위 예시를 눌러보셔도 좋아요.';
     } else {
       const last = pastProjects[0];
       greeting = `다시 오셨네요! ${last && last.title ? `지난번 "${escapeHtml(last.title)}" 이후로 ` : ''}이번엔 어떤 영상을 만들어볼까요?`;
