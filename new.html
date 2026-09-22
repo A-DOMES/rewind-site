@@ -271,12 +271,13 @@
         body: JSON.stringify({ idToken: googleIdToken, history, message: text, pastProjects })
       });
       const data = await res.json().catch(() => null);
-      if (!res.ok || !data || data.ok === false) throw new Error('응답을 받지 못했어요.');
+      if (!res.ok || !data || data.ok === false) throw new Error(`요청 실패 (status: ${res.status}, ok: ${res.ok}, data: ${JSON.stringify(data)})`);
       if (data.mode) mode = data.mode;
       if (data.collected) Object.assign(answers, data.collected);
       if (data.reply) { addMsg('bot', escapeHtml(data.reply)); history.push({ role: 'bot', text: data.reply }); }
       if (data.complete) { showSummary(); } else { renderComposer(); }
     } catch (e) {
+      console.error('[전체 상담 Agent 호출 실패]', e);
       addMsg('bot', '죄송해요, 잠시 문제가 있었어요. 다시 한번 말씀해주시겠어요?');
       renderComposer();
     }
