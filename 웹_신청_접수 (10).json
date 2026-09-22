@@ -1,0 +1,295 @@
+{
+  "name": "웹 신청 접수",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "web-request",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        1056,
+        -624
+      ],
+      "id": "184ec4db-be42-4841-8d4f-d368e4bd8f65",
+      "name": "웹 신청 접수 Webhook",
+      "webhookId": "web-request-webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $json.body || {};\nconst name = String(body.name || '').trim();\nconst contact = String(body.contact || '').trim();\nconst mode = body.mode === 'media' ? 'media' : 'topic';\n\nif (!name || !contact) {\n  throw new Error('필수값 누락: 이름/연락처가 비어있습니다.');\n}\nif (body.termsConsent !== true) {\n  throw new Error('이용약관 동의가 필요합니다.');\n}\nif (mode === 'topic' && !String(body.topic || '').trim()) {\n  throw new Error('필수값 누락: 주제가 비어있습니다.');\n}\nif (mode === 'media' && !String(body.driveLink || '').trim()) {\n  throw new Error('필수값 누락: 드라이브 폴더 링크가 비어있습니다.');\n}\n\n// ID를 \"년월일시분초\"(YYMMDDHHmmss, 12자리) 형식으로 생성 - 기존 시트 행들의 ID 규칙과 동일하게 맞춤\n// KST(한국 시간) 기준으로 생성\nconst nowKST = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));\nconst pad = (n) => String(n).padStart(2, '0');\nconst MAX_NOTE_LEN = 500;\nconst MAX_TOPIC_LEN = 300;\n\nconst ID = [\n  String(nowKST.getFullYear()).slice(2),\n  pad(nowKST.getMonth() + 1),\n  pad(nowKST.getDate()),\n  pad(nowKST.getHours()),\n  pad(nowKST.getMinutes()),\n  pad(nowKST.getSeconds())\n].join('');\n\n// 시트 행으로 조립 — 두 모드 모두 Status='기획'에서 시작 (공통 대본 생성 모듈 / MyMediaFolder 분석 모듈이 각자 조건에 맞는 행만 집어감)\nconst row = {\n  ID,\n  Target: '전체대상',\n  Status: '기획',\n  Form: '쇼츠',\n  신청자이메일: contact,\n  신청자이름: name,\n  결제완료: 'FALSE', // 웹으로 들어온 신청은 결제 확인 전까지 항상 테스트(저비용) 화질로 시작 (안전)\n};\n\nif (mode === 'topic') {\n  row.Subtopic = String(body.topic || '').trim().slice(0, MAX_TOPIC_LEN);\n  row.Keyword = '웹신청';\n\n  // [신규] 고급 옵션 (선택사항) - 입력 안 하면 그냥 기존 자동 로직이 처리\n  if (body.target) row.Target = String(body.target).trim();\n  if (body.productLink) row.제품링크 = String(body.productLink).trim();\n  if (body.form) row.Form = String(body.form).trim();\n  if (body.directorNote) row.연출지시 = String(body.directorNote).trim().slice(0, MAX_NOTE_LEN);\n  if (body.tempo) row.템포 = String(body.tempo).trim();\n\n  // 성별/연령대는 시트의 Voice(이름) 컬럼 체계를 그대로 활용:\n  // 대표 보이스 이름 하나로 매핑해서 넣어주면, 기존 성별매핑 로직이 알아서 처리함\n  if (body.voiceGender === '여성') row.Voice = 'Sarah';\n  else if (body.voiceGender === '남성') row.Voice = 'Daniel';\n  if (body.voiceAge) row.VoiceAge = String(body.voiceAge).trim();\n} else {\n  row.MyMediaFolder = String(body.driveLink || '').trim();\n  // [수정] 이 파이프라인은 연출지시가 아니라 Subtopic을 \"톤/맥락 힌트\"로 읽으므로 Subtopic에 매핑\n  row.Subtopic = String(body.mediaNote || '').trim().slice(0, MAX_NOTE_LEN);\n\n  if (body.voiceGender === '여성') row.Voice = 'Sarah';\n  else if (body.voiceGender === '남성') row.Voice = 'Daniel';\n  if (body.voiceAge) row.VoiceAge = String(body.voiceAge).trim();\n}\n\nreturn [{ json: row }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2144,
+        -656
+      ],
+      "id": "046ba56d-cdc7-4341-a17d-8f04fca663ea",
+      "name": "신청 데이터 검증 및 변환",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1LV5rPihWM6t8J3L2Co585r2cC11Z7sVO-tksjpQfm1U",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 601368926,
+          "mode": "list",
+          "cachedResultName": "Content",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1LV5rPihWM6t8J3L2Co585r2cC11Z7sVO-tksjpQfm1U/edit#gid=601368926"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2384,
+        -656
+      ],
+      "id": "5825ed66-d283-4b07-aac5-b7bc65a4eb36",
+      "name": "시트에 새 행 추가",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ptF2ciqOiTC8OEaD",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"ok\": true, \"message\": \"신청이 접수됐습니다.\" } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2560,
+        -656
+      ],
+      "id": "8ef509f7-0f3e-46d1-9f17-1db31d337b6c",
+      "name": "성공 응답"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"ok\": false, \"message\": $json.error?.message || '처리 중 오류가 발생했습니다.' } }}",
+        "options": {
+          "responseCode": 400
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1488,
+        -400
+      ],
+      "id": "10714f24-79c2-45a3-bb17-a0ef6340ae3c",
+      "name": "실패 응답"
+    },
+    {
+      "parameters": {
+        "url": "=https://oauth2.googleapis.com/tokeninfo?id_token={{ encodeURIComponent($json.body.idToken || '') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1264,
+        -624
+      ],
+      "id": "4626aa68-5caf-47c4-bac4-06033ee6fe2a",
+      "name": "구글 토큰 검증 요청",
+      "continueOnFail": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $('웹 신청 접수 Webhook').item.json.body || {};\nconst tokenInfo = $json; // tokeninfo 응답 (실패 시 error 필드 포함)\nconst GOOGLE_CLIENT_ID = '188637268860-9hj2af4bt8esn506bf5bqs72qnbu0qjs.apps.googleusercontent.com';\n\nconst 유효함 =\n  tokenInfo &&\n  !tokenInfo.error &&\n  tokenInfo.aud === GOOGLE_CLIENT_ID &&\n  tokenInfo.email &&\n  String(tokenInfo.email_verified) === 'true';\n\nif (!유효함) {\n  throw new Error('구글 로그인 검증에 실패했습니다. 로그인 후 다시 시도해주세요.');\n}\n\n// 검증된 이메일/이름만 신뢰하고 사용 (body에 있는 값은 조작 가능하므로 무시)\nreturn [{\n  json: {\n    body: {\n      ...body,\n      name: tokenInfo.name || body.name || '',\n      contact: tokenInfo.email\n    }\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1488,
+        -624
+      ],
+      "id": "3335b7e7-c407-48d4-91fa-84e9a031f8dd",
+      "name": "검증 결과 확인 (aud/이메일)",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1LV5rPihWM6t8J3L2Co585r2cC11Z7sVO-tksjpQfm1U",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 601368926,
+          "mode": "list",
+          "cachedResultName": "Content",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1LV5rPihWM6t8J3L2Co585r2cC11Z7sVO-tksjpQfm1U/edit#gid=601368926"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1696,
+        -640
+      ],
+      "id": "b4a8c5a4-4c58-48d4-a536-293d8e5b6df1",
+      "name": "기존 신청 내역 조회1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ptF2ciqOiTC8OEaD",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const MAX_FREE_TRIALS = 3;\nconst email = $('검증 결과 확인 (aud/이메일)').item.json.body.contact;\nconst rows = $input.all().map(item => item.json);\n\nconst 기존신청수 = rows.filter(r => (r.신청자이메일 || '').trim().toLowerCase() === email.trim().toLowerCase()).length;\n\nif (기존신청수 >= MAX_FREE_TRIALS) {\n  throw new Error('무료체험은 이메일당 최대 ' + MAX_FREE_TRIALS + '회까지 가능합니다. 계속 이용하시려면 결제가 필요해요.');\n}\n\nreturn [{ json: $('검증 결과 확인 (aud/이메일)').item.json }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1920,
+        -640
+      ],
+      "id": "bcff13f2-87bb-4f30-8fdb-afb4a770242e",
+      "name": "무료체험 3회 제한 확인1",
+      "onError": "continueErrorOutput"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "웹 신청 접수 Webhook": {
+      "main": [
+        [
+          {
+            "node": "구글 토큰 검증 요청",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "신청 데이터 검증 및 변환": {
+      "main": [
+        [
+          {
+            "node": "시트에 새 행 추가",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "실패 응답",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "시트에 새 행 추가": {
+      "main": [
+        [
+          {
+            "node": "성공 응답",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "구글 토큰 검증 요청": {
+      "main": [
+        [
+          {
+            "node": "검증 결과 확인 (aud/이메일)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "검증 결과 확인 (aud/이메일)": {
+      "main": [
+        [
+          {
+            "node": "기존 신청 내역 조회1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "실패 응답",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "기존 신청 내역 조회1": {
+      "main": [
+        [
+          {
+            "node": "무료체험 3회 제한 확인1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "무료체험 3회 제한 확인1": {
+      "main": [
+        [
+          {
+            "node": "신청 데이터 검증 및 변환",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "실패 응답",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "ccc90505-05a1-4414-b31e-16c2900e4554",
+  "meta": {
+    "instanceId": "dd60b284eb2d2e9c5af8ecb1fec36abd5544cfd1deab96d5093fcad8aa3dcc01"
+  },
+  "nodeGroups": [],
+  "id": "ucHetj8BNh0dMebI",
+  "tags": []
+}
