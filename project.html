@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>프로젝트 — 리와인드</title>
+<link rel="icon" type="image/png" href="./리와인드_로고1_512px.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+  :root {
+    --bg: #0c0c0c; --bg-raised: #161616; --bg-input: #1c1c1c; --line: #2a2a2a;
+    --ink: #f5f3ee; --ink-dim: #a8a49b; --ink-faint: #6f6b62;
+    --amber: #c68a12; --amber-dim: #7a5a1c; --olive: #d4af37; --focus: #c68a12;
+    --card-shadow: none; --on-amber: #14100a; --err: #c96a5a; --done: #6fae4a;
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      --bg: #fbf3e3; --bg-raised: #ffffff; --bg-input: #ffffff; --line: #eadfc4;
+      --ink: #241c11; --ink-dim: #6b5b3d; --ink-faint: #9c8d6c;
+      --amber: #c68a12; --amber-dim: #f3e1ae; --olive: #8a6d1f;
+      --card-shadow: 0 8px 20px -12px rgba(36,28,17,0.12); --on-amber: #1c1409; --err: #b34a3a; --done: #4f8a35;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0c0c0c; --bg-raised: #161616; --bg-input: #1c1c1c; --line: #2a2a2a;
+    --ink: #f5f3ee; --ink-dim: #a8a49b; --ink-faint: #6f6b62;
+    --amber: #c68a12; --amber-dim: #7a5a1c; --olive: #d4af37;
+    --card-shadow: none; --on-amber: #14100a; --err: #c96a5a; --done: #6fae4a;
+  }
+  :root[data-theme="light"] {
+    --bg: #fbf3e3; --bg-raised: #ffffff; --bg-input: #ffffff; --line: #eadfc4;
+    --ink: #241c11; --ink-dim: #6b5b3d; --ink-faint: #9c8d6c;
+    --amber: #c68a12; --amber-dim: #f3e1ae; --olive: #8a6d1f;
+    --card-shadow: 0 8px 20px -12px rgba(36,28,17,0.12); --on-amber: #1c1409;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: 'IBM Plex Sans KR', -apple-system, sans-serif;
+    line-height: 1.6; word-break: keep-all; overflow-wrap: break-word;
+    padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  h1, h2, .display { font-family: 'Fraunces', serif; font-weight: 500; letter-spacing: -0.01em; margin: 0; }
+  a { color: inherit; }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 0 20px; }
+
+  header.shell {
+    position: sticky; top: 0; z-index: 50;
+    padding: calc(16px + env(safe-area-inset-top, 0px)) 20px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--line);
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(10px);
+  }
+  .logo { display: flex; align-items: center; gap: 8px; font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 600; text-decoration: none; }
+  .logo img { width: 26px; height: 26px; border-radius: 6px; display: block; }
+
+  .breadcrumb {
+    max-width: 640px; margin: 0 auto; padding: 14px 20px 0;
+    display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+    font-size: 0.8rem; color: var(--ink-faint);
+  }
+  .breadcrumb a { color: var(--ink-faint); text-decoration: none; }
+  .breadcrumb a:hover { color: var(--ink-dim); }
+  .breadcrumb .sep { opacity: 0.5; }
+  .breadcrumb .here { color: var(--ink-dim); }
+
+  main { padding: 28px 20px 100px; animation: enter 0.45s ease both; }
+  @keyframes enter { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  @media (prefers-reduced-motion: reduce) { main { animation: none; } }
+
+  #loading, #gate { text-align: center; padding: 80px 20px; color: var(--ink-faint); font-size: 0.92rem; }
+  .spinner {
+    width: 22px; height: 22px; margin: 0 auto 14px;
+    border: 2px solid var(--line); border-top-color: var(--amber); border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #gsi-area { display: flex; justify-content: center; margin-top: 16px; }
+
+  #content { display: none; }
+  .title-row { margin-bottom: 6px; }
+  .title-row h1 { font-size: clamp(1.4rem, 4vw, 1.9rem); }
+  .meta-row { display: flex; gap: 10px; flex-wrap: wrap; color: var(--ink-faint); font-size: 0.85rem; margin-top: 10px; margin-bottom: 32px; }
+  .meta-row .dot { opacity: 0.5; }
+  .badge { border: 1px solid var(--line); border-radius: 20px; padding: 3px 10px; }
+
+  /* ---- status stepper — the centerpiece of this room ---- */
+  .stepper { border: 1px solid var(--line); border-radius: 8px; background: var(--bg-raised); padding: 24px 22px; margin-bottom: 20px; }
+  .status-step-row { display: flex; gap: 14px; }
+  .rail-col { display: flex; flex-direction: column; align-items: center; }
+  .status-dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--line); background: var(--bg); flex-shrink: 0; }
+  .status-line { width: 2px; flex: 1; background: var(--line); margin: 4px 0; min-height: 28px; }
+  .status-step-body { padding-bottom: 22px; }
+  .status-step-label { font-weight: 500; color: var(--ink-faint); font-size: 0.96rem; }
+  .status-step-hint { font-size: 0.84rem; color: var(--ink-faint); margin-top: 3px; }
+
+  .status-step-row.done .status-dot { border-color: var(--olive); background: var(--olive); }
+  .status-step-row.done .status-line { background: var(--olive); }
+  .status-step-row.done .status-step-label { color: var(--ink-dim); }
+
+  .status-step-row.current .status-dot { border-color: var(--amber); background: var(--amber); box-shadow: 0 0 0 4px color-mix(in srgb, var(--amber) 20%, transparent); }
+  .status-step-row.current .status-step-label { color: var(--ink); }
+  .status-step-row.current .status-step-hint { color: var(--amber); }
+
+  .status-step-row.error .status-dot { border-color: var(--err); background: var(--err); }
+  .status-step-row.error .status-step-label { color: var(--ink); }
+  .status-step-row.error .status-step-hint { color: var(--err); }
+
+  /* ---- video-ready card ---- */
+  .video-card {
+    border: 1px solid var(--amber-dim); border-radius: 8px; padding: 26px 22px; margin-bottom: 20px;
+    background: linear-gradient(160deg, color-mix(in srgb, var(--amber) 8%, var(--bg-raised)), var(--bg-raised));
+    text-align: center;
+  }
+  .video-card .mark { width: 48px; height: 48px; margin: 0 auto 14px; border-radius: 50%; border: 1px solid var(--amber-dim); color: var(--amber); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+  .video-card h2 { font-size: 1.15rem; margin-bottom: 6px; }
+  .video-card p { color: var(--ink-dim); font-size: 0.9rem; margin: 0 0 18px; }
+
+  .btn-primary {
+    background: var(--amber); color: var(--on-amber); font-weight: 600; border: none;
+    padding: 13px 24px; border-radius: 4px; font-size: 0.96rem; cursor: pointer;
+    text-decoration: none; display: inline-block;
+  }
+  .btn-ghost {
+    background: transparent; color: var(--ink-dim); border: 1px solid var(--line);
+    padding: 13px 20px; border-radius: 4px; font-size: 0.92rem; cursor: pointer; font-family: inherit; text-decoration: none; display: inline-block;
+  }
+
+  .back-row { margin-top: 28px; text-align: center; }
+
+  /* ---- 진행 상담 채팅 ---- */
+  .agent-card { border: 1px solid var(--line); border-radius: 10px; background: var(--bg-raised); padding: 18px; margin-bottom: 20px; }
+  .agent-card-head { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; font-weight: 600; margin-bottom: 12px; }
+  .agent-card-head .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--amber); }
+  .agent-log { display: flex; flex-direction: column; gap: 12px; max-height: 40vh; overflow-y: auto; margin-bottom: 12px; }
+  .agent-log:empty { display: none; }
+  .amsg { display: flex; gap: 8px; max-width: 90%; }
+  .amsg.bot { align-self: flex-start; }
+  .amsg.user { align-self: flex-end; margin-left: auto; }
+  .amsg .bubble { background: var(--bg-input); border: 1px solid var(--line); border-radius: 12px; padding: 9px 13px; font-size: 0.88rem; color: var(--ink); }
+  .amsg.user .bubble { background: var(--amber); color: var(--on-amber); border-color: transparent; }
+  .agent-input-row { display: flex; gap: 8px; }
+  .agent-input-row input {
+    flex: 1; background: var(--bg-input); border: 1px solid var(--line); color: var(--ink);
+    padding: 10px 12px; border-radius: 8px; font-size: 0.9rem; font-family: inherit;
+  }
+  .agent-input-row input:focus { outline: 1px solid var(--amber); }
+  .agent-send { width: 36px; height: 36px; border-radius: 50%; background: var(--amber); color: var(--on-amber); border: none; cursor: pointer; font-size: 0.95rem; flex-shrink: 0; }
+  .agent-send:disabled { opacity: 0.4; cursor: not-allowed; }
+  .agent-thinking { color: var(--ink-faint); font-size: 0.82rem; }
+
+</style>
+</head>
+<body>
+
+<header class="shell">
+  <a class="logo" href="./dashboard.html"><img src="./리와인드_로고1_512px.png" alt=""> 리와인드</a>
+</header>
+
+<nav class="breadcrumb" aria-label="현재 위치">
+  <a href="./index.html">리와인드</a>
+  <span class="sep">›</span>
+  <a href="./dashboard.html">내 프로젝트</a>
+  <span class="sep">›</span>
+  <span class="here" id="crumb-title">불러오는 중…</span>
+</nav>
+
+<main class="wrap">
+
+  <div id="gate">
+    <p>이 프로젝트를 보려면 로그인해주세요.</p>
+    <div id="gsi-area"></div>
+  </div>
+
+  <div id="loading" style="display:none;">
+    <div class="spinner"></div>
+    불러오고 있어요…
+  </div>
+
+  <div id="not-found" style="display:none; text-align:center; padding:60px 0; color:var(--ink-faint);">
+    <p>이 프로젝트를 찾을 수 없어요. 삭제되었거나 다른 계정의 프로젝트일 수 있어요.</p>
+    <a class="btn-ghost" href="./dashboard.html" style="margin-top:12px;">내 프로젝트로 돌아가기</a>
+  </div>
+
+  <div id="content">
+    <div class="title-row">
+      <h1 id="proj-title"></h1>
+    </div>
+    <div class="meta-row">
+      <span class="badge" id="proj-form"></span>
+      <span class="dot">·</span>
+      <span id="proj-date"></span>
+    </div>
+
+    <div id="video-card" class="video-card" style="display:none;">
+      <div class="mark">▶</div>
+      <h2>영상이 완성됐어요</h2>
+      <p>아래 버튼으로 바로 확인하실 수 있어요.</p>
+      <a class="btn-primary" id="video-link" href="#" target="_blank" rel="noopener">완성된 영상 보기</a>
+      <p style="margin-top:16px; font-size:0.78rem; color:var(--ink-faint); line-height:1.6;">
+        이 링크는 신청하실 때 사용하신 이메일(<span id="video-note-email"></span>)로 인식해서 찾아드린 영상이에요.<br>
+        <strong style="color:var(--ink-dim);">렌더링 서버에는 최대 7일까지만 보관</strong>되니, 꼭 필요하시면 기간 안에 다운로드해두세요.
+      </p>
+    </div>
+
+    <div class="stepper" id="stepper"></div>
+
+    <div class="agent-card">
+      <div class="agent-card-head"><span class="dot"></span> 궁금한 게 있으면 물어보세요</div>
+      <div class="agent-log" id="agent-log"></div>
+      <div class="agent-input-row" id="agent-input-row">
+        <input type="text" id="agent-text-field" placeholder="예: 왜 이렇게 오래 걸려요?">
+        <button class="agent-send" id="agent-send-btn" disabled>→</button>
+      </div>
+    </div>
+
+    <div class="back-row">
+      <a class="btn-ghost" href="./dashboard.html">← 내 프로젝트로 돌아가기</a>
+    </div>
+  </div>
+
+</main>
+
+<script>
+(() => {
+  const PROJECTS_WEBHOOK_URL = 'https://bald-buffalo.pikapod.net/webhook/my-projects';
+  const PROGRESS_CONSULT_WEBHOOK_URL = 'https://bald-buffalo.pikapod.net/webhook/progress-consult';
+  const GOOGLE_CLIENT_ID = '188637268860-9hj2af4bt8esn506bf5bqs72qnbu0qjs.apps.googleusercontent.com';
+  let currentIdToken = null;
+  let currentProject = null;
+  let agentHistory = [];
+
+  const STEP_ORDER = ['기획', '제작 중', '검수 대기', '검수완료', '배포'];
+  const STEP_LABEL = {
+    '기획': '대본을 준비하고 있어요',
+    '제작 중': '장면과 목소리를 만들고 있어요',
+    '검수 대기': '제작자가 확인하고 있어요',
+    '검수완료': '정식 영상으로 마무리 중이에요',
+    '배포': '완성됐어요',
+  };
+  const STEP_HINT = {
+    '기획': '약 5분 이내',
+    '제작 중': '약 10~20분',
+    '검수 대기': '',
+    '검수완료': '약 5~10분',
+    '배포': '이메일도 함께 보내드렸어요',
+  };
+
+  function getParam(name) {
+    return new URLSearchParams(location.search).get(name);
+  }
+  function decodeJwt(token) {
+    try {
+      const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      const json = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+      return JSON.parse(json);
+    } catch (e) { return null; }
+  }
+  function escapeHtml(s) {
+    return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function renderStepper(status, errorLog) {
+    const idx = STEP_ORDER.indexOf(status);
+    const container = document.getElementById('stepper');
+    container.innerHTML = STEP_ORDER.map((step, i) => {
+      let cls = '';
+      if (errorLog && i === idx) cls = 'error';
+      else if (i < idx) cls = 'done';
+      else if (i === idx) cls = 'current';
+      const isLast = i === STEP_ORDER.length - 1;
+      const hint = cls === 'error' ? errorLog : (cls === 'current' || cls === 'done' || cls === 'error') ? STEP_HINT[step] : '';
+      return `
+        <div class="status-step-row ${cls}">
+          <div class="rail-col">
+            <div class="status-dot"></div>
+            ${isLast ? '' : '<div class="status-line"></div>'}
+          </div>
+          <div class="status-step-body">
+            <div class="status-step-label">${escapeHtml(STEP_LABEL[step] || step)}</div>
+            ${hint ? `<div class="status-step-hint">${escapeHtml(hint)}</div>` : ''}
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function renderProject(p) {
+    currentProject = p;
+    document.getElementById('crumb-title').textContent = p.title || '주제 준비 중';
+    document.getElementById('proj-title').textContent = p.title || '주제 준비 중';
+    document.getElementById('proj-form').textContent = p.form || '쇼츠';
+    document.getElementById('proj-date').textContent = p.createdAt ? ('신청일 ' + p.createdAt) : '';
+
+    if (p.videoUrl) {
+      document.getElementById('video-card').style.display = 'block';
+      document.getElementById('video-link').href = p.videoUrl;
+    }
+    renderStepper(p.status, p.errorLog);
+    setupAgentChat();
+
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('content').style.display = 'block';
+  }
+
+  function agentEscapeHtml(s) { return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  function addAgentMsg(role, text) {
+    const log = document.getElementById('agent-log');
+    const el = document.createElement('div');
+    el.className = 'amsg ' + role;
+    el.innerHTML = `<div class="bubble">${agentEscapeHtml(text)}</div>`;
+    log.appendChild(el);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function setupAgentChat() {
+    const log = document.getElementById('agent-log');
+    if (log.dataset.ready) return; // 이미 초기화됐으면 다시 인사하지 않음
+    log.dataset.ready = '1';
+    const input = document.getElementById('agent-text-field');
+    const send = document.getElementById('agent-send-btn');
+    input.addEventListener('input', () => { send.disabled = !input.value.trim(); });
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && input.value.trim()) sendAgentMessage(input.value.trim()); });
+    send.addEventListener('click', () => { if (input.value.trim()) sendAgentMessage(input.value.trim()); });
+  }
+
+  async function sendAgentMessage(text) {
+    const input = document.getElementById('agent-text-field');
+    const row = document.getElementById('agent-input-row');
+    addAgentMsg('user', text);
+    agentHistory.push({ role: 'user', text });
+    input.value = '';
+    row.style.display = 'none';
+    document.getElementById('agent-log').insertAdjacentHTML('beforeend', '<div class="agent-thinking" id="agent-thinking">생각하고 있어요…</div>');
+    try {
+      const res = await fetch(PROGRESS_CONSULT_WEBHOOK_URL, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken: currentIdToken, history: agentHistory, message: text, project: currentProject })
+      });
+      const data = await res.json().catch(() => null);
+      document.getElementById('agent-thinking')?.remove();
+      if (!res.ok || !data || data.ok === false) throw new Error(`요청 실패 (status: ${res.status}, ok: ${res.ok}, data: ${JSON.stringify(data)})`);
+      if (data.reply) { addAgentMsg('bot', data.reply); agentHistory.push({ role: 'bot', text: data.reply }); }
+    } catch (e) {
+      console.error('[진행 상담 Agent 호출 실패]', e);
+      document.getElementById('agent-thinking')?.remove();
+      addAgentMsg('bot', '죄송해요, 잠시 문제가 있었어요. 다시 한번 여쭤봐주시겠어요?');
+    } finally {
+      row.style.display = 'flex';
+      document.getElementById('agent-send-btn').disabled = true;
+      input.focus();
+    }
+  }
+
+  async function loadProject(idToken) {
+    currentIdToken = idToken;
+    const targetId = getParam('id');
+    document.getElementById('loading').style.display = 'block';
+    const profile = decodeJwt(idToken);
+    if (profile && profile.email) document.getElementById('video-note-email').textContent = profile.email;
+    try {
+      const res = await fetch(PROJECTS_WEBHOOK_URL, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idToken })
+      });
+      const data = await res.json().catch(() => null);
+      const projects = (data && data.projects) || [];
+      const found = targetId ? projects.find(p => p.id === targetId) : projects[0];
+      document.getElementById('loading').style.display = 'none';
+      if (!found) { document.getElementById('not-found').style.display = 'block'; return; }
+      renderProject(found);
+    } catch (e) {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('not-found').style.display = 'block';
+    }
+  }
+
+  window.handleGoogleSignIn = function (response) {
+    const data = decodeJwt(response.credential);
+    if (!data) return;
+    sessionStorage.setItem('rw_id_token', response.credential);
+    document.getElementById('gate').style.display = 'none';
+    loadProject(response.credential);
+  };
+
+  function init() {
+    if (window.google && google.accounts && google.accounts.id) {
+      google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: window.handleGoogleSignIn });
+      google.accounts.id.renderButton(document.getElementById('gsi-area'), { theme: 'filled_black', size: 'large', text: 'continue_with', shape: 'pill' });
+      const saved = sessionStorage.getItem('rw_id_token');
+      if (saved) {
+        const profile = decodeJwt(saved);
+        if (profile) {
+          document.getElementById('gate').style.display = 'none';
+          loadProject(saved);
+          return;
+        }
+      }
+    } else {
+      setTimeout(init, 200);
+    }
+  }
+  init();
+})();
+</script>
+
+</body>
+</html>
