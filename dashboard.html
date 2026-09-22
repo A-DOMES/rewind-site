@@ -11,26 +11,26 @@
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
   :root {
-    --bg: #fbf3e3; --bg-raised: #ffffff; --bg-input: #ffffff; --line: #eadfc4;
-    --ink: #241c11; --ink-dim: #6b5b3d; --ink-faint: #9c8d6c;
-    --amber: #c68a12; --amber-dim: #f3e1ae; --olive: #8a6d1f; --focus: #c68a12;
-    --card-shadow: 0 8px 20px -12px rgba(36,28,17,0.12); --on-amber: #1c1409;
-    --status-plan: #9c8d6c; --status-making: #c68a12; --status-review: #8a6d1f;
-    --status-final: #4c8a82; --status-done: #4f8a35; --status-error: #b34a3a;
+    --bg: #0c0c0c; --bg-raised: #161616; --bg-input: #1c1c1c; --line: #2a2a2a;
+    --ink: #f5f3ee; --ink-dim: #a8a49b; --ink-faint: #6f6b62;
+    --amber: #c68a12; --amber-dim: #7a5a1c; --olive: #d4af37; --focus: #c68a12;
+    --card-shadow: none; --on-amber: #14100a;
+    --status-plan: #6f6b62; --status-making: #c68a12; --status-review: #d4af37;
+    --status-final: #4c8a82; --status-done: #6fae4a; --status-error: #c96a5a;
   }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --bg: #0b0a09; --bg-raised: #17140f; --bg-input: #1c1811; --line: #322a1c;
-      --ink: #f7f2e8; --ink-dim: #c2b6a0; --ink-faint: #8a7d67;
-      --amber: #f4b93c; --amber-dim: #7a5a1c; --olive: #d4af37;
-      --card-shadow: none; --on-amber: #140d04;
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      --bg: #fbf3e3; --bg-raised: #ffffff; --bg-input: #ffffff; --line: #eadfc4;
+      --ink: #241c11; --ink-dim: #6b5b3d; --ink-faint: #9c8d6c;
+      --amber: #c68a12; --amber-dim: #f3e1ae; --olive: #8a6d1f;
+      --card-shadow: 0 8px 20px -12px rgba(36,28,17,0.12); --on-amber: #1c1409;
     }
   }
   :root[data-theme="dark"] {
-    --bg: #0b0a09; --bg-raised: #17140f; --bg-input: #1c1811; --line: #322a1c;
-    --ink: #f7f2e8; --ink-dim: #c2b6a0; --ink-faint: #8a7d67;
-    --amber: #f4b93c; --amber-dim: #7a5a1c; --olive: #d4af37;
-    --card-shadow: none; --on-amber: #140d04;
+    --bg: #0c0c0c; --bg-raised: #161616; --bg-input: #1c1c1c; --line: #2a2a2a;
+    --ink: #f5f3ee; --ink-dim: #a8a49b; --ink-faint: #6f6b62;
+    --amber: #c68a12; --amber-dim: #7a5a1c; --olive: #d4af37;
+    --card-shadow: none; --on-amber: #14100a;
   }
   :root[data-theme="light"] {
     --bg: #fbf3e3; --bg-raised: #ffffff; --bg-input: #ffffff; --line: #eadfc4;

@@ -11,24 +11,24 @@
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
   :root {
-    --bg: #fbf3e3; --bg-raised: #ffffff; --bg-input: #ffffff; --line: #eadfc4;
-    --ink: #241c11; --ink-dim: #6b5b3d; --ink-faint: #9c8d6c;
-    --amber: #c68a12; --amber-dim: #f3e1ae; --olive: #8a6d1f; --focus: #c68a12;
-    --card-shadow: 0 8px 20px -12px rgba(36,28,17,0.12); --on-amber: #1c1409; --err: #b34a3a; --done: #4f8a35;
+    --bg: #0c0c0c; --bg-raised: #161616; --bg-input: #1c1c1c; --line: #2a2a2a;
+    --ink: #f5f3ee; --ink-dim: #a8a49b; --ink-faint: #6f6b62;
+    --amber: #c68a12; --amber-dim: #7a5a1c; --olive: #d4af37; --focus: #c68a12;
+    --card-shadow: none; --on-amber: #14100a; --err: #c96a5a; --done: #6fae4a;
   }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --bg: #0b0a09; --bg-raised: #17140f; --bg-input: #1c1811; --line: #322a1c;
-      --ink: #f7f2e8; --ink-dim: #c2b6a0; --ink-faint: #8a7d67;
-      --amber: #f4b93c; --amber-dim: #7a5a1c; --olive: #d4af37;
-      --card-shadow: none; --on-amber: #140d04;
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      --bg: #fbf3e3; --bg-raised: #ffffff; --bg-input: #ffffff; --line: #eadfc4;
+      --ink: #241c11; --ink-dim: #6b5b3d; --ink-faint: #9c8d6c;
+      --amber: #c68a12; --amber-dim: #f3e1ae; --olive: #8a6d1f;
+      --card-shadow: 0 8px 20px -12px rgba(36,28,17,0.12); --on-amber: #1c1409; --err: #b34a3a; --done: #4f8a35;
     }
   }
   :root[data-theme="dark"] {
-    --bg: #0b0a09; --bg-raised: #17140f; --bg-input: #1c1811; --line: #322a1c;
-    --ink: #f7f2e8; --ink-dim: #c2b6a0; --ink-faint: #8a7d67;
-    --amber: #f4b93c; --amber-dim: #7a5a1c; --olive: #d4af37;
-    --card-shadow: none; --on-amber: #140d04;
+    --bg: #0c0c0c; --bg-raised: #161616; --bg-input: #1c1c1c; --line: #2a2a2a;
+    --ink: #f5f3ee; --ink-dim: #a8a49b; --ink-faint: #6f6b62;
+    --amber: #c68a12; --amber-dim: #7a5a1c; --olive: #d4af37;
+    --card-shadow: none; --on-amber: #14100a; --err: #c96a5a; --done: #6fae4a;
   }
   :root[data-theme="light"] {
     --bg: #fbf3e3; --bg-raised: #ffffff; --bg-input: #ffffff; --line: #eadfc4;
@@ -132,6 +132,28 @@
   }
 
   .back-row { margin-top: 28px; text-align: center; }
+
+  /* ---- 진행 상담 채팅 ---- */
+  .agent-card { border: 1px solid var(--line); border-radius: 10px; background: var(--bg-raised); padding: 18px; margin-bottom: 20px; }
+  .agent-card-head { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; font-weight: 600; margin-bottom: 12px; }
+  .agent-card-head .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--amber); }
+  .agent-log { display: flex; flex-direction: column; gap: 12px; max-height: 40vh; overflow-y: auto; margin-bottom: 12px; }
+  .agent-log:empty { display: none; }
+  .amsg { display: flex; gap: 8px; max-width: 90%; }
+  .amsg.bot { align-self: flex-start; }
+  .amsg.user { align-self: flex-end; margin-left: auto; }
+  .amsg .bubble { background: var(--bg-input); border: 1px solid var(--line); border-radius: 12px; padding: 9px 13px; font-size: 0.88rem; color: var(--ink); }
+  .amsg.user .bubble { background: var(--amber); color: var(--on-amber); border-color: transparent; }
+  .agent-input-row { display: flex; gap: 8px; }
+  .agent-input-row input {
+    flex: 1; background: var(--bg-input); border: 1px solid var(--line); color: var(--ink);
+    padding: 10px 12px; border-radius: 8px; font-size: 0.9rem; font-family: inherit;
+  }
+  .agent-input-row input:focus { outline: 1px solid var(--amber); }
+  .agent-send { width: 36px; height: 36px; border-radius: 50%; background: var(--amber); color: var(--on-amber); border: none; cursor: pointer; font-size: 0.95rem; flex-shrink: 0; }
+  .agent-send:disabled { opacity: 0.4; cursor: not-allowed; }
+  .agent-thinking { color: var(--ink-faint); font-size: 0.82rem; }
+
 </style>
 </head>
 <body>
@@ -180,9 +202,22 @@
       <h2>영상이 완성됐어요</h2>
       <p>아래 버튼으로 바로 확인하실 수 있어요.</p>
       <a class="btn-primary" id="video-link" href="#" target="_blank" rel="noopener">완성된 영상 보기</a>
+      <p style="margin-top:16px; font-size:0.78rem; color:var(--ink-faint); line-height:1.6;">
+        이 링크는 신청하실 때 사용하신 이메일(<span id="video-note-email"></span>)로 인식해서 찾아드린 영상이에요.<br>
+        <strong style="color:var(--ink-dim);">렌더링 서버에는 최대 7일까지만 보관</strong>되니, 꼭 필요하시면 기간 안에 다운로드해두세요.
+      </p>
     </div>
 
     <div class="stepper" id="stepper"></div>
+
+    <div class="agent-card">
+      <div class="agent-card-head"><span class="dot"></span> 궁금한 게 있으면 물어보세요</div>
+      <div class="agent-log" id="agent-log"></div>
+      <div class="agent-input-row" id="agent-input-row">
+        <input type="text" id="agent-text-field" placeholder="예: 왜 이렇게 오래 걸려요?">
+        <button class="agent-send" id="agent-send-btn" disabled>→</button>
+      </div>
+    </div>
 
     <div class="back-row">
       <a class="btn-ghost" href="./dashboard.html">← 내 프로젝트로 돌아가기</a>
@@ -194,7 +229,11 @@
 <script>
 (() => {
   const PROJECTS_WEBHOOK_URL = 'https://bald-buffalo.pikapod.net/webhook/my-projects';
+  const PROGRESS_CONSULT_WEBHOOK_URL = 'https://bald-buffalo.pikapod.net/webhook/progress-consult';
   const GOOGLE_CLIENT_ID = '188637268860-9hj2af4bt8esn506bf5bqs72qnbu0qjs.apps.googleusercontent.com';
+  let currentIdToken = null;
+  let currentProject = null;
+  let agentHistory = [];
 
   const STEP_ORDER = ['기획', '제작 중', '검수 대기', '검수완료', '배포'];
   const STEP_LABEL = {
@@ -251,6 +290,7 @@
   }
 
   function renderProject(p) {
+    currentProject = p;
     document.getElementById('crumb-title').textContent = p.title || '주제 준비 중';
     document.getElementById('proj-title').textContent = p.title || '주제 준비 중';
     document.getElementById('proj-form').textContent = p.form || '쇼츠';
@@ -261,14 +301,67 @@
       document.getElementById('video-link').href = p.videoUrl;
     }
     renderStepper(p.status, p.errorLog);
+    setupAgentChat();
 
     document.getElementById('loading').style.display = 'none';
     document.getElementById('content').style.display = 'block';
   }
 
+  function agentEscapeHtml(s) { return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  function addAgentMsg(role, text) {
+    const log = document.getElementById('agent-log');
+    const el = document.createElement('div');
+    el.className = 'amsg ' + role;
+    el.innerHTML = `<div class="bubble">${agentEscapeHtml(text)}</div>`;
+    log.appendChild(el);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function setupAgentChat() {
+    const log = document.getElementById('agent-log');
+    if (log.dataset.ready) return; // 이미 초기화됐으면 다시 인사하지 않음
+    log.dataset.ready = '1';
+    const input = document.getElementById('agent-text-field');
+    const send = document.getElementById('agent-send-btn');
+    input.addEventListener('input', () => { send.disabled = !input.value.trim(); });
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && input.value.trim()) sendAgentMessage(input.value.trim()); });
+    send.addEventListener('click', () => { if (input.value.trim()) sendAgentMessage(input.value.trim()); });
+  }
+
+  async function sendAgentMessage(text) {
+    const input = document.getElementById('agent-text-field');
+    const row = document.getElementById('agent-input-row');
+    addAgentMsg('user', text);
+    agentHistory.push({ role: 'user', text });
+    input.value = '';
+    row.style.display = 'none';
+    document.getElementById('agent-log').insertAdjacentHTML('beforeend', '<div class="agent-thinking" id="agent-thinking">생각하고 있어요…</div>');
+    try {
+      const res = await fetch(PROGRESS_CONSULT_WEBHOOK_URL, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken: currentIdToken, history: agentHistory, message: text, project: currentProject })
+      });
+      const data = await res.json().catch(() => null);
+      document.getElementById('agent-thinking')?.remove();
+      if (!res.ok || !data || data.ok === false) throw new Error('응답을 받지 못했어요.');
+      if (data.reply) { addAgentMsg('bot', data.reply); agentHistory.push({ role: 'bot', text: data.reply }); }
+    } catch (e) {
+      document.getElementById('agent-thinking')?.remove();
+      addAgentMsg('bot', '죄송해요, 잠시 문제가 있었어요. 다시 한번 여쭤봐주시겠어요?');
+    } finally {
+      row.style.display = 'flex';
+      document.getElementById('agent-send-btn').disabled = true;
+      input.focus();
+    }
+  }
+
   async function loadProject(idToken) {
+    currentIdToken = idToken;
     const targetId = getParam('id');
     document.getElementById('loading').style.display = 'block';
+    const profile = decodeJwt(idToken);
+    if (profile && profile.email) document.getElementById('video-note-email').textContent = profile.email;
     try {
       const res = await fetch(PROJECTS_WEBHOOK_URL, {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idToken })
