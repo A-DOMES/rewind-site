@@ -206,7 +206,7 @@
     topic: '주제', productLink: '제품 링크', target: '타겟', form: '영상 형태', tempo: '말하기 속도',
     voiceGender: '목소리', voiceAge: '목소리 연령대', directorNote: '연출 메모',
     driveLink: '드라이브 링크', mediaNote: '분위기 메모',
-    sceneCount: '장면 수', videoLength: '영상 길이', estimatedPrice: '예상 비용'
+    sceneCount: '장면 수', videoLength: '영상 길이', estimatedPrice: '예상 비용', hookText: '화면 상단 문구'
   };
 
   function decodeJwt(token) {
@@ -300,7 +300,24 @@
     chip.addEventListener('click', () => sendMessage(chip.dataset.topic));
   });
 
+  const LEN_LIMITS = { topic: 300, directorNote: 500, mediaNote: 500, hookText: 18 };
+  function clampAnswersAndWarn() {
+    const truncated = [];
+    Object.keys(LEN_LIMITS).forEach(key => {
+      const limit = LEN_LIMITS[key];
+      const val = answers[key];
+      if (val && val.length > limit) {
+        answers[key] = val.slice(0, limit);
+        truncated.push(`${FIELD_LABEL[key] || key}(${limit}자)`);
+      }
+    });
+    if (truncated.length) {
+      addMsg('bot', `참고로 ${truncated.join(', ')}가 글자수 제한을 넘어서 앞부분만 반영했어요.`);
+    }
+  }
+
   function showSummary() {
+    clampAnswersAndWarn();
     const rows = Object.keys(answers)
       .filter(k => answers[k])
       .map(k => `<div class="summary-row"><span class="k">${FIELD_LABEL[k] || k}</span><span class="v">${escapeHtml(String(answers[k])).slice(0, 60)}</span></div>`)
@@ -354,6 +371,7 @@
       if (answers.voiceAge) payload.voiceAge = answers.voiceAge;
       if (answers.directorNote) payload.directorNote = answers.directorNote;
     }
+    if (answers.hookText) payload.hookText = answers.hookText;
     if (answers.sceneCount) payload.sceneCount = answers.sceneCount;
     if (answers.videoLength) payload.videoLength = answers.videoLength;
     if (answers.estimatedPrice) payload.estimatedPrice = answers.estimatedPrice;
