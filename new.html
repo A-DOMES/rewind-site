@@ -252,6 +252,8 @@
     input.type = 'text';
     input.placeholder = '편하게 이야기해보세요';
     input.id = 'chat-text-field';
+    input.setAttribute('autocomplete', 'off');
+    input.setAttribute('name', 'rewind-chat-msg-' + Date.now()); // 브라우저가 이전 입력값을 이 필드와 연결해 기억하지 못하도록 매번 다른 이름 사용
     const send = document.createElement('button');
     send.className = 'chat-send-btn';
     send.textContent = '→';
