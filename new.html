@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>새 영상 만들기 — 리와인드</title>
+<link rel="icon" type="image/png" href="./리와인드_로고1_512px.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+  :root {
+    --bg: #0c0c0c; --bg-raised: #161616; --bg-input: #1c1c1c; --line: #2a2a2a;
+    --ink: #f5f3ee; --ink-dim: #a8a49b; --ink-faint: #6f6b62;
+    --gold: #c68a12; --on-gold: #14100a; --err: #c96a5a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: 'IBM Plex Sans KR', -apple-system, sans-serif;
+    line-height: 1.6; word-break: keep-all; overflow-wrap: break-word;
+    height: 100vh; overflow: hidden;
+  }
+  h1, h2, h3 { font-family: 'Fraunces', serif; letter-spacing: -0.01em; margin: 0; }
+  a { color: inherit; }
+  button { font-family: inherit; }
+
+  #gate {
+    position: fixed; inset: 0; z-index: 200;
+    background: var(--bg); display: flex; align-items: center; justify-content: center; flex-direction: column;
+    text-align: center; padding: 24px;
+  }
+  #gate .logo { display: flex; align-items: center; gap: 10px; font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 600; margin-bottom: 30px; }
+  #gate .logo img { width: 30px; height: 30px; border-radius: 7px; }
+  #gate h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 10px; }
+  #gate p { color: var(--ink-dim); font-size: 0.95rem; max-width: 40ch; margin: 0 0 26px; }
+  #gsi-area { display: flex; justify-content: center; }
+  #gate .back-link { margin-top: 22px; color: var(--ink-faint); font-size: 0.85rem; text-decoration: none; }
+  #gate .back-link:hover { color: var(--ink-dim); }
+
+  #app { display: none; height: 100vh; }
+  .shell { display: flex; height: 100%; }
+
+  .sidebar { width: 230px; flex-shrink: 0; border-right: 1px solid var(--line); padding: 18px 14px; display: flex; flex-direction: column; }
+  .sidebar .logo { display: flex; align-items: center; gap: 9px; font-family: 'Fraunces', serif; font-weight: 600; font-size: 0.98rem; padding: 6px 6px 20px; }
+  .sidebar .logo img { width: 22px; height: 22px; border-radius: 5px; }
+  .new-chat-btn {
+    display: flex; align-items: center; gap: 8px; width: 100%;
+    background: var(--gold); color: var(--on-gold); border: none; border-radius: 6px;
+    padding: 10px 12px; font-size: 0.88rem; font-weight: 600; cursor: pointer; margin-bottom: 18px;
+  }
+  .side-item {
+    display: flex; align-items: center; gap: 10px; padding: 9px 11px; border-radius: 6px;
+    font-size: 0.88rem; color: var(--ink-dim); cursor: pointer; text-decoration: none; background: none; border: none; width: 100%; text-align: left;
+  }
+  .side-item:hover { background: var(--bg-raised); color: var(--ink); }
+  .side-item.active { background: var(--bg-raised); color: var(--ink); font-weight: 500; }
+  .side-item .soon { margin-left: auto; font-size: 0.68rem; color: var(--ink-faint); border: 1px solid var(--line); padding: 1px 6px; border-radius: 8px; }
+  .side-group-gap { height: 14px; }
+  .sidebar-footer { margin-top: auto; padding-top: 14px; border-top: 1px solid var(--line); }
+  .account-row { display: flex; align-items: center; gap: 9px; padding: 8px 6px; font-size: 0.84rem; color: var(--ink-dim); }
+  .account-row img { width: 22px; height: 22px; border-radius: 50%; }
+  .account-row .logout { margin-left: auto; background: none; border: none; color: var(--ink-faint); font-size: 0.78rem; cursor: pointer; text-decoration: underline; }
+
+  .main { flex: 1; display: flex; flex-direction: column; }
+  .main-top { text-align: center; padding: 20px 24px 0; }
+  .mode-badge {
+    display: inline-flex; align-items: center; gap: 7px;
+    border: 1px solid var(--line); border-radius: 20px; padding: 6px 13px;
+    font-size: 0.78rem; color: var(--ink-dim);
+  }
+  .mode-badge.paid { border-color: color-mix(in srgb, var(--gold) 45%, var(--line)); color: var(--gold); }
+  .mode-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--ink-faint); }
+  .mode-badge.paid .dot { background: var(--gold); }
+
+  .chat-wrap { flex: 1; overflow-y: auto; display: flex; justify-content: center; }
+  .chat-inner { width: 100%; max-width: 640px; padding: 24px 24px 12px; }
+
+  .msg { display: flex; gap: 9px; max-width: 92%; margin-bottom: 16px; }
+  .msg.bot { align-self: flex-start; }
+  .msg.user { align-self: flex-end; flex-direction: row-reverse; margin-left: auto; }
+  .msg .avatar { width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; background: var(--gold); color: var(--on-gold); display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 700; }
+  .msg.user .avatar { visibility: hidden; width: 0; }
+  .msg .bubble { background: var(--bg-raised); border: 1px solid var(--line); border-radius: 14px; padding: 11px 15px; font-size: 0.94rem; color: var(--ink); max-width: 460px; }
+  .msg.user .bubble { background: var(--gold); color: var(--on-gold); border-color: transparent; }
+  .msg.user { justify-content: flex-end; }
+
+  .example-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 4px 0 20px; }
+  .example-chip { background: var(--bg-raised); border: 1px solid var(--line); color: var(--ink-dim); padding: 8px 14px; border-radius: 20px; font-size: 0.82rem; cursor: pointer; }
+  .example-chip:hover { border-color: var(--gold); color: var(--ink); }
+
+  .composer { border-top: 1px solid var(--line); padding: 16px 24px; display: flex; justify-content: center; }
+  .composer-inner { width: 100%; max-width: 640px; }
+  .chat-text-row { display: flex; gap: 8px; }
+  .chat-text-row input {
+    flex: 1; background: var(--bg-input); border: 1px solid var(--line); color: var(--ink);
+    padding: 12px 14px; border-radius: 10px; font-size: 0.95rem; font-family: inherit;
+  }
+  .chat-text-row input:focus { outline: 1px solid var(--gold); }
+  .chat-send-btn {
+    width: 40px; height: 40px; border-radius: 50%; background: var(--gold); color: var(--on-gold);
+    border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem; flex-shrink: 0;
+  }
+  .chat-send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .thinking { color: var(--ink-faint); font-size: 0.85rem; padding: 4px 2px; }
+
+  .summary-card { background: var(--bg-input); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-top: 8px; }
+  .summary-row { display: flex; justify-content: space-between; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 0.85rem; }
+  .summary-row:last-child { border-bottom: none; }
+  .summary-row .k { color: var(--ink-faint); flex-shrink: 0; }
+  .summary-row .v { color: var(--ink); text-align: right; }
+  .confirm-consent { display: flex; align-items: flex-start; gap: 8px; margin: 14px 0; font-size: 0.82rem; color: var(--ink-dim); }
+  .confirm-consent a { color: var(--gold); }
+  .confirm-actions { display: flex; gap: 10px; }
+  .btn-gold-sm { flex: 1; background: var(--gold); color: var(--on-gold); border: none; border-radius: 6px; padding: 11px; font-size: 0.9rem; font-weight: 600; cursor: pointer; text-align: center; }
+  .btn-gold-sm:disabled { opacity: 0.45; cursor: not-allowed; }
+  .btn-line-sm { border: 1px solid var(--line); color: var(--ink-dim); background: none; border-radius: 6px; padding: 11px 16px; font-size: 0.9rem; cursor: pointer; }
+
+  .form-status { text-align: center; font-size: 0.85rem; padding: 6px 24px 0; min-height: 1.2em; }
+  .form-status.err { color: var(--err); }
+  .form-status.ok { color: var(--gold); }
+
+  #soon-toast {
+    position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--bg-raised); border: 1px solid var(--line); border-radius: 8px;
+    padding: 12px 18px; font-size: 0.86rem; color: var(--ink-dim); opacity: 0; pointer-events: none;
+    transition: opacity 0.2s, transform 0.2s; z-index: 100;
+  }
+  #soon-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 760px) { .sidebar { display: none; } }
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <div class="logo"><img src="./리와인드_로고1_512px.png" alt=""> 리와인드</div>
+  <h1>로그인하고 시작하세요</h1>
+  <p>영상 제작을 시작하려면 구글 계정 로그인이 필요해요. 신청 확인, 완성 알림 모두 이 계정으로 안내드려요.</p>
+  <div id="gsi-area"></div>
+  <a class="back-link" href="./index.html">← 돌아가기</a>
+</div>
+
+<div id="app">
+  <div class="shell">
+    <div class="sidebar">
+      <div class="logo"><img src="./리와인드_로고1_512px.png" alt=""> 리와인드</div>
+      <button class="new-chat-btn" id="new-chat-btn">+ 새로 만들기</button>
+      <a class="side-item active" href="./new.html">🏠 홈</a>
+      <a class="side-item" href="./dashboard.html">🎞️ 내 프로젝트</a>
+      <div class="side-group-gap"></div>
+      <button class="side-item soon-btn">🤖 에이전트 <span class="soon">준비 중</span></button>
+      <button class="side-item soon-btn">🧩 앱 <span class="soon">준비 중</span></button>
+      <button class="side-item soon-btn">🔀 워크플로우 <span class="soon">준비 중</span></button>
+      <button class="side-item soon-btn">🎨 브랜드 <span class="soon">준비 중</span></button>
+      <div class="sidebar-footer">
+        <button class="side-item soon-btn">⚙️ 설정 <span class="soon">준비 중</span></button>
+        <div class="account-row">
+          <img id="account-avatar" src="" alt="">
+          <span id="account-name"></span>
+          <button class="logout" id="logout-btn">로그아웃</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="main">
+      <div class="main-top">
+        <span class="mode-badge" id="mode-badge"><span class="dot"></span> <span id="mode-label">체험 모드 · 무료 3회</span></span>
+      </div>
+
+      <div class="chat-wrap">
+        <div class="chat-inner" id="chat-log">
+          <div class="example-row" id="example-row">
+            <button class="example-chip" data-topic="우리 카페의 신메뉴 딸기라떼를 20대에게 홍보하고 싶어요">☕ 카페 신메뉴 홍보</button>
+            <button class="example-chip" data-topic="반려동물 영양제를 소개하는 영상을 만들고 싶어요">🐾 반려동물 용품</button>
+            <button class="example-chip" data-topic="환절기 감기 예방을 위한 건강 정보를 알려주는 영상">🩺 건강정보</button>
+            <button class="example-chip" data-topic="20년지기 친구들과 다녀온 제주도 여행 추억을 담은 영상">🎞️ 추억 영상</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="composer">
+        <div class="composer-inner" id="composer-inner"></div>
+      </div>
+      <p class="form-status" id="form-status"></p>
+    </div>
+  </div>
+</div>
+
+<div id="soon-toast">이 기능은 아직 준비 중이에요.</div>
+
+<script>
+(() => {
+  const WEBHOOK_URL = 'https://bald-buffalo.pikapod.net/webhook/web-request';
+  const CONSULT_WEBHOOK_URL = 'https://bald-buffalo.pikapod.net/webhook/order-consult';
+  const PROJECTS_WEBHOOK_URL = 'https://bald-buffalo.pikapod.net/webhook/my-projects';
+  const GOOGLE_CLIENT_ID = '188637268860-9hj2af4bt8esn506bf5bqs72qnbu0qjs.apps.googleusercontent.com';
+
+  let googleIdToken = null;
+  let pastProjects = [];
+  const params = new URLSearchParams(location.search);
+  const planMode = params.get('mode') === 'paid' ? 'paid' : 'trial';
+
+  const FIELD_LABEL = {
+    topic: '주제', productLink: '제품 링크', target: '타겟', form: '영상 형태', tempo: '말하기 속도',
+    voiceGender: '목소리', voiceAge: '목소리 연령대', directorNote: '연출 메모',
+    driveLink: '드라이브 링크', mediaNote: '분위기 메모'
+  };
+
+  function decodeJwt(token) {
+    try {
+      const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      const json = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+      return JSON.parse(json);
+    } catch (e) { return null; }
+  }
+  function escapeHtml(s) { return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function renderReply(text) {
+    // 이스케이프 먼저, 그 다음 **강조** 표시만 안전하게 <strong>으로 변환 (그 외 마크다운은 무시)
+    return escapeHtml(text).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  }
+
+  const badge = document.getElementById('mode-badge');
+  const modeLabel = document.getElementById('mode-label');
+  if (planMode === 'paid') { badge.classList.add('paid'); modeLabel.textContent = '정식 모드 · 결제 안내가 이메일로 갑니다'; }
+  else { modeLabel.textContent = '체험 모드 · 무료 3회'; }
+
+  const chatLog = document.getElementById('chat-log');
+  const composer = document.getElementById('composer-inner');
+  const exampleRow = document.getElementById('example-row');
+
+  let mode = null;
+  let answers = {};
+  let history = [];
+
+  function addMsg(role, html) {
+    const el = document.createElement('div');
+    el.className = 'msg ' + role;
+    el.innerHTML = `<div class="avatar">R</div><div class="bubble">${html}</div>`;
+    chatLog.appendChild(el);
+    chatLog.parentElement.scrollTop = chatLog.parentElement.scrollHeight;
+    return el;
+  }
+
+  function renderComposer() {
+    composer.innerHTML = '';
+    const row = document.createElement('div');
+    row.className = 'chat-text-row';
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = '편하게 이야기해보세요';
+    input.id = 'chat-text-field';
+    const send = document.createElement('button');
+    send.className = 'chat-send-btn';
+    send.textContent = '→';
+    send.disabled = true;
+    input.addEventListener('input', () => { send.disabled = !input.value.trim(); });
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && input.value.trim()) go(input.value.trim()); });
+    send.addEventListener('click', () => { if (input.value.trim()) go(input.value.trim()); });
+    row.appendChild(input); row.appendChild(send);
+    composer.appendChild(row);
+    setTimeout(() => input.focus(), 50);
+    function go(text) { sendMessage(text); }
+  }
+
+  async function sendMessage(text) {
+    exampleRow.style.display = 'none';
+    addMsg('user', escapeHtml(text));
+    history.push({ role: 'user', text });
+    composer.innerHTML = '<div class="thinking">생각하고 있어요…</div>';
+    try {
+      const res = await fetch(CONSULT_WEBHOOK_URL, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken: googleIdToken, history, message: text, pastProjects })
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data || data.ok === false) throw new Error(`요청 실패 (status: ${res.status}, ok: ${res.ok}, data: ${JSON.stringify(data)})`);
+      if (data.mode) mode = data.mode;
+      if (data.collected) Object.assign(answers, data.collected);
+      if (data.reply) { addMsg('bot', renderReply(data.reply)); history.push({ role: 'bot', text: data.reply }); }
+      if (data.complete) { showSummary(); } else { renderComposer(); }
+    } catch (e) {
+      console.error('[전체 상담 Agent 호출 실패]', e);
+      addMsg('bot', '죄송해요, 잠시 문제가 있었어요. 다시 한번 말씀해주시겠어요?');
+      renderComposer();
+    }
+  }
+
+  document.querySelectorAll('.example-chip').forEach(chip => {
+    chip.addEventListener('click', () => sendMessage(chip.dataset.topic));
+  });
+
+  function showSummary() {
+    const rows = Object.keys(answers)
+      .filter(k => answers[k])
+      .map(k => `<div class="summary-row"><span class="k">${FIELD_LABEL[k] || k}</span><span class="v">${escapeHtml(String(answers[k])).slice(0, 60)}</span></div>`)
+      .join('');
+    addMsg('bot', `이렇게 만들어드릴게요.<div class="summary-card">${rows || '<div class="summary-row"><span class="k">확인된 내용이 없어요</span></div>'}</div>`);
+
+    composer.innerHTML = '';
+    const consentWrap = document.createElement('div');
+    consentWrap.className = 'confirm-consent';
+    consentWrap.innerHTML = `
+      <input type="checkbox" id="terms-consent" style="margin-top:3px;">
+      <label for="terms-consent"><a href="./terms.html" target="_blank">이용약관 및 개인정보 처리방침</a>에 동의합니다.${mode === 'media' ? ' 업로드 원본은 구글 드라이브에 보관되며, 무료체험 후 24시간 안에 결제가 확인되지 않으면 시스템의 분석 정보는 자동 삭제됩니다.' : ''}</label>`;
+    composer.appendChild(consentWrap);
+
+    const actions = document.createElement('div');
+    actions.className = 'confirm-actions';
+    const confirmBtn = document.createElement('button');
+    confirmBtn.className = 'btn-gold-sm';
+    confirmBtn.textContent = '네, 만들어주세요';
+    confirmBtn.disabled = true;
+    const editBtn = document.createElement('button');
+    editBtn.className = 'btn-line-sm';
+    editBtn.textContent = '더 이야기할게요';
+    editBtn.addEventListener('click', renderComposer);
+    actions.appendChild(confirmBtn); actions.appendChild(editBtn);
+    composer.appendChild(actions);
+
+    const consentBox = consentWrap.querySelector('#terms-consent');
+    consentBox.addEventListener('change', () => { confirmBtn.disabled = !consentBox.checked; });
+    confirmBtn.addEventListener('click', doSubmit);
+  }
+
+  async function doSubmit() {
+    const status = document.getElementById('form-status');
+    status.textContent = ''; status.className = 'form-status';
+    const profile = decodeJwt(googleIdToken);
+    const payload = { name: (profile && profile.name) || '', contact: (profile && profile.email) || '', idToken: googleIdToken, termsConsent: true, mode: mode || 'topic' };
+
+    if (mode === 'media') {
+      payload.driveLink = answers.driveLink || '';
+      if (answers.mediaNote) payload.mediaNote = answers.mediaNote;
+      if (answers.voiceGender) payload.voiceGender = answers.voiceGender;
+      if (answers.voiceAge) payload.voiceAge = answers.voiceAge;
+    } else {
+      payload.topic = answers.topic || '';
+      payload.form = answers.form || '쇼츠';
+      if (answers.productLink) payload.productLink = answers.productLink;
+      if (answers.target) payload.target = answers.target;
+      if (answers.tempo) payload.tempo = answers.tempo;
+      if (answers.voiceGender) payload.voiceGender = answers.voiceGender;
+      if (answers.voiceAge) payload.voiceAge = answers.voiceAge;
+      if (answers.directorNote) payload.directorNote = answers.directorNote;
+    }
+
+    try {
+      const res = await fetch(WEBHOOK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || (data && data.ok === false)) throw new Error((data && data.message) || '요청이 거부됐어요.');
+      addMsg('bot', '접수됐어요! 지금 만들어지는 과정을 바로 보여드릴게요.');
+      composer.innerHTML = '';
+      const newId = data && data.id;
+      setTimeout(() => { location.href = newId ? ('./project.html?id=' + encodeURIComponent(newId)) : './dashboard.html'; }, 1400);
+    } catch (err) {
+      status.textContent = err.message || '접수 중 문제가 생겼어요.';
+      status.className = 'form-status err';
+    }
+  }
+
+  function resetChat() {
+    mode = null; answers = {}; history = [];
+    chatLog.innerHTML = '';
+    chatLog.appendChild(exampleRow);
+    exampleRow.style.display = 'flex';
+    document.getElementById('form-status').textContent = '';
+
+    const name = (document.getElementById('account-name').textContent || '').split(' ')[0];
+    let greeting;
+    if (pastProjects.length === 0) {
+      greeting = (name ? `안녕하세요, ${escapeHtml(name)}님! ` : '안녕하세요! ') +
+        '리와인드에 처음 오셨네요. 주제 하나만 말씀해주시면 대본부터 목소리, 장면까지 AI가 전부 만들어드려요. ' +
+        '판매하시는 제품이 있으신가요, 아니면 갖고 계신 사진·영상으로 만들어드릴까요? 위 예시를 눌러보셔도 좋아요.';
+    } else {
+      const last = pastProjects[0];
+      greeting = `다시 오셨네요! ${last && last.title ? `지난번 "${escapeHtml(last.title)}" 이후로 ` : ''}이번엔 어떤 영상을 만들어볼까요?`;
+    }
+    addMsg('bot', greeting);
+    renderComposer();
+  }
+  document.getElementById('new-chat-btn').addEventListener('click', resetChat);
+
+  const toast = document.getElementById('soon-toast');
+  document.querySelectorAll('.soon-btn').forEach(btn => {
+    btn.addEventListener('click', () => { toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 1800); });
+  });
+
+  document.getElementById('logout-btn').addEventListener('click', () => { sessionStorage.removeItem('rw_id_token'); location.reload(); });
+
+  async function enterApp(idToken) {
+    const profile = decodeJwt(idToken);
+    if (!profile) return;
+    googleIdToken = idToken;
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('account-avatar').src = profile.picture || '';
+    document.getElementById('account-name').textContent = profile.name || profile.email || '';
+    await loadPastProjects(idToken);
+    resetChat();
+  }
+
+  async function loadPastProjects(idToken) {
+    try {
+      const res = await fetch(PROJECTS_WEBHOOK_URL, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idToken })
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        console.error('[내 프로젝트 목록 조회 실패]', 'status:', res.status, 'data:', data);
+      }
+      pastProjects = (data && data.projects) || [];
+      console.log('[내 프로젝트 목록 조회] 가져온 개수:', pastProjects.length, pastProjects);
+    } catch (e) {
+      console.error('[내 프로젝트 목록 조회 실패 - 네트워크/예외]', e);
+      pastProjects = [];
+    }
+  }
+  window.handleGoogleSignIn = function (response) {
+    sessionStorage.setItem('rw_id_token', response.credential);
+    enterApp(response.credential);
+  };
+  function initGate() {
+    if (window.google && google.accounts && google.accounts.id) {
+      google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: window.handleGoogleSignIn });
+      google.accounts.id.renderButton(document.getElementById('gsi-area'), { theme: 'filled_black', size: 'large', text: 'continue_with', shape: 'pill' });
+      const saved = sessionStorage.getItem('rw_id_token');
+      if (saved) enterApp(saved);
+    } else {
+      setTimeout(initGate, 200);
+    }
+  }
+  initGate();
+})();
+</script>
+
+</body>
+</html>
