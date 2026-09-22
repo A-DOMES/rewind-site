@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>새 영상 만들기 — 리와인드</title>
+<link rel="icon" type="image/png" href="./리와인드_로고1_512px.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+  :root {
+    --bg: #0c0c0c; --bg-raised: #161616; --bg-input: #1c1c1c; --line: #2a2a2a;
+    --ink: #f5f3ee; --ink-dim: #a8a49b; --ink-faint: #6f6b62;
+    --gold: #c68a12; --on-gold: #14100a; --err: #c96a5a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: 'IBM Plex Sans KR', -apple-system, sans-serif;
+    line-height: 1.6; word-break: keep-all; overflow-wrap: break-word;
+    height: 100vh; overflow: hidden;
+  }
+  h1, h2, h3 { font-family: 'Fraunces', serif; letter-spacing: -0.01em; margin: 0; }
+  a { color: inherit; }
+  button { font-family: inherit; }
+
+  /* ===== full-screen login gate — nothing else is reachable before this ===== */
+  #gate {
+    position: fixed; inset: 0; z-index: 200;
+    background: var(--bg); display: flex; align-items: center; justify-content: center; flex-direction: column;
+    text-align: center; padding: 24px;
+  }
+  #gate .logo { display: flex; align-items: center; gap: 10px; font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 600; margin-bottom: 30px; }
+  #gate .logo img { width: 30px; height: 30px; border-radius: 7px; }
+  #gate h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 10px; }
+  #gate p { color: var(--ink-dim); font-size: 0.95rem; max-width: 40ch; margin: 0 0 26px; }
+  #gsi-area { display: flex; justify-content: center; }
+  #gate .back-link { margin-top: 22px; color: var(--ink-faint); font-size: 0.85rem; text-decoration: none; }
+  #gate .back-link:hover { color: var(--ink-dim); }
+
+  /* ===== app shell ===== */
+  #app { display: none; height: 100vh; }
+  .shell { display: flex; height: 100%; }
+
+  .sidebar { width: 230px; flex-shrink: 0; border-right: 1px solid var(--line); padding: 18px 14px; display: flex; flex-direction: column; }
+  .sidebar .logo { display: flex; align-items: center; gap: 9px; font-family: 'Fraunces', serif; font-weight: 600; font-size: 0.98rem; padding: 6px 6px 20px; }
+  .sidebar .logo img { width: 22px; height: 22px; border-radius: 5px; }
+  .new-chat-btn {
+    display: flex; align-items: center; gap: 8px; width: 100%;
+    background: var(--gold); color: var(--on-gold); border: none; border-radius: 6px;
+    padding: 10px 12px; font-size: 0.88rem; font-weight: 600; cursor: pointer; margin-bottom: 18px;
+  }
+  .side-item {
+    display: flex; align-items: center; gap: 10px; padding: 9px 11px; border-radius: 6px;
+    font-size: 0.88rem; color: var(--ink-dim); cursor: pointer; text-decoration: none; background: none; border: none; width: 100%; text-align: left;
+  }
+  .side-item:hover { background: var(--bg-raised); color: var(--ink); }
+  .side-item.active { background: var(--bg-raised); color: var(--ink); font-weight: 500; }
+  .side-item .soon { margin-left: auto; font-size: 0.68rem; color: var(--ink-faint); border: 1px solid var(--line); padding: 1px 6px; border-radius: 8px; }
+  .side-group-gap { height: 14px; }
+  .sidebar-footer { margin-top: auto; padding-top: 14px; border-top: 1px solid var(--line); }
+  .account-row { display: flex; align-items: center; gap: 9px; padding: 8px 6px; font-size: 0.84rem; color: var(--ink-dim); }
+  .account-row img { width: 22px; height: 22px; border-radius: 50%; }
+  .account-row .logout { margin-left: auto; background: none; border: none; color: var(--ink-faint); font-size: 0.78rem; cursor: pointer; text-decoration: underline; }
+
+  .main { flex: 1; overflow-y: auto; position: relative; }
+  .main-inner { max-width: 760px; margin: 0 auto; padding: 60px 24px 100px; }
+
+  .mode-badge {
+    display: inline-flex; align-items: center; gap: 7px;
+    border: 1px solid var(--line); border-radius: 20px; padding: 6px 13px;
+    font-size: 0.78rem; color: var(--ink-dim); margin-bottom: 36px;
+  }
+  .mode-badge.paid { border-color: color-mix(in srgb, var(--gold) 45%, var(--line)); color: var(--gold); }
+  .mode-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--ink-faint); }
+  .mode-badge.paid .dot { background: var(--gold); }
+
+  .console-head { text-align: center; margin-bottom: 30px; }
+  .console-head h1 { font-size: clamp(1.6rem, 3.4vw, 2.1rem); font-weight: 600; }
+
+  .console-box { background: var(--bg-raised); border: 1px solid var(--line); border-radius: 14px; padding: 18px; }
+  .attach-row { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  .attach-btn {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--bg-input); border: 1px solid var(--line); color: var(--ink-dim);
+    padding: 8px 13px; border-radius: 8px; font-size: 0.84rem; cursor: pointer;
+  }
+  .attach-btn.active { border-color: var(--gold); color: var(--gold); }
+  .attach-btn:hover { color: var(--ink); }
+
+  #topic-input, #drive-input {
+    width: 100%; background: transparent; border: none; color: var(--ink);
+    font-size: 1rem; font-family: inherit; resize: none; min-height: 64px; padding: 4px;
+  }
+  #topic-input:focus, #drive-input:focus { outline: none; }
+  #topic-input::placeholder, #drive-input::placeholder { color: var(--ink-faint); }
+
+  .console-bottom { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+  .chip-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip {
+    background: var(--bg-input); border: 1px solid var(--line); color: var(--ink-dim);
+    padding: 7px 13px; border-radius: 20px; font-size: 0.8rem; cursor: pointer;
+  }
+  .chip.active { border-color: var(--gold); color: var(--gold); }
+  select.chip { -webkit-appearance: none; appearance: none; }
+
+  .submit-btn {
+    width: 38px; height: 38px; border-radius: 50%; background: var(--gold); color: var(--on-gold);
+    border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem; flex-shrink: 0;
+  }
+  .submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .more-toggle { background: none; border: none; color: var(--ink-faint); font-size: 0.8rem; cursor: pointer; text-decoration: underline; padding: 0; }
+  .more-panel { display: none; margin-top: 18px; border-top: 1px solid var(--line); padding-top: 18px; }
+  .more-panel.open { display: block; }
+  .more-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .more-field label { display: block; font-size: 0.78rem; color: var(--ink-faint); margin-bottom: 6px; }
+  .more-field input, .more-field select, .more-field textarea {
+    width: 100%; background: var(--bg-input); border: 1px solid var(--line); color: var(--ink);
+    padding: 9px 11px; border-radius: 6px; font-size: 0.88rem; font-family: inherit;
+  }
+  @media (max-width: 560px) { .more-grid { grid-template-columns: 1fr; } }
+
+  .tab-row { display: flex; gap: 22px; flex-wrap: wrap; justify-content: center; margin: 26px 0 40px; }
+  .tab-row button { background: none; border: none; color: var(--ink-faint); font-size: 0.88rem; cursor: pointer; padding-bottom: 8px; border-bottom: 2px solid transparent; }
+  .tab-row button.active { color: var(--ink); border-bottom-color: var(--gold); }
+
+  .example-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; }
+  .example-card { background: var(--bg-raised); border: 1px solid var(--line); border-radius: 10px; padding: 20px 16px; text-align: left; cursor: pointer; }
+  .example-card:hover { border-color: var(--ink-faint); }
+  .example-card .ic { font-size: 1.3rem; margin-bottom: 12px; }
+  .example-card h4 { font-size: 0.92rem; font-weight: 600; margin-bottom: 6px; }
+  .example-card p { font-size: 0.8rem; color: var(--ink-faint); margin: 0; }
+  .example-note { text-align: center; color: var(--ink-faint); font-size: 0.8rem; margin-top: 20px; }
+
+  .form-status { text-align: center; font-size: 0.86rem; margin-top: 16px; min-height: 1.2em; }
+  .form-status.err { color: var(--err); }
+  .form-status.ok { color: var(--gold); }
+
+  /* soon toast */
+  #soon-toast {
+    position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--bg-raised); border: 1px solid var(--line); border-radius: 8px;
+    padding: 12px 18px; font-size: 0.86rem; color: var(--ink-dim); opacity: 0; pointer-events: none;
+    transition: opacity 0.2s, transform 0.2s; z-index: 100;
+  }
+  #soon-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 760px) {
+    .sidebar { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <div class="logo"><img src="./리와인드_로고1_512px.png" alt=""> 리와인드</div>
+  <h1>로그인하고 시작하세요</h1>
+  <p>영상 제작을 시작하려면 구글 계정 로그인이 필요해요. 신청 확인, 완성 알림 모두 이 계정으로 안내드려요.</p>
+  <div id="gsi-area"></div>
+  <a class="back-link" href="./index.html">← 돌아가기</a>
+</div>
+
+<div id="app">
+  <div class="shell">
+    <div class="sidebar">
+      <div class="logo"><img src="./리와인드_로고1_512px.png" alt=""> 리와인드</div>
+      <button class="new-chat-btn" id="new-chat-btn">+ 새로 만들기</button>
+      <a class="side-item active" href="./new.html">🏠 홈</a>
+      <a class="side-item" href="./dashboard.html">🎞️ 내 프로젝트</a>
+      <div class="side-group-gap"></div>
+      <button class="side-item soon-btn">🤖 에이전트 <span class="soon">준비 중</span></button>
+      <button class="side-item soon-btn">🧩 앱 <span class="soon">준비 중</span></button>
+      <button class="side-item soon-btn">🔀 워크플로우 <span class="soon">준비 중</span></button>
+      <button class="side-item soon-btn">🎨 브랜드 <span class="soon">준비 중</span></button>
+      <div class="sidebar-footer">
+        <button class="side-item soon-btn">⚙️ 설정 <span class="soon">준비 중</span></button>
+        <div class="account-row">
+          <img id="account-avatar" src="" alt="">
+          <span id="account-name"></span>
+          <button class="logout" id="logout-btn">로그아웃</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="main">
+      <div class="main-inner">
+        <div style="text-align:center;">
+          <span class="mode-badge" id="mode-badge"><span class="dot"></span> <span id="mode-label">체험 모드 · 무료 3회</span></span>
+        </div>
+
+        <div class="console-head">
+          <h1>오늘은 무엇을 만들어볼까요?</h1>
+        </div>
+
+        <div class="console-box">
+          <div class="attach-row">
+            <button class="attach-btn active" id="btn-mode-topic">✍️ 주제로 만들기</button>
+            <button class="attach-btn" id="btn-mode-media">📁 내 드라이브 자료로</button>
+          </div>
+
+          <textarea id="topic-input" maxlength="300" placeholder="예: 우리 카페 신메뉴 딸기라떼를 20대에게 홍보하고 싶어요"></textarea>
+          <input id="drive-input" type="url" placeholder="구글 드라이브 폴더 링크를 붙여넣으세요" style="display:none;">
+
+          <div class="console-bottom">
+            <div class="chip-row">
+              <button class="chip active" id="chip-shorts" data-form="쇼츠">📱 쇼츠</button>
+              <button class="chip" id="chip-longform" data-form="롱폼">🖥️ 롱폼</button>
+              <select class="chip" id="chip-tempo">
+                <option value="">속도: 자동</option>
+                <option value="차분">차분하게</option>
+                <option value="중간">보통</option>
+                <option value="빠름">빠르고 경쾌하게</option>
+              </select>
+              <select class="chip" id="chip-voice">
+                <option value="">목소리: 자동</option>
+                <option value="여성">여성</option>
+                <option value="남성">남성</option>
+              </select>
+            </div>
+            <button class="submit-btn" id="submit-btn" disabled>→</button>
+          </div>
+        </div>
+
+        <div style="text-align:center; margin-top:12px;">
+          <button class="more-toggle" id="more-toggle">세부 옵션 더 보기</button>
+        </div>
+        <div class="more-panel" id="more-panel">
+          <div class="more-grid">
+            <div class="more-field">
+              <label for="more-target">시청 타겟 연령대</label>
+              <select id="more-target">
+                <option value="">자동</option>
+                <option value="10~20대">10~20대</option>
+                <option value="20~30대">20~30대</option>
+                <option value="30~40대">30~40대</option>
+                <option value="40~50대">40~50대</option>
+                <option value="50~60대">50~60대</option>
+                <option value="60대 이상">60대 이상</option>
+              </select>
+            </div>
+            <div class="more-field">
+              <label for="more-voice-age">목소리 연령대</label>
+              <select id="more-voice-age">
+                <option value="">자동</option>
+                <option value="10~20대">10~20대</option>
+                <option value="20~30대">20~30대</option>
+                <option value="30~40대">30~40대</option>
+                <option value="40~50대">40~50대</option>
+                <option value="50~60대">50~60대</option>
+                <option value="60대 이상">60대 이상</option>
+              </select>
+            </div>
+            <div class="more-field" id="field-product-link">
+              <label for="more-product-link">제품 링크 (제품 소개인 경우)</label>
+              <input id="more-product-link" type="url" placeholder="https://...">
+            </div>
+            <div class="more-field" id="field-director-note">
+              <label for="more-note">꼭 넣고 싶은 장면·연출 (선택)</label>
+              <input id="more-note" type="text" maxlength="500" placeholder="한 줄로 적어주세요">
+            </div>
+          </div>
+          <div class="consent-row" style="margin-top:16px; font-size:0.82rem; color:var(--ink-dim); display:flex; gap:8px; align-items:flex-start;">
+            <input type="checkbox" id="terms-consent" style="margin-top:3px;">
+            <label for="terms-consent"><a href="./terms.html" target="_blank" style="color:var(--gold);">이용약관 및 개인정보 처리방침</a>에 동의합니다.</label>
+          </div>
+          <div class="consent-row" id="media-consent-row" style="display:none; margin-top:8px; font-size:0.82rem; color:var(--ink-dim); gap:8px; align-items:flex-start;">
+            <input type="checkbox" id="media-consent" style="margin-top:3px;">
+            <label for="media-consent">업로드하신 원본은 구글 드라이브에 그대로 보관되며, 무료체험 후 24시간 안에 결제가 확인되지 않으면 시스템의 분석 정보는 자동 삭제됩니다. 자료 사용 권한과 타인 초상권은 본인이 책임집니다.</label>
+          </div>
+        </div>
+
+        <p class="form-status" id="form-status"></p>
+
+        <div class="tab-row" id="tab-row">
+          <button class="active" data-topic="">카페 신메뉴 홍보</button>
+          <button data-topic="반려동물 영양제를 소개하는 영상을 만들고 싶어요">반려동물</button>
+          <button data-topic="환절기 감기 예방을 위한 건강 정보를 알려주는 영상">건강정보</button>
+          <button data-topic="20년지기 친구들과 다녀온 제주도 여행 추억을 담은 영상">추억 영상</button>
+          <button data-topic="최신 스마트폰 신제품 리뷰 영상을 만들어주세요">제품 리뷰</button>
+        </div>
+
+        <div class="example-grid">
+          <div class="example-card" data-topic="우리 카페의 신메뉴 딸기라떼를 20대에게 홍보하고 싶어요">
+            <div class="ic">☕</div><h4>제품 홍보 영상</h4><p>신메뉴, 신제품을 짧고 매력적으로 소개해요</p>
+          </div>
+          <div class="example-card" data-topic="반려동물 영양제를 소개하는 영상을 만들고 싶어요">
+            <div class="ic">🩺</div><h4>정보 콘텐츠</h4><p>궁금증을 풀어주는 지식·건강 정보 영상</p>
+          </div>
+          <div class="example-card" data-topic="20년지기 친구들과 다녀온 제주도 여행 추억을 담은 영상">
+            <div class="ic">🎞️</div><h4>추억·기록 영상</h4><p>사진과 이야기를 하나의 영상으로 엮어요</p>
+          </div>
+        </div>
+        <p class="example-note">완성된 실제 영상이 쌓이면, 여기가 진짜 결과물 갤러리로 바뀔 예정이에요.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="soon-toast">이 기능은 아직 준비 중이에요.</div>
+
+<script>
+(() => {
+  const WEBHOOK_URL = 'https://bald-buffalo.pikapod.net/webhook/web-request';
+  const GOOGLE_CLIENT_ID = '188637268860-9hj2af4bt8esn506bf5bqs72qnbu0qjs.apps.googleusercontent.com';
+
+  let googleIdToken = null;
+  let mode = 'topic'; // topic | media
+  const params = new URLSearchParams(location.search);
+  const planMode = params.get('mode') === 'paid' ? 'paid' : 'trial';
+
+  function decodeJwt(token) {
+    try {
+      const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      const json = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+      return JSON.parse(json);
+    } catch (e) { return null; }
+  }
+
+  // ---- mode badge ----
+  const badge = document.getElementById('mode-badge');
+  const modeLabel = document.getElementById('mode-label');
+  if (planMode === 'paid') {
+    badge.classList.add('paid');
+    modeLabel.textContent = '정식 모드 · 결제 안내가 이메일로 갑니다';
+  } else {
+    modeLabel.textContent = '체험 모드 · 무료 3회';
+  }
+
+  // ---- topic vs media toggle ----
+  const btnTopic = document.getElementById('btn-mode-topic');
+  const btnMedia = document.getElementById('btn-mode-media');
+  const topicInput = document.getElementById('topic-input');
+  const driveInput = document.getElementById('drive-input');
+  const fieldProductLink = document.getElementById('field-product-link');
+  const fieldDirectorNote = document.getElementById('field-director-note');
+  const mediaConsentRow = document.getElementById('media-consent-row');
+
+  function setMode(next) {
+    mode = next;
+    btnTopic.classList.toggle('active', mode === 'topic');
+    btnMedia.classList.toggle('active', mode === 'media');
+    topicInput.style.display = mode === 'topic' ? 'block' : 'none';
+    driveInput.style.display = mode === 'media' ? 'block' : 'none';
+    fieldProductLink.style.display = mode === 'topic' ? 'block' : 'none';
+    fieldDirectorNote.style.display = mode === 'topic' ? 'block' : 'none';
+    mediaConsentRow.style.display = mode === 'media' ? 'flex' : 'none';
+    document.getElementById('tab-row').style.display = mode === 'topic' ? 'flex' : 'none';
+    updateSubmitState();
+  }
+  btnTopic.addEventListener('click', () => setMode('topic'));
+  btnMedia.addEventListener('click', () => setMode('media'));
+
+  // ---- form/shorts-longform chip ----
+  const chipShorts = document.getElementById('chip-shorts');
+  const chipLongform = document.getElementById('chip-longform');
+  let formValue = '쇼츠';
+  chipShorts.addEventListener('click', () => { formValue = '쇼츠'; chipShorts.classList.add('active'); chipLongform.classList.remove('active'); });
+  chipLongform.addEventListener('click', () => { formValue = '롱폼'; chipLongform.classList.add('active'); chipShorts.classList.remove('active'); });
+
+  // ---- tabs / example cards fill the topic box ----
+  function fillTopic(text) {
+    if (!text) return;
+    setMode('topic');
+    topicInput.value = text;
+    updateSubmitState();
+  }
+  document.querySelectorAll('#tab-row button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#tab-row button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      if (btn.dataset.topic) fillTopic(btn.dataset.topic);
+    });
+  });
+  document.querySelectorAll('.example-card').forEach(card => {
+    card.addEventListener('click', () => fillTopic(card.dataset.topic));
+  });
+
+  // ---- more options toggle ----
+  document.getElementById('more-toggle').addEventListener('click', () => {
+    document.getElementById('more-panel').classList.toggle('open');
+  });
+
+  // ---- soon buttons ----
+  const toast = document.getElementById('soon-toast');
+  document.querySelectorAll('.soon-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 1800);
+    });
+  });
+  document.getElementById('new-chat-btn').addEventListener('click', () => location.reload());
+
+  // ---- submit gating ----
+  const submitBtn = document.getElementById('submit-btn');
+  const termsConsent = document.getElementById('terms-consent');
+  const mediaConsent = document.getElementById('media-consent');
+  function updateSubmitState() {
+    const hasContent = mode === 'topic' ? topicInput.value.trim().length > 0 : driveInput.value.trim().length > 0;
+    submitBtn.disabled = !hasContent;
+  }
+  topicInput.addEventListener('input', updateSubmitState);
+  driveInput.addEventListener('input', updateSubmitState);
+
+  submitBtn.addEventListener('click', async () => {
+    const status = document.getElementById('form-status');
+    status.textContent = ''; status.className = 'form-status';
+
+    if (!termsConsent.checked) {
+      document.getElementById('more-panel').classList.add('open');
+      status.textContent = '이용약관 동의가 필요해요.';
+      status.className = 'form-status err';
+      return;
+    }
+    if (mode === 'media' && !mediaConsent.checked) {
+      document.getElementById('more-panel').classList.add('open');
+      status.textContent = '자료 자동삭제 안내 동의가 필요해요.';
+      status.className = 'form-status err';
+      return;
+    }
+
+    const profile = decodeJwt(googleIdToken);
+    submitBtn.disabled = true;
+
+    const payload = {
+      name: (profile && profile.name) || '',
+      contact: (profile && profile.email) || '',
+      idToken: googleIdToken,
+      termsConsent: true,
+      mode
+    };
+    const tempo = document.getElementById('chip-tempo').value;
+    const voice = document.getElementById('chip-voice').value;
+    const target = document.getElementById('more-target').value;
+    const voiceAge = document.getElementById('more-voice-age').value;
+
+    if (mode === 'topic') {
+      payload.topic = topicInput.value.trim();
+      payload.form = formValue;
+      if (tempo) payload.tempo = tempo;
+      if (voice) payload.voiceGender = voice;
+      if (target) payload.target = target;
+      if (voiceAge) payload.voiceAge = voiceAge;
+      const productLink = document.getElementById('more-product-link').value.trim();
+      const note = document.getElementById('more-note').value.trim();
+      if (productLink) payload.productLink = productLink;
+      if (note) payload.directorNote = note;
+    } else {
+      payload.driveLink = driveInput.value.trim();
+      if (tempo) payload.tempo = tempo;
+      if (voice) payload.voiceGender = voice;
+      if (voiceAge) payload.voiceAge = voiceAge;
+    }
+
+    try {
+      const res = await fetch(WEBHOOK_URL, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || (data && data.ok === false)) throw new Error((data && data.message) || '요청이 거부됐어요.');
+      status.textContent = '신청이 접수됐어요. 잠시 후 내 프로젝트로 이동합니다.';
+      status.className = 'form-status ok';
+      setTimeout(() => { location.href = './dashboard.html'; }, 1400);
+    } catch (err) {
+      status.textContent = err.message || '접수 중 문제가 생겼어요.';
+      status.className = 'form-status err';
+      submitBtn.disabled = false;
+    }
+  });
+
+  document.getElementById('logout-btn').addEventListener('click', () => {
+    sessionStorage.removeItem('rw_id_token');
+    location.reload();
+  });
+
+  // ---- login gate ----
+  function enterApp(idToken) {
+    const profile = decodeJwt(idToken);
+    if (!profile) return;
+    googleIdToken = idToken;
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('account-avatar').src = profile.picture || '';
+    document.getElementById('account-name').textContent = profile.name || profile.email || '';
+  }
+  window.handleGoogleSignIn = function (response) {
+    sessionStorage.setItem('rw_id_token', response.credential);
+    enterApp(response.credential);
+  };
+  function initGate() {
+    if (window.google && google.accounts && google.accounts.id) {
+      google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: window.handleGoogleSignIn });
+      google.accounts.id.renderButton(document.getElementById('gsi-area'), { theme: 'filled_black', size: 'large', text: 'continue_with', shape: 'pill' });
+      const saved = sessionStorage.getItem('rw_id_token');
+      if (saved) enterApp(saved);
+    } else {
+      setTimeout(initGate, 200);
+    }
+  }
+  initGate();
+})();
+</script>
+
+</body>
+</html>
