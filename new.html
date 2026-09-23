@@ -424,13 +424,16 @@
     document.getElementById('form-status').textContent = '';
 
     const name = (document.getElementById('account-name').textContent || '').split(' ')[0];
-    const pending = pastProjects.find(p => p.status !== '배포' && !p.videoUrl); // 아직 안 끝난 프로젝트
+    const pendingList = pastProjects.filter(p => p.status !== '배포' && !p.videoUrl); // 아직 안 끝난 프로젝트들
+    const pending = pendingList[0];
 
     if (pending) {
       exampleRow.style.display = 'none';
       const greeting = (name ? `안녕하세요, ${escapeHtml(name)}님! ` : '안녕하세요! ') +
-        `아직 진행 중인 프로젝트가 있으시네요 — "${escapeHtml(pending.title || '제목 준비 중')}" (현재 단계: ${escapeHtml(pending.status || '-')}). ` +
-        '이어서 그 진행 상황을 보시겠어요, 아니면 새로운 영상을 만드실까요?';
+        (pendingList.length > 1
+          ? `아직 진행 중인 프로젝트가 ${pendingList.length}개 있으시네요. `
+          : `아직 진행 중인 프로젝트가 있으시네요 — "${escapeHtml(pending.title || '제목 준비 중')}" (현재 단계: ${escapeHtml(pending.status || '-')}). `) +
+        '내 프로젝트에서 이어서 확인하시겠어요, 아니면 새로운 영상을 만드실까요?';
       addMsg('bot', greeting);
       composer.innerHTML = '';
       const row = document.createElement('div');
@@ -439,8 +442,8 @@
       const btnCheck = document.createElement('a');
       btnCheck.className = 'chat-send-btn';
       btnCheck.style.cssText = 'width:auto; border-radius:8px; padding:11px 18px; font-size:0.86rem; text-decoration:none; white-space:nowrap;';
-      btnCheck.textContent = '진행 상황 보기';
-      btnCheck.href = './project.html?id=' + encodeURIComponent(pending.id);
+      btnCheck.textContent = '내 프로젝트 보기';
+      btnCheck.href = './dashboard.html';
       const btnNew = document.createElement('button');
       btnNew.className = 'chat-send-btn';
       btnNew.style.cssText = 'width:auto; background:var(--bg-input); color:var(--ink-dim); border:1px solid var(--line); border-radius:8px; padding:11px 18px; font-size:0.86rem; white-space:nowrap;';

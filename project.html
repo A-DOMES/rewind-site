@@ -154,6 +154,26 @@
   .agent-send:disabled { opacity: 0.4; cursor: not-allowed; }
   .agent-thinking { color: var(--ink-faint); font-size: 0.82rem; }
 
+  .review-card { border: 1px solid var(--amber-dim); border-radius: 10px; background: linear-gradient(160deg, color-mix(in srgb, var(--amber) 6%, var(--bg-raised)), var(--bg-raised)); padding: 20px; margin-bottom: 20px; }
+  .review-card h3 { font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 600; margin: 0 0 4px; }
+  .review-card > p.sub { color: var(--ink-faint); font-size: 0.82rem; margin: 0 0 16px; }
+  .review-field { margin-bottom: 14px; }
+  .review-field label { display: block; font-size: 0.78rem; color: var(--ink-faint); margin-bottom: 6px; }
+  .review-field input, .review-field textarea {
+    width: 100%; background: var(--bg-input); border: 1px solid var(--line); color: var(--ink);
+    padding: 10px 12px; border-radius: 8px; font-size: 0.88rem; font-family: inherit; box-sizing: border-box;
+  }
+  .review-field textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
+  .review-scenes { background: var(--bg-input); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; font-size: 0.84rem; color: var(--ink-dim); line-height: 1.9; white-space: pre-line; max-height: 220px; overflow-y: auto; }
+  .review-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+  .review-actions button { flex: 1; min-width: 120px; padding: 11px; border-radius: 8px; font-size: 0.86rem; cursor: pointer; font-family: inherit; }
+  .rv-approve { background: var(--amber); color: var(--on-amber); border: none; font-weight: 600; }
+  .rv-save { background: var(--bg-input); color: var(--ink-dim); border: 1px solid var(--line); }
+  .rv-retry { background: none; color: var(--err); border: 1px solid var(--err); }
+  .review-status { text-align: center; font-size: 0.82rem; margin-top: 10px; min-height: 1.2em; }
+  .review-status.ok { color: var(--olive); }
+  .review-status.err { color: var(--err); }
+
 </style>
 </head>
 <body>
@@ -187,6 +207,11 @@
     <a class="btn-ghost" href="./dashboard.html" style="margin-top:12px;">내 프로젝트로 돌아가기</a>
   </div>
 
+  <div id="session-expired" style="display:none; text-align:center; padding:60px 0; color:var(--ink-faint);">
+    <p>로그인이 만료됐어요. 세션이 끊겨서 정보를 못 가져왔어요.</p>
+    <button class="btn-primary" id="relogin-btn" style="margin-top:14px; border:none; cursor:pointer;">다시 로그인하기</button>
+  </div>
+
   <div id="content">
     <div class="title-row">
       <h1 id="proj-title"></h1>
@@ -210,6 +235,8 @@
 
     <div class="stepper" id="stepper"></div>
 
+    <div class="review-card" id="review-card" style="display:none;"></div>
+
     <div class="agent-card">
       <div class="agent-card-head"><span class="dot"></span> 궁금한 게 있으면 물어보세요</div>
       <div class="agent-log" id="agent-log"></div>
@@ -219,8 +246,9 @@
       </div>
     </div>
 
-    <div class="back-row">
+    <div class="back-row" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
       <a class="btn-ghost" href="./dashboard.html">← 내 프로젝트로 돌아가기</a>
+      <a class="btn-ghost" href="./new.html">+ 새 영상 만들기</a>
     </div>
   </div>
 
@@ -230,6 +258,7 @@
 (() => {
   const PROJECTS_WEBHOOK_URL = 'https://bald-buffalo.pikapod.net/webhook/my-projects';
   const PROGRESS_CONSULT_WEBHOOK_URL = 'https://bald-buffalo.pikapod.net/webhook/progress-consult';
+  const REVIEW_ACTION_WEBHOOK_URL = 'https://bald-buffalo.pikapod.net/webhook/review-action';
   const GOOGLE_CLIENT_ID = '188637268860-9hj2af4bt8esn506bf5bqs72qnbu0qjs.apps.googleusercontent.com';
   let currentIdToken = null;
   let currentProject = null;
@@ -360,6 +389,11 @@
 
   let pollTimer = null;
 
+  document.getElementById('relogin-btn')?.addEventListener('click', () => {
+    sessionStorage.removeItem('rw_id_token');
+    location.reload();
+  });
+
   async function loadProject(idToken) {
     currentIdToken = idToken;
     const targetId = getParam('id');
@@ -371,15 +405,16 @@
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idToken })
       });
       const data = await res.json().catch(() => null);
+      document.getElementById('loading').style.display = 'none';
+      if (!res.ok || (data && data.error)) { document.getElementById('session-expired').style.display = 'block'; return; }
       const projects = (data && data.projects) || [];
       const found = targetId ? projects.find(p => p.id === targetId) : projects[0];
-      document.getElementById('loading').style.display = 'none';
       if (!found) { document.getElementById('not-found').style.display = 'block'; return; }
       renderProject(found);
       startPolling(idToken, targetId);
     } catch (e) {
       document.getElementById('loading').style.display = 'none';
-      document.getElementById('not-found').style.display = 'block';
+      document.getElementById('session-expired').style.display = 'block';
     }
   }
 

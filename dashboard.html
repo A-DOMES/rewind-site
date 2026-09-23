@@ -255,6 +255,15 @@
       </div>
     </div>
 
+    <div id="session-expired" style="display:none; text-align:center; padding:60px 20px;">
+      <div class="cinema" style="max-width:340px; margin:0 auto 20px;">
+        <div class="play-btn">🔒</div>
+        <h3>로그인이 만료됐어요</h3>
+        <p>세션이 끊겨서 목록을 못 가져왔어요. 다시 로그인해주세요.</p>
+      </div>
+      <button class="btn-primary" id="relogin-btn">다시 로그인하기</button>
+    </div>
+
     <div id="project-list"></div>
   </div>
 
@@ -333,6 +342,7 @@
   async function loadProjects(idToken) {
     document.getElementById('loading').style.display = 'block';
     document.getElementById('empty').style.display = 'none';
+    document.getElementById('session-expired').style.display = 'none';
     document.getElementById('project-list').style.display = 'none';
     try {
       const res = await fetch(PROJECTS_WEBHOOK_URL, {
@@ -341,12 +351,22 @@
         body: JSON.stringify({ idToken })
       });
       const data = await res.json().catch(() => null);
+      if (!res.ok || (data && data.error)) {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('session-expired').style.display = 'block';
+        return;
+      }
       renderProjects(data && data.projects ? data.projects : []);
     } catch (e) {
       document.getElementById('loading').style.display = 'none';
-      document.getElementById('empty').style.display = 'block';
+      document.getElementById('session-expired').style.display = 'block';
     }
   }
+
+  document.getElementById('relogin-btn').addEventListener('click', () => {
+    sessionStorage.removeItem('rw_id_token');
+    location.reload();
+  });
 
   document.getElementById('account-trigger').addEventListener('click', () => {
     document.getElementById('account-dropdown').classList.toggle('open');
