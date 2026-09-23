@@ -262,6 +262,7 @@
   const WEBHOOK_URL = 'https://bald-buffalo.pikapod.net/webhook/web-request';
   const CONSULT_WEBHOOK_URL = 'https://bald-buffalo.pikapod.net/webhook/order-consult';
   const PROJECTS_WEBHOOK_URL = 'https://bald-buffalo.pikapod.net/webhook/my-projects';
+  const REVIEW_ACTION_WEBHOOK_URL = 'https://bald-buffalo.pikapod.net/webhook/review-action';
   const GOOGLE_CLIENT_ID = '188637268860-9hj2af4bt8esn506bf5bqs72qnbu0qjs.apps.googleusercontent.com';
 
   let googleIdToken = null;
@@ -346,6 +347,39 @@
     function go(text) { sendMessage(text); }
   }
 
+  const CHAT_STATE_KEY = 'rw_new_chat_state';
+  function saveChatState() {
+    try { sessionStorage.setItem(CHAT_STATE_KEY, JSON.stringify({ history, answers, mode })); } catch (e) {}
+  }
+  function clearChatState() {
+    try { sessionStorage.removeItem(CHAT_STATE_KEY); } catch (e) {}
+  }
+  function loadChatState() {
+    try {
+      const raw = sessionStorage.getItem(CHAT_STATE_KEY);
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch (e) { return null; }
+  }
+
+  async function retryScriptFromChat(project) {
+    addMsg('user', `"${project.title}" 대본 다시 써줘`);
+    composer.innerHTML = '<div class="thinking">요청하고 있어요 <span class="dots"><span></span><span></span><span></span></span></div>';
+    try {
+      const res = await fetch(REVIEW_ACTION_WEBHOOK_URL, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken: googleIdToken, id: project.id, action: 'retry_script' })
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data || data.ok === false) throw new Error((data && data.message) || '요청이 거부됐어요.');
+      addMsg('bot', '알겠어요! 대본을 처음부터 다시 만들도록 요청했어요. 완성되면 내 프로젝트에서 다시 확인하실 수 있어요.');
+    } catch (e) {
+      addMsg('bot', '죄송해요, 다시 만들기 요청이 실패했어요. 내 프로젝트에서 직접 시도해주시겠어요?');
+    } finally {
+      renderComposer();
+    }
+  }
+
   async function sendMessage(text) {
     exampleRow.style.display = 'none';
     addMsg('user', escapeHtml(text));
@@ -361,6 +395,7 @@
       if (data.mode) mode = data.mode;
       if (data.collected) Object.assign(answers, data.collected);
       if (data.reply) { addMsg('bot', renderReply(data.reply)); history.push({ role: 'bot', text: data.reply }); }
+      saveChatState();
       const 필수충족 = mode === 'media' ? !!answers.driveLink : !!(answers.topic && answers.form);
       if (data.complete && 필수충족) {
         showSummary();
@@ -459,6 +494,7 @@
       const res = await fetch(WEBHOOK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
       const data = await res.json().catch(() => null);
       if (!res.ok || (data && data.ok === false)) throw new Error((data && data.message) || '요청이 거부됐어요.');
+      clearChatState();
       addMsg('bot', '접수됐어요! 지금 만들어지는 과정을 바로 보여드릴게요.');
       composer.innerHTML = '';
       const newId = data && data.id;
@@ -470,7 +506,23 @@
   }
 
   function resetChat() {
+    const saved = loadChatState();
+    if (saved && Array.isArray(saved.history) && saved.history.length > 0) {
+      history = saved.history; answers = saved.answers || {}; mode = saved.mode || null;
+      chatLog.innerHTML = '';
+      chatLog.appendChild(exampleRow);
+      exampleRow.style.display = 'none';
+      document.getElementById('form-status').textContent = '';
+      history.forEach(h => addMsg(h.role, h.role === 'bot' ? renderReply(h.text) : escapeHtml(h.text)));
+      renderComposer();
+      return;
+    }
+    startFreshChat();
+  }
+
+  function startFreshChat() {
     mode = null; answers = {}; history = [];
+    clearChatState();
     chatLog.innerHTML = '';
     chatLog.appendChild(exampleRow);
     exampleRow.style.display = 'flex';
@@ -501,8 +553,19 @@
       btnNew.className = 'chat-send-btn';
       btnNew.style.cssText = 'width:auto; background:var(--bg-input); color:var(--ink-dim); border:1px solid var(--line); border-radius:8px; padding:11px 18px; font-size:0.86rem; white-space:nowrap;';
       btnNew.textContent = '새로 만들기';
-      btnNew.addEventListener('click', () => { exampleRow.style.display = 'flex'; addMsg('user', '새로 만들기'); addMsg('bot', '좋아요! 어떤 영상을 만들어드릴까요? 위 예시를 눌러보셔도 좋아요.'); renderComposer(); });
+      btnNew.addEventListener('click', () => { clearChatState(); mode = null; answers = {}; history = []; exampleRow.style.display = 'flex'; addMsg('user', '새로 만들기'); addMsg('bot', '좋아요! 어떤 영상을 만들어드릴까요? 위 예시를 눌러보셔도 좋아요.'); renderComposer(); });
       row.appendChild(btnCheck); row.appendChild(btnNew);
+
+      // 검수 대기(대본 완성) 상태인 게 정확히 1개일 때만 - 여러 개면 어느 걸 재시도할지 애매해서 목록에서 직접 고르게 함
+      const 검수대기목록 = pendingList.filter(p => p.status === '검수 대기');
+      if (검수대기목록.length === 1) {
+        const btnRetry = document.createElement('button');
+        btnRetry.className = 'chat-send-btn';
+        btnRetry.style.cssText = 'width:auto; background:none; color:var(--err); border:1px solid var(--err); border-radius:8px; padding:11px 18px; font-size:0.86rem; white-space:nowrap;';
+        btnRetry.textContent = '✍️ 대본 다시 써줘';
+        btnRetry.addEventListener('click', () => retryScriptFromChat(검수대기목록[0]));
+        row.appendChild(btnRetry);
+      }
       composer.appendChild(row);
       return;
     }
@@ -519,7 +582,7 @@
     addMsg('bot', greeting);
     renderComposer();
   }
-  document.getElementById('new-chat-btn').addEventListener('click', resetChat);
+  document.getElementById('new-chat-btn').addEventListener('click', startFreshChat);
 
   const toast = document.getElementById('soon-toast');
   document.querySelectorAll('.soon-btn').forEach(btn => {
