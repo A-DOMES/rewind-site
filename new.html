@@ -521,7 +521,7 @@
     startFreshChat();
   }
 
-  function startFreshChat() {
+  function startFreshChat(skipPendingCheck) {
     mode = null; answers = {}; history = [];
     clearChatState();
     chatLog.innerHTML = '';
@@ -530,7 +530,7 @@
     document.getElementById('form-status').textContent = '';
 
     const name = (document.getElementById('account-name').textContent || '').split(' ')[0];
-    const pendingList = pastProjects.filter(p => p.status !== '배포' && !p.videoUrl); // 아직 안 끝난 프로젝트들
+    const pendingList = skipPendingCheck ? [] : pastProjects.filter(p => p.status !== '배포' && !p.videoUrl); // 아직 안 끝난 프로젝트들
     const pending = pendingList[0];
 
     if (pending) {
@@ -555,7 +555,7 @@
       btnNew.className = 'chat-send-btn';
       btnNew.style.cssText = 'width:auto; background:var(--bg-input); color:var(--ink-dim); border:1px solid var(--line); border-radius:8px; padding:11px 18px; font-size:0.86rem; white-space:nowrap;';
       btnNew.textContent = '새로 만들기';
-      btnNew.addEventListener('click', () => { clearChatState(); mode = null; answers = {}; history = []; exampleRow.style.display = 'flex'; addMsg('user', '새로 만들기'); addMsg('bot', '좋아요! 어떤 영상을 만들어드릴까요? 위 예시를 눌러보셔도 좋아요.'); renderComposer(); });
+      btnNew.addEventListener('click', () => startFreshChat(true));
       row.appendChild(btnCheck); row.appendChild(btnNew);
 
       // 검수 대기(대본 완성) 상태인 게 정확히 1개일 때만 - 여러 개면 어느 걸 재시도할지 애매해서 목록에서 직접 고르게 함
@@ -585,7 +585,7 @@
     chatLog.parentElement.scrollTop = 0; // 처음엔 예시+인사말이 같이 보이도록 맨 위에서 시작
     renderComposer();
   }
-  document.getElementById('new-chat-btn').addEventListener('click', startFreshChat);
+  document.getElementById('new-chat-btn').addEventListener('click', () => startFreshChat(true));
 
   const toast = document.getElementById('soon-toast');
   document.querySelectorAll('.soon-btn').forEach(btn => {
