@@ -474,7 +474,7 @@
       document.getElementById('loading').style.display = 'none';
       if (!res.ok || (data && data.error)) { document.getElementById('session-expired').style.display = 'block'; return; }
       const projects = (data && data.projects) || [];
-      const found = targetId ? projects.find(p => p.id === targetId) : projects[0];
+      const found = targetId ? projects.find(p => String(p.id) === String(targetId)) : projects[0];
       if (!found) { document.getElementById('not-found').style.display = 'block'; return; }
       renderProject(found);
       startPolling(idToken, targetId);
@@ -493,7 +493,7 @@
         });
         const data = await res.json().catch(() => null);
         const projects = (data && data.projects) || [];
-        const found = targetId ? projects.find(p => p.id === targetId) : projects[0];
+        const found = targetId ? projects.find(p => String(p.id) === String(targetId)) : projects[0];
         if (!found) return;
         // 로딩 스피너 없이 조용히 화면만 갱신 (깜빡임 방지)
         renderProject(found);
