@@ -275,7 +275,7 @@
     try {
       const res = await fetch(CONSULT_WEBHOOK_URL, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idToken: googleIdToken, history, message: text, pastProjects })
+        body: JSON.stringify({ idToken: googleIdToken, history, message: text, pastProjects, collected: answers, mode })
       });
       const data = await res.json().catch(() => null);
       if (!res.ok || !data || data.ok === false) throw new Error(`요청 실패 (status: ${res.status}, ok: ${res.ok}, data: ${JSON.stringify(data)})`);
@@ -398,6 +398,33 @@
     document.getElementById('form-status').textContent = '';
 
     const name = (document.getElementById('account-name').textContent || '').split(' ')[0];
+    const pending = pastProjects.find(p => p.status !== '배포' && !p.videoUrl); // 아직 안 끝난 프로젝트
+
+    if (pending) {
+      exampleRow.style.display = 'none';
+      const greeting = (name ? `안녕하세요, ${escapeHtml(name)}님! ` : '안녕하세요! ') +
+        `아직 진행 중인 프로젝트가 있으시네요 — "${escapeHtml(pending.title || '제목 준비 중')}" (현재 단계: ${escapeHtml(pending.status || '-')}). ` +
+        '이어서 그 진행 상황을 보시겠어요, 아니면 새로운 영상을 만드실까요?';
+      addMsg('bot', greeting);
+      composer.innerHTML = '';
+      const row = document.createElement('div');
+      row.className = 'chat-text-row';
+      row.style.gap = '10px';
+      const btnCheck = document.createElement('a');
+      btnCheck.className = 'chat-send-btn';
+      btnCheck.style.cssText = 'width:auto; border-radius:8px; padding:11px 18px; font-size:0.86rem; text-decoration:none; white-space:nowrap;';
+      btnCheck.textContent = '진행 상황 보기';
+      btnCheck.href = './project.html?id=' + encodeURIComponent(pending.id);
+      const btnNew = document.createElement('button');
+      btnNew.className = 'chat-send-btn';
+      btnNew.style.cssText = 'width:auto; background:var(--bg-input); color:var(--ink-dim); border:1px solid var(--line); border-radius:8px; padding:11px 18px; font-size:0.86rem; white-space:nowrap;';
+      btnNew.textContent = '새로 만들기';
+      btnNew.addEventListener('click', () => { exampleRow.style.display = 'flex'; addMsg('user', '새로 만들기'); addMsg('bot', '좋아요! 어떤 영상을 만들어드릴까요? 위 예시를 눌러보셔도 좋아요.'); renderComposer(); });
+      row.appendChild(btnCheck); row.appendChild(btnNew);
+      composer.appendChild(row);
+      return;
+    }
+
     let greeting;
     if (pastProjects.length === 0) {
       greeting = (name ? `안녕하세요, ${escapeHtml(name)}님! ` : '안녕하세요! ') +
