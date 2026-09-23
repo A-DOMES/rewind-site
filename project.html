@@ -358,6 +358,8 @@
     }
   }
 
+  let pollTimer = null;
+
   async function loadProject(idToken) {
     currentIdToken = idToken;
     const targetId = getParam('id');
@@ -374,10 +376,31 @@
       document.getElementById('loading').style.display = 'none';
       if (!found) { document.getElementById('not-found').style.display = 'block'; return; }
       renderProject(found);
+      startPolling(idToken, targetId);
     } catch (e) {
       document.getElementById('loading').style.display = 'none';
       document.getElementById('not-found').style.display = 'block';
     }
+  }
+
+  function startPolling(idToken, targetId) {
+    if (pollTimer) clearInterval(pollTimer);
+    pollTimer = setInterval(async () => {
+      try {
+        const res = await fetch(PROJECTS_WEBHOOK_URL, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idToken })
+        });
+        const data = await res.json().catch(() => null);
+        const projects = (data && data.projects) || [];
+        const found = targetId ? projects.find(p => p.id === targetId) : projects[0];
+        if (!found) return;
+        // 로딩 스피너 없이 조용히 화면만 갱신 (깜빡임 방지)
+        renderProject(found);
+        if (found.status === '배포' || found.videoUrl || found.errorLog) {
+          clearInterval(pollTimer); // 끝났거나 오류가 났으면 더 이상 계속 확인할 필요 없음
+        }
+      } catch (e) { /* 폴링 실패는 조용히 무시하고 다음 주기에 재시도 */ }
+    }, 15000); // 15초마다 자동으로 최신 상태 확인
   }
 
   window.handleGoogleSignIn = function (response) {
