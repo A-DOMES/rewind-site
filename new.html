@@ -95,14 +95,15 @@
   .df-price .amt { font-family: 'Fraunces', serif; font-size: 1.3rem; color: var(--gold); font-weight: 600; }
   .df-price p { margin: 4px 0 0; font-size: 0.78rem; color: var(--ink-faint); }
   .mode-badge {
-    display: flex; align-items: center; gap: 8px; width: 100%;
+    display: flex; align-items: flex-start; gap: 8px; width: 100%;
     border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px;
-    font-size: 0.86rem; color: var(--ink-dim); background: var(--bg-raised);
+    font-size: 0.86rem; color: var(--ink-dim); background: var(--bg-raised); line-height: 1.5;
     cursor: pointer; margin-bottom: 6px; font-family: inherit; text-align: left;
   }
   .mode-badge:hover { border-color: var(--ink-faint); }
   .mode-badge.paid { border-color: color-mix(in srgb, var(--gold) 45%, var(--line)); color: var(--gold); }
-  .mode-badge .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ink-faint); flex-shrink: 0; }
+  .mode-badge .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ink-faint); flex-shrink: 0; margin-top: 6px; }
+  .mode-badge .hint { color: var(--ink-faint); font-size: 0.78rem; }
   .mode-badge.paid .dot { background: var(--gold); }
   #to-direct-form { margin-bottom: 4px; }
 
@@ -296,10 +297,10 @@
   const topModeLabel = document.getElementById('top-mode-label');
   function updateModeBadge() {
     if (planMode === 'paid') {
-      badge.classList.add('paid'); modeLabel.textContent = '정식 모드 · 결제 안내가 이메일로 갑니다 (누르면 체험으로)';
+      badge.classList.add('paid'); modeLabel.innerHTML = '정식 모드 · 결제 안내가 이메일로 갑니다<br><span class="hint">(누르면 체험으로)</span>';
       topBadge.classList.add('paid'); topModeLabel.textContent = '정식 모드';
     } else {
-      badge.classList.remove('paid'); modeLabel.textContent = '체험 모드 · 무료 3회 (누르면 정식으로)';
+      badge.classList.remove('paid'); modeLabel.innerHTML = '체험 모드 · 무료 3회<br><span class="hint">(누르면 정식으로)</span>';
       topBadge.classList.remove('paid'); topModeLabel.textContent = '체험 모드 · 무료 3회';
     }
   }
@@ -540,6 +541,7 @@
           : `아직 진행 중인 프로젝트가 있으시네요 — "${escapeHtml(pending.title || '제목 준비 중')}" (현재 단계: ${escapeHtml(pending.status || '-')}). `) +
         '내 프로젝트에서 이어서 확인하시겠어요, 아니면 새로운 영상을 만드실까요?';
       addMsg('bot', greeting);
+      chatLog.parentElement.scrollTop = 0; // 처음엔 예시+인사말이 같이 보이도록 맨 위에서 시작
       composer.innerHTML = '';
       const row = document.createElement('div');
       row.className = 'chat-text-row';
@@ -580,6 +582,7 @@
       greeting = `다시 오셨네요! ${last && last.title ? `지난번 "${escapeHtml(last.title)}" 이후로 ` : ''}이번엔 어떤 영상을 만들어볼까요?`;
     }
     addMsg('bot', greeting);
+    chatLog.parentElement.scrollTop = 0; // 처음엔 예시+인사말이 같이 보이도록 맨 위에서 시작
     renderComposer();
   }
   document.getElementById('new-chat-btn').addEventListener('click', startFreshChat);
