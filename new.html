@@ -397,7 +397,7 @@
       if (data.collected) Object.assign(answers, data.collected);
       if (data.reply) { addMsg('bot', renderReply(data.reply)); history.push({ role: 'bot', text: data.reply }); }
       saveChatState();
-      const 필수충족 = mode === 'media' ? !!answers.driveLink : !!(answers.topic && answers.form);
+      const 필수충족 = mode === 'media' ? !!(answers.driveLink && answers.form) : !!(answers.topic && answers.form);
       if (data.complete && 필수충족) {
         showSummary();
       } else {
@@ -473,6 +473,7 @@
 
     if (mode === 'media') {
       payload.driveLink = answers.driveLink || '';
+      payload.form = answers.form || '쇼츠';
       if (answers.mediaNote) payload.mediaNote = answers.mediaNote;
       if (answers.voiceGender) payload.voiceGender = answers.voiceGender;
       if (answers.voiceAge) payload.voiceAge = answers.voiceAge;
