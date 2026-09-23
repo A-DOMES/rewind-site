@@ -64,7 +64,30 @@
   .account-row .logout { margin-left: auto; background: none; border: none; color: var(--ink-faint); font-size: 0.78rem; cursor: pointer; text-decoration: underline; }
 
   .main { flex: 1; display: flex; flex-direction: column; }
-  .main-top { text-align: center; padding: 20px 24px 0; }
+  .main-top { display: flex; align-items: center; justify-content: center; gap: 14px; padding: 20px 24px 0; position: relative; flex-wrap: wrap; }
+  .direct-toggle-link { background: none; border: none; color: var(--ink-faint); font-size: 0.8rem; cursor: pointer; text-decoration: underline; padding: 0; }
+  .direct-toggle-link:hover { color: var(--ink-dim); }
+
+  .direct-form-wrap { flex: 1; overflow-y: auto; display: flex; justify-content: center; }
+  .direct-form-inner { width: 100%; max-width: 560px; padding: 20px 24px 30px; }
+  .df-head { text-align: center; margin-bottom: 22px; }
+  .df-head h2 { font-family: 'Fraunces', serif; font-size: 1.3rem; font-weight: 600; margin: 0 0 6px; }
+  .df-head p { color: var(--ink-faint); font-size: 0.85rem; margin: 0; }
+  .df-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+  .df-tab { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg-raised); color: var(--ink-dim); cursor: pointer; font-size: 0.86rem; }
+  .df-tab.active { border-color: var(--gold); color: var(--gold); background: color-mix(in srgb, var(--gold) 10%, var(--bg-raised)); }
+  .df-field { margin-bottom: 16px; }
+  .df-field label { display: block; font-size: 0.82rem; color: var(--ink-faint); margin-bottom: 6px; }
+  .df-field input, .df-field select, .df-field textarea {
+    width: 100%; background: var(--bg-input); border: 1px solid var(--line); color: var(--ink);
+    padding: 10px 12px; border-radius: 8px; font-size: 0.9rem; font-family: inherit;
+  }
+  .df-field textarea { resize: vertical; min-height: 64px; }
+  .df-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 480px) { .df-grid2 { grid-template-columns: 1fr; } }
+  .df-price { border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; background: var(--bg-raised); text-align: center; margin: 18px 0; }
+  .df-price .amt { font-family: 'Fraunces', serif; font-size: 1.3rem; color: var(--gold); font-weight: 600; }
+  .df-price p { margin: 4px 0 0; font-size: 0.78rem; color: var(--ink-faint); }
   .mode-badge {
     display: inline-flex; align-items: center; gap: 7px;
     border: 1px solid var(--line); border-radius: 20px; padding: 6px 13px;
@@ -167,6 +190,7 @@
     <div class="main">
       <div class="main-top">
         <span class="mode-badge" id="mode-badge"><span class="dot"></span> <span id="mode-label">체험 모드 · 무료 3회</span></span>
+        <div><button class="direct-toggle-link" id="to-direct-form">✏️ 직접 설정하기</button></div>
       </div>
 
       <div class="chat-wrap">
@@ -179,6 +203,8 @@
           </div>
         </div>
       </div>
+
+      <div class="direct-form-wrap" id="direct-form-wrap" style="display:none;"></div>
 
       <div class="composer">
         <div class="composer-inner" id="composer-inner"></div>
@@ -429,7 +455,7 @@
     if (pastProjects.length === 0) {
       greeting = (name ? `안녕하세요, ${escapeHtml(name)}님! ` : '안녕하세요! ') +
         '리와인드에 처음 오셨네요. 주제 하나만 말씀해주시면 대본부터 목소리, 장면까지 AI가 전부 만들어드려요. ' +
-        '어떤 걸 만들어드릴까요? 위 예시를 눌러보셔도 좋아요.';
+        '어떤 걸 만들어드릴까요? 위 예시를 눌러보셔도 좋고, 항목을 직접 하나씩 고르고 싶으시면 위쪽 "직접 설정하기"를 눌러주세요.';
     } else {
       const last = pastProjects[0];
       greeting = `다시 오셨네요! ${last && last.title ? `지난번 "${escapeHtml(last.title)}" 이후로 ` : ''}이번엔 어떤 영상을 만들어볼까요?`;
@@ -445,6 +471,131 @@
   });
 
   document.getElementById('logout-btn').addEventListener('click', () => { sessionStorage.removeItem('rw_id_token'); location.reload(); });
+
+  /* ===================== 직접 설정하기 (채팅 대신 폼으로) ===================== */
+  function computePrice(lengthMin, sceneCount) {
+    let price = 3000 + (lengthMin * 1500) + (sceneCount * 1200);
+    if (lengthMin > 60) price = Math.round(price * 1.2);
+    return Math.round(price);
+  }
+
+  let dfMode = 'topic';
+
+  function showDirectForm() {
+    document.getElementById('chat-log').parentElement.style.display = 'none';
+    document.getElementById('composer-inner').parentElement.style.display = 'none';
+    const wrap = document.getElementById('direct-form-wrap');
+    wrap.style.display = 'flex';
+    renderDirectForm();
+  }
+  function showChatFromDirectForm() {
+    document.getElementById('direct-form-wrap').style.display = 'none';
+    document.getElementById('chat-log').parentElement.style.display = 'flex';
+    document.getElementById('composer-inner').parentElement.style.display = 'flex';
+  }
+  document.getElementById('to-direct-form').addEventListener('click', showDirectForm);
+
+  function ageOptions() {
+    return ['자동','10~20대','20~30대','30~40대','40~50대','50~60대','60대 이상']
+      .map(v => `<option value="${v === '자동' ? '' : v}">${v}</option>`).join('');
+  }
+
+  function renderDirectForm() {
+    const wrap = document.getElementById('direct-form-wrap');
+    const isMedia = dfMode === 'media';
+    wrap.innerHTML = `
+      <div class="direct-form-inner">
+        <div class="df-head">
+          <h2>직접 설정하기</h2>
+          <p>항목을 골라서 바로 채워보세요. 비워두시면 AI가 알아서 정해드려요.</p>
+        </div>
+        <div class="df-tabs">
+          <button class="df-tab ${!isMedia ? 'active' : ''}" id="df-tab-topic">✍️ 주제로 만들기</button>
+          <button class="df-tab ${isMedia ? 'active' : ''}" id="df-tab-media">📁 내 드라이브 자료로</button>
+        </div>
+        <div id="df-fields"></div>
+        <div class="df-price">
+          <div class="amt" id="df-price-amt">약 -</div>
+          <p>선택하신 내용 기준 예상 비용 (실제 확정은 다음 화면에서)</p>
+        </div>
+        <div class="confirm-actions">
+          <button class="btn-line-sm" id="df-cancel">채팅으로 돌아가기</button>
+          <button class="btn-gold-sm" id="df-confirm">이 내용으로 확인하기</button>
+        </div>
+      </div>`;
+
+    const fieldsEl = document.getElementById('df-fields');
+    if (isMedia) {
+      fieldsEl.innerHTML = `
+        <div class="df-field"><label>구글 드라이브 폴더 링크 *</label><input type="url" id="df-driveLink" placeholder="https://drive.google.com/drive/folders/..."></div>
+        <div class="df-field"><label>어떤 이야기·분위기로 만들지 (선택, 500자)</label><textarea id="df-mediaNote" maxlength="500"></textarea></div>
+        <div class="df-grid2">
+          <div class="df-field"><label>목소리</label><select id="df-voiceGender"><option value="">자동</option><option value="여성">여성</option><option value="남성">남성</option></select></div>
+          <div class="df-field"><label>목소리 연령대</label><select id="df-voiceAge">${ageOptions()}</select></div>
+        </div>`;
+    } else {
+      fieldsEl.innerHTML = `
+        <div class="df-field"><label>주제 * (300자)</label><textarea id="df-topic" maxlength="300" placeholder="예: LG 통돌이 17kg DD모터 인공지능 세탁기 (T17DX3) 소개"></textarea></div>
+        <div class="df-field"><label>제품 링크 (선택)</label><input type="url" id="df-productLink" placeholder="https://..."></div>
+        <div class="df-grid2">
+          <div class="df-field"><label>영상 형태 *</label><select id="df-form"><option value="쇼츠">쇼츠(세로·짧게)</option><option value="롱폼">롱폼(가로·길게)</option></select></div>
+          <div class="df-field"><label>타겟 연령대</label><select id="df-target">${ageOptions()}</select></div>
+          <div class="df-field"><label>말하기 속도</label><select id="df-tempo"><option value="">자동</option><option value="차분">차분하게</option><option value="중간">보통</option><option value="빠름">빠르고 경쾌하게</option></select></div>
+          <div class="df-field"><label>목소리</label><select id="df-voiceGender"><option value="">자동</option><option value="여성">여성</option><option value="남성">남성</option></select></div>
+          <div class="df-field"><label>목소리 연령대</label><select id="df-voiceAge">${ageOptions()}</select></div>
+          <div class="df-field"><label>화면 상단 문구 (선택, 18자)</label><input type="text" id="df-hookText" maxlength="18"></div>
+        </div>
+        <div class="df-field"><label>영상 길이(분, 선택)</label><input type="number" id="df-videoLength" min="0" step="0.1" placeholder="비워두면 대본 길이에 맞게 자동"></div>
+        <div class="df-field"><label>장면 수(선택)</label><input type="number" id="df-sceneCount" min="1" step="1" placeholder="비워두면 자동"></div>
+        <div class="df-field"><label>꼭 넣고 싶은 연출 (선택, 500자)</label><textarea id="df-directorNote" maxlength="500"></textarea></div>`;
+    }
+
+    function updatePrice() {
+      const form = document.getElementById('df-form');
+      const lenInput = document.getElementById('df-videoLength');
+      const sceneInput = document.getElementById('df-sceneCount');
+      const isLongform = form && form.value === '롱폼';
+      const len = lenInput && lenInput.value ? parseFloat(lenInput.value) : (isLongform ? 3 : 0.75);
+      const scenes = sceneInput && sceneInput.value ? parseInt(sceneInput.value) : (isLongform ? 15 : 8);
+      document.getElementById('df-price-amt').textContent = '약 ' + computePrice(len, scenes).toLocaleString() + '원';
+    }
+    wrap.addEventListener('input', updatePrice);
+    wrap.addEventListener('change', updatePrice);
+    updatePrice();
+
+    document.getElementById('df-tab-topic').addEventListener('click', () => { dfMode = 'topic'; renderDirectForm(); });
+    document.getElementById('df-tab-media').addEventListener('click', () => { dfMode = 'media'; renderDirectForm(); });
+    document.getElementById('df-cancel').addEventListener('click', showChatFromDirectForm);
+    document.getElementById('df-confirm').addEventListener('click', () => {
+      const val = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+      if (isMedia) {
+        if (!val('df-driveLink')) { alert('드라이브 링크를 입력해주세요.'); return; }
+        answers = { driveLink: val('df-driveLink') };
+        if (val('df-mediaNote')) answers.mediaNote = val('df-mediaNote');
+      } else {
+        if (!val('df-topic')) { alert('주제를 입력해주세요.'); return; }
+        answers = { topic: val('df-topic'), form: document.getElementById('df-form').value || '쇼츠' };
+        if (val('df-productLink')) answers.productLink = val('df-productLink');
+        if (val('df-target')) answers.target = val('df-target');
+        if (val('df-tempo')) answers.tempo = val('df-tempo');
+        if (val('df-hookText')) answers.hookText = val('df-hookText');
+        if (val('df-videoLength')) answers.videoLength = val('df-videoLength');
+        if (val('df-sceneCount')) answers.sceneCount = val('df-sceneCount');
+        if (val('df-directorNote')) answers.directorNote = val('df-directorNote');
+      }
+      if (val('df-voiceGender')) answers.voiceGender = val('df-voiceGender');
+      if (val('df-voiceAge')) answers.voiceAge = val('df-voiceAge');
+      const lenForPrice = answers.videoLength ? parseFloat(answers.videoLength) : (answers.form === '롱폼' ? 3 : 0.75);
+      const sceneForPrice = answers.sceneCount ? parseInt(answers.sceneCount) : (answers.form === '롱폼' ? 15 : 8);
+      answers.estimatedPrice = computePrice(lenForPrice, sceneForPrice);
+      mode = isMedia ? 'media' : 'topic';
+
+      showChatFromDirectForm();
+      addMsg('user', '직접 설정하기로 내용을 채웠어요.');
+      showSummary();
+    });
+  }
+
 
   async function enterApp(idToken) {
     const profile = decodeJwt(idToken);
