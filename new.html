@@ -63,7 +63,13 @@
   .account-row img { width: 22px; height: 22px; border-radius: 50%; }
   .account-row .logout { margin-left: auto; background: none; border: none; color: var(--ink-faint); font-size: 0.78rem; cursor: pointer; text-decoration: underline; }
 
-  .main { flex: 1; display: flex; flex-direction: column; }
+  .main { flex: 1; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+  .main::before {
+    content: ""; position: absolute; top: -10%; right: -8%; width: 50%; height: 40%;
+    background: radial-gradient(circle, color-mix(in srgb, var(--gold) 7%, transparent), transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+  .main > * { position: relative; z-index: 1; }
   .main-top { display: flex; align-items: center; justify-content: center; gap: 14px; padding: 20px 24px 0; position: relative; flex-wrap: wrap; }
   .direct-toggle-link { background: none; border: none; color: var(--ink-faint); font-size: 0.8rem; cursor: pointer; text-decoration: underline; padding: 0; }
   .direct-toggle-link:hover { color: var(--ink-dim); }
@@ -89,28 +95,56 @@
   .df-price .amt { font-family: 'Fraunces', serif; font-size: 1.3rem; color: var(--gold); font-weight: 600; }
   .df-price p { margin: 4px 0 0; font-size: 0.78rem; color: var(--ink-faint); }
   .mode-badge {
-    display: inline-flex; align-items: center; gap: 7px;
-    border: 1px solid var(--line); border-radius: 20px; padding: 6px 13px;
-    font-size: 0.78rem; color: var(--ink-dim);
+    display: flex; align-items: center; gap: 8px; width: 100%;
+    border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px;
+    font-size: 0.86rem; color: var(--ink-dim); background: var(--bg-raised);
+    cursor: pointer; margin-bottom: 6px; font-family: inherit; text-align: left;
   }
+  .mode-badge:hover { border-color: var(--ink-faint); }
   .mode-badge.paid { border-color: color-mix(in srgb, var(--gold) 45%, var(--line)); color: var(--gold); }
-  .mode-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--ink-faint); }
+  .mode-badge .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ink-faint); flex-shrink: 0; }
   .mode-badge.paid .dot { background: var(--gold); }
+  #to-direct-form { margin-bottom: 4px; }
+
+  .top-mode-bar { padding: 14px 20px 0; }
+  .top-mode-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    border: 1px solid var(--line); border-radius: 20px; padding: 8px 16px;
+    font-size: 0.95rem; font-weight: 500; color: var(--ink-dim); background: var(--bg-raised);
+    cursor: pointer; font-family: inherit;
+  }
+  .top-mode-badge:hover { border-color: var(--ink-faint); }
+  .top-mode-badge.paid { border-color: color-mix(in srgb, var(--gold) 45%, var(--line)); color: var(--gold); }
+  .top-mode-badge .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ink-faint); flex-shrink: 0; }
+  .top-mode-badge.paid .dot { background: var(--gold); }
 
   .chat-wrap { flex: 1; overflow-y: auto; display: flex; justify-content: center; }
   .chat-inner { width: 100%; max-width: 640px; padding: 24px 24px 12px; }
 
-  .msg { display: flex; gap: 9px; max-width: 92%; margin-bottom: 16px; }
+  .msg { display: flex; gap: 9px; max-width: 92%; margin-bottom: 16px; animation: msg-in 0.28s ease both; }
+  @keyframes msg-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  @media (prefers-reduced-motion: reduce) { .msg { animation: none; } }
   .msg.bot { align-self: flex-start; }
   .msg.user { align-self: flex-end; flex-direction: row-reverse; margin-left: auto; }
-  .msg .avatar { width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; background: var(--gold); color: var(--on-gold); display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 700; }
+  .msg .avatar {
+    width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(150deg, #e0ac2e, var(--gold) 60%, #8a5f0a);
+    box-shadow: 0 0 0 1px rgba(198,138,18,0.25), 0 2px 6px rgba(198,138,18,0.35);
+    color: var(--on-gold); display: flex; align-items: center; justify-content: center;
+    font-size: 0.72rem; font-weight: 700;
+  }
   .msg.user .avatar { visibility: hidden; width: 0; }
   .msg .bubble { background: var(--bg-raised); border: 1px solid var(--line); border-radius: 14px; padding: 11px 15px; font-size: 0.94rem; color: var(--ink); max-width: 460px; }
   .msg.user .bubble { background: var(--gold); color: var(--on-gold); border-color: transparent; }
   .msg.user { justify-content: flex-end; }
 
   .example-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 4px 0 20px; }
-  .example-chip { background: var(--bg-raised); border: 1px solid var(--line); color: var(--ink-dim); padding: 8px 14px; border-radius: 20px; font-size: 0.82rem; cursor: pointer; }
+  .example-chip {
+    background: var(--bg-raised); border: 1px solid var(--line); color: var(--ink-dim);
+    padding: 8px 14px; border-radius: 20px; font-size: 0.82rem; cursor: pointer;
+    transition: transform 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+  }
+  .example-chip:hover { transform: translateY(-1px); border-color: var(--gold-dim, var(--gold)); color: var(--ink); }
   .example-chip:hover { border-color: var(--gold); color: var(--ink); }
 
   .composer { border-top: 1px solid var(--line); padding: 16px 24px; display: flex; justify-content: center; }
@@ -126,7 +160,13 @@
     border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem; flex-shrink: 0;
   }
   .chat-send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-  .thinking { color: var(--ink-faint); font-size: 0.85rem; padding: 4px 2px; }
+  .thinking { display: flex; align-items: center; gap: 8px; color: var(--ink-faint); font-size: 0.85rem; padding: 4px 2px; }
+  .thinking .dots { display: flex; gap: 3px; }
+  .thinking .dots span { width: 5px; height: 5px; border-radius: 50%; background: var(--gold); animation: think-bounce 1.1s ease-in-out infinite; }
+  .thinking .dots span:nth-child(2) { animation-delay: 0.15s; }
+  .thinking .dots span:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes think-bounce { 0%, 60%, 100% { opacity: 0.3; transform: translateY(0); } 30% { opacity: 1; transform: translateY(-3px); } }
+  @media (prefers-reduced-motion: reduce) { .thinking .dots span { animation: none; opacity: 0.7; } }
 
   .summary-card { background: var(--bg-input); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-top: 8px; }
   .summary-row { display: flex; justify-content: space-between; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 0.85rem; }
@@ -170,6 +210,9 @@
     <div class="sidebar">
       <div class="logo"><img src="./리와인드_로고1_512px.png" alt=""> 리와인드</div>
       <button class="new-chat-btn" id="new-chat-btn">+ 새로 만들기</button>
+      <button class="mode-badge" id="mode-badge" title="눌러서 체험/정식 전환"><span class="dot"></span> <span id="mode-label">체험 모드 · 무료 3회</span></button>
+      <button class="side-item" id="to-direct-form">✏️ 직접 설정하기</button>
+      <div class="side-group-gap"></div>
       <a class="side-item active" href="./new.html">🏠 홈</a>
       <a class="side-item" href="./dashboard.html">🎞️ 내 프로젝트</a>
       <div class="side-group-gap"></div>
@@ -188,11 +231,9 @@
     </div>
 
     <div class="main">
-      <div class="main-top">
-        <span class="mode-badge" id="mode-badge"><span class="dot"></span> <span id="mode-label">체험 모드 · 무료 3회</span></span>
-        <div><button class="direct-toggle-link" id="to-direct-form">✏️ 직접 설정하기</button></div>
+      <div class="top-mode-bar">
+        <button class="top-mode-badge" id="top-mode-badge" title="눌러서 체험/정식 전환"><span class="dot"></span> <span id="top-mode-label">체험 모드</span></button>
       </div>
-
       <div class="chat-wrap">
         <div class="chat-inner" id="chat-log">
           <div class="example-row" id="example-row">
@@ -226,7 +267,7 @@
   let googleIdToken = null;
   let pastProjects = [];
   const params = new URLSearchParams(location.search);
-  const planMode = params.get('mode') === 'paid' ? 'paid' : 'trial';
+  let planMode = params.get('mode') === 'paid' ? 'paid' : 'trial';
 
   const FIELD_LABEL = {
     topic: '주제', productLink: '제품 링크', target: '타겟', form: '영상 형태', tempo: '말하기 속도',
@@ -250,8 +291,20 @@
 
   const badge = document.getElementById('mode-badge');
   const modeLabel = document.getElementById('mode-label');
-  if (planMode === 'paid') { badge.classList.add('paid'); modeLabel.textContent = '정식 모드 · 결제 안내가 이메일로 갑니다'; }
-  else { modeLabel.textContent = '체험 모드 · 무료 3회'; }
+  const topBadge = document.getElementById('top-mode-badge');
+  const topModeLabel = document.getElementById('top-mode-label');
+  function updateModeBadge() {
+    if (planMode === 'paid') {
+      badge.classList.add('paid'); modeLabel.textContent = '정식 모드 · 결제 안내가 이메일로 갑니다 (누르면 체험으로)';
+      topBadge.classList.add('paid'); topModeLabel.textContent = '정식 모드';
+    } else {
+      badge.classList.remove('paid'); modeLabel.textContent = '체험 모드 · 무료 3회 (누르면 정식으로)';
+      topBadge.classList.remove('paid'); topModeLabel.textContent = '체험 모드 · 무료 3회';
+    }
+  }
+  updateModeBadge();
+  badge.addEventListener('click', () => { planMode = planMode === 'paid' ? 'trial' : 'paid'; updateModeBadge(); });
+  topBadge.addEventListener('click', () => { planMode = planMode === 'paid' ? 'trial' : 'paid'; updateModeBadge(); });
 
   const chatLog = document.getElementById('chat-log');
   const composer = document.getElementById('composer-inner');
@@ -297,7 +350,7 @@
     exampleRow.style.display = 'none';
     addMsg('user', escapeHtml(text));
     history.push({ role: 'user', text });
-    composer.innerHTML = '<div class="thinking">생각하고 있어요…</div>';
+    composer.innerHTML = '<div class="thinking">생각하고 있어요 <span class="dots"><span></span><span></span><span></span></span></div>';
     try {
       const res = await fetch(CONSULT_WEBHOOK_URL, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
