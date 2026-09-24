@@ -174,6 +174,14 @@
   .review-status.ok { color: var(--olive); }
   .review-status.err { color: var(--err); }
 
+  .upgrade-card { border: 1px solid color-mix(in srgb, var(--amber) 35%, var(--line)); border-radius: 10px; background: linear-gradient(160deg, color-mix(in srgb, var(--amber) 9%, var(--bg-raised)), var(--bg-raised)); padding: 22px; margin-bottom: 20px; text-align: center; }
+  .upgrade-card h3 { font-family: 'Fraunces', serif; font-size: 1.15rem; font-weight: 600; margin: 0 0 6px; }
+  .upgrade-card p.sub { color: var(--ink-dim); font-size: 0.85rem; margin: 0 0 16px; line-height: 1.6; }
+  .upgrade-card .price { font-family: 'Fraunces', serif; font-size: 1.4rem; color: var(--amber); font-weight: 600; margin-bottom: 16px; }
+  .upgrade-card button { background: var(--amber); color: var(--on-amber); border: none; border-radius: 8px; padding: 13px 28px; font-size: 0.95rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .upgrade-card button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .upgrade-card .requested { color: var(--ink-dim); font-size: 0.88rem; }
+
 </style>
 </head>
 <body>
@@ -233,6 +241,8 @@
       </p>
     </div>
 
+    <div id="upgrade-card" class="upgrade-card" style="display:none;"></div>
+
     <div class="stepper" id="stepper"></div>
 
     <div class="review-card" id="review-card" style="display:none;"></div>
@@ -259,6 +269,7 @@
   const PROJECTS_WEBHOOK_URL = 'https://bald-buffalo.pikapod.net/webhook/my-projects';
   const PROGRESS_CONSULT_WEBHOOK_URL = 'https://bald-buffalo.pikapod.net/webhook/progress-consult';
   const REVIEW_ACTION_WEBHOOK_URL = 'https://bald-buffalo.pikapod.net/webhook/review-action';
+  const UPGRADE_REQUEST_WEBHOOK_URL = 'https://bald-buffalo.pikapod.net/webhook/upgrade-request';
   const GOOGLE_CLIENT_ID = '188637268860-9hj2af4bt8esn506bf5bqs72qnbu0qjs.apps.googleusercontent.com';
   let currentIdToken = null;
   let currentProject = null;
@@ -331,6 +342,7 @@
     }
     renderStepper(p.status, p.errorLog);
     renderReviewCard(p);
+    renderUpgradeCard(p);
     setupAgentChat();
 
     document.getElementById('loading').style.display = 'none';
@@ -374,6 +386,42 @@
     document.getElementById('rv-save')?.addEventListener('click', () => submitReview('edit_save'));
     document.getElementById('rv-retry').addEventListener('click', () => {
       if (confirm('지금 내용을 버리고 처음부터 다시 만들까요? 되돌릴 수 없어요.')) submitReview('retry_script');
+    });
+  }
+
+  function renderUpgradeCard(p) {
+    const card = document.getElementById('upgrade-card');
+    if (!p.videoUrl || p.paid) { card.style.display = 'none'; card.innerHTML = ''; return; } // 이미 정식이거나, 아직 영상이 없으면 안 보임
+
+    card.style.display = 'block';
+    card.innerHTML = `
+      <h3>이 영상, 마음에 드시나요?</h3>
+      <p class="sub">지금 보신 건 워터마크가 있는 체험판이에요.<br>정식으로 만들면 워터마크 없이 고화질로 받으실 수 있어요.</p>
+      ${p.estimatedPrice ? `<div class="price">약 ${Number(p.estimatedPrice).toLocaleString()}원</div>` : ''}
+      <button id="upgrade-btn">정식으로 만들기</button>
+      <p class="requested" id="upgrade-status"></p>`;
+
+    document.getElementById('upgrade-btn').addEventListener('click', async () => {
+      const btn = document.getElementById('upgrade-btn');
+      const status = document.getElementById('upgrade-status');
+      if (!confirm('정식으로 전환을 요청하시겠어요? 확인 후 결제 안내를 보내드려요.')) return;
+      btn.disabled = true;
+      status.textContent = '요청하고 있어요…';
+      try {
+        const res = await fetch(UPGRADE_REQUEST_WEBHOOK_URL, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ idToken: currentIdToken, id: currentProject.id })
+        });
+        const data = await res.json().catch(() => null);
+        if (!res.ok || !data || data.ok === false) throw new Error((data && data.message) || '요청에 실패했어요.');
+        btn.textContent = '요청 완료 - 결제 안내를 기다려주세요';
+        status.textContent = '확인 이메일을 보내드렸어요. 곧 연락드릴게요!';
+        status.style.color = 'var(--olive)';
+      } catch (e) {
+        status.textContent = e.message || '요청 중 문제가 생겼어요.';
+        status.style.color = 'var(--err)';
+        btn.disabled = false;
+      }
     });
   }
 

@@ -105,6 +105,11 @@
   @keyframes enter { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
   @media (prefers-reduced-motion: reduce) { main { animation: none; } }
   .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 32px; flex-wrap: wrap; }
+
+  .pinned-player { position: relative; margin-bottom: 28px; border-radius: 12px; overflow: hidden; background: #000; border: 1px solid var(--line); }
+  .pinned-player video { width: 100%; max-height: 70vh; display: block; background: #000; }
+  .pinned-player-title { padding: 12px 16px; font-size: 0.9rem; color: var(--ink-dim); background: var(--bg-raised); }
+  .pinned-player-close { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.6); color: #fff; border: none; border-radius: 6px; padding: 6px 12px; font-size: 0.8rem; cursor: pointer; }
   .page-head h1 { font-size: clamp(1.6rem, 4vw, 2.1rem); }
   .page-head p { color: var(--ink-faint); font-size: 0.92rem; margin-top: 6px; }
 
@@ -158,6 +163,9 @@
     color: inherit;
     transition: border-color 0.15s;
   }
+  .reel-row-playable { cursor: pointer; }
+  .reel-detail-link { padding: 10px 16px; font-size: 0.8rem; color: var(--ink-faint); text-decoration: none; white-space: nowrap; }
+  .reel-detail-link:hover { color: var(--amber); }
   .reel-row:hover { border-color: var(--ink-faint); }
   .reel-edge { align-self: stretch; background: var(--status-plan); }
   .reel-row[data-status="제작 중"] .reel-edge { background: var(--status-making); }
@@ -239,6 +247,12 @@
       </div>
     </div>
 
+    <div id="pinned-player" class="pinned-player" style="display:none;">
+      <video id="pinned-video" controls playsinline></video>
+      <div class="pinned-player-title" id="pinned-player-title"></div>
+      <button class="pinned-player-close" id="pinned-player-close">닫기 ✕</button>
+    </div>
+
     <div id="loading">
       <div class="spinner"></div>
       목록을 불러오고 있어요…
@@ -307,6 +321,24 @@
     loadProjects(response.credential);
   };
 
+  function playPinnedVideo(url, title) {
+    const wrap = document.getElementById('pinned-player');
+    const video = document.getElementById('pinned-video');
+    video.src = url;
+    document.getElementById('pinned-player-title').textContent = title || '';
+    wrap.style.display = 'block';
+    wrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    video.play().catch(() => {}); // 자동재생 실패해도 조용히 무시 (사용자가 직접 재생 버튼 누르면 됨)
+  }
+  document.getElementById('pinned-player-close').addEventListener('click', () => {
+    const wrap = document.getElementById('pinned-player');
+    const video = document.getElementById('pinned-video');
+    video.pause();
+    video.removeAttribute('src');
+    video.load();
+    wrap.style.display = 'none';
+  });
+
   function renderProjects(projects) {
     document.getElementById('loading').style.display = 'none';
     if (!projects || projects.length === 0) {
@@ -321,6 +353,22 @@
       const meta = hasError === '1'
         ? `<span class="err">${escapeHtml(p.errorLog)}</span>`
         : `${escapeHtml(p.form || '쇼츠')} · ${escapeHtml(p.createdAt || '')}`;
+
+      if (p.videoUrl) {
+        // 완성된 영상 - 클릭하면 목록을 벗어나지 않고 상단 고정 화면에서 바로 재생
+        return `
+          <div class="reel-row reel-row-playable" data-video="${escapeHtml(p.videoUrl)}" data-title="${escapeHtml(p.title || '')}">
+            <div class="reel-edge"></div>
+            <div class="reel-icon">▶</div>
+            <div class="reel-body">
+              <div class="reel-title">${escapeHtml(p.title || '주제 준비 중')}</div>
+              <div class="reel-meta">${meta}</div>
+            </div>
+            <div class="status-chip">${escapeHtml(label)}</div>
+            <a class="reel-detail-link" href="./project.html?id=${encodeURIComponent(p.id)}" onclick="event.stopPropagation()">자세히 →</a>
+          </div>`;
+      }
+
       return `
         <a class="reel-row" href="./project.html?id=${encodeURIComponent(p.id)}" data-status="${escapeHtml(p.status)}" data-error="${hasError}">
           <div class="reel-edge"></div>
@@ -333,6 +381,10 @@
           <div class="reel-arrow">›</div>
         </a>`;
     }).join('');
+
+    list.querySelectorAll('.reel-row-playable').forEach(btn => {
+      btn.addEventListener('click', () => playPinnedVideo(btn.dataset.video, btn.dataset.title));
+    });
   }
 
   function escapeHtml(s) {
