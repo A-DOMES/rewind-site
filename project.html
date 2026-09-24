@@ -120,6 +120,7 @@
   .video-card .mark { width: 48px; height: 48px; margin: 0 auto 14px; border-radius: 50%; border: 1px solid var(--amber-dim); color: var(--amber); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
   .video-card h2 { font-size: 1.15rem; margin-bottom: 6px; }
   .video-card p { color: var(--ink-dim); font-size: 0.9rem; margin: 0 0 18px; }
+  .video-card video { width: 100%; max-height: 60vh; border-radius: 8px; background: #000; margin-bottom: 4px; }
 
   .btn-primary {
     background: var(--amber); color: var(--on-amber); font-weight: 600; border: none;
@@ -230,16 +231,7 @@
       <span id="proj-date"></span>
     </div>
 
-    <div id="video-card" class="video-card" style="display:none;">
-      <div class="mark">▶</div>
-      <h2>영상이 완성됐어요</h2>
-      <p>아래 버튼으로 바로 확인하실 수 있어요.</p>
-      <a class="btn-primary" id="video-link" href="#" target="_blank" rel="noopener">완성된 영상 보기</a>
-      <p style="margin-top:16px; font-size:0.78rem; color:var(--ink-faint); line-height:1.6;">
-        이 링크는 신청하실 때 사용하신 이메일(<span id="video-note-email"></span>)로 인식해서 찾아드린 영상이에요.<br>
-        <strong style="color:var(--ink-dim);">렌더링 서버에는 최대 7일까지만 보관</strong>되니, 꼭 필요하시면 기간 안에 다운로드해두세요.
-      </p>
-    </div>
+    <div id="video-card" class="video-card" style="display:none;"></div>
 
     <div id="upgrade-card" class="upgrade-card" style="display:none;"></div>
 
@@ -305,6 +297,34 @@
     return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
 
+  function renderVideoCard(p) {
+    const card = document.getElementById('video-card');
+    if (!p.videoUrl) { card.style.display = 'none'; card.innerHTML = ''; return; }
+    card.style.display = 'block';
+
+    if (p.paid) {
+      card.innerHTML = `
+        <div class="mark">▶</div>
+        <h2>영상이 완성됐어요</h2>
+        <p>아래 버튼으로 바로 확인하실 수 있어요.</p>
+        <a class="btn-primary" href="${escapeHtml(p.videoUrl)}" target="_blank" rel="noopener">완성된 영상 보기</a>
+        <p style="margin-top:16px; font-size:0.78rem; color:var(--ink-faint); line-height:1.6;">
+          이 링크는 신청하실 때 사용하신 이메일(${escapeHtml((profile && profile.email) || '')})로 인식해서 찾아드린 영상이에요.<br>
+          <strong style="color:var(--ink-dim);">렌더링 서버에는 최대 7일까지만 보관</strong>되니, 꼭 필요하시면 기간 안에 다운로드해두세요.
+        </p>`;
+    } else {
+      // 체험판 - 원본 다운로드 링크를 그대로 노출하지 않고, 화면 안에서만 재생할 수 있게 함
+      card.innerHTML = `
+        <div class="mark">▶</div>
+        <h2>미리보기가 준비됐어요</h2>
+        <p>워터마크가 있는 체험판이에요. 아래에서 바로 확인해보세요.</p>
+        <video controls playsinline src="${escapeHtml(p.videoUrl)}"></video>
+        <p style="margin-top:12px; font-size:0.78rem; color:var(--ink-faint); line-height:1.6;">
+          마음에 드시면 아래 "정식으로 만들기"에서 워터마크 없는 고화질 버전을 다운로드하실 수 있어요.
+        </p>`;
+    }
+  }
+
   function renderStepper(status, errorLog) {
     const idx = STEP_ORDER.indexOf(status);
     const container = document.getElementById('stepper');
@@ -336,10 +356,7 @@
     document.getElementById('proj-form').textContent = p.form || '쇼츠';
     document.getElementById('proj-date').textContent = p.createdAt ? ('신청일 ' + p.createdAt) : '';
 
-    if (p.videoUrl) {
-      document.getElementById('video-card').style.display = 'block';
-      document.getElementById('video-link').href = p.videoUrl;
-    }
+    renderVideoCard(p);
     renderStepper(p.status, p.errorLog);
     renderReviewCard(p);
     renderUpgradeCard(p);
