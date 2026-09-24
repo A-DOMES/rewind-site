@@ -533,7 +533,6 @@
     const targetId = getParam('id');
     document.getElementById('loading').style.display = 'block';
     const profile = decodeJwt(idToken);
-    if (profile && profile.email) document.getElementById('video-note-email').textContent = profile.email;
     try {
       const res = await fetch(PROJECTS_WEBHOOK_URL, {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idToken })
