@@ -389,7 +389,7 @@
     try {
       const res = await fetch(CONSULT_WEBHOOK_URL, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idToken: googleIdToken, history, message: text, pastProjects, collected: answers, mode })
+        body: JSON.stringify({ idToken: googleIdToken, history, message: text, pastProjects, collected: answers, mode, planMode })
       });
       const data = await res.json().catch(() => null);
       if (!res.ok || !data || data.ok === false) throw new Error(`요청 실패 (status: ${res.status}, ok: ${res.ok}, data: ${JSON.stringify(data)})`);
