@@ -309,7 +309,7 @@
         <p>아래 버튼으로 바로 확인하실 수 있어요.</p>
         <a class="btn-primary" href="${escapeHtml(p.videoUrl)}" target="_blank" rel="noopener">완성된 영상 보기</a>
         <p style="margin-top:16px; font-size:0.78rem; color:var(--ink-faint); line-height:1.6;">
-          이 링크는 신청하실 때 사용하신 이메일(${escapeHtml((profile && profile.email) || '')})로 인식해서 찾아드린 영상이에요.<br>
+          이 링크는 신청하실 때 사용하신 이메일(${escapeHtml((decodeJwt(currentIdToken) || {}).email || '')})로 인식해서 찾아드린 영상이에요.<br>
           <strong style="color:var(--ink-dim);">렌더링 서버에는 최대 7일까지만 보관</strong>되니, 꼭 필요하시면 기간 안에 다운로드해두세요.
         </p>`;
     } else {
