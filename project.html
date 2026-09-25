@@ -510,6 +510,9 @@
       if (!res.ok || !data || data.ok === false) throw new Error((data && data.message) || '처리에 실패했어요.');
       status.textContent = action === 'approve' ? '승인됐어요! 제작이 이어서 진행돼요.' : action === 'retry_script' ? '다시 만들도록 요청했어요.' : '수정 내용을 저장했어요.';
       status.className = 'review-status ok';
+      if (action === 'retry_script') {
+        addAgentMsg('bot', '대본을 처음부터 다시 만들고 있어요! 5분 정도 기다려주시면, 새 대본이 뜰 거예요. 이 프로젝트에서는 재작성을 한 번만 쓸 수 있어서, 이번이 마지막 기회였어요 - 다음엔 이대로 승인하시거나 직접 수정해주셔야 해요.');
+      }
       setTimeout(() => loadProject(currentIdToken), 1200); // 최신 상태로 새로고침
     } catch (e) {
       status.textContent = e.message || '처리 중 문제가 생겼어요.';
