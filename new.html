@@ -486,6 +486,7 @@
       if (answers.voiceGender) payload.voiceGender = answers.voiceGender;
       if (answers.voiceAge) payload.voiceAge = answers.voiceAge;
       if (answers.directorNote) payload.directorNote = answers.directorNote;
+      if (answers.thumbnail) payload.thumbnail = answers.thumbnail;
     }
     if (answers.hookText) payload.hookText = answers.hookText;
     if (answers.sceneCount) payload.sceneCount = answers.sceneCount;
@@ -670,7 +671,8 @@
         </div>
         <div class="df-field"><label>영상 길이(분, 선택)</label><input type="number" id="df-videoLength" min="0" step="0.1" placeholder="비워두면 대본 길이에 맞게 자동"></div>
         <div class="df-field"><label>장면 수(선택)</label><input type="number" id="df-sceneCount" min="1" step="1" placeholder="비워두면 자동"></div>
-        <div class="df-field"><label>꼭 넣고 싶은 연출 (선택, 500자)</label><textarea id="df-directorNote" maxlength="500"></textarea></div>`;
+        <div class="df-field"><label>꼭 넣고 싶은 연출 (선택, 500자)</label><textarea id="df-directorNote" maxlength="500"></textarea></div>
+        <div class="df-field"><label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="df-thumbnail" style="width:auto;"> 유튜브용 커스텀 썸네일 이미지도 같이 만들기 (선택, 정식 고객만 제공)</label></div>`;
     }
 
     function updatePrice() {
@@ -705,6 +707,7 @@
         if (val('df-videoLength')) answers.videoLength = val('df-videoLength');
         if (val('df-sceneCount')) answers.sceneCount = val('df-sceneCount');
         if (val('df-directorNote')) answers.directorNote = val('df-directorNote');
+        if (document.getElementById('df-thumbnail')?.checked) answers.thumbnail = 'TRUE';
       }
       if (val('df-voiceGender')) answers.voiceGender = val('df-voiceGender');
       if (val('df-voiceAge')) answers.voiceAge = val('df-voiceAge');
