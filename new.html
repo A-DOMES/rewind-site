@@ -82,6 +82,11 @@
   .direct-toggle-link:hover { color: var(--ink-dim); }
 
   .direct-form-wrap { flex: 1; overflow-y: auto; display: flex; justify-content: center; }
+  .direct-form-wrap::-webkit-scrollbar { width: 6px; }
+  .direct-form-wrap::-webkit-scrollbar-track { background: transparent; }
+  .direct-form-wrap::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
+  .direct-form-wrap::-webkit-scrollbar-thumb:hover { background: var(--ink-faint); }
+  .direct-form-wrap { scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
   .direct-form-inner { width: 100%; max-width: 560px; padding: 20px 24px 30px; }
   .df-head { text-align: center; margin-bottom: 22px; }
   .df-head h2 { font-family: 'Fraunces', serif; font-size: 1.3rem; font-weight: 600; margin: 0 0 6px; }
@@ -733,13 +738,18 @@
     }
 
     function updatePrice() {
+      const priceBox = document.querySelector('.df-price');
+      if (planMode !== 'paid') {
+        priceBox.innerHTML = '<div class="amt" style="font-size:1rem;">지금은 체험판이라 무료예요</div><p>마음에 들면 나중에 정식으로 전환하실 수 있어요</p>';
+        return;
+      }
       const form = document.getElementById('df-form');
       const lenInput = document.getElementById('df-videoLength');
       const sceneInput = document.getElementById('df-sceneCount');
       const isLongform = form && form.value === '롱폼';
       const len = lenInput && lenInput.value ? parseFloat(lenInput.value) : (isLongform ? 3 : 0.75);
       const scenes = sceneInput && sceneInput.value ? parseInt(sceneInput.value) : (isLongform ? 15 : 8);
-      document.getElementById('df-price-amt').textContent = '약 ' + computePrice(len, scenes).toLocaleString() + '원';
+      priceBox.innerHTML = `<div class="amt" id="df-price-amt">약 ${computePrice(len, scenes).toLocaleString()}원</div><p>선택하신 내용 기준 예상 비용 (실제 확정은 다음 화면에서)</p>`;
     }
     wrap.addEventListener('input', updatePrice);
     wrap.addEventListener('change', updatePrice);
