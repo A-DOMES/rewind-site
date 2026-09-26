@@ -547,7 +547,7 @@
   }
 
   function agentEscapeHtml(s) { return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-  function agentRenderReply(text) { return agentEscapeHtml(text).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>'); }
+  function agentRenderReply(text) { return agentEscapeHtml(text).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>'); }
 
   function addAgentMsg(role, text) {
     const log = document.getElementById('agent-log');

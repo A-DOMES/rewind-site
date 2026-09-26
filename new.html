@@ -283,8 +283,8 @@
   let planMode = params.get('mode') === 'paid' ? 'paid' : 'trial';
 
   const FIELD_LABEL = {
-    topic: '주제', productLink: '제품 링크', target: '타겟', form: '영상 형태', tempo: '말하기 속도',
-    voiceGender: '목소리', voiceAge: '목소리 연령대', directorNote: '연출 메모',
+    topic: '주제', productLink: '제품 링크', productImageUrl: '제품 이미지', target: '타겟', form: '영상 형태', tempo: '말하기 속도',
+    voiceGender: '목소리', voiceAge: '목소리 연령대', directorNote: '연출 메모', style: '연출 스타일', characterUse: '캐릭터 통일',
     driveLink: '드라이브 링크', mediaNote: '분위기 메모',
     sceneCount: '장면 수', videoLength: '영상 길이', estimatedPrice: '예상 비용', hookText: '화면 상단 문구'
   };
@@ -299,7 +299,8 @@
   function escapeHtml(s) { return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
   function renderReply(text) {
     // 이스케이프 먼저, 그 다음 **강조** 표시만 안전하게 <strong>으로 변환 (그 외 마크다운은 무시)
-    return escapeHtml(text).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    // 줄바꿈(\n)은 실제 <br>로 바꿔서, 1. 2. 3. 같은 번호 목록이 한 줄로 뭉치지 않고 줄마다 보이게 한다.
+    return escapeHtml(text).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
   }
 
   const badge = document.getElementById('mode-badge');
@@ -456,7 +457,7 @@
     clampAnswersAndWarn();
     const rows = Object.keys(answers)
       .filter(k => answers[k])
-      .map(k => `<div class="summary-row"><span class="k">${FIELD_LABEL[k] || k}</span><span class="v">${escapeHtml(String(answers[k])).slice(0, 60)}</span></div>`)
+      .map(k => `<div class="summary-row"><span class="k">${FIELD_LABEL[k] || k}</span><span class="v">${k === 'characterUse' ? (answers[k] ? '예' : '아니오') : escapeHtml(String(answers[k])).slice(0, 60)}</span></div>`)
       .join('');
     addMsg('bot', `이렇게 만들어드릴게요.<div class="summary-card">${rows || '<div class="summary-row"><span class="k">확인된 내용이 없어요</span></div>'}</div>`);
 
@@ -490,7 +491,7 @@
     const status = document.getElementById('form-status');
     status.textContent = ''; status.className = 'form-status';
     const profile = decodeJwt(googleIdToken);
-    const payload = { name: (profile && profile.name) || '', contact: (profile && profile.email) || '', idToken: googleIdToken, termsConsent: true, mode: mode || 'topic' };
+    const payload = { name: (profile && profile.name) || '', contact: (profile && profile.email) || '', idToken: googleIdToken, termsConsent: true, mode: mode || 'topic', planMode };
 
     if (mode === 'media') {
       payload.driveLink = answers.driveLink || '';
