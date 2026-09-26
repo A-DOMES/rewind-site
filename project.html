@@ -188,8 +188,8 @@
   /* ===== 디자인 v2 (필름 스튜디오) — 기존 규칙 위에 덮어쓰는 층. 아래만 지우면 이전 디자인으로 돌아감 ===== */
   :root, :root:not([data-theme="__v2"]), :root[data-theme] {
     color-scheme: dark;
-    --bg: #14110f; --bg-raised: #1a1613; --bg-input: #221d19; --line: #2e2823; --film: #0f0d0b;
-    --ink: #f2e9da; --ink-dim: #c9bfae; --ink-faint: #9a8f80;
+    --bg: #171412; --bg-raised: #1f1b18; --bg-input: #221d19; --line: #3a332c; --film: #0f0d0b;
+    --ink: #fbf7f0; --ink-dim: #e0d7c8; --ink-faint: #b1a695;
     --amber: #e2a23c; --amber-dim: #5a4222; --amber-wash: #251d14; --olive: #c9a86a; --on-amber: #1a1410;
     --gold: #e2a23c; --gold-dim: #5a4222; --on-gold: #1a1410;
     --blue: #8cb4e0; --green: #a8c996; --err: #e08a7a; --focus: #e2a23c; --card-shadow: none;
@@ -540,7 +540,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
         <h2>영상이 완성됐어요</h2>
         <p>아래 버튼으로 바로 확인하실 수 있어요.</p>
         <a class="btn-primary" href="${escapeHtml(p.videoUrl)}" target="_blank" rel="noopener">완성된 영상 보기</a>
-        ${p.thumbnailUrl ? `<p style="margin-top:12px;"><a href="${escapeHtml(p.thumbnailUrl)}" target="_blank" rel="noopener" style="color:var(--amber); font-size:0.88rem;">🖼 썸네일 이미지 보기/다운로드</a></p>` : ''}
+        ${p.thumbnailUrl ? `<p style="margin-top:12px;"><a href="${escapeHtml(p.thumbnailUrl)}" target="_blank" rel="noopener" style="color:var(--amber); font-size:0.88rem;">썸네일 이미지 보기/다운로드</a></p>` : ''}
         <p style="margin-top:16px; font-size:0.78rem; color:var(--ink-faint); line-height:1.6;">
           이 링크는 신청하실 때 사용하신 이메일(${escapeHtml((decodeJwt(currentIdToken) || {}).email || '')})로 인식해서 찾아드린 영상이에요.<br>
           <strong style="color:var(--ink-dim);">렌더링 서버에는 최대 7일까지만 보관</strong>되니, 꼭 필요하시면 기간 안에 다운로드해두세요.

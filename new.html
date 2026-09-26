@@ -222,8 +222,8 @@
   /* ===== 디자인 v2 (필름 스튜디오) — 기존 규칙 위에 덮어쓰는 층. 아래만 지우면 이전 디자인으로 돌아감 ===== */
   :root, :root:not([data-theme="__v2"]), :root[data-theme] {
     color-scheme: dark;
-    --bg: #14110f; --bg-raised: #1a1613; --bg-input: #221d19; --line: #2e2823; --film: #0f0d0b;
-    --ink: #f2e9da; --ink-dim: #c9bfae; --ink-faint: #9a8f80;
+    --bg: #171412; --bg-raised: #1f1b18; --bg-input: #221d19; --line: #3a332c; --film: #0f0d0b;
+    --ink: #fbf7f0; --ink-dim: #e0d7c8; --ink-faint: #b1a695;
     --amber: #e2a23c; --amber-dim: #5a4222; --amber-wash: #251d14; --olive: #c9a86a; --on-amber: #1a1410;
     --gold: #e2a23c; --gold-dim: #5a4222; --on-gold: #1a1410;
     --blue: #8cb4e0; --green: #a8c996; --err: #e08a7a; --focus: #e2a23c; --card-shadow: none;
@@ -245,7 +245,7 @@
   .sidebar { width: 244px; background: #171310; border-right-color: #2a241f; padding: 20px 14px; }
   .sidebar .logo { font-size: 1.05rem; }
   .new-chat-btn { border-radius: 999px; padding: 12px 16px; font-size: 0.92rem; justify-content: center; }
-  .side-item { border-radius: 10px; padding: 10px 12px; font-size: 0.92rem; }
+  .side-item { border-radius: 10px; padding: 10px 12px; font-size: 0.94rem; color: var(--ink-dim); font-weight: 500; }
   .side-item svg { width: 18px; height: 18px; flex-shrink: 0; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
   .side-item.active, .side-item:hover { background: #231e1a; }
   .side-item .soon { border-radius: 999px; }
@@ -257,7 +257,7 @@
   .chat-inner { padding-top: 32px; }
   .msg { margin-bottom: 22px; gap: 12px; }
   .msg .avatar { width: 32px; height: 32px; background: #2a241f; box-shadow: 0 0 0 1px #3a322b; color: var(--amber); font-size: 0.78rem; }
-  .msg.bot .bubble { background: transparent; border: 0; padding: 4px 0 0; font-size: 1rem; line-height: 1.75; color: #e8dfcf; max-width: 600px; }
+  .msg.bot .bubble { background: transparent; border: 0; padding: 4px 0 0; font-size: 1rem; line-height: 1.75; color: var(--ink); max-width: 600px; }
   .msg.user .bubble { background: #2e2519; color: var(--ink); border: 1px solid #4a3a25; border-radius: 20px 20px 6px 20px; padding: 12px 18px; font-size: 0.98rem; }
   .example-chip { border-radius: 999px; padding: 10px 18px; font-size: 0.9rem; border-color: #3a322b; color: var(--ink-dim); }
   .example-chip:hover { transform: none; border-color: var(--amber); color: var(--ink); }
@@ -354,12 +354,12 @@
   }
 
   /* ===== 컬러 아이콘 ===== */
-  .side-item .ico { width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0; display: grid; place-items: center; background: color-mix(in srgb, var(--c) 16%, transparent); }
-  .side-item .ico svg { width: 18px; height: 18px; stroke-width: 2; stroke: var(--c); }
+  .side-item .ico { width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0; display: grid; place-items: center; background: color-mix(in srgb, var(--c) 20%, transparent); }
+  .side-item .ico svg { width: 18px; height: 18px; stroke-width: 2.1; stroke: var(--c); }
   .side-item.soon-btn .ico { opacity: .75; }
-  .example-chip { display: inline-flex; align-items: center; gap: 8px; background: color-mix(in srgb, var(--c, #9a8f80) 10%, var(--bg-raised)); border-color: color-mix(in srgb, var(--c, #9a8f80) 38%, #2e2823); color: var(--ink); }
-  .example-chip svg { width: 18px; height: 18px; flex-shrink: 0; fill: none; stroke: var(--c, #9a8f80); stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
-  .example-chip:hover { border-color: var(--c, var(--amber)); background: color-mix(in srgb, var(--c, #9a8f80) 18%, var(--bg-raised)); }
+  .example-chip { display: inline-flex; align-items: center; gap: 9px; background: var(--bg-raised); border-color: var(--line); color: var(--ink); font-weight: 500; }
+  .example-chip svg { width: 18px; height: 18px; flex-shrink: 0; fill: none; stroke: var(--c, #9a8f80); stroke-width: 2.1; stroke-linecap: round; stroke-linejoin: round; }
+  .example-chip:hover { border-color: var(--c, var(--amber)); background: var(--bg-raised); }
 
   /* ===== 테마 전환 (시스템 / 밝게 / 어둡게) ===== */
   .theme-switch { display: inline-flex; gap: 2px; padding: 3px; border: 1px solid var(--line); border-radius: 999px; background: var(--bg-raised); flex-shrink: 0; }
@@ -426,6 +426,7 @@
     :root[data-theme="system"] .side-item .ico svg, :root[data-theme="system"] .example-chip svg { stroke: color-mix(in srgb, var(--c) 72%, #000); }
     :root[data-theme="system"] .side-item .ico { background: color-mix(in srgb, var(--c) 22%, transparent); }
   }
+  .df-field input[type="checkbox"] { width: 18px; height: 18px; min-height: 0; padding: 0; accent-color: var(--amber); flex-shrink: 0; }
 </style>
 <script>
 /* 테마 전환: 기존 기능 코드와 분리된 독립 스크립트 */
@@ -489,15 +490,15 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       <button class="new-chat-btn" id="new-chat-btn">+ 새로 만들기</button>
       <button class="mode-badge" id="mode-badge" title="눌러서 체험/정식 전환"><span class="dot"></span> <span id="mode-label">체험 모드 · 무료 3회</span></button>
       <button class="side-item" id="to-direct-form"><span class="ico" style="--c:#e2a23c"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/></svg></span> 직접 설정하기</button>
-      <button class="side-item" id="to-price-table"><span class="ico" style="--c:#8fcf8a"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M14.5 9.5h-3.5a1.5 1.5 0 0 0 0 3h2a1.5 1.5 0 0 1 0 3H9.5M12 7.5v1.5M12 15.5V17"/></svg></span> 요금 안내</button>
+      <button class="side-item" id="to-price-table"><span class="ico" style="--c:#86d980"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M14.5 9.5h-3.5a1.5 1.5 0 0 0 0 3h2a1.5 1.5 0 0 1 0 3H9.5M12 7.5v1.5M12 15.5V17"/></svg></span> 요금 안내</button>
       <div class="side-group-gap"></div>
-      <a class="side-item active" href="./new.html"><span class="ico" style="--c:#7db4ec"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-6 8 6v8h-5v-5h-6v5H4z"/></svg></span> 홈</a>
-      <a class="side-item" href="./dashboard.html"><span class="ico" style="--c:#b69cf0"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 4v16M16 4v16M4 9h4M4 15h4M16 9h4M16 15h4"/></svg></span> 내 프로젝트</a>
+      <a class="side-item active" href="./new.html"><span class="ico" style="--c:#74b6ff"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-6 8 6v8h-5v-5h-6v5H4z"/></svg></span> 홈</a>
+      <a class="side-item" href="./dashboard.html"><span class="ico" style="--c:#b99bff"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 4v16M16 4v16M4 9h4M4 15h4M16 9h4M16 15h4"/></svg></span> 내 프로젝트</a>
       <div class="side-group-gap"></div>
-      <button class="side-item soon-btn"><span class="ico" style="--c:#5fc9b5"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg></span> 에이전트 <span class="soon">준비 중</span></button>
-      <button class="side-item soon-btn"><span class="ico" style="--c:#ef8a6f"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg></span> 앱 <span class="soon">준비 중</span></button>
-      <button class="side-item soon-btn"><span class="ico" style="--c:#ee8fb8"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="18" r="2"/><path d="M8 6h5a3 3 0 0 1 3 3v7"/></svg></span> 워크플로우 <span class="soon">준비 중</span></button>
-      <button class="side-item soon-btn"><span class="ico" style="--c:#f2cf5b"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18c1 0 1.5-.8 1.5-1.6 0-1.2-1-1.4-1-2.4 0-.9.7-1.5 1.6-1.5H17a4 4 0 0 0 4-4c0-4.7-4-8.5-9-8.5z"/><circle cx="8" cy="11" r="1"/><circle cx="12" cy="8" r="1"/></svg></span> 브랜드 <span class="soon">준비 중</span></button>
+      <button class="side-item soon-btn"><span class="ico" style="--c:#4fd6bd"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg></span> 에이전트 <span class="soon">준비 중</span></button>
+      <button class="side-item soon-btn"><span class="ico" style="--c:#ff8f6b"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg></span> 앱 <span class="soon">준비 중</span></button>
+      <button class="side-item soon-btn"><span class="ico" style="--c:#ff8cc0"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="18" r="2"/><path d="M8 6h5a3 3 0 0 1 3 3v7"/></svg></span> 워크플로우 <span class="soon">준비 중</span></button>
+      <button class="side-item soon-btn"><span class="ico" style="--c:#ffd84d"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18c1 0 1.5-.8 1.5-1.6 0-1.2-1-1.4-1-2.4 0-.9.7-1.5 1.6-1.5H17a4 4 0 0 0 4-4c0-4.7-4-8.5-9-8.5z"/><circle cx="8" cy="11" r="1"/><circle cx="12" cy="8" r="1"/></svg></span> 브랜드 <span class="soon">준비 중</span></button>
       <div class="sidebar-footer">
         <button class="side-item soon-btn"><span class="ico" style="--c:#b8ad9c"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v2M12 19v2M4.2 7.5l1.7 1M18.1 15.5l1.7 1M4.2 16.5l1.7-1M18.1 8.5l1.7-1"/></svg></span> 설정 <span class="soon">준비 중</span></button>
         <div class="account-row">
@@ -524,10 +525,10 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
           <div class="chat-wrap">
             <div class="chat-inner" id="chat-log">
               <div class="example-row" id="example-row">
-                <button class="example-chip" data-topic="우리 카페의 신메뉴 딸기라떼를 20대에게 홍보하고 싶어요" style="--c:#ef8a6f"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h12v5a5 5 0 0 1-5 5h-2a5 5 0 0 1-5-5V8z"/><path d="M17 10h1.5a2.5 2.5 0 0 1 0 5H17M8 3v2M11 3v2M14 3v2"/></svg>카페 신메뉴 홍보</button>
-                <button class="example-chip" data-topic="반려동물 영양제를 소개하는 영상을 만들고 싶어요" style="--c:#ee8fb8"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="10" r="1.8"/><circle cx="10" cy="6" r="1.8"/><circle cx="14" cy="6" r="1.8"/><circle cx="18" cy="10" r="1.8"/><path d="M12 11c-3 0-5 3.5-5 5.5 0 1.5 1.2 2.5 2.7 2.5.9 0 1.5-.4 2.3-.4s1.4.4 2.3.4c1.5 0 2.7-1 2.7-2.5 0-2-2-5.5-5-5.5z"/></svg>반려동물 용품</button>
-                <button class="example-chip" data-topic="환절기 감기 예방을 위한 건강 정보를 알려주는 영상" style="--c:#5fc9b5"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/><path d="M8 12h2l1-2 2 4 1-2h2"/></svg>건강정보</button>
-                <button class="example-chip" data-topic="20년지기 친구들과 다녀온 제주도 여행 추억을 담은 영상" style="--c:#b69cf0"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-8 8"/></svg>추억 영상</button>
+                <button class="example-chip" data-topic="우리 카페의 신메뉴 딸기라떼를 20대에게 홍보하고 싶어요" style="--c:#ff8f6b"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h12v5a5 5 0 0 1-5 5h-2a5 5 0 0 1-5-5V8z"/><path d="M17 10h1.5a2.5 2.5 0 0 1 0 5H17M8 3v2M11 3v2M14 3v2"/></svg>카페 신메뉴 홍보</button>
+                <button class="example-chip" data-topic="반려동물 영양제를 소개하는 영상을 만들고 싶어요" style="--c:#ff8cc0"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="10" r="1.8"/><circle cx="10" cy="6" r="1.8"/><circle cx="14" cy="6" r="1.8"/><circle cx="18" cy="10" r="1.8"/><path d="M12 11c-3 0-5 3.5-5 5.5 0 1.5 1.2 2.5 2.7 2.5.9 0 1.5-.4 2.3-.4s1.4.4 2.3.4c1.5 0 2.7-1 2.7-2.5 0-2-2-5.5-5-5.5z"/></svg>반려동물 용품</button>
+                <button class="example-chip" data-topic="환절기 감기 예방을 위한 건강 정보를 알려주는 영상" style="--c:#4fd6bd"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/><path d="M8 12h2l1-2 2 4 1-2h2"/></svg>건강정보</button>
+                <button class="example-chip" data-topic="20년지기 친구들과 다녀온 제주도 여행 추억을 담은 영상" style="--c:#b99bff"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-8 8"/></svg>추억 영상</button>
               </div>
             </div>
           </div>
@@ -900,7 +901,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
         const btnRetry = document.createElement('button');
         btnRetry.className = 'chat-send-btn';
         btnRetry.style.cssText = 'width:auto; background:none; color:var(--err); border:1px solid var(--err); border-radius:8px; padding:11px 18px; font-size:0.86rem; white-space:nowrap;';
-        btnRetry.textContent = '✍️ 대본 다시 써줘';
+        btnRetry.textContent = '대본 다시 써줘';
         btnRetry.addEventListener('click', () => retryScriptFromChat(검수대기목록[0]));
         row.appendChild(btnRetry);
       }
@@ -1009,8 +1010,8 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
           <p>항목을 골라서 바로 채워보세요. 비워두시면 AI가 알아서 정해드려요.</p>
         </div>
         <div class="df-tabs">
-          <button class="df-tab ${!isMedia ? 'active' : ''}" id="df-tab-topic">✍️ 주제로 만들기</button>
-          <button class="df-tab ${isMedia ? 'active' : ''}" id="df-tab-media">📁 내 드라이브 자료로</button>
+          <button class="df-tab ${!isMedia ? 'active' : ''}" id="df-tab-topic">주제로 만들기</button>
+          <button class="df-tab ${isMedia ? 'active' : ''}" id="df-tab-media">내 드라이브 자료로</button>
         </div>
         <div id="df-fields"></div>
         <div class="df-price">
@@ -1036,7 +1037,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       fieldsEl.innerHTML = `
         <div class="df-field"><label>주제 * (300자)</label><textarea id="df-topic" maxlength="300" placeholder="예: LG 통돌이 17kg DD모터 인공지능 세탁기 (T17DX3) 소개"></textarea></div>
         <div class="df-field"><label>영상 이렇게 만들어주세요 (선택, 300자)</label><textarea id="df-style" maxlength="300" placeholder="예: 밝고 경쾌한 분위기로, 가족이 함께 쓰는 느낌으로"></textarea></div>
-        <div class="df-field"><label><input type="checkbox" id="df-characterUse" style="width:auto;display:inline-block;margin-right:6px;">영상 내내 같은 캐릭터(인물)가 나오게 하기</label></div>
+        <div class="df-field"><label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="df-characterUse" style="width:auto;min-height:0;">영상 내내 같은 캐릭터(인물)가 나오게 하기</label></div>
         <div class="df-field"><label>제품 링크 (선택)</label><input type="url" id="df-productLink" placeholder="https://..."></div>
         <div class="df-field"><label>제품 이미지 URL (선택)</label><input type="url" id="df-productImageUrl" placeholder="https://..."></div>
         <div class="df-grid2">
@@ -1050,7 +1051,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
         <div class="df-field"><label>영상 길이(분, 선택)</label><input type="number" id="df-videoLength" min="0" step="0.1" placeholder="비워두면 대본 길이에 맞게 자동"></div>
         <div class="df-field"><label>장면 수(선택)</label><input type="number" id="df-sceneCount" min="1" step="1" placeholder="비워두면 자동"></div>
         <div class="df-field"><label>꼭 넣고 싶은 연출 (선택, 500자)</label><textarea id="df-directorNote" maxlength="500"></textarea></div>
-        <div class="df-field"><label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="df-thumbnail" style="width:auto;"> 유튜브용 커스텀 썸네일 이미지도 같이 만들기 (선택, 정식 고객만 제공)</label></div>`;
+        <div class="df-field"><label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="df-thumbnail" style="width:auto;min-height:0;"> 유튜브용 커스텀 썸네일 이미지도 같이 만들기 (선택, 정식 고객만 제공)</label></div>`;
     }
 
     wrap.addEventListener('input', updatePrice);
