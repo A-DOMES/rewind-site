@@ -64,6 +64,10 @@
   .account-row .logout { margin-left: auto; background: none; border: none; color: var(--ink-faint); font-size: 0.78rem; cursor: pointer; text-decoration: underline; }
 
   .main { flex: 1; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+  .split-row { flex: 1; display: flex; overflow: hidden; min-height: 0; }
+  .chat-column { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+  .split-row.split-active .direct-form-wrap { display: flex !important; flex: 0 0 46%; max-width: 480px; border-right: 1px solid var(--line); }
+  @media (max-width: 760px) { .split-row.split-active .direct-form-wrap { flex-basis: 100%; max-width: none; } .split-row.split-active .chat-column { display: none; } }
   .main::before {
     content: ""; position: absolute; top: -10%; right: -8%; width: 50%; height: 40%;
     background: radial-gradient(circle, color-mix(in srgb, var(--gold) 7%, transparent), transparent 70%);
@@ -236,23 +240,25 @@
       <div class="top-mode-bar">
         <button class="top-mode-badge" id="top-mode-badge" title="눌러서 체험/정식 전환"><span class="dot"></span> <span id="top-mode-label">체험 모드</span></button>
       </div>
-      <div class="chat-wrap">
-        <div class="chat-inner" id="chat-log">
-          <div class="example-row" id="example-row">
-            <button class="example-chip" data-topic="우리 카페의 신메뉴 딸기라떼를 20대에게 홍보하고 싶어요">☕ 카페 신메뉴 홍보</button>
-            <button class="example-chip" data-topic="반려동물 영양제를 소개하는 영상을 만들고 싶어요">🐾 반려동물 용품</button>
-            <button class="example-chip" data-topic="환절기 감기 예방을 위한 건강 정보를 알려주는 영상">🩺 건강정보</button>
-            <button class="example-chip" data-topic="20년지기 친구들과 다녀온 제주도 여행 추억을 담은 영상">🎞️ 추억 영상</button>
+      <div class="split-row" id="split-row">
+        <div class="direct-form-wrap" id="direct-form-wrap" style="display:none;"></div>
+        <div class="chat-column" id="chat-column">
+          <div class="chat-wrap">
+            <div class="chat-inner" id="chat-log">
+              <div class="example-row" id="example-row">
+                <button class="example-chip" data-topic="우리 카페의 신메뉴 딸기라떼를 20대에게 홍보하고 싶어요">☕ 카페 신메뉴 홍보</button>
+                <button class="example-chip" data-topic="반려동물 영양제를 소개하는 영상을 만들고 싶어요">🐾 반려동물 용품</button>
+                <button class="example-chip" data-topic="환절기 감기 예방을 위한 건강 정보를 알려주는 영상">🩺 건강정보</button>
+                <button class="example-chip" data-topic="20년지기 친구들과 다녀온 제주도 여행 추억을 담은 영상">🎞️ 추억 영상</button>
+              </div>
+            </div>
           </div>
+          <div class="composer">
+            <div class="composer-inner" id="composer-inner"></div>
+          </div>
+          <p class="form-status" id="form-status"></p>
         </div>
       </div>
-
-      <div class="direct-form-wrap" id="direct-form-wrap" style="display:none;"></div>
-
-      <div class="composer">
-        <div class="composer-inner" id="composer-inner"></div>
-      </div>
-      <p class="form-status" id="form-status"></p>
     </div>
   </div>
 </div>
@@ -327,6 +333,8 @@
   }
 
   function renderComposer() {
+    const staleStatus = document.getElementById('form-status');
+    if (staleStatus) { staleStatus.textContent = ''; staleStatus.className = 'form-status'; }
     composer.innerHTML = '';
     const row = document.createElement('div');
     row.className = 'chat-text-row';
@@ -389,6 +397,8 @@
   }
 
   async function sendMessage(text) {
+    const staleStatus = document.getElementById('form-status');
+    if (staleStatus) { staleStatus.textContent = ''; staleStatus.className = 'form-status'; }
     exampleRow.style.display = 'none';
     addMsg('user', escapeHtml(text));
     history.push({ role: 'user', text });
@@ -494,6 +504,8 @@
       if (answers.voiceGender) payload.voiceGender = answers.voiceGender;
       if (answers.voiceAge) payload.voiceAge = answers.voiceAge;
       if (answers.directorNote) payload.directorNote = answers.directorNote;
+      if (answers.style) payload.style = answers.style;
+      if (answers.characterUse !== undefined) payload.characterUse = answers.characterUse;
       if (answers.thumbnail) payload.thumbnail = answers.thumbnail;
     }
     if (answers.hookText) payload.hookText = answers.hookText;
@@ -614,16 +626,14 @@
   let dfMode = 'topic';
 
   function showDirectForm() {
-    document.getElementById('chat-log').parentElement.style.display = 'none';
-    document.getElementById('composer-inner').parentElement.style.display = 'none';
+    document.getElementById('split-row').classList.add('split-active');
     const wrap = document.getElementById('direct-form-wrap');
     wrap.style.display = 'flex';
     renderDirectForm();
   }
   function showChatFromDirectForm() {
+    document.getElementById('split-row').classList.remove('split-active');
     document.getElementById('direct-form-wrap').style.display = 'none';
-    document.getElementById('chat-log').parentElement.style.display = 'flex';
-    document.getElementById('composer-inner').parentElement.style.display = 'flex';
   }
   document.getElementById('to-direct-form').addEventListener('click', showDirectForm);
 
@@ -668,6 +678,8 @@
     } else {
       fieldsEl.innerHTML = `
         <div class="df-field"><label>주제 * (300자)</label><textarea id="df-topic" maxlength="300" placeholder="예: LG 통돌이 17kg DD모터 인공지능 세탁기 (T17DX3) 소개"></textarea></div>
+        <div class="df-field"><label>영상 이렇게 만들어주세요 (선택, 300자)</label><textarea id="df-style" maxlength="300" placeholder="예: 밝고 경쾌한 분위기로, 가족이 함께 쓰는 느낌으로"></textarea></div>
+        <div class="df-field"><label><input type="checkbox" id="df-characterUse" style="width:auto;display:inline-block;margin-right:6px;">영상 내내 같은 캐릭터(인물)가 나오게 하기</label></div>
         <div class="df-field"><label>제품 링크 (선택)</label><input type="url" id="df-productLink" placeholder="https://..."></div>
         <div class="df-field"><label>제품 이미지 URL (선택)</label><input type="url" id="df-productImageUrl" placeholder="https://..."></div>
         <div class="df-grid2">
@@ -711,6 +723,8 @@
         answers = { topic: val('df-topic'), form: document.getElementById('df-form').value || '쇼츠' };
         if (val('df-productLink')) answers.productLink = val('df-productLink');
         if (val('df-productImageUrl')) answers.productImageUrl = val('df-productImageUrl');
+        if (val('df-style')) answers.style = val('df-style');
+        if (document.getElementById('df-characterUse')?.checked) answers.characterUse = true;
         if (val('df-target')) answers.target = val('df-target');
         if (val('df-tempo')) answers.tempo = val('df-tempo');
         if (val('df-hookText')) answers.hookText = val('df-hookText');
@@ -727,8 +741,9 @@
       mode = isMedia ? 'media' : 'topic';
 
       showChatFromDirectForm();
-      addMsg('user', '직접 설정하기로 내용을 채웠어요.');
-      showSummary();
+      // [중요] 바로 요약으로 넘기지 않고, 서버에 한 번 물어봐서 빠진 필수 항목(예: 상품인데 제품링크 없음)이
+      // 있으면 챗봇이 그 자리에서 한 번 더 확인하도록 한다. 다 채워져 있으면 서버가 곧바로 complete를 돌려준다.
+      sendMessage('직접 설정하기로 내용을 채웠어요. 확인해줘.');
     });
   }
 
