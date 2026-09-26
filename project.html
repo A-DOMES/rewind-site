@@ -336,13 +336,30 @@
   function renderStepper(status, errorLog) {
     const idx = STEP_ORDER.indexOf(status);
     const container = document.getElementById('stepper');
-    container.innerHTML = STEP_ORDER.map((step, i) => {
+
+    // 연속된 단계가 화면 문구(STEP_LABEL)까지 똑같으면, 한 줄로 합쳐서 보여준다
+    // (예: 장면구성대기/장면구성중 둘 다 "장면과 목소리를 만들고 있어요")
+    const groups = [];
+    STEP_ORDER.forEach((step, i) => {
+      const label = STEP_LABEL[step] || step;
+      const last = groups[groups.length - 1];
+      if (last && last.label === label) {
+        last.steps.push(step);
+      } else {
+        groups.push({ label, steps: [step] });
+      }
+    });
+
+    container.innerHTML = groups.map((group, gi) => {
+      const groupIdxs = group.steps.map(s => STEP_ORDER.indexOf(s));
+      const minIdx = Math.min(...groupIdxs), maxIdx = Math.max(...groupIdxs);
       let cls = '';
-      if (errorLog && i === idx) cls = 'error';
-      else if (i < idx) cls = 'done';
-      else if (i === idx) cls = 'current';
-      const isLast = i === STEP_ORDER.length - 1;
-      const hint = cls === 'error' ? errorLog : (cls === 'current' || cls === 'done' || cls === 'error') ? STEP_HINT[step] : '';
+      if (errorLog && idx >= minIdx && idx <= maxIdx) cls = 'error';
+      else if (idx > maxIdx) cls = 'done';
+      else if (idx >= minIdx && idx <= maxIdx) cls = 'current';
+      const isLast = gi === groups.length - 1;
+      const activeStep = (idx >= minIdx && idx <= maxIdx) ? status : group.steps[group.steps.length - 1];
+      const hint = cls === 'error' ? errorLog : (cls === 'current' || cls === 'done' || cls === 'error') ? STEP_HINT[activeStep] : '';
       return `
         <div class="status-step-row ${cls}">
           <div class="rail-col">
@@ -350,7 +367,7 @@
             ${isLast ? '' : '<div class="status-line"></div>'}
           </div>
           <div class="status-step-body">
-            <div class="status-step-label">${escapeHtml(STEP_LABEL[step] || step)}</div>
+            <div class="status-step-label">${escapeHtml(group.label)}</div>
             ${hint ? `<div class="status-step-hint">${escapeHtml(hint)}</div>` : ''}
           </div>
         </div>`;
@@ -549,10 +566,14 @@
 
   function setupAgentChat(p) {
     const log = document.getElementById('agent-log');
-    if (log.dataset.ready) return; // 이미 초기화됐으면 다시 인사하지 않음
-    log.dataset.ready = '1';
+    // 단계가 실제로 바뀔 때마다(처음 포함) 새로 인사 - 페이지를 계속 열어두고 계셔도 다음 단계 안내를 놓치지 않도록
     const greeting = p && AGENT_GREETING[p.status];
-    if (greeting) addAgentMsg('bot', greeting); // AI 호출 없이 바로 보여주는 무료 안내
+    if (greeting && log.dataset.greetedStatus !== p.status) {
+      log.dataset.greetedStatus = p.status;
+      addAgentMsg('bot', greeting); // AI 호출 없이 바로 보여주는 무료 안내
+    }
+    if (log.dataset.ready) return; // 입력창 이벤트 연결은 한 번만
+    log.dataset.ready = '1';
     const input = document.getElementById('agent-text-field');
     const send = document.getElementById('agent-send-btn');
     const autoGrow = () => { input.style.height = 'auto'; input.style.height = Math.min(input.scrollHeight, 120) + 'px'; };
