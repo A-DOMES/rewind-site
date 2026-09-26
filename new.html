@@ -764,13 +764,37 @@
   window.handleGoogleSignIn = function (response) {
     sessionStorage.setItem('rw_id_token', response.credential);
     enterApp(response.credential);
+    const data = decodeJwt(response.credential);
+    if (data) scheduleTokenRefresh(data.exp);
   };
+
+  // 토큰이 만료되기 조금 전에, 사용자가 전혀 눈치채지 못하게 조용히 새 토큰을 다시 받아온다
+  let __refreshTimer = null;
+  function scheduleTokenRefresh(expSeconds) {
+    if (__refreshTimer) clearTimeout(__refreshTimer);
+    if (!expSeconds) return;
+    const 남은시간ms = (expSeconds * 1000) - Date.now() - (5 * 60 * 1000); // 만료 5분 전에 미리 갱신
+    const 대기시간 = Math.max(5000, 남은시간ms);
+    __refreshTimer = setTimeout(() => {
+      try { google.accounts.id.prompt(); } catch (e) {}
+    }, 대기시간);
+  }
+
   function initGate() {
     if (window.google && google.accounts && google.accounts.id) {
-      google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: window.handleGoogleSignIn });
+      google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: window.handleGoogleSignIn, auto_select: true });
       google.accounts.id.renderButton(document.getElementById('gsi-area'), { theme: 'filled_black', size: 'large', text: 'continue_with', shape: 'pill' });
       const saved = sessionStorage.getItem('rw_id_token');
-      if (saved) enterApp(saved);
+      if (saved) {
+        const profile = decodeJwt(saved);
+        const 지금초 = Math.floor(Date.now() / 1000);
+        if (profile && profile.exp && profile.exp > 지금초 + 60) {
+          enterApp(saved);
+          scheduleTokenRefresh(profile.exp);
+          return;
+        }
+        try { google.accounts.id.prompt(); } catch (e) {}
+      }
     } else {
       setTimeout(initGate, 200);
     }
