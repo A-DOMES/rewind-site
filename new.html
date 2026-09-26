@@ -402,6 +402,13 @@
   }
 
   async function sendMessage(text) {
+    // [화면 초기화 감지] "화면 지워줘", "처음부터 다시" 같은 요청은 AI에 보내지 않고
+    // 그 자리에서 바로 진짜로 화면과 대화 기록을 지운다 (말로만 "다시 안내"하고 화면은 그대로였던 문제 해결).
+    const 초기화패턴 = /(화면|채팅|대화).{0,6}(지워|깨끗|초기화|리셋)|처음부터\s*다시|새로\s*시작/;
+    if (초기화패턴.test(text)) {
+      startFreshChat(true);
+      return;
+    }
     const staleStatus = document.getElementById('form-status');
     if (staleStatus) { staleStatus.textContent = ''; staleStatus.className = 'form-status'; }
     exampleRow.style.display = 'none';
@@ -417,9 +424,9 @@
       if (!res.ok || !data || data.ok === false) throw new Error(`요청 실패 (status: ${res.status}, ok: ${res.ok}, data: ${JSON.stringify(data)})`);
       if (data.mode) mode = data.mode;
       if (data.collected) Object.assign(answers, data.collected);
-      if (data.reply) { addMsg('bot', renderReply(data.reply)); history.push({ role: 'bot', text: data.reply }); }
-      saveChatState();
       const 필수충족 = mode === 'media' ? !!(answers.driveLink && answers.form) : !!(answers.topic && answers.form);
+      if (data.reply && !(data.complete && 필수충족)) { addMsg('bot', renderReply(data.reply)); history.push({ role: 'bot', text: data.reply }); }
+      saveChatState();
       if (data.complete && 필수충족) {
         showSummary();
       } else {
