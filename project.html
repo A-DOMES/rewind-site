@@ -275,8 +275,8 @@
     '장면구성대기': '장면과 목소리를 만들고 있어요',
     '장면구성중': '장면과 목소리를 만들고 있어요',
     '검수 대기': '최종 대본과 장면을 확인하고 최종영상을 만들기 위해 승인해주세요',
-    '검수완료': '정식 영상으로 마무리 중이에요',
-    '제작 중': '정식 영상으로 마무리 중이에요',
+    '검수완료': '정식 제작을 준비하고 있어요',
+    '제작 중': '정식 영상을 만들고 있어요',
     '배포': '완성됐어요',
   };
   const STEP_HINT = {
@@ -333,15 +333,20 @@
     }
   }
 
-  function renderStepper(status, errorLog) {
+  function renderStepper(status, errorLog, paid) {
     const idx = STEP_ORDER.indexOf(status);
     const container = document.getElementById('stepper');
+    const STEP_LABEL_EFFECTIVE = { ...STEP_LABEL };
+    if (!paid) {
+      STEP_LABEL_EFFECTIVE['검수완료'] = '체험 제작을 준비하고 있어요';
+      STEP_LABEL_EFFECTIVE['제작 중'] = '체험 영상을 만들고 있어요';
+    }
 
     // 연속된 단계가 화면 문구(STEP_LABEL)까지 똑같으면, 한 줄로 합쳐서 보여준다
     // (예: 장면구성대기/장면구성중 둘 다 "장면과 목소리를 만들고 있어요")
     const groups = [];
     STEP_ORDER.forEach((step, i) => {
-      const label = STEP_LABEL[step] || step;
+      const label = STEP_LABEL_EFFECTIVE[step] || step;
       const last = groups[groups.length - 1];
       if (last && last.label === label) {
         last.steps.push(step);
@@ -382,7 +387,7 @@
     document.getElementById('proj-date').textContent = p.createdAt ? ('신청일 ' + p.createdAt) : '';
 
     renderVideoCard(p);
-    renderStepper(p.status, p.errorLog);
+    renderStepper(p.status, p.errorLog, p.paid);
     renderReviewCard(p);
     renderUpgradeCard(p);
     setupAgentChat(p);
@@ -559,15 +564,19 @@
     '장면구성대기': '대본 승인 감사해요! 지금 장면과 목소리를 만들고 있어요, 10~20분 정도 걸려요.',
     '장면구성중': '대본 승인 감사해요! 지금 장면과 목소리를 만들고 있어요, 10~20분 정도 걸려요.',
     '검수 대기': '최종 대본과 장면 구성이 나왔어요! 위에 뜬 카드에서 확인하시고 승인해주시면, 정식 영상 제작이 시작돼요.',
-    '검수완료': '승인 감사해요! 지금 정식 영상으로 마무리하고 있어요, 조금만 기다려주세요.',
-    '제작 중': '지금 정식 영상으로 마무리하고 있어요, 조금만 기다려주세요.',
+    '검수완료': '승인 감사해요! 정식 제작을 준비하고 있어요, 곧 시작할게요.',
+    '제작 중': '지금 정식 영상을 만들고 있어요, 조금만 기다려주세요.',
     '배포': '영상이 완성됐어요! 위에서 확인해보세요 :)',
   };
 
   function setupAgentChat(p) {
     const log = document.getElementById('agent-log');
     // 단계가 실제로 바뀔 때마다(처음 포함) 새로 인사 - 페이지를 계속 열어두고 계셔도 다음 단계 안내를 놓치지 않도록
-    const greeting = p && AGENT_GREETING[p.status];
+    const AGENT_GREETING_OVERRIDE = (p && !p.paid) ? {
+      '검수완료': '승인 감사해요! 체험 제작을 준비하고 있어요, 곧 시작할게요.',
+      '제작 중': '지금 체험 영상을 만들고 있어요, 조금만 기다려주세요.',
+    } : {};
+    const greeting = p && (AGENT_GREETING_OVERRIDE[p.status] || AGENT_GREETING[p.status]);
     if (greeting && log.dataset.greetedStatus !== p.status) {
       log.dataset.greetedStatus = p.status;
       addAgentMsg('bot', greeting); // AI 호출 없이 바로 보여주는 무료 안내
