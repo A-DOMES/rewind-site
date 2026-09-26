@@ -597,11 +597,10 @@
     let greeting;
     if (pastProjects.length === 0) {
       greeting = (name ? `안녕하세요, ${escapeHtml(name)}님! ` : '안녕하세요! ') +
-        '리와인드에 처음 오셨네요. 주제 하나만 말씀해주시면 대본부터 목소리, 장면까지 AI가 전부 만들어드려요. ' +
-        '어떤 걸 만들어드릴까요? 위 예시를 눌러보셔도 좋고, 항목을 직접 하나씩 고르고 싶으시면 위쪽 "직접 설정하기"를 눌러주세요.';
+        '리와인드에 처음 오셨네요. 이미 뭘 원하시는지 확실하시면 위쪽 "✏️ 직접 설정하기"로 빠르게 진행하실 수 있고, 아직 고민 중이시면 그냥 편하게 이야기해주세요 - 대본부터 목소리, 장면까지 AI가 전부 만들어드려요. 어떤 걸 만들어드릴까요?';
     } else {
       const last = pastProjects[0];
-      greeting = `다시 오셨네요! ${last && last.title ? `지난번 "${escapeHtml(last.title)}" 이후로 ` : ''}이번엔 어떤 영상을 만들어볼까요?`;
+      greeting = `다시 오셨네요! ${last && last.title ? `지난번 "${escapeHtml(last.title)}" 이후로 ` : ''}이번엔 어떤 영상을 만들어볼까요? 뭘 원하시는지 확실하면 위쪽 "✏️ 직접 설정하기"로 바로 진행하셔도 좋아요.`;
     }
     addMsg('bot', greeting);
     chatLog.parentElement.scrollTop = 0; // 처음엔 예시+인사말이 같이 보이도록 맨 위에서 시작
