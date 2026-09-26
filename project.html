@@ -145,12 +145,13 @@
   .amsg.user { align-self: flex-end; margin-left: auto; }
   .amsg .bubble { background: var(--bg-input); border: 1px solid var(--line); border-radius: 12px; padding: 9px 13px; font-size: 0.88rem; color: var(--ink); }
   .amsg.user .bubble { background: var(--amber); color: var(--on-amber); border-color: transparent; }
-  .agent-input-row { display: flex; gap: 8px; }
-  .agent-input-row input {
+  .agent-input-row { display: flex; gap: 8px; align-items: flex-end; }
+  .agent-input-row textarea {
     flex: 1; background: var(--bg-input); border: 1px solid var(--line); color: var(--ink);
     padding: 10px 12px; border-radius: 8px; font-size: 0.9rem; font-family: inherit;
+    resize: none; overflow-y: auto; max-height: 120px; line-height: 1.4;
   }
-  .agent-input-row input:focus { outline: 1px solid var(--amber); }
+  .agent-input-row textarea:focus { outline: 1px solid var(--amber); }
   .agent-send { width: 36px; height: 36px; border-radius: 50%; background: var(--amber); color: var(--on-amber); border: none; cursor: pointer; font-size: 0.95rem; flex-shrink: 0; }
   .agent-send:disabled { opacity: 0.4; cursor: not-allowed; }
   .agent-thinking { color: var(--ink-faint); font-size: 0.82rem; }
@@ -243,7 +244,7 @@
       <div class="agent-card-head"><span class="dot"></span> 궁금한 게 있으면 물어보세요</div>
       <div class="agent-log" id="agent-log"></div>
       <div class="agent-input-row" id="agent-input-row">
-        <input type="text" id="agent-text-field" placeholder="예: 왜 이렇게 오래 걸려요?" autocomplete="off">
+        <textarea id="agent-text-field" placeholder="예: 왜 이렇게 오래 걸려요?" rows="1"></textarea>
         <button class="agent-send" id="agent-send-btn" disabled>→</button>
       </div>
     </div>
@@ -551,8 +552,15 @@
     if (greeting) addAgentMsg('bot', greeting); // AI 호출 없이 바로 보여주는 무료 안내
     const input = document.getElementById('agent-text-field');
     const send = document.getElementById('agent-send-btn');
-    input.addEventListener('input', () => { send.disabled = !input.value.trim(); });
-    input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && input.value.trim()) sendAgentMessage(input.value.trim()); });
+    const autoGrow = () => { input.style.height = 'auto'; input.style.height = Math.min(input.scrollHeight, 120) + 'px'; };
+    input.addEventListener('input', () => { send.disabled = !input.value.trim(); autoGrow(); });
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.isComposing) {
+        if (e.shiftKey) return; // Shift+Enter는 줄바꿈 그대로 허용
+        e.preventDefault();
+        if (input.value.trim()) sendAgentMessage(input.value.trim());
+      }
+    });
     send.addEventListener('click', () => { if (input.value.trim()) sendAgentMessage(input.value.trim()); });
   }
 
@@ -562,6 +570,7 @@
     addAgentMsg('user', text);
     agentHistory.push({ role: 'user', text });
     input.value = '';
+    input.style.height = 'auto';
     row.style.display = 'none';
     document.getElementById('agent-log').insertAdjacentHTML('beforeend', '<div class="agent-thinking" id="agent-thinking">생각하고 있어요…</div>');
     try {

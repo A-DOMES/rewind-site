@@ -150,12 +150,13 @@
 
   .composer { border-top: 1px solid var(--line); padding: 16px 24px; display: flex; justify-content: center; }
   .composer-inner { width: 100%; max-width: 640px; }
-  .chat-text-row { display: flex; gap: 8px; }
-  .chat-text-row input {
+  .chat-text-row { display: flex; gap: 8px; align-items: flex-end; }
+  .chat-text-row textarea {
     flex: 1; background: var(--bg-input); border: 1px solid var(--line); color: var(--ink);
     padding: 12px 14px; border-radius: 10px; font-size: 0.95rem; font-family: inherit;
+    resize: none; overflow-y: auto; max-height: 120px; line-height: 1.4;
   }
-  .chat-text-row input:focus { outline: 1px solid var(--gold); }
+  .chat-text-row textarea:focus { outline: 1px solid var(--gold); }
   .chat-send-btn {
     width: 40px; height: 40px; border-radius: 50%; background: var(--gold); color: var(--on-gold);
     border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem; flex-shrink: 0;
@@ -329,18 +330,24 @@
     composer.innerHTML = '';
     const row = document.createElement('div');
     row.className = 'chat-text-row';
-    const input = document.createElement('input');
-    input.type = 'text';
+    const input = document.createElement('textarea');
+    input.rows = 1;
     input.placeholder = '편하게 이야기해보세요';
     input.id = 'chat-text-field';
-    input.setAttribute('autocomplete', 'off');
     input.setAttribute('name', 'rewind-chat-msg-' + Date.now()); // 브라우저가 이전 입력값을 이 필드와 연결해 기억하지 못하도록 매번 다른 이름 사용
     const send = document.createElement('button');
     send.className = 'chat-send-btn';
     send.textContent = '→';
     send.disabled = true;
-    input.addEventListener('input', () => { send.disabled = !input.value.trim(); });
-    input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && input.value.trim()) go(input.value.trim()); });
+    const autoGrow = () => { input.style.height = 'auto'; input.style.height = Math.min(input.scrollHeight, 120) + 'px'; };
+    input.addEventListener('input', () => { send.disabled = !input.value.trim(); autoGrow(); });
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.isComposing) {
+        if (e.shiftKey) return; // Shift+Enter는 줄바꿈 그대로 허용
+        e.preventDefault();
+        if (input.value.trim()) go(input.value.trim());
+      }
+    });
     send.addEventListener('click', () => { if (input.value.trim()) go(input.value.trim()); });
     row.appendChild(input); row.appendChild(send);
     composer.appendChild(row);
@@ -481,6 +488,7 @@
       payload.topic = answers.topic || '';
       payload.form = answers.form || '쇼츠';
       if (answers.productLink) payload.productLink = answers.productLink;
+      if (answers.productImageUrl) payload.productImageUrl = answers.productImageUrl;
       if (answers.target) payload.target = answers.target;
       if (answers.tempo) payload.tempo = answers.tempo;
       if (answers.voiceGender) payload.voiceGender = answers.voiceGender;
@@ -661,6 +669,7 @@
       fieldsEl.innerHTML = `
         <div class="df-field"><label>주제 * (300자)</label><textarea id="df-topic" maxlength="300" placeholder="예: LG 통돌이 17kg DD모터 인공지능 세탁기 (T17DX3) 소개"></textarea></div>
         <div class="df-field"><label>제품 링크 (선택)</label><input type="url" id="df-productLink" placeholder="https://..."></div>
+        <div class="df-field"><label>제품 이미지 URL (선택)</label><input type="url" id="df-productImageUrl" placeholder="https://..."></div>
         <div class="df-grid2">
           <div class="df-field"><label>영상 형태 *</label><select id="df-form"><option value="쇼츠">쇼츠(세로·짧게)</option><option value="롱폼">롱폼(가로·길게)</option></select></div>
           <div class="df-field"><label>타겟 연령대</label><select id="df-target">${ageOptions()}</select></div>
@@ -701,6 +710,7 @@
         if (!val('df-topic')) { alert('주제를 입력해주세요.'); return; }
         answers = { topic: val('df-topic'), form: document.getElementById('df-form').value || '쇼츠' };
         if (val('df-productLink')) answers.productLink = val('df-productLink');
+        if (val('df-productImageUrl')) answers.productImageUrl = val('df-productImageUrl');
         if (val('df-target')) answers.target = val('df-target');
         if (val('df-tempo')) answers.tempo = val('df-tempo');
         if (val('df-hookText')) answers.hookText = val('df-hookText');
