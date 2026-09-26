@@ -66,8 +66,11 @@
   .main { flex: 1; display: flex; flex-direction: column; position: relative; overflow: hidden; }
   .split-row { flex: 1; display: flex; overflow: hidden; min-height: 0; }
   .chat-column { flex: 1; display: flex; flex-direction: column; min-width: 0; }
-  .split-row.split-active .direct-form-wrap { display: flex !important; flex: 0 0 46%; max-width: 480px; border-right: 1px solid var(--line); }
-  @media (max-width: 760px) { .split-row.split-active .direct-form-wrap { flex-basis: 100%; max-width: none; } .split-row.split-active .chat-column { display: none; } }
+  .split-row.split-active .direct-form-wrap { display: flex !important; flex: 0 0 46%; border-right: none; }
+  .split-resizer { display: none; width: 6px; flex: 0 0 6px; cursor: col-resize; background: var(--line); position: relative; }
+  .split-resizer:hover, .split-resizer.dragging { background: var(--gold); }
+  .split-row.split-active .split-resizer { display: block; }
+  @media (max-width: 760px) { .split-row.split-active .direct-form-wrap { flex-basis: 100%; } .split-row.split-active .chat-column, .split-row.split-active .split-resizer { display: none; } }
   .main::before {
     content: ""; position: absolute; top: -10%; right: -8%; width: 50%; height: 40%;
     background: radial-gradient(circle, color-mix(in srgb, var(--gold) 7%, transparent), transparent 70%);
@@ -242,6 +245,7 @@
       </div>
       <div class="split-row" id="split-row">
         <div class="direct-form-wrap" id="direct-form-wrap" style="display:none;"></div>
+        <div class="split-resizer" id="split-resizer" title="드래그해서 크기 조절"></div>
         <div class="chat-column" id="chat-column">
           <div class="chat-wrap">
             <div class="chat-inner" id="chat-log">
@@ -635,6 +639,31 @@
     document.getElementById('direct-form-wrap').style.display = 'none';
   }
   document.getElementById('to-direct-form').addEventListener('click', showDirectForm);
+
+  /* 좌우 분할 크기를 마우스로 드래그해서 조절 */
+  (function setupSplitResizer() {
+    const resizer = document.getElementById('split-resizer');
+    const formWrap = document.getElementById('direct-form-wrap');
+    const row = document.getElementById('split-row');
+    let dragging = false;
+    resizer.addEventListener('mousedown', (e) => {
+      dragging = true;
+      resizer.classList.add('dragging');
+      e.preventDefault();
+    });
+    window.addEventListener('mousemove', (e) => {
+      if (!dragging) return;
+      const rowRect = row.getBoundingClientRect();
+      let pct = ((e.clientX - rowRect.left) / rowRect.width) * 100;
+      pct = Math.max(25, Math.min(75, pct)); // 너무 좁거나 넓어지지 않도록 25~75% 사이로 제한
+      formWrap.style.flex = `0 0 ${pct}%`;
+    });
+    window.addEventListener('mouseup', () => {
+      if (!dragging) return;
+      dragging = false;
+      resizer.classList.remove('dragging');
+    });
+  })();
 
   function ageOptions() {
     return ['자동','10~20대','20~30대','30~40대','40~50대','50~60대','60대 이상']
