@@ -198,6 +198,17 @@
   .form-status.err { color: var(--err); }
   .form-status.ok { color: var(--gold); }
 
+  #price-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; align-items: center; justify-content: center; }
+  #price-modal-overlay.show { display: flex; }
+  .price-modal { background: var(--bg-raised); border: 1px solid var(--line); border-radius: 16px; padding: 26px 28px; max-width: 420px; width: 92%; max-height: 80vh; overflow-y: auto; }
+  .price-modal h2 { font-family: 'Fraunces', serif; font-size: 1.15rem; margin: 0 0 4px; }
+  .price-modal .sub { color: var(--ink-faint); font-size: 0.82rem; margin: 0 0 18px; }
+  .price-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  .price-table th, .price-table td { padding: 8px 6px; text-align: left; border-bottom: 1px solid var(--line); }
+  .price-table th { color: var(--ink-faint); font-weight: 500; font-size: 0.78rem; }
+  .price-table td:last-child, .price-table th:last-child { text-align: right; color: var(--gold); font-weight: 600; }
+  .price-modal .note { font-size: 0.76rem; color: var(--ink-faint); margin-top: 14px; line-height: 1.5; }
+  .price-modal .close-row { text-align: right; margin-top: 18px; }
   #soon-toast {
     position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%) translateY(20px);
     background: var(--bg-raised); border: 1px solid var(--line); border-radius: 8px;
@@ -226,6 +237,7 @@
       <button class="new-chat-btn" id="new-chat-btn">+ 새로 만들기</button>
       <button class="mode-badge" id="mode-badge" title="눌러서 체험/정식 전환"><span class="dot"></span> <span id="mode-label">체험 모드 · 무료 3회</span></button>
       <button class="side-item" id="to-direct-form">✏️ 직접 설정하기</button>
+      <button class="side-item" id="to-price-table">💰 요금 안내</button>
       <div class="side-group-gap"></div>
       <a class="side-item active" href="./new.html">🏠 홈</a>
       <a class="side-item" href="./dashboard.html">🎞️ 내 프로젝트</a>
@@ -273,6 +285,16 @@
 </div>
 
 <div id="soon-toast">이 기능은 아직 준비 중이에요.</div>
+
+<div id="price-modal-overlay">
+  <div class="price-modal">
+    <h2>요금 안내</h2>
+    <p class="sub">대략적인 참고용 예상 요금표예요. 실제 견적은 대본과 장면이 확정된 뒤 정확히 안내드려요.</p>
+    <table class="price-table" id="price-table-body"></table>
+    <p class="note">기본료 3,000원 + 영상 길이(분)×1,500원 + 장면 수×1,200원으로 계산돼요. 30분이 넘으면 참고용 추정만 가능하고, 60분이 넘으면 20% 추가돼요.</p>
+    <div class="close-row"><button class="btn-gold-sm" id="price-modal-close">닫기</button></div>
+  </div>
+</div>
 
 <script>
 (() => {
@@ -322,8 +344,26 @@
     }
   }
   updateModeBadge();
-  badge.addEventListener('click', () => { planMode = planMode === 'paid' ? 'trial' : 'paid'; updateModeBadge(); });
-  topBadge.addEventListener('click', () => { planMode = planMode === 'paid' ? 'trial' : 'paid'; updateModeBadge(); });
+  function updatePrice() {
+    const priceBox = document.querySelector('.df-price');
+    if (!priceBox) return; // 폼이 안 열려있으면 할 일 없음
+    if (planMode !== 'paid') {
+      priceBox.innerHTML = '<div class="amt" style="font-size:1rem;">지금은 체험판이라 무료예요</div><p>마음에 들면 나중에 정식으로 전환하실 수 있어요</p>';
+      return;
+    }
+    const form = document.getElementById('df-form');
+    const lenInput = document.getElementById('df-videoLength');
+    const sceneInput = document.getElementById('df-sceneCount');
+    const isLongform = form && form.value === '롱폼';
+    const len = lenInput && lenInput.value ? parseFloat(lenInput.value) : (isLongform ? 3 : 0.75);
+    const scenes = sceneInput && sceneInput.value ? parseInt(sceneInput.value) : (isLongform ? 15 : 8);
+    priceBox.innerHTML = `<div class="amt" id="df-price-amt">약 ${computePrice(len, scenes).toLocaleString()}원</div><p>선택하신 내용 기준 예상 비용 (실제 확정은 다음 화면에서)</p>`;
+  }
+  function refreshDirectFormIfOpen() {
+    updatePrice(); // 폼이 안 열려있으면 updatePrice 안에서 조용히 무시됨
+  }
+  badge.addEventListener('click', () => { planMode = planMode === 'paid' ? 'trial' : 'paid'; updateModeBadge(); refreshDirectFormIfOpen(); });
+  topBadge.addEventListener('click', () => { planMode = planMode === 'paid' ? 'trial' : 'paid'; updateModeBadge(); refreshDirectFormIfOpen(); });
 
   const chatLog = document.getElementById('chat-log');
   const composer = document.getElementById('composer-inner');
@@ -639,6 +679,25 @@
     return Math.round(price);
   }
 
+  /* ===================== 요금 안내 모달 ===================== */
+  (function setupPriceModal() {
+    const overlay = document.getElementById('price-modal-overlay');
+    const tableBody = document.getElementById('price-table-body');
+    const rows = [
+      { label: '쇼츠 · 짧게 (30초, 5장면)', len: 0.5, scenes: 5 },
+      { label: '쇼츠 · 보통 (45초, 8장면)', len: 0.75, scenes: 8 },
+      { label: '쇼츠 · 길게 (60초, 10장면)', len: 1, scenes: 10 },
+      { label: '롱폼 · 짧게 (3분, 15장면)', len: 3, scenes: 15 },
+      { label: '롱폼 · 보통 (5분, 20장면)', len: 5, scenes: 20 },
+    ];
+    tableBody.innerHTML = '<tr><th>형태</th><th>예상 요금</th></tr>' +
+      rows.map(r => `<tr><td>${r.label}</td><td>${computePrice(r.len, r.scenes).toLocaleString()}원</td></tr>`).join('');
+
+    document.getElementById('to-price-table').addEventListener('click', () => overlay.classList.add('show'));
+    document.getElementById('price-modal-close').addEventListener('click', () => overlay.classList.remove('show'));
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('show'); });
+  })();
+
   let dfMode = 'topic';
 
   function showDirectForm() {
@@ -737,20 +796,6 @@
         <div class="df-field"><label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="df-thumbnail" style="width:auto;"> 유튜브용 커스텀 썸네일 이미지도 같이 만들기 (선택, 정식 고객만 제공)</label></div>`;
     }
 
-    function updatePrice() {
-      const priceBox = document.querySelector('.df-price');
-      if (planMode !== 'paid') {
-        priceBox.innerHTML = '<div class="amt" style="font-size:1rem;">지금은 체험판이라 무료예요</div><p>마음에 들면 나중에 정식으로 전환하실 수 있어요</p>';
-        return;
-      }
-      const form = document.getElementById('df-form');
-      const lenInput = document.getElementById('df-videoLength');
-      const sceneInput = document.getElementById('df-sceneCount');
-      const isLongform = form && form.value === '롱폼';
-      const len = lenInput && lenInput.value ? parseFloat(lenInput.value) : (isLongform ? 3 : 0.75);
-      const scenes = sceneInput && sceneInput.value ? parseInt(sceneInput.value) : (isLongform ? 15 : 8);
-      priceBox.innerHTML = `<div class="amt" id="df-price-amt">약 ${computePrice(len, scenes).toLocaleString()}원</div><p>선택하신 내용 기준 예상 비용 (실제 확정은 다음 화면에서)</p>`;
-    }
     wrap.addEventListener('input', updatePrice);
     wrap.addEventListener('change', updatePrice);
     updatePrice();
