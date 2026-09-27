@@ -587,6 +587,48 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   }
 
   // [신규] 썸네일 고르기: 썸네일URL 칸에 주소가 1개든 여러 개(쉼표/줄바꿈 구분)든 모두 카드로 보여준다
+  // [다운로드] 영상·썸네일은 렌더링 서버(다른 주소)에 있어서 a 태그의 download 속성이 무시되고 새 탭에서 재생만 됐다.
+  // 파일을 직접 받아(blob) 저장시키고, 서버가 막으면(CORS) 새 탭으로 열고 저장 방법을 안내한다.
+  function 파일이름(title, 종류, url, 기본확장자) {
+    const 확장자 = (String(url).split('?')[0].match(/\.([a-z0-9]{2,4})$/i) || [])[1] || 기본확장자;
+    const 제목 = String(title || '리와인드').replace(/[\\/:*?"<>|#]/g, '').replace(/\s+/g, ' ').trim().slice(0, 40) || '리와인드';
+    return `${제목}_${종류}.${확장자}`;
+  }
+  function 안내띄우기(text) {
+    let t = document.getElementById('dl-toast');
+    if (!t) {
+      t = document.createElement('div'); t.id = 'dl-toast';
+      t.style.cssText = 'position:fixed;left:50%;bottom:24px;transform:translateX(-50%);max-width:min(92vw,460px);padding:12px 18px;border-radius:12px;background:#2a241f;color:#fbf7f0;border:1px solid #4a4038;font-size:.9rem;line-height:1.5;z-index:60;box-shadow:0 8px 24px rgba(0,0,0,.35);text-align:center';
+      document.body.appendChild(t);
+    }
+    t.textContent = text; t.style.display = 'block';
+    clearTimeout(t._timer); t._timer = setTimeout(() => { t.style.display = 'none'; }, 6000);
+  }
+  document.addEventListener('click', async (e) => {
+    const a = e.target.closest('a[data-dl]');
+    if (!a) return;
+    e.preventDefault();
+    if (a.dataset.busy) return;
+    const 원래 = a.textContent;
+    a.dataset.busy = '1'; a.textContent = '받는 중…';
+    try {
+      const res = await fetch(a.href, { mode: 'cors' });
+      if (!res.ok) throw new Error('status ' + res.status);
+      const blob = await res.blob();
+      const obj = URL.createObjectURL(blob);
+      const tmp = document.createElement('a');
+      tmp.href = obj; tmp.download = a.dataset.dl; document.body.appendChild(tmp); tmp.click(); tmp.remove();
+      setTimeout(() => URL.revokeObjectURL(obj), 30000);
+    } catch (err) {
+      window.open(a.href, '_blank', 'noopener');
+      안내띄우기(/\.(mp4|mov|webm)(\?|$)/i.test(a.href)
+        ? '새 창에서 영상이 열렸어요. 영상 오른쪽 아래 ⋮ 버튼 → "다운로드"를 누르면 저장돼요.'
+        : '새 창에서 이미지가 열렸어요. 이미지를 길게 누르거나 오른쪽 클릭 → "이미지 저장"을 눌러주세요.');
+    } finally {
+      delete a.dataset.busy; a.textContent = 원래;
+    }
+  });
+
   function thumbnailPicker(p) {
     const list = String(p.thumbnailUrl || '').split(/[\s,]+/).map(s => s.trim()).filter(s => /^https?:\/\//.test(s)).slice(0, 3);
     if (list.length === 0) return '';
@@ -598,7 +640,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
         </a>
         <figcaption>
           <span>${list.length > 1 ? '썸네일 ' + (i + 1) : '썸네일'}</span>
-          <a class="thumb-dl" href="${escapeHtml(u)}" target="_blank" rel="noopener" download>받기</a>
+          <a class="thumb-dl" href="${escapeHtml(u)}" target="_blank" rel="noopener" data-dl="${escapeHtml(파일이름(p.title, '썸네일' + (list.length > 1 ? (i + 1) : ''), u, 'jpg'))}">받기</a>
         </figcaption>
       </figure>`).join('');
     return `
@@ -639,7 +681,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
         <h2>영상이 완성됐어요</h2>
         ${player}
         <div class="video-actions">
-          <a class="btn-primary" href="${escapeHtml(url)}" target="_blank" rel="noopener" ${ytMatch ? '' : 'download'}>${ytMatch ? '유튜브에서 보기' : '영상 다운로드'}</a>
+          <a class="btn-primary" href="${escapeHtml(url)}" target="_blank" rel="noopener" ${ytMatch ? '' : `data-dl="${escapeHtml(파일이름(p.title, '영상', url, 'mp4'))}"`}>${ytMatch ? '유튜브에서 보기' : '영상 다운로드'}</a>
         </div>
         ${thumbnailPicker(p)}
         ${ytMatch ? '' : `<p class="video-note"><strong>렌더링 서버에는 최대 7일까지만 보관</strong>되니, 필요하시면 기간 안에 다운로드해 두세요.</p>`}`;
