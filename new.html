@@ -397,9 +397,9 @@
   :root[data-theme="light"] .split-resizer { background: #e3d9c8 }
   :root[data-theme="light"] .split-resizer::after { background: #cbbda6 }
   :root[data-theme="light"] .btn-line-sm { border-color: #cbbda6 }
-  :root[data-theme="light"] .example-chip { background: color-mix(in srgb, var(--c, #7a6c5c) 10%, var(--bg-raised)); border-color: color-mix(in srgb, var(--c, #7a6c5c) 38%, #e3d9c8) }
+  :root[data-theme="light"] .example-chip { background: var(--bg-raised); border-color: var(--line) }
   :root[data-theme="light"] .example-chip svg { stroke: var(--c, #7a6c5c) }
-  :root[data-theme="light"] .example-chip:hover { background: color-mix(in srgb, var(--c, #7a6c5c) 18%, var(--bg-raised)) }
+  :root[data-theme="light"] .example-chip:hover { background: var(--bg-raised) }
   @media (prefers-color-scheme: light) {
     :root[data-theme="system"] .btn-primary:hover { background: #87540a }
     :root[data-theme="system"] .btn-ghost { border-color: #cbbda6 }
@@ -416,9 +416,9 @@
     :root[data-theme="system"] .split-resizer { background: #e3d9c8 }
     :root[data-theme="system"] .split-resizer::after { background: #cbbda6 }
     :root[data-theme="system"] .btn-line-sm { border-color: #cbbda6 }
-    :root[data-theme="system"] .example-chip { background: color-mix(in srgb, var(--c, #7a6c5c) 10%, var(--bg-raised)); border-color: color-mix(in srgb, var(--c, #7a6c5c) 38%, #e3d9c8) }
+    :root[data-theme="system"] .example-chip { background: var(--bg-raised); border-color: var(--line) }
     :root[data-theme="system"] .example-chip svg { stroke: var(--c, #7a6c5c) }
-    :root[data-theme="system"] .example-chip:hover { background: color-mix(in srgb, var(--c, #7a6c5c) 18%, var(--bg-raised)) }
+    :root[data-theme="system"] .example-chip:hover { background: var(--bg-raised) }
   }
   :root[data-theme="light"] .side-item .ico svg, :root[data-theme="light"] .example-chip svg { stroke: color-mix(in srgb, var(--c) 72%, #000); }
   :root[data-theme="light"] .side-item .ico { background: color-mix(in srgb, var(--c) 22%, transparent); }
@@ -427,6 +427,81 @@
     :root[data-theme="system"] .side-item .ico { background: color-mix(in srgb, var(--c) 22%, transparent); }
   }
   .df-field input[type="checkbox"] { width: 18px; height: 18px; min-height: 0; padding: 0; accent-color: var(--amber); flex-shrink: 0; }
+
+  /* ===== 사이드바 v3: 런웨이식 계정 메뉴 + 곧 추가될 기능 묶음 ===== */
+  .side-nav { display: flex; flex-direction: column; gap: 2px; margin-top: 14px; }
+  .soon-group { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 12px; }
+  .soon-group summary { list-style: none; display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 8px 12px; border-radius: 10px; font-size: 0.84rem; color: var(--ink-faint); font-weight: 500; }
+  .soon-group summary::-webkit-details-marker { display: none; }
+  .soon-group summary:hover { color: var(--ink-dim); background: color-mix(in srgb, var(--ink) 5%, transparent); }
+  .soon-group summary::after { content: ""; width: 7px; height: 7px; border-right: 1.6px solid currentColor; border-bottom: 1.6px solid currentColor; transform: rotate(45deg); margin: -3px 4px 0 8px; transition: transform .15s; }
+  .soon-group[open] summary::after { transform: rotate(-135deg); margin-top: 3px; }
+  .soon-group summary .soon-count { margin-left: auto; font-size: 0.74rem; border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px; }
+  .soon-group .side-item { align-items: flex-start; }
+  .soon-group .side-item .ico { opacity: .8; }
+  .soon-text { display: flex; flex-direction: column; gap: 2px; text-align: left; }
+  .soon-text b { font-weight: 500; font-size: 0.9rem; color: var(--ink-dim); }
+  .soon-text small { font-size: 0.76rem; color: var(--ink-faint); line-height: 1.45; }
+
+  .sidebar-footer { display: flex; flex-direction: column; gap: 10px; border-top: 0; }
+  .sidebar .mode-badge { margin: 0; width: 100%; text-align: left; border-radius: 14px; padding: 12px 14px; background: var(--amber-wash); border: 1px solid var(--amber-dim); color: var(--ink); font-size: 0.86rem; line-height: 1.5; font-weight: 500; }
+  .sidebar .mode-badge .hint { color: var(--ink-faint); font-weight: 400; }
+  .sidebar .mode-badge .dot { background: var(--amber); }
+  .account-wrap { position: relative; }
+  .account-row { width: 100%; display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 0; border-radius: 12px; background: transparent; color: var(--ink); font-family: inherit; font-size: 0.9rem; font-weight: 500; cursor: pointer; text-align: left; }
+  .account-row:hover, .account-row[aria-expanded="true"] { background: color-mix(in srgb, var(--ink) 7%, transparent); }
+  .account-row img { width: 30px; height: 30px; border-radius: 50%; }
+  .account-row #account-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .acc-chev { width: 16px; height: 16px; fill: none; stroke: var(--ink-faint); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .account-menu-pop { position: absolute; left: 0; bottom: calc(100% + 8px); width: 272px; background: var(--bg-raised); border: 1px solid var(--line); border-radius: 16px; padding: 8px; box-shadow: 0 18px 50px rgba(0,0,0,.35); z-index: 50; }
+  .account-menu-pop[hidden] { display: none; }
+  .acc-head { display: flex; align-items: center; gap: 10px; padding: 8px 8px 12px; border-bottom: 1px solid var(--line); margin-bottom: 6px; }
+  .acc-head img { width: 36px; height: 36px; border-radius: 50%; }
+  .acc-head div { display: flex; flex-direction: column; min-width: 0; }
+  .acc-head b { font-size: 0.95rem; font-weight: 600; color: var(--ink); }
+  .acc-head small { font-size: 0.78rem; color: var(--ink-faint); }
+  .acc-item { width: 100%; display: flex; align-items: center; gap: 10px; padding: 8px; border: 0; border-radius: 10px; background: transparent; color: var(--ink); font-family: inherit; font-size: 0.9rem; text-decoration: none !important; cursor: pointer; text-align: left; }
+  .acc-item:hover { background: color-mix(in srgb, var(--ink) 7%, transparent); }
+  .acc-item .ico { width: 26px; height: 26px; border-radius: 7px; display: grid; place-items: center; background: color-mix(in srgb, var(--c) 18%, transparent); flex-shrink: 0; }
+  .acc-item .ico svg { width: 16px; height: 16px; fill: none; stroke: var(--c); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .acc-item .soon { margin-left: auto; font-size: 0.72rem; color: var(--ink-faint); border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px; }
+  .acc-theme { cursor: default; }
+  .acc-theme:hover { background: transparent; }
+  .acc-theme .theme-switch { margin-left: auto; }
+  .acc-theme .theme-switch button { width: 30px; height: 30px; }
+  .acc-sep { height: 1px; background: var(--line); margin: 6px 0; }
+  .account-menu-pop .logout { color: var(--ink); font-size: 0.9rem; text-decoration: none; margin: 0; }
+
+  /* 데스크톱: 위쪽 체험 배지/테마는 사이드바로 옮겼으니 숨김, 모바일은 그대로 */
+  @media (min-width: 761px) { .top-mode-bar { display: none; } }
+
+  /* 글씨 강약: 본문은 보통 굵기 */
+  .msg .bubble { font-weight: 400; }
+  .msg .bubble strong { font-weight: 650; }
+  /* 보내기 버튼: 비활성은 회색, 입력하면 앰버 */
+  .chat-send-btn:disabled { opacity: 1; background: var(--bg-input); color: var(--ink-faint); }
+  /* 대화 아바타: 로고 */
+  .msg.bot .avatar { font-size: 0; background: #0f0d0b url('./리와인드_로고1_512px.png') center / 76% no-repeat; box-shadow: 0 0 0 1px var(--line); }
+
+  /* ===== 직접 설정 폼: 섹션 카드 + 섹션별 컬러 아이콘 ===== */
+  .df-sec { background: var(--bg-raised); border: 1px solid var(--line); border-radius: 16px; padding: 18px 18px 6px; margin-bottom: 14px; }
+  .df-sec-head { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .df-sec-ico { width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0; display: grid; place-items: center; background: color-mix(in srgb, var(--c) 18%, transparent); }
+  .df-sec-ico svg { width: 18px; height: 18px; fill: none; stroke: var(--c); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .df-sec-head h3 { margin: 0; font-family: 'IBM Plex Sans KR', sans-serif; font-size: 1rem; font-weight: 650; letter-spacing: -0.01em; color: var(--ink); }
+  .df-sec-head p { margin: 2px 0 0; font-size: 0.8rem; color: var(--ink-faint); }
+  .df-sec .df-field { margin-bottom: 14px; }
+  .df-sec .df-field label { color: var(--ink); font-weight: 500; font-size: 0.88rem; display: flex; align-items: baseline; gap: 6px; }
+  .df-field .req { font-style: normal; color: var(--amber); font-weight: 700; }
+  .df-field .opt { font-size: 0.76rem; font-weight: 400; color: var(--ink-faint); }
+  .df-sec .df-field input, .df-sec .df-field select, .df-sec .df-field textarea { background: var(--bg); }
+  .df-check label { display: flex !important; align-items: center !important; gap: 10px !important; cursor: pointer; font-weight: 400 !important; color: var(--ink-dim) !important; }
+  .df-check input[type="checkbox"] { width: 18px; height: 18px; min-height: 0; padding: 0; margin: 0; accent-color: var(--amber); flex-shrink: 0; }
+  .df-sec .df-grid2 { gap: 0 12px; }
+  :root[data-theme="light"] .df-sec-ico svg { stroke: color-mix(in srgb, var(--c) 72%, #000); }
+  @media (prefers-color-scheme: light) { :root[data-theme="system"] .df-sec-ico svg { stroke: color-mix(in srgb, var(--c) 72%, #000); } }
+  /* 폼이 열려 좁아지면 예시 버튼 숨김 */
+  .split-row.split-active .example-row { display: none; }
 </style>
 <script>
 /* 테마 전환: 기존 기능 코드와 분리된 독립 스크립트 */
@@ -488,23 +563,41 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     <div class="sidebar">
       <div class="logo"><img src="./리와인드_로고1_512px.png" alt=""> 리와인드</div>
       <button class="new-chat-btn" id="new-chat-btn">+ 새로 만들기</button>
-      <button class="mode-badge" id="mode-badge" title="눌러서 체험/정식 전환"><span class="dot"></span> <span id="mode-label">체험 모드 · 무료 3회</span></button>
-      <button class="side-item" id="to-direct-form"><span class="ico" style="--c:#e2a23c"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/></svg></span> 직접 설정하기</button>
-      <button class="side-item" id="to-price-table"><span class="ico" style="--c:#86d980"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M14.5 9.5h-3.5a1.5 1.5 0 0 0 0 3h2a1.5 1.5 0 0 1 0 3H9.5M12 7.5v1.5M12 15.5V17"/></svg></span> 요금 안내</button>
-      <div class="side-group-gap"></div>
-      <a class="side-item active" href="./new.html"><span class="ico" style="--c:#74b6ff"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-6 8 6v8h-5v-5h-6v5H4z"/></svg></span> 홈</a>
-      <a class="side-item" href="./dashboard.html"><span class="ico" style="--c:#b99bff"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 4v16M16 4v16M4 9h4M4 15h4M16 9h4M16 15h4"/></svg></span> 내 프로젝트</a>
-      <div class="side-group-gap"></div>
-      <button class="side-item soon-btn"><span class="ico" style="--c:#4fd6bd"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg></span> 에이전트 <span class="soon">준비 중</span></button>
-      <button class="side-item soon-btn"><span class="ico" style="--c:#ff8f6b"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg></span> 앱 <span class="soon">준비 중</span></button>
-      <button class="side-item soon-btn"><span class="ico" style="--c:#ff8cc0"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="18" r="2"/><path d="M8 6h5a3 3 0 0 1 3 3v7"/></svg></span> 워크플로우 <span class="soon">준비 중</span></button>
-      <button class="side-item soon-btn"><span class="ico" style="--c:#ffd84d"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18c1 0 1.5-.8 1.5-1.6 0-1.2-1-1.4-1-2.4 0-.9.7-1.5 1.6-1.5H17a4 4 0 0 0 4-4c0-4.7-4-8.5-9-8.5z"/><circle cx="8" cy="11" r="1"/><circle cx="12" cy="8" r="1"/></svg></span> 브랜드 <span class="soon">준비 중</span></button>
+      <nav class="side-nav" aria-label="메뉴">
+        <a class="side-item active" href="./new.html"><span class="ico" style="--c:#74b6ff"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-6 8 6v8h-5v-5h-6v5H4z"/></svg></span> 홈</a>
+        <a class="side-item" href="./dashboard.html"><span class="ico" style="--c:#b99bff"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 4v16M16 4v16M4 9h4M4 15h4M16 9h4M16 15h4"/></svg></span> 내 프로젝트</a>
+        <button class="side-item" id="to-direct-form"><span class="ico" style="--c:#e2a23c"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/></svg></span> 직접 설정하기</button>
+        <button class="side-item" id="to-price-table"><span class="ico" style="--c:#86d980"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M14.5 9.5h-3.5a1.5 1.5 0 0 0 0 3h2a1.5 1.5 0 0 1 0 3H9.5M12 7.5v1.5M12 15.5V17"/></svg></span> 요금 안내</button>
+      </nav>
+      <details class="soon-group">
+        <summary><span>곧 추가될 기능</span><span class="soon-count">3</span></summary>
+        <button class="side-item soon-btn"><span class="ico" style="--c:#ffd84d"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18c1 0 1.5-.8 1.5-1.6 0-1.2-1-1.4-1-2.4 0-.9.7-1.5 1.6-1.5H17a4 4 0 0 0 4-4c0-4.7-4-8.5-9-8.5z"/><circle cx="8" cy="11" r="1"/><circle cx="12" cy="8" r="1"/></svg></span><span class="soon-text"><b>브랜드 키트</b><small>로고·색·자막 글꼴을 한 번 등록하면 모든 영상에 적용</small></span></button>
+        <button class="side-item soon-btn"><span class="ico" style="--c:#ff8f6b"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg></span><span class="soon-text"><b>빠른 도구</b><small>썸네일만, 나레이션만 따로 만들기</small></span></button>
+        <button class="side-item soon-btn"><span class="ico" style="--c:#ff8cc0"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="18" r="2"/><path d="M8 6h5a3 3 0 0 1 3 3v7"/></svg></span><span class="soon-text"><b>시리즈 자동 제작</b><small>정해둔 주기마다 영상 만들고 올리기</small></span></button>
+      </details>
       <div class="sidebar-footer">
-        <button class="side-item soon-btn"><span class="ico" style="--c:#b8ad9c"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v2M12 19v2M4.2 7.5l1.7 1M18.1 15.5l1.7 1M4.2 16.5l1.7-1M18.1 8.5l1.7-1"/></svg></span> 설정 <span class="soon">준비 중</span></button>
-        <div class="account-row">
-          <img id="account-avatar" src="" alt="">
-          <span id="account-name"></span>
-          <button class="logout" id="logout-btn">로그아웃</button>
+        <button class="mode-badge" id="mode-badge" title="눌러서 체험/정식 전환"><span class="dot"></span> <span id="mode-label">체험 모드 · 무료 3회</span></button>
+        <div class="account-wrap">
+          <div class="account-menu-pop" id="account-pop" role="menu" hidden>
+            <div class="acc-head"><img class="acc-head-img" alt=""><div><b class="acc-head-name"></b><small id="acc-plan">개인 · 체험 모드</small></div></div>
+            <a class="acc-item" role="menuitem" href="./dashboard.html"><span class="ico" style="--c:#b99bff"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 4v16M16 4v16M4 9h4M4 15h4M16 9h4M16 15h4"/></svg></span>내 프로젝트</a>
+            <button class="acc-item" role="menuitem" type="button" data-acc="price"><span class="ico" style="--c:#86d980"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M14.5 9.5h-3.5a1.5 1.5 0 0 0 0 3h2a1.5 1.5 0 0 1 0 3H9.5M12 7.5v1.5M12 15.5V17"/></svg></span>요금 안내</button>
+            <div class="acc-item acc-theme"><span class="ico" style="--c:#b8ad9c"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2"/></svg></span>화면 테마
+              <div class="theme-switch" role="group" aria-label="화면 테마">
+      <button type="button" data-t="system" aria-label="기기 설정 따르기" title="기기 설정 따르기"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></button>
+      <button type="button" data-t="light" aria-label="밝게" title="밝게"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+      <button type="button" data-t="dark" aria-label="어둡게" title="어둡게"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></button>
+    </div>
+            </div>
+            <button class="acc-item soon-btn" role="menuitem" type="button"><span class="ico" style="--c:#b8ad9c"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v2M12 19v2M4.2 7.5l1.7 1M18.1 15.5l1.7 1M4.2 16.5l1.7-1M18.1 8.5l1.7-1"/></svg></span>계정 설정 <span class="soon">준비 중</span></button>
+            <div class="acc-sep"></div>
+            <button class="logout acc-item" id="logout-btn" role="menuitem" type="button"><span class="ico" style="--c:#b8ad9c"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H4"/></svg></span>로그아웃</button>
+          </div>
+          <button class="account-row" id="account-trigger" type="button" aria-haspopup="menu" aria-expanded="false">
+            <img id="account-avatar" src="" alt="">
+            <span id="account-name"></span>
+            <svg class="acc-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 14l5-5 5 5"/></svg>
+          </button>
         </div>
       </div>
     </div>
@@ -1027,31 +1120,10 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     const fieldsEl = document.getElementById('df-fields');
     if (isMedia) {
       fieldsEl.innerHTML = `
-        <div class="df-field"><label>구글 드라이브 폴더 링크 *</label><input type="url" id="df-driveLink" placeholder="https://drive.google.com/drive/folders/..."></div>
-        <div class="df-field"><label>어떤 이야기·분위기로 만들지 (선택, 500자)</label><textarea id="df-mediaNote" maxlength="500"></textarea></div>
-        <div class="df-grid2">
-          <div class="df-field"><label>목소리</label><select id="df-voiceGender"><option value="">자동</option><option value="여성">여성</option><option value="남성">남성</option></select></div>
-          <div class="df-field"><label>목소리 연령대</label><select id="df-voiceAge">${ageOptions()}</select></div>
-        </div>`;
+        <section class="df-sec" style="--c:#74b6ff"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span><div><h3>내 자료</h3><p>사진·영상이 담긴 구글 드라이브 폴더</p></div></div><div class="df-field"><label>구글 드라이브 폴더 링크 <em class="req">*</em></label><input type="url" id="df-driveLink" placeholder="https://drive.google.com/drive/folders/..."></div><div class="df-field"><label>어떤 이야기·분위기로 만들지 <span class="opt">선택 · 500자</span></label><textarea id="df-mediaNote" maxlength="500"></textarea></div></section><section class="df-sec" style="--c:#4fd6bd"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></span><div><h3>목소리</h3><p>비워두면 내용에 맞게 골라드려요</p></div></div><div class="df-grid2"><div class="df-field"><label>목소리</label><select id="df-voiceGender"><option value="">자동</option><option value="여성">여성</option><option value="남성">남성</option></select></div><div class="df-field"><label>목소리 연령대</label><select id="df-voiceAge">${ageOptions()}</select></div></div></section>`;
     } else {
       fieldsEl.innerHTML = `
-        <div class="df-field"><label>주제 * (300자)</label><textarea id="df-topic" maxlength="300" placeholder="예: LG 통돌이 17kg DD모터 인공지능 세탁기 (T17DX3) 소개"></textarea></div>
-        <div class="df-field"><label>영상 이렇게 만들어주세요 (선택, 300자)</label><textarea id="df-style" maxlength="300" placeholder="예: 밝고 경쾌한 분위기로, 가족이 함께 쓰는 느낌으로"></textarea></div>
-        <div class="df-field"><label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="df-characterUse" style="width:auto;min-height:0;">영상 내내 같은 캐릭터(인물)가 나오게 하기</label></div>
-        <div class="df-field"><label>제품 링크 (선택)</label><input type="url" id="df-productLink" placeholder="https://..."></div>
-        <div class="df-field"><label>제품 이미지 URL (선택)</label><input type="url" id="df-productImageUrl" placeholder="https://..."></div>
-        <div class="df-grid2">
-          <div class="df-field"><label>영상 형태 *</label><select id="df-form"><option value="쇼츠">쇼츠(세로·짧게)</option><option value="롱폼">롱폼(가로·길게)</option></select></div>
-          <div class="df-field"><label>타겟 연령대</label><select id="df-target">${ageOptions()}</select></div>
-          <div class="df-field"><label>말하기 속도</label><select id="df-tempo"><option value="">자동</option><option value="차분">차분하게</option><option value="중간">보통</option><option value="빠름">빠르고 경쾌하게</option></select></div>
-          <div class="df-field"><label>목소리</label><select id="df-voiceGender"><option value="">자동</option><option value="여성">여성</option><option value="남성">남성</option></select></div>
-          <div class="df-field"><label>목소리 연령대</label><select id="df-voiceAge">${ageOptions()}</select></div>
-          <div class="df-field"><label>화면 상단 문구 (선택, 18자)</label><input type="text" id="df-hookText" maxlength="18"></div>
-        </div>
-        <div class="df-field"><label>영상 길이(분, 선택)</label><input type="number" id="df-videoLength" min="0" step="0.1" placeholder="비워두면 대본 길이에 맞게 자동"></div>
-        <div class="df-field"><label>장면 수(선택)</label><input type="number" id="df-sceneCount" min="1" step="1" placeholder="비워두면 자동"></div>
-        <div class="df-field"><label>꼭 넣고 싶은 연출 (선택, 500자)</label><textarea id="df-directorNote" maxlength="500"></textarea></div>
-        <div class="df-field"><label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="df-thumbnail" style="width:auto;min-height:0;"> 유튜브용 커스텀 썸네일 이미지도 같이 만들기 (선택, 정식 고객만 제공)</label></div>`;
+        <section class="df-sec" style="--c:#e2a23c"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13 7l4 4"/></svg></span><div><h3>무엇을 만들까요</h3><p>주제만 적어도 나머지는 AI가 채워요</p></div></div><div class="df-field"><label>주제 <em class="req">*</em> <span class="opt">300자</span></label><textarea id="df-topic" maxlength="300" placeholder="예: LG 통돌이 17kg DD모터 인공지능 세탁기 (T17DX3) 소개"></textarea></div><div class="df-field"><label>영상 이렇게 만들어주세요 <span class="opt">선택 · 300자</span></label><textarea id="df-style" maxlength="300" placeholder="예: 밝고 경쾌한 분위기로, 가족이 함께 쓰는 느낌으로"></textarea></div><div class="df-field df-check"><label><input type="checkbox" id="df-characterUse"><span>영상 내내 같은 캐릭터(인물)가 나오게 하기</span></label></div></section><section class="df-sec" style="--c:#ff8f6b"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg></span><div><h3>제품 정보</h3><p>상품 소개 영상일 때만 넣어주세요</p></div></div><div class="df-field"><label>제품 링크 <span class="opt">선택</span></label><input type="url" id="df-productLink" placeholder="https://..."></div><div class="df-field"><label>제품 이미지 URL <span class="opt">선택</span></label><input type="url" id="df-productImageUrl" placeholder="https://..."></div></section><section class="df-sec" style="--c:#b99bff"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 5v14M17 5v14M3 9h4M3 15h4M17 9h4M17 15h4"/></svg></span><div><h3>영상 형식</h3><p>형태, 길이, 화면 구성</p></div></div><div class="df-grid2"><div class="df-field"><label>영상 형태 <em class="req">*</em></label><select id="df-form"><option value="쇼츠">쇼츠(세로·짧게)</option><option value="롱폼">롱폼(가로·길게)</option></select></div><div class="df-field"><label>타겟 연령대</label><select id="df-target">${ageOptions()}</select></div><div class="df-field"><label>영상 길이(분) <span class="opt">선택</span></label><input type="number" id="df-videoLength" min="0" step="0.1" placeholder="비워두면 자동"></div><div class="df-field"><label>장면 수 <span class="opt">선택</span></label><input type="number" id="df-sceneCount" min="1" step="1" placeholder="비워두면 자동"></div></div><div class="df-field"><label>화면 상단 문구 <span class="opt">선택 · 18자</span></label><input type="text" id="df-hookText" maxlength="18" placeholder="예: 아직도 빨래 코스 고민하세요?"></div></section><section class="df-sec" style="--c:#4fd6bd"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></span><div><h3>목소리</h3><p>비워두면 내용에 맞게 골라드려요</p></div></div><div class="df-grid2"><div class="df-field"><label>말하기 속도</label><select id="df-tempo"><option value="">자동</option><option value="차분">차분하게</option><option value="중간">보통</option><option value="빠름">빠르고 경쾌하게</option></select></div><div class="df-field"><label>목소리</label><select id="df-voiceGender"><option value="">자동</option><option value="여성">여성</option><option value="남성">남성</option></select></div><div class="df-field"><label>목소리 연령대</label><select id="df-voiceAge">${ageOptions()}</select></div></div></section><section class="df-sec" style="--c:#ff8cc0"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 17l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg></span><div><h3>연출과 추가 옵션</h3><p>꼭 원하는 장면이 있다면 적어주세요</p></div></div><div class="df-field"><label>꼭 넣고 싶은 연출 <span class="opt">선택 · 500자</span></label><textarea id="df-directorNote" maxlength="500"></textarea></div><div class="df-field df-check"><label><input type="checkbox" id="df-thumbnail"><span>유튜브용 커스텀 썸네일 이미지도 같이 만들기 <span class="opt">정식 고객만 제공</span></span></label></div></section>`;
     }
 
     wrap.addEventListener('input', updatePrice);
@@ -1167,5 +1239,15 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
 })();
 </script>
 
+<script>
+/* 계정 메뉴 열고 닫기 (기존 기능 코드와 분리) */
+(function(){var t=document.getElementById('account-trigger'),p=document.getElementById('account-pop');if(!t||!p)return;
+function sync(){var i=document.getElementById('account-avatar'),n=document.getElementById('account-name');var hi=p.querySelector('.acc-head-img'),hn=p.querySelector('.acc-head-name');if(i&&hi)hi.src=i.src;if(n&&hn)hn.textContent=n.textContent;var ml=document.getElementById('mode-label'),pl=document.getElementById('acc-plan');if(ml&&pl)pl.textContent='개인 · '+(ml.textContent.trim().indexOf('정식')===0?'정식 모드':'체험 모드');}
+function openM(o){p.hidden=!o;t.setAttribute('aria-expanded',o?'true':'false');if(o)sync();}
+t.addEventListener('click',function(e){e.stopPropagation();openM(p.hidden);});
+p.addEventListener('click',function(e){e.stopPropagation();var b=e.target.closest('[data-acc="price"]');if(b){openM(false);var x=document.getElementById('to-price-table');if(x)x.click();}});
+document.addEventListener('click',function(){openM(false);});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')openM(false);});})();
+</script>
 </body>
 </html>
