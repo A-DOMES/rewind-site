@@ -516,6 +516,23 @@
   @media (prefers-color-scheme: light) { :root[data-theme="system"] .new-chat-btn { background: transparent; color: var(--ink); border: 1px solid var(--line); box-shadow: none; } }
   .new-chat-btn:hover { border-color: var(--ink-faint); background: var(--bg-raised); }
   :root[data-theme="dark"] .msg.user .bubble, :root:not([data-theme]) .msg.user .bubble { background: #2a2521; }
+
+  /* ===== 첫 화면: 대화 시작 전에는 인사말·입력창·예시를 화면 가운데로 ===== */
+  .chat-column.is-fresh { justify-content: center; padding: 0 24px 8vh; }
+  .chat-column.is-fresh .chat-wrap, .chat-column.is-fresh .chat-inner { display: contents; }
+  .chat-column.is-fresh .msg { order: 1; width: 100%; max-width: 720px; margin: 0 auto 26px; flex-direction: column; align-items: center; text-align: center; gap: 18px; animation: none; }
+  .chat-column.is-fresh .msg.bot .avatar { width: 56px; height: 56px; border-radius: 16px; }
+  .chat-column.is-fresh .msg.bot .bubble { max-width: 620px; font-size: 1.14rem; line-height: 1.75; color: var(--ink); }
+  .chat-column.is-fresh .composer { order: 2; width: 100%; max-width: 760px; margin: 0 auto; padding: 0; }
+  .chat-column.is-fresh .composer-inner { max-width: none; }
+  .chat-column.is-fresh .chat-text-row { padding: 10px 10px 10px 22px; border-radius: 28px; box-shadow: 0 12px 40px rgba(0,0,0,.18); }
+  .chat-column.is-fresh .chat-text-row textarea { font-size: 1.04rem; min-height: 28px; }
+  .chat-column.is-fresh .example-row { order: 3; width: 100%; max-width: 760px; margin: 18px auto 0; justify-content: center; }
+  .chat-column.is-fresh .form-status { order: 4; }
+  @media (max-width: 760px) {
+    .chat-column.is-fresh { padding: 0 16px 4vh; }
+    .chat-column.is-fresh .msg.bot .bubble { font-size: 1.02rem; }
+  }
 </style>
 <script>
 /* 테마 전환: 기존 기능 코드와 분리된 독립 스크립트 */
@@ -1273,6 +1290,12 @@ t.addEventListener('click',function(e){e.stopPropagation();openM(p.hidden);});
 p.addEventListener('click',function(e){e.stopPropagation();var b=e.target.closest('[data-acc="price"]');if(b){openM(false);var x=document.getElementById('to-price-table');if(x)x.click();}});
 document.addEventListener('click',function(){openM(false);});
 document.addEventListener('keydown',function(e){if(e.key==='Escape')openM(false);});})();
+</script>
+<script>
+/* 첫 화면 판별: 고객 메시지가 아직 없고 직접 설정 폼도 닫혀 있으면 가운데 정렬 모드 (기존 기능 코드와 분리) */
+(function(){var col=document.getElementById('chat-column'),log=document.getElementById('chat-log'),row=document.getElementById('split-row');if(!col||!log)return;
+function upd(){var fresh=!log.querySelector('.msg.user')&&!(row&&row.classList.contains('split-active'))&&!!log.querySelector('.msg.bot');col.classList.toggle('is-fresh',fresh);}
+new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new MutationObserver(upd).observe(row,{attributes:true,attributeFilter:['class']});upd();})();
 </script>
 </body>
 </html>

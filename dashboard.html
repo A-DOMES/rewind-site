@@ -351,6 +351,19 @@
     :root[data-theme="system"] .avatar { border-color: #cbbda6 }
     :root[data-theme="system"] .reel-row:hover { border-color: #cbbda6; background: #fbf6ee }
   }
+
+  /* ===== 글씨 정리: 강약 조절 + 또렷하게 ===== */
+  body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+  .breadcrumb { font-size: 0.86rem; }
+  .breadcrumb a { color: var(--ink-faint); }
+  .breadcrumb .here { color: var(--ink-dim); }
+
+  .page-head h1 { font-size: clamp(1.9rem, 3.6vw, 2.5rem); font-weight: 650; letter-spacing: -0.035em; }
+  .page-head p { font-size: 0.98rem; font-weight: 400; color: var(--ink-dim); margin-top: 10px; }
+  .reel-title { font-size: 1.04rem; font-weight: 500; letter-spacing: -0.01em; color: var(--ink); }
+  .reel-meta { font-size: 0.86rem; font-weight: 400; color: var(--ink-dim); margin-top: 6px; }
+  .reel-meta .err { color: var(--status-error); font-weight: 400; }
+  .status-chip { font-size: 0.9rem; font-weight: 500; }
 </style>
 <script>
 /* 테마 전환: 기존 기능 코드와 분리된 독립 스크립트 */
@@ -442,7 +455,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     <div class="page-head">
       <div>
         <h1>내 프로젝트</h1>
-        <p id="page-sub">필름 보관함 — 지금까지 신청하신 영상을 모아뒀어요.</p>
+        <p id="page-sub">지금까지 신청하신 영상을 모두 모아뒀어요.</p>
       </div>
     </div>
 
