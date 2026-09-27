@@ -200,13 +200,41 @@
 
   #price-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; align-items: center; justify-content: center; }
   #price-modal-overlay.show { display: flex; }
-  .price-modal { background: var(--bg-raised); border: 1px solid var(--line); border-radius: 16px; padding: 26px 28px; max-width: 420px; width: 92%; max-height: 80vh; overflow-y: auto; }
+  .price-modal { background: var(--bg-raised); border: 1px solid var(--line); border-radius: 16px; padding: 26px 28px; max-width: 640px; width: 92%; max-height: 80vh; overflow-y: auto; }
   .price-modal h2 { font-family: 'Fraunces', serif; font-size: 1.15rem; margin: 0 0 4px; }
   .price-modal .sub { color: var(--ink-faint); font-size: 0.82rem; margin: 0 0 18px; }
   .price-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
   .price-table th, .price-table td { padding: 8px 6px; text-align: left; border-bottom: 1px solid var(--line); }
   .price-table th { color: var(--ink-faint); font-weight: 500; font-size: 0.78rem; }
-  .price-table td:last-child, .price-table th:last-child { text-align: right; color: var(--gold); font-weight: 600; }
+  .price-table .num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .price-table td.num { color: var(--gold); font-weight: 600; }
+  .price-table .rec { background: color-mix(in srgb, var(--amber) 9%, transparent); }
+  .price-table th small { display: block; font-size: 0.68rem; opacity: .8; font-weight: 400; }
+  .price-table td.hit { outline: 2px solid var(--amber); outline-offset: -2px; border-radius: 6px; }
+  .motion-legend { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 0 0 16px; }
+  .ml-item { border: 1px solid var(--line); border-radius: 12px; padding: 10px 10px 9px; background: var(--bg); display: flex; flex-direction: column; gap: 4px; }
+  .ml-item.rec { border-color: color-mix(in srgb, var(--amber) 60%, var(--line)); }
+  .ml-item svg { width: 30px; height: 53px; }
+  .ml-item b { font-size: 0.84rem; color: var(--ink); }
+  .ml-item span { font-size: 0.72rem; color: var(--ink-faint); line-height: 1.35; }
+  .ml-item em { font-style: normal; font-size: 0.78rem; color: var(--gold); font-weight: 600; }
+  .mb-chart { margin: 10px 0 0; display: grid; gap: 6px; text-align: left; }
+  .mb-row { display: grid; grid-template-columns: 5.6em 1fr auto; gap: 8px; align-items: center; font-size: 0.76rem; color: var(--ink-faint); }
+  .mb-row.on { color: var(--ink); font-weight: 600; }
+  .mb-bar { height: 8px; border-radius: 4px; background: color-mix(in srgb, var(--line) 70%, transparent); overflow: hidden; }
+  .mb-fill { height: 100%; border-radius: 4px; background: color-mix(in srgb, var(--amber) 45%, var(--line)); }
+  .mb-row.on .mb-fill { background: var(--amber); }
+  .mb-row .v { font-variant-numeric: tabular-nums; }
+  .chat-price { margin-top: 8px; border: 1px solid var(--line); border-radius: 12px; padding: 12px 12px 8px; background: var(--bg-raised); overflow-x: auto; }
+  .chat-price .price-table { font-size: 0.8rem; min-width: 300px; }
+  .chat-price .price-table th, .chat-price .price-table td { padding: 6px 5px; }
+  .chat-price .cp-est { margin: 0 0 10px; padding: 8px 10px; border-radius: 8px; background: color-mix(in srgb, var(--amber) 12%, transparent); font-size: 0.84rem; }
+  .chat-price .cp-note { font-size: 0.72rem; color: var(--ink-faint); margin: 8px 0 0; line-height: 1.45; }
+  .ml-item > div { display: flex; flex-direction: column; gap: 3px; }
+  .price-table td:first-child { white-space: nowrap; }
+  @media (max-width: 520px) { .motion-legend { grid-template-columns: 1fr; } .ml-item { flex-direction: row; align-items: center; gap: 10px; }
+    .chat-price { max-width: calc(100vw - 96px); box-sizing: border-box; } .chat-price .price-table { font-size: 0.72rem; min-width: 0; }
+    .chat-price .price-table th small { display: none; } .price-modal .price-table { font-size: 0.78rem; } .price-modal .price-table th small { display: none; } }
   .price-modal .note { font-size: 0.76rem; color: var(--ink-faint); margin-top: 14px; line-height: 1.5; }
   .price-modal .close-row { text-align: right; margin-top: 18px; }
   #soon-toast {
@@ -709,9 +737,10 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
 <div id="price-modal-overlay">
   <div class="price-modal">
     <h2>요금 안내</h2>
-    <p class="sub">대략적인 참고용 예상 요금표예요. 실제 견적은 대본과 장면이 확정된 뒤 정확히 안내드려요.</p>
+    <p class="sub">영상 길이와 <b>움직임 방식</b>으로 정해져요. 장면 수와 상관없이 같은 요금이에요.</p>
+    <div class="motion-legend" id="motion-legend"></div>
     <table class="price-table" id="price-table-body"></table>
-    <p class="note">기본료 3,000원 + 영상 길이(분)×1,500원 + 장면 수×1,200원으로 계산돼요. 30분이 넘으면 참고용 추정만 가능하고, 60분이 넘으면 20% 추가돼요.</p>
+    <p class="note" id="price-modal-note"></p>
     <div class="close-row"><button class="btn-gold-sm" id="price-modal-close">닫기</button></div>
   </div>
 </div>
@@ -744,7 +773,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     voiceGender: '목소리', voiceAge: '목소리 연령대', directorNote: '연출 메모', style: '연출 스타일', characterUse: '캐릭터 통일',
     driveLink: '드라이브 링크', mediaNote: '분위기 메모',
     sceneCount: '장면 수', videoLength: '영상 길이', estimatedPrice: '예상 비용', hookText: '화면 상단 문구',
-    layout: '화면 구성', captionPos: '자막 위치'
+    layout: '화면 구성', captionPos: '자막 위치', motion: '움직임 방식'
   };
 
   function decodeJwt(token) {
@@ -775,7 +804,24 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     }
   }
   updateModeBadge();
+  function 현재움직임() { return document.querySelector('input[name="df-motion"]:checked')?.value || '자동'; }
+  function applyMotionPlan() {
+    const box = document.getElementById('df-motion');
+    if (!box) return;
+    const note = document.getElementById('df-motion-note');
+    const 체험 = planMode !== 'paid';
+    box.querySelectorAll('.lp-opt').forEach(l => {
+      const input = l.querySelector('input');
+      const off = 체험 && input.value !== '이미지 중심';
+      input.disabled = off; l.classList.toggle('is-off', off);
+    });
+    if (체험) { box.querySelector('input[value="이미지 중심"]').checked = true; }
+    else if (box.dataset.wasTrial === '1') { box.querySelector('input[value="자동"]').checked = true; }
+    box.dataset.wasTrial = 체험 ? '1' : '0';
+    if (note) note.textContent = 체험 ? '체험판은 이미지 중심으로 만들어져요. 정식 모드에서는 원하는 방식을 고를 수 있어요.' : (현재움직임() === '모두 영상' ? '모든 장면을 움직이는 영상으로 만들어요. 제작 시간이 조금 더 걸려요.' : '');
+  }
   function updatePrice() {
+    applyMotionPlan();
     const priceBox = document.querySelector('.df-price');
     if (!priceBox) return; // 폼이 안 열려있으면 할 일 없음
     if (planMode !== 'paid') {
@@ -784,11 +830,15 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     }
     const form = document.getElementById('df-form');
     const lenInput = document.getElementById('df-videoLength');
-    const sceneInput = document.getElementById('df-sceneCount');
     const isLongform = form && form.value === '롱폼';
-    const len = lenInput && lenInput.value ? parseFloat(lenInput.value) : (isLongform ? 3 : 0.75);
-    const scenes = sceneInput && sceneInput.value ? parseInt(sceneInput.value) : (isLongform ? 15 : 8);
-    priceBox.innerHTML = `<div class="amt" id="df-price-amt">약 ${computePrice(len, scenes).toLocaleString()}원</div><p>선택하신 내용 기준 예상 비용 (실제 확정은 다음 화면에서)</p>`;
+    const len = lenInput && parseFloat(lenInput.value) > 0 ? parseFloat(lenInput.value) : defaultLen(isLongform ? '롱폼' : '쇼츠');
+    const 고른 = dfMode === 'media' ? '이미지 중심' : motionOf(현재움직임() === '자동' ? '혼합' : 현재움직임());
+    const 최고 = computePrice(len, '모두 영상');
+    const 막대 = dfMode === 'media' ? '' : '<div class="mb-chart">' + MOTION_LIST.map(m => {
+      const v = computePrice(len, m);
+      return `<div class="mb-row${m === 고른 ? ' on' : ''}"><span>${m}</span><span class="mb-bar"><span class="mb-fill" style="width:${Math.round(v / 최고 * 100)}%;display:block"></span></span><span class="v">${won(v)}</span></div>`;
+    }).join('') + '</div>';
+    priceBox.innerHTML = `<div class="amt" id="df-price-amt">약 ${won(computePrice(len, 고른))}</div><p>${lenLabel(len)}${lenInput && lenInput.value ? '' : '(기본)'} · ${고른} 기준 예상 비용 · 장면 수는 요금과 무관</p>${막대}`;
   }
   function refreshDirectFormIfOpen() {
     updatePrice(); // 폼이 안 열려있으면 updatePrice 안에서 조용히 무시됨
@@ -893,6 +943,22 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       startFreshChat(true);
       return;
     }
+    // [요금 질문] "얼마예요?", "요금표 보여줘", "2분짜리 모두 영상이면 가격은?" → 서버를 거치지 않고 정확한 요금표 카드로 바로 답한다.
+    // 설정 변경(“모두 영상으로 바꿔줘”)이 같이 들어 있으면 표를 보여준 뒤 챗봇에게도 보내서 설정에 반영한다.
+    const 요금패턴 = /(가격|요금|비용|얼마|견적|단가)/;
+    const 변경의도 = /(바꿔|바꿀|변경|로\s*해|으로\s*해|로\s*만들|으로\s*만들|할게|할래|주제)/.test(text);
+    let 요금표나중에 = false;
+    if (요금패턴.test(text)) {
+      if (!변경의도) {
+        exampleRow.style.display = 'none';
+        addMsg('user', escapeHtml(text));
+        history.push({ role: 'user', text });
+        showPriceCard(text);
+        renderComposer();
+        return;
+      }
+      요금표나중에 = true; // 설정 변경을 먼저 반영한 뒤 표를 보여준다
+    }
     const staleStatus = document.getElementById('form-status');
     if (staleStatus) { staleStatus.textContent = ''; staleStatus.className = 'form-status'; }
     exampleRow.style.display = 'none';
@@ -917,6 +983,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
         history.push({ role: 'bot', text: data.reply + (추천목록.length ? `\n[추천: ${추천목록.join(' / ')}]` : '') });
       }
       if (추천목록.length) showSuggestions(추천목록);
+      if (요금표나중에) showPriceCard(text);
       saveChatState();
       if (data.complete && 필수충족) {
         showSummary();
@@ -1046,6 +1113,13 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       answers.layout = '전체화면형';
       addMsg('bot', '참고로 롱폼(가로) 영상은 화면을 가득 채우는 전체화면형으로만 만들 수 있어서 그렇게 맞췄어요.');
     }
+    // [요금] 챗봇이 알려준 값 대신 화면에서 같은 공식으로 다시 계산한다 (서버도 접수할 때 한 번 더 계산)
+    if (planMode === 'paid' && mode !== 'media') {
+      answers.motion = motionOf(answers.motion);
+      answers.estimatedPrice = computePrice(answers.videoLength ? parseFloat(answers.videoLength) : defaultLen(answers.form), answers.motion);
+    } else if (planMode === 'paid') {
+      answers.estimatedPrice = computePrice(answers.videoLength ? parseFloat(answers.videoLength) : defaultLen(answers.form), '이미지 중심');
+    } else { delete answers.motion; }
     const rows = Object.keys(answers)
       .filter(k => answers[k] && !(k === 'estimatedPrice' && planMode !== 'paid'))
       .filter(k => !((k === 'productLink' || k === 'productImageUrl') && !/^https?:\/\//i.test(String(answers[k]))))
@@ -1119,6 +1193,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       if (answers.thumbnail) payload.thumbnail = answers.thumbnail;
       if (answers.layout && answers.layout !== '자동') payload.layout = answers.layout;
       if (answers.captionPos && answers.captionPos !== '자동') payload.captionPos = answers.captionPos;
+      if (planMode === 'paid' && MOTION_RATE[answers.motion]) payload.motion = answers.motion;
     }
     if (answers.hookText) payload.hookText = answers.hookText;
     if (answers.sceneCount) payload.sceneCount = answers.sceneCount;
@@ -1231,30 +1306,95 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   document.getElementById('logout-btn').addEventListener('click', () => { sessionStorage.removeItem('rw_id_token'); location.reload(); });
 
   /* ===================== 직접 설정하기 (채팅 대신 폼으로) ===================== */
-  function computePrice(lengthMin, sceneCount) {
-    let price = 3000 + (lengthMin * 1500) + (sceneCount * 1200);
-    if (lengthMin > 60) price = Math.round(price * 1.2);
-    return Math.round(price);
+  // ───── 요금 (모든 화면·챗봇·서버가 같은 공식을 쓴다: 전체 상담 Agent v5, 웹 신청 접수 v3.2) ─────
+  // 기본료 3,000원 + 영상 길이(분) × 움직임 방식별 분당 요금, 60분 넘으면 20% 추가, 100원 단위 반올림
+  const PRICE_BASE = 3000;
+  const MOTION_RATE = { '이미지 중심': 7000, '혼합': 11000, '모두 영상': 17000 };
+  const MOTION_LIST = ['이미지 중심', '혼합', '모두 영상'];
+  const MOTION_DESC = {
+    '이미지 중심': 'AI 이미지에 카메라 움직임(줌·이동). 설명·정보형에 알맞아요',
+    '혼합': '핵심 장면은 AI 영상, 나머지는 실사 영상·이미지. 가장 많이 골라요',
+    '모두 영상': '모든 장면이 움직이는 영상. 요즘 쇼츠 느낌 그대로'
+  };
+  function motionOf(v) { return MOTION_RATE[v] ? v : '혼합'; }
+  function defaultLen(form) { return form === '롱폼' ? 3 : 0.75; }
+  function computePrice(lengthMin, motion) {
+    const len = Math.max(0.25, Number(lengthMin) || 0.75);
+    let price = PRICE_BASE + len * MOTION_RATE[motionOf(motion)];
+    if (len > 60) price *= 1.2;
+    return Math.round(price / 100) * 100;
   }
+  function won(n) { return Number(n).toLocaleString('ko-KR') + '원'; }
+  function lenLabel(min) { const sec = Math.round(min * 60); return sec < 60 ? `${sec}초` : (sec % 60 ? `${Math.floor(sec / 60)}분 ${sec % 60}초` : `${sec / 60}분`); }
+  // 움직임 방식 그림 - 휴대폰 안에 장면 3칸: 정지(산 그림) / 영상(재생 삼각형)
+  function motionSvg(kind, auto) {
+    const pat = kind === '이미지 중심' ? [0, 0, 0] : kind === '모두 영상' ? [1, 1, 1] : [1, 0, 1];
+    let g = `<rect x="0.5" y="0.5" width="44" height="79" rx="7" fill="#3a3129" stroke="#5a4e42"/>`;
+    pat.forEach((mv, i) => {
+      const y = 6 + i * 24;
+      g += `<rect x="5" y="${y}" width="35" height="20" rx="3" fill="${mv ? '#5a4326' : '#4d4238'}"/>`;
+      g += mv ? `<path d="M19 ${y + 5} l9 5 -9 5z" fill="#e2a23c"/>`
+              : `<path d="M9 ${y + 16} l7-7 5 5 4-3 7 5" fill="none" stroke="#7a6b5c" stroke-width="1.8" stroke-linejoin="round"/>`;
+    });
+    if (auto) g += `<circle cx="37" cy="9" r="6.5" fill="#e2a23c"/><path d="M37 5 l1.2 2.8 2.8 1.2 -2.8 1.2 -1.2 2.8 -1.2-2.8 -2.8-1.2 2.8-1.2z" fill="#1a1410"/>`;
+    return `<svg viewBox="0 0 45 80" aria-hidden="true">${g}</svg>`;
+  }
+  // 요금표(도표) - 모달과 채팅에서 함께 쓴다. hit = {len, motion} 이면 그 칸을 강조
+  const PRICE_ROWS = [
+    ['쇼츠', 0.5], ['쇼츠', 0.75], ['쇼츠', 1], ['쇼츠', 2], ['롱폼', 3], ['롱폼', 5], ['롱폼', 10]
+  ];
+  function priceTableHtml(hit) {
+    const head = '<tr><th>형태 · 길이</th>' + MOTION_LIST.map(m => `<th class="num${m === '혼합' ? ' rec' : ''}">${m}<small>분당 ${MOTION_RATE[m].toLocaleString()}원</small></th>`).join('') + '</tr>';
+    const rows = PRICE_ROWS.map(([f, len]) => '<tr><td>' + f + ' · ' + lenLabel(len) + '</td>' + MOTION_LIST.map(m => {
+      const on = hit && Math.abs(hit.len - len) < 1e-9 && hit.motion === m;
+      return `<td class="num${m === '혼합' ? ' rec' : ''}${on ? ' hit' : ''}">${won(computePrice(len, m))}</td>`;
+    }).join('') + '</tr>').join('');
+    return head + rows;
+  }
+  function motionLegendHtml() {
+    return MOTION_LIST.map(m => `<div class="ml-item${m === '혼합' ? ' rec' : ''}">${motionSvg(m)}<div><b>${m}${m === '혼합' ? ' · 추천' : ''}</b><span>${MOTION_DESC[m]}</span><em>분당 ${MOTION_RATE[m].toLocaleString()}원</em></div></div>`).join('');
+  }
+  const PRICE_NOTE = '기본료 3,000원 + 영상 길이(분) × 움직임 방식별 분당 요금이에요. 장면 수는 요금에 영향이 없고, 100원 단위로 반올림해요. 60분이 넘으면 20% 추가돼요. 체험판은 무료이고 이미지 중심으로 만들어져요.';
 
   /* ===================== 요금 안내 모달 ===================== */
   (function setupPriceModal() {
     const overlay = document.getElementById('price-modal-overlay');
-    const tableBody = document.getElementById('price-table-body');
-    const rows = [
-      { label: '쇼츠 · 짧게 (30초, 5장면)', len: 0.5, scenes: 5 },
-      { label: '쇼츠 · 보통 (45초, 8장면)', len: 0.75, scenes: 8 },
-      { label: '쇼츠 · 길게 (60초, 10장면)', len: 1, scenes: 10 },
-      { label: '롱폼 · 짧게 (3분, 15장면)', len: 3, scenes: 15 },
-      { label: '롱폼 · 보통 (5분, 20장면)', len: 5, scenes: 20 },
-    ];
-    tableBody.innerHTML = '<tr><th>형태</th><th>예상 요금</th></tr>' +
-      rows.map(r => `<tr><td>${r.label}</td><td>${computePrice(r.len, r.scenes).toLocaleString()}원</td></tr>`).join('');
-
+    document.getElementById('motion-legend').innerHTML = motionLegendHtml();
+    document.getElementById('price-table-body').innerHTML = priceTableHtml(null);
+    document.getElementById('price-modal-note').textContent = PRICE_NOTE;
     document.getElementById('to-price-table').addEventListener('click', () => overlay.classList.add('show'));
     document.getElementById('price-modal-close').addEventListener('click', () => overlay.classList.remove('show'));
     overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('show'); });
   })();
+
+  // 채팅 안에 요금표 카드 - "얼마예요?", "2분 모두 영상이면 가격은?" 같은 질문에 서버를 거치지 않고 바로 정확한 표로 답한다
+  function parseLenFromText(t) {
+    const m = String(t).match(/(\d+(?:\.\d+)?)\s*분(?:\s*(\d+)\s*초)?/) ;
+    if (m) return parseFloat(m[1]) + (m[2] ? parseInt(m[2]) / 60 : 0);
+    const s2 = String(t).match(/(\d+)\s*초/);
+    if (s2) return parseInt(s2[1]) / 60;
+    return null;
+  }
+  function parseMotionFromText(t) {
+    const x = String(t).replace(/\s/g, '');
+    if (/이미지중심|이미지만|사진만|정지|이미지위주|사진위주/.test(x)) return '이미지 중심';
+    if (/혼합|섞/.test(x)) return '혼합';
+    if (/모두영상|전부영상|다영상|전체영상|모든장면|전장면|풀영상|모두움직/.test(x)) return '모두 영상';
+    return null;
+  }
+  function showPriceCard(text) {
+    const len = parseLenFromText(text) ?? (answers.videoLength ? parseFloat(answers.videoLength) : null);
+    const motion = parseMotionFromText(text) || answers.motion || null;
+    const 기준길이 = len ?? defaultLen(answers.form);
+    const 기준방식 = motionOf(motion);
+    const 추정 = `${answers.form === '롱폼' ? '롱폼' : (기준길이 >= 3 && !answers.form ? '롱폼' : '쇼츠')} ${lenLabel(기준길이)} · ${기준방식}${len == null || !motion ? ' (정하지 않은 부분은 기본값)' : ''}`;
+    const 강조 = PRICE_ROWS.some(([, l]) => Math.abs(l - 기준길이) < 1e-9) ? { len: 기준길이, motion: 기준방식 } : null;
+    const 체험안내 = planMode !== 'paid' ? '<p class="cp-note">지금은 체험 모드라 무료로 만들어드려요(이미지 중심 · 워터마크). 아래는 정식 제작 요금이에요.</p>' : '';
+    const html = `요금은 영상 길이와 움직임 방식으로 정해져요. 장면 수는 요금과 상관없어요.<div class="chat-price"><div class="cp-est">${escapeHtml(추정)} → <b>${won(computePrice(기준길이, 기준방식))}</b></div><table class="price-table">${priceTableHtml(강조)}</table><p class="cp-note">${PRICE_NOTE}</p>${체험안내}</div>`;
+    addMsg('bot', html);
+    history.push({ role: 'bot', text: `[요금표 안내] ${추정} = ${computePrice(기준길이, 기준방식)}원. 분당 요금: 이미지 중심 7,000원 / 혼합 11,000원 / 모두 영상 17,000원, 기본료 3,000원.` });
+    saveChatState();
+  }
 
   let dfMode = 'topic';
 
@@ -1360,6 +1500,15 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     formSel.addEventListener('change', applyForm);
   }
 
+  const MOTION_OPTS = [['자동', '보통 혼합'], ['이미지 중심', '사진+카메라 움직임'], ['혼합', '핵심 장면만 영상'], ['모두 영상', '전 장면 움직임']];
+  function setupMotionPicker() {
+    const box = document.getElementById('df-motion');
+    if (!box) return;
+    box.innerHTML = MOTION_OPTS.map(([v, sub]) =>
+      `<label class="lp-opt"><input type="radio" name="df-motion" value="${v}"${v === '자동' ? ' checked' : ''}><span class="lp-card">${motionSvg(v === '자동' ? '혼합' : v, v === '자동')}<b>${v}</b><small>${sub}</small></span></label>`).join('');
+    box.dataset.wasTrial = '0';
+  }
+
   function renderDirectForm() {
     const wrap = document.getElementById('direct-form-wrap');
     const isMedia = dfMode === 'media';
@@ -1390,10 +1539,10 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
         <section class="df-sec" style="--c:#74b6ff"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span><div><h3>내 자료</h3><p>사진·영상이 담긴 구글 드라이브 폴더</p></div></div><div class="df-field"><label>구글 드라이브 폴더 링크 <em class="req">*</em></label><input type="url" id="df-driveLink" placeholder="https://drive.google.com/drive/folders/..."></div><div class="df-field"><label>어떤 이야기·분위기로 만들지 <span class="opt">선택 · 500자</span></label><textarea id="df-mediaNote" maxlength="500"></textarea></div></section><section class="df-sec" style="--c:#4fd6bd"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></span><div><h3>목소리</h3><p>비워두면 내용에 맞게 골라드려요</p></div></div><div class="df-grid2"><div class="df-field"><label>목소리</label><select id="df-voiceGender"><option value="">자동</option><option value="여성">여성</option><option value="남성">남성</option></select></div><div class="df-field"><label>목소리 연령대</label><select id="df-voiceAge">${ageOptions()}</select></div></div></section>`;
     } else {
       fieldsEl.innerHTML = `
-        <section class="df-sec" style="--c:#e2a23c"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13 7l4 4"/></svg></span><div><h3>무엇을 만들까요</h3><p>주제만 적어도 나머지는 AI가 채워요</p></div></div><div class="df-field"><label>주제 <em class="req">*</em> <span class="opt">300자</span></label><textarea id="df-topic" maxlength="300" placeholder="예: LG 통돌이 17kg DD모터 인공지능 세탁기 (T17DX3) 소개"></textarea></div><div class="df-field"><label>영상 이렇게 만들어주세요 <span class="opt">선택 · 300자</span></label><textarea id="df-style" maxlength="300" placeholder="비워두면 내용에 맞게 자동 · 예: 밝고 경쾌한 분위기로, 가족이 함께 쓰는 느낌으로"></textarea></div><div class="df-field df-check"><label><input type="checkbox" id="df-characterUse"><span>영상 내내 같은 캐릭터(인물)가 나오게 하기</span></label></div></section><section class="df-sec" style="--c:#ff8f6b"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg></span><div><h3>제품 정보</h3><p>상품 소개 영상일 때만 넣어주세요</p></div></div><div class="df-field"><label>제품 링크 <span class="opt">선택</span></label><input type="url" id="df-productLink" placeholder="https://..."></div><div class="df-field"><label>제품 이미지 URL <span class="opt">선택</span></label><input type="url" id="df-productImageUrl" placeholder="https://..."></div></section><section class="df-sec" style="--c:#b99bff"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 5v14M17 5v14M3 9h4M3 15h4M17 9h4M17 15h4"/></svg></span><div><h3>영상 형식</h3><p>형태, 길이, 화면 구성</p></div></div><div class="df-grid2"><div class="df-field"><label>영상 형태 <em class="req">*</em></label><select id="df-form"><option value="쇼츠">쇼츠(세로·짧게)</option><option value="롱폼">롱폼(가로·길게)</option></select></div><div class="df-field"><label>타겟 연령대</label><select id="df-target">${ageOptions()}</select></div><div class="df-field"><label>영상 길이(분) <span class="opt">선택</span></label><input type="number" id="df-videoLength" min="0" step="0.1" placeholder="비워두면 자동"></div><div class="df-field"><label>장면 수 <span class="opt">선택</span></label><input type="number" id="df-sceneCount" min="1" step="1" placeholder="비워두면 자동"></div></div><div class="df-field"><label>화면 상단 문구 <span class="opt">선택 · 18자</span></label><input type="text" id="df-hookText" maxlength="18" placeholder="비워두면 자동 · 예: 아직도 빨래 코스 고민하세요?"></div><div class="df-field"><label>화면 구성 <span class="opt">선택</span></label><div class="lp-grid" id="df-layout" role="radiogroup" aria-label="화면 구성"></div><p class="lp-note" id="df-layout-note"></p></div><div class="df-field"><label>자막 위치 <span class="opt">선택</span></label><div class="lp-grid" id="df-captionPos" role="radiogroup" aria-label="자막 위치"></div></div></section><section class="df-sec" style="--c:#4fd6bd"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></span><div><h3>목소리</h3><p>비워두면 내용에 맞게 골라드려요</p></div></div><div class="df-grid2"><div class="df-field"><label>말하기 속도</label><select id="df-tempo"><option value="">자동</option><option value="차분">차분하게</option><option value="중간">보통</option><option value="빠름">빠르고 경쾌하게</option></select></div><div class="df-field"><label>목소리</label><select id="df-voiceGender"><option value="">자동</option><option value="여성">여성</option><option value="남성">남성</option></select></div><div class="df-field"><label>목소리 연령대</label><select id="df-voiceAge">${ageOptions()}</select></div></div></section><section class="df-sec" style="--c:#ff8cc0"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 17l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg></span><div><h3>연출과 추가 옵션</h3><p>꼭 원하는 장면이 있다면 적어주세요</p></div></div><div class="df-field"><label>꼭 넣고 싶은 연출 <span class="opt">선택 · 500자</span></label><textarea id="df-directorNote" maxlength="500"></textarea></div><div class="df-field df-check"><label><input type="checkbox" id="df-thumbnail"><span>유튜브용 커스텀 썸네일 이미지도 같이 만들기 <span class="opt">정식 고객만 제공</span></span></label></div></section>`;
+        <section class="df-sec" style="--c:#e2a23c"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13 7l4 4"/></svg></span><div><h3>무엇을 만들까요</h3><p>주제만 적어도 나머지는 AI가 채워요</p></div></div><div class="df-field"><label>주제 <em class="req">*</em> <span class="opt">300자</span></label><textarea id="df-topic" maxlength="300" placeholder="예: LG 통돌이 17kg DD모터 인공지능 세탁기 (T17DX3) 소개"></textarea></div><div class="df-field"><label>영상 이렇게 만들어주세요 <span class="opt">선택 · 300자</span></label><textarea id="df-style" maxlength="300" placeholder="비워두면 내용에 맞게 자동 · 예: 밝고 경쾌한 분위기로, 가족이 함께 쓰는 느낌으로"></textarea></div><div class="df-field df-check"><label><input type="checkbox" id="df-characterUse"><span>영상 내내 같은 캐릭터(인물)가 나오게 하기</span></label></div></section><section class="df-sec" style="--c:#ff8f6b"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg></span><div><h3>제품 정보</h3><p>상품 소개 영상일 때만 넣어주세요</p></div></div><div class="df-field"><label>제품 링크 <span class="opt">선택</span></label><input type="url" id="df-productLink" placeholder="https://..."></div><div class="df-field"><label>제품 이미지 URL <span class="opt">선택</span></label><input type="url" id="df-productImageUrl" placeholder="https://..."></div></section><section class="df-sec" style="--c:#b99bff"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 5v14M17 5v14M3 9h4M3 15h4M17 9h4M17 15h4"/></svg></span><div><h3>영상 형식</h3><p>형태, 길이, 움직임, 화면 구성</p></div></div><div class="df-grid2"><div class="df-field"><label>영상 형태 <em class="req">*</em></label><select id="df-form"><option value="쇼츠">쇼츠(세로·짧게)</option><option value="롱폼">롱폼(가로·길게)</option></select></div><div class="df-field"><label>타겟 연령대</label><select id="df-target">${ageOptions()}</select></div><div class="df-field"><label>영상 길이(분) <span class="opt">선택</span></label><input type="number" id="df-videoLength" min="0" step="0.1" placeholder="비워두면 자동"></div><div class="df-field"><label>장면 수 <span class="opt">선택</span></label><input type="number" id="df-sceneCount" min="1" step="1" placeholder="비워두면 자동"></div></div><div class="df-field"><label>움직임 방식 <span class="opt">요금이 달라져요</span></label><div class="lp-grid" id="df-motion" role="radiogroup" aria-label="움직임 방식"></div><p class="lp-note" id="df-motion-note"></p></div><div class="df-field"><label>화면 상단 문구 <span class="opt">선택 · 18자</span></label><input type="text" id="df-hookText" maxlength="18" placeholder="비워두면 자동 · 예: 아직도 빨래 코스 고민하세요?"></div><div class="df-field"><label>화면 구성 <span class="opt">선택</span></label><div class="lp-grid" id="df-layout" role="radiogroup" aria-label="화면 구성"></div><p class="lp-note" id="df-layout-note"></p></div><div class="df-field"><label>자막 위치 <span class="opt">선택</span></label><div class="lp-grid" id="df-captionPos" role="radiogroup" aria-label="자막 위치"></div></div></section><section class="df-sec" style="--c:#4fd6bd"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></span><div><h3>목소리</h3><p>비워두면 내용에 맞게 골라드려요</p></div></div><div class="df-grid2"><div class="df-field"><label>말하기 속도</label><select id="df-tempo"><option value="">자동</option><option value="차분">차분하게</option><option value="중간">보통</option><option value="빠름">빠르고 경쾌하게</option></select></div><div class="df-field"><label>목소리</label><select id="df-voiceGender"><option value="">자동</option><option value="여성">여성</option><option value="남성">남성</option></select></div><div class="df-field"><label>목소리 연령대</label><select id="df-voiceAge">${ageOptions()}</select></div></div></section><section class="df-sec" style="--c:#ff8cc0"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 17l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg></span><div><h3>연출과 추가 옵션</h3><p>꼭 원하는 장면이 있다면 적어주세요</p></div></div><div class="df-field"><label>꼭 넣고 싶은 연출 <span class="opt">선택 · 500자</span></label><textarea id="df-directorNote" maxlength="500"></textarea></div><div class="df-field df-check"><label><input type="checkbox" id="df-thumbnail"><span>유튜브용 커스텀 썸네일 이미지도 같이 만들기 <span class="opt">정식 고객만 제공</span></span></label></div></section>`;
     }
 
-    if (!isMedia) setupLayoutPicker();
+    if (!isMedia) { setupLayoutPicker(); setupMotionPicker(); }
     wrap.addEventListener('input', updatePrice);
     wrap.addEventListener('change', updatePrice);
     updatePrice();
@@ -1432,9 +1581,9 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       }
       if (val('df-voiceGender')) answers.voiceGender = val('df-voiceGender');
       if (val('df-voiceAge')) answers.voiceAge = val('df-voiceAge');
-      const lenForPrice = answers.videoLength ? parseFloat(answers.videoLength) : (answers.form === '롱폼' ? 3 : 0.75);
-      const sceneForPrice = answers.sceneCount ? parseInt(answers.sceneCount) : (answers.form === '롱폼' ? 15 : 8);
-      answers.estimatedPrice = computePrice(lenForPrice, sceneForPrice);
+      // [움직임 방식] 정식 모드에서만 보낸다(체험판은 서버가 항상 이미지 중심으로 만든다). '자동'은 혼합으로 확정해서 보여준다.
+      if (!isMedia && planMode === 'paid') answers.motion = motionOf(현재움직임() === '자동' ? '혼합' : 현재움직임());
+      answers.estimatedPrice = computePrice(answers.videoLength ? parseFloat(answers.videoLength) : defaultLen(answers.form), isMedia ? '이미지 중심' : answers.motion);
       mode = isMedia ? 'media' : 'topic';
 
       showChatFromDirectForm();

@@ -171,6 +171,20 @@
   .choice .btn { margin-top: auto; }
   .choice-note { text-align: center; margin-top: 24px; color: var(--ink-faint); font-size: 0.9rem; }
   @media (max-width: 760px) { .choice-grid { grid-template-columns: 1fr; } }
+  .rate-wrap { max-width: 1000px; margin: 28px auto 0; border: 1px solid var(--line); background: var(--bg-raised); border-radius: 24px; padding: clamp(22px, 3.5vw, 34px); }
+  .rate-title { font-size: 1.15rem; font-weight: 700; margin: 0; }
+  .rate-sub { color: var(--ink-faint); font-size: 0.9rem; margin: 6px 0 16px; }
+  .rate-scroll { overflow-x: auto; }
+  .rate-table { width: 100%; border-collapse: collapse; font-size: 0.95rem; min-width: 440px; }
+  .rate-table th, .rate-table td { padding: 11px 10px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .rate-table th:first-child, .rate-table td:first-child { text-align: left; }
+  .rate-table th { color: var(--ink-faint); font-weight: 500; font-size: 0.85rem; vertical-align: bottom; }
+  .rate-table th b { display: block; color: var(--ink); font-size: 0.95rem; }
+  .rate-table td { color: var(--amber); font-weight: 600; }
+  .rate-table td:first-child { color: var(--ink-dim); font-weight: 400; }
+  .rate-table .rec { background: color-mix(in srgb, var(--amber) 9%, transparent); }
+  @media (max-width: 560px) { .rate-table { min-width: 0; font-size: 0.82rem; } .rate-table th, .rate-table td { padding: 10px 5px; } .rate-table th .d { display: none; } .rate-table th b { font-size: 0.8rem; } }
+  .rate-note { color: var(--ink-faint); font-size: 0.82rem; margin: 14px 0 0; line-height: 1.6; }
 
   /* footer */
   footer { padding: 64px var(--pad) calc(40px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid #2a241f; }
@@ -393,8 +407,9 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       </div>
       <div class="choice featured">
         <div class="head"><h3>정식 이용</h3><span class="kick">편당 결제</span></div>
-        <div class="big" style="font-size:1.6rem; font-family:'IBM Plex Sans KR',sans-serif; font-weight:600;">신청 후 이메일로 안내</div>
+        <div class="big">8,300원<small>쇼츠 45초부터</small></div>
         <ul>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>움직임 방식을 직접 선택 (이미지 중심 · 혼합 · 모두 영상)</li>
           <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>워터마크 없는 정식 화질</li>
           <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>더 빠른 처리 우선순위</li>
           <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>다운로드, 유튜브 업로드까지</li>
@@ -402,10 +417,29 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
         <a class="btn btn-amber" href="./new.html?mode=paid">정식으로 신청하기</a>
       </div>
     </div>
+    <div class="rate-wrap">
+      <h3 class="rate-title">정식 요금표</h3>
+      <p class="rate-sub">영상 길이와 움직임 방식으로 정해져요. 장면 수는 요금과 상관없어요.</p>
+      <div class="rate-scroll"><table class="rate-table" id="rate-table"></table></div>
+      <p class="rate-note">기본료 3,000원 + 영상 길이(분) × 분당 요금 (이미지 중심 7,000원 · 혼합 11,000원 · 모두 영상 17,000원), 100원 단위 반올림. 60분 초과 시 20% 추가.</p>
+    </div>
     <p class="choice-note">두 경우 모두 구글 계정으로 30초면 신청할 수 있어요.</p>
   </div>
 </section>
 </main>
+<script>
+(() => {
+  const RATE = { '이미지 중심': 7000, '혼합': 11000, '모두 영상': 17000 };
+  const DESC = { '이미지 중심': '이미지+카메라 움직임', '혼합': '핵심 장면만 영상 · 추천', '모두 영상': '모든 장면 움직임' };
+  const price = (len, m) => Math.round((3000 + len * RATE[m]) * (len > 60 ? 1.2 : 1) / 100) * 100;
+  const rows = [['쇼츠 30초', 0.5], ['쇼츠 45초', 0.75], ['쇼츠 1분', 1], ['쇼츠 2분', 2], ['롱폼 3분', 3], ['롱폼 5분', 5], ['롱폼 10분', 10]];
+  const ms = Object.keys(RATE);
+  const t = document.getElementById('rate-table');
+  if (!t) return;
+  t.innerHTML = '<tr><th>형태 · 길이</th>' + ms.map(m => `<th class="${m === '혼합' ? 'rec' : ''}"><b>${m}</b><span class="d">${DESC[m]}</span></th>`).join('') + '</tr>' +
+    rows.map(([l, len]) => `<tr><td>${l}</td>` + ms.map(m => `<td class="${m === '혼합' ? 'rec' : ''}">${price(len, m).toLocaleString('ko-KR')}원</td>`).join('') + '</tr>').join('');
+})();
+</script>
 
 <footer>
   <div class="footer-grid">
