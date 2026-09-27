@@ -90,9 +90,11 @@
   .screen video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background: #0f0d0b; transition: opacity .35s ease; }
   .screen video.is-fading { opacity: 0; }
   .screen.has-video .bar i { animation: none; width: 0; transition: width .25s linear; }
-  .strip .frame { background-size: cover; background-position: center; transition: opacity .25s ease; }
-  .strip .frame.is-swap { opacity: 0; }
-  .strip .frame .tc { background: rgba(0,0,0,.55); color: #f2e9da; padding: 1px 5px; border-radius: 3px; }
+  .strip .frame { background-size: cover; background-position: center; position: relative; overflow: hidden; }
+  /* 필름 사진 크로스페이드: 새 사진 층이 이전 사진 위로 떠올라 3장이 한 번에 자연스럽게 바뀐다 */
+  .strip .frame .fnext { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity .7s ease; border-radius: inherit; }
+  .strip .frame .fnext.on { opacity: 1; }
+  .strip .frame .tc { position: relative; z-index: 1; background: rgba(0,0,0,.55); color: #f2e9da; padding: 1px 5px; border-radius: 3px; transition: opacity .35s ease; }
   @media (prefers-reduced-motion: reduce) { .screen .bar i { animation: none; } }
   .timecode { color: #f2e9da; position: absolute; right: -8px; bottom: 170px; background: #1f1a17; border: 1px solid #3a322b; border-radius: 14px; padding: 12px 16px; box-shadow: 0 20px 40px rgba(0,0,0,.4); }
   .timecode b { display: block; font-family: 'IBM Plex Mono', monospace; font-weight: 500; font-size: 1.1rem; letter-spacing: .04em; }
@@ -519,20 +521,30 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   const 필름칸 = [...document.querySelectorAll('.strip .frame')];
   // 다음 영상의 필름 사진을 미리 받아둬서 바뀔 때 깜빡이지 않게
   clips.forEach(c => (c.strip || []).forEach(f => { const im = new Image(); im.src = './assets/' + f; }));
-  function 필름바꾸기(c) {
-    if (!c.strip) return;
+  let 필름현재 = 0; // 지금 필름에 보이는 영상 번호 (처음엔 AI)
+  function 필름바꾸기(n) {
+    const c = clips[n];
+    if (!c.strip || n === 필름현재) return;
+    필름현재 = n;
+    // 3장을 동시에: 새 사진 층을 위에 깔고 0.7초 동안 떠오르게 한 뒤, 바탕을 새 사진으로 바꾸고 층을 치운다
     필름칸.forEach((el, k) => {
-      el.classList.add('is-swap');
+      const 층 = document.createElement('div');
+      층.className = 'fnext';
+      층.style.backgroundImage = `url('./assets/${c.strip[k]}')`;
+      el.insertBefore(층, el.firstChild);
+      const t = el.querySelector('.tc');
+      if (t) t.style.opacity = '0';
+      requestAnimationFrame(() => requestAnimationFrame(() => 층.classList.add('on')));
       setTimeout(() => {
         el.style.backgroundImage = `url('./assets/${c.strip[k]}')`;
-        const t = el.querySelector('.tc'); if (t && c.tc) t.textContent = c.tc[k];
-        el.classList.remove('is-swap');
-      }, 250 + k * 90);
+        층.remove();
+        if (t) { if (c.tc) t.textContent = c.tc[k]; t.style.opacity = '1'; }
+      }, 750);
     });
   }
   function load(n) {
     const c = clips[n];
-    필름바꾸기(c);
+    필름바꾸기(n); // 이미 바뀌어 있으면 아무것도 안 함
     v.poster = c.poster;
     // 대부분 브라우저는 mp4, 일부(H.264 미지원 환경)는 webm
     v.src = v.canPlayType('video/mp4; codecs="avc1.4D401E"') ? c.src : c.src.replace(/\.mp4$/, '.webm');
@@ -549,7 +561,8 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     if (tc) tc.textContent = `00:00:${pad(v.currentTime)}:${pad((v.currentTime % 1) * 24)}`;
     if (tcLabel) { const c = clips[i]; tcLabel.textContent = `${c.kind} · 장면 ${Math.min(c.scenes, Math.floor(r * c.scenes) + 1)} / ${c.scenes}`; }
   });
-  v.addEventListener('ended', () => { v.classList.add('is-fading'); setTimeout(() => { i = (i + 1) % clips.length; load(i); }, 350); });
+  // 영상이 끝나면 휴대폰 화면이 흐려지는 것과 '같은 순간'에 필름 사진 3장도 함께 바뀌기 시작한다
+  v.addEventListener('ended', () => { const 다음 = (i + 1) % clips.length; v.classList.add('is-fading'); 필름바꾸기(다음); setTimeout(() => { i = 다음; load(i); }, 350); });
   v.addEventListener('error', () => { if (!시작됨) return; i = (i + 1) % clips.length; load(i); });
   // 화면에 보일 때만 재생 (배터리·데이터 절약)
   const io = 'IntersectionObserver' in window ? new IntersectionObserver(es => {
