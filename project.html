@@ -370,6 +370,17 @@
   .meta-row { font-weight: 400; }
   .review-card h3, .upgrade-card h3 { font-weight: 650; }
   .agent-card-head { font-weight: 600; }
+
+  /* ===== 기다리는 동안 안내 카드 ===== */
+  .wait-note { display: none; gap: 16px; align-items: flex-start; border: 1px solid var(--line); background: var(--bg-raised); border-radius: 20px; padding: 22px 24px; margin-bottom: 20px; }
+  .wait-ico { width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0; display: grid; place-items: center; background: color-mix(in srgb, #74b6ff 18%, transparent); }
+  .wait-ico svg { width: 20px; height: 20px; fill: none; stroke: #74b6ff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  :root[data-theme="light"] .wait-ico svg { stroke: #2f6fb3; }
+  @media (prefers-color-scheme: light) { :root[data-theme="system"] .wait-ico svg { stroke: #2f6fb3; } }
+  .wait-body strong { display: block; font-size: 1.05rem; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+  .wait-body p { margin: 0; color: var(--ink-dim); font-size: 0.95rem; line-height: 1.7; }
+  .wait-body p b { color: var(--ink); font-weight: 600; }
+  .wait-body .wait-sub { margin-top: 6px; color: var(--ink-faint); font-size: 0.88rem; }
 </style>
 <script>
 /* 테마 전환: 기존 기능 코드와 분리된 독립 스크립트 */
@@ -526,8 +537,8 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     '장면구성대기': '약 10~20분',
     '장면구성중': '약 10~20분',
     '검수 대기': '아래에서 확인하실 수 있어요 ↓',
-    '검수완료': '약 5~10분',
-    '제작 중': '약 5~10분',
+    '검수완료': '약 10~30분',
+    '제작 중': '약 10~30분',
     '배포': '이메일도 함께 보내드렸어요',
   };
 
@@ -620,6 +631,37 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     }).join('');
   }
 
+  // [신규] 기다리는 단계에서는 "창을 닫아도 된다, 이메일로 알려드린다"를 먼저 보여줘서 앉아서 기다리지 않게 한다.
+  function renderWaitNote(p) {
+    let el = document.getElementById('wait-note');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'wait-note';
+      el.className = 'wait-note';
+      el.setAttribute('role', 'status');
+      const stepper = document.getElementById('stepper');
+      stepper.parentNode.insertBefore(el, stepper.nextSibling);
+    }
+    const 오류 = p.errorLog && !String(p.errorLog).startsWith('[안내]');
+    const 장면단계 = ['장면구성대기', '장면구성중'].includes(p.status);
+    const 제작단계 = ['검수완료', '제작 중'].includes(p.status);
+    if (오류 || (!장면단계 && !제작단계)) { el.style.display = 'none'; return; }
+    const info = decodeJwt(currentIdToken) || {};
+    const 메일 = info.email ? `<b>${escapeHtml(info.email)}</b>` : '가입하신 이메일';
+    const 제목 = 장면단계 ? '보통 10~20분 걸려요' : '완성되면 메일로 보내드릴게요';
+    const 본문 = 장면단계
+      ? `준비되면 이 화면에서 바로 마지막 확인을 하실 수 있어요. 창을 닫으셔도 ${메일}로 확인 요청을 한 번 보내드려요.`
+      : `영상이 완성되는 대로 ${메일}로 보내드려요.`;
+    el.innerHTML = `
+      <span class="wait-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></span>
+      <div class="wait-body">
+        <strong>${제목}</strong>
+        <p>${본문}</p>
+        ${장면단계 ? '' : '<p class="wait-sub">이 창은 닫으셔도 괜찮아요. 다른 일 보시다가 메일이 오면 확인해 주세요.</p>'}
+      </div>`;
+    el.style.display = 'flex';
+  }
+
   function renderProject(p) {
     currentProject = p;
     document.getElementById('crumb-title').textContent = p.title || '주제 준비 중';
@@ -629,6 +671,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
 
     renderVideoCard(p);
     renderStepper(p.status, (p.errorLog && !String(p.errorLog).startsWith('[안내]')) ? p.errorLog : '', p.paid); // [안내] 메모는 오류로 표시하지 않음
+    renderWaitNote(p);
     renderReviewCard(p);
     renderUpgradeCard(p);
     setupAgentChat(p);
