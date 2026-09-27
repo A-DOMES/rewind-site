@@ -970,7 +970,17 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     confirmBtn.addEventListener('click', doSubmit);
   }
 
+  let 접수중 = false;
   async function doSubmit() {
+    // [중복 신청 방지] 접수 요청은 3~4초 걸리는데 그동안 버튼이 그대로라 두 번 눌려 신청이 2건 들어갔다.
+    // 누르는 즉시 버튼을 잠그고, 실패했을 때만 다시 풀어준다.
+    if (접수중) return;
+    접수중 = true;
+    const 버튼들 = Array.from(composer.querySelectorAll('button, input[type="checkbox"]'));
+    const 확인버튼 = composer.querySelector('.btn-gold-sm');
+    const 원래문구 = 확인버튼 ? 확인버튼.textContent : '';
+    버튼들.forEach(b => { b.disabled = true; });
+    if (확인버튼) 확인버튼.textContent = '접수하고 있어요…';
     const status = document.getElementById('form-status');
     status.textContent = ''; status.className = 'form-status';
     const profile = decodeJwt(googleIdToken);
@@ -1014,6 +1024,9 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       setTimeout(() => { location.href = newId ? ('./project.html?id=' + encodeURIComponent(newId)) : './dashboard.html'; }, 1400);
     } catch (err) {
       status.textContent = err.message || '접수 중 문제가 생겼어요.';
+      접수중 = false;
+      버튼들.forEach(b => { b.disabled = false; });
+      if (확인버튼) 확인버튼.textContent = 원래문구;
       status.className = 'form-status err';
     }
   }
