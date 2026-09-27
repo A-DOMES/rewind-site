@@ -557,6 +557,13 @@
   .lp-opt.is-off .lp-card { opacity: .35; }
   .lp-note { margin: 8px 0 0; font-size: 0.78rem; color: var(--ink-faint); min-height: 1em; }
   @media (max-width: 400px) { .lp-card small { display: none; } .lp-card svg { width: 34px; height: 60px; } }
+
+  /* [주제 추천] 상담 중 추천 주제 버튼 */
+  .suggest-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 2px 0 14px 46px; }
+  .suggest-chip { font: inherit; font-size: .9rem; font-weight: 500; text-align: left; padding: 9px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg-raised); color: var(--ink); cursor: pointer; transition: border-color .15s, transform .15s; }
+  .suggest-chip:hover { border-color: var(--amber); transform: translateY(-1px); }
+  .suggest-chip.more { color: var(--ink-faint); border-style: dashed; }
+  @media (max-width: 560px) { .suggest-row { margin-left: 0; } }
 </style>
 <script>
 /* 테마 전환: 기존 기능 코드와 분리된 독립 스크립트 */
@@ -677,6 +684,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
                 <button class="example-chip" data-topic="반려동물 영양제를 소개하는 영상을 만들고 싶어요" style="--c:#ff8cc0"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="10" r="1.8"/><circle cx="10" cy="6" r="1.8"/><circle cx="14" cy="6" r="1.8"/><circle cx="18" cy="10" r="1.8"/><path d="M12 11c-3 0-5 3.5-5 5.5 0 1.5 1.2 2.5 2.7 2.5.9 0 1.5-.4 2.3-.4s1.4.4 2.3.4c1.5 0 2.7-1 2.7-2.5 0-2-2-5.5-5-5.5z"/></svg>반려동물 용품</button>
                 <button class="example-chip" data-topic="환절기 감기 예방을 위한 건강 정보를 알려주는 영상" style="--c:#4fd6bd"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/><path d="M8 12h2l1-2 2 4 1-2h2"/></svg>건강정보</button>
                 <button class="example-chip" data-topic="20년지기 친구들과 다녀온 제주도 여행 추억을 담은 영상" style="--c:#b99bff"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-8 8"/></svg>추억 영상</button>
+                <button class="example-chip" data-topic="요즘 반응 좋은 영상 주제를 추천해줘" style="--c:#e2a23c"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.4 1 1.1 1 1.8V16h5v-.3c0-.7.4-1.4 1-1.8A6 6 0 0 0 12 3z"/></svg>주제 추천받기</button>
               </div>
             </div>
           </div>
@@ -888,7 +896,13 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       if (data.collected) Object.assign(answers, data.collected);
       const 필수충족 = mode === 'media' ? !!(answers.driveLink && answers.form) : !!(answers.topic && answers.form);
       // [수정] 마무리 단계(complete)에서도 체험/승인/재작성 안내 문구는 요약 카드 앞에 보여준다.
-      if (data.reply) { addMsg('bot', renderReply(data.reply)); history.push({ role: 'bot', text: data.reply }); }
+      const 추천목록 = Array.isArray(data.suggestions) ? data.suggestions.filter(s => typeof s === 'string' && s.trim()).slice(0, 3) : [];
+      if (data.reply) {
+        addMsg('bot', renderReply(data.reply));
+        // 추천한 주제는 대화 기록에 남겨서, "다른 주제" 요청 때 같은 주제가 다시 나오지 않게 한다
+        history.push({ role: 'bot', text: data.reply + (추천목록.length ? `\n[추천: ${추천목록.join(' / ')}]` : '') });
+      }
+      if (추천목록.length) showSuggestions(추천목록);
       saveChatState();
       if (data.complete && 필수충족) {
         showSummary();
@@ -911,6 +925,28 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       addMsg('bot', '죄송해요, 잠시 문제가 있었어요. 다시 한번 말씀해주시겠어요?');
       renderComposer();
     }
+  }
+
+  // [주제 추천] 추천 주제를 버튼으로 보여주고, 누르면 그 주제로 대화를 이어간다. "다른 주제 보기"는 한 대화에서 3번까지.
+  function showSuggestions(list) {
+    document.querySelectorAll('.suggest-row').forEach(r => r.remove());
+    const 추천횟수 = history.filter(h => h.role === 'bot' && /\n\[추천: /.test(h.text || '')).length;
+    const row = document.createElement('div');
+    row.className = 'suggest-row';
+    list.forEach(topic => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'suggest-chip'; b.textContent = topic;
+      b.addEventListener('click', () => { row.remove(); sendMessage(`"${topic}" 주제로 만들게요`); });
+      row.appendChild(b);
+    });
+    if (추천횟수 < 3) {
+      const more = document.createElement('button');
+      more.type = 'button'; more.className = 'suggest-chip more'; more.textContent = '다른 주제 보기';
+      more.addEventListener('click', () => { row.remove(); sendMessage('다른 주제도 추천해줘'); });
+      row.appendChild(more);
+    }
+    chatLog.appendChild(row);
+    row.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }
 
   document.querySelectorAll('.example-chip').forEach(chip => {
