@@ -689,7 +689,13 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   let googleIdToken = null;
   let pastProjects = [];
   const params = new URLSearchParams(location.search);
-  let planMode = params.get('mode') === 'paid' ? 'paid' : 'trial';
+  // [수정] 체험/정식 선택을 브라우저에 기억해서, 새로고침하거나 다른 화면에 다녀와도 체험으로 되돌아가지 않게 한다.
+  // 주소에 ?mode=paid 가 있으면 그게 우선.
+  const PLAN_KEY = 'rw_plan_mode';
+  let 저장된모드 = null; try { 저장된모드 = localStorage.getItem(PLAN_KEY); } catch (e) {}
+  let planMode = params.get('mode') === 'paid' ? 'paid' : (저장된모드 === 'paid' ? 'paid' : 'trial');
+  function savePlanMode() { try { localStorage.setItem(PLAN_KEY, planMode); } catch (e) {} }
+  savePlanMode();
 
   const FIELD_LABEL = {
     topic: '주제', productLink: '제품 링크', productImageUrl: '제품 이미지', target: '타겟', form: '영상 형태', tempo: '말하기 속도',
@@ -744,8 +750,8 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   function refreshDirectFormIfOpen() {
     updatePrice(); // 폼이 안 열려있으면 updatePrice 안에서 조용히 무시됨
   }
-  badge.addEventListener('click', () => { planMode = planMode === 'paid' ? 'trial' : 'paid'; updateModeBadge(); refreshDirectFormIfOpen(); });
-  topBadge.addEventListener('click', () => { planMode = planMode === 'paid' ? 'trial' : 'paid'; updateModeBadge(); refreshDirectFormIfOpen(); });
+  badge.addEventListener('click', () => { planMode = planMode === 'paid' ? 'trial' : 'paid'; savePlanMode(); updateModeBadge(); refreshDirectFormIfOpen(); });
+  topBadge.addEventListener('click', () => { planMode = planMode === 'paid' ? 'trial' : 'paid'; savePlanMode(); updateModeBadge(); refreshDirectFormIfOpen(); });
 
   const chatLog = document.getElementById('chat-log');
   const composer = document.getElementById('composer-inner');

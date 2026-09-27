@@ -628,7 +628,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     document.getElementById('proj-date').textContent = p.createdAt ? ('신청일 ' + p.createdAt) : '';
 
     renderVideoCard(p);
-    renderStepper(p.status, p.errorLog, p.paid);
+    renderStepper(p.status, (p.errorLog && !String(p.errorLog).startsWith('[안내]')) ? p.errorLog : '', p.paid); // [안내] 메모는 오류로 표시하지 않음
     renderReviewCard(p);
     renderUpgradeCard(p);
     setupAgentChat(p);
@@ -897,25 +897,36 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     }
   }
 
-  function startPolling(idToken, targetId) {
-    if (pollTimer) clearInterval(pollTimer);
-    pollTimer = setInterval(async () => {
-      try {
-        const res = await fetch(PROJECTS_WEBHOOK_URL, {
-          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idToken })
-        });
-        const data = await res.json().catch(() => null);
-        const projects = (data && data.projects) || [];
-        const found = targetId ? projects.find(p => String(p.id) === String(targetId)) : projects[0];
-        if (!found) return;
-        // 로딩 스피너 없이 조용히 화면만 갱신 (깜빡임 방지)
-        renderProject(found);
-        if (found.status === '배포' || found.videoUrl || found.errorLog) {
-          clearInterval(pollTimer); // 끝났거나 오류가 났으면 더 이상 계속 확인할 필요 없음
-        }
-      } catch (e) { /* 폴링 실패는 조용히 무시하고 다음 주기에 재시도 */ }
-    }, 15000); // 15초마다 자동으로 최신 상태 확인
+  // [수정] 실시간 반응 개선: 10초마다 확인 + 탭으로 돌아오면 즉시 확인, 창이 가려져 있을 땐 쉬어서 서버 부담을 줄임.
+  // [안내]로 시작하는 ErrorLog 메모 때문에 확인이 멈춰버리던 문제도 함께 막음.
+  let pollArgs = null;
+  async function pollTick() {
+    if (!pollArgs || document.hidden) return;
+    const { idToken, targetId } = pollArgs;
+    try {
+      const res = await fetch(PROJECTS_WEBHOOK_URL, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idToken })
+      });
+      const data = await res.json().catch(() => null);
+      const projects = (data && data.projects) || [];
+      const found = targetId ? projects.find(p => String(p.id) === String(targetId)) : projects[0];
+      if (!found) return;
+      // 로딩 스피너 없이 조용히 화면만 갱신 (깜빡임 방지)
+      renderProject(found);
+      const 진짜오류 = found.errorLog && !String(found.errorLog).startsWith('[안내]');
+      if (found.status === '배포' || found.videoUrl || 진짜오류) {
+        clearInterval(pollTimer); pollTimer = null; // 끝났거나 오류가 났으면 더 이상 계속 확인할 필요 없음
+      }
+    } catch (e) { /* 폴링 실패는 조용히 무시하고 다음 주기에 재시도 */ }
   }
+  function startPolling(idToken, targetId) {
+    pollArgs = { idToken, targetId };
+    if (pollTimer) clearInterval(pollTimer);
+    pollTimer = setInterval(pollTick, 10000); // 10초마다 자동으로 최신 상태 확인
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && pollArgs && pollTimer) pollTick();
+  });
 
   window.handleGoogleSignIn = function (response) {
     const data = decodeJwt(response.credential);
