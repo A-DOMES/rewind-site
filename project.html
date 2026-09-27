@@ -390,6 +390,23 @@
   .video-frame iframe, .video-frame video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; max-height: none; margin: 0; border-radius: 0; object-fit: contain; background: #000; }
   .video-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
   .video-note { margin: 14px 0 0 !important; font-size: 0.82rem !important; color: var(--ink-faint) !important; line-height: 1.6; }
+
+  /* ===== 썸네일 고르기 ===== */
+  .thumb-picker { margin-top: 26px; padding-top: 22px; border-top: 1px solid var(--line); text-align: left; }
+  .thumb-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+  .thumb-head strong { font-size: 1rem; font-weight: 600; color: var(--ink); }
+  .thumb-head span { font-size: 0.82rem; color: var(--ink-faint); }
+  .thumb-grid { display: grid; grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr)); gap: 14px; max-width: calc(var(--n, 1) * 220px); }
+  @media (max-width: 560px) { .thumb-grid { grid-template-columns: repeat(min(var(--n, 1), 2), minmax(0, 1fr)); } }
+  .thumb-item { margin: 0; display: flex; flex-direction: column; gap: 8px; }
+  .thumb-img { display: block; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); background: #000; transition: border-color .15s; }
+  .thumb-img:hover { border-color: var(--amber); }
+  .thumb-img.is-vertical { aspect-ratio: 9 / 16; }
+  .thumb-img.is-wide { aspect-ratio: 16 / 9; }
+  .thumb-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .thumb-item figcaption { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 0.86rem; color: var(--ink-dim); }
+  .thumb-dl { display: inline-flex; align-items: center; min-height: 36px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line-strong, #4a4038); color: var(--ink); text-decoration: none; font-size: 0.84rem; font-weight: 600; }
+  .thumb-dl:hover { border-color: var(--amber); color: var(--amber); }
 </style>
 <script>
 /* 테마 전환: 기존 기능 코드와 분리된 독립 스크립트 */
@@ -565,6 +582,31 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
 
+  // [신규] 썸네일 고르기: 썸네일URL 칸에 주소가 1개든 여러 개(쉼표/줄바꿈 구분)든 모두 카드로 보여준다
+  function thumbnailPicker(p) {
+    const list = String(p.thumbnailUrl || '').split(/[\s,]+/).map(s => s.trim()).filter(s => /^https?:\/\//.test(s)).slice(0, 3);
+    if (list.length === 0) return '';
+    const 세로 = (p.form || '쇼츠') !== '롱폼';
+    const items = list.map((u, i) => `
+      <figure class="thumb-item">
+        <a class="thumb-img ${세로 ? 'is-vertical' : 'is-wide'}" href="${escapeHtml(u)}" target="_blank" rel="noopener" aria-label="썸네일 ${i + 1} 크게 보기">
+          <img src="${escapeHtml(u)}" alt="썸네일 ${i + 1}" loading="lazy">
+        </a>
+        <figcaption>
+          <span>${list.length > 1 ? '썸네일 ' + (i + 1) : '썸네일'}</span>
+          <a class="thumb-dl" href="${escapeHtml(u)}" target="_blank" rel="noopener" download>받기</a>
+        </figcaption>
+      </figure>`).join('');
+    return `
+      <div class="thumb-picker">
+        <div class="thumb-head">
+          <strong>${list.length > 1 ? '마음에 드는 썸네일을 골라 받으세요' : '썸네일'}</strong>
+          <span>누르면 크게 볼 수 있어요</span>
+        </div>
+        <div class="thumb-grid" style="--n:${list.length}">${items}</div>
+      </div>`;
+  }
+
   function renderVideoCard(p) {
     const card = document.getElementById('video-card');
     const 완성 = p.status === '배포';
@@ -594,8 +636,8 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
         ${player}
         <div class="video-actions">
           <a class="btn-primary" href="${escapeHtml(url)}" target="_blank" rel="noopener" ${ytMatch ? '' : 'download'}>${ytMatch ? '유튜브에서 보기' : '영상 다운로드'}</a>
-          ${p.thumbnailUrl ? `<a class="btn-ghost" href="${escapeHtml(p.thumbnailUrl)}" target="_blank" rel="noopener">썸네일 받기</a>` : ''}
         </div>
+        ${thumbnailPicker(p)}
         ${ytMatch ? '' : `<p class="video-note"><strong>렌더링 서버에는 최대 7일까지만 보관</strong>되니, 필요하시면 기간 안에 다운로드해 두세요.</p>`}`;
     } else {
       // 체험판 - 원본 다운로드 링크는 노출하지 않고 화면 안에서만 재생
