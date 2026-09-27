@@ -502,6 +502,20 @@
   @media (prefers-color-scheme: light) { :root[data-theme="system"] .df-sec-ico svg { stroke: color-mix(in srgb, var(--c) 72%, #000); } }
   /* 폼이 열려 좁아지면 예시 버튼 숨김 */
   .split-row.split-active .example-row { display: none; }
+
+  /* 필수 항목이 채워졌을 때 나오는 진행 버튼 */
+  .proceed-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; max-width: 720px; margin: 0 auto 10px; min-height: 48px; border-radius: 999px; border: 1px solid var(--amber); background: var(--amber-wash); color: var(--ink); font-family: inherit; font-size: 0.95rem; font-weight: 600; cursor: pointer; }
+  .proceed-btn:hover { background: var(--amber); color: var(--on-amber); }
+
+  /* ===== 색 역할 정리: 앰버는 "지금 해야 할 한 가지 행동"에만 ===== */
+  .msg.user .bubble { background: var(--bg-input); color: var(--ink); border: 1px solid var(--line); }
+  :root[data-theme="light"] .msg.user .bubble { background: var(--bg-input); color: var(--ink); border: 1px solid var(--line); }
+  @media (prefers-color-scheme: light) { :root[data-theme="system"] .msg.user .bubble { background: var(--bg-input); color: var(--ink); border: 1px solid var(--line); } }
+  .new-chat-btn { background: transparent; color: var(--ink); border: 1px solid var(--line); box-shadow: none; }
+  :root[data-theme="light"] .new-chat-btn { background: transparent; color: var(--ink); border: 1px solid var(--line); box-shadow: none; }
+  @media (prefers-color-scheme: light) { :root[data-theme="system"] .new-chat-btn { background: transparent; color: var(--ink); border: 1px solid var(--line); box-shadow: none; } }
+  .new-chat-btn:hover { border-color: var(--ink-faint); background: var(--bg-raised); }
+  :root[data-theme="dark"] .msg.user .bubble, :root:not([data-theme]) .msg.user .bubble { background: #2a2521; }
 </style>
 <script>
 /* 테마 전환: 기존 기능 코드와 분리된 독립 스크립트 */
@@ -821,13 +835,24 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       if (data.mode) mode = data.mode;
       if (data.collected) Object.assign(answers, data.collected);
       const 필수충족 = mode === 'media' ? !!(answers.driveLink && answers.form) : !!(answers.topic && answers.form);
-      if (data.reply && !(data.complete && 필수충족)) { addMsg('bot', renderReply(data.reply)); history.push({ role: 'bot', text: data.reply }); }
+      // [수정] 마무리 단계(complete)에서도 체험/승인/재작성 안내 문구는 요약 카드 앞에 보여준다.
+      if (data.reply) { addMsg('bot', renderReply(data.reply)); history.push({ role: 'bot', text: data.reply }); }
       saveChatState();
       if (data.complete && 필수충족) {
         showSummary();
       } else {
         if (data.complete && !필수충족) console.warn('[전체 상담 Agent] complete:true였지만 필수 항목 누락 - 계속 진행', answers);
         renderComposer();
+        // [안전장치] 필수 항목(주제+영상형태 / 드라이브링크+영상형태)이 이미 채워졌는데 서버가 complete를 안 준 경우,
+        // 버튼이 없어 막히지 않도록 "지금 내용으로 진행하기" 버튼을 입력창 위에 보여준다.
+        if (필수충족) {
+          const proceed = document.createElement('button');
+          proceed.type = 'button';
+          proceed.className = 'proceed-btn';
+          proceed.textContent = '지금 내용으로 진행하기';
+          proceed.addEventListener('click', showSummary);
+          composer.prepend(proceed);
+        }
       }
     } catch (e) {
       console.error('[전체 상담 Agent 호출 실패]', e);
@@ -859,8 +884,8 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   function showSummary() {
     clampAnswersAndWarn();
     const rows = Object.keys(answers)
-      .filter(k => answers[k])
-      .map(k => `<div class="summary-row"><span class="k">${FIELD_LABEL[k] || k}</span><span class="v">${k === 'characterUse' ? (answers[k] ? '예' : '아니오') : escapeHtml(String(answers[k])).slice(0, 60)}</span></div>`)
+      .filter(k => answers[k] && !(k === 'estimatedPrice' && planMode !== 'paid'))
+      .map(k => `<div class="summary-row"><span class="k">${FIELD_LABEL[k] || k}</span><span class="v">${k === 'characterUse' ? (answers[k] ? '예' : '아니오') : k === 'estimatedPrice' && !isNaN(Number(answers[k])) ? Number(answers[k]).toLocaleString('ko-KR') + '원' : escapeHtml(String(answers[k])).slice(0, 60)}</span></div>`)
       .join('');
     addMsg('bot', `이렇게 만들어드릴게요.<div class="summary-card">${rows || '<div class="summary-row"><span class="k">확인된 내용이 없어요</span></div>'}</div>`);
 

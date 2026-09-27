@@ -354,6 +354,11 @@
     :root[data-theme="system"] .amsg.user .bubble { background: #f6e6c8; border: 1px solid #e2c68f }
     :root[data-theme="system"] #stepper .status-step-row.done .rail-col { background: #b8a488 }
   }
+
+  /* 색 역할 정리 */
+  .amsg.user .bubble { background: var(--bg-input); color: var(--ink); border: 1px solid var(--line); }
+  :root[data-theme="light"] .amsg.user .bubble { background: var(--bg-input); color: var(--ink); border: 1px solid var(--line); }
+  @media (prefers-color-scheme: light) { :root[data-theme="system"] .amsg.user .bubble { background: var(--bg-input); color: var(--ink); border: 1px solid var(--line); } }
 </style>
 <script>
 /* 테마 전환: 기존 기능 코드와 분리된 독립 스크립트 */
