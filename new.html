@@ -1343,6 +1343,18 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     document.getElementById('account-name').textContent = profile.name || profile.email || '';
     await loadPastProjects(idToken);
     resetChat();
+    // [주제 찾기] 추천 메일의 "이 주제로 만들기" 링크(?topic=...)로 들어오면 입력창에 주제를 미리 채워둔다.
+    // 바로 보내지는 않고, 확인 후 → 버튼을 누르게 한다. 새로고침 때 다시 채워지지 않도록 주소에서 지운다.
+    const 추천주제 = (params.get('topic') || '').trim().slice(0, 300);
+    if (추천주제) {
+      const field = document.getElementById('chat-text-field');
+      if (field && !field.value) {
+        field.value = 추천주제 + ' 영상을 만들고 싶어요';
+        field.dispatchEvent(new Event('input'));
+        field.focus();
+      }
+      try { const u = new URL(location.href); u.searchParams.delete('topic'); history.replaceState(null, '', u); } catch (e) {}
+    }
   }
 
   async function loadPastProjects(idToken) {
