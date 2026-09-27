@@ -173,6 +173,37 @@
   .rv-save { background: var(--bg-input); color: var(--ink-dim); border: 1px solid var(--line); }
   .rv-retry { background: none; color: var(--err); border: 1px solid var(--err); }
   .review-status { text-align: center; font-size: 0.82rem; margin-top: 10px; min-height: 1.2em; }
+  /* [대본 읽기·비교] 소리 내어 읽듯 한 문장씩 줄을 바꿔 보여준다 */
+  .sv-tabs { display: flex; gap: 6px; padding: 4px; border: 1px solid var(--line); border-radius: 999px; background: var(--bg); margin: 4px 0 14px; }
+  .sv-tab { flex: 1; border: 0; background: transparent; color: var(--ink-dim); padding: 10px 12px; border-radius: 999px; font: inherit; font-size: 0.9rem; font-weight: 600; cursor: pointer; }
+  .sv-tab small { display: block; font-weight: 400; font-size: 0.72rem; color: var(--ink-faint); }
+  .sv-tab[aria-selected="true"] { background: var(--amber); color: #1a1410; }
+  .sv-tab[aria-selected="true"] small { color: #1a1410; opacity: .75; }
+  .sv-paper { background: var(--bg); border: 1px solid var(--line); border-radius: 14px; padding: 22px 22px 18px; }
+  .sv-meta { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 12px; }
+  .sv-meta b { color: var(--ink-dim); font-weight: 600; }
+  .sv-badge { display: inline-block; font-size: 0.72rem; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: color-mix(in srgb, var(--amber) 22%, transparent); color: var(--ink); }
+  .sv-title { font-size: 1.12rem; font-weight: 700; line-height: 1.45; margin: 0 0 6px; color: var(--ink); }
+  .sv-hook { display: inline-block; font-size: 0.82rem; color: var(--ink-dim); border: 1px dashed var(--line); border-radius: 8px; padding: 3px 9px; margin-bottom: 14px; }
+  .sv-body { counter-reset: sv; }
+  .sv-line { position: relative; margin: 0; padding: 7px 0 7px 34px; font-size: 1.04rem; line-height: 1.85; color: var(--ink); border-bottom: 1px dashed color-mix(in srgb, var(--line) 70%, transparent); counter-increment: sv; }
+  .sv-line:last-child { border-bottom: 0; }
+  .sv-line::before { content: counter(sv); position: absolute; left: 0; top: 11px; width: 22px; height: 22px; border-radius: 50%; background: var(--bg-raised); border: 1px solid var(--line); font-size: 0.7rem; color: var(--ink-faint); display: grid; place-items: center; }
+  .sv-req { font-size: 0.8rem; color: var(--ink-faint); margin-top: 10px; }
+  .sv-use { width: 100%; margin-top: 14px; min-height: 48px; border-radius: 999px; border: 1px solid var(--amber); background: transparent; color: var(--ink); font: inherit; font-weight: 700; cursor: pointer; }
+  .sv-use:hover { background: color-mix(in srgb, var(--amber) 14%, transparent); }
+  .sv-alt-box { margin-top: 14px; border: 1px solid var(--line); border-radius: 14px; padding: 16px; background: var(--bg); }
+  .sv-alt-box h4 { margin: 0 0 4px; font-size: 0.95rem; }
+  .sv-alt-box p { margin: 0 0 10px; font-size: 0.8rem; color: var(--ink-faint); }
+  .sv-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .sv-chip { border: 1px solid var(--line); background: var(--bg-raised); color: var(--ink-dim); border-radius: 999px; padding: 7px 12px; font: inherit; font-size: 0.8rem; cursor: pointer; }
+  .sv-chip[aria-pressed="true"] { border-color: var(--amber); color: var(--ink); background: color-mix(in srgb, var(--amber) 14%, var(--bg-raised)); }
+  .sv-alt-box textarea { width: 100%; box-sizing: border-box; min-height: 64px; background: var(--bg-input); border: 1px solid var(--line); color: var(--ink); border-radius: 10px; padding: 10px 12px; font: inherit; font-size: 0.88rem; resize: vertical; }
+  .sv-writing { display: flex; align-items: center; gap: 10px; justify-content: center; padding: 18px 0 6px; color: var(--ink-dim); font-size: 0.9rem; }
+  .sv-spin { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--line); border-top-color: var(--amber); animation: svspin 0.9s linear infinite; }
+  @keyframes svspin { to { transform: rotate(360deg); } }
+  .rv-alt { background: transparent; color: var(--ink); border: 1px solid var(--amber); }
+  @media (max-width: 520px) { .sv-paper { padding: 16px 14px 12px; } .sv-line { font-size: 1rem; padding-left: 30px; } }
   .review-status.ok { color: var(--olive); }
   .review-status.err { color: var(--err); }
 
@@ -544,6 +575,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   const PROJECTS_WEBHOOK_URL = 'https://bald-buffalo.pikapod.net/webhook/my-projects';
   const PROGRESS_CONSULT_WEBHOOK_URL = 'https://bald-buffalo.pikapod.net/webhook/progress-consult';
   const REVIEW_ACTION_WEBHOOK_URL = 'https://bald-buffalo.pikapod.net/webhook/review-action';
+  const SCRIPT_ALT_WEBHOOK_URL = 'https://bald-buffalo.pikapod.net/webhook/script-alt'; // [신규] 대본 다시 쓰기(정식) - 새 버전 받기·바꾸기
   const UPGRADE_REQUEST_WEBHOOK_URL = 'https://bald-buffalo.pikapod.net/webhook/upgrade-request';
   const GOOGLE_CLIENT_ID = '188637268860-9hj2af4bt8esn506bf5bqs72qnbu0qjs.apps.googleusercontent.com';
   let currentIdToken = null;
@@ -806,6 +838,11 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
 
   function renderReviewCard(p) {
     const card = document.getElementById('review-card');
+    // [신규] 10초마다 도는 자동 새로고침이 읽는 중·고치는 중·새 버전 쓰는 중인 화면을 지우지 않도록, 내용이 바뀌었을 때만 다시 그린다
+    const 서명 = JSON.stringify([p.status, p.title, p.script, p.hookText, p.scenesPreview, p.재작성횟수, p.altScript, p.altCount, p.planPaid, p.paid]);
+    if (card.innerHTML && 서명 === 대본화면서명 && card.style.display !== 'none') return;
+    if (대본작성중 || (대본고치는중 && p.status === '대본검수대기')) return;
+    대본화면서명 = 서명;
     const hasScript = !!p.script;
     const hasScenesOnly = !p.script && !!p.scenesPreview; // 내 사진·영상(MyMediaFolder) 케이스 - 단일 대본은 없고 장면별 나레이션만 있음
     const isGateA = p.status === '대본검수대기'; // 1차 관문: 대본만 확인
@@ -819,25 +856,9 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     card.style.display = 'block';
 
     if (isGateA) {
-      // 1차 관문 - 대본만 보여주고, 자유롭게 수정 가능
-      card.innerHTML = `
-        <h3>대본을 확인해주세요</h3>
-        <p class="sub">완성된 대본이에요. 이대로 진행하면 장면과 목소리를 만드는 다음 단계로 넘어가요. 수정하시거나, 처음부터 다시 만들어달라고 요청하실 수 있어요.</p>
-        <div class="review-field">
-          <label>제목</label>
-          <input type="text" id="rv-title" value="${reviewEscapeHtml(p.title)}">
-        </div>
-        <div class="review-field">
-          <label>나레이션 대본</label>
-          <textarea id="rv-script">${reviewEscapeHtml(p.script)}</textarea>
-        </div>
-        <div class="review-actions">
-          ${재작성가능 ? '<button class="rv-retry" id="rv-retry">↻ 다시 만들어줘</button>' : ''}
-          <button class="rv-save" id="rv-save">수정 내용 저장</button>
-          <button class="rv-approve" id="rv-approve">✓ 이대로 승인</button>
-        </div>
-        ${재작성가능 ? '' : '<p class="review-status" style="color:var(--ink-faint);">이미 한 번 다시 만들어보셨어요 - 이번엔 이대로 승인하시거나 직접 수정해주세요.</p>'}
-        <p class="review-status" id="rv-status"></p>`;
+      // [신규] 1차 관문 - 대본을 한 문장씩 읽기 좋게 보여준다. 정식 신청은 '새 버전 받기'로 다른 대본을 받아 비교하고 고를 수 있다.
+      renderScriptGate(p, card, 재작성가능);
+      return;
     } else if (hasScript) {
       // 최종 관문(Queue처리) - 대본+장면 다 보여주되, 읽기 전용(수정 저장 없음)
       card.innerHTML = `
@@ -883,6 +904,146 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     document.getElementById('rv-retry')?.addEventListener('click', () => {
       if (confirm('지금 내용을 버리고 처음부터 다시 만들까요? 이번 프로젝트에서 딱 한 번만 가능하고, 되돌릴 수 없어요.')) submitReview('retry_script');
     });
+  }
+
+  // ───── 대본 확인(1차 관문): 읽기 화면 + 새 버전 비교 ─────
+  let 대본보기탭 = 'now';        // 'now' = 지금 대본, 'alt' = 새 버전
+  let 대본작성중 = false;        // 새 버전을 쓰는 중이면 폴링이 화면을 다시 그리지 않게
+  let 대본고치는중 = false;      // 직접 고치기 중이면 폴링이 입력 내용을 지우지 않게
+  let 대본화면서명 = '';
+  function 문장나누기(text) {
+    const t = String(text || '').replace(/\s+/g, ' ').trim();
+    if (!t) return [];
+    return t.split(/(?<=[.!?…])\s+(?=\S)/).map(x => x.trim()).filter(Boolean);
+  }
+  function 읽는시간(text) { const sec = Math.round(String(text || '').length / 6); return sec < 60 ? `약 ${sec}초` : `약 ${Math.floor(sec / 60)}분 ${sec % 60 ? (sec % 60) + '초' : ''}`.trim(); }
+  function 대본종이(v, opts) {
+    const 줄 = 문장나누기(v.script).map(x => `<p class="sv-line">${reviewEscapeHtml(x)}</p>`).join('');
+    return `<div class="sv-paper">
+      <div class="sv-meta">${opts.badge ? `<span class="sv-badge">${opts.badge}</span>` : ''}<span>읽는 시간 <b>${읽는시간(v.script)}</b></span><span><b>${String(v.script || '').length}</b>자</span>${v.만든시각 ? `<span>${reviewEscapeHtml(v.만든시각)} 작성</span>` : ''}</div>
+      <p class="sv-title">${reviewEscapeHtml(v.title || '')}</p>
+      ${v.화면후킹문구 ? `<span class="sv-hook">화면 위 문구 · ${reviewEscapeHtml(v.화면후킹문구)}</span>` : ''}
+      <div class="sv-body">${줄 || '<p class="sv-line">(대본이 비어 있어요)</p>'}</div>
+      ${opts.req ? `<p class="sv-req">요청하신 내용: ${reviewEscapeHtml(opts.req)}</p>` : ''}
+      ${opts.useBtn ? '<button type="button" class="sv-use" id="sv-use">이 버전으로 바꾸기</button>' : ''}
+    </div>`;
+  }
+  function renderScriptGate(p, card, 재작성가능) {
+    const 정식 = !!(p.planPaid || p.paid);
+    const alt = p.altScript && p.altScript.script ? p.altScript : null;
+    const 남은 = Math.max(0, Number(p.altMax || 3) - Number(p.altCount || 0));
+    if (!alt) 대본보기탭 = 'now';
+    const 지금 = { title: p.title, 화면후킹문구: p.hookText, script: p.script };
+    const 보기 = 대본보기탭 === 'alt' && alt ? alt : 지금;
+    const 탭 = alt ? `<div class="sv-tabs" role="tablist">
+        <button type="button" class="sv-tab" role="tab" data-tab="now" aria-selected="${대본보기탭 === 'now'}">지금 대본<small>제작에 쓰일 대본</small></button>
+        <button type="button" class="sv-tab" role="tab" data-tab="alt" aria-selected="${대본보기탭 === 'alt'}">${alt.요청사항 === '이전 대본' ? '이전 대본' : '새 버전'}<small>비교해 보고 고르세요</small></button>
+      </div>` : '';
+    card.innerHTML = `
+      <h3>대본을 확인해주세요</h3>
+      <p class="sub">소리 내어 읽듯 천천히 읽어보세요. 이대로 승인하면 장면과 목소리를 만드는 다음 단계로 넘어가요.${정식 ? ' 마음에 들지 않으면 새 버전을 받아 비교하고 원하는 쪽을 고를 수 있어요.' : ''}</p>
+      ${탭}
+      <div id="sv-view">${대본종이(보기, { badge: 보기 === 지금 ? '제작에 쓰일 대본' : '', req: 보기 === alt && alt.요청사항 !== '이전 대본' ? alt.요청사항 : '', useBtn: 보기 === alt })}</div>
+      <div id="sv-edit" style="display:none;">
+        <div class="review-field"><label>제목</label><input type="text" id="rv-title" value="${reviewEscapeHtml(p.title)}"></div>
+        <div class="review-field"><label>나레이션 대본</label><textarea id="rv-script">${reviewEscapeHtml(p.script)}</textarea></div>
+      </div>
+      <div id="sv-alt-slot"></div>
+      <div class="review-actions" id="sv-actions">
+        ${정식 ? `<button class="rv-alt" id="rv-alt" ${남은 ? '' : 'disabled'}>↻ 새 버전 받아보기 ${남은 ? `(남은 ${남은}회)` : '(모두 사용)'}</button>`
+               : (재작성가능 ? '<button class="rv-retry" id="rv-retry">↻ 다시 만들어줘</button>' : '')}
+        <button class="rv-save" id="rv-edit">✎ 직접 고치기</button>
+        <button class="rv-approve" id="rv-approve">✓ ${alt && 대본보기탭 === 'alt' ? '지금 대본으로 승인' : '이 대본으로 승인'}</button>
+      </div>
+      ${!정식 && !재작성가능 ? '<p class="review-status" style="color:var(--ink-faint);">이미 한 번 다시 만들어보셨어요 - 이번엔 이대로 승인하시거나 직접 고쳐주세요.</p>' : ''}
+      <p class="review-status" id="rv-status"></p>`;
+
+    card.querySelectorAll('.sv-tab').forEach(b => b.addEventListener('click', () => { 대본보기탭 = b.dataset.tab; 대본화면서명 = ''; renderScriptGate(currentProject, card, 재작성가능); }));
+    document.getElementById('rv-approve').addEventListener('click', () => {
+      if (alt && 대본보기탭 === 'alt' && !confirm('지금 보고 계신 건 비교용 버전이에요. 이 버전을 쓰려면 먼저 "이 버전으로 바꾸기"를 눌러주세요.\n\n그대로 "지금 대본"으로 승인할까요?')) return;
+      submitReview('approve');
+    });
+    document.getElementById('rv-retry')?.addEventListener('click', () => {
+      if (confirm('지금 내용을 버리고 처음부터 다시 만들까요? 이번 프로젝트에서 딱 한 번만 가능하고, 되돌릴 수 없어요.')) submitReview('retry_script');
+    });
+    document.getElementById('sv-use')?.addEventListener('click', () => chooseAltScript());
+    document.getElementById('rv-alt')?.addEventListener('click', () => openAltBox(남은));
+    document.getElementById('rv-edit').addEventListener('click', () => {
+      const edit = document.getElementById('sv-edit'), view = document.getElementById('sv-view');
+      const 열기 = edit.style.display === 'none';
+      if (열기) {
+        대본고치는중 = true; 대본보기탭 = 'now';
+        view.style.display = 'none'; edit.style.display = 'block';
+        card.querySelector('.sv-tabs')?.style.setProperty('display', 'none');
+        const btn = document.getElementById('rv-edit'); btn.textContent = '💾 고친 내용 저장'; btn.classList.add('is-saving');
+        document.getElementById('rv-script').focus();
+      } else {
+        submitReview('edit_save').then(() => { 대본고치는중 = false; });
+      }
+    });
+  }
+  function openAltBox(남은) {
+    const slot = document.getElementById('sv-alt-slot');
+    if (!slot || 대본작성중) return;
+    if (slot.innerHTML) { slot.innerHTML = ''; return; }
+    const 예시 = ['더 쉽게', '더 재미있게', '첫 문장을 더 강하게', '더 짧고 빠르게', '더 차분하게', '마무리를 더 구체적으로'];
+    slot.innerHTML = `<div class="sv-alt-box">
+      <h4>어떻게 바꿔드릴까요?</h4>
+      <p>고르거나 적어주시면 반영해서 새 버전을 써요. 비워두면 더 매력적인 다른 버전으로 써드려요. 지금 대본은 그대로 남아 있어서 둘을 비교해 고르실 수 있어요. (남은 ${남은}회)</p>
+      <div class="sv-chips">${예시.map(x => `<button type="button" class="sv-chip" aria-pressed="false">${x}</button>`).join('')}</div>
+      <textarea id="sv-req" maxlength="300" placeholder="예: 60대 부모님도 알아듣기 쉽게, 마지막에 채널 구독 부탁은 빼주세요"></textarea>
+      <div class="review-actions"><button class="rv-save" id="sv-cancel">닫기</button><button class="rv-approve" id="sv-go">새 버전 쓰기</button></div>
+    </div>`;
+    slot.querySelectorAll('.sv-chip').forEach(c => c.addEventListener('click', () => c.setAttribute('aria-pressed', c.getAttribute('aria-pressed') === 'true' ? 'false' : 'true')));
+    document.getElementById('sv-cancel').addEventListener('click', () => { slot.innerHTML = ''; });
+    document.getElementById('sv-go').addEventListener('click', () => {
+      const 고른 = [...slot.querySelectorAll('.sv-chip[aria-pressed="true"]')].map(c => c.textContent);
+      const 적은 = document.getElementById('sv-req').value.trim();
+      requestAltScript([...고른, 적은].filter(Boolean).join(', '));
+    });
+  }
+  async function requestAltScript(요청) {
+    const slot = document.getElementById('sv-alt-slot');
+    const status = document.getElementById('rv-status');
+    대본작성중 = true;
+    document.querySelectorAll('#sv-actions button').forEach(b => b.disabled = true);
+    slot.innerHTML = '<div class="sv-alt-box"><div class="sv-writing"><span class="sv-spin"></span>새 대본을 쓰고 있어요… 보통 30초~1분 걸려요</div></div>';
+    status.textContent = ''; status.className = 'review-status';
+    try {
+      const res = await fetch(SCRIPT_ALT_WEBHOOK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken: currentIdToken, id: currentProject.id, action: 'draft', request: 요청 }) });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data || data.ok === false) throw new Error((data && data.message) || '새 버전을 만들지 못했어요. 잠시 후 다시 시도해 주세요.');
+      currentProject = { ...currentProject, altScript: data.alt, altCount: data.altCount };
+      대본보기탭 = 'alt'; 대본작성중 = false; 대본화면서명 = '';
+      renderReviewCard(currentProject);
+      const st = document.getElementById('rv-status'); st.textContent = '새 버전이 도착했어요. 두 대본을 비교해 보고 마음에 드는 쪽을 고르세요.'; st.className = 'review-status ok';
+    } catch (e) {
+      대본작성중 = false;
+      slot.innerHTML = '';
+      document.querySelectorAll('#sv-actions button').forEach(b => b.disabled = false);
+      status.textContent = e.message || '새 버전을 만들지 못했어요.'; status.className = 'review-status err';
+    }
+  }
+  async function chooseAltScript() {
+    const status = document.getElementById('rv-status');
+    const btn = document.getElementById('sv-use'); if (btn) btn.disabled = true;
+    status.textContent = '대본을 바꾸고 있어요…'; status.className = 'review-status';
+    try {
+      const res = await fetch(SCRIPT_ALT_WEBHOOK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken: currentIdToken, id: currentProject.id, action: 'choose' }) });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data || data.ok === false) throw new Error((data && data.message) || '바꾸지 못했어요.');
+      const c = data.current || {};
+      currentProject = { ...currentProject, title: c.title, hookText: c.화면후킹문구, description: c.description, script: c.script, altScript: data.alt };
+      대본보기탭 = 'now'; 대본화면서명 = '';
+      renderReviewCard(currentProject);
+      document.getElementById('proj-title').textContent = c.title || currentProject.title;
+      const st = document.getElementById('rv-status'); st.textContent = '바꿨어요! 이제 이 대본으로 제작돼요. 바꾸기 전 대본은 옆 탭에 남아 있어서 다시 되돌릴 수 있어요.'; st.className = 'review-status ok';
+    } catch (e) {
+      if (btn) btn.disabled = false;
+      status.textContent = e.message || '바꾸지 못했어요.'; status.className = 'review-status err';
+    }
   }
 
   function renderUpgradeCard(p) {
@@ -941,6 +1102,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       if (!res.ok || !data || data.ok === false) throw new Error((data && data.message) || '처리에 실패했어요.');
       status.textContent = action === 'approve' ? '승인됐어요! 제작이 이어서 진행돼요.' : action === 'retry_script' ? '다시 만들도록 요청했어요.' : '수정 내용을 저장했어요.';
       status.className = 'review-status ok';
+      if (action === 'edit_save') { 대본고치는중 = false; 대본화면서명 = ''; }
       if (action === 'retry_script') {
         addAgentMsg('bot', '대본을 처음부터 다시 만들고 있어요! 5분 정도 기다려주시면, 새 대본이 뜰 거예요. 이 프로젝트에서는 재작성을 한 번만 쓸 수 있어서, 이번이 마지막 기회였어요 - 다음엔 이대로 승인하시거나 직접 수정해주셔야 해요.');
       }
