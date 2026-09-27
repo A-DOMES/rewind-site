@@ -1301,14 +1301,14 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   const LAYOUT_OPTS = [
     ['자동', '보통 제목고정형'], ['제목고정형', '제목이 위에 고정'], ['전체화면형', '장면을 가득'], ['자막바형', '아래 띠에 큰 자막']
   ];
-  const CAPTION_OPTS = [['자동', '보통 아래'], ['하단', '아래쪽'], ['가운데', '화면 가운데'], ['상단', '위쪽']];
+  const CAPTION_OPTS = [['자동', '보통 3/4 지점'], ['하단', '3/4 지점'], ['가운데', '화면 가운데'], ['상단', '위쪽']];
   // 미니 휴대폰 그림 (viewBox 45x80). layout: 제목고정형/전체화면형/자막바형, pos: 하단/가운데/상단, auto: 반짝이 표시
   function phoneSvg(layout, pos, auto) {
     const 제목 = layout === '제목고정형';
     const 띠 = layout === '자막바형';
     const top = 제목 ? 16 : 0;
     const barH = 띠 ? 13 : 9;
-    const y = pos === '상단' ? top + 5 : pos === '가운데' ? Math.round(top + (80 - top) / 2 - barH / 2) : 60 - (띠 ? 3 : 0);
+    const y = pos === '상단' ? top + 5 : pos === '가운데' ? Math.round(top + (80 - top) / 2 - barH / 2) : 47 - (띠 ? 1 : 0); // 하단 = 화면 4등분의 3번째 칸(쇼츠 아래 구독·제목 영역을 피함)
     let g = `<rect x="0.5" y="0.5" width="44" height="79" rx="7" fill="#3a3129" stroke="#5a4e42"/>`;
     g += `<rect x="3" y="${top + 3}" width="39" height="${77 - top - 3}" rx="3" fill="#4d4238"/><path d="M8 ${Math.min(top + 40, 56)} l9-10 7 7 5-4 9 9" fill="none" stroke="#6b5d4f" stroke-width="2" stroke-linejoin="round"/>`;
     if (제목) g += `<rect x="3" y="3" width="39" height="${top}" rx="3" fill="#15110e"/><rect x="10" y="6" width="25" height="3" rx="1.5" fill="#FFF200"/><rect x="14" y="11" width="17" height="3" rx="1.5" fill="#FF2D8A"/>`;
