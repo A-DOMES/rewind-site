@@ -1308,7 +1308,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     const 띠 = layout === '자막바형';
     const top = 제목 ? 16 : 0;
     const barH = 띠 ? 13 : 9;
-    const y = pos === '상단' ? top + 5 : pos === '가운데' ? Math.round(top + (80 - top) / 2 - barH / 2) : 47 - (띠 ? 1 : 0); // 하단 = 화면 4등분의 3번째 칸(쇼츠 아래 구독·제목 영역을 피함)
+    const y = pos === '상단' ? top + 5 : pos === '가운데' ? Math.round(40 - barH / 2) : 48 - (띠 ? 1 : 0); // 가운데 = 화면 정가운데, 하단 = 4등분의 3번째 칸(쇼츠 아래 구독·제목 영역을 피함)
     let g = `<rect x="0.5" y="0.5" width="44" height="79" rx="7" fill="#3a3129" stroke="#5a4e42"/>`;
     g += `<rect x="3" y="${top + 3}" width="39" height="${77 - top - 3}" rx="3" fill="#4d4238"/><path d="M8 ${Math.min(top + 40, 56)} l9-10 7 7 5-4 9 9" fill="none" stroke="#6b5d4f" stroke-width="2" stroke-linejoin="round"/>`;
     if (제목) g += `<rect x="3" y="3" width="39" height="${top}" rx="3" fill="#15110e"/><rect x="10" y="6" width="25" height="3" rx="1.5" fill="#FFF200"/><rect x="14" y="11" width="17" height="3" rx="1.5" fill="#FF2D8A"/>`;
