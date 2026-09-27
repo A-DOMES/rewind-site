@@ -183,6 +183,11 @@
   .rate-table td { color: var(--amber); font-weight: 600; }
   .rate-table td:first-child { color: var(--ink-dim); font-weight: 400; }
   .rate-table .rec { background: color-mix(in srgb, var(--amber) 9%, transparent); }
+  /* 움직임 방식 색상 (new.html과 같은 색): 이미지 중심=파랑, 혼합=주황, 모두 영상=코랄 */
+  .rate-table .mc-img { --mc: #4a9be8; } .rate-table .mc-mix { --mc: #e2a23c; } .rate-table .mc-all { --mc: #f0694a; }
+  .rate-table th.mc { background: color-mix(in srgb, var(--mc) 18%, transparent); box-shadow: inset 0 3px 0 var(--mc); }
+  .rate-table td.mc { background: color-mix(in srgb, var(--mc) 7%, transparent); color: var(--ink); }
+  .rate-table th.mc b::before { content: ""; display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--mc); margin-right: 6px; vertical-align: 1px; }
   @media (max-width: 560px) { .rate-table { min-width: 0; font-size: 0.82rem; } .rate-table th, .rate-table td { padding: 10px 5px; } .rate-table th .d { display: none; } .rate-table th b { font-size: 0.8rem; } }
   .rate-note { color: var(--ink-faint); font-size: 0.82rem; margin: 14px 0 0; line-height: 1.6; }
 
@@ -434,10 +439,11 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   const price = (len, m) => Math.round((3000 + len * RATE[m]) * (len > 60 ? 1.2 : 1) / 100) * 100;
   const rows = [['쇼츠 30초', 0.5], ['쇼츠 45초', 0.75], ['쇼츠 1분', 1], ['쇼츠 2분', 2], ['롱폼 3분', 3], ['롱폼 5분', 5], ['롱폼 10분', 10]];
   const ms = Object.keys(RATE);
+  const CLS = { '이미지 중심': 'mc mc-img', '혼합': 'mc mc-mix', '모두 영상': 'mc mc-all' };
   const t = document.getElementById('rate-table');
   if (!t) return;
-  t.innerHTML = '<tr><th>형태 · 길이</th>' + ms.map(m => `<th class="${m === '혼합' ? 'rec' : ''}"><b>${m}</b><span class="d">${DESC[m]}</span></th>`).join('') + '</tr>' +
-    rows.map(([l, len]) => `<tr><td>${l}</td>` + ms.map(m => `<td class="${m === '혼합' ? 'rec' : ''}">${price(len, m).toLocaleString('ko-KR')}원</td>`).join('') + '</tr>').join('');
+  t.innerHTML = '<tr><th>형태 · 길이</th>' + ms.map(m => `<th class="${CLS[m]}"><b>${m}</b><span class="d">${DESC[m]}</span></th>`).join('') + '</tr>' +
+    rows.map(([l, len]) => `<tr><td>${l}</td>` + ms.map(m => `<td class="${CLS[m]}">${price(len, m).toLocaleString('ko-KR')}원</td>`).join('') + '</tr>').join('');
 })();
 </script>
 

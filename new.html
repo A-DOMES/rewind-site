@@ -212,6 +212,20 @@
   .price-table th small { display: block; font-size: 0.68rem; opacity: .8; font-weight: 400; }
   .price-table td.hit { outline: 2px solid var(--amber); outline-offset: -2px; border-radius: 6px; }
   .motion-legend { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 0 0 16px; }
+  /* [움직임 방식 색상] 이미지 중심=파랑, 혼합=주황, 모두 영상=코랄 - 표·버튼·그래프 어디서나 같은 색 */
+  .mc-img { --mc: #4a9be8; } .mc-mix { --mc: #e2a23c; } .mc-all { --mc: #f0694a; }
+  .price-table th.mc { background: color-mix(in srgb, var(--mc) 18%, transparent); color: var(--ink); box-shadow: inset 0 3px 0 var(--mc); }
+  .price-table td.mc { background: color-mix(in srgb, var(--mc) 7%, transparent); color: var(--ink); }
+  .price-table td.mc.hit { outline-color: var(--mc); background: color-mix(in srgb, var(--mc) 22%, transparent); }
+  .ml-item.mc { border-color: color-mix(in srgb, var(--mc) 55%, var(--line)); box-shadow: inset 4px 0 0 var(--mc); background: color-mix(in srgb, var(--mc) 7%, var(--bg)); }
+  .ml-item.mc em { color: var(--ink); }
+  .ml-item.mc b::before, .mb-row.mc > span:first-child::before, .choice-chip.mc b::before { content: ""; display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--mc); margin-right: 6px; vertical-align: 1px; }
+  .mb-row.mc .mb-fill { background: color-mix(in srgb, var(--mc) 45%, var(--line)); }
+  .mb-row.mc.on .mb-fill { background: var(--mc); }
+  .choice-chip.mc { border-color: color-mix(in srgb, var(--mc) 60%, var(--line)); background: color-mix(in srgb, var(--mc) 9%, var(--bg-raised)); box-shadow: inset 4px 0 0 var(--mc); padding-left: 16px; }
+  .choice-chip.mc:hover { border-color: var(--mc); }
+  .lp-opt.mc .lp-card { box-shadow: inset 0 4px 0 var(--mc); }
+  .lp-opt.mc input:checked + .lp-card { border-color: var(--mc); background: color-mix(in srgb, var(--mc) 14%, var(--bg)); box-shadow: inset 0 4px 0 var(--mc), 0 0 0 1px var(--mc) inset; }
   .ml-item { border: 1px solid var(--line); border-radius: 12px; padding: 10px 10px 9px; background: var(--bg); display: flex; flex-direction: column; gap: 4px; }
   .ml-item.rec { border-color: color-mix(in srgb, var(--amber) 60%, var(--line)); }
   .ml-item svg { width: 30px; height: 53px; }
@@ -219,7 +233,7 @@
   .ml-item span { font-size: 0.72rem; color: var(--ink-faint); line-height: 1.35; }
   .ml-item em { font-style: normal; font-size: 0.78rem; color: var(--gold); font-weight: 600; }
   .mb-chart { margin: 10px 0 0; display: grid; gap: 6px; text-align: left; }
-  .mb-row { display: grid; grid-template-columns: 5.6em 1fr auto; gap: 8px; align-items: center; font-size: 0.76rem; color: var(--ink-faint); }
+  .mb-row { display: grid; grid-template-columns: 6.6em 1fr auto; white-space: nowrap; gap: 8px; align-items: center; font-size: 0.76rem; color: var(--ink-faint); }
   .mb-row.on { color: var(--ink); font-weight: 600; }
   .mb-bar { height: 8px; border-radius: 4px; background: color-mix(in srgb, var(--line) 70%, transparent); overflow: hidden; }
   .mb-fill { height: 100%; border-radius: 4px; background: color-mix(in srgb, var(--amber) 45%, var(--line)); }
@@ -842,7 +856,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     const 최고 = computePrice(len, '모두 영상');
     const 막대 = dfMode === 'media' ? '' : '<div class="mb-chart">' + MOTION_LIST.map(m => {
       const v = computePrice(len, m);
-      return `<div class="mb-row${m === 고른 ? ' on' : ''}"><span>${m}</span><span class="mb-bar"><span class="mb-fill" style="width:${Math.round(v / 최고 * 100)}%;display:block"></span></span><span class="v">${won(v)}</span></div>`;
+      return `<div class="mb-row ${MOTION_CLS[m]}${m === 고른 ? ' on' : ''}"><span>${m}</span><span class="mb-bar"><span class="mb-fill" style="width:${Math.round(v / 최고 * 100)}%;display:block"></span></span><span class="v">${won(v)}</span></div>`;
     }).join('') + '</div>';
     priceBox.innerHTML = `<div class="amt" id="df-price-amt">약 ${won(computePrice(len, 고른))}</div><p>${lenLabel(len)}${lenInput && lenInput.value ? '' : '(기본)'} · ${고른} 기준 예상 비용 · 장면 수는 요금과 무관</p>${막대}`;
   }
@@ -1086,7 +1100,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     row.className = 'suggest-row';
     list.forEach(c => {
       const b = document.createElement('button');
-      b.type = 'button'; b.className = 'suggest-chip choice-chip';
+      b.type = 'button'; b.className = 'suggest-chip choice-chip' + (c.set && MOTION_CLS[c.set.motion] ? ' ' + MOTION_CLS[c.set.motion] : '');
       b.innerHTML = `<b>${escapeHtml(c.label || '')}</b>${c.sub ? `<small>${escapeHtml(c.sub)}</small>` : ''}`;
       b.addEventListener('click', () => {
         row.remove();
@@ -1347,6 +1361,8 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     '모두 영상': '모든 장면이 움직이는 영상. 요즘 쇼츠 느낌 그대로'
   };
   function motionOf(v) { return MOTION_RATE[v] ? v : '혼합'; }
+  const MOTION_CLS = { '이미지 중심': 'mc mc-img', '혼합': 'mc mc-mix', '모두 영상': 'mc mc-all' };
+  const MOTION_COLOR = { '이미지 중심': '#4a9be8', '혼합': '#e2a23c', '모두 영상': '#f0694a' };
   function defaultLen(form) { return form === '롱폼' ? 3 : 1; } // 길이를 비워두면 쇼츠 1분 / 롱폼 3분 (대본도 이 길이로 써서 요금과 영상 길이가 같다)
   function computePrice(lengthMin, motion) {
     const len = Math.max(0.25, Number(lengthMin) || 0.75);
@@ -1363,8 +1379,8 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     pat.forEach((mv, i) => {
       const y = 6 + i * 24;
       g += `<rect x="5" y="${y}" width="35" height="20" rx="3" fill="${mv ? '#5a4326' : '#4d4238'}"/>`;
-      g += mv ? `<path d="M19 ${y + 5} l9 5 -9 5z" fill="#e2a23c"/>`
-              : `<path d="M9 ${y + 16} l7-7 5 5 4-3 7 5" fill="none" stroke="#7a6b5c" stroke-width="1.8" stroke-linejoin="round"/>`;
+      g += mv ? `<path d="M19 ${y + 5} l9 5 -9 5z" fill="${MOTION_COLOR[kind] || '#e2a23c'}"/>`
+              : `<path d="M9 ${y + 16} l7-7 5 5 4-3 7 5" fill="none" stroke="${kind === '이미지 중심' ? MOTION_COLOR[kind] : '#7a6b5c'}" stroke-width="1.8" stroke-linejoin="round"/>`;
     });
     if (auto) g += `<circle cx="37" cy="9" r="6.5" fill="#e2a23c"/><path d="M37 5 l1.2 2.8 2.8 1.2 -2.8 1.2 -1.2 2.8 -1.2-2.8 -2.8-1.2 2.8-1.2z" fill="#1a1410"/>`;
     return `<svg viewBox="0 0 45 80" aria-hidden="true">${g}</svg>`;
@@ -1374,15 +1390,15 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     ['쇼츠', 0.5], ['쇼츠', 0.75], ['쇼츠', 1], ['쇼츠', 2], ['롱폼', 3], ['롱폼', 5], ['롱폼', 10]
   ];
   function priceTableHtml(hit) {
-    const head = '<tr><th>형태 · 길이</th>' + MOTION_LIST.map(m => `<th class="num${m === '혼합' ? ' rec' : ''}">${m}<small>분당 ${MOTION_RATE[m].toLocaleString()}원</small></th>`).join('') + '</tr>';
+    const head = '<tr><th>형태 · 길이</th>' + MOTION_LIST.map(m => `<th class="num ${MOTION_CLS[m]}">${m}<small>분당 ${MOTION_RATE[m].toLocaleString()}원</small></th>`).join('') + '</tr>';
     const rows = PRICE_ROWS.map(([f, len]) => '<tr><td>' + f + ' · ' + lenLabel(len) + '</td>' + MOTION_LIST.map(m => {
       const on = hit && Math.abs(hit.len - len) < 1e-9 && hit.motion === m;
-      return `<td class="num${m === '혼합' ? ' rec' : ''}${on ? ' hit' : ''}">${won(computePrice(len, m))}</td>`;
+      return `<td class="num ${MOTION_CLS[m]}${on ? ' hit' : ''}">${won(computePrice(len, m))}</td>`;
     }).join('') + '</tr>').join('');
     return head + rows;
   }
   function motionLegendHtml() {
-    return MOTION_LIST.map(m => `<div class="ml-item${m === '혼합' ? ' rec' : ''}">${motionSvg(m)}<div><b>${m}${m === '혼합' ? ' · 추천' : ''}</b><span>${MOTION_DESC[m]}</span><em>분당 ${MOTION_RATE[m].toLocaleString()}원</em></div></div>`).join('');
+    return MOTION_LIST.map(m => `<div class="ml-item ${MOTION_CLS[m]}">${motionSvg(m)}<div><b>${m}${m === '혼합' ? ' · 추천' : ''}</b><span>${MOTION_DESC[m]}</span><em>분당 ${MOTION_RATE[m].toLocaleString()}원</em></div></div>`).join('');
   }
   const PRICE_NOTE = '기본료 3,000원 + 영상 길이(분) × 움직임 방식별 분당 요금이에요. 장면 수는 요금에 영향이 없고, 100원 단위로 반올림해요. 60분이 넘으면 20% 추가돼요. 체험판은 무료이고 이미지 중심으로 만들어져요.';
 
@@ -1557,7 +1573,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     const box = document.getElementById('df-motion');
     if (!box) return;
     box.innerHTML = MOTION_OPTS.map(([v, sub]) =>
-      `<label class="lp-opt"><input type="radio" name="df-motion" value="${v}"${v === '자동' ? ' checked' : ''}><span class="lp-card">${motionSvg(v === '자동' ? '혼합' : v, v === '자동')}<b>${v}</b><small>${sub}</small></span></label>`).join('');
+      `<label class="lp-opt ${MOTION_CLS[v === '자동' ? '혼합' : v]}"><input type="radio" name="df-motion" value="${v}"${v === '자동' ? ' checked' : ''}><span class="lp-card">${motionSvg(v === '자동' ? '혼합' : v, v === '자동')}<b>${v}</b><small>${sub}</small></span></label>`).join('');
     box.dataset.wasTrial = '0';
   }
 
