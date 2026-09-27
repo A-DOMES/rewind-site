@@ -881,6 +881,14 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     // [화면 초기화 감지] "화면 지워줘", "처음부터 다시" 같은 요청은 AI에 보내지 않고
     // 그 자리에서 바로 진짜로 화면과 대화 기록을 지운다 (말로만 "다시 안내"하고 화면은 그대로였던 문제 해결).
     const 초기화패턴 = /(화면|채팅|대화).{0,6}(지워|깨끗|초기화|리셋)|처음부터\s*다시|새로\s*시작/;
+    // [주제 찾기] "주제찾기 목록 보여줘", "주제 찾기 다시 하고 싶어", "분야 다시 고를래" 같은 말은 서버에 보내지 않고 분야 버튼을 바로 다시 펼친다
+    const 주제찾기패턴 = /주제\s*찾기|(분야|카테고리).{0,8}(목록|다시|보여|고를|선택|바꿀|바꾸)/;
+    if (주제찾기패턴.test(text)) {
+      addMsg('user', escapeHtml(text));
+      history.push({ role: 'user', text });
+      showCategoryPicker();
+      return;
+    }
     if (초기화패턴.test(text)) {
       startFreshChat(true);
       return;
@@ -940,7 +948,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     ['과학·기술', '#5fb8ff'], ['역사·상식', '#c9a27a'], ['교육·공부법', '#9ad06b'], ['취미·자기계발', '#f59bd0']
   ];
   function showCategoryPicker() {
-    if (document.getElementById('split-row')?.classList.contains('split-active')) showChatFromDirectForm();
+    // [수정] 직접 설정하기 화면이 열려 있어도 닫지 않는다 - 채팅 쪽에서 분야를 고르고, 고른 주제는 폼의 주제 칸에 바로 넣어준다
     exampleRow.style.display = 'none';
     document.querySelectorAll('.suggest-row').forEach(r => r.remove());
     const row = document.createElement('div');
@@ -977,17 +985,38 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     list.forEach(topic => {
       const b = document.createElement('button');
       b.type = 'button'; b.className = 'suggest-chip'; b.textContent = topic;
-      b.addEventListener('click', () => { row.remove(); sendMessage(`"${topic}" 주제로 만들게요`); });
+      b.addEventListener('click', () => { row.remove(); pickSuggestedTopic(topic); });
       row.appendChild(b);
     });
+    const 분야다시 = document.createElement('button');
+    분야다시.type = 'button'; 분야다시.className = 'suggest-chip more'; 분야다시.textContent = '다른 분야 고르기';
+    분야다시.addEventListener('click', () => { row.remove(); showCategoryPicker(); });
     if (추천횟수 < 3) {
       const more = document.createElement('button');
       more.type = 'button'; more.className = 'suggest-chip more'; more.textContent = '다른 주제 보기';
       more.addEventListener('click', () => { row.remove(); sendMessage('다른 주제도 추천해줘'); });
       row.appendChild(more);
     }
+    row.appendChild(분야다시);
     chatLog.appendChild(row);
     row.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+
+  // 추천 주제를 골랐을 때: 직접 설정하기 화면이 열려 있으면 주제 칸에 넣어주고, 아니면 채팅으로 이어간다
+  function pickSuggestedTopic(topic) {
+    const 폼주제 = document.getElementById('df-topic');
+    const 폼열림 = document.getElementById('split-row')?.classList.contains('split-active') && 폼주제;
+    if (폼열림) {
+      폼주제.value = topic;
+      폼주제.dispatchEvent(new Event('input', { bubbles: true }));
+      폼주제.focus();
+      폼주제.style.transition = 'box-shadow .3s'; 폼주제.style.boxShadow = '0 0 0 3px var(--amber)';
+      setTimeout(() => { 폼주제.style.boxShadow = ''; }, 1200);
+      addMsg('user', escapeHtml(`"${topic}"`));
+      addMsg('bot', '직접 설정하기의 주제 칸에 넣어드렸어요. 나머지를 고르고 "이 내용으로 확인하기"를 눌러주세요.');
+      return;
+    }
+    sendMessage(`"${topic}" 주제로 만들게요`);
   }
 
   document.querySelectorAll('.example-chip').forEach(chip => {
