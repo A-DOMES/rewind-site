@@ -733,7 +733,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
         <div class="chat-column" id="chat-column">
           <div class="chat-wrap">
             <div class="chat-inner" id="chat-log">
-              <div class="example-row" id="example-row">
+              <div class="example-row" id="example-row" style="display:none;"><!-- 처음엔 숨김: 내 프로젝트 목록을 불러온 뒤 상황에 맞게 보여준다 -->
                 <button class="example-chip" data-topic="우리 카페의 신메뉴 딸기라떼를 20대에게 홍보하고 싶어요" style="--c:#ff8f6b"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h12v5a5 5 0 0 1-5 5h-2a5 5 0 0 1-5-5V8z"/><path d="M17 10h1.5a2.5 2.5 0 0 1 0 5H17M8 3v2M11 3v2M14 3v2"/></svg>카페 신메뉴 홍보</button>
                 <button class="example-chip" data-topic="반려동물 영양제를 소개하는 영상을 만들고 싶어요" style="--c:#ff8cc0"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="10" r="1.8"/><circle cx="10" cy="6" r="1.8"/><circle cx="14" cy="6" r="1.8"/><circle cx="18" cy="10" r="1.8"/><path d="M12 11c-3 0-5 3.5-5 5.5 0 1.5 1.2 2.5 2.7 2.5.9 0 1.5-.4 2.3-.4s1.4.4 2.3.4c1.5 0 2.7-1 2.7-2.5 0-2-2-5.5-5-5.5z"/></svg>반려동물 용품</button>
                 <button class="example-chip" data-topic="환절기 감기 예방을 위한 건강 정보를 알려주는 영상" style="--c:#4fd6bd"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/><path d="M8 12h2l1-2 2 4 1-2h2"/></svg>건강정보</button>
@@ -1672,8 +1672,17 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     document.getElementById('app').style.display = 'block';
     document.getElementById('account-avatar').src = profile.picture || '';
     document.getElementById('account-name').textContent = profile.name || profile.email || '';
-    await loadPastProjects(idToken);
-    resetChat();
+    // [수정] 예전엔 목록을 불러오는 1~3초 동안 예시 버튼 줄이 혼자 보였다가 사라졌다.
+    // 이전 대화가 있으면 목록을 기다릴 필요 없이 바로 보여주고, 없으면 '불러오는 중'만 보여준 뒤(최대 4초) 상황에 맞는 첫 화면을 그린다.
+    const 이전대화 = loadChatState();
+    if (이전대화 && Array.isArray(이전대화.history) && 이전대화.history.length > 0) {
+      resetChat();
+      loadPastProjects(idToken); // 상담에 쓰는 목록은 뒤에서 조용히 불러온다
+    } else {
+      chatLog.innerHTML = '<div class="thinking" id="chat-loading">불러오는 중 <span class="dots"><span></span><span></span><span></span></span></div>';
+      await Promise.race([loadPastProjects(idToken), new Promise(r => setTimeout(r, 4000))]);
+      resetChat();
+    }
     // [주제 찾기] 추천 메일의 "이 주제로 만들기" 링크(?topic=...)로 들어오면 입력창에 주제를 미리 채워둔다.
     // 바로 보내지는 않고, 확인 후 → 버튼을 누르게 한다. 새로고침 때 다시 채워지지 않도록 주소에서 지운다.
     const 추천주제 = (params.get('topic') || '').trim().slice(0, 300);
