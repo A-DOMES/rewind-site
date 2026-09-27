@@ -533,6 +533,11 @@
     .chat-column.is-fresh { padding: 0 16px 4vh; }
     .chat-column.is-fresh .msg.bot .bubble { font-size: 1.02rem; }
   }
+
+  /* 요약 카드의 제작 방식 줄 강조 */
+  .summary-row.summary-mode .v { font-weight: 700; }
+  .summary-row.summary-mode.is-paid .v { color: var(--amber); }
+  .summary-row.summary-mode.is-trial .v { color: var(--ink); }
 </style>
 <script>
 /* 테마 전환: 기존 기능 코드와 분리된 독립 스크립트 */
@@ -692,9 +697,13 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   // [수정] 체험/정식 선택을 브라우저에 기억해서, 새로고침하거나 다른 화면에 다녀와도 체험으로 되돌아가지 않게 한다.
   // 주소에 ?mode=paid 가 있으면 그게 우선.
   const PLAN_KEY = 'rw_plan_mode';
-  let 저장된모드 = null; try { 저장된모드 = localStorage.getItem(PLAN_KEY); } catch (e) {}
-  let planMode = params.get('mode') === 'paid' ? 'paid' : (저장된모드 === 'paid' ? 'paid' : 'trial');
-  function savePlanMode() { try { localStorage.setItem(PLAN_KEY, planMode); } catch (e) {} }
+  // [수정] 브라우저에 영구 저장(localStorage)하면 다음 방문 때 '무료로 시작하기'로 들어와도 정식 모드가 남아 있었다.
+  // 이제는 ①주소의 ?mode=trial / ?mode=paid 가 최우선, ②같은 탭 안에서만 기억(새로고침·화면 이동 시 유지),
+  // ③새로 방문하면 항상 체험 모드로 시작한다.
+  let 저장된모드 = null; try { 저장된모드 = sessionStorage.getItem(PLAN_KEY); localStorage.removeItem(PLAN_KEY); } catch (e) {}
+  const 주소모드 = params.get('mode');
+  let planMode = 주소모드 === 'paid' ? 'paid' : 주소모드 === 'trial' ? 'trial' : (저장된모드 === 'paid' ? 'paid' : 'trial');
+  function savePlanMode() { try { sessionStorage.setItem(PLAN_KEY, planMode); } catch (e) {} }
   savePlanMode();
 
   const FIELD_LABEL = {
@@ -910,7 +919,8 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       .filter(k => answers[k] && !(k === 'estimatedPrice' && planMode !== 'paid'))
       .map(k => `<div class="summary-row"><span class="k">${FIELD_LABEL[k] || k}</span><span class="v">${k === 'characterUse' ? (answers[k] ? '예' : '아니오') : k === 'estimatedPrice' && !isNaN(Number(answers[k])) ? Number(answers[k]).toLocaleString('ko-KR') + '원' : escapeHtml(String(answers[k])).slice(0, 60)}</span></div>`)
       .join('');
-    addMsg('bot', `이렇게 만들어드릴게요.<div class="summary-card">${rows || '<div class="summary-row"><span class="k">확인된 내용이 없어요</span></div>'}</div>`);
+    const 방식행 = `<div class="summary-row summary-mode ${planMode === 'paid' ? 'is-paid' : 'is-trial'}"><span class="k">제작 방식</span><span class="v">${planMode === 'paid' ? '정식 제작 (결제 안내 메일 발송)' : '무료 체험 (워터마크 미리보기)'}</span></div>`;
+    addMsg('bot', `이렇게 만들어드릴게요.<div class="summary-card">${방식행}${rows || '<div class="summary-row"><span class="k">확인된 내용이 없어요</span></div>'}</div>`);
 
     composer.innerHTML = '';
     const consentWrap = document.createElement('div');
@@ -924,7 +934,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     actions.className = 'confirm-actions';
     const confirmBtn = document.createElement('button');
     confirmBtn.className = 'btn-gold-sm';
-    confirmBtn.textContent = '네, 만들어주세요';
+    confirmBtn.textContent = planMode === 'paid' ? '네, 정식으로 만들어주세요' : '네, 무료 체험으로 만들어주세요';
     confirmBtn.disabled = true;
     const editBtn = document.createElement('button');
     editBtn.className = 'btn-line-sm';
