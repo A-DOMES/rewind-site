@@ -381,6 +381,15 @@
   .wait-body p { margin: 0; color: var(--ink-dim); font-size: 0.95rem; line-height: 1.7; }
   .wait-body p b { color: var(--ink); font-weight: 600; }
   .wait-body .wait-sub { margin-top: 6px; color: var(--ink-faint); font-size: 0.88rem; }
+
+  /* ===== 완성 영상 플레이어 ===== */
+  .video-card h2 { margin-bottom: 16px; }
+  .video-frame { position: relative; margin: 0 auto 16px; border-radius: 16px; overflow: hidden; background: #000; }
+  .video-frame.is-vertical { width: min(100%, 360px); aspect-ratio: 9 / 16; }
+  .video-frame.is-wide { width: 100%; aspect-ratio: 16 / 9; }
+  .video-frame iframe, .video-frame video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; max-height: none; margin: 0; border-radius: 0; object-fit: contain; background: #000; }
+  .video-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .video-note { margin: 14px 0 0 !important; font-size: 0.82rem !important; color: var(--ink-faint) !important; line-height: 1.6; }
 </style>
 <script>
 /* 테마 전환: 기존 기능 코드와 분리된 독립 스크립트 */
@@ -558,32 +567,46 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
 
   function renderVideoCard(p) {
     const card = document.getElementById('video-card');
-    if (!p.videoUrl) { card.style.display = 'none'; card.innerHTML = ''; return; }
+    const 완성 = p.status === '배포';
+    // [v2] 완성됐는데 링크가 비어 있으면 카드를 숨기지 않고 상황을 알려준다
+    if (!p.videoUrl) {
+      if (!완성) { card.style.display = 'none'; card.innerHTML = ''; return; }
+      card.style.display = 'block';
+      card.innerHTML = `
+        <div class="mark">▶</div>
+        <h2>영상은 완성됐어요</h2>
+        <p>재생 링크를 준비하는 중이에요. 잠시 뒤 새로고침해 주세요. 계속 보이지 않으면 문의해 주세요.</p>`;
+      return;
+    }
     card.style.display = 'block';
+    const url = String(p.videoUrl);
+    // 유튜브 주소면 영상 번호를 뽑아 화면 안에서 재생(embed), 아니면 파일 주소로 보고 <video>로 재생
+    const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|shorts\/|embed\/))([A-Za-z0-9_-]{6,})/);
+    const 세로 = (p.form || '쇼츠') !== '롱폼';
+    const 비율 = 세로 ? 'is-vertical' : 'is-wide';
+    const player = ytMatch
+      ? `<div class="video-frame ${비율}"><iframe src="https://www.youtube-nocookie.com/embed/${escapeHtml(ytMatch[1])}?rel=0&playsinline=1" title="${escapeHtml(p.title || '완성된 영상')}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen loading="lazy"></iframe></div>`
+      : `<div class="video-frame ${비율}"><video controls playsinline preload="metadata" src="${escapeHtml(url)}"></video></div>`;
 
     if (p.paid) {
       card.innerHTML = `
-        <div class="mark">▶</div>
         <h2>영상이 완성됐어요</h2>
-        <p>아래 버튼으로 바로 확인하실 수 있어요.</p>
-        <a class="btn-primary" href="${escapeHtml(p.videoUrl)}" target="_blank" rel="noopener">완성된 영상 보기</a>
-        ${p.thumbnailUrl ? `<p style="margin-top:12px;"><a href="${escapeHtml(p.thumbnailUrl)}" target="_blank" rel="noopener" style="color:var(--amber); font-size:0.88rem;">썸네일 이미지 보기/다운로드</a></p>` : ''}
-        <p style="margin-top:16px; font-size:0.78rem; color:var(--ink-faint); line-height:1.6;">
-          이 링크는 신청하실 때 사용하신 이메일(${escapeHtml((decodeJwt(currentIdToken) || {}).email || '')})로 인식해서 찾아드린 영상이에요.<br>
-          <strong style="color:var(--ink-dim);">렌더링 서버에는 최대 7일까지만 보관</strong>되니, 꼭 필요하시면 기간 안에 다운로드해두세요.
-        </p>`;
+        ${player}
+        <div class="video-actions">
+          <a class="btn-primary" href="${escapeHtml(url)}" target="_blank" rel="noopener" ${ytMatch ? '' : 'download'}>${ytMatch ? '유튜브에서 보기' : '영상 다운로드'}</a>
+          ${p.thumbnailUrl ? `<a class="btn-ghost" href="${escapeHtml(p.thumbnailUrl)}" target="_blank" rel="noopener">썸네일 받기</a>` : ''}
+        </div>
+        ${ytMatch ? '' : `<p class="video-note"><strong>렌더링 서버에는 최대 7일까지만 보관</strong>되니, 필요하시면 기간 안에 다운로드해 두세요.</p>`}`;
     } else {
-      // 체험판 - 원본 다운로드 링크를 그대로 노출하지 않고, 화면 안에서만 재생할 수 있게 함
+      // 체험판 - 원본 다운로드 링크는 노출하지 않고 화면 안에서만 재생
       card.innerHTML = `
-        <div class="mark">▶</div>
         <h2>미리보기가 준비됐어요</h2>
         <p>워터마크가 있는 체험판이에요. 아래에서 바로 확인해보세요.</p>
-        <video controls playsinline src="${escapeHtml(p.videoUrl)}"></video>
-        <p style="margin-top:12px; font-size:0.78rem; color:var(--ink-faint); line-height:1.6;">
-          마음에 드시면 아래 "정식으로 만들기"에서 워터마크 없는 고화질 버전을 다운로드하실 수 있어요.
-        </p>`;
+        ${player}
+        <p class="video-note">마음에 드시면 아래 "정식으로 만들기"에서 워터마크 없는 고화질 버전을 받으실 수 있어요.</p>`;
     }
   }
+
 
   function renderStepper(status, errorLog, paid) {
     const idx = STEP_ORDER.indexOf(status);
