@@ -86,6 +86,11 @@
   .screen .bar { position: absolute; left: 14px; right: 14px; bottom: 14px; height: 3px; border-radius: 2px; background: rgba(255,255,255,.2); overflow: hidden; }
   .screen .bar i { display: block; width: 38%; height: 100%; background: #e2a23c; animation: play 9s linear infinite; }
   @keyframes play { from { width: 4%; } to { width: 100%; } }
+  /* [샘플 영상] 휴대폰 화면에서 실제로 만든 영상을 번갈아 재생 */
+  .screen video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background: #0f0d0b; transition: opacity .35s ease; }
+  .screen video.is-fading { opacity: 0; }
+  .screen.has-video .bar i { animation: none; width: 0; transition: width .25s linear; }
+  .strip .frame { background-size: cover; background-position: center; }
   @media (prefers-reduced-motion: reduce) { .screen .bar i { animation: none; } }
   .timecode { color: #f2e9da; position: absolute; right: -8px; bottom: 170px; background: #1f1a17; border: 1px solid #3a322b; border-radius: 14px; padding: 12px 16px; box-shadow: 0 20px 40px rgba(0,0,0,.4); }
   .timecode b { display: block; font-family: 'IBM Plex Mono', monospace; font-weight: 500; font-size: 1.1rem; letter-spacing: .04em; }
@@ -269,19 +274,19 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
 
   <div class="stage" aria-hidden="true">
     <div class="strip">
-      <div class="frame"><span class="tc">00:00:03</span></div>
-      <div class="frame"><span class="tc">00:00:09</span></div>
-      <div class="frame"><span class="tc">00:00:14</span></div>
+      <div class="frame" style="background-image:url('./assets/strip-5.jpg')"><span class="tc">00:00:05</span></div>
+      <div class="frame" style="background-image:url('./assets/strip-7.jpg')"><span class="tc">00:00:07</span></div>
+      <div class="frame" style="background-image:url('./assets/strip-10.jpg')"><span class="tc">00:00:10</span></div>
     </div>
     <div class="phone">
-      <div class="screen">
+      <div class="screen" id="hero-screen">
         <div class="title">아직도 빨래 코스<span>고민하세요?</span></div>
         <div class="scene"><svg viewBox="0 0 24 24" fill="none" stroke="#f2e9da" stroke-width="1.2"><rect x="4" y="3" width="16" height="18" rx="2"/><circle cx="12" cy="13" r="5"/><path d="M7 6h2M11 6h1"/></svg></div>
         <div class="sub">버튼 하나로 이불 빨래까지 끝나요</div>
         <div class="bar"><i></i></div>
       </div>
     </div>
-    <div class="timecode"><span class="tc">장면 3 / 8</span><b>00:00:17:08</b></div>
+    <div class="timecode"><span class="tc" id="hero-tc-label">장면 3 / 8</span><b id="hero-tc">00:00:17:08</b></div>
   </div>
 </section>
 
@@ -445,5 +450,51 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   <p class="footer-disclaimer">AI가 생성한 정보성 콘텐츠는 사실과 다를 수 있습니다. 중요한 정보는 별도로 확인해주세요. 본 서비스로 제작된 영상에는 관련 법령에 따라 AI 생성·합성 콘텐츠임을 표시할 수 있습니다.</p>
 </footer>
 
+<script>
+// [샘플 영상] 리와인드로 실제 만든 영상 2편을 휴대폰 화면에서 번갈아 재생 (소리 없음).
+// 움직임 줄이기 설정이거나 영상을 못 불러오면 기존 그림 화면을 그대로 둔다.
+(() => {
+  const screen = document.getElementById('hero-screen');
+  if (!screen) return;
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const clips = [
+    { src: './assets/sample-info.mp4', poster: './assets/sample-info.jpg', kind: '정보 전달 쇼츠', scenes: 3 },
+    { src: './assets/sample-product.mp4', poster: './assets/sample-product.jpg', kind: '상품 소개 쇼츠', scenes: 2 }
+  ];
+  const v = document.createElement('video');
+  v.muted = true; v.playsInline = true; v.autoplay = true; v.preload = 'auto';
+  v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); v.setAttribute('aria-hidden', 'true');
+  const bar = screen.querySelector('.bar i');
+  const tc = document.getElementById('hero-tc');
+  const tcLabel = document.getElementById('hero-tc-label');
+  let i = 0, 시작됨 = false;
+  const pad = n => String(Math.floor(n)).padStart(2, '0');
+  function load(n) {
+    const c = clips[n];
+    v.poster = c.poster;
+    // 대부분 브라우저는 mp4, 일부(H.264 미지원 환경)는 webm
+    v.src = v.canPlayType('video/mp4; codecs="avc1.4D401E"') ? c.src : c.src.replace(/\.mp4$/, '.webm');
+    const p = v.play(); if (p && p.catch) p.catch(() => {});
+  }
+  v.addEventListener('playing', () => {
+    if (!시작됨) { 시작됨 = true; screen.classList.add('has-video'); screen.insertBefore(v, screen.querySelector('.bar')); }
+    v.classList.remove('is-fading');
+  });
+  v.addEventListener('timeupdate', () => {
+    if (!v.duration) return;
+    const r = v.currentTime / v.duration;
+    if (bar) bar.style.width = (r * 100).toFixed(1) + '%';
+    if (tc) tc.textContent = `00:00:${pad(v.currentTime)}:${pad((v.currentTime % 1) * 24)}`;
+    if (tcLabel) { const c = clips[i]; tcLabel.textContent = `${c.kind} · 장면 ${Math.min(c.scenes, Math.floor(r * c.scenes) + 1)} / ${c.scenes}`; }
+  });
+  v.addEventListener('ended', () => { v.classList.add('is-fading'); setTimeout(() => { i = (i + 1) % clips.length; load(i); }, 350); });
+  v.addEventListener('error', () => { if (!시작됨) return; i = (i + 1) % clips.length; load(i); });
+  // 화면에 보일 때만 재생 (배터리·데이터 절약)
+  const io = 'IntersectionObserver' in window ? new IntersectionObserver(es => {
+    es.forEach(e => { if (e.isIntersecting) { if (!v.src) load(i); else v.play().catch(() => {}); } else v.pause(); });
+  }, { threshold: 0.2 }) : null;
+  if (io) io.observe(screen); else load(0);
+})();
+</script>
 </body>
 </html>
