@@ -407,6 +407,10 @@
   .thumb-item figcaption { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 0.86rem; color: var(--ink-dim); }
   .thumb-dl { display: inline-flex; align-items: center; min-height: 36px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line-strong, #4a4038); color: var(--ink); text-decoration: none; font-size: 0.84rem; font-weight: 600; }
   .thumb-dl:hover { border-color: var(--amber); color: var(--amber); }
+
+  /* 로그인 만료 알림 */
+  #login-expired-bar { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 400; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; justify-content: center; max-width: calc(100% - 32px); padding: 12px 14px 12px 20px; border-radius: 999px; background: var(--bg-raised); border: 1px solid var(--amber); color: var(--ink); font-size: 0.92rem; box-shadow: 0 16px 40px rgba(0,0,0,.35); }
+  #login-expired-bar button { min-height: 40px; padding: 0 18px; border: 0; border-radius: 999px; background: var(--amber); color: var(--on-amber); font-family: inherit; font-weight: 600; cursor: pointer; }
 </style>
 <script>
 /* 테마 전환: 기존 기능 코드와 분리된 독립 스크립트 */
@@ -982,6 +986,20 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     location.reload();
   });
 
+  // [수정] 신청 직후 주소의 번호(12자리: 년월일시분초)와, 이후 워크플로우가 시트에 다시 적은 번호(10자리: 년월일시분)가
+  // 달라서 "프로젝트를 찾을 수 없어요"가 뜨던 문제. 앞자리가 같으면 같은 프로젝트로 보고, 주소도 시트 번호로 바로잡는다.
+  function findProject(projects, targetId) {
+    if (!targetId) return projects[0];
+    const t = String(targetId).replace(/\.0$/, '').trim();
+    const norm = p => String(p.id ?? '').replace(/\.0$/, '').trim();
+    const found = projects.find(p => norm(p) === t)
+      || projects.find(p => norm(p) && (t.startsWith(norm(p)) || norm(p).startsWith(t)));
+    if (found && norm(found) !== t) {
+      try { const u = new URL(location.href); u.searchParams.set('id', norm(found)); history.replaceState(null, '', u); } catch (e) {}
+    }
+    return found;
+  }
+
   async function loadProject(idToken) {
     currentIdToken = idToken;
     const targetId = getParam('id');
@@ -995,7 +1013,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       document.getElementById('loading').style.display = 'none';
       if (!res.ok || (data && data.error)) { document.getElementById('session-expired').style.display = 'block'; return; }
       const projects = (data && data.projects) || [];
-      const found = targetId ? projects.find(p => String(p.id) === String(targetId)) : projects[0];
+      const found = findProject(projects, targetId);
       if (!found) { document.getElementById('not-found').style.display = 'block'; return; }
       renderProject(found);
       startPolling(idToken, targetId);
@@ -1008,6 +1026,17 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   // [수정] 실시간 반응 개선: 10초마다 확인 + 탭으로 돌아오면 즉시 확인, 창이 가려져 있을 땐 쉬어서 서버 부담을 줄임.
   // [안내]로 시작하는 ErrorLog 메모 때문에 확인이 멈춰버리던 문제도 함께 막음.
   let pollArgs = null;
+  // [신규] 로그인(구글 토큰, 약 1시간 유효)이 만료되면 자동 갱신이 조용히 실패해서 화면이 멈춰 보였다.
+  // 이제 만료를 감지하면 위쪽에 알림을 띄우고 한 번에 다시 로그인할 수 있게 한다.
+  function showLoginExpiredBar() {
+    if (document.getElementById('login-expired-bar')) return;
+    const bar = document.createElement('div');
+    bar.id = 'login-expired-bar';
+    bar.setAttribute('role', 'alert');
+    bar.innerHTML = '<span>로그인 시간이 지나 최신 상태를 불러오지 못하고 있어요.</span><button type="button">다시 로그인</button>';
+    bar.querySelector('button').addEventListener('click', () => { sessionStorage.removeItem('rw_id_token'); location.reload(); });
+    document.body.appendChild(bar);
+  }
   async function pollTick() {
     if (!pollArgs || document.hidden) return;
     const { idToken, targetId } = pollArgs;
@@ -1016,8 +1045,9 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idToken })
       });
       const data = await res.json().catch(() => null);
+      if (res.status === 401 || (data && data.error)) { clearInterval(pollTimer); pollTimer = null; showLoginExpiredBar(); return; }
       const projects = (data && data.projects) || [];
-      const found = targetId ? projects.find(p => String(p.id) === String(targetId)) : projects[0];
+      const found = findProject(projects, targetId);
       if (!found) return;
       // 로딩 스피너 없이 조용히 화면만 갱신 (깜빡임 방지)
       renderProject(found);
