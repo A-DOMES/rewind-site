@@ -1034,8 +1034,20 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     if (!targetId) return projects[0];
     const t = String(targetId).replace(/\.0$/, '').trim();
     const norm = p => String(p.id ?? '').replace(/\.0$/, '').trim();
+    // [v3] 대본 단계에서 ID가 '처리한 시각'으로 새로 붙는 경우가 있다 (신청 23:42 → 대본 23:45 → ID 2609272345).
+    // 정확히/앞자리로 못 찾으면, 신청 시각 이후 20분 안에 생긴 가장 이른 프로젝트를 같은 신청으로 본다.
+    // (주소의 ID가 신청 직후 받은 12자리일 때만 - 3분 안 같은 내용 중복 신청은 서버에서 막고 있음)
+    const 시각 = id => { const s = String(id).replace(/\D/g, ''); if (s.length < 10) return NaN; const n = i => Number(s.slice(i, i + 2)); return Date.UTC(2000 + n(0), n(2) - 1, n(4), n(6), n(8), s.length >= 12 ? n(10) : 0); };
+    const 근처 = () => {
+      if (t.length !== 12) return null;
+      const 기준 = 시각(t) - 60 * 1000;
+      const 후보 = projects.filter(p => { const d = 시각(norm(p)) - 기준; return d >= 0 && d <= 20 * 60 * 1000; })
+        .sort((a, b) => 시각(norm(a)) - 시각(norm(b)));
+      return 후보[0] || null;
+    };
     const found = projects.find(p => norm(p) === t)
-      || projects.find(p => norm(p) && (t.startsWith(norm(p)) || norm(p).startsWith(t)));
+      || projects.find(p => norm(p) && (t.startsWith(norm(p)) || norm(p).startsWith(t)))
+      || 근처();
     if (found && norm(found) !== t) {
       try { const u = new URL(location.href); u.searchParams.set('id', norm(found)); history.replaceState(null, '', u); } catch (e) {}
     }

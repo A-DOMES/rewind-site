@@ -1048,6 +1048,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     }
     const rows = Object.keys(answers)
       .filter(k => answers[k] && !(k === 'estimatedPrice' && planMode !== 'paid'))
+      .filter(k => !((k === 'productLink' || k === 'productImageUrl') && !/^https?:\/\//i.test(String(answers[k]))))
       .map(k => `<div class="summary-row"><span class="k">${FIELD_LABEL[k] || k}</span><span class="v">${k === 'characterUse' ? (answers[k] ? '예' : '아니오') : k === 'estimatedPrice' && !isNaN(Number(answers[k])) ? Number(answers[k]).toLocaleString('ko-KR') + '원' : escapeHtml(String(answers[k])).slice(0, 60)}</span></div>`)
       .join('');
     const 방식행 = `<div class="summary-row summary-mode ${planMode === 'paid' ? 'is-paid' : 'is-trial'}"><span class="k">제작 방식</span><span class="v">${planMode === 'paid' ? '정식 제작 (결제 안내 메일 발송)' : '무료 체험 (워터마크 미리보기)'}</span></div>`;
@@ -1104,8 +1105,10 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     } else {
       payload.topic = answers.topic || '';
       payload.form = answers.form || '쇼츠';
-      if (answers.productLink) payload.productLink = answers.productLink;
-      if (answers.productImageUrl) payload.productImageUrl = answers.productImageUrl;
+      // [수정] "없음"처럼 링크가 아닌 답은 시트 제품링크 칸에 적지 않는다 (예전엔 '없음'이 그대로 들어갈 수 있었음)
+      const 링크 = v => /^https?:\/\//i.test(String(v || '').trim());
+      if (링크(answers.productLink)) payload.productLink = answers.productLink;
+      if (링크(answers.productImageUrl)) payload.productImageUrl = answers.productImageUrl;
       if (answers.target) payload.target = answers.target;
       if (answers.tempo) payload.tempo = answers.tempo;
       if (answers.voiceGender) payload.voiceGender = answers.voiceGender;
@@ -1407,7 +1410,10 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       } else {
         if (!val('df-topic')) { alert('주제를 입력해주세요.'); return; }
         answers = { topic: val('df-topic'), form: document.getElementById('df-form').value || '쇼츠' };
-        if (val('df-productLink')) answers.productLink = val('df-productLink');
+        // [수정] 제품 링크를 비워두면 '없음'으로 확정해서 보낸다 - 그래야 상담 Agent가 "판매 페이지 링크 있으세요?"를 다시 묻지 않고
+        // 바로 요약 카드로 넘어간다 (예전엔 이 질문 때문에 요약이 자동으로 안 뜨고 '지금 내용으로 진행하기' 버튼이 대신 나왔음)
+        answers.productLink = val('df-productLink') || '없음';
+        if (!val('df-productLink')) answers.productImageUrl = '없음';
         if (val('df-productImageUrl')) answers.productImageUrl = val('df-productImageUrl');
         if (val('df-style')) answers.style = val('df-style');
         if (document.getElementById('df-characterUse')?.checked) answers.characterUse = true;
