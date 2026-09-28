@@ -7,7 +7,7 @@
 <link rel="icon" type="image/png" href="./리와인드_로고1_512px.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Black+Han+Sans&display=swap" rel="stylesheet">
 <style>
   :root {
     color-scheme: dark;
@@ -159,6 +159,37 @@
   .lay small { color: var(--ink-faint); font-size: 0.85rem; text-align: center; margin-top: -8px; }
   @media (max-width: 980px) { .layouts { grid-template-columns: 1fr; gap: 40px; } }
 
+  /* ----- 썸네일 소개 ----- */
+  .th-wrap { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 64px; align-items: center; }
+  .th-kick { display: inline-block; font-size: .82rem; font-weight: 600; color: var(--amber); background: var(--amber-wash); border: 1px solid var(--amber-dim); border-radius: 999px; padding: 4px 12px; margin-bottom: 18px; }
+  .th-copy h2 { font-size: clamp(1.9rem, 3.6vw, 2.8rem); font-weight: 700; }
+  .th-lede { margin-top: 18px; color: var(--ink-faint); line-height: 1.75; max-width: 30em; }
+  .th-points { list-style: none; padding: 0; margin: 30px 0 0; display: flex; flex-direction: column; gap: 18px; }
+  .th-points li { display: flex; gap: 14px; align-items: flex-start; }
+  .th-ic { flex: none; width: 42px; height: 42px; border-radius: 12px; background: var(--amber-wash); border: 1px solid var(--amber-dim); display: grid; place-items: center; }
+  .th-ic svg { width: 22px; height: 22px; fill: none; stroke: var(--amber); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .th-points b { font-size: 1.02rem; }
+  .th-points p { color: var(--ink-faint); font-size: .93rem; margin-top: 3px; }
+  .th-cta { margin-top: 32px; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+  .th-note { font-size: .88rem; color: var(--ink-faint); }
+  .th-show { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; align-items: center; }
+  .th-card { position: relative; aspect-ratio: 9 / 16; border-radius: 18px; overflow: hidden; background: #2f2822 center / cover no-repeat; border: 1px solid #3a322b; box-shadow: 0 24px 50px -20px rgba(0,0,0,.7); }
+  .th-card::after { content: ''; position: absolute; inset: 45% 0 0; background: linear-gradient(transparent, rgba(0,0,0,.62)); }
+  .th-card.is-edit { transform: translateY(-18px) scale(1.05); border-color: var(--amber); z-index: 1; }
+  .th-tag { position: absolute; left: 10px; top: 10px; z-index: 3; font-size: .7rem; font-weight: 600; color: #fff; background: rgba(0,0,0,.6); border-radius: 999px; padding: 3px 9px; }
+  .th-card.is-edit .th-tag { background: var(--amber); color: var(--on-amber); }
+  .th-tx { position: absolute; left: 0; right: 0; bottom: 16%; z-index: 2; text-align: center; font-family: 'Black Han Sans', 'IBM Plex Sans KR', sans-serif; font-size: clamp(1.25rem, 2.4vw, 2rem); line-height: 1.12; color: #fff; -webkit-text-stroke: 5px #111; paint-order: stroke fill; }
+  .th-tx em { font-style: normal; color: #ffe14d; }
+  .th-sel { left: 7%; right: 7%; padding: 4px 0; border: 1.5px solid var(--amber); border-radius: 4px; }
+  .th-small { position: absolute; left: 0; right: 0; top: 16%; z-index: 2; text-align: center; font-family: 'Black Han Sans', sans-serif; font-size: clamp(.8rem, 1.2vw, 1rem); color: #fff; -webkit-text-stroke: 3px #111; paint-order: stroke fill; }
+  .th-float { position: absolute; left: 50%; bottom: calc(100% + 8px); transform: translateX(-50%); z-index: 3; font-family: 'IBM Plex Sans KR', sans-serif; line-height: 1.3; -webkit-text-stroke: 0; display: flex; gap: 2px; padding: 3px; border-radius: 8px; background: #1e1e1e; border: 1px solid #3a3a3a; box-shadow: 0 8px 20px rgba(0,0,0,.5); font-size: clamp(.55rem, .8vw, .72rem); white-space: nowrap; }
+  .th-float span { padding: 3px 6px; border-radius: 5px; color: #ddd; }
+  .th-float span:first-child { background: #2c2415; color: #fff; }
+  .choice li.no { color: var(--ink-faint); }
+  .choice li.no svg { stroke: var(--ink-faint); }
+  @media (max-width: 980px) { .th-wrap { grid-template-columns: 1fr; gap: 44px; } .th-show { max-width: 560px; } }
+  @media (max-width: 520px) { .th-show { gap: 10px; } .th-tx { -webkit-text-stroke: 3.5px #111; } .th-float { display: none; } }
+
   /* pricing choice */
   .choice-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; max-width: 1000px; margin: 0 auto; }
   .choice { border: 1px solid var(--line); background: var(--bg-raised); border-radius: 24px; padding: clamp(28px, 4vw, 40px); display: flex; flex-direction: column; gap: 22px; }
@@ -267,6 +298,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   <nav aria-label="주요 메뉴">
     <a class="plain hide-sm" href="#how">만드는 과정</a>
     <a class="plain hide-sm" href="#layouts">화면 구성</a>
+    <a class="plain hide-sm" href="#thumbs">썸네일</a>
     <a class="plain hide-sm" href="#signup">요금</a>
     <span class="hide-sm-switch"><div class="theme-switch" role="group" aria-label="화면 테마">
       <button type="button" data-t="system" aria-label="기기 설정 따르기" title="기기 설정 따르기"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></button>
@@ -291,7 +323,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     <dl class="facts">
       <div><dt>시작하는 방법</dt><dd>주제 한 줄, 또는 내 사진·영상</dd></div>
       <div><dt>직접 확인하는 단계</dt><dd>대본, 최종 장면</dd></div>
-      <div><dt>받는 방법</dt><dd>다운로드, 유튜브 업로드</dd></div>
+      <div><dt>받는 방법</dt><dd>다운로드, 유튜브 업로드, 썸네일 3장</dd></div>
     </dl>
   </div>
 
@@ -323,7 +355,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       <li><h3>대화로 설명하기</h3><p>만들고 싶은 영상을 편하게 말해주세요. 필요한 건 대화하면서 하나씩 여쭤볼게요. 직접 설정 화면에서 한 번에 고를 수도 있어요.</p></li>
       <li class="gate"><span class="who">내가 확인</span><h3>대본 승인하기</h3><p>완성된 대본을 먼저 보여드려요. 그대로 승인하거나, 고치거나, 다시 써달라고 하시면 돼요.</p></li>
       <li class="gate"><span class="who">내가 확인</span><h3>최종 장면 승인하기</h3><p>장면과 목소리가 만들어지면 전체 구성을 마지막으로 확인하고 제작을 승인해요.</p></li>
-      <li><h3>완성 영상 받기</h3><p>완성되면 이메일로 알려드려요. 내 프로젝트에서 받아보거나 유튜브에 바로 올릴 수 있어요.</p></li>
+      <li><h3>완성 영상 받기</h3><p>완성되면 이메일로 알려드려요. 내 프로젝트에서 받아보거나 유튜브에 바로 올릴 수 있어요. 정식 영상은 썸네일도 함께 받고 직접 고칠 수 있어요.</p></li>
     </ol>
   </div>
 </section>
@@ -395,6 +427,33 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   </div>
 </section>
 
+<section class="band" id="thumbs">
+  <div class="inner th-wrap">
+    <div class="th-copy">
+      <span class="th-kick">정식 영상에 포함</span>
+      <h2>눌리는 썸네일까지,<br>한 번에</h2>
+      <p class="th-lede">영상이 완성되면 AI가 잘 눌리는 썸네일 3장을 함께 만들어요. 마음에 안 들면 편집 창에서 직접 고치고, 기기로 바로 받으세요.</p>
+      <ul class="th-points">
+        <li><span class="th-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg></span><div><b>AI가 3가지 문구로</b><p>궁금증·결과·경고형 문구를 장마다 다르게 쓰고, 얼굴은 가리지 않게 배치해요.</p></div></li>
+        <li><span class="th-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13 7l4 4"/></svg></span><div><b>내 마음대로 직접 편집</b><p>문구와 글씨 상자를 원하는 곳에, 색·크기도 자유롭게. 영상 속 장면이나 내 사진으로 배경을 바꿀 수 있어요.</p></div></li>
+        <li><span class="th-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg></span><div><b>기기로 바로 받기</b><p>완성 후 7일 동안 고칠 수 있고, 완성본은 PNG로 바로 저장돼요.</p></div></li>
+      </ul>
+      <div class="th-cta">
+        <a class="btn btn-amber" href="./new.html?mode=paid">정식으로 만들기<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        <span class="th-note">체험판에서는 썸네일을 제공하지 않아요</span>
+      </div>
+    </div>
+    <div class="th-show" aria-hidden="true">
+      <div class="th-card" style="background-image:url('./assets/strip-product-1.jpg')"><span class="th-tag">AI 추천 · 궁금증</span><div class="th-tx">이 버튼<br><em>하나로?</em></div></div>
+      <div class="th-card is-edit" style="background-image:url('./assets/strip-product-2.jpg')"><span class="th-tag">직접 편집 중</span>
+        <div class="th-small">실사용 후기</div>
+        <div class="th-tx th-sel"><div class="th-float"><span>✎ 문구</span><span>A+</span><span>● 강조색</span></div>빨래 시간<br><em>절반</em></div>
+      </div>
+      <div class="th-card" style="background-image:url('./assets/strip-product-3.jpg')"><span class="th-tag">AI 추천 · 경고</span><div class="th-tx">모르면<br><em>손해</em></div></div>
+    </div>
+  </div>
+</section>
+
 <section class="band" id="signup">
   <div class="inner">
     <div class="sec-head" style="justify-content:center; text-align:center;">
@@ -411,6 +470,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
           <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>결제 없이 최대 3편까지</li>
           <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>완성된 영상을 그대로 확인</li>
           <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>마음에 들면 그때 정식으로 전환</li>
+          <li class="no"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>체험판에서는 썸네일을 제공하지 않아요</li>
         </ul>
         <a class="btn btn-line" href="./new.html?mode=trial">무료로 시작하기</a>
       </div>
@@ -422,6 +482,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
           <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>워터마크 없는 정식 화질</li>
           <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>더 빠른 처리 우선순위</li>
           <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>다운로드, 유튜브 업로드까지</li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>AI 썸네일 3장 + 직접 편집하기</li>
         </ul>
         <a class="btn btn-amber" href="./new.html?mode=paid">정식으로 신청하기</a>
       </div>
