@@ -724,7 +724,8 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
 
   function thumbnailPicker(p) {
     const list = String(p.thumbnailUrl || '').split(/[\s,]+/).map(s => s.trim()).filter(s => /^https?:\/\//.test(s)).slice(0, 3);
-    if (list.length === 0) return '';
+    // 자동 썸네일이 없어도 정식 영상이면 편집 창에서 직접 만들 수 있다
+    if (list.length === 0) return p.paid ? `<div class="thumb-picker"><div class="thumb-head"><strong>썸네일</strong><span>영상 장면으로 직접 만들 수 있어요</span></div>${썸네일편집버튼(p)}</div>` : '';
     const 세로 = (p.form || '쇼츠') !== '롱폼';
     const items = list.map((u, i) => `
       <figure class="thumb-item">

@@ -13,154 +13,193 @@
 <style>
   :root {
     --bg: #0c0c0c; --bg-raised: #161616; --bg-input: #1c1c1c; --line: #2a2a2a; --line-strong: #3a3a3a;
-    --ink: #f5f3ee; --ink-dim: #a8a49b; --ink-faint: #6f6b62;
+    --ink: #f5f3ee; --ink-dim: #a8a49b; --ink-faint: #6f6b62; --sel: #241c0f;
     --amber: #c68a12; --on-amber: #14100a; --err: #e07a68; --ok: #6fae4a; --stage: #050505;
   }
   @media (prefers-color-scheme: light) {
     :root:not([data-theme="dark"]) {
-      --bg: #fbf3e3; --bg-raised: #ffffff; --bg-input: #ffffff; --line: #eadfc4; --line-strong: #d9cba6;
+      --bg: #fbf3e3; --bg-raised: #ffffff; --bg-input: #ffffff; --line: #eadfc4; --line-strong: #d9cba6; --sel: #f6e7c4;
       --ink: #241c11; --ink-dim: #6b5b3d; --ink-faint: #9c8d6c; --on-amber: #1c1409; --err: #b34a3a; --ok: #4f8a35; --stage: #e9dfc9;
     }
   }
   :root[data-theme="dark"] {
-    --bg: #0c0c0c; --bg-raised: #161616; --bg-input: #1c1c1c; --line: #2a2a2a; --line-strong: #3a3a3a;
+    --bg: #0c0c0c; --bg-raised: #161616; --bg-input: #1c1c1c; --line: #2a2a2a; --line-strong: #3a3a3a; --sel: #241c0f;
     --ink: #f5f3ee; --ink-dim: #a8a49b; --ink-faint: #6f6b62; --on-amber: #14100a; --err: #e07a68; --ok: #6fae4a; --stage: #050505;
   }
   :root[data-theme="light"] {
-    --bg: #fbf3e3; --bg-raised: #ffffff; --bg-input: #ffffff; --line: #eadfc4; --line-strong: #d9cba6;
+    --bg: #fbf3e3; --bg-raised: #ffffff; --bg-input: #ffffff; --line: #eadfc4; --line-strong: #d9cba6; --sel: #f6e7c4;
     --ink: #241c11; --ink-dim: #6b5b3d; --ink-faint: #9c8d6c; --on-amber: #1c1409; --err: #b34a3a; --ok: #4f8a35; --stage: #e9dfc9;
   }
+  [hidden] { display: none !important; }
   * { box-sizing: border-box; }
   html, body { height: 100%; }
   body { margin: 0; background: var(--bg); color: var(--ink); font-family: 'IBM Plex Sans KR', -apple-system, sans-serif; line-height: 1.55; word-break: keep-all; }
-  button, input, select, textarea { font-family: inherit; font-size: inherit; color: inherit; }
+  button, input, select { font-family: inherit; font-size: inherit; color: inherit; }
   button { cursor: pointer; }
+  button:disabled { cursor: default; }
   :focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+  svg.i { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
 
-  /* 머리 */
-  header.top { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; gap: 14px; padding: calc(12px + env(safe-area-inset-top, 0px)) 20px 12px; border-bottom: 1px solid var(--line); background: color-mix(in srgb, var(--bg) 90%, transparent); backdrop-filter: blur(10px); }
+  /* ===== 머리 ===== */
+  header.top { position: sticky; top: 0; z-index: 40; height: 61px; display: flex; align-items: center; gap: 12px; padding: 0 20px; padding-top: env(safe-area-inset-top, 0px); border-bottom: 1px solid var(--line); background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(10px); }
   .logo { display: flex; align-items: center; gap: 8px; font-family: 'Fraunces', serif; font-weight: 600; text-decoration: none; color: inherit; }
   .logo img { width: 24px; height: 24px; border-radius: 6px; }
-  .back { color: var(--ink-dim); text-decoration: none; font-size: .9rem; display: inline-flex; align-items: center; gap: 4px; min-height: 36px; }
+  .back { color: var(--ink-dim); text-decoration: none; font-size: .88rem; white-space: nowrap; }
   .back:hover { color: var(--ink); }
-  .top-title { flex: 1; min-width: 0; font-size: .92rem; color: var(--ink-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .quota { flex: none; display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--line-strong); font-size: .84rem; color: var(--ink-dim); }
-  .quota b { color: var(--amber); font-weight: 700; }
-  .quota.soon { border-color: var(--amber); color: var(--ink); }
-  .quota.over { border-color: var(--err); color: var(--err); }
-  .photo-btn { display: flex; align-items: center; justify-content: center; gap: 8px; }
-  .photo-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .top-title { flex: 1; min-width: 0; font-size: .88rem; color: var(--ink-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pill { flex: none; display: inline-flex; align-items: center; gap: 4px; height: 34px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--line-strong); font-size: .8rem; color: var(--ink-dim); white-space: nowrap; }
+  .pill b { color: var(--amber); }
+  .pill.soon { border-color: var(--amber); color: var(--ink); }
+  .pill.over { border-color: var(--err); color: var(--err); }
+  .btn { height: 42px; border-radius: 10px; border: 1px solid var(--line-strong); background: transparent; font-weight: 600; font-size: .9rem; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 0 16px; white-space: nowrap; }
+  .btn:hover:not(:disabled) { border-color: var(--ink-faint); }
+  .btn.primary { background: var(--amber); color: var(--on-amber); border-color: var(--amber); }
+  .btn.primary:hover:not(:disabled) { filter: brightness(1.08); }
+  .btn:disabled { opacity: .45; }
+  .btn.small { height: 38px; font-size: .84rem; font-weight: 500; padding: 0 12px; }
+  .btn.block { width: 100%; }
 
-  /* 본문 */
-  .ed { display: grid; grid-template-columns: minmax(0, 1fr) 360px; height: calc(100vh - 61px); height: calc(100dvh - 61px); }
-  aside.panel { min-height: 0; overflow: hidden; }
-  .work { min-height: 0; }
-  .work { padding: 20px 24px 28px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
-  .pick { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-  .pick-lbl { font-size: .84rem; color: var(--ink-faint); margin-right: 4px; }
-  .pick button { position: relative; border: 2px solid transparent; border-radius: 8px; padding: 0; background: #000; overflow: hidden; line-height: 0; opacity: .6; transition: opacity .15s, border-color .15s; }
-  .pick button[aria-pressed="true"] { border-color: var(--amber); opacity: 1; }
-  .pick button:hover { opacity: 1; }
-  .pick canvas { display: block; height: 64px; width: auto; }
-  .pick .n { position: absolute; left: 4px; top: 4px; background: rgba(0,0,0,.65); color: #fff; font-size: 11px; line-height: 1; padding: 3px 5px; border-radius: 4px; }
-  .pick .edited { position: absolute; right: 4px; top: 4px; width: 8px; height: 8px; border-radius: 50%; background: var(--amber); }
+  /* ===== 틀 ===== */
+  .app { display: grid; grid-template-columns: 84px 330px minmax(0, 1fr); height: calc(100vh - 61px); height: calc(100dvh - 61px); }
+  nav.rail { border-right: 1px solid var(--line); display: flex; flex-direction: column; gap: 4px; padding: 12px 8px; background: var(--bg); }
+  .tab { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 2px; border: 0; border-radius: 12px; background: transparent; color: var(--ink-dim); font-size: .74rem; line-height: 1.2; text-align: center; }
+  .tab svg.i { width: 22px; height: 22px; }
+  .tab:hover { color: var(--ink); }
+  .tab[aria-selected="true"] { background: var(--sel); color: var(--ink); }
+  .tab[aria-selected="true"] svg.i { stroke: var(--amber); }
+  .tab .lock { position: absolute; top: 5px; right: 5px; width: 13px; height: 13px; color: var(--ink-faint); }
 
-  .stage { position: relative; flex: 1; min-height: 260px; background: var(--stage); border: 1px solid var(--line); border-radius: 14px; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 18px; }
+  aside.panel { border-right: 1px solid var(--line); background: var(--bg-raised); overflow-y: auto; min-height: 0; }
+  .pane { padding: 22px 20px 28px; display: flex; flex-direction: column; gap: 20px; }
+  .pane h2 { margin: 0; font-size: 1.05rem; font-weight: 700; }
+  .pane .sub { margin: 4px 0 0; font-size: .82rem; color: var(--ink-faint); line-height: 1.55; }
+  .fld { display: flex; flex-direction: column; gap: 8px; }
+  .lbl { font-size: .8rem; color: var(--ink-dim); display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .lbl output { color: var(--ink); font-variant-numeric: tabular-nums; }
+  .line-row { display: flex; align-items: center; height: 48px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--bg-input); overflow: hidden; transition: border-color .15s; }
+  .line-row:focus-within { border-color: var(--amber); }
+  .line-row input { flex: 1; min-width: 0; height: 100%; border: 0; background: transparent; padding: 0 14px; font-size: 1rem; outline: none; }
+  .line-row .star { flex: none; width: 46px; height: 100%; border: 0; background: transparent; color: var(--ink-faint); display: grid; place-items: center; }
+  .line-row .star svg { width: 18px; height: 18px; fill: currentColor; }
+  .line-row .star[aria-pressed="true"] { color: #f5c518; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { min-height: 36px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line-strong); background: transparent; font-size: .84rem; color: var(--ink-dim); text-align: left; }
+  .chip:hover:not(:disabled) { color: var(--ink); border-color: var(--ink-faint); }
+  .chip[aria-pressed="true"] { color: var(--ink); border-color: var(--amber); background: color-mix(in srgb, var(--amber) 10%, transparent); }
+  .seg { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+  .seg button { min-height: 44px; border-radius: 10px; border: 1px solid var(--line-strong); background: transparent; font-size: .95rem; }
+  .seg button[aria-pressed="true"] { border-color: var(--amber); background: color-mix(in srgb, var(--amber) 10%, transparent); }
+  input[type=range] { width: 100%; accent-color: var(--amber); height: 26px; margin: 0; }
+  .sw { display: flex; gap: 10px; flex-wrap: wrap; }
+  .sw button { width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--line-strong); padding: 0; }
+  .sw button[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--bg-raised), 0 0 0 4px var(--amber); }
+  .toggle { display: flex; align-items: center; justify-content: space-between; min-height: 40px; font-size: .9rem; }
+  .toggle input { width: 20px; height: 20px; accent-color: var(--amber); }
+  .scenes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .scenes button { position: relative; padding: 0; border: 2px solid transparent; border-radius: 10px; overflow: hidden; background: #000; aspect-ratio: var(--ar, 9/16); }
+  .scenes button[aria-pressed="true"] { border-color: var(--amber); }
+  .scenes img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .scenes .tag { position: absolute; left: 4px; bottom: 4px; background: rgba(0,0,0,.65); color: #fff; font-size: 10.5px; padding: 1px 6px; border-radius: 4px; }
+  .card { display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px; border-radius: 14px; border: 1px solid var(--line-strong); background: transparent; text-align: left; }
+  .card:hover:not(:disabled) { border-color: var(--amber); }
+  .card svg.i { width: 26px; height: 26px; stroke: var(--amber); }
+  .card b { display: block; font-size: .92rem; font-weight: 600; }
+  .card span { display: block; font-size: .78rem; color: var(--ink-faint); margin-top: 2px; line-height: 1.45; }
+  .card.locked { border-style: dashed; }
+  .card.locked svg.i { stroke: var(--ink-faint); }
+  .hint { font-size: .78rem; color: var(--ink-faint); margin: 0; line-height: 1.55; }
+  .linkbtn { background: none; border: 0; padding: 0; color: var(--ink-dim); font-size: .82rem; text-decoration: underline; text-underline-offset: 3px; align-self: flex-start; }
+  .linkbtn:hover:not(:disabled) { color: var(--ink); }
+  .divider { height: 1px; background: var(--line); margin: 0; border: 0; }
+
+  /* ===== 작업 공간 ===== */
+  .work { display: flex; flex-direction: column; gap: 12px; padding: 16px 22px 16px; min-width: 0; min-height: 0; }
+  .stage { position: relative; flex: 1; min-height: 240px; background: var(--stage); border: 1px solid var(--line); border-radius: 16px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .tip { position: absolute; left: 14px; top: 12px; z-index: 5; display: flex; align-items: center; gap: 8px; font-size: .8rem; color: var(--ink-dim); max-width: calc(100% - 28px); }
+  .tip b { flex: none; background: var(--sel); color: var(--amber); border-radius: 999px; padding: 2px 9px; font-size: .72rem; }
   .frame { position: relative; line-height: 0; box-shadow: 0 20px 50px rgba(0,0,0,.45); touch-action: none; user-select: none; -webkit-user-select: none; }
   .frame canvas { display: block; width: 100%; height: 100%; }
   .ov { position: absolute; inset: 0; pointer-events: none; }
   .guide { position: absolute; left: 0; right: 0; border-top: 1px dashed rgba(255,225,77,.7); }
-  .guide span { position: absolute; right: 6px; top: 3px; font-size: 11px; line-height: 1.2; color: rgba(255,225,77,.95); background: rgba(0,0,0,.55); padding: 2px 6px; border-radius: 4px; }
+  .guide span { position: absolute; right: 6px; top: 3px; font-size: 11px; line-height: 1.2; color: #ffe14d; background: rgba(0,0,0,.6); padding: 2px 6px; border-radius: 4px; }
   .face { position: absolute; border: 2px dashed rgba(255,255,255,.75); border-radius: 50%; }
   .face.hit { border-color: #ff5a4a; background: rgba(255,90,74,.18); }
-  .sel { position: absolute; border: 1.5px solid var(--amber); border-radius: 4px; box-shadow: 0 0 0 9999px rgba(0,0,0,0); }
-  .sel.bad { border-color: #ff5a4a; }
-  .frame.dragging-text { cursor: grabbing; }
-  .frame.over-text { cursor: grab; }
-  .frame.over-bg { cursor: move; }
-  .hide-guides .guide, .hide-guides .face, .hide-guides .sel { display: none; }
+  .sel { position: absolute; border: 1.5px dashed rgba(255,255,255,.35); border-radius: 4px; }
+  .sel.on { border: 1.5px solid var(--amber); }
+  .sel.bad { border: 1.5px solid #ff5a4a; }
+  .sel.on i { position: absolute; width: 10px; height: 10px; background: #fff; border: 1.5px solid var(--amber); border-radius: 2px; }
+  .float { position: absolute; z-index: 6; display: flex; gap: 2px; padding: 4px; border-radius: 10px; background: #1e1e1e; border: 1px solid #3a3a3a; box-shadow: 0 8px 24px rgba(0,0,0,.5); line-height: 1.2; pointer-events: auto; transform: translate(-50%, -100%); white-space: nowrap; }
+  .float button { border: 0; background: transparent; color: #ddd; font-size: .8rem; padding: 7px 10px; border-radius: 7px; display: inline-flex; align-items: center; gap: 4px; }
+  .float button:hover { background: #2c2415; color: #fff; }
+  .frame.over-text { cursor: grab; } .frame.dragging { cursor: grabbing; } .frame.over-bg { cursor: move; }
+  .hide-guides .guide, .hide-guides .face { display: none; }
+  .empty-bg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+  .empty-bg button { pointer-events: auto; }
 
-  .under { display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap; justify-content: space-between; }
-  .tools { display: flex; gap: 8px; flex-wrap: wrap; }
-  .chip { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--line-strong); background: transparent; font-size: .84rem; color: var(--ink-dim); }
-  .chip:hover { color: var(--ink); border-color: var(--ink-faint); }
-  .chip[aria-pressed="true"] { color: var(--ink); border-color: var(--amber); }
-  .chip:disabled { opacity: .4; cursor: default; }
-  .chip svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-  .mini { display: flex; gap: 10px; align-items: center; font-size: .78rem; color: var(--ink-faint); }
-  .mini canvas { border-radius: 6px; display: block; }
   .notes { display: flex; flex-direction: column; gap: 6px; }
-  .note { display: flex; gap: 8px; align-items: flex-start; font-size: .86rem; padding: 9px 12px; border-radius: 10px; background: color-mix(in srgb, var(--err) 12%, transparent); color: var(--ink); border: 1px solid color-mix(in srgb, var(--err) 40%, transparent); }
-  .note.ok { background: color-mix(in srgb, var(--ok) 10%, transparent); border-color: color-mix(in srgb, var(--ok) 35%, transparent); }
-  .note button { margin-left: auto; flex: none; background: none; border: 0; color: var(--ink-dim); text-decoration: underline; font-size: .8rem; padding: 0; }
+  .note { display: flex; gap: 8px; align-items: center; font-size: .84rem; padding: 8px 12px; border-radius: 10px; background: color-mix(in srgb, var(--err) 12%, transparent); border: 1px solid color-mix(in srgb, var(--err) 40%, transparent); }
+  .note.info { background: color-mix(in srgb, var(--amber) 8%, transparent); border-color: color-mix(in srgb, var(--amber) 30%, transparent); }
+  .note button { margin-left: auto; flex: none; background: none; border: 0; color: var(--ink-dim); text-decoration: underline; font-size: .78rem; padding: 0; }
+  .dock { display: flex; align-items: flex-end; gap: 14px; }
+  .dock-lbl { font-size: .78rem; color: var(--ink-faint); align-self: center; }
+  .pick { display: flex; gap: 10px; }
+  .pick button { position: relative; padding: 0; border: 2px solid transparent; border-radius: 9px; overflow: hidden; background: #000; line-height: 0; opacity: .55; transition: opacity .15s; }
+  .pick button[aria-pressed="true"] { border-color: var(--amber); opacity: 1; }
+  .pick button:hover { opacity: 1; }
+  .pick canvas { display: block; }
+  .pick .n { position: absolute; left: 4px; top: 4px; background: rgba(0,0,0,.65); color: #fff; font-size: 11px; line-height: 1; padding: 3px 5px; border-radius: 4px; }
+  .pick .dot { position: absolute; right: 4px; top: 4px; width: 8px; height: 8px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 0 2px rgba(0,0,0,.5); }
+  .spacer { flex: 1; }
+  .tools { display: flex; gap: 6px; }
+  .tool { height: 36px; width: 36px; border-radius: 9px; border: 1px solid var(--line-strong); background: transparent; color: var(--ink-dim); display: grid; place-items: center; }
+  .tool:hover:not(:disabled) { color: var(--ink); } .tool:disabled { opacity: .35; }
+  .tool[aria-pressed="true"] { color: var(--amber); border-color: var(--amber); }
+  .mini { display: flex; gap: 10px; align-items: flex-end; font-size: .74rem; color: var(--ink-faint); text-align: right; line-height: 1.3; }
+  .mini canvas { border-radius: 6px; display: block; }
 
-  /* 오른쪽 도구 */
-  aside.panel { border-left: 1px solid var(--line); background: var(--bg-raised); display: flex; flex-direction: column; min-height: 0; }
-  .panel-scroll { flex: 1; overflow-y: auto; padding: 6px 20px 20px; }
-  details.sec { border-bottom: 1px solid var(--line); padding: 4px 0; }
-  details.sec > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 12px 0; font-weight: 600; font-size: .95rem; }
-  details.sec > summary::-webkit-details-marker { display: none; }
-  details.sec > summary::after { content: ''; margin-left: auto; width: 8px; height: 8px; border-right: 2px solid var(--ink-faint); border-bottom: 2px solid var(--ink-faint); transform: rotate(45deg); transition: transform .15s; }
-  details.sec[open] > summary::after { transform: rotate(-135deg); }
-  .sec-body { display: flex; flex-direction: column; gap: 14px; padding: 2px 0 16px; }
-  .fld { display: flex; flex-direction: column; gap: 6px; }
-  .fld > label, .fld > .lbl { font-size: .8rem; color: var(--ink-dim); display: flex; justify-content: space-between; }
-  .fld > label output { color: var(--ink); font-variant-numeric: tabular-nums; }
-  .line-row { display: flex; gap: 8px; align-items: center; }
-  .line-row input[type=text] { flex: 1; min-width: 0; height: 42px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line-strong); background: var(--bg-input); }
-  .line-row input[type=text]:focus { border-color: var(--amber); outline: none; }
-  .star { flex: none; width: 42px; height: 42px; border-radius: 10px; border: 1px solid var(--line-strong); background: transparent; display: grid; place-items: center; color: var(--ink-faint); }
-  .star[aria-pressed="true"] { border-color: #ffe14d; color: #ffe14d; background: rgba(255,225,77,.08); }
-  .star svg { width: 18px; height: 18px; fill: currentColor; }
-  .hint { font-size: .78rem; color: var(--ink-faint); margin: 0; }
-  .seg { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
-  .seg button { min-height: 40px; border-radius: 10px; border: 1px solid var(--line-strong); background: transparent; font-size: .86rem; }
-  .seg button[aria-pressed="true"] { border-color: var(--amber); background: color-mix(in srgb, var(--amber) 12%, transparent); }
-  input[type=range] { width: 100%; accent-color: var(--amber); height: 28px; }
-  .sw { display: flex; gap: 8px; flex-wrap: wrap; }
-  .sw button { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--line-strong); padding: 0; }
-  .sw button[aria-pressed="true"] { border-color: var(--ink); box-shadow: 0 0 0 2px var(--bg-raised), 0 0 0 4px var(--amber); }
-  .toggle { display: flex; align-items: center; justify-content: space-between; min-height: 40px; font-size: .9rem; }
-  .toggle input { width: 20px; height: 20px; accent-color: var(--amber); }
-  .bgs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
-  .bgs button { padding: 0; border: 2px solid transparent; border-radius: 8px; overflow: hidden; background: #000; aspect-ratio: var(--ar, 9/16); }
-  .bgs button[aria-pressed="true"] { border-color: var(--amber); }
-  .bgs img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  /* ===== 창 ===== */
+  dialog { border: 1px solid var(--line-strong); border-radius: 18px; background: var(--bg-raised); color: var(--ink); padding: 20px; width: calc(100% - 32px); max-width: 420px; }
+  dialog::backdrop { background: rgba(0,0,0,.6); }
+  dialog h3 { margin: 0 0 8px; font-size: 1.05rem; }
+  dialog p { margin: 0 0 14px; color: var(--ink-dim); font-size: .9rem; }
+  .dlg-row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
+  #dlg-video { max-width: 640px; }
+  .vbox { border-radius: 12px; overflow: hidden; background: #000; line-height: 0; }
+  .vbox video { width: 100%; max-height: 52vh; display: block; background: #000; }
+  .vctl { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
+  .vplay { width: 40px; height: 40px; border-radius: 50%; border: 0; background: var(--amber); color: var(--on-amber); display: grid; place-items: center; flex: none; }
+  .vplay svg { width: 18px; height: 18px; fill: currentColor; stroke: none; }
+  .vtime { font-size: .8rem; color: var(--ink-dim); font-variant-numeric: tabular-nums; flex: none; }
+  .vfoot { display: flex; align-items: center; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .vnote { font-size: .78rem; color: var(--ink-faint); margin: 10px 0 0; }
 
-  .actions { border-top: 1px solid var(--line); padding: 14px 20px calc(14px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 8px; background: var(--bg-raised); }
-  .btn { min-height: 48px; border-radius: 12px; border: 1px solid var(--line-strong); background: transparent; font-weight: 600; font-size: .95rem; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 0 16px; }
-  .btn.primary { background: var(--amber); color: var(--on-amber); border-color: var(--amber); }
-  .btn:disabled { opacity: .45; cursor: default; }
-  .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .btn.small { min-height: 40px; font-size: .86rem; font-weight: 500; }
-  .act-note { font-size: .78rem; color: var(--ink-faint); text-align: center; margin: 0; }
-
-  /* 상태 화면 */
   .screen { max-width: 440px; margin: 12vh auto 0; padding: 0 20px; text-align: center; }
   .screen h1 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 1.6rem; margin: 0 0 10px; }
   .screen p { color: var(--ink-dim); margin: 0 0 20px; }
   #gsi-area { display: flex; justify-content: center; min-height: 44px; }
-  .spinner { width: 28px; height: 28px; border: 3px solid var(--line-strong); border-top-color: var(--amber); border-radius: 50%; animation: spin 0.9s linear infinite; margin: 0 auto 14px; }
+  .spinner { width: 28px; height: 28px; border: 3px solid var(--line-strong); border-top-color: var(--amber); border-radius: 50%; animation: spin .9s linear infinite; margin: 0 auto 14px; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 60; max-width: min(92vw, 460px); padding: 12px 18px; border-radius: 12px; background: #2a241f; color: #fbf7f0; border: 1px solid #4a4038; font-size: .9rem; box-shadow: 0 8px 24px rgba(0,0,0,.35); display: none; }
-  dialog { border: 1px solid var(--line-strong); border-radius: 16px; background: var(--bg-raised); color: var(--ink); max-width: 400px; width: calc(100% - 32px); padding: 22px; }
-  dialog::backdrop { background: rgba(0,0,0,.55); }
-  dialog h2 { margin: 0 0 8px; font-size: 1.1rem; }
-  dialog p { margin: 0 0 16px; color: var(--ink-dim); font-size: .92rem; }
+  .toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 80; max-width: min(92vw, 460px); padding: 12px 18px; border-radius: 12px; background: #2a241f; color: #fbf7f0; border: 1px solid #4a4038; font-size: .9rem; box-shadow: 0 8px 24px rgba(0,0,0,.35); display: none; }
 
+  /* ===== 휴대폰 ===== */
   @media (max-width: 900px) {
-    .ed { grid-template-columns: 1fr; height: auto; }
-    aside.panel { overflow: visible; }
-    .work { padding: 14px 16px 8px; }
-    .stage { min-height: 0; padding: 12px; }
-    aside.panel { border-left: 0; border-top: 1px solid var(--line); }
-    .panel-scroll { overflow: visible; padding: 0 16px 8px; }
-    .actions { position: sticky; bottom: 0; z-index: 20; padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px)); }
-    .top-title { display: none; }
-    header.top { padding-left: 16px; padding-right: 16px; }
-    .under { flex-direction: column; }
+    header.top { gap: 8px; padding: 0 12px; }
+    .top-title, .back, #deadline { display: none; }
+    .logo span { display: none; }
+    .app { display: flex; flex-direction: column; height: auto; padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px)); }
+    .work { order: 1; padding: 12px 12px 4px; }
+    .stage { flex: none; min-height: 0; padding: 12px; }
+    .tip { position: static; margin-bottom: 8px; }
+    .stage { flex-direction: column; }
+    aside.panel { order: 2; border-right: 0; border-top: 1px solid var(--line); overflow: visible; }
+    nav.rail { position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; flex-direction: row; justify-content: space-around; padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0px)); border-right: 0; border-top: 1px solid var(--line); background: color-mix(in srgb, var(--bg) 95%, transparent); backdrop-filter: blur(10px); }
+    .tab { flex: 1; padding: 8px 2px; font-size: .7rem; }
+    .tab .lock { right: calc(50% - 20px); top: 4px; }
+    .dock { flex-wrap: wrap; }
+    .mini { display: none; }
+    .mdead { display: block !important; }
   }
+  .mdead { display: none; font-size: .78rem; color: var(--ink-dim); text-align: center; }
 </style>
 <script>
 (function(){var K='rw_theme';function g(){try{return localStorage.getItem(K)||'system'}catch(e){return 'system'}}document.documentElement.setAttribute('data-theme',g());})();
@@ -169,107 +208,134 @@
 <body>
 
 <header class="top">
-  <a class="logo" href="./dashboard.html"><img src="./리와인드_로고1_512px.png" alt=""> 리와인드</a>
+  <a class="logo" href="./dashboard.html"><img src="./리와인드_로고1_512px.png" alt=""><span>리와인드</span></a>
   <a class="back" id="back-link" href="./dashboard.html">← 프로젝트로</a>
   <div class="top-title" id="top-title"></div>
-  <div class="quota" id="deadline" hidden></div>
-  <div class="quota" id="quota" hidden aria-live="polite"><span>남은 저장</span><b id="quota-n">10</b><span>번</span></div>
+  <span class="pill" id="deadline" hidden></span>
+  <span class="pill" id="quota" hidden>저장 <b id="quota-n">10</b>번 남음</span>
+  <button class="btn primary" id="b-save" hidden><svg class="i" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg><span id="b-save-t">받기</span></button>
 </header>
 
-<!-- 로그인 / 불러오는 중 / 오류 -->
-<div class="screen" id="scr-login" hidden>
-  <h1>썸네일 편집</h1>
-  <p>신청하실 때 사용한 구글 계정으로 로그인해주세요.</p>
-  <div id="gsi-area"></div>
-</div>
+<div class="screen" id="scr-login" hidden><h1>썸네일 편집</h1><p>신청하실 때 사용한 구글 계정으로 로그인해주세요.</p><div id="gsi-area"></div></div>
 <div class="screen" id="scr-loading"><div class="spinner" aria-hidden="true"></div><p>썸네일을 불러오고 있어요…</p></div>
-<div class="screen" id="scr-error" hidden><h1 id="err-title">열 수 없어요</h1><p id="err-msg"></p><a class="btn" id="err-back" href="./dashboard.html">내 프로젝트로</a></div>
+<div class="screen" id="scr-error" hidden><h1 id="err-title">열 수 없어요</h1><p id="err-msg"></p><a class="btn" id="err-back" href="./dashboard.html">프로젝트로 돌아가기</a></div>
 
-<!-- 편집 화면 -->
-<main class="ed" id="editor" hidden>
-  <section class="work">
-    <div class="pick" id="pick" role="group" aria-label="편집할 썸네일"><span class="pick-lbl">편집할 썸네일</span></div>
+<div class="app" id="editor" hidden>
+  <nav class="rail" role="tablist" aria-label="편집 도구">
+    <button class="tab" role="tab" data-tab="text" aria-selected="true"><svg class="i" viewBox="0 0 24 24"><path d="M4 7V5h16v2M9 19h6M12 5v14"/></svg>문구</button>
+    <button class="tab" role="tab" data-tab="style"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg>글씨 꾸미기</button>
+    <button class="tab" role="tab" data-tab="bg"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 15l5-5 5 5 3-3 5 5"/></svg>배경 장면</button>
+    <button class="tab" role="tab" data-tab="video"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="14" height="14" rx="2"/><path d="M17 10l4-2v8l-4-2"/></svg>영상에서</button>
+    <button class="tab" role="tab" data-tab="photo"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>내 사진<svg class="i lock" id="photo-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></button>
+  </nav>
+
+  <aside class="panel">
+    <!-- 문구 -->
+    <section class="pane" data-pane="text">
+      <div><h2>문구</h2><p class="sub">목록에서 1초 안에 눈에 띄도록 짧고 강하게. 한 줄에 6자 안팎이 가장 잘 읽혀요.</p></div>
+      <div class="fld">
+        <div class="lbl"><span>줄마다 입력 (최대 3줄)</span><span>★ 강조할 줄</span></div>
+        <div id="lines" style="display:flex;flex-direction:column;gap:8px"></div>
+      </div>
+      <div class="fld" id="rec-wrap"><div class="lbl"><span>추천 문구</span><span>누르면 바로 바뀌어요</span></div><div class="chips" id="recs"></div></div>
+      <div class="fld"><div class="lbl"><span>글씨 위치</span></div><div class="chips" id="pos">
+        <button class="chip" data-pos="bottom">아래쪽 (추천)</button><button class="chip" data-pos="middle">가운데</button><button class="chip" data-pos="top">위쪽</button></div></div>
+      <hr class="divider">
+      <button class="linkbtn" id="b-reset">처음 모습으로 되돌리기</button>
+    </section>
+
+    <!-- 글씨 꾸미기 -->
+    <section class="pane" data-pane="style" hidden>
+      <div><h2>글씨 꾸미기</h2><p class="sub">채널마다 같은 글꼴·색을 쓰면 썸네일만 봐도 알아봐요.</p></div>
+      <div class="fld"><div class="lbl">글꼴</div><div class="seg" id="fonts"></div></div>
+      <div class="fld"><div class="lbl"><span>크기</span><output id="o-size"></output></div><input type="range" id="r-size" min="40" max="240" step="1" aria-label="글씨 크기"></div>
+      <div class="fld"><div class="lbl"><span>줄 간격</span><output id="o-gap"></output></div><input type="range" id="r-gap" min="0.9" max="1.6" step="0.01" aria-label="줄 간격"></div>
+      <div class="fld"><div class="lbl"><span>테두리 두께</span><output id="o-outline"></output></div><input type="range" id="r-outline" min="0" max="30" step="1" aria-label="테두리 두께"></div>
+      <label class="toggle"><span>그림자</span><input type="checkbox" id="c-shadow"></label>
+      <div class="fld"><div class="lbl">글자색</div><div class="sw" id="sw-main"></div></div>
+      <div class="fld"><div class="lbl">강조색 (★ 줄)</div><div class="sw" id="sw-accent"></div></div>
+    </section>
+
+    <!-- 배경 장면 -->
+    <section class="pane" data-pane="bg" hidden>
+      <div><h2>배경 장면</h2><p class="sub">핵심 대상이 크게 보이는 장면이 가장 잘 눌려요.</p></div>
+      <div class="fld"><div class="lbl"><span>영상 속 장면</span><span id="scene-count"></span></div><div class="scenes" id="scenes"></div><p class="hint" id="scenes-empty" hidden>고를 수 있는 장면 이미지가 없어요. 아래 "영상에서 장면 가져오기"를 써보세요.</p></div>
+      <button class="card" data-go="video"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="14" height="14" rx="2"/><path d="M17 10l4-2v8l-4-2"/></svg><div><b>영상에서 장면 가져오기</b><span>재생하다 원하는 순간에 멈추고 골라요</span></div></button>
+      <button class="card" data-go="photo" id="card-photo"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M5 20a7 7 0 0 1 14 0"/></svg><div><b>내 사진으로 바꾸기</b><span id="card-photo-t"></span></div></button>
+      <hr class="divider">
+      <div class="fld"><div class="lbl"><span>확대</span><output id="o-zoom"></output></div><input type="range" id="r-zoom" min="1" max="2.5" step="0.01" aria-label="배경 확대"></div>
+      <div class="fld"><div class="lbl"><span>전체 어둡게</span><output id="o-dark"></output></div><input type="range" id="r-dark" min="0" max="0.6" step="0.01" aria-label="전체 어둡게"></div>
+      <div class="fld"><div class="lbl"><span>아래쪽 그늘</span><output id="o-shade"></output></div><input type="range" id="r-shade" min="0" max="0.85" step="0.01" aria-label="아래쪽 그늘"></div>
+      <p class="hint">글씨 밖을 끌면 배경 위치가 움직여요.</p>
+    </section>
+
+    <!-- 영상에서 -->
+    <section class="pane" data-pane="video" hidden>
+      <div><h2>영상에서 장면 가져오기</h2><p class="sub">완성된 영상을 재생하다 원하는 순간에 멈추고 "이 장면 쓰기"를 누르세요.</p></div>
+      <button class="btn primary block" id="b-open-video"><svg class="i" viewBox="0 0 24 24"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg>영상 열기</button>
+      <p class="hint" id="video-info"></p>
+      <div class="fld" id="caps-wrap" hidden><div class="lbl"><span>가져온 장면</span></div><div class="scenes" id="caps"></div></div>
+    </section>
+
+    <!-- 내 사진 -->
+    <section class="pane" data-pane="photo" hidden>
+      <div><h2>내 사진</h2><p class="sub">내 얼굴이나 제품 사진을 배경으로 쓸 수 있어요. 사진은 서버로 보내지 않고 이 기기 안에서만 써요.</p></div>
+      <div id="photo-locked" class="card locked" hidden><svg class="i" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><div><b>썸네일을 한 번 저장하면 열려요</b><span>영상 장면으로 먼저 완성본을 저장해 주세요. 그 뒤로 영상당 3장까지 쓸 수 있어요.</span></div></div>
+      <div id="photo-open" class="fld">
+        <button class="btn primary block" id="b-photo"><svg class="i" viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></svg>사진 고르기</button>
+        <input type="file" id="f-photo" accept="image/*" hidden>
+        <p class="hint" id="photo-hint"></p>
+      </div>
+      <p class="hint">직접 찍었거나 쓸 권리가 있는 사진만 올려주세요. 내 사진은 얼굴 위치를 자동으로 알 수 없으니, 글씨가 얼굴을 가리지 않게 직접 보면서 옮겨주세요.</p>
+    </section>
+  </aside>
+
+  <main class="work">
     <div class="stage" id="stage">
+      <div class="tip" id="tip"><b>팁</b><span>글씨를 누르면 바로 고칠 수 있고, 끌어서 옮길 수 있어요</span></div>
       <div class="frame" id="frame">
         <canvas id="cv" aria-label="썸네일 편집 화면"></canvas>
         <div class="ov" id="ov"></div>
       </div>
     </div>
-    <div class="under">
-      <div class="tools">
-        <button class="chip" id="t-undo" disabled title="되돌리기 (Ctrl+Z)"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg>되돌리기</button>
-        <button class="chip" id="t-redo" disabled title="다시 하기 (Ctrl+Shift+Z)"><svg viewBox="0 0 24 24"><path d="M15 14l5-5-5-5"/><path d="M20 9H10a6 6 0 0 0 0 12h3"/></svg>다시 하기</button>
-        <button class="chip" id="t-guides" aria-pressed="true"><svg viewBox="0 0 24 24"><path d="M3 12h18"/><rect x="3" y="4" width="18" height="16" rx="2"/></svg>안내선</button>
-      </div>
-      <div class="mini"><span>목록에서 보이는 크기</span><canvas id="mini" aria-label="작게 본 모습"></canvas></div>
-    </div>
     <div class="notes" id="notes" aria-live="polite"></div>
-  </section>
-
-  <aside class="panel">
-    <div class="panel-scroll">
-      <details class="sec" open>
-        <summary>문구</summary>
-        <div class="sec-body">
-          <div class="fld">
-            <div class="lbl"><span>한 줄에 짧게, 최대 3줄</span></div>
-            <div id="lines"></div>
-            <p class="hint">★을 누른 줄은 강조색으로 보여요. 짧고 강한 말일수록 잘 눌려요.</p>
-          </div>
-        </div>
-      </details>
-      <details class="sec" open>
-        <summary>글씨</summary>
-        <div class="sec-body">
-          <div class="fld"><div class="lbl">글꼴</div><div class="seg" id="fonts"></div></div>
-          <div class="fld"><label for="r-size">크기 <output id="o-size"></output></label><input type="range" id="r-size" min="40" max="240" step="1"></div>
-          <div class="fld"><label for="r-gap">줄 간격 <output id="o-gap"></output></label><input type="range" id="r-gap" min="0.9" max="1.6" step="0.01"></div>
-          <div class="fld"><label for="r-outline">테두리 두께 <output id="o-outline"></output></label><input type="range" id="r-outline" min="0" max="30" step="1"></div>
-          <label class="toggle"><span>그림자</span><input type="checkbox" id="c-shadow"></label>
-          <div class="fld"><div class="lbl">글자색</div><div class="sw" id="sw-main"></div></div>
-          <div class="fld"><div class="lbl">강조색</div><div class="sw" id="sw-accent"></div></div>
-          <div class="row2">
-            <button class="btn small" id="b-center">가운데 정렬</button>
-            <button class="btn small" id="b-lower">아래쪽 기본 위치</button>
-          </div>
-          <p class="hint">글씨는 끌어서 옮길 수 있어요. 얼굴을 가리면 저장할 수 없어요.</p>
-        </div>
-      </details>
-      <details class="sec">
-        <summary>배경</summary>
-        <div class="sec-body">
-          <div class="fld"><div class="lbl">다른 장면으로 바꾸기</div><div class="bgs" id="bgs"></div></div>
-          <div class="fld">
-            <button class="btn small photo-btn" id="b-photo" type="button"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-8 8"/></svg>내 사진으로 바꾸기</button>
-            <input type="file" id="f-photo" accept="image/*" hidden>
-            <p class="hint" id="photo-hint"></p>
-          </div>
-          <div class="fld"><label for="r-zoom">확대 <output id="o-zoom"></output></label><input type="range" id="r-zoom" min="1" max="2.5" step="0.01"></div>
-          <div class="fld"><label for="r-dark">전체 어둡게 <output id="o-dark"></output></label><input type="range" id="r-dark" min="0" max="0.6" step="0.01"></div>
-          <div class="fld"><label for="r-shade">아래쪽 그늘 <output id="o-shade"></output></label><input type="range" id="r-shade" min="0" max="0.85" step="0.01"></div>
-          <p class="hint">글씨 밖을 끌면 배경 위치가 움직여요. 핵심 대상은 크게, 배경은 조금 어둡게 하면 글씨가 더 잘 보여요.</p>
-        </div>
-      </details>
-    </div>
-    <div class="actions">
-      <button class="btn primary" id="b-save">완성하고 받기</button>
-      <div class="btn-row">
-        <button class="btn small" id="b-reset">자동 썸네일로 되돌리기</button>
-        <button class="btn small" id="b-dl">지금 모습 그대로 받기</button>
+    <div class="dock">
+      <span class="dock-lbl">썸네일</span>
+      <div class="pick" id="pick" role="group" aria-label="편집할 썸네일"></div>
+      <div class="tools">
+        <button class="tool" id="t-undo" disabled title="되돌리기 (Ctrl+Z)" aria-label="되돌리기"><svg class="i" viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg></button>
+        <button class="tool" id="t-redo" disabled title="다시 하기" aria-label="다시 하기"><svg class="i" viewBox="0 0 24 24"><path d="M15 14l5-5-5-5"/><path d="M20 9H10a6 6 0 0 0 0 12h3"/></svg></button>
+        <button class="tool" id="t-guides" aria-pressed="true" title="안내선" aria-label="안내선 보이기"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 12h18" stroke-dasharray="2 2"/></svg></button>
       </div>
-      <p class="act-note" id="act-note"></p>
+      <span class="spacer"></span>
+      <div class="mini"><span>휴대폰 목록<br>크기</span><canvas id="mini" aria-label="작게 본 모습"></canvas></div>
     </div>
-  </aside>
-</main>
+    <p class="mdead" id="mdead"></p>
+  </main>
+</div>
 
 <dialog id="dlg-save">
-  <h2>편집을 저장할까요?</h2>
+  <h3>완성본을 저장할까요?</h3>
   <p id="dlg-save-msg"></p>
   <label class="toggle" id="dlg-yt-row" hidden><span>유튜브 썸네일도 이 이미지로 바꾸기</span><input type="checkbox" id="dlg-yt" checked></label>
-  <div class="btn-row" style="margin-top:12px">
-    <button class="btn small" id="dlg-cancel">취소</button>
-    <button class="btn small primary" id="dlg-ok">저장하고 받기</button>
+  <div class="dlg-row"><button class="btn small" id="dlg-cancel">취소</button><button class="btn small primary" id="dlg-ok">저장하고 받기</button></div>
+</dialog>
+
+<dialog id="dlg-video">
+  <h3>영상에서 장면 가져오기</h3>
+  <div class="vbox"><video id="vid" playsinline preload="auto" muted></video></div>
+  <div class="vctl">
+    <button class="vplay" id="v-play" aria-label="재생"><svg viewBox="0 0 24 24" id="v-play-i"><path d="M8 5l11 7-11 7z"/></svg></button>
+    <input type="range" id="v-seek" min="0" max="1" step="0.01" value="0" aria-label="재생 위치">
+    <span class="vtime" id="v-time">0:00 / 0:00</span>
   </div>
+  <div class="vfoot">
+    <button class="chip" id="v-back">◀ 0.1초</button><button class="chip" id="v-fwd">0.1초 ▶</button>
+    <span class="spacer"></span>
+    <button class="btn small" id="v-close">닫기</button>
+    <button class="btn small primary" id="v-use">이 장면 쓰기</button>
+  </div>
+  <p class="vnote" id="v-note"></p>
 </dialog>
 <div class="toast" id="toast" role="status"></div>
 
@@ -280,30 +346,27 @@
   const GOOGLE_CLIENT_ID = '188637268860-9hj2af4bt8esn506bf5bqs72qnbu0qjs.apps.googleusercontent.com';
   const R = window.RewindThumb;
   const $ = id => document.getElementById(id);
-
   const 글자색들 = ['#FFFFFF', '#FFE14D', '#111111', '#FF4D4D'];
   const 강조색들 = ['#FFE14D', '#FF4D4D', '#4DD2FF', '#7CFF6B', '#FF8A3D', '#FFFFFF'];
 
   const 상태 = {
-    idToken: '', id: '', 제목: '', 설계: null, 자동본: null, 저장본: '', 장: 0,
+    idToken: '', id: '', 제목: '', 설계: null, 자동본: null, 저장본: '', 장: 0, 탭: 'text', 선택: false,
     수정횟수: 0, 최대: 10, 유튜브교체: false, 이미지: {}, 기록: [], 되돌림: [], 가이드: true,
-    기한: null, 기한지남: false, 사진최대: 3, 저장된지문: []
+    기한: null, 기한지남: false, 사진최대: 3, 저장된지문: [], 사진열림: false, 캡처최대: 5, 캡처횟수: 0, 재료: {}
   };
 
   /* ---------- 공통 ---------- */
-  function 알림(text) {
-    const t = $('toast'); t.textContent = text; t.style.display = 'block';
-    clearTimeout(t._h); t._h = setTimeout(() => { t.style.display = 'none'; }, 4500);
-  }
+  function 알림(text) { const t = $('toast'); t.textContent = text; t.style.display = 'block'; clearTimeout(t._h); t._h = setTimeout(() => { t.style.display = 'none'; }, 4500); }
   function 화면(name) {
     ['scr-login', 'scr-loading', 'scr-error'].forEach(k => { $(k).hidden = k !== name; });
     $('editor').hidden = name !== 'editor';
-    $('quota').hidden = name !== 'editor';
+    ['quota', 'b-save'].forEach(k => { $(k).hidden = name !== 'editor'; });
     $('deadline').hidden = name !== 'editor' || !$('deadline').textContent;
   }
   function 오류(제목, 내용) { $('err-title').textContent = 제목; $('err-msg').textContent = 내용; 화면('scr-error'); }
   function decodeJwt(t) { try { return JSON.parse(decodeURIComponent(escape(atob(t.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))))); } catch (e) { return null; } }
   const 깊은복사 = o => JSON.parse(JSON.stringify(o));
+  function escapeHtml(s) { return String(s || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
   async function 요청(body) {
     const res = await fetch(THUMB_EDIT_WEBHOOK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ idToken: 상태.idToken, id: 상태.id, ...body }) });
@@ -316,13 +379,57 @@
   }
   const 중계 = url => 요청({ action: 'image', url }).then(d => d.dataUrl || null);
 
+  /* ---------- 설계가 없을 때: 기본 틀 ---------- */
+  // 띄어쓰기 자리에서만 1~3줄로 나눈다: 가장 긴 줄이 가장 짧게, 한 글자 줄 없이, 같으면 아래 줄이 긴 쪽 (강조 줄이 보통 마지막)
+  function 줄로나누기(text) {
+    const ws = String(text || '').replace(/#\S+/g, '').replace(/\s+/g, ' ').trim().split(' ').filter(Boolean);
+    if (!ws.length) return ['문구를 입력하세요'];
+    const 전체 = ws.join(' ').length;
+    const 줄수들 = 전체 <= 7 ? [1] : [2, 3].filter(k => k <= ws.length);
+    if (!줄수들.length) 줄수들.push(1);
+    // 앞말에 붙는 한 글자(사기 '전')는 줄 맨 앞에, 뒷말을 꾸미는 말('꼭' 보세요, '이' 버튼)은 줄 끝에 오지 않게
+    const 앞에붙는말 = new Set(['전', '후', '때', '것', '수', '중', '뿐', '만', '등', '쯤', '번', '개', '년', '분', '초', '배', '뒤', '앞', '날']);
+    const 꾸미는말 = new Set(['꼭', '더', '안', '못', '잘', '다', '또', '왜', '딱', '이', '그', '저', '한', '두', '세', '첫', '새', '좀', '너무', '진짜', '정말', '가장', '바로', '절대', '무조건']);
+    let best = null;
+    const 나눔 = (시작, 남은, 현재) => {
+      if (남은 === 1) { 평가([...현재, ws.slice(시작).join(' ')]); return; }
+      for (let i = 시작 + 1; i <= ws.length - (남은 - 1); i++) 나눔(i, 남은 - 1, [...현재, ws.slice(시작, i).join(' ')]);
+    };
+    const 평가 = 줄 => {
+      const 길이 = 줄.map(l => l.length);
+      if (줄.length > 1 && 길이.some(n => n < 2)) return;
+      let 점수 = Math.max(...길이) * 10 + (줄.length - 1) * 40 - 길이[길이.length - 1] * 0.1;
+      for (let i = 0; i < 줄.length - 1; i++) {
+        if (꾸미는말.has(줄[i].split(' ').pop())) 점수 += 35;
+        if (앞에붙는말.has(줄[i + 1].split(' ')[0])) 점수 += 35;
+      }
+      if (!best || 점수 < best.점수) best = { 줄, 점수 };
+    };
+    줄수들.forEach(k => 나눔(0, k, []));
+    return (best ? best.줄 : [ws.join(' ')]).map(l => l.slice(0, 20));
+  }
+  function 기본틀(재료) {
+    const 롱폼 = !!재료.롱폼, W = 롱폼 ? 1280 : 720, H = 롱폼 ? 720 : 1280;
+    const 문구원문 = 재료.고객문구 || 재료.후킹문구 || String(재료.제목 || '').slice(0, 18);
+    const 배경들 = [...(재료.장면이미지 || []), ...(재료.캡처 || []).map(c => ({ src: c.src }))];
+    const 고른 = 배경들.length >= 3 ? [0, 0.5, 1].map(r => 배경들[Math.round(r * (배경들.length - 1))]) : 배경들.length ? 배경들 : [null];
+    const 장면 = 고른.map((b, k) => ({
+      번호: k + 1, 배경: b ? { 종류: 'image', src: b.src, 확대: 1, 초점x: 0.5, 초점y: 0.5, 어둡게: 0 } : null,
+      얼굴: [], 피사체: [], 그늘: { 시작: 0.45, 끝불투명도: 0.55 },
+      문구: { 유형: '기본', 원문: 문구원문, 줄: 줄로나누기(문구원문) },
+      블록: { cx: W / 2, y: 0, size: 롱폼 ? Math.round(H * 0.2) : Math.round(H * 0.13), 줄간격: 1.15, 강조줄: 2, 글자색: '#FFFFFF', 강조색: '#FFE14D', 테두리색: '#111111', 테두리: 11, 그림자: false, 글꼴: 'Black Han Sans' }
+    }));
+    장면.forEach(s => { if (s.블록.강조줄 > s.문구.줄.length) s.블록.강조줄 = s.문구.줄.length; });
+    return { 버전: 3, 만든곳: '기본틀', 캔버스: { w: W, h: H, 종류: 롱폼 ? '롱폼' : '쇼츠' }, 장면 };
+  }
+
   /* ---------- 불러오기 ---------- */
   async function 시작(idToken) {
     상태.idToken = idToken;
     상태.id = new URLSearchParams(location.search).get('id') || '';
     $('back-link').href = 상태.id ? './project.html?id=' + encodeURIComponent(상태.id) : './dashboard.html';
     $('err-back').href = $('back-link').href;
-    if (!상태.id) return 오류('프로젝트를 찾을 수 없어요', '프로젝트 화면의 "썸네일 편집" 버튼으로 들어와 주세요.');
+    if (!상태.id) return 오류('프로젝트를 찾을 수 없어요', '프로젝트 화면의 "직접 편집하기" 버튼으로 들어와 주세요.');
     화면('scr-loading');
     let d;
     try { d = await 요청({ action: 'load' }); }
@@ -330,33 +437,42 @@
       if (e.code === 401) { sessionStorage.removeItem('rw_id_token'); return 로그인(); }
       return 오류('열 수 없어요', e.message);
     }
-    let 설계;
-    try { 설계 = typeof d.design === 'string' ? JSON.parse(d.design) : d.design; } catch (e) { 설계 = null; }
-    if (!설계 || !설계.캔버스 || !Array.isArray(설계.장면) || !설계.장면.length) {
-      return 오류('아직 편집할 썸네일이 없어요', '자동 썸네일이 만들어진 뒤에 편집할 수 있어요. 영상이 완성되고 몇 분 뒤 다시 들어와 주세요.');
+    상태.재료 = d.material || {};
+    let 설계 = null;
+    try { 설계 = d.design ? (typeof d.design === 'string' ? JSON.parse(d.design) : d.design) : null; } catch (e) { 설계 = null; }
+    const 새로만듦 = !설계 || !설계.캔버스 || !Array.isArray(설계.장면) || !설계.장면.length;
+    if (새로만듦) {
+      const 이전 = 설계 || {};
+      설계 = 기본틀({ ...상태.재료, 롱폼: 상태.재료.롱폼 ?? (d.form === '롱폼') });
+      if (Array.isArray(이전.캡처)) 설계.캡처 = 이전.캡처;
     }
     R.블록채우기(설계);
-    설계.장면.forEach(장 => { if (장.블록) 장.글씨 = R.블록에서글씨(설계, 장); });
     상태.설계 = 설계;
-    상태.자동본 = 깊은복사(설계.자동본 || 설계);
-    delete 상태.자동본.자동본;
-    상태.저장본 = 스냅샷();
     상태.수정횟수 = Number(d.editCount) || 0;
     상태.최대 = Number(d.maxEdits) || 10;
     상태.기한 = d.editUntil ? new Date(d.editUntil) : null;
     상태.기한지남 = !!d.expired;
     상태.사진최대 = Number(d.maxPhotos) || 3;
     상태.저장된지문 = Array.isArray(d.photoHashes) ? d.photoHashes : [];
-    기한표시();
+    상태.사진열림 = !!d.photoUnlocked;
+    상태.캡처최대 = Number(d.maxCaptures) || 5;
+    상태.캡처횟수 = Number(d.captureCount) || 0;
     상태.유튜브교체 = !!d.youtubeReplace;
     상태.제목 = d.title || '';
     $('top-title').textContent = 상태.제목;
     document.title = (상태.제목 ? 상태.제목.slice(0, 24) + ' · ' : '') + '썸네일 편집 — 리와인드';
     await R.글꼴준비();
+    기한표시();
     화면('editor');
     UI만들기();
+    크기맞추기();
+    if (새로만듦) 상태.설계.장면.forEach((s, k) => { 상태.장 = k; 맞춤크기(); 위치정하기('bottom'); });
+    상태.장 = 0;
+    // '처음 모습으로 되돌리기'의 기준: 자동 썸네일(없으면 방금 만든 기본 틀)
+    상태.자동본 = 깊은복사(상태.설계.자동본 || 상태.설계); delete 상태.자동본.자동본;
+    상태.저장본 = 새로만듦 ? '' : 스냅샷();
+    if (새로만듦) 알림('자동 썸네일이 없어서 기본 틀로 시작해요. 문구와 배경을 골라주세요.');
     await 장고르기(0);
-    썸네일목록그리기();
   }
 
   /* ---------- 캔버스 ---------- */
@@ -367,100 +483,105 @@
   function 크기맞추기() {
     const { w, h } = 상태.설계.캔버스;
     const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const 휴대폰 = window.innerWidth <= 900;
     const st = $('stage').getBoundingClientRect();
-    const maxW = Math.max(160, st.width - 36), maxH = Math.max(200, (window.innerWidth <= 900 ? window.innerHeight * 0.62 : st.height - 36));
+    const maxW = Math.max(160, (휴대폰 ? window.innerWidth - 50 : st.width - 60));
+    const maxH = Math.max(200, 휴대폰 ? window.innerHeight * 0.58 : st.height - 70);
     const s = Math.min(maxW / w, maxH / h);
     const cw = Math.floor(w * s), ch = Math.floor(h * s);
     $('frame').style.width = cw + 'px'; $('frame').style.height = ch + 'px';
     cv.width = Math.round(cw * dpr); cv.height = Math.round(ch * dpr);
     상태.화면배율 = s; 상태.dpr = dpr;
-    const mw = w >= h ? 168 : 96;
+    const mw = w >= h ? 132 : 62;
     mini.width = Math.round(mw * dpr); mini.height = Math.round(mw * h / w * dpr);
     mini.style.width = mw + 'px'; mini.style.height = Math.round(mw * h / w) + 'px';
   }
-
-  function 배경이미지(장) {
-    const url = R.배경주소(장.배경);
-    return url ? 상태.이미지[url] || null : null;
-  }
+  function 배경이미지(장) { const url = R.배경주소(장.배경); return url ? 상태.이미지[url] || null : null; }
   async function 배경준비(장) {
     const url = R.배경주소(장.배경);
-    if (!url || url.startsWith('local:') || 상태.이미지[url] !== undefined) return;
+    if (!url || 상태.이미지[url] !== undefined) return;
+    if (url.startsWith('local:')) return;
     상태.이미지[url] = null;
-    const img = await R.이미지불러오기(url, 중계);
+    let img = null;
+    if (url.startsWith('frame:')) img = await 프레임다시뽑기(Number(장.배경.시점));
+    else img = await R.이미지불러오기(url, 중계);
     상태.이미지[url] = img;
-    if (!img) 알림('배경 이미지를 불러오지 못했어요. 배경 없이 편집할 수 있어요.');
+    if (!img) 알림(url.startsWith('frame:') ? '영상 장면을 다시 불러오지 못했어요. 배경을 다시 골라주세요.' : '배경 이미지를 불러오지 못했어요.');
   }
-
   function 그리기() {
     const 장 = 현재();
     장.글씨 = R.블록에서글씨(상태.설계, 장);
     R.그리기(ctx, 상태.설계, 장, 배경이미지(장), { 배율: 상태.화면배율 * 상태.dpr });
     R.그리기(mctx, 상태.설계, 장, 배경이미지(장), { 배율: mini.width / 상태.설계.캔버스.w });
-    덧그림();
-    점검();
-    버튼상태();
+    덧그림(); 점검(); 버튼상태();
   }
-
-  // 블록의 실제 영역 (설계 좌표)
   function 블록영역(장) {
     const 글씨 = 장.글씨 || [];
-    if (!글씨.length) return null;
-    let 폭 = 0;
-    글씨.forEach(t => { 폭 = Math.max(폭, R.줄너비(ctx, t)); });
+    if (!글씨.length || !글씨.some(t => t.text)) return null;
+    let 폭 = 0; 글씨.forEach(t => { 폭 = Math.max(폭, R.줄너비(ctx, t)); });
     const b = 장.블록;
-    const 높이 = 글씨.length * Math.round(b.size * (b.줄간격 || 1.15));
-    return { x: b.cx - 폭 / 2, y: b.y, w: 폭, h: 높이 };
+    return { x: b.cx - 폭 / 2, y: b.y, w: 폭, h: 글씨.length * Math.round(b.size * (b.줄간격 || 1.15)) };
   }
-  // 얼굴 영역(원본 이미지 기준)을 배경 확대·이동을 반영한 캔버스 좌표로
   function 얼굴영역(장) { return (장.얼굴 || []).map(f => R.영역변환(상태.설계, 장, 배경이미지(장), f)); }
-  function 겹침(a, f) {
-    return Math.max(0, Math.min(a.x + a.w, f.x + f.w) - Math.max(a.x, f.x)) * Math.max(0, Math.min(a.y + a.h, f.y + f.h) - Math.max(a.y, f.y)) > 0;
-  }
+  const 겹침 = (a, f) => Math.max(0, Math.min(a.x + a.w, f.x + f.w) - Math.max(a.x, f.x)) * Math.max(0, Math.min(a.y + a.h, f.y + f.h) - Math.max(a.y, f.y)) > 0;
 
   function 덧그림() {
     const 장 = 현재(), { w: W, h: H } = 상태.설계.캔버스, s = 상태.화면배율;
-    const ov = $('ov');
-    const 영역 = 블록영역(장);
-    const 얼굴 = 얼굴영역(장);
+    const 영역 = 블록영역(장), 얼굴 = 얼굴영역(장);
     let html = `<div class="guide" style="top:${(H * 0.5 * s).toFixed(1)}px"><span>화면 절반</span></div>`;
-    얼굴.forEach(f => {
-      const hit = 영역 && 겹침(영역, f);
-      html += `<div class="face${hit ? ' hit' : ''}" style="left:${f.x * s}px;top:${f.y * s}px;width:${f.w * s}px;height:${f.h * s}px"></div>`;
-    });
+    얼굴.forEach(f => { html += `<div class="face${영역 && 겹침(영역, f) ? ' hit' : ''}" style="left:${f.x * s}px;top:${f.y * s}px;width:${f.w * s}px;height:${f.h * s}px"></div>`; });
     if (영역) {
-      const bad = 얼굴.some(f => 겹침(영역, f)) || 영역.x < 0 || 영역.x + 영역.w > W || 영역.y < 0 || 영역.y + 영역.h > H;
-      html += `<div class="sel${bad ? ' bad' : ''}" style="left:${(영역.x * s - 6).toFixed(1)}px;top:${(영역.y * s - 4).toFixed(1)}px;width:${(영역.w * s + 12).toFixed(1)}px;height:${(영역.h * s + 8).toFixed(1)}px"></div>`;
+      const bad = 얼굴.some(f => 겹침(영역, f)) || 영역.x < -1 || 영역.x + 영역.w > W + 1 || 영역.y < 0 || 영역.y + 영역.h > H;
+      const cls = bad ? 'sel bad on' : 상태.선택 ? 'sel on' : 'sel';
+      const L = 영역.x * s - 8, T = 영역.y * s - 6, Wd = 영역.w * s + 16, Hd = 영역.h * s + 12;
+      html += `<div class="${cls}" style="left:${L.toFixed(1)}px;top:${T.toFixed(1)}px;width:${Wd.toFixed(1)}px;height:${Hd.toFixed(1)}px">${상태.선택 ? '<i style="left:-6px;top:-6px"></i><i style="right:-6px;top:-6px"></i><i style="left:-6px;bottom:-6px"></i><i style="right:-6px;bottom:-6px"></i>' : ''}</div>`;
+      if (상태.선택 && !잠김()) {
+        const fx = Math.min(Math.max(L + Wd / 2, 120), W * s - 120), fy = Math.max(T - 8, 46);
+        html += `<div class="float" style="left:${fx}px;top:${fy}px">
+          <button data-f="text">✎ 문구</button><button data-f="minus" aria-label="작게">A−</button><button data-f="plus" aria-label="크게">A+</button><button data-f="color">● 강조색</button><button data-f="center">가운데</button></div>`;
+      }
     }
-    ov.innerHTML = html;
+    if (!장.배경) html += `<div class="empty-bg"><button class="btn small primary" data-go="bg">배경 장면 고르기</button></div>`;
+    $('ov').innerHTML = html;
     $('frame').classList.toggle('hide-guides', !상태.가이드);
+    $('ov').querySelectorAll('[data-f]').forEach(b => b.addEventListener('pointerdown', e => { e.stopPropagation(); }));
+    $('ov').querySelectorAll('[data-f]').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); 떠있는도구(b.dataset.f); }));
+    $('ov').querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => 탭열기(b.dataset.go)));
+  }
+  function 떠있는도구(f) {
+    const 장 = 현재();
+    if (f === 'text') { 탭열기('text'); const i = $('lines').querySelector('input'); if (i) { i.focus(); i.select(); } return; }
+    변경(() => {
+      if (f === 'minus') 장.블록.size = Math.max(40, Math.round(장.블록.size * 0.92));
+      if (f === 'plus') { 장.블록.size = Math.min(240, Math.round(장.블록.size * 1.08)); 맞춤크기(); }
+      if (f === 'center') 장.블록.cx = 상태.설계.캔버스.w / 2;
+      if (f === 'color') { const i = 강조색들.findIndex(c => c.toUpperCase() === String(장.블록.강조색).toUpperCase()); 장.블록.강조색 = 강조색들[(i + 1) % 강조색들.length]; if (!장.블록.강조줄) 장.블록.강조줄 = (장.문구.줄 || []).length; }
+    }, 'float-' + f);
   }
 
-  /* ---------- 점검: 얼굴 가림, 화면 밖, 줄 수 ---------- */
+  /* ---------- 점검 ---------- */
+  const 내사진장 = 장 => !!(장 && 장.배경 && 장.배경.종류 === '내사진');
+  const 사진없음 = 장 => 내사진장(장) && !배경이미지(장);
   function 문제목록() {
-    const 장 = 현재(), { w: W, h: H } = 상태.설계.캔버스;
-    const 영역 = 블록영역(장);
-    const out = [];
+    const 장 = 현재(), { w: W, h: H } = 상태.설계.캔버스, 영역 = 블록영역(장), out = [];
+    if (사진없음(장)) out.push({ 종류: '사진', 막음: true, 글: '이 썸네일은 내 사진을 썼어요. "내 사진"에서 같은 사진을 다시 골라야 받을 수 있어요.' });
     if (!영역) out.push({ 종류: '빈문구', 막음: true, 글: '문구가 비어 있어요. 한 줄 이상 적어주세요.' });
     else {
-      const 가린얼굴 = 얼굴영역(장).map((f, i) => (겹침(영역, f) && f.x < W && f.y < H && f.x + f.w > 0 && f.y + f.h > 0) ? i : -1).filter(i => i >= 0);
-      if (가린얼굴.length) out.push({ 종류: '얼굴', 막음: true, 글: '글씨가 얼굴을 가리고 있어요. 글씨를 옮기거나 작게 해주세요.', 얼굴: 가린얼굴 });
-      if (영역.x < -1 || 영역.x + 영역.w > W + 1) out.push({ 종류: '가로', 막음: true, 글: '글씨가 화면 옆으로 넘쳐요. 크기를 줄이거나 줄을 나눠주세요.' });
+      const 가린 = 얼굴영역(장).map((f, i) => (겹침(영역, f) && f.x < W && f.y < H && f.x + f.w > 0 && f.y + f.h > 0) ? i : -1).filter(i => i >= 0);
+      if (가린.length) out.push({ 종류: '얼굴', 막음: true, 글: '글씨가 얼굴을 가리고 있어요. 옮기거나 작게 해주세요.', 얼굴: 가린 });
+      if (영역.x < -1 || 영역.x + 영역.w > W + 1) out.push({ 종류: '가로', 막음: true, 글: '글씨가 화면 옆으로 넘쳐요. 작게 하거나 줄을 나눠주세요.' });
       if (영역.y < 0 || 영역.y + 영역.h > H) out.push({ 종류: '세로', 막음: true, 글: '글씨가 화면 위아래로 넘쳐요.' });
-      else if (영역.y + 영역.h / 2 < H * 0.5) out.push({ 종류: '위쪽', 막음: false, 글: '글씨가 화면 위쪽에 있어요. 아래 절반에 둘 때 더 잘 읽혀요.' });
-      if (사진없음(장)) out.push({ 종류: '사진', 막음: true, 글: '이 썸네일은 내 사진을 썼어요. 받으려면 "내 사진으로 바꾸기"에서 같은 사진을 다시 골라주세요.' });
-      else if (내사진장(장) && 수정됨()) out.push({ 종류: '사진저장', 막음: false, 글: '내 사진을 쓴 썸네일은 저장한 뒤에 받을 수 있어요.' });
-      const 글자수 = (장.문구.줄 || []).join('').replace(/\s/g, '').length;
-      if (글자수 > 16) out.push({ 종류: '길이', 막음: false, 글: '문구가 조금 길어요. 2~4단어로 줄이면 작은 화면에서도 잘 읽혀요.' });
+      else if (영역.y + 영역.h / 2 < H * 0.5) out.push({ 종류: '위쪽', 막음: false, 글: '글씨가 위쪽에 있어요. 아래쪽에 둘 때 더 잘 읽혀요.' });
+      if ((장.문구.줄 || []).join('').replace(/\s/g, '').length > 16) out.push({ 종류: '길이', 막음: false, 글: '문구가 조금 길어요. 2~4단어가 작은 화면에서 잘 읽혀요.' });
     }
+    if (!장.배경) out.push({ 종류: '배경', 막음: false, 글: '배경이 비어 있어요. "배경 장면"이나 "영상에서"에서 골라주세요.' });
     return out;
   }
   function 점검() {
     const 목록 = 문제목록();
-    const el = $('notes');
-    el.innerHTML = 목록.map((m, i) => `<div class="note${m.막음 ? '' : ' ok'}"><span>${m.막음 ? '⚠' : 'ℹ'}</span><span>${m.글}</span>${m.종류 === '얼굴' ? `<button type="button" data-face-dismiss="${i}">얼굴 표시가 잘못됐어요</button>` : ''}</div>`).join('');
-    el.querySelectorAll('[data-face-dismiss]').forEach(b => b.addEventListener('click', () => {
-      const m = 목록[Number(b.dataset.faceDismiss)];
+    $('notes').innerHTML = 목록.map((m, i) => `<div class="note${m.막음 ? '' : ' info'}"><span>${m.막음 ? '⚠' : 'ℹ'}</span><span>${m.글}</span>${m.종류 === '얼굴' ? `<button type="button" data-face="${i}">얼굴 표시가 잘못됐어요</button>` : ''}</div>`).join('');
+    $('notes').querySelectorAll('[data-face]').forEach(b => b.addEventListener('click', () => {
+      const m = 목록[Number(b.dataset.face)];
       변경(() => { 현재().얼굴 = (현재().얼굴 || []).filter((_, i) => !m.얼굴.includes(i)); });
       알림('얼굴 표시를 지웠어요.');
     }));
@@ -468,51 +589,67 @@
 
   /* ---------- 변경·기록 ---------- */
   function 스냅샷() { return JSON.stringify(상태.설계.장면.map(s => ({ 블록: s.블록, 문구: s.문구 && s.문구.줄, 배경: s.배경, 그늘: s.그늘, 얼굴: s.얼굴 }))); }
+  const 수정됨 = () => 스냅샷() !== 상태.저장본;
   function 변경(fn, 묶음키) {
     const 전 = JSON.stringify(상태.설계.장면);
     fn();
-    const 후 = JSON.stringify(상태.설계.장면);
-    if (전 === 후) return;
-    const 지금 = Date.now();
-    const 마지막 = 상태.기록[상태.기록.length - 1];
+    if (JSON.stringify(상태.설계.장면) === 전) return;
+    const 지금 = Date.now(), 마지막 = 상태.기록[상태.기록.length - 1];
     if (!(묶음키 && 마지막 && 마지막.키 === 묶음키 && 지금 - 마지막.t < 800)) 상태.기록.push({ 장면: 전, 장: 상태.장, 키: 묶음키, t: 지금 });
     else 마지막.t = 지금;
     if (상태.기록.length > 80) 상태.기록.shift();
     상태.되돌림 = [];
-    그리기(); 입력반영(); 썸네일목록그리기();
+    그리기(); 입력반영(); 목록그리기();
   }
   function 되돌리기(앞으로) {
     const 출발 = 앞으로 ? 상태.되돌림 : 상태.기록, 도착 = 앞으로 ? 상태.기록 : 상태.되돌림;
     const 항목 = 출발.pop(); if (!항목) return;
     도착.push({ 장면: JSON.stringify(상태.설계.장면), 장: 상태.장, t: 0 });
-    상태.설계.장면 = JSON.parse(항목.장면);
-    상태.장 = 항목.장;
-    그리기(); 입력반영(); 썸네일목록그리기(); 픽표시();
+    상태.설계.장면 = JSON.parse(항목.장면); 상태.장 = 항목.장;
+    그리기(); 입력반영(); 목록그리기();
   }
-  const 수정됨 = () => 스냅샷() !== 상태.저장본;
+  const 잠김 = () => 상태.기한지남 || 상태.수정횟수 >= 상태.최대;
 
-  /* ---------- 편집 기한 (영상 완성 후 7일) ---------- */
+  function 맞춤크기() {
+    const 장 = 현재(), W = 상태.설계.캔버스.w, 한계 = W * 0.92;
+    장.글씨 = R.블록에서글씨(상태.설계, 장);
+    const 최대폭 = Math.max(0, ...장.글씨.map(t => R.줄너비(ctx, t)));
+    if (최대폭 > 한계) 장.블록.size = Math.max(40, Math.floor(장.블록.size * 한계 / 최대폭));
+    장.글씨 = R.블록에서글씨(상태.설계, 장);
+    const 반폭 = Math.min(한계, Math.max(0, ...장.글씨.map(t => R.줄너비(ctx, t)))) / 2;
+    장.블록.cx = Math.min(W - 반폭 - W * 0.02, Math.max(반폭 + W * 0.02, 장.블록.cx));
+  }
+  function 위치정하기(pos) {
+    const { w: W, h: H } = 상태.설계.캔버스, 장 = 현재();
+    const 높이 = (장.문구.줄 || []).length * 장.블록.size * (장.블록.줄간격 || 1.15);
+    장.블록.cx = W / 2;
+    const 중심 = pos === 'top' ? H * 0.2 : pos === 'middle' ? H * 0.5 : H * (W > H ? 0.68 : 0.70);
+    const 아래끝 = pos === 'bottom' ? H * (W > H ? 0.90 : 0.86) : H * 0.95;
+    장.블록.y = Math.round(Math.min(아래끝 - 높이, Math.max(H * 0.04, 중심 - 높이 / 2)));
+  }
+
+  /* ---------- 편집 기한 ---------- */
   function 기한표시() {
-    const el = $('deadline');
-    el.classList.remove('soon', 'over');
-    if (!상태.기한) { el.textContent = ''; return; }
-    const 남은ms = 상태.기한.getTime() - Date.now();
-    const 날짜 = `${상태.기한.getMonth() + 1}월 ${상태.기한.getDate()}일 ${String(상태.기한.getHours()).padStart(2, '0')}:${String(상태.기한.getMinutes()).padStart(2, '0')}`;
-    if (상태.기한지남 || 남은ms <= 0) { 상태.기한지남 = true; el.textContent = '편집 기간이 끝났어요'; el.classList.add('over'); return; }
-    const 일 = Math.floor(남은ms / 86400000), 시간 = Math.floor(남은ms / 3600000);
-    el.textContent = `${날짜}까지 편집 · ${일 >= 1 ? 일 + '일' : 시간 >= 1 ? 시간 + '시간' : '1시간 미만'} 남음`;
-    if (남은ms < 2 * 86400000) el.classList.add('soon');
+    const el = $('deadline'); el.classList.remove('soon', 'over');
+    let 글 = '';
+    if (상태.기한) {
+      const 남은ms = 상태.기한.getTime() - Date.now();
+      const 날짜 = `${상태.기한.getMonth() + 1}월 ${상태.기한.getDate()}일 ${String(상태.기한.getHours()).padStart(2, '0')}:${String(상태.기한.getMinutes()).padStart(2, '0')}`;
+      if (상태.기한지남 || 남은ms <= 0) { 상태.기한지남 = true; 글 = '편집 기간이 끝났어요'; el.classList.add('over'); }
+      else {
+        const 일 = Math.floor(남은ms / 86400000), 시간 = Math.floor(남은ms / 3600000);
+        글 = `${날짜}까지 편집 · ${일 >= 1 ? 일 + '일' : 시간 >= 1 ? 시간 + '시간' : '1시간 미만'} 남음`;
+        if (남은ms < 2 * 86400000) el.classList.add('soon');
+      }
+    }
+    el.textContent = 글; $('mdead').textContent = 글;
   }
 
-  /* ---------- 내 사진 (서버로 보내지 않음, 지문만 셈) ---------- */
+  /* ---------- 내 사진 ---------- */
   function 쓰는지문() {
     const 모음 = new Set(상태.저장된지문);
-    상태.설계.장면.forEach(s => { if (s.배경 && s.배경.종류 === '내사진' && s.배경.지문) 모음.add(s.배경.지문); });
+    상태.설계.장면.forEach(s => { if (내사진장(s) && s.배경.지문) 모음.add(s.배경.지문); });
     return 모음;
-  }
-  function 사진안내() {
-    const n = 쓰는지문().size;
-    $('photo-hint').textContent = `내 사진 ${n}/${상태.사진최대}장 사용 · 사진은 서버로 보내지 않고 이 기기 안에서만 써요. 직접 찍었거나 쓸 권리가 있는 사진만 올려주세요.`;
   }
   async function 사진고르기(file) {
     if (!file || !/^image\//.test(file.type)) return 알림('이미지 파일을 골라주세요.');
@@ -526,105 +663,168 @@
     if (!img) return 알림('사진을 열지 못했어요. 다른 사진을 골라주세요.');
     상태.이미지['local:' + hash] = img;
     const 지금 = 현재().배경;
-    if (지금 && 지금.종류 === '내사진' && 지금.지문 === hash) { 그리기(); 썸네일목록그리기(); return 알림('사진을 다시 불러왔어요.'); }
+    if (지금 && 지금.종류 === '내사진' && 지금.지문 === hash) { 그리기(); 목록그리기(); return 알림('사진을 다시 불러왔어요.'); }
     변경(() => {
       const 이전 = 현재().배경 || {};
       현재().배경 = { 종류: '내사진', 지문: hash, 이름: String(file.name || '').slice(0, 40), 확대: 1, 초점x: 0.5, 초점y: 0.5, 어둡게: 이전.어둡게 || 0 };
-      현재().얼굴 = [];   // 내 사진은 얼굴 위치를 알 수 없어요 (직접 보면서 배치)
+      현재().얼굴 = [];
     });
-    알림('내 사진으로 바꿨어요. 얼굴은 직접 보면서 가리지 않게 배치해 주세요.');
+    알림('내 사진으로 바꿨어요. 글씨가 얼굴을 가리지 않게 직접 옮겨주세요.');
   }
-  const 내사진장 = 장 => !!(장 && 장.배경 && 장.배경.종류 === '내사진');
-  const 사진없음 = 장 => 내사진장(장) && !배경이미지(장);
 
-  /* ---------- 오른쪽 도구 ---------- */
-  function UI만들기() {
-    $('b-photo').addEventListener('click', () => $('f-photo').click());
-    $('f-photo').addEventListener('change', e => { const f = e.target.files && e.target.files[0]; e.target.value = ''; 사진고르기(f); });
-    setInterval(() => { 기한표시(); 버튼상태(); }, 60000);
-    // 글꼴
-    $('fonts').innerHTML = Object.entries(R.글꼴목록).map(([k, f]) => `<button type="button" data-font="${k}" style="font-family:${f.css};font-weight:${f.weight}">${f.이름}</button>`).join('');
-    $('fonts').querySelectorAll('button').forEach(b => b.addEventListener('click', () => 변경(() => { 현재().블록.글꼴 = b.dataset.font; 맞춤크기(); })));
-    // 색
-    const 색버튼 = (el, 목록, 키) => {
-      el.innerHTML = 목록.map(c => `<button type="button" data-c="${c}" style="background:${c}" aria-label="${c}"></button>`).join('');
-      el.querySelectorAll('button').forEach(b => b.addEventListener('click', () => 변경(() => { 현재().블록[키] = b.dataset.c; })));
+  /* ---------- 영상에서 장면 가져오기 ---------- */
+  const vid = $('vid');
+  let 영상모드 = '';   // 'browser' = 브라우저에서 바로 뽑기, 'server' = 서버가 대신 뽑기
+  const 시간글 = t => `${Math.floor(t / 60)}:${String(Math.floor(t % 60)).padStart(2, '0')}.${Math.floor((t * 10) % 10)}`;
+  function 영상정보() {
+    const 남은 = Math.max(0, 상태.캡처최대 - 상태.캡처횟수);
+    if (!상태.재료.영상) { $('video-info').textContent = '이 영상은 장면을 가져올 수 있는 파일이 없어요. (유튜브에만 있거나 보관 기간이 지났어요)'; $('b-open-video').disabled = true; return; }
+    $('b-open-video').disabled = 잠김();
+    $('video-info').textContent = `대부분 바로 가져와져요. 브라우저에서 바로 안 될 때만 서버가 대신 가져오고, 이건 영상당 ${상태.캡처최대}번까지예요 (남은 ${남은}번).`;
+    const caps = 상태.설계.캡처 || [];
+    $('caps-wrap').hidden = !caps.length;
+    장면버튼($('caps'), caps.map((c, i) => ({ src: c.src, 이름: '가져온 장면 ' + (i + 1) })));
+  }
+  function 영상열기() {
+    const src = 상태.재료.영상; if (!src) return;
+    const dlg = $('dlg-video');
+    $('v-note').textContent = '영상을 불러오는 중…';
+    영상모드 = 'browser';
+    $('v-use').disabled = false;
+    vid.crossOrigin = 'anonymous'; vid.src = src; vid.load();
+    vid.onerror = () => {
+      if (vid.crossOrigin) { 영상모드 = 'server'; vid.removeAttribute('crossorigin'); vid.crossOrigin = null; vid.src = src; vid.load(); return; }
+      $('v-note').textContent = '영상을 불러오지 못했어요. 보관 기간이 지났을 수 있어요.';
+      $('v-use').disabled = true;
     };
-    색버튼($('sw-main'), 글자색들, '글자색');
-    색버튼($('sw-accent'), 강조색들, '강조색');
-    // 슬라이더
-    const 슬라이더 = (id, fn) => $(id).addEventListener('input', e => 변경(() => fn(Number(e.target.value)), id));
-    슬라이더('r-size', v => { 현재().블록.size = v; });
-    슬라이더('r-gap', v => { 현재().블록.줄간격 = v; });
-    슬라이더('r-outline', v => { 현재().블록.테두리 = v; });
-    슬라이더('r-zoom', v => { if (현재().배경) 현재().배경.확대 = v; });
-    슬라이더('r-dark', v => { if (현재().배경) 현재().배경.어둡게 = v; });
-    슬라이더('r-shade', v => { 현재().그늘 = { ...(현재().그늘 || { 시작: 0.45 }), 끝불투명도: v }; });
-    $('c-shadow').addEventListener('change', e => 변경(() => { 현재().블록.그림자 = e.target.checked; }));
-    $('b-center').addEventListener('click', () => 변경(() => { 현재().블록.cx = 상태.설계.캔버스.w / 2; }));
-    $('b-lower').addEventListener('click', () => 변경(() => {
-      const { w: W, h: H } = 상태.설계.캔버스, 장 = 현재();
-      const 높이 = (장.문구.줄 || []).length * 장.블록.size * (장.블록.줄간격 || 1.15);
-      장.블록.cx = W / 2;
-      장.블록.y = Math.round(Math.min(H * 0.88 - 높이, Math.max(H * 0.5, H * (W > H ? 0.68 : 0.70) - 높이 / 2)));
+    vid.onloadedmetadata = () => { $('v-seek').max = vid.duration || 1; 시간표시(); };
+    vid.onloadeddata = () => {
+      if (영상모드 === 'browser') { try { const c = document.createElement('canvas'); c.width = c.height = 2; const x = c.getContext('2d'); x.drawImage(vid, 0, 0, 2, 2); x.getImageData(0, 0, 1, 1); } catch (e) { 영상모드 = 'server'; } }
+      const 남은 = Math.max(0, 상태.캡처최대 - 상태.캡처횟수);
+      $('v-note').textContent = 영상모드 === 'browser' ? '원하는 순간에 멈추고 "이 장면 쓰기"를 누르세요.' : `이 영상은 서버가 대신 장면을 가져와요 (10~20초, 남은 ${남은}번).`;
+    };
+    vid.ontimeupdate = 시간표시;
+    vid.onplay = vid.onpause = () => { $('v-play-i').innerHTML = vid.paused ? '<path d="M8 5l11 7-11 7z"/>' : '<path d="M7 5h4v14H7zM13 5h4v14h-4z"/>'; };
+    dlg.showModal();
+  }
+  function 시간표시() { $('v-seek').value = vid.currentTime; $('v-time').textContent = `${시간글(vid.currentTime)} / ${시간글(vid.duration || 0)}`; }
+  function 프레임그리기(v) {
+    const { w: W, h: H } = 상태.설계.캔버스;
+    const c = document.createElement('canvas'); c.width = W; c.height = H;
+    const s = Math.max(W / v.videoWidth, H / v.videoHeight), dw = v.videoWidth * s, dh = v.videoHeight * s;
+    c.getContext('2d').drawImage(v, (W - dw) / 2, (H - dh) / 2, dw, dh);
+    return new Promise(ok => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => ok(null); i.src = c.toDataURL('image/jpeg', 0.92); });
+  }
+  async function 프레임다시뽑기(t) {
+    if (!상태.재료.영상) return null;
+    const v = document.createElement('video'); v.crossOrigin = 'anonymous'; v.muted = true; v.preload = 'auto'; v.src = 상태.재료.영상;
+    try {
+      await new Promise((ok, no) => { v.onloadeddata = ok; v.onerror = no; setTimeout(no, 20000); });
+      await new Promise((ok, no) => { v.onseeked = ok; v.onerror = no; v.currentTime = t; setTimeout(no, 15000); });
+      return await 프레임그리기(v);
+    } catch (e) { return null; }
+  }
+  async function 이장면쓰기() {
+    vid.pause();
+    const t = Math.round(vid.currentTime * 10) / 10;
+    const btn = $('v-use');
+    if (영상모드 === 'browser') {
+      try {
+        const img = await 프레임그리기(vid);
+        if (!img) throw new Error();
+        상태.이미지['frame:' + t.toFixed(1)] = img;
+        변경(() => { const 이전 = 현재().배경 || {}; 현재().배경 = { 종류: '영상장면', 시점: t, 확대: 1, 초점x: 0.5, 초점y: 0.5, 어둡게: 이전.어둡게 || 0 }; 현재().얼굴 = []; });
+        $('dlg-video').close(); 알림(`${시간글(t)} 장면을 배경으로 넣었어요.`); return;
+      } catch (e) { 영상모드 = 'server'; }
+    }
+    if (상태.캡처횟수 >= 상태.캡처최대) return 알림(`서버로 가져오기는 영상당 ${상태.캡처최대}번까지예요. 이미 가져온 장면은 "배경 장면"에서 다시 고를 수 있어요.`);
+    btn.disabled = true; btn.textContent = '가져오는 중… (10~20초)';
+    try {
+      const d = await 요청({ action: 'capture', time: t });
+      상태.캡처횟수 = Number(d.captureCount) || 상태.캡처횟수 + 1;
+      상태.설계.캡처 = [...(상태.설계.캡처 || []), { src: d.url, 시점: t }];
+      변경(() => { const 이전 = 현재().배경 || {}; 현재().배경 = { 종류: 'image', src: d.url, 확대: 1, 초점x: 0.5, 초점y: 0.5, 어둡게: 이전.어둡게 || 0 }; 현재().얼굴 = []; });
+      await 배경준비(현재()); 그리기();
+      $('dlg-video').close(); 알림(`${시간글(t)} 장면을 배경으로 넣었어요.`);
+    } catch (e) { 알림(e.message); }
+    finally { btn.disabled = false; btn.textContent = '이 장면 쓰기'; 영상정보(); }
+  }
+
+  /* ---------- 탭·입력 ---------- */
+  function 탭열기(tab) {
+    상태.탭 = tab;
+    document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', String(t.dataset.tab === tab)));
+    document.querySelectorAll('.pane').forEach(p => { p.hidden = p.dataset.pane !== tab; });
+    if (window.innerWidth <= 900) document.querySelector('aside.panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  function 장면버튼(el, 목록) {
+    const { w: W, h: H } = 상태.설계.캔버스, 지금 = R.배경주소(현재().배경);
+    el.style.setProperty('--ar', `${W}/${H}`);
+    el.innerHTML = 목록.map((c, i) => `<button type="button" data-i="${i}" aria-pressed="${c.src === 지금}" title="${escapeHtml(c.이름)}"><img src="${escapeHtml(c.src)}" alt="${escapeHtml(c.이름)}" loading="lazy">${c.태그 ? `<span class="tag">${escapeHtml(c.태그)}</span>` : ''}</button>`).join('');
+    el.querySelectorAll('button').forEach(b => b.addEventListener('click', async () => {
+      if (잠김()) return;
+      const c = 목록[Number(b.dataset.i)];
+      변경(() => {
+        const 이전 = 현재().배경 || {};
+        현재().배경 = { 종류: 'image', src: c.src, 확대: 1, 초점x: 0.5, 초점y: 0.5, 어둡게: 이전.어둡게 || 0 };
+        const 같은장 = [...상태.설계.장면, ...(상태.자동본.장면 || [])].find(s => s !== 현재() && s.배경 && R.배경주소(s.배경) === c.src && (s.얼굴 || []).length);
+        현재().얼굴 = 같은장 ? 깊은복사(같은장.얼굴) : [];
+      });
+      await 배경준비(현재()); 그리기();
     }));
-    // 툴
-    $('t-undo').addEventListener('click', () => 되돌리기(false));
-    $('t-redo').addEventListener('click', () => 되돌리기(true));
-    $('t-guides').addEventListener('click', () => { 상태.가이드 = !상태.가이드; $('t-guides').setAttribute('aria-pressed', 상태.가이드); 덧그림(); });
-    document.addEventListener('keydown', e => {
-      if (!(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== 'z' || /INPUT|TEXTAREA/.test(document.activeElement.tagName)) return;
-      e.preventDefault(); 되돌리기(e.shiftKey);
-    });
-    // 저장·받기
-    $('b-save').addEventListener('click', 저장하기);
-    $('b-dl').addEventListener('click', () => 받기(현재()));
-    $('b-reset').addEventListener('click', () => {
-      const 자동 = 상태.자동본.장면[상태.장];
-      if (!자동) return;
-      변경(() => { 상태.설계.장면[상태.장] = R.블록채우기({ 캔버스: 상태.설계.캔버스, 장면: [깊은복사(자동)] }).장면[0]; });
-      배경준비(현재()).then(그리기);
-      알림('자동으로 만든 모습으로 되돌렸어요.');
-    });
-    $('dlg-cancel').addEventListener('click', () => $('dlg-save').close());
-    끌기설정();
-    window.addEventListener('resize', () => { 크기맞추기(); 그리기(); });
   }
-
-  // 글씨가 화면 폭을 넘으면 넘지 않을 만큼만 크기를 줄인다 (문구·글꼴을 바꿀 때)
-  function 맞춤크기() {
-    const 장 = 현재(), W = 상태.설계.캔버스.w, 한계 = W * 0.92;
-    장.글씨 = R.블록에서글씨(상태.설계, 장);
-    const 최대폭 = Math.max(0, ...장.글씨.map(t => R.줄너비(ctx, t)));
-    if (최대폭 > 한계) 장.블록.size = Math.max(40, Math.floor(장.블록.size * 한계 / 최대폭));
-    // 가로 가운데를 벗어나 있으면 화면 안으로 들인다
-    const 반폭 = Math.min(한계, 최대폭 * Math.min(1, 한계 / (최대폭 || 1))) / 2;
-    장.블록.cx = Math.min(W - 반폭 - W * 0.02, Math.max(반폭 + W * 0.02, 장.블록.cx));
+  function 배경목록() {
+    const 모음 = [];
+    const 넣기 = (src, 이름, 태그) => { if (src && !src.startsWith('local:') && !src.startsWith('frame:') && !모음.some(x => x.src === src)) 모음.push({ src, 이름, 태그 }); };
+    (상태.자동본.장면 || []).forEach(s => 넣기(R.배경주소(s.배경), '자동 썸네일 ' + s.번호 + ' 배경', 'AI 추천'));
+    (상태.설계.후보 || []).forEach(c => 넣기(c.src, c.설명 || ('장면 ' + c.장면번호)));
+    (상태.재료.장면이미지 || []).forEach(c => 넣기(c.src, c.설명 || ('장면 ' + c.장면번호), '장면 ' + c.장면번호));
+    (상태.설계.캡처 || []).forEach((c, i) => 넣기(c.src, '가져온 장면', '가져옴'));
+    $('scene-count').textContent = 모음.length ? 모음.length + '개' : '';
+    $('scenes-empty').hidden = !!모음.length;
+    장면버튼($('scenes'), 모음);
   }
-
+  function 추천문구() {
+    const 모음 = [];
+    const 넣기 = t => { t = String(t || '').replace(/\s+/g, ' ').trim(); if (t && t.length <= 20 && !모음.includes(t)) 모음.push(t); };
+    [...(상태.자동본.장면 || []), ...상태.설계.장면].forEach(s => 넣기(s.문구 && (s.문구.원문 || (s.문구.줄 || []).join(' '))));
+    넣기(상태.재료.고객문구); 넣기(상태.재료.후킹문구);
+    const 지금 = (현재().문구.줄 || []).join(' ');
+    $('rec-wrap').hidden = !모음.length;
+    $('recs').innerHTML = 모음.slice(0, 6).map((t, i) => `<button class="chip" data-i="${i}" aria-pressed="${t === 지금}">${escapeHtml(t)}</button>`).join('');
+    $('recs').querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+      const t = 모음[Number(b.dataset.i)];
+      변경(() => {
+        const 장 = 현재(), 원본 = [...(상태.자동본.장면 || []), ...상태.설계.장면].find(s => s.문구 && (s.문구.원문 === t) && s.문구.줄);
+        장.문구.줄 = 원본 ? [...원본.문구.줄] : 줄로나누기(t);
+        장.문구.원문 = t;
+        장.블록.강조줄 = Math.min(장.블록.강조줄 || 장.문구.줄.length, 장.문구.줄.length) || 장.문구.줄.length;
+        맞춤크기();
+      });
+    }));
+  }
   function 입력반영() {
     const 장 = 현재(), b = 장.블록;
-    // 문구 줄 (입력 중인 칸은 다시 만들지 않음)
-    const 줄 = [...(장.문구.줄 || [])];
-    while (줄.length < 3) 줄.push('');
+    const 줄 = [...(장.문구.줄 || [])]; while (줄.length < 3) 줄.push('');
     const box = $('lines');
-    if (box.children.length !== 3) {
-      box.innerHTML = [0, 1, 2].map(i => `<div class="line-row" style="margin-bottom:6px"><input type="text" maxlength="14" data-line="${i}" placeholder="${i === 0 ? '첫째 줄' : i === 1 ? '둘째 줄 (선택)' : '셋째 줄 (선택)'}" aria-label="${i + 1}번째 줄"><button type="button" class="star" data-star="${i + 1}" aria-label="${i + 1}번째 줄 강조"><svg viewBox="0 0 24 24"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg></button></div>`).join('');
+    if (!box.children.length) {
+      box.innerHTML = [0, 1, 2].map(i => `<div class="line-row"><input type="text" maxlength="14" data-line="${i}" placeholder="${['첫째 줄', '둘째 줄 (선택)', '셋째 줄 (선택)'][i]}" aria-label="${i + 1}번째 줄"><button type="button" class="star" data-star="${i + 1}" aria-label="${i + 1}번째 줄 강조" title="강조색으로 보여주기"><svg viewBox="0 0 24 24"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg></button></div>`).join('');
       box.querySelectorAll('input').forEach(inp => inp.addEventListener('input', () => 변경(() => {
         const 값 = [...box.querySelectorAll('input')].map(x => x.value.replace(/\s+/g, ' ').trim());
         while (값.length && !값[값.length - 1]) 값.pop();
-        현재().문구.줄 = 값;
+        현재().문구.줄 = 값; 현재().문구.원문 = 값.join(' ');
         if (현재().블록.강조줄 > 값.length) 현재().블록.강조줄 = 값.length;
         맞춤크기();
       }, 'line' + inp.dataset.line)));
-      box.querySelectorAll('.star').forEach(s => s.addEventListener('click', () => 변경(() => {
-        const n = Number(s.dataset.star);
-        현재().블록.강조줄 = 현재().블록.강조줄 === n ? 0 : n;
-      })));
+      box.querySelectorAll('.star').forEach(s => s.addEventListener('click', () => 변경(() => { const n = Number(s.dataset.star); 현재().블록.강조줄 = 현재().블록.강조줄 === n ? 0 : n; })));
     }
     box.querySelectorAll('input').forEach((inp, i) => { if (document.activeElement !== inp) inp.value = 줄[i]; });
     box.querySelectorAll('.star').forEach(s => s.setAttribute('aria-pressed', String(Number(s.dataset.star) === b.강조줄)));
-    // 글씨
+    추천문구();
+    const { w: W, h: H } = 상태.설계.캔버스, 영역 = 블록영역(장);
+    const 중심 = 영역 ? (영역.y + 영역.h / 2) / H : 0.7;
+    const 위치 = 중심 >= 0.6 ? 'bottom' : 중심 >= 0.38 ? 'middle' : 'top';
+    $('pos').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.pos === 위치)));
     $('fonts').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.font === (b.글꼴 || 'Black Han Sans'))));
     const 설정 = (id, v, 표시) => { $(id).value = v; $('o-' + id.slice(2)).textContent = 표시; };
     설정('r-size', b.size, Math.round(b.size) + 'px');
@@ -633,235 +833,242 @@
     $('c-shadow').checked = !!b.그림자;
     $('sw-main').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.c.toUpperCase() === String(b.글자색).toUpperCase())));
     $('sw-accent').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.c.toUpperCase() === String(b.강조색).toUpperCase())));
-    // 배경
     const bg = 장.배경 || {};
     설정('r-zoom', bg.확대 || 1, Math.round((bg.확대 || 1) * 100) + '%');
     설정('r-dark', bg.어둡게 || 0, Math.round((bg.어둡게 || 0) * 100) + '%');
-    설정('r-shade', (장.그늘 && 장.그늘.끝불투명도) || 0, Math.round(((장.그늘 && 장.그늘.끝불투명도) || 0) * 100) + '%');
-    ['r-zoom', 'r-dark'].forEach(id => { $(id).disabled = !장.배경; });
-    배경목록();
+    const 그늘 = (장.그늘 && 장.그늘.끝불투명도) || 0;
+    설정('r-shade', 그늘, Math.round(그늘 * 100) + '%');
+    배경목록(); 영상정보(); 사진상태();
+  }
+  function 사진상태() {
+    const n = 쓰는지문().size;
+    $('photo-lock').style.display = 상태.사진열림 ? 'none' : '';
+    $('photo-locked').hidden = 상태.사진열림;
+    $('photo-open').hidden = !상태.사진열림 && !사진없음(현재());
+    $('photo-hint').textContent = `내 사진 ${n}/${상태.사진최대}장 사용 · 한 번 쓴 사진은 다시 골라도 늘지 않아요.`;
+    $('card-photo').classList.toggle('locked', !상태.사진열림);
+    $('card-photo-t').textContent = 상태.사진열림 ? `영상당 ${상태.사진최대}장까지 · 지금 ${n}장 사용` : '썸네일을 한 번 저장하면 열려요';
   }
 
-  function 배경목록() {
-    const { w: W, h: H } = 상태.설계.캔버스;
-    const 모음 = [];
-    const 넣기 = (src, 이름) => { if (src && !모음.some(x => x.src === src)) 모음.push({ src, 이름 }); };
-    상태.설계.장면.forEach(s => 넣기(R.배경주소(s.배경), '썸네일 ' + s.번호 + ' 배경'));
-    (상태.설계.후보 || []).forEach(c => 넣기(c.src, c.설명 || ('장면 ' + c.장면번호)));
-    const 지금 = R.배경주소(현재().배경);
-    const el = $('bgs');
-    el.style.setProperty('--ar', `${W}/${H}`);
-    el.innerHTML = 모음.length ? 모음.map((c, i) => `<button type="button" data-i="${i}" aria-pressed="${c.src === 지금}" title="${escapeHtml(c.이름)}"><img src="${escapeHtml(c.src)}" alt="${escapeHtml(c.이름)}" loading="lazy"></button>`).join('')
-      : '<p class="hint">바꿀 수 있는 장면 이미지가 없어요.</p>';
-    el.querySelectorAll('button').forEach(b => b.addEventListener('click', async () => {
-      const c = 모음[Number(b.dataset.i)];
-      변경(() => {
-        const 이전 = 현재().배경 || {};
-        현재().배경 = { 종류: 'image', src: c.src, 확대: 1, 초점x: 0.5, 초점y: 0.5, 어둡게: 이전.어둡게 || 0 };
-        // 다른 장면의 얼굴 정보는 맞지 않으므로, 같은 이미지를 쓰는 장의 얼굴 정보를 가져오고 없으면 비운다
-        const 같은장 = 상태.설계.장면.find(s => R.배경주소(s.배경) === c.src && s !== 현재());
-        현재().얼굴 = 같은장 ? 깊은복사(같은장.얼굴 || []) : [];
-      });
-      await 배경준비(현재()); 그리기();
-    }));
+  function UI만들기() {
+    document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => 탭열기(t.dataset.tab)));
+    document.querySelectorAll('.card[data-go]').forEach(c => c.addEventListener('click', () => 탭열기(c.dataset.go)));
+    $('fonts').innerHTML = Object.entries(R.글꼴목록).map(([k, f]) => `<button type="button" data-font="${k}" style="font-family:${f.css};font-weight:${f.weight}">${f.이름}</button>`).join('');
+    $('fonts').querySelectorAll('button').forEach(b => b.addEventListener('click', () => 변경(() => { 현재().블록.글꼴 = b.dataset.font; 맞춤크기(); })));
+    const 색버튼 = (el, 목록, 키) => {
+      el.innerHTML = 목록.map(c => `<button type="button" data-c="${c}" style="background:${c}" aria-label="${c}"></button>`).join('');
+      el.querySelectorAll('button').forEach(b => b.addEventListener('click', () => 변경(() => { 현재().블록[키] = b.dataset.c; if (키 === '강조색' && !현재().블록.강조줄) 현재().블록.강조줄 = (현재().문구.줄 || []).length; })));
+    };
+    색버튼($('sw-main'), 글자색들, '글자색'); 색버튼($('sw-accent'), 강조색들, '강조색');
+    const 슬라이더 = (id, fn) => $(id).addEventListener('input', e => 변경(() => fn(Number(e.target.value)), id));
+    슬라이더('r-size', v => { 현재().블록.size = v; });
+    슬라이더('r-gap', v => { 현재().블록.줄간격 = v; });
+    슬라이더('r-outline', v => { 현재().블록.테두리 = v; });
+    슬라이더('r-zoom', v => { if (현재().배경) 현재().배경.확대 = v; });
+    슬라이더('r-dark', v => { if (현재().배경) 현재().배경.어둡게 = v; });
+    슬라이더('r-shade', v => { 현재().그늘 = { ...(현재().그늘 || { 시작: 0.45 }), 끝불투명도: v }; });
+    $('c-shadow').addEventListener('change', e => 변경(() => { 현재().블록.그림자 = e.target.checked; }));
+    $('pos').querySelectorAll('button').forEach(b => b.addEventListener('click', () => 변경(() => 위치정하기(b.dataset.pos))));
+    $('b-reset').addEventListener('click', async () => {
+      const 자동 = (상태.자동본.장면 || [])[상태.장]; if (!자동) return;
+      변경(() => { 상태.설계.장면[상태.장] = R.블록채우기({ 캔버스: 상태.설계.캔버스, 장면: [깊은복사(자동)] }).장면[0]; });
+      await 배경준비(현재()); 그리기(); 알림('처음 모습으로 되돌렸어요.');
+    });
+    $('t-undo').addEventListener('click', () => 되돌리기(false));
+    $('t-redo').addEventListener('click', () => 되돌리기(true));
+    $('t-guides').addEventListener('click', () => { 상태.가이드 = !상태.가이드; $('t-guides').setAttribute('aria-pressed', 상태.가이드); 덧그림(); });
+    document.addEventListener('keydown', e => {
+      if (!(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== 'z' || /INPUT|TEXTAREA/.test(document.activeElement.tagName)) return;
+      e.preventDefault(); 되돌리기(e.shiftKey);
+    });
+    $('b-photo').addEventListener('click', () => $('f-photo').click());
+    $('f-photo').addEventListener('change', e => { const f = e.target.files && e.target.files[0]; e.target.value = ''; 사진고르기(f); });
+    $('b-open-video').addEventListener('click', 영상열기);
+    $('v-play').addEventListener('click', () => { vid.paused ? vid.play() : vid.pause(); });
+    $('v-seek').addEventListener('input', e => { vid.currentTime = Number(e.target.value); });
+    $('v-back').addEventListener('click', () => { vid.pause(); vid.currentTime = Math.max(0, vid.currentTime - 0.1); });
+    $('v-fwd').addEventListener('click', () => { vid.pause(); vid.currentTime = Math.min(vid.duration || 0, vid.currentTime + 0.1); });
+    $('v-close').addEventListener('click', () => { vid.pause(); $('dlg-video').close(); });
+    $('dlg-video').addEventListener('close', () => vid.pause());
+    $('v-use').addEventListener('click', 이장면쓰기);
+    $('b-save').addEventListener('click', 저장하기);
+    $('dlg-cancel').addEventListener('click', () => $('dlg-save').close());
+    끌기설정();
+    window.addEventListener('resize', () => { 크기맞추기(); 그리기(); });
+    setInterval(() => { 기한표시(); 버튼상태(); }, 60000);
   }
 
-  /* ---------- 끌기: 글씨 옮기기 / 배경 위치 ---------- */
+  /* ---------- 끌기 ---------- */
   function 끌기설정() {
     const fr = $('frame');
-    let 끌기 = null;
-    const 좌표 = e => { const r = fr.getBoundingClientRect(); const s = 상태.화면배율; return { x: (e.clientX - r.left) / s, y: (e.clientY - r.top) / s }; };
-    const 글씨위 = p => { const a = 블록영역(현재()); return a && p.x >= a.x - 10 && p.x <= a.x + a.w + 10 && p.y >= a.y - 10 && p.y <= a.y + a.h + 10; };
+    let 끌기 = null, 움직임 = 0;
+    const 좌표 = e => { const r = fr.getBoundingClientRect(), s = 상태.화면배율; return { x: (e.clientX - r.left) / s, y: (e.clientY - r.top) / s }; };
+    const 글씨위 = p => { const a = 블록영역(현재()); return a && p.x >= a.x - 12 && p.x <= a.x + a.w + 12 && p.y >= a.y - 12 && p.y <= a.y + a.h + 12; };
     fr.addEventListener('pointermove', e => {
-      if (끌기) {
-        const p = 좌표(e), 장 = 현재(), { w: W, h: H } = 상태.설계.캔버스;
-        변경(() => {
-          if (끌기.종류 === 'text') {
-            let cx = 끌기.cx + (p.x - 끌기.x), y = 끌기.y0 + (p.y - 끌기.y);
-            if (Math.abs(cx - W / 2) < W * 0.02) cx = W / 2;   // 가운데에 가까우면 붙인다
-            장.블록.cx = Math.round(cx); 장.블록.y = Math.round(y);
-          } else if (장.배경 && 끌기.img) {
-            const img = 끌기.img, 확대 = 장.배경.확대 || 1;
-            const sc = Math.max(W / img.naturalWidth, H / img.naturalHeight) * 확대;
-            const 남는w = img.naturalWidth * sc - W, 남는h = img.naturalHeight * sc - H;
-            if (남는w > 1) 장.배경.초점x = Math.min(1, Math.max(0, 끌기.fx - (p.x - 끌기.x) / 남는w));
-            if (남는h > 1) 장.배경.초점y = Math.min(1, Math.max(0, 끌기.fy - (p.y - 끌기.y) / 남는h));
-          }
-        }, 'drag-' + 끌기.종류);
-        return;
-      }
       const p = 좌표(e);
-      fr.classList.toggle('over-text', 글씨위(p));
-      fr.classList.toggle('over-bg', !글씨위(p) && !!현재().배경);
+      if (!끌기) { fr.classList.toggle('over-text', !!글씨위(p)); fr.classList.toggle('over-bg', !글씨위(p) && !!현재().배경); return; }
+      움직임 += Math.abs(e.movementX) + Math.abs(e.movementY);
+      if (잠김()) return;
+      const 장 = 현재(), { w: W, h: H } = 상태.설계.캔버스;
+      변경(() => {
+        if (끌기.종류 === 'text') {
+          let cx = 끌기.cx + (p.x - 끌기.x);
+          if (Math.abs(cx - W / 2) < W * 0.02) cx = W / 2;
+          장.블록.cx = Math.round(cx); 장.블록.y = Math.round(끌기.y0 + (p.y - 끌기.y));
+        } else if (장.배경 && 끌기.img) {
+          const img = 끌기.img, sc = Math.max(W / img.naturalWidth, H / img.naturalHeight) * (장.배경.확대 || 1);
+          const 남w = img.naturalWidth * sc - W, 남h = img.naturalHeight * sc - H;
+          if (남w > 1) 장.배경.초점x = Math.min(1, Math.max(0, 끌기.fx - (p.x - 끌기.x) / 남w));
+          if (남h > 1) 장.배경.초점y = Math.min(1, Math.max(0, 끌기.fy - (p.y - 끌기.y) / 남h));
+        }
+      }, 'drag-' + 끌기.종류);
     });
     fr.addEventListener('pointerdown', e => {
+      if (e.target.closest('.float, .empty-bg')) return;
       const p = 좌표(e), 장 = 현재();
+      움직임 = 0;
       if (글씨위(p)) 끌기 = { 종류: 'text', x: p.x, y: p.y, cx: 장.블록.cx, y0: 장.블록.y };
-      else if (장.배경) 끌기 = { 종류: 'bg', x: p.x, y: p.y, fx: 장.배경.초점x ?? 0.5, fy: 장.배경.초점y ?? 0.5, img: 배경이미지(장) };
-      if (끌기) { fr.setPointerCapture(e.pointerId); fr.classList.toggle('dragging-text', 끌기.종류 === 'text'); e.preventDefault(); }
+      else { 끌기 = 장.배경 ? { 종류: 'bg', x: p.x, y: p.y, fx: 장.배경.초점x ?? 0.5, fy: 장.배경.초점y ?? 0.5, img: 배경이미지(장) } : null; }
+      if (끌기) { fr.setPointerCapture(e.pointerId); fr.classList.add('dragging'); e.preventDefault(); }
+      상태.선택 = !!(끌기 && 끌기.종류 === 'text') || (!끌기 && false);
+      if (!끌기 || 끌기.종류 !== 'text') 상태.선택 = false;
+      덧그림();
     });
-    const 끝 = () => { 끌기 = null; fr.classList.remove('dragging-text'); };
+    const 끝 = () => { if (끌기 && 끌기.종류 === 'text' && 움직임 < 4) { 상태.선택 = true; } 끌기 = null; fr.classList.remove('dragging'); 덧그림(); };
     fr.addEventListener('pointerup', 끝); fr.addEventListener('pointercancel', 끝);
   }
 
   /* ---------- 3장 고르기 ---------- */
-  function 썸네일목록그리기() {
-    const el = $('pick');
-    const 장면 = 상태.설계.장면;
-    if (el.querySelectorAll('button').length !== 장면.length) {
-      el.querySelectorAll('button').forEach(b => b.remove());
+  function 목록그리기() {
+    const el = $('pick'), 장면 = 상태.설계.장면;
+    if (el.children.length !== 장면.length) {
+      el.innerHTML = '';
       장면.forEach((s, i) => {
         const b = document.createElement('button');
-        b.type = 'button'; b.dataset.i = i; b.setAttribute('aria-label', `썸네일 ${i + 1} 편집`);
+        b.type = 'button'; b.setAttribute('aria-label', `썸네일 ${i + 1}`);
         b.innerHTML = `<canvas></canvas><span class="n">${i + 1}</span>`;
         b.addEventListener('click', () => 장고르기(i));
         el.appendChild(b);
       });
     }
-    const 저장 = JSON.parse(상태.저장본);
-    el.querySelectorAll('button').forEach((b, i) => {
-      const c = b.querySelector('canvas'), { w: W, h: H } = 상태.설계.캔버스;
-      const hpx = 64, dpr = Math.min(2, window.devicePixelRatio || 1);
+    let 저장 = []; try { 저장 = JSON.parse(상태.저장본 || '[]'); } catch (e) {}
+    const { w: W, h: H } = 상태.설계.캔버스, dpr = Math.min(2, window.devicePixelRatio || 1), hpx = W >= H ? 54 : 84;
+    [...el.children].forEach((b, i) => {
+      const c = b.querySelector('canvas');
       c.width = Math.round(hpx * W / H * dpr); c.height = Math.round(hpx * dpr);
       c.style.width = Math.round(hpx * W / H) + 'px'; c.style.height = hpx + 'px';
       const 장 = 장면[i]; 장.글씨 = R.블록에서글씨(상태.설계, 장);
       R.그리기(c.getContext('2d'), 상태.설계, 장, 배경이미지(장), { 배율: c.width / W });
       const 바뀜 = JSON.stringify({ 블록: 장.블록, 문구: 장.문구 && 장.문구.줄, 배경: 장.배경, 그늘: 장.그늘, 얼굴: 장.얼굴 }) !== JSON.stringify(저장[i]);
-      let dot = b.querySelector('.edited');
-      if (바뀜 && !dot) { dot = document.createElement('span'); dot.className = 'edited'; dot.title = '저장하지 않은 변경'; b.appendChild(dot); }
+      let dot = b.querySelector('.dot');
+      if (바뀜 && !dot) { dot = document.createElement('span'); dot.className = 'dot'; dot.title = '저장하지 않은 변경'; b.appendChild(dot); }
       if (!바뀜 && dot) dot.remove();
+      b.setAttribute('aria-pressed', String(i === 상태.장));
     });
-    픽표시();
   }
-  function 픽표시() { $('pick').querySelectorAll('button').forEach((b, i) => b.setAttribute('aria-pressed', String(i === 상태.장))); }
   async function 장고르기(i) {
-    상태.장 = i;
-    크기맞추기();
-    입력반영();
-    그리기();
-    픽표시();
+    상태.장 = i; 상태.선택 = false;
+    크기맞추기(); 입력반영(); 그리기(); 목록그리기();
     await Promise.all(상태.설계.장면.map(배경준비));
-    그리기(); 썸네일목록그리기();
+    그리기(); 목록그리기();
   }
 
   /* ---------- 버튼 상태 ---------- */
   function 버튼상태() {
     const 남은 = Math.max(0, 상태.최대 - 상태.수정횟수);
     $('quota-n').textContent = 남은;
-    const 문제 = 문제목록();
-    const 막힘 = 문제.some(m => m.막음 && m.종류 !== '사진');
-    const 바뀜 = 수정됨();
-    const 장 = 현재();
-    const 끝남 = 상태.기한지남;
-    const b = $('b-save');
-    if (!바뀜) { b.textContent = '이 썸네일 받기'; b.disabled = 사진없음(장); }
-    else if (끝남) { b.textContent = '편집 기간이 끝났어요'; b.disabled = true; }
-    else if (남은 <= 0) { b.textContent = '저장 횟수를 모두 썼어요'; b.disabled = true; }
-    else { b.textContent = `완성하고 받기 (저장 ${남은}번 남음)`; b.disabled = 막힘 || 사진없음(장); }
-    // 내 사진을 쓴 썸네일은 저장을 거쳐야 받을 수 있다
-    $('b-dl').disabled = 사진없음(장) || (내사진장(장) && 바뀜);
-    $('act-note').textContent = 끝남 ? '영상 완성 후 7일이 지나 편집은 끝났어요. 저장해 둔 썸네일은 계속 받을 수 있어요.'
-      : !바뀜 ? '다시 받기는 저장 횟수에 들어가지 않아요.'
-      : 남은 <= 0 ? '저장된 썸네일은 계속 받을 수 있어요.'
-      : 막힘 ? '위의 경고를 먼저 해결해주세요.'
-      : '고치는 건 몇 번이든 괜찮아요. 완성본을 저장할 때만 1번 줄어요. 3장을 모두 고친 뒤 한 번에 저장해도 1번이에요.';
+    const 장 = 현재(), 문제 = 문제목록();
+    const 막힘 = 문제.some(m => m.막음);
+    const 바뀜 = 수정됨(), 끝남 = 상태.기한지남;
+    const b = $('b-save'), t = $('b-save-t');
+    if (!바뀜) { t.textContent = '받기'; b.disabled = 사진없음(장); b.title = '저장한 썸네일을 기기로 받아요 (횟수에 안 들어가요)'; }
+    else if (끝남) { t.textContent = '편집 기간 끝남'; b.disabled = true; }
+    else if (남은 <= 0) { t.textContent = '저장 횟수를 다 썼어요'; b.disabled = true; }
+    else { t.textContent = '완성하고 받기'; b.disabled = 막힘; b.title = 막힘 ? '아래 경고를 먼저 해결해주세요' : `저장 1번이 사용돼요 (${남은}번 남음)`; }
     $('t-undo').disabled = !상태.기록.length; $('t-redo').disabled = !상태.되돌림.length;
-    // 기간이 끝났거나 횟수를 다 쓰면 고칠 수 있는 도구를 잠근다 (내 사진 다시 고르기는 받기 위해 열어 둔다)
-    const 잠금 = 남은 <= 0 || 끝남;
-    document.querySelectorAll('aside.panel .panel-scroll input, aside.panel .panel-scroll button').forEach(x => {
-      if (x.id === 'b-photo' || x.id === 'f-photo') { x.disabled = 잠금 && !사진없음(장); return; }
+    const 잠금 = 잠김();
+    document.querySelectorAll('aside.panel input, aside.panel .pane button').forEach(x => {
+      if (x.closest('[data-pane="photo"]') && (x.id === 'b-photo' || x.id === 'f-photo')) { x.disabled = 잠금 && !사진없음(장); return; }
+      if (x.classList.contains('card')) { x.disabled = false; return; }
+      if (x.id === 'b-open-video') { x.disabled = 잠금 || !상태.재료.영상; return; }
       x.disabled = 잠금;
     });
-    $('b-reset').disabled = 잠금;
-    사진안내();
+    $('tip').querySelector('span').textContent = 끝남 ? '편집 기간(영상 완성 후 7일)이 끝났어요. 저장해 둔 썸네일은 계속 받을 수 있어요.'
+      : 남은 <= 0 ? '저장 횟수를 모두 썼어요. 저장해 둔 썸네일은 계속 받을 수 있어요.'
+      : 바뀜 ? '고치는 건 몇 번이든 괜찮아요. "완성하고 받기"를 누를 때만 저장 1번이 줄어요.'
+      : '글씨를 누르면 바로 고칠 수 있고, 끌어서 옮길 수 있어요';
   }
 
   /* ---------- 받기·저장 ---------- */
   async function 파일만들기(장, 형식, 품질) {
-    const { w: W, h: H } = 상태.설계.캔버스;
-    const 배율 = W < H ? 1.5 : 1;                 // 쇼츠는 1080×1920, 롱폼은 1280×720으로 내보낸다
-    const c = document.createElement('canvas');
-    c.width = Math.round(W * 배율); c.height = Math.round(H * 배율);
+    const { w: W, h: H } = 상태.설계.캔버스, 배율 = W < H ? 1.5 : 1;
+    const c = document.createElement('canvas'); c.width = Math.round(W * 배율); c.height = Math.round(H * 배율);
     장.글씨 = R.블록에서글씨(상태.설계, 장);
     R.그리기(c.getContext('2d'), 상태.설계, 장, 배경이미지(장), { 배율 });
     return R.파일로(c, 형식, 품질);
   }
-  function 파일이름(장) {
-    const 제목 = String(상태.제목 || '리와인드').replace(/[\\/:*?"<>|#]/g, '').replace(/\s+/g, ' ').trim().slice(0, 40) || '리와인드';
-    return `${제목}_썸네일${장.번호 || 상태.장 + 1}.png`;
-  }
   async function 받기(장) {
     try {
       const blob = await 파일만들기(장, 'image/png');
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href = url; a.download = 파일이름(장);
+      const 제목 = String(상태.제목 || '리와인드').replace(/[\\/:*?"<>|#]/g, '').replace(/\s+/g, ' ').trim().slice(0, 40) || '리와인드';
+      const url = URL.createObjectURL(blob), a = document.createElement('a');
+      a.href = url; a.download = `${제목}_썸네일${장.번호 || 상태.장 + 1}.png`;
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 30000);
       알림('기기에 저장했어요.');
-    } catch (e) {
-      알림('파일을 만들지 못했어요. 배경 이미지를 불러오지 못했을 수 있어요. 새로고침 후 다시 시도해 주세요.');
-    }
+    } catch (e) { 알림('파일을 만들지 못했어요. 배경을 불러오지 못했을 수 있어요. 새로고침 후 다시 시도해 주세요.'); }
   }
   function 저장하기() {
     if (!수정됨()) return 받기(현재());
     const 남은 = 상태.최대 - 상태.수정횟수;
-    $('dlg-save-msg').textContent = `저장 1번이 사용돼요. (남은 저장 ${남은}번 → ${남은 - 1}번) 저장한 뒤 지금 보고 있는 썸네일 ${상태.장 + 1}을 기기로 받아요.`;
+    $('dlg-save-msg').textContent = `저장 1번이 사용돼요 (남은 ${남은}번 → ${남은 - 1}번). 3장 모두 지금 모습으로 저장되고, 보고 있는 썸네일 ${상태.장 + 1}을 기기로 받아요.`;
     $('dlg-yt-row').hidden = !상태.유튜브교체;
-    const dlg = $('dlg-save');
-    const ok = $('dlg-ok');
-    const 새ok = ok.cloneNode(true); ok.replaceWith(새ok);
+    const dlg = $('dlg-save'), ok = $('dlg-ok'), 새ok = ok.cloneNode(true); ok.replaceWith(새ok);
     새ok.addEventListener('click', async () => {
       새ok.disabled = true; 새ok.textContent = '저장하는 중…';
       try {
         const 저장설계 = 깊은복사(상태.설계);
         저장설계.만든곳 = '편집'; 저장설계.편집시각 = new Date().toISOString();
-        저장설계.자동본 = 상태.자동본;
         저장설계.장면.forEach(s => { s.글씨 = R.블록에서글씨(저장설계, s); });
         const body = { action: 'save', design: JSON.stringify(저장설계), scene: 상태.장 + 1 };
         if (상태.유튜브교체 && $('dlg-yt').checked) {
           const jpg = await 파일만들기(현재(), 'image/jpeg', 0.9);
-          body.youtubeImage = await new Promise(ok2 => { const fr = new FileReader(); fr.onload = () => ok2(String(fr.result).split(',')[1]); fr.readAsDataURL(jpg); });
+          body.youtubeImage = await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(String(fr.result).split(',')[1]); fr.readAsDataURL(jpg); });
         }
         const d = await 요청(body);
         상태.수정횟수 = Number(d.editCount) || 상태.수정횟수 + 1;
         상태.저장된지문 = [...쓰는지문()];
+        if (!상태.사진열림) { 상태.사진열림 = true; setTimeout(() => 알림('이제 "내 사진"을 쓸 수 있어요.'), 2500); }
         상태.저장본 = 스냅샷();
         dlg.close();
         await 받기(현재());
-        알림(d.youtube === 'ok' ? '저장했고 유튜브 썸네일도 바꿨어요.' : d.youtube === 'fail' ? '저장했어요. 유튜브 썸네일은 바꾸지 못했어요.' : '저장하고 기기에 받았어요.');
-        그리기(); 썸네일목록그리기();
+        if (d.youtube === 'ok') 알림('저장했고 유튜브 썸네일도 바꿨어요.'); else if (d.youtube === 'fail') 알림('저장했어요. 유튜브 썸네일은 바꾸지 못했어요.');
+        그리기(); 목록그리기(); 입력반영();
       } catch (e) {
         dlg.close();
         if (e.code === 401) { 알림('로그인 시간이 지났어요. 다시 로그인해 주세요.'); sessionStorage.removeItem('rw_id_token'); setTimeout(() => location.reload(), 1500); return; }
-        if (e.code === 'limit') { 상태.수정횟수 = 상태.최대; 버튼상태(); }
-        if (e.code === 'expired') { 상태.기한지남 = true; 기한표시(); 버튼상태(); }
-        알림(e.message);
+        if (e.code === 'limit') 상태.수정횟수 = 상태.최대;
+        if (e.code === 'expired') { 상태.기한지남 = true; 기한표시(); }
+        if (e.code === 'photolocked') 상태.사진열림 = false;
+        버튼상태(); 입력반영(); 알림(e.message);
       }
     });
     dlg.showModal();
   }
-
-  function escapeHtml(s) { return String(s || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 
   /* ---------- 로그인 ---------- */
   function 로그인() {
     화면('scr-login');
     const 준비 = () => {
       if (!(window.google && google.accounts && google.accounts.id)) return setTimeout(준비, 200);
-      google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, auto_select: true, callback: r => {
-        if (!decodeJwt(r.credential)) return;
-        sessionStorage.setItem('rw_id_token', r.credential);
-        시작(r.credential);
-      } });
+      google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, auto_select: true, callback: r => { if (!decodeJwt(r.credential)) return; sessionStorage.setItem('rw_id_token', r.credential); 시작(r.credential); } });
       google.accounts.id.renderButton($('gsi-area'), { theme: 'filled_black', size: 'large', text: 'continue_with', shape: 'pill' });
       try { google.accounts.id.prompt(); } catch (e) {}
     };
     준비();
   }
-  const 저장토큰 = sessionStorage.getItem('rw_id_token');
-  const 정보 = 저장토큰 && decodeJwt(저장토큰);
-  if (정보 && 정보.exp && 정보.exp > Date.now() / 1000 + 120) 시작(저장토큰);
-  else 로그인();
+  const 저장토큰 = sessionStorage.getItem('rw_id_token'), 정보 = 저장토큰 && decodeJwt(저장토큰);
+  if (정보 && 정보.exp && 정보.exp > Date.now() / 1000 + 120) 시작(저장토큰); else 로그인();
 })();
 </script>
 </body>
