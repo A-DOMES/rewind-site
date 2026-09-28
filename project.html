@@ -438,6 +438,12 @@
   .thumb-item figcaption { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 0.86rem; color: var(--ink-dim); }
   .thumb-dl { display: inline-flex; align-items: center; min-height: 36px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line-strong, #4a4038); color: var(--ink); text-decoration: none; font-size: 0.84rem; font-weight: 600; }
   .thumb-dl:hover { border-color: var(--amber); color: var(--amber); }
+  .thumb-edit { margin-top: 16px; display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 12px; border: 1px solid var(--line); text-decoration: none; color: var(--ink); transition: border-color .15s; }
+  .thumb-edit:hover { border-color: var(--amber); }
+  .thumb-edit svg { flex: none; width: 22px; height: 22px; fill: none; stroke: var(--amber); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .thumb-edit span { display: flex; flex-direction: column; line-height: 1.4; }
+  .thumb-edit b { font-weight: 600; font-size: .95rem; }
+  .thumb-edit small { color: var(--ink-faint); font-size: .8rem; }
 
   /* 로그인 만료 알림 */
   #login-expired-bar { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 400; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; justify-content: center; max-width: calc(100% - 32px); padding: 12px 14px 12px 20px; border-radius: 999px; background: var(--bg-raised); border: 1px solid var(--amber); color: var(--ink); font-size: 0.92rem; box-shadow: 0 16px 40px rgba(0,0,0,.35); }
@@ -682,6 +688,10 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
           <span>누르면 크게 볼 수 있어요</span>
         </div>
         <div class="thumb-grid" style="--n:${list.length}">${items}</div>
+        <a class="thumb-edit" href="./editor.html?id=${encodeURIComponent(String(p.id ?? '').replace(/\.0$/, ''))}">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13 7l4 4"/></svg>
+          <span><b>직접 편집하기</b><small>문구·글씨·배경을 바꿔 기기로 바로 받아요 · 저장은 최대 3번</small></span>
+        </a>
       </div>`;
   }
 

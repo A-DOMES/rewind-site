@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>썸네일 편집 — 리와인드</title>
+<link rel="icon" type="image/png" href="./리와인드_로고1_512px.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="./assets/thumb-render.js"></script>
+<style>
+  :root {
+    --bg: #0c0c0c; --bg-raised: #161616; --bg-input: #1c1c1c; --line: #2a2a2a; --line-strong: #3a3a3a;
+    --ink: #f5f3ee; --ink-dim: #a8a49b; --ink-faint: #6f6b62;
+    --amber: #c68a12; --on-amber: #14100a; --err: #e07a68; --ok: #6fae4a; --stage: #050505;
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      --bg: #fbf3e3; --bg-raised: #ffffff; --bg-input: #ffffff; --line: #eadfc4; --line-strong: #d9cba6;
+      --ink: #241c11; --ink-dim: #6b5b3d; --ink-faint: #9c8d6c; --on-amber: #1c1409; --err: #b34a3a; --ok: #4f8a35; --stage: #e9dfc9;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0c0c0c; --bg-raised: #161616; --bg-input: #1c1c1c; --line: #2a2a2a; --line-strong: #3a3a3a;
+    --ink: #f5f3ee; --ink-dim: #a8a49b; --ink-faint: #6f6b62; --on-amber: #14100a; --err: #e07a68; --ok: #6fae4a; --stage: #050505;
+  }
+  :root[data-theme="light"] {
+    --bg: #fbf3e3; --bg-raised: #ffffff; --bg-input: #ffffff; --line: #eadfc4; --line-strong: #d9cba6;
+    --ink: #241c11; --ink-dim: #6b5b3d; --ink-faint: #9c8d6c; --on-amber: #1c1409; --err: #b34a3a; --ok: #4f8a35; --stage: #e9dfc9;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: 'IBM Plex Sans KR', -apple-system, sans-serif; line-height: 1.55; word-break: keep-all; }
+  button, input, select, textarea { font-family: inherit; font-size: inherit; color: inherit; }
+  button { cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+
+  /* 머리 */
+  header.top { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; gap: 14px; padding: calc(12px + env(safe-area-inset-top, 0px)) 20px 12px; border-bottom: 1px solid var(--line); background: color-mix(in srgb, var(--bg) 90%, transparent); backdrop-filter: blur(10px); }
+  .logo { display: flex; align-items: center; gap: 8px; font-family: 'Fraunces', serif; font-weight: 600; text-decoration: none; color: inherit; }
+  .logo img { width: 24px; height: 24px; border-radius: 6px; }
+  .back { color: var(--ink-dim); text-decoration: none; font-size: .9rem; display: inline-flex; align-items: center; gap: 4px; min-height: 36px; }
+  .back:hover { color: var(--ink); }
+  .top-title { flex: 1; min-width: 0; font-size: .92rem; color: var(--ink-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .quota { flex: none; display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--line-strong); font-size: .84rem; color: var(--ink-dim); }
+  .quota b { color: var(--amber); font-weight: 700; }
+  .quota i { display: inline-flex; gap: 3px; }
+  .quota i span { width: 7px; height: 7px; border-radius: 50%; background: var(--amber); }
+  .quota i span.used { background: var(--line-strong); }
+
+  /* 본문 */
+  .ed { display: grid; grid-template-columns: minmax(0, 1fr) 360px; height: calc(100vh - 61px); height: calc(100dvh - 61px); }
+  aside.panel { min-height: 0; overflow: hidden; }
+  .work { min-height: 0; }
+  .work { padding: 20px 24px 28px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+  .pick { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .pick-lbl { font-size: .84rem; color: var(--ink-faint); margin-right: 4px; }
+  .pick button { position: relative; border: 2px solid transparent; border-radius: 8px; padding: 0; background: #000; overflow: hidden; line-height: 0; opacity: .6; transition: opacity .15s, border-color .15s; }
+  .pick button[aria-pressed="true"] { border-color: var(--amber); opacity: 1; }
+  .pick button:hover { opacity: 1; }
+  .pick canvas { display: block; height: 64px; width: auto; }
+  .pick .n { position: absolute; left: 4px; top: 4px; background: rgba(0,0,0,.65); color: #fff; font-size: 11px; line-height: 1; padding: 3px 5px; border-radius: 4px; }
+  .pick .edited { position: absolute; right: 4px; top: 4px; width: 8px; height: 8px; border-radius: 50%; background: var(--amber); }
+
+  .stage { position: relative; flex: 1; min-height: 260px; background: var(--stage); border: 1px solid var(--line); border-radius: 14px; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 18px; }
+  .frame { position: relative; line-height: 0; box-shadow: 0 20px 50px rgba(0,0,0,.45); touch-action: none; user-select: none; -webkit-user-select: none; }
+  .frame canvas { display: block; width: 100%; height: 100%; }
+  .ov { position: absolute; inset: 0; pointer-events: none; }
+  .guide { position: absolute; left: 0; right: 0; border-top: 1px dashed rgba(255,225,77,.7); }
+  .guide span { position: absolute; right: 6px; top: 3px; font-size: 11px; line-height: 1.2; color: rgba(255,225,77,.95); background: rgba(0,0,0,.55); padding: 2px 6px; border-radius: 4px; }
+  .face { position: absolute; border: 2px dashed rgba(255,255,255,.75); border-radius: 50%; }
+  .face.hit { border-color: #ff5a4a; background: rgba(255,90,74,.18); }
+  .sel { position: absolute; border: 1.5px solid var(--amber); border-radius: 4px; box-shadow: 0 0 0 9999px rgba(0,0,0,0); }
+  .sel.bad { border-color: #ff5a4a; }
+  .frame.dragging-text { cursor: grabbing; }
+  .frame.over-text { cursor: grab; }
+  .frame.over-bg { cursor: move; }
+  .hide-guides .guide, .hide-guides .face, .hide-guides .sel { display: none; }
+
+  .under { display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap; justify-content: space-between; }
+  .tools { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--line-strong); background: transparent; font-size: .84rem; color: var(--ink-dim); }
+  .chip:hover { color: var(--ink); border-color: var(--ink-faint); }
+  .chip[aria-pressed="true"] { color: var(--ink); border-color: var(--amber); }
+  .chip:disabled { opacity: .4; cursor: default; }
+  .chip svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .mini { display: flex; gap: 10px; align-items: center; font-size: .78rem; color: var(--ink-faint); }
+  .mini canvas { border-radius: 6px; display: block; }
+  .notes { display: flex; flex-direction: column; gap: 6px; }
+  .note { display: flex; gap: 8px; align-items: flex-start; font-size: .86rem; padding: 9px 12px; border-radius: 10px; background: color-mix(in srgb, var(--err) 12%, transparent); color: var(--ink); border: 1px solid color-mix(in srgb, var(--err) 40%, transparent); }
+  .note.ok { background: color-mix(in srgb, var(--ok) 10%, transparent); border-color: color-mix(in srgb, var(--ok) 35%, transparent); }
+  .note button { margin-left: auto; flex: none; background: none; border: 0; color: var(--ink-dim); text-decoration: underline; font-size: .8rem; padding: 0; }
+
+  /* 오른쪽 도구 */
+  aside.panel { border-left: 1px solid var(--line); background: var(--bg-raised); display: flex; flex-direction: column; min-height: 0; }
+  .panel-scroll { flex: 1; overflow-y: auto; padding: 6px 20px 20px; }
+  details.sec { border-bottom: 1px solid var(--line); padding: 4px 0; }
+  details.sec > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 12px 0; font-weight: 600; font-size: .95rem; }
+  details.sec > summary::-webkit-details-marker { display: none; }
+  details.sec > summary::after { content: ''; margin-left: auto; width: 8px; height: 8px; border-right: 2px solid var(--ink-faint); border-bottom: 2px solid var(--ink-faint); transform: rotate(45deg); transition: transform .15s; }
+  details.sec[open] > summary::after { transform: rotate(-135deg); }
+  .sec-body { display: flex; flex-direction: column; gap: 14px; padding: 2px 0 16px; }
+  .fld { display: flex; flex-direction: column; gap: 6px; }
+  .fld > label, .fld > .lbl { font-size: .8rem; color: var(--ink-dim); display: flex; justify-content: space-between; }
+  .fld > label output { color: var(--ink); font-variant-numeric: tabular-nums; }
+  .line-row { display: flex; gap: 8px; align-items: center; }
+  .line-row input[type=text] { flex: 1; min-width: 0; height: 42px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line-strong); background: var(--bg-input); }
+  .line-row input[type=text]:focus { border-color: var(--amber); outline: none; }
+  .star { flex: none; width: 42px; height: 42px; border-radius: 10px; border: 1px solid var(--line-strong); background: transparent; display: grid; place-items: center; color: var(--ink-faint); }
+  .star[aria-pressed="true"] { border-color: #ffe14d; color: #ffe14d; background: rgba(255,225,77,.08); }
+  .star svg { width: 18px; height: 18px; fill: currentColor; }
+  .hint { font-size: .78rem; color: var(--ink-faint); margin: 0; }
+  .seg { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+  .seg button { min-height: 40px; border-radius: 10px; border: 1px solid var(--line-strong); background: transparent; font-size: .86rem; }
+  .seg button[aria-pressed="true"] { border-color: var(--amber); background: color-mix(in srgb, var(--amber) 12%, transparent); }
+  input[type=range] { width: 100%; accent-color: var(--amber); height: 28px; }
+  .sw { display: flex; gap: 8px; flex-wrap: wrap; }
+  .sw button { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--line-strong); padding: 0; }
+  .sw button[aria-pressed="true"] { border-color: var(--ink); box-shadow: 0 0 0 2px var(--bg-raised), 0 0 0 4px var(--amber); }
+  .toggle { display: flex; align-items: center; justify-content: space-between; min-height: 40px; font-size: .9rem; }
+  .toggle input { width: 20px; height: 20px; accent-color: var(--amber); }
+  .bgs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .bgs button { padding: 0; border: 2px solid transparent; border-radius: 8px; overflow: hidden; background: #000; aspect-ratio: var(--ar, 9/16); }
+  .bgs button[aria-pressed="true"] { border-color: var(--amber); }
+  .bgs img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+
+  .actions { border-top: 1px solid var(--line); padding: 14px 20px calc(14px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 8px; background: var(--bg-raised); }
+  .btn { min-height: 48px; border-radius: 12px; border: 1px solid var(--line-strong); background: transparent; font-weight: 600; font-size: .95rem; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 0 16px; }
+  .btn.primary { background: var(--amber); color: var(--on-amber); border-color: var(--amber); }
+  .btn:disabled { opacity: .45; cursor: default; }
+  .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .btn.small { min-height: 40px; font-size: .86rem; font-weight: 500; }
+  .act-note { font-size: .78rem; color: var(--ink-faint); text-align: center; margin: 0; }
+
+  /* 상태 화면 */
+  .screen { max-width: 440px; margin: 12vh auto 0; padding: 0 20px; text-align: center; }
+  .screen h1 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 1.6rem; margin: 0 0 10px; }
+  .screen p { color: var(--ink-dim); margin: 0 0 20px; }
+  #gsi-area { display: flex; justify-content: center; min-height: 44px; }
+  .spinner { width: 28px; height: 28px; border: 3px solid var(--line-strong); border-top-color: var(--amber); border-radius: 50%; animation: spin 0.9s linear infinite; margin: 0 auto 14px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 60; max-width: min(92vw, 460px); padding: 12px 18px; border-radius: 12px; background: #2a241f; color: #fbf7f0; border: 1px solid #4a4038; font-size: .9rem; box-shadow: 0 8px 24px rgba(0,0,0,.35); display: none; }
+  dialog { border: 1px solid var(--line-strong); border-radius: 16px; background: var(--bg-raised); color: var(--ink); max-width: 400px; width: calc(100% - 32px); padding: 22px; }
+  dialog::backdrop { background: rgba(0,0,0,.55); }
+  dialog h2 { margin: 0 0 8px; font-size: 1.1rem; }
+  dialog p { margin: 0 0 16px; color: var(--ink-dim); font-size: .92rem; }
+
+  @media (max-width: 900px) {
+    .ed { grid-template-columns: 1fr; height: auto; }
+    aside.panel { overflow: visible; }
+    .work { padding: 14px 16px 8px; }
+    .stage { min-height: 0; padding: 12px; }
+    aside.panel { border-left: 0; border-top: 1px solid var(--line); }
+    .panel-scroll { overflow: visible; padding: 0 16px 8px; }
+    .actions { position: sticky; bottom: 0; z-index: 20; padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px)); }
+    .top-title { display: none; }
+    header.top { padding-left: 16px; padding-right: 16px; }
+    .under { flex-direction: column; }
+  }
+</style>
+<script>
+(function(){var K='rw_theme';function g(){try{return localStorage.getItem(K)||'system'}catch(e){return 'system'}}document.documentElement.setAttribute('data-theme',g());})();
+</script>
+</head>
+<body>
+
+<header class="top">
+  <a class="logo" href="./dashboard.html"><img src="./리와인드_로고1_512px.png" alt=""> 리와인드</a>
+  <a class="back" id="back-link" href="./dashboard.html">← 프로젝트로</a>
+  <div class="top-title" id="top-title"></div>
+  <div class="quota" id="quota" hidden aria-live="polite"><span>남은 편집</span><b id="quota-n">3</b><i id="quota-dots"></i></div>
+</header>
+
+<!-- 로그인 / 불러오는 중 / 오류 -->
+<div class="screen" id="scr-login" hidden>
+  <h1>썸네일 편집</h1>
+  <p>신청하실 때 사용한 구글 계정으로 로그인해주세요.</p>
+  <div id="gsi-area"></div>
+</div>
+<div class="screen" id="scr-loading"><div class="spinner" aria-hidden="true"></div><p>썸네일을 불러오고 있어요…</p></div>
+<div class="screen" id="scr-error" hidden><h1 id="err-title">열 수 없어요</h1><p id="err-msg"></p><a class="btn" id="err-back" href="./dashboard.html">내 프로젝트로</a></div>
+
+<!-- 편집 화면 -->
+<main class="ed" id="editor" hidden>
+  <section class="work">
+    <div class="pick" id="pick" role="group" aria-label="편집할 썸네일"><span class="pick-lbl">편집할 썸네일</span></div>
+    <div class="stage" id="stage">
+      <div class="frame" id="frame">
+        <canvas id="cv" aria-label="썸네일 편집 화면"></canvas>
+        <div class="ov" id="ov"></div>
+      </div>
+    </div>
+    <div class="under">
+      <div class="tools">
+        <button class="chip" id="t-undo" disabled title="되돌리기 (Ctrl+Z)"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg>되돌리기</button>
+        <button class="chip" id="t-redo" disabled title="다시 하기 (Ctrl+Shift+Z)"><svg viewBox="0 0 24 24"><path d="M15 14l5-5-5-5"/><path d="M20 9H10a6 6 0 0 0 0 12h3"/></svg>다시 하기</button>
+        <button class="chip" id="t-guides" aria-pressed="true"><svg viewBox="0 0 24 24"><path d="M3 12h18"/><rect x="3" y="4" width="18" height="16" rx="2"/></svg>안내선</button>
+      </div>
+      <div class="mini"><span>목록에서 보이는 크기</span><canvas id="mini" aria-label="작게 본 모습"></canvas></div>
+    </div>
+    <div class="notes" id="notes" aria-live="polite"></div>
+  </section>
+
+  <aside class="panel">
+    <div class="panel-scroll">
+      <details class="sec" open>
+        <summary>문구</summary>
+        <div class="sec-body">
+          <div class="fld">
+            <div class="lbl"><span>한 줄에 짧게, 최대 3줄</span></div>
+            <div id="lines"></div>
+            <p class="hint">★을 누른 줄은 강조색으로 보여요. 짧고 강한 말일수록 잘 눌려요.</p>
+          </div>
+        </div>
+      </details>
+      <details class="sec" open>
+        <summary>글씨</summary>
+        <div class="sec-body">
+          <div class="fld"><div class="lbl">글꼴</div><div class="seg" id="fonts"></div></div>
+          <div class="fld"><label for="r-size">크기 <output id="o-size"></output></label><input type="range" id="r-size" min="40" max="240" step="1"></div>
+          <div class="fld"><label for="r-gap">줄 간격 <output id="o-gap"></output></label><input type="range" id="r-gap" min="0.9" max="1.6" step="0.01"></div>
+          <div class="fld"><label for="r-outline">테두리 두께 <output id="o-outline"></output></label><input type="range" id="r-outline" min="0" max="30" step="1"></div>
+          <label class="toggle"><span>그림자</span><input type="checkbox" id="c-shadow"></label>
+          <div class="fld"><div class="lbl">글자색</div><div class="sw" id="sw-main"></div></div>
+          <div class="fld"><div class="lbl">강조색</div><div class="sw" id="sw-accent"></div></div>
+          <div class="row2">
+            <button class="btn small" id="b-center">가운데 정렬</button>
+            <button class="btn small" id="b-lower">아래쪽 기본 위치</button>
+          </div>
+          <p class="hint">글씨는 끌어서 옮길 수 있어요. 얼굴을 가리면 저장할 수 없어요.</p>
+        </div>
+      </details>
+      <details class="sec">
+        <summary>배경</summary>
+        <div class="sec-body">
+          <div class="fld"><div class="lbl">다른 장면으로 바꾸기</div><div class="bgs" id="bgs"></div></div>
+          <div class="fld"><label for="r-zoom">확대 <output id="o-zoom"></output></label><input type="range" id="r-zoom" min="1" max="2.5" step="0.01"></div>
+          <div class="fld"><label for="r-dark">전체 어둡게 <output id="o-dark"></output></label><input type="range" id="r-dark" min="0" max="0.6" step="0.01"></div>
+          <div class="fld"><label for="r-shade">아래쪽 그늘 <output id="o-shade"></output></label><input type="range" id="r-shade" min="0" max="0.85" step="0.01"></div>
+          <p class="hint">글씨 밖을 끌면 배경 위치가 움직여요. 핵심 대상은 크게, 배경은 조금 어둡게 하면 글씨가 더 잘 보여요.</p>
+        </div>
+      </details>
+    </div>
+    <div class="actions">
+      <button class="btn primary" id="b-save">완성하고 받기</button>
+      <div class="btn-row">
+        <button class="btn small" id="b-reset">자동 썸네일로 되돌리기</button>
+        <button class="btn small" id="b-dl">지금 모습 그대로 받기</button>
+      </div>
+      <p class="act-note" id="act-note"></p>
+    </div>
+  </aside>
+</main>
+
+<dialog id="dlg-save">
+  <h2>편집을 저장할까요?</h2>
+  <p id="dlg-save-msg"></p>
+  <label class="toggle" id="dlg-yt-row" hidden><span>유튜브 썸네일도 이 이미지로 바꾸기</span><input type="checkbox" id="dlg-yt" checked></label>
+  <div class="btn-row" style="margin-top:12px">
+    <button class="btn small" id="dlg-cancel">취소</button>
+    <button class="btn small primary" id="dlg-ok">저장하고 받기</button>
+  </div>
+</dialog>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function () {
+  'use strict';
+  const THUMB_EDIT_WEBHOOK_URL = window.RW_THUMB_EDIT_URL || 'https://bald-buffalo.pikapod.net/webhook/thumb-edit';
+  const GOOGLE_CLIENT_ID = '188637268860-9hj2af4bt8esn506bf5bqs72qnbu0qjs.apps.googleusercontent.com';
+  const R = window.RewindThumb;
+  const $ = id => document.getElementById(id);
+
+  const 글자색들 = ['#FFFFFF', '#FFE14D', '#111111', '#FF4D4D'];
+  const 강조색들 = ['#FFE14D', '#FF4D4D', '#4DD2FF', '#7CFF6B', '#FF8A3D', '#FFFFFF'];
+
+  const 상태 = {
+    idToken: '', id: '', 제목: '', 설계: null, 자동본: null, 저장본: '', 장: 0,
+    수정횟수: 0, 최대: 3, 유튜브교체: false, 이미지: {}, 기록: [], 되돌림: [], 가이드: true
+  };
+
+  /* ---------- 공통 ---------- */
+  function 알림(text) {
+    const t = $('toast'); t.textContent = text; t.style.display = 'block';
+    clearTimeout(t._h); t._h = setTimeout(() => { t.style.display = 'none'; }, 4500);
+  }
+  function 화면(name) {
+    ['scr-login', 'scr-loading', 'scr-error'].forEach(k => { $(k).hidden = k !== name; });
+    $('editor').hidden = name !== 'editor';
+    $('quota').hidden = name !== 'editor';
+  }
+  function 오류(제목, 내용) { $('err-title').textContent = 제목; $('err-msg').textContent = 내용; 화면('scr-error'); }
+  function decodeJwt(t) { try { return JSON.parse(decodeURIComponent(escape(atob(t.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))))); } catch (e) { return null; } }
+  const 깊은복사 = o => JSON.parse(JSON.stringify(o));
+  async function 요청(body) {
+    const res = await fetch(THUMB_EDIT_WEBHOOK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idToken: 상태.idToken, id: 상태.id, ...body }) });
+    const data = await res.json().catch(() => null);
+    if (!res.ok || !data || data.ok === false) {
+      const e = new Error((data && data.message) || '서버에 연결하지 못했어요. 잠시 뒤 다시 시도해 주세요.');
+      e.code = (data && data.code) || res.status; throw e;
+    }
+    return data;
+  }
+  const 중계 = url => 요청({ action: 'image', url }).then(d => d.dataUrl || null);
+
+  /* ---------- 불러오기 ---------- */
+  async function 시작(idToken) {
+    상태.idToken = idToken;
+    상태.id = new URLSearchParams(location.search).get('id') || '';
+    $('back-link').href = 상태.id ? './project.html?id=' + encodeURIComponent(상태.id) : './dashboard.html';
+    $('err-back').href = $('back-link').href;
+    if (!상태.id) return 오류('프로젝트를 찾을 수 없어요', '프로젝트 화면의 "썸네일 편집" 버튼으로 들어와 주세요.');
+    화면('scr-loading');
+    let d;
+    try { d = await 요청({ action: 'load' }); }
+    catch (e) {
+      if (e.code === 401) { sessionStorage.removeItem('rw_id_token'); return 로그인(); }
+      return 오류('열 수 없어요', e.message);
+    }
+    let 설계;
+    try { 설계 = typeof d.design === 'string' ? JSON.parse(d.design) : d.design; } catch (e) { 설계 = null; }
+    if (!설계 || !설계.캔버스 || !Array.isArray(설계.장면) || !설계.장면.length) {
+      return 오류('아직 편집할 썸네일이 없어요', '자동 썸네일이 만들어진 뒤에 편집할 수 있어요. 영상이 완성되고 몇 분 뒤 다시 들어와 주세요.');
+    }
+    R.블록채우기(설계);
+    설계.장면.forEach(장 => { if (장.블록) 장.글씨 = R.블록에서글씨(설계, 장); });
+    상태.설계 = 설계;
+    상태.자동본 = 깊은복사(설계.자동본 || 설계);
+    delete 상태.자동본.자동본;
+    상태.저장본 = 스냅샷();
+    상태.수정횟수 = Number(d.editCount) || 0;
+    상태.최대 = Number(d.maxEdits) || 3;
+    상태.유튜브교체 = !!d.youtubeReplace;
+    상태.제목 = d.title || '';
+    $('top-title').textContent = 상태.제목;
+    document.title = (상태.제목 ? 상태.제목.slice(0, 24) + ' · ' : '') + '썸네일 편집 — 리와인드';
+    await R.글꼴준비();
+    화면('editor');
+    UI만들기();
+    await 장고르기(0);
+    썸네일목록그리기();
+  }
+
+  /* ---------- 캔버스 ---------- */
+  const cv = $('cv'), ctx = cv.getContext('2d');
+  const mini = $('mini'), mctx = mini.getContext('2d');
+  const 현재 = () => 상태.설계.장면[상태.장];
+
+  function 크기맞추기() {
+    const { w, h } = 상태.설계.캔버스;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const st = $('stage').getBoundingClientRect();
+    const maxW = Math.max(160, st.width - 36), maxH = Math.max(200, (window.innerWidth <= 900 ? window.innerHeight * 0.62 : st.height - 36));
+    const s = Math.min(maxW / w, maxH / h);
+    const cw = Math.floor(w * s), ch = Math.floor(h * s);
+    $('frame').style.width = cw + 'px'; $('frame').style.height = ch + 'px';
+    cv.width = Math.round(cw * dpr); cv.height = Math.round(ch * dpr);
+    상태.화면배율 = s; 상태.dpr = dpr;
+    const mw = w >= h ? 168 : 96;
+    mini.width = Math.round(mw * dpr); mini.height = Math.round(mw * h / w * dpr);
+    mini.style.width = mw + 'px'; mini.style.height = Math.round(mw * h / w) + 'px';
+  }
+
+  function 배경이미지(장) {
+    const url = R.배경주소(장.배경);
+    return url ? 상태.이미지[url] || null : null;
+  }
+  async function 배경준비(장) {
+    const url = R.배경주소(장.배경);
+    if (!url || 상태.이미지[url] !== undefined) return;
+    상태.이미지[url] = null;
+    const img = await R.이미지불러오기(url, 중계);
+    상태.이미지[url] = img;
+    if (!img) 알림('배경 이미지를 불러오지 못했어요. 배경 없이 편집할 수 있어요.');
+  }
+
+  function 그리기() {
+    const 장 = 현재();
+    장.글씨 = R.블록에서글씨(상태.설계, 장);
+    R.그리기(ctx, 상태.설계, 장, 배경이미지(장), { 배율: 상태.화면배율 * 상태.dpr });
+    R.그리기(mctx, 상태.설계, 장, 배경이미지(장), { 배율: mini.width / 상태.설계.캔버스.w });
+    덧그림();
+    점검();
+    버튼상태();
+  }
+
+  // 블록의 실제 영역 (설계 좌표)
+  function 블록영역(장) {
+    const 글씨 = 장.글씨 || [];
+    if (!글씨.length) return null;
+    let 폭 = 0;
+    글씨.forEach(t => { 폭 = Math.max(폭, R.줄너비(ctx, t)); });
+    const b = 장.블록;
+    const 높이 = 글씨.length * Math.round(b.size * (b.줄간격 || 1.15));
+    return { x: b.cx - 폭 / 2, y: b.y, w: 폭, h: 높이 };
+  }
+  // 얼굴 영역(원본 이미지 기준)을 배경 확대·이동을 반영한 캔버스 좌표로
+  function 얼굴영역(장) { return (장.얼굴 || []).map(f => R.영역변환(상태.설계, 장, 배경이미지(장), f)); }
+  function 겹침(a, f) {
+    return Math.max(0, Math.min(a.x + a.w, f.x + f.w) - Math.max(a.x, f.x)) * Math.max(0, Math.min(a.y + a.h, f.y + f.h) - Math.max(a.y, f.y)) > 0;
+  }
+
+  function 덧그림() {
+    const 장 = 현재(), { w: W, h: H } = 상태.설계.캔버스, s = 상태.화면배율;
+    const ov = $('ov');
+    const 영역 = 블록영역(장);
+    const 얼굴 = 얼굴영역(장);
+    let html = `<div class="guide" style="top:${(H * 0.5 * s).toFixed(1)}px"><span>화면 절반</span></div>`;
+    얼굴.forEach(f => {
+      const hit = 영역 && 겹침(영역, f);
+      html += `<div class="face${hit ? ' hit' : ''}" style="left:${f.x * s}px;top:${f.y * s}px;width:${f.w * s}px;height:${f.h * s}px"></div>`;
+    });
+    if (영역) {
+      const bad = 얼굴.some(f => 겹침(영역, f)) || 영역.x < 0 || 영역.x + 영역.w > W || 영역.y < 0 || 영역.y + 영역.h > H;
+      html += `<div class="sel${bad ? ' bad' : ''}" style="left:${(영역.x * s - 6).toFixed(1)}px;top:${(영역.y * s - 4).toFixed(1)}px;width:${(영역.w * s + 12).toFixed(1)}px;height:${(영역.h * s + 8).toFixed(1)}px"></div>`;
+    }
+    ov.innerHTML = html;
+    $('frame').classList.toggle('hide-guides', !상태.가이드);
+  }
+
+  /* ---------- 점검: 얼굴 가림, 화면 밖, 줄 수 ---------- */
+  function 문제목록() {
+    const 장 = 현재(), { w: W, h: H } = 상태.설계.캔버스;
+    const 영역 = 블록영역(장);
+    const out = [];
+    if (!영역) out.push({ 종류: '빈문구', 막음: true, 글: '문구가 비어 있어요. 한 줄 이상 적어주세요.' });
+    else {
+      const 가린얼굴 = 얼굴영역(장).map((f, i) => (겹침(영역, f) && f.x < W && f.y < H && f.x + f.w > 0 && f.y + f.h > 0) ? i : -1).filter(i => i >= 0);
+      if (가린얼굴.length) out.push({ 종류: '얼굴', 막음: true, 글: '글씨가 얼굴을 가리고 있어요. 글씨를 옮기거나 작게 해주세요.', 얼굴: 가린얼굴 });
+      if (영역.x < -1 || 영역.x + 영역.w > W + 1) out.push({ 종류: '가로', 막음: true, 글: '글씨가 화면 옆으로 넘쳐요. 크기를 줄이거나 줄을 나눠주세요.' });
+      if (영역.y < 0 || 영역.y + 영역.h > H) out.push({ 종류: '세로', 막음: true, 글: '글씨가 화면 위아래로 넘쳐요.' });
+      else if (영역.y + 영역.h / 2 < H * 0.5) out.push({ 종류: '위쪽', 막음: false, 글: '글씨가 화면 위쪽에 있어요. 아래 절반에 둘 때 더 잘 읽혀요.' });
+      const 글자수 = (장.문구.줄 || []).join('').replace(/\s/g, '').length;
+      if (글자수 > 16) out.push({ 종류: '길이', 막음: false, 글: '문구가 조금 길어요. 2~4단어로 줄이면 작은 화면에서도 잘 읽혀요.' });
+    }
+    return out;
+  }
+  function 점검() {
+    const 목록 = 문제목록();
+    const el = $('notes');
+    el.innerHTML = 목록.map((m, i) => `<div class="note${m.막음 ? '' : ' ok'}"><span>${m.막음 ? '⚠' : 'ℹ'}</span><span>${m.글}</span>${m.종류 === '얼굴' ? `<button type="button" data-face-dismiss="${i}">얼굴 표시가 잘못됐어요</button>` : ''}</div>`).join('');
+    el.querySelectorAll('[data-face-dismiss]').forEach(b => b.addEventListener('click', () => {
+      const m = 목록[Number(b.dataset.faceDismiss)];
+      변경(() => { 현재().얼굴 = (현재().얼굴 || []).filter((_, i) => !m.얼굴.includes(i)); });
+      알림('얼굴 표시를 지웠어요.');
+    }));
+  }
+
+  /* ---------- 변경·기록 ---------- */
+  function 스냅샷() { return JSON.stringify(상태.설계.장면.map(s => ({ 블록: s.블록, 문구: s.문구 && s.문구.줄, 배경: s.배경, 그늘: s.그늘, 얼굴: s.얼굴 }))); }
+  function 변경(fn, 묶음키) {
+    const 전 = JSON.stringify(상태.설계.장면);
+    fn();
+    const 후 = JSON.stringify(상태.설계.장면);
+    if (전 === 후) return;
+    const 지금 = Date.now();
+    const 마지막 = 상태.기록[상태.기록.length - 1];
+    if (!(묶음키 && 마지막 && 마지막.키 === 묶음키 && 지금 - 마지막.t < 800)) 상태.기록.push({ 장면: 전, 장: 상태.장, 키: 묶음키, t: 지금 });
+    else 마지막.t = 지금;
+    if (상태.기록.length > 80) 상태.기록.shift();
+    상태.되돌림 = [];
+    그리기(); 입력반영(); 썸네일목록그리기();
+  }
+  function 되돌리기(앞으로) {
+    const 출발 = 앞으로 ? 상태.되돌림 : 상태.기록, 도착 = 앞으로 ? 상태.기록 : 상태.되돌림;
+    const 항목 = 출발.pop(); if (!항목) return;
+    도착.push({ 장면: JSON.stringify(상태.설계.장면), 장: 상태.장, t: 0 });
+    상태.설계.장면 = JSON.parse(항목.장면);
+    상태.장 = 항목.장;
+    그리기(); 입력반영(); 썸네일목록그리기(); 픽표시();
+  }
+  const 수정됨 = () => 스냅샷() !== 상태.저장본;
+
+  /* ---------- 오른쪽 도구 ---------- */
+  function UI만들기() {
+    // 글꼴
+    $('fonts').innerHTML = Object.entries(R.글꼴목록).map(([k, f]) => `<button type="button" data-font="${k}" style="font-family:${f.css};font-weight:${f.weight}">${f.이름}</button>`).join('');
+    $('fonts').querySelectorAll('button').forEach(b => b.addEventListener('click', () => 변경(() => { 현재().블록.글꼴 = b.dataset.font; 맞춤크기(); })));
+    // 색
+    const 색버튼 = (el, 목록, 키) => {
+      el.innerHTML = 목록.map(c => `<button type="button" data-c="${c}" style="background:${c}" aria-label="${c}"></button>`).join('');
+      el.querySelectorAll('button').forEach(b => b.addEventListener('click', () => 변경(() => { 현재().블록[키] = b.dataset.c; })));
+    };
+    색버튼($('sw-main'), 글자색들, '글자색');
+    색버튼($('sw-accent'), 강조색들, '강조색');
+    // 슬라이더
+    const 슬라이더 = (id, fn) => $(id).addEventListener('input', e => 변경(() => fn(Number(e.target.value)), id));
+    슬라이더('r-size', v => { 현재().블록.size = v; });
+    슬라이더('r-gap', v => { 현재().블록.줄간격 = v; });
+    슬라이더('r-outline', v => { 현재().블록.테두리 = v; });
+    슬라이더('r-zoom', v => { if (현재().배경) 현재().배경.확대 = v; });
+    슬라이더('r-dark', v => { if (현재().배경) 현재().배경.어둡게 = v; });
+    슬라이더('r-shade', v => { 현재().그늘 = { ...(현재().그늘 || { 시작: 0.45 }), 끝불투명도: v }; });
+    $('c-shadow').addEventListener('change', e => 변경(() => { 현재().블록.그림자 = e.target.checked; }));
+    $('b-center').addEventListener('click', () => 변경(() => { 현재().블록.cx = 상태.설계.캔버스.w / 2; }));
+    $('b-lower').addEventListener('click', () => 변경(() => {
+      const { w: W, h: H } = 상태.설계.캔버스, 장 = 현재();
+      const 높이 = (장.문구.줄 || []).length * 장.블록.size * (장.블록.줄간격 || 1.15);
+      장.블록.cx = W / 2;
+      장.블록.y = Math.round(Math.min(H * 0.88 - 높이, Math.max(H * 0.5, H * (W > H ? 0.68 : 0.70) - 높이 / 2)));
+    }));
+    // 툴
+    $('t-undo').addEventListener('click', () => 되돌리기(false));
+    $('t-redo').addEventListener('click', () => 되돌리기(true));
+    $('t-guides').addEventListener('click', () => { 상태.가이드 = !상태.가이드; $('t-guides').setAttribute('aria-pressed', 상태.가이드); 덧그림(); });
+    document.addEventListener('keydown', e => {
+      if (!(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== 'z' || /INPUT|TEXTAREA/.test(document.activeElement.tagName)) return;
+      e.preventDefault(); 되돌리기(e.shiftKey);
+    });
+    // 저장·받기
+    $('b-save').addEventListener('click', 저장하기);
+    $('b-dl').addEventListener('click', () => 받기(현재()));
+    $('b-reset').addEventListener('click', () => {
+      const 자동 = 상태.자동본.장면[상태.장];
+      if (!자동) return;
+      변경(() => { 상태.설계.장면[상태.장] = R.블록채우기({ 캔버스: 상태.설계.캔버스, 장면: [깊은복사(자동)] }).장면[0]; });
+      배경준비(현재()).then(그리기);
+      알림('자동으로 만든 모습으로 되돌렸어요.');
+    });
+    $('dlg-cancel').addEventListener('click', () => $('dlg-save').close());
+    끌기설정();
+    window.addEventListener('resize', () => { 크기맞추기(); 그리기(); });
+  }
+
+  // 글씨가 화면 폭을 넘으면 넘지 않을 만큼만 크기를 줄인다 (문구·글꼴을 바꿀 때)
+  function 맞춤크기() {
+    const 장 = 현재(), W = 상태.설계.캔버스.w, 한계 = W * 0.92;
+    장.글씨 = R.블록에서글씨(상태.설계, 장);
+    const 최대폭 = Math.max(0, ...장.글씨.map(t => R.줄너비(ctx, t)));
+    if (최대폭 > 한계) 장.블록.size = Math.max(40, Math.floor(장.블록.size * 한계 / 최대폭));
+    // 가로 가운데를 벗어나 있으면 화면 안으로 들인다
+    const 반폭 = Math.min(한계, 최대폭 * Math.min(1, 한계 / (최대폭 || 1))) / 2;
+    장.블록.cx = Math.min(W - 반폭 - W * 0.02, Math.max(반폭 + W * 0.02, 장.블록.cx));
+  }
+
+  function 입력반영() {
+    const 장 = 현재(), b = 장.블록;
+    // 문구 줄 (입력 중인 칸은 다시 만들지 않음)
+    const 줄 = [...(장.문구.줄 || [])];
+    while (줄.length < 3) 줄.push('');
+    const box = $('lines');
+    if (box.children.length !== 3) {
+      box.innerHTML = [0, 1, 2].map(i => `<div class="line-row" style="margin-bottom:6px"><input type="text" maxlength="14" data-line="${i}" placeholder="${i === 0 ? '첫째 줄' : i === 1 ? '둘째 줄 (선택)' : '셋째 줄 (선택)'}" aria-label="${i + 1}번째 줄"><button type="button" class="star" data-star="${i + 1}" aria-label="${i + 1}번째 줄 강조"><svg viewBox="0 0 24 24"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg></button></div>`).join('');
+      box.querySelectorAll('input').forEach(inp => inp.addEventListener('input', () => 변경(() => {
+        const 값 = [...box.querySelectorAll('input')].map(x => x.value.replace(/\s+/g, ' ').trim());
+        while (값.length && !값[값.length - 1]) 값.pop();
+        현재().문구.줄 = 값;
+        if (현재().블록.강조줄 > 값.length) 현재().블록.강조줄 = 값.length;
+        맞춤크기();
+      }, 'line' + inp.dataset.line)));
+      box.querySelectorAll('.star').forEach(s => s.addEventListener('click', () => 변경(() => {
+        const n = Number(s.dataset.star);
+        현재().블록.강조줄 = 현재().블록.강조줄 === n ? 0 : n;
+      })));
+    }
+    box.querySelectorAll('input').forEach((inp, i) => { if (document.activeElement !== inp) inp.value = 줄[i]; });
+    box.querySelectorAll('.star').forEach(s => s.setAttribute('aria-pressed', String(Number(s.dataset.star) === b.강조줄)));
+    // 글씨
+    $('fonts').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.font === (b.글꼴 || 'Black Han Sans'))));
+    const 설정 = (id, v, 표시) => { $(id).value = v; $('o-' + id.slice(2)).textContent = 표시; };
+    설정('r-size', b.size, Math.round(b.size) + 'px');
+    설정('r-gap', b.줄간격 || 1.15, (b.줄간격 || 1.15).toFixed(2));
+    설정('r-outline', b.테두리, Math.round(b.테두리) + 'px');
+    $('c-shadow').checked = !!b.그림자;
+    $('sw-main').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.c.toUpperCase() === String(b.글자색).toUpperCase())));
+    $('sw-accent').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.c.toUpperCase() === String(b.강조색).toUpperCase())));
+    // 배경
+    const bg = 장.배경 || {};
+    설정('r-zoom', bg.확대 || 1, Math.round((bg.확대 || 1) * 100) + '%');
+    설정('r-dark', bg.어둡게 || 0, Math.round((bg.어둡게 || 0) * 100) + '%');
+    설정('r-shade', (장.그늘 && 장.그늘.끝불투명도) || 0, Math.round(((장.그늘 && 장.그늘.끝불투명도) || 0) * 100) + '%');
+    ['r-zoom', 'r-dark'].forEach(id => { $(id).disabled = !장.배경; });
+    배경목록();
+  }
+
+  function 배경목록() {
+    const { w: W, h: H } = 상태.설계.캔버스;
+    const 모음 = [];
+    const 넣기 = (src, 이름) => { if (src && !모음.some(x => x.src === src)) 모음.push({ src, 이름 }); };
+    상태.설계.장면.forEach(s => 넣기(R.배경주소(s.배경), '썸네일 ' + s.번호 + ' 배경'));
+    (상태.설계.후보 || []).forEach(c => 넣기(c.src, c.설명 || ('장면 ' + c.장면번호)));
+    const 지금 = R.배경주소(현재().배경);
+    const el = $('bgs');
+    el.style.setProperty('--ar', `${W}/${H}`);
+    el.innerHTML = 모음.length ? 모음.map((c, i) => `<button type="button" data-i="${i}" aria-pressed="${c.src === 지금}" title="${escapeHtml(c.이름)}"><img src="${escapeHtml(c.src)}" alt="${escapeHtml(c.이름)}" loading="lazy"></button>`).join('')
+      : '<p class="hint">바꿀 수 있는 장면 이미지가 없어요.</p>';
+    el.querySelectorAll('button').forEach(b => b.addEventListener('click', async () => {
+      const c = 모음[Number(b.dataset.i)];
+      변경(() => {
+        const 이전 = 현재().배경 || {};
+        현재().배경 = { 종류: 'image', src: c.src, 확대: 1, 초점x: 0.5, 초점y: 0.5, 어둡게: 이전.어둡게 || 0 };
+        // 다른 장면의 얼굴 정보는 맞지 않으므로, 같은 이미지를 쓰는 장의 얼굴 정보를 가져오고 없으면 비운다
+        const 같은장 = 상태.설계.장면.find(s => R.배경주소(s.배경) === c.src && s !== 현재());
+        현재().얼굴 = 같은장 ? 깊은복사(같은장.얼굴 || []) : [];
+      });
+      await 배경준비(현재()); 그리기();
+    }));
+  }
+
+  /* ---------- 끌기: 글씨 옮기기 / 배경 위치 ---------- */
+  function 끌기설정() {
+    const fr = $('frame');
+    let 끌기 = null;
+    const 좌표 = e => { const r = fr.getBoundingClientRect(); const s = 상태.화면배율; return { x: (e.clientX - r.left) / s, y: (e.clientY - r.top) / s }; };
+    const 글씨위 = p => { const a = 블록영역(현재()); return a && p.x >= a.x - 10 && p.x <= a.x + a.w + 10 && p.y >= a.y - 10 && p.y <= a.y + a.h + 10; };
+    fr.addEventListener('pointermove', e => {
+      if (끌기) {
+        const p = 좌표(e), 장 = 현재(), { w: W, h: H } = 상태.설계.캔버스;
+        변경(() => {
+          if (끌기.종류 === 'text') {
+            let cx = 끌기.cx + (p.x - 끌기.x), y = 끌기.y0 + (p.y - 끌기.y);
+            if (Math.abs(cx - W / 2) < W * 0.02) cx = W / 2;   // 가운데에 가까우면 붙인다
+            장.블록.cx = Math.round(cx); 장.블록.y = Math.round(y);
+          } else if (장.배경 && 끌기.img) {
+            const img = 끌기.img, 확대 = 장.배경.확대 || 1;
+            const sc = Math.max(W / img.naturalWidth, H / img.naturalHeight) * 확대;
+            const 남는w = img.naturalWidth * sc - W, 남는h = img.naturalHeight * sc - H;
+            if (남는w > 1) 장.배경.초점x = Math.min(1, Math.max(0, 끌기.fx - (p.x - 끌기.x) / 남는w));
+            if (남는h > 1) 장.배경.초점y = Math.min(1, Math.max(0, 끌기.fy - (p.y - 끌기.y) / 남는h));
+          }
+        }, 'drag-' + 끌기.종류);
+        return;
+      }
+      const p = 좌표(e);
+      fr.classList.toggle('over-text', 글씨위(p));
+      fr.classList.toggle('over-bg', !글씨위(p) && !!현재().배경);
+    });
+    fr.addEventListener('pointerdown', e => {
+      const p = 좌표(e), 장 = 현재();
+      if (글씨위(p)) 끌기 = { 종류: 'text', x: p.x, y: p.y, cx: 장.블록.cx, y0: 장.블록.y };
+      else if (장.배경) 끌기 = { 종류: 'bg', x: p.x, y: p.y, fx: 장.배경.초점x ?? 0.5, fy: 장.배경.초점y ?? 0.5, img: 배경이미지(장) };
+      if (끌기) { fr.setPointerCapture(e.pointerId); fr.classList.toggle('dragging-text', 끌기.종류 === 'text'); e.preventDefault(); }
+    });
+    const 끝 = () => { 끌기 = null; fr.classList.remove('dragging-text'); };
+    fr.addEventListener('pointerup', 끝); fr.addEventListener('pointercancel', 끝);
+  }
+
+  /* ---------- 3장 고르기 ---------- */
+  function 썸네일목록그리기() {
+    const el = $('pick');
+    const 장면 = 상태.설계.장면;
+    if (el.querySelectorAll('button').length !== 장면.length) {
+      el.querySelectorAll('button').forEach(b => b.remove());
+      장면.forEach((s, i) => {
+        const b = document.createElement('button');
+        b.type = 'button'; b.dataset.i = i; b.setAttribute('aria-label', `썸네일 ${i + 1} 편집`);
+        b.innerHTML = `<canvas></canvas><span class="n">${i + 1}</span>`;
+        b.addEventListener('click', () => 장고르기(i));
+        el.appendChild(b);
+      });
+    }
+    const 저장 = JSON.parse(상태.저장본);
+    el.querySelectorAll('button').forEach((b, i) => {
+      const c = b.querySelector('canvas'), { w: W, h: H } = 상태.설계.캔버스;
+      const hpx = 64, dpr = Math.min(2, window.devicePixelRatio || 1);
+      c.width = Math.round(hpx * W / H * dpr); c.height = Math.round(hpx * dpr);
+      c.style.width = Math.round(hpx * W / H) + 'px'; c.style.height = hpx + 'px';
+      const 장 = 장면[i]; 장.글씨 = R.블록에서글씨(상태.설계, 장);
+      R.그리기(c.getContext('2d'), 상태.설계, 장, 배경이미지(장), { 배율: c.width / W });
+      const 바뀜 = JSON.stringify({ 블록: 장.블록, 문구: 장.문구 && 장.문구.줄, 배경: 장.배경, 그늘: 장.그늘, 얼굴: 장.얼굴 }) !== JSON.stringify(저장[i]);
+      let dot = b.querySelector('.edited');
+      if (바뀜 && !dot) { dot = document.createElement('span'); dot.className = 'edited'; dot.title = '저장하지 않은 변경'; b.appendChild(dot); }
+      if (!바뀜 && dot) dot.remove();
+    });
+    픽표시();
+  }
+  function 픽표시() { $('pick').querySelectorAll('button').forEach((b, i) => b.setAttribute('aria-pressed', String(i === 상태.장))); }
+  async function 장고르기(i) {
+    상태.장 = i;
+    크기맞추기();
+    입력반영();
+    그리기();
+    픽표시();
+    await Promise.all(상태.설계.장면.map(배경준비));
+    그리기(); 썸네일목록그리기();
+  }
+
+  /* ---------- 버튼 상태 ---------- */
+  function 버튼상태() {
+    const 남은 = Math.max(0, 상태.최대 - 상태.수정횟수);
+    $('quota-n').textContent = 남은;
+    $('quota-dots').innerHTML = Array.from({ length: 상태.최대 }, (_, i) => `<span class="${i < 상태.수정횟수 ? 'used' : ''}"></span>`).join('');
+    const 막힘 = 문제목록().some(m => m.막음);
+    const 바뀜 = 수정됨();
+    const b = $('b-save');
+    if (!바뀜) { b.textContent = '이 썸네일 받기'; b.disabled = false; }
+    else if (남은 <= 0) { b.textContent = '편집 횟수를 모두 썼어요'; b.disabled = true; }
+    else { b.textContent = `완성하고 받기 (편집 ${남은}번 남음)`; b.disabled = 막힘; }
+    $('act-note').textContent = !바뀜 ? '받기는 횟수에 포함되지 않아요. 원하는 만큼 다시 받을 수 있어요.'
+      : 남은 <= 0 ? '저장된 썸네일은 계속 받을 수 있어요. 지금 모습 그대로 받기는 저장되지 않아요.'
+      : 막힘 ? '위의 경고를 먼저 해결해주세요.'
+      : '저장할 때 편집 1번이 사용돼요. 3장을 모두 고친 뒤 한 번에 저장해도 1번이에요.';
+    $('t-undo').disabled = !상태.기록.length; $('t-redo').disabled = !상태.되돌림.length;
+    // 횟수를 다 쓰면 고칠 수 있는 도구를 잠근다
+    const 잠금 = 남은 <= 0;
+    document.querySelectorAll('aside.panel .panel-scroll input, aside.panel .panel-scroll button').forEach(x => { if (잠금) x.disabled = true; });
+  }
+
+  /* ---------- 받기·저장 ---------- */
+  async function 파일만들기(장, 형식, 품질) {
+    const { w: W, h: H } = 상태.설계.캔버스;
+    const 배율 = W < H ? 1.5 : 1;                 // 쇼츠는 1080×1920, 롱폼은 1280×720으로 내보낸다
+    const c = document.createElement('canvas');
+    c.width = Math.round(W * 배율); c.height = Math.round(H * 배율);
+    장.글씨 = R.블록에서글씨(상태.설계, 장);
+    R.그리기(c.getContext('2d'), 상태.설계, 장, 배경이미지(장), { 배율 });
+    return R.파일로(c, 형식, 품질);
+  }
+  function 파일이름(장) {
+    const 제목 = String(상태.제목 || '리와인드').replace(/[\\/:*?"<>|#]/g, '').replace(/\s+/g, ' ').trim().slice(0, 40) || '리와인드';
+    return `${제목}_썸네일${장.번호 || 상태.장 + 1}.png`;
+  }
+  async function 받기(장) {
+    try {
+      const blob = await 파일만들기(장, 'image/png');
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 파일이름(장);
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 30000);
+      알림('기기에 저장했어요.');
+    } catch (e) {
+      알림('파일을 만들지 못했어요. 배경 이미지를 불러오지 못했을 수 있어요. 새로고침 후 다시 시도해 주세요.');
+    }
+  }
+  function 저장하기() {
+    if (!수정됨()) return 받기(현재());
+    const 남은 = 상태.최대 - 상태.수정횟수;
+    $('dlg-save-msg').textContent = `편집 1번이 사용돼요. (남은 편집 ${남은}번 → ${남은 - 1}번) 저장한 뒤 지금 보고 있는 썸네일 ${상태.장 + 1}을 기기로 받아요.`;
+    $('dlg-yt-row').hidden = !상태.유튜브교체;
+    const dlg = $('dlg-save');
+    const ok = $('dlg-ok');
+    const 새ok = ok.cloneNode(true); ok.replaceWith(새ok);
+    새ok.addEventListener('click', async () => {
+      새ok.disabled = true; 새ok.textContent = '저장하는 중…';
+      try {
+        const 저장설계 = 깊은복사(상태.설계);
+        저장설계.만든곳 = '편집'; 저장설계.편집시각 = new Date().toISOString();
+        저장설계.자동본 = 상태.자동본;
+        저장설계.장면.forEach(s => { s.글씨 = R.블록에서글씨(저장설계, s); });
+        const body = { action: 'save', design: JSON.stringify(저장설계), scene: 상태.장 + 1 };
+        if (상태.유튜브교체 && $('dlg-yt').checked) {
+          const jpg = await 파일만들기(현재(), 'image/jpeg', 0.9);
+          body.youtubeImage = await new Promise(ok2 => { const fr = new FileReader(); fr.onload = () => ok2(String(fr.result).split(',')[1]); fr.readAsDataURL(jpg); });
+        }
+        const d = await 요청(body);
+        상태.수정횟수 = Number(d.editCount) || 상태.수정횟수 + 1;
+        상태.저장본 = 스냅샷();
+        dlg.close();
+        await 받기(현재());
+        알림(d.youtube === 'ok' ? '저장했고 유튜브 썸네일도 바꿨어요.' : d.youtube === 'fail' ? '저장했어요. 유튜브 썸네일은 바꾸지 못했어요.' : '저장하고 기기에 받았어요.');
+        그리기(); 썸네일목록그리기();
+      } catch (e) {
+        dlg.close();
+        if (e.code === 401) { 알림('로그인 시간이 지났어요. 다시 로그인해 주세요.'); sessionStorage.removeItem('rw_id_token'); setTimeout(() => location.reload(), 1500); return; }
+        if (e.code === 'limit') { 상태.수정횟수 = 상태.최대; 버튼상태(); }
+        알림(e.message);
+      }
+    });
+    dlg.showModal();
+  }
+
+  function escapeHtml(s) { return String(s || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+
+  /* ---------- 로그인 ---------- */
+  function 로그인() {
+    화면('scr-login');
+    const 준비 = () => {
+      if (!(window.google && google.accounts && google.accounts.id)) return setTimeout(준비, 200);
+      google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, auto_select: true, callback: r => {
+        if (!decodeJwt(r.credential)) return;
+        sessionStorage.setItem('rw_id_token', r.credential);
+        시작(r.credential);
+      } });
+      google.accounts.id.renderButton($('gsi-area'), { theme: 'filled_black', size: 'large', text: 'continue_with', shape: 'pill' });
+      try { google.accounts.id.prompt(); } catch (e) {}
+    };
+    준비();
+  }
+  const 저장토큰 = sessionStorage.getItem('rw_id_token');
+  const 정보 = 저장토큰 && decodeJwt(저장토큰);
+  if (정보 && 정보.exp && 정보.exp > Date.now() / 1000 + 120) 시작(저장토큰);
+  else 로그인();
+})();
+</script>
+</body>
+</html>
