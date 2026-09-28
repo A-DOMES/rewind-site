@@ -46,9 +46,10 @@
   .top-title { flex: 1; min-width: 0; font-size: .92rem; color: var(--ink-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .quota { flex: none; display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--line-strong); font-size: .84rem; color: var(--ink-dim); }
   .quota b { color: var(--amber); font-weight: 700; }
-  .quota i { display: inline-flex; gap: 3px; }
-  .quota i span { width: 7px; height: 7px; border-radius: 50%; background: var(--amber); }
-  .quota i span.used { background: var(--line-strong); }
+  .quota.soon { border-color: var(--amber); color: var(--ink); }
+  .quota.over { border-color: var(--err); color: var(--err); }
+  .photo-btn { display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .photo-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 
   /* 본문 */
   .ed { display: grid; grid-template-columns: minmax(0, 1fr) 360px; height: calc(100vh - 61px); height: calc(100dvh - 61px); }
@@ -171,7 +172,8 @@
   <a class="logo" href="./dashboard.html"><img src="./리와인드_로고1_512px.png" alt=""> 리와인드</a>
   <a class="back" id="back-link" href="./dashboard.html">← 프로젝트로</a>
   <div class="top-title" id="top-title"></div>
-  <div class="quota" id="quota" hidden aria-live="polite"><span>남은 편집</span><b id="quota-n">3</b><i id="quota-dots"></i></div>
+  <div class="quota" id="deadline" hidden></div>
+  <div class="quota" id="quota" hidden aria-live="polite"><span>남은 저장</span><b id="quota-n">10</b><span>번</span></div>
 </header>
 
 <!-- 로그인 / 불러오는 중 / 오류 -->
@@ -237,6 +239,11 @@
         <summary>배경</summary>
         <div class="sec-body">
           <div class="fld"><div class="lbl">다른 장면으로 바꾸기</div><div class="bgs" id="bgs"></div></div>
+          <div class="fld">
+            <button class="btn small photo-btn" id="b-photo" type="button"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-8 8"/></svg>내 사진으로 바꾸기</button>
+            <input type="file" id="f-photo" accept="image/*" hidden>
+            <p class="hint" id="photo-hint"></p>
+          </div>
           <div class="fld"><label for="r-zoom">확대 <output id="o-zoom"></output></label><input type="range" id="r-zoom" min="1" max="2.5" step="0.01"></div>
           <div class="fld"><label for="r-dark">전체 어둡게 <output id="o-dark"></output></label><input type="range" id="r-dark" min="0" max="0.6" step="0.01"></div>
           <div class="fld"><label for="r-shade">아래쪽 그늘 <output id="o-shade"></output></label><input type="range" id="r-shade" min="0" max="0.85" step="0.01"></div>
@@ -279,7 +286,8 @@
 
   const 상태 = {
     idToken: '', id: '', 제목: '', 설계: null, 자동본: null, 저장본: '', 장: 0,
-    수정횟수: 0, 최대: 3, 유튜브교체: false, 이미지: {}, 기록: [], 되돌림: [], 가이드: true
+    수정횟수: 0, 최대: 10, 유튜브교체: false, 이미지: {}, 기록: [], 되돌림: [], 가이드: true,
+    기한: null, 기한지남: false, 사진최대: 3, 저장된지문: []
   };
 
   /* ---------- 공통 ---------- */
@@ -291,6 +299,7 @@
     ['scr-login', 'scr-loading', 'scr-error'].forEach(k => { $(k).hidden = k !== name; });
     $('editor').hidden = name !== 'editor';
     $('quota').hidden = name !== 'editor';
+    $('deadline').hidden = name !== 'editor' || !$('deadline').textContent;
   }
   function 오류(제목, 내용) { $('err-title').textContent = 제목; $('err-msg').textContent = 내용; 화면('scr-error'); }
   function decodeJwt(t) { try { return JSON.parse(decodeURIComponent(escape(atob(t.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))))); } catch (e) { return null; } }
@@ -333,7 +342,12 @@
     delete 상태.자동본.자동본;
     상태.저장본 = 스냅샷();
     상태.수정횟수 = Number(d.editCount) || 0;
-    상태.최대 = Number(d.maxEdits) || 3;
+    상태.최대 = Number(d.maxEdits) || 10;
+    상태.기한 = d.editUntil ? new Date(d.editUntil) : null;
+    상태.기한지남 = !!d.expired;
+    상태.사진최대 = Number(d.maxPhotos) || 3;
+    상태.저장된지문 = Array.isArray(d.photoHashes) ? d.photoHashes : [];
+    기한표시();
     상태.유튜브교체 = !!d.youtubeReplace;
     상태.제목 = d.title || '';
     $('top-title').textContent = 상태.제목;
@@ -371,7 +385,7 @@
   }
   async function 배경준비(장) {
     const url = R.배경주소(장.배경);
-    if (!url || 상태.이미지[url] !== undefined) return;
+    if (!url || url.startsWith('local:') || 상태.이미지[url] !== undefined) return;
     상태.이미지[url] = null;
     const img = await R.이미지불러오기(url, 중계);
     상태.이미지[url] = img;
@@ -434,6 +448,8 @@
       if (영역.x < -1 || 영역.x + 영역.w > W + 1) out.push({ 종류: '가로', 막음: true, 글: '글씨가 화면 옆으로 넘쳐요. 크기를 줄이거나 줄을 나눠주세요.' });
       if (영역.y < 0 || 영역.y + 영역.h > H) out.push({ 종류: '세로', 막음: true, 글: '글씨가 화면 위아래로 넘쳐요.' });
       else if (영역.y + 영역.h / 2 < H * 0.5) out.push({ 종류: '위쪽', 막음: false, 글: '글씨가 화면 위쪽에 있어요. 아래 절반에 둘 때 더 잘 읽혀요.' });
+      if (사진없음(장)) out.push({ 종류: '사진', 막음: true, 글: '이 썸네일은 내 사진을 썼어요. 받으려면 "내 사진으로 바꾸기"에서 같은 사진을 다시 골라주세요.' });
+      else if (내사진장(장) && 수정됨()) out.push({ 종류: '사진저장', 막음: false, 글: '내 사진을 쓴 썸네일은 저장한 뒤에 받을 수 있어요.' });
       const 글자수 = (장.문구.줄 || []).join('').replace(/\s/g, '').length;
       if (글자수 > 16) out.push({ 종류: '길이', 막음: false, 글: '문구가 조금 길어요. 2~4단어로 줄이면 작은 화면에서도 잘 읽혀요.' });
     }
@@ -475,8 +491,57 @@
   }
   const 수정됨 = () => 스냅샷() !== 상태.저장본;
 
+  /* ---------- 편집 기한 (영상 완성 후 7일) ---------- */
+  function 기한표시() {
+    const el = $('deadline');
+    el.classList.remove('soon', 'over');
+    if (!상태.기한) { el.textContent = ''; return; }
+    const 남은ms = 상태.기한.getTime() - Date.now();
+    const 날짜 = `${상태.기한.getMonth() + 1}월 ${상태.기한.getDate()}일 ${String(상태.기한.getHours()).padStart(2, '0')}:${String(상태.기한.getMinutes()).padStart(2, '0')}`;
+    if (상태.기한지남 || 남은ms <= 0) { 상태.기한지남 = true; el.textContent = '편집 기간이 끝났어요'; el.classList.add('over'); return; }
+    const 일 = Math.floor(남은ms / 86400000), 시간 = Math.floor(남은ms / 3600000);
+    el.textContent = `${날짜}까지 편집 · ${일 >= 1 ? 일 + '일' : 시간 >= 1 ? 시간 + '시간' : '1시간 미만'} 남음`;
+    if (남은ms < 2 * 86400000) el.classList.add('soon');
+  }
+
+  /* ---------- 내 사진 (서버로 보내지 않음, 지문만 셈) ---------- */
+  function 쓰는지문() {
+    const 모음 = new Set(상태.저장된지문);
+    상태.설계.장면.forEach(s => { if (s.배경 && s.배경.종류 === '내사진' && s.배경.지문) 모음.add(s.배경.지문); });
+    return 모음;
+  }
+  function 사진안내() {
+    const n = 쓰는지문().size;
+    $('photo-hint').textContent = `내 사진 ${n}/${상태.사진최대}장 사용 · 사진은 서버로 보내지 않고 이 기기 안에서만 써요. 직접 찍었거나 쓸 권리가 있는 사진만 올려주세요.`;
+  }
+  async function 사진고르기(file) {
+    if (!file || !/^image\//.test(file.type)) return 알림('이미지 파일을 골라주세요.');
+    if (file.size > 20 * 1024 * 1024) return 알림('사진이 너무 커요. 20MB 이하로 골라주세요.');
+    const buf = await file.arrayBuffer();
+    const hash = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', buf))).map(b => b.toString(16).padStart(2, '0')).join('');
+    const 모음 = 쓰는지문();
+    if (!모음.has(hash) && 모음.size >= 상태.사진최대) return 알림(`내 사진은 영상 하나에 ${상태.사진최대}장까지 쓸 수 있어요. 이미 쓴 사진은 다시 골라도 괜찮아요.`);
+    const url = URL.createObjectURL(new Blob([buf], { type: file.type }));
+    const img = await new Promise(ok => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => ok(null); i.src = url; });
+    if (!img) return 알림('사진을 열지 못했어요. 다른 사진을 골라주세요.');
+    상태.이미지['local:' + hash] = img;
+    const 지금 = 현재().배경;
+    if (지금 && 지금.종류 === '내사진' && 지금.지문 === hash) { 그리기(); 썸네일목록그리기(); return 알림('사진을 다시 불러왔어요.'); }
+    변경(() => {
+      const 이전 = 현재().배경 || {};
+      현재().배경 = { 종류: '내사진', 지문: hash, 이름: String(file.name || '').slice(0, 40), 확대: 1, 초점x: 0.5, 초점y: 0.5, 어둡게: 이전.어둡게 || 0 };
+      현재().얼굴 = [];   // 내 사진은 얼굴 위치를 알 수 없어요 (직접 보면서 배치)
+    });
+    알림('내 사진으로 바꿨어요. 얼굴은 직접 보면서 가리지 않게 배치해 주세요.');
+  }
+  const 내사진장 = 장 => !!(장 && 장.배경 && 장.배경.종류 === '내사진');
+  const 사진없음 = 장 => 내사진장(장) && !배경이미지(장);
+
   /* ---------- 오른쪽 도구 ---------- */
   function UI만들기() {
+    $('b-photo').addEventListener('click', () => $('f-photo').click());
+    $('f-photo').addEventListener('change', e => { const f = e.target.files && e.target.files[0]; e.target.value = ''; 사진고르기(f); });
+    setInterval(() => { 기한표시(); 버튼상태(); }, 60000);
     // 글꼴
     $('fonts').innerHTML = Object.entries(R.글꼴목록).map(([k, f]) => `<button type="button" data-font="${k}" style="font-family:${f.css};font-weight:${f.weight}">${f.이름}</button>`).join('');
     $('fonts').querySelectorAll('button').forEach(b => b.addEventListener('click', () => 변경(() => { 현재().블록.글꼴 = b.dataset.font; 맞춤크기(); })));
@@ -683,21 +748,32 @@
   function 버튼상태() {
     const 남은 = Math.max(0, 상태.최대 - 상태.수정횟수);
     $('quota-n').textContent = 남은;
-    $('quota-dots').innerHTML = Array.from({ length: 상태.최대 }, (_, i) => `<span class="${i < 상태.수정횟수 ? 'used' : ''}"></span>`).join('');
-    const 막힘 = 문제목록().some(m => m.막음);
+    const 문제 = 문제목록();
+    const 막힘 = 문제.some(m => m.막음 && m.종류 !== '사진');
     const 바뀜 = 수정됨();
+    const 장 = 현재();
+    const 끝남 = 상태.기한지남;
     const b = $('b-save');
-    if (!바뀜) { b.textContent = '이 썸네일 받기'; b.disabled = false; }
-    else if (남은 <= 0) { b.textContent = '편집 횟수를 모두 썼어요'; b.disabled = true; }
-    else { b.textContent = `완성하고 받기 (편집 ${남은}번 남음)`; b.disabled = 막힘; }
-    $('act-note').textContent = !바뀜 ? '받기는 횟수에 포함되지 않아요. 원하는 만큼 다시 받을 수 있어요.'
-      : 남은 <= 0 ? '저장된 썸네일은 계속 받을 수 있어요. 지금 모습 그대로 받기는 저장되지 않아요.'
+    if (!바뀜) { b.textContent = '이 썸네일 받기'; b.disabled = 사진없음(장); }
+    else if (끝남) { b.textContent = '편집 기간이 끝났어요'; b.disabled = true; }
+    else if (남은 <= 0) { b.textContent = '저장 횟수를 모두 썼어요'; b.disabled = true; }
+    else { b.textContent = `완성하고 받기 (저장 ${남은}번 남음)`; b.disabled = 막힘 || 사진없음(장); }
+    // 내 사진을 쓴 썸네일은 저장을 거쳐야 받을 수 있다
+    $('b-dl').disabled = 사진없음(장) || (내사진장(장) && 바뀜);
+    $('act-note').textContent = 끝남 ? '영상 완성 후 7일이 지나 편집은 끝났어요. 저장해 둔 썸네일은 계속 받을 수 있어요.'
+      : !바뀜 ? '다시 받기는 저장 횟수에 들어가지 않아요.'
+      : 남은 <= 0 ? '저장된 썸네일은 계속 받을 수 있어요.'
       : 막힘 ? '위의 경고를 먼저 해결해주세요.'
-      : '저장할 때 편집 1번이 사용돼요. 3장을 모두 고친 뒤 한 번에 저장해도 1번이에요.';
+      : '고치는 건 몇 번이든 괜찮아요. 완성본을 저장할 때만 1번 줄어요. 3장을 모두 고친 뒤 한 번에 저장해도 1번이에요.';
     $('t-undo').disabled = !상태.기록.length; $('t-redo').disabled = !상태.되돌림.length;
-    // 횟수를 다 쓰면 고칠 수 있는 도구를 잠근다
-    const 잠금 = 남은 <= 0;
-    document.querySelectorAll('aside.panel .panel-scroll input, aside.panel .panel-scroll button').forEach(x => { if (잠금) x.disabled = true; });
+    // 기간이 끝났거나 횟수를 다 쓰면 고칠 수 있는 도구를 잠근다 (내 사진 다시 고르기는 받기 위해 열어 둔다)
+    const 잠금 = 남은 <= 0 || 끝남;
+    document.querySelectorAll('aside.panel .panel-scroll input, aside.panel .panel-scroll button').forEach(x => {
+      if (x.id === 'b-photo' || x.id === 'f-photo') { x.disabled = 잠금 && !사진없음(장); return; }
+      x.disabled = 잠금;
+    });
+    $('b-reset').disabled = 잠금;
+    사진안내();
   }
 
   /* ---------- 받기·저장 ---------- */
@@ -729,7 +805,7 @@
   function 저장하기() {
     if (!수정됨()) return 받기(현재());
     const 남은 = 상태.최대 - 상태.수정횟수;
-    $('dlg-save-msg').textContent = `편집 1번이 사용돼요. (남은 편집 ${남은}번 → ${남은 - 1}번) 저장한 뒤 지금 보고 있는 썸네일 ${상태.장 + 1}을 기기로 받아요.`;
+    $('dlg-save-msg').textContent = `저장 1번이 사용돼요. (남은 저장 ${남은}번 → ${남은 - 1}번) 저장한 뒤 지금 보고 있는 썸네일 ${상태.장 + 1}을 기기로 받아요.`;
     $('dlg-yt-row').hidden = !상태.유튜브교체;
     const dlg = $('dlg-save');
     const ok = $('dlg-ok');
@@ -748,6 +824,7 @@
         }
         const d = await 요청(body);
         상태.수정횟수 = Number(d.editCount) || 상태.수정횟수 + 1;
+        상태.저장된지문 = [...쓰는지문()];
         상태.저장본 = 스냅샷();
         dlg.close();
         await 받기(현재());
@@ -757,6 +834,7 @@
         dlg.close();
         if (e.code === 401) { 알림('로그인 시간이 지났어요. 다시 로그인해 주세요.'); sessionStorage.removeItem('rw_id_token'); setTimeout(() => location.reload(), 1500); return; }
         if (e.code === 'limit') { 상태.수정횟수 = 상태.최대; 버튼상태(); }
+        if (e.code === 'expired') { 상태.기한지남 = true; 기한표시(); 버튼상태(); }
         알림(e.message);
       }
     });

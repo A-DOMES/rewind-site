@@ -578,12 +578,26 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     }
     const list = document.getElementById('project-list');
     list.style.display = 'block';
+
+    // [신규] 프로젝트 번호가 곧 만든 시각이다 (예: 2609191902 → 2026.09.19 19:02, 12자리면 초까지)
+    function 번호시각(id) {
+      const s = String(id ?? '').replace(/\.0$/, '').replace(/\D/g, '');
+      if (s.length < 10) return null;
+      const n = i => Number(s.slice(i, i + 2));
+      const d = new Date(2000 + n(0), n(2) - 1, n(4), n(6), n(8), s.length >= 12 ? n(10) : 0);
+      return isNaN(d.getTime()) || n(2) < 1 || n(2) > 12 ? null : d;
+    }
+    function 날짜시각글(d) {
+      const z = v => String(v).padStart(2, '0');
+      return `${d.getFullYear()}.${z(d.getMonth() + 1)}.${z(d.getDate())} ${z(d.getHours())}:${z(d.getMinutes())}`;
+    }
+    function 만든시각글(p) { const d = 번호시각(p.id); return d ? 날짜시각글(d) : String(p.createdAt || ''); }
     list.innerHTML = projects.map(p => {
       const hasError = (p.errorLog && !String(p.errorLog).startsWith('[안내]')) ? '1' : '0'; // [안내]로 시작하는 메모는 오류가 아님
       const label = hasError === '1' ? '문제 발생' : (STATUS_LABEL[p.status] || p.status || '-');
       const meta = hasError === '1'
         ? `<span class="err">${escapeHtml(p.errorLog)}</span>`
-        : `${escapeHtml(p.form || '쇼츠')} · ${escapeHtml(p.createdAt || '')}`;
+        : `${escapeHtml(p.form || '쇼츠')} · ${escapeHtml(만든시각글(p))}`;
       return `
         <a class="reel-row" href="./project.html?id=${encodeURIComponent(p.id)}" data-status="${escapeHtml(p.status)}" data-error="${hasError}">
           <div class="reel-edge"></div>

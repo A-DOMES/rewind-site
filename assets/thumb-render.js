@@ -53,6 +53,7 @@
 
   function 배경주소(bg) {
     if (!bg) return '';
+    if (bg.종류 === '내사진') return bg.지문 ? 'local:' + bg.지문 : '';   // 고객 기기에만 있는 사진 (서버에 없음)
     if (bg.종류 === 'image') return bg.src || '';
     return bg.정지이미지 || '';   // 영상 구간 배경은 자동 생성 때 만든 '글씨 없는 정지 이미지'를 쓴다
   }

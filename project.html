@@ -440,6 +440,9 @@
   .thumb-dl:hover { border-color: var(--amber); color: var(--amber); }
   .thumb-edit { margin-top: 16px; display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 12px; border: 1px solid var(--line); text-decoration: none; color: var(--ink); transition: border-color .15s; }
   .thumb-edit:hover { border-color: var(--amber); }
+  .thumb-edit.is-over svg { stroke: var(--ink-faint); }
+  .video-note.is-soon strong { color: var(--amber); }
+  .video-note.is-over strong { color: var(--err); }
   .thumb-edit svg { flex: none; width: 22px; height: 22px; fill: none; stroke: var(--amber); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
   .thumb-edit span { display: flex; flex-direction: column; line-height: 1.4; }
   .thumb-edit b { font-weight: 600; font-size: .95rem; }
@@ -620,6 +623,43 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       return JSON.parse(json);
     } catch (e) { return null; }
   }
+
+  // [신규] 프로젝트 번호가 곧 만든 시각이다 (예: 2609191902 → 2026.09.19 19:02, 12자리면 초까지)
+  function 번호시각(id) {
+    const s = String(id ?? '').replace(/\.0$/, '').replace(/\D/g, '');
+    if (s.length < 10) return null;
+    const n = i => Number(s.slice(i, i + 2));
+    const d = new Date(2000 + n(0), n(2) - 1, n(4), n(6), n(8), s.length >= 12 ? n(10) : 0);
+    return isNaN(d.getTime()) || n(2) < 1 || n(2) > 12 ? null : d;
+  }
+  function 날짜시각글(d) {
+    const z = v => String(v).padStart(2, '0');
+    return `${d.getFullYear()}.${z(d.getMonth() + 1)}.${z(d.getDate())} ${z(d.getHours())}:${z(d.getMinutes())}`;
+  }
+  function 만든시각글(p) { const d = 번호시각(p.id); return d ? 날짜시각글(d) : String(p.createdAt || ''); }
+
+  // [신규] 영상 파일 보관 기한: 완성 시각부터 7일 (렌더링 서버가 7일 뒤 파일을 지운다). 썸네일 편집 기한도 같다.
+  const 보관일수 = 7;
+  function 보관기한(p) {
+    const t = Date.parse(String(p.completedAt || ''));
+    return isNaN(t) ? null : new Date(t + 보관일수 * 86400000);
+  }
+  function 남은기간글(d) {
+    const ms = d.getTime() - Date.now();
+    if (ms <= 0) return '';
+    const 일 = Math.floor(ms / 86400000), 시간 = Math.floor(ms / 3600000);
+    return 일 >= 1 ? `${일}일 남음` : 시간 >= 1 ? `${시간}시간 남음` : '1시간 안에 끝나요';
+  }
+  function 짧은날짜(d) { return `${d.getMonth() + 1}월 ${d.getDate()}일 ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; }
+  function 보관안내(p) {
+    const d = 보관기한(p);
+    if (!d) return `<p class="video-note"><strong>렌더링 서버에는 최대 7일까지만 보관</strong>되니, 필요하시면 기간 안에 다운로드해 두세요.</p>`;
+    const 남은 = 남은기간글(d);
+    if (!남은) return `<p class="video-note is-over"><strong>보관 기간(완성 후 7일)이 지나 영상 파일이 삭제됐을 수 있어요.</strong> 다운로드가 안 되면 문의해 주세요.</p>`;
+    const 임박 = d.getTime() - Date.now() < 2 * 86400000;
+    return `<p class="video-note${임박 ? ' is-soon' : ''}"><strong>영상 파일 보관: ${짧은날짜(d)}까지 · ${남은}</strong><br>이후 렌더링 서버에서 자동으로 삭제되니, 기간 안에 다운로드해 두세요.</p>`;
+  }
+
   function escapeHtml(s) {
     return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
@@ -667,6 +707,21 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     }
   });
 
+  // [신규] 썸네일 편집 버튼: 정식 영상만, 완성 후 7일까지 편집 (지난 뒤에도 저장한 썸네일은 편집 창에서 받을 수 있음)
+  function 썸네일편집버튼(p) {
+    if (!p.paid) return '';
+    const href = './editor.html?id=' + encodeURIComponent(String(p.id ?? '').replace(/\.0$/, ''));
+    const d = 보관기한(p), 남은 = d ? 남은기간글(d) : '';
+    const 설명 = !d ? '문구·글씨·배경을 바꿔 기기로 바로 받아요 · 완성 후 7일까지'
+      : 남은 ? `문구·글씨·배경을 바꿔 기기로 바로 받아요 · ${짧은날짜(d)}까지 (${남은})`
+      : '편집 기간(완성 후 7일)이 끝났어요 · 저장해 둔 썸네일은 여기서 받을 수 있어요';
+    return `
+        <a class="thumb-edit${d && !남은 ? ' is-over' : ''}" href="${href}">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13 7l4 4"/></svg>
+          <span><b>${d && !남은 ? '저장한 썸네일 받기' : '직접 편집하기'}</b><small>${설명}</small></span>
+        </a>`;
+  }
+
   function thumbnailPicker(p) {
     const list = String(p.thumbnailUrl || '').split(/[\s,]+/).map(s => s.trim()).filter(s => /^https?:\/\//.test(s)).slice(0, 3);
     if (list.length === 0) return '';
@@ -688,10 +743,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
           <span>누르면 크게 볼 수 있어요</span>
         </div>
         <div class="thumb-grid" style="--n:${list.length}">${items}</div>
-        <a class="thumb-edit" href="./editor.html?id=${encodeURIComponent(String(p.id ?? '').replace(/\.0$/, ''))}">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13 7l4 4"/></svg>
-          <span><b>직접 편집하기</b><small>문구·글씨·배경을 바꿔 기기로 바로 받아요 · 저장은 최대 3번</small></span>
-        </a>
+        ${썸네일편집버튼(p)}
       </div>`;
   }
 
@@ -726,14 +778,15 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
           <a class="btn-primary" href="${escapeHtml(url)}" target="_blank" rel="noopener" ${ytMatch ? '' : `data-dl="${escapeHtml(파일이름(p.title, '영상', url, 'mp4'))}"`}>${ytMatch ? '유튜브에서 보기' : '영상 다운로드'}</a>
         </div>
         ${thumbnailPicker(p)}
-        ${ytMatch ? '' : `<p class="video-note"><strong>렌더링 서버에는 최대 7일까지만 보관</strong>되니, 필요하시면 기간 안에 다운로드해 두세요.</p>`}`;
+        ${ytMatch ? '' : 보관안내(p)}`;
     } else {
       // 체험판 - 원본 다운로드 링크는 노출하지 않고 화면 안에서만 재생
       card.innerHTML = `
         <h2>미리보기가 준비됐어요</h2>
         <p>워터마크가 있는 체험판이에요. 아래에서 바로 확인해보세요.</p>
         ${player}
-        <p class="video-note">마음에 드시면 아래 "정식으로 만들기"에서 워터마크 없는 고화질 버전을 받으실 수 있어요.</p>`;
+        <p class="video-note">마음에 드시면 아래 "정식으로 만들기"에서 워터마크 없는 고화질 버전을 받으실 수 있어요.</p>
+        ${ytMatch ? '' : 보관안내(p)}`;
     }
   }
 
@@ -831,7 +884,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     document.getElementById('crumb-title').textContent = p.title || '주제 준비 중';
     document.getElementById('proj-title').textContent = p.title || '주제 준비 중';
     document.getElementById('proj-form').textContent = p.form || '쇼츠';
-    document.getElementById('proj-date').textContent = p.createdAt ? ('신청일 ' + p.createdAt) : '';
+    document.getElementById('proj-date').textContent = 만든시각글(p) ? ('신청 ' + 만든시각글(p)) : '';
 
     renderVideoCard(p);
     renderStepper(p.status, (p.errorLog && !String(p.errorLog).startsWith('[안내]')) ? p.errorLog : '', p.paid); // [안내] 메모는 오류로 표시하지 않음
