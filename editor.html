@@ -10,6 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="./assets/thumb-render.js"></script>
+<script src="./assets/thumb-help.js"></script>
 <style>
   :root {
     --bg: #0c0c0c; --bg-raised: #161616; --bg-input: #1c1c1c; --line: #2a2a2a; --line-strong: #3a3a3a;
@@ -82,6 +83,13 @@
   .line-row .star { flex: none; width: 46px; height: 100%; border: 0; background: transparent; color: var(--ink-faint); display: grid; place-items: center; }
   .line-row .star svg { width: 18px; height: 18px; fill: currentColor; }
   .line-row .star[aria-pressed="true"] { color: #f5c518; }
+  .line-row .xdel { flex: none; width: 40px; height: 100%; border: 0; border-left: 1px solid var(--line); background: transparent; color: var(--ink-faint); font-size: .9rem; }
+  .line-row .xdel:hover:not(:disabled) { color: var(--err); }
+  .line-row .xdel:disabled { opacity: .3; }
+  .row-actions { display: flex; gap: 6px; flex-wrap: wrap; justify-content: space-between; }
+  .chip.danger:hover:not(:disabled) { color: var(--err); border-color: var(--err); }
+  .box-chip b { color: var(--amber); margin-right: 2px; }
+  .add-chip { border-style: dashed; color: var(--ink); }
   .chips { display: flex; flex-wrap: wrap; gap: 6px; }
   .chip { min-height: 36px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line-strong); background: transparent; font-size: .84rem; color: var(--ink-dim); text-align: left; }
   .chip:hover:not(:disabled) { color: var(--ink); border-color: var(--ink-faint); }
@@ -157,6 +165,29 @@
   .mini { display: flex; gap: 10px; align-items: flex-end; font-size: .74rem; color: var(--ink-faint); text-align: right; line-height: 1.3; }
   .mini canvas { border-radius: 6px; display: block; }
 
+  /* ===== 도움말 대화창 ===== */
+  .help-tab { margin-top: auto; }
+  .help-tab[aria-pressed="true"] { background: var(--sel); color: var(--ink); }
+  .help-tab[aria-pressed="true"] svg.i { stroke: var(--amber); }
+  .app.chat-open { grid-template-columns: 84px 330px minmax(0, 1fr) 360px; }
+  aside.chat { border-left: 1px solid var(--line); background: var(--bg-raised); display: flex; flex-direction: column; min-height: 0; }
+  .chat-head { display: flex; align-items: baseline; gap: 8px; padding: 16px 16px 12px; border-bottom: 1px solid var(--line); }
+  .chat-head b { font-size: 1rem; }
+  .chat-head span { font-size: .78rem; color: var(--ink-faint); }
+  .chat-x { margin-left: auto; border: 1px solid var(--line-strong); background: transparent; border-radius: 999px; padding: 5px 12px; font-size: .8rem; color: var(--ink-dim); }
+  .chat-x:hover { color: var(--ink); }
+  .chat-log { flex: 1; overflow-y: auto; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+  .msg { max-width: 92%; padding: 10px 13px; border-radius: 14px; font-size: .88rem; line-height: 1.6; white-space: pre-line; }
+  .msg.bot { background: var(--bg-input); border: 1px solid var(--line); border-top-left-radius: 4px; align-self: flex-start; }
+  .msg.me { background: color-mix(in srgb, var(--amber) 18%, transparent); border: 1px solid color-mix(in srgb, var(--amber) 35%, transparent); border-top-right-radius: 4px; align-self: flex-end; }
+  .msg .go { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .msg .go button { border: 1px solid var(--amber); background: transparent; color: var(--ink); border-radius: 999px; padding: 4px 11px; font-size: .78rem; }
+  .chat-quick { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 16px; border-top: 1px solid var(--line); max-height: 132px; overflow-y: auto; }
+  .chat-quick .chip { min-height: 32px; padding: 4px 11px; font-size: .78rem; }
+  .chat-form { display: flex; gap: 8px; padding: 10px 16px calc(12px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--line); }
+  .chat-form input { flex: 1; min-width: 0; height: 40px; border-radius: 10px; border: 1px solid var(--line-strong); background: var(--bg-input); padding: 0 12px; font-size: .9rem; outline: none; }
+  .chat-form input:focus { border-color: var(--amber); }
+
   /* ===== 창 ===== */
   dialog { border: 1px solid var(--line-strong); border-radius: 18px; background: var(--bg-raised); color: var(--ink); padding: 20px; width: calc(100% - 32px); max-width: 420px; }
   dialog::backdrop { background: rgba(0,0,0,.6); }
@@ -198,6 +229,9 @@
     .dock { flex-wrap: wrap; }
     .mini { display: none; }
     .mdead { display: block !important; }
+    .help-tab { margin-top: 0; }
+    .app.chat-open { grid-template-columns: none; }
+    aside.chat { position: fixed; left: 0; right: 0; bottom: 0; z-index: 70; height: 72vh; height: 72dvh; border-left: 0; border-top: 1px solid var(--line-strong); border-radius: 18px 18px 0 0; box-shadow: 0 -16px 40px rgba(0,0,0,.4); }
   }
   .mdead { display: none; font-size: .78rem; color: var(--ink-dim); text-align: center; }
 </style>
@@ -227,6 +261,7 @@
     <button class="tab" role="tab" data-tab="bg"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 15l5-5 5 5 3-3 5 5"/></svg>배경 장면</button>
     <button class="tab" role="tab" data-tab="video"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="14" height="14" rx="2"/><path d="M17 10l4-2v8l-4-2"/></svg>영상에서</button>
     <button class="tab" role="tab" data-tab="photo"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>내 사진<svg class="i lock" id="photo-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></button>
+    <button class="tab help-tab" id="b-help" aria-pressed="false" aria-controls="chat"><svg class="i" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.4"/><circle cx="12" cy="14.6" r=".4" fill="currentColor"/></svg>도움말</button>
   </nav>
 
   <aside class="panel">
@@ -234,8 +269,13 @@
     <section class="pane" data-pane="text">
       <div><h2>문구</h2><p class="sub">목록에서 1초 안에 눈에 띄도록 짧고 강하게. 한 줄에 6자 안팎이 가장 잘 읽혀요.</p></div>
       <div class="fld">
-        <div class="lbl"><span>줄마다 입력 (최대 3줄)</span><span>★ 강조할 줄</span></div>
+        <div class="lbl"><span>글씨 상자</span><span>화면 빈 곳을 두 번 눌러도 추가돼요</span></div>
+        <div class="chips" id="boxes"></div>
+      </div>
+      <div class="fld">
+        <div class="lbl"><span id="box-title">문구</span><span>★ 강조 · ✕ 줄 지우기</span></div>
         <div id="lines" style="display:flex;flex-direction:column;gap:8px"></div>
+        <div class="row-actions"><button class="chip" id="b-add-line">＋ 줄 추가</button><button class="chip danger" id="box-del" hidden>이 글씨 상자 지우기</button></div>
       </div>
       <div class="fld" id="rec-wrap"><div class="lbl"><span>추천 문구</span><span>누르면 바로 바뀌어요</span></div><div class="chips" id="recs"></div></div>
       <div class="fld"><div class="lbl"><span>글씨 위치</span></div><div class="chips" id="pos">
@@ -246,7 +286,7 @@
 
     <!-- 글씨 꾸미기 -->
     <section class="pane" data-pane="style" hidden>
-      <div><h2>글씨 꾸미기</h2><p class="sub">채널마다 같은 글꼴·색을 쓰면 썸네일만 봐도 알아봐요.</p></div>
+      <div><h2>글씨 꾸미기</h2><p class="sub">채널마다 같은 글꼴·색을 쓰면 썸네일만 봐도 알아봐요.</p><p class="sub" id="style-for" style="color:var(--amber)"></p></div>
       <div class="fld"><div class="lbl">글꼴</div><div class="seg" id="fonts"></div></div>
       <div class="fld"><div class="lbl"><span>크기</span><output id="o-size"></output></div><input type="range" id="r-size" min="40" max="240" step="1" aria-label="글씨 크기"></div>
       <div class="fld"><div class="lbl"><span>줄 간격</span><output id="o-gap"></output></div><input type="range" id="r-gap" min="0.9" max="1.6" step="0.01" aria-label="줄 간격"></div>
@@ -312,6 +352,13 @@
     </div>
     <p class="mdead" id="mdead"></p>
   </main>
+
+  <aside class="chat" id="chat" hidden aria-label="도움말 대화">
+    <div class="chat-head"><b>도움말</b><span>궁금한 걸 물어보세요</span><button class="chat-x" id="chat-close" aria-label="도움말 닫기">닫기 ✕</button></div>
+    <div class="chat-log" id="chat-log" aria-live="polite"></div>
+    <div class="chat-quick" id="chat-quick"></div>
+    <form class="chat-form" id="chat-form"><input id="chat-in" type="text" maxlength="200" placeholder="예: 글씨를 위에도 넣고 싶어요" aria-label="질문 입력" autocomplete="off"><button class="btn small primary" type="submit">보내기</button></form>
+  </aside>
 </div>
 
 <dialog id="dlg-save">
@@ -350,7 +397,7 @@
   const 강조색들 = ['#FFE14D', '#FF4D4D', '#4DD2FF', '#7CFF6B', '#FF8A3D', '#FFFFFF'];
 
   const 상태 = {
-    idToken: '', id: '', 제목: '', 설계: null, 자동본: null, 저장본: '', 장: 0, 탭: 'text', 선택: false,
+    idToken: '', id: '', 제목: '', 설계: null, 자동본: null, 저장본: '', 장: 0, 상자: 0, 탭: 'text', 선택: false,
     수정횟수: 0, 최대: 10, 유튜브교체: false, 이미지: {}, 기록: [], 되돌림: [], 가이드: true,
     기한: null, 기한지남: false, 사진최대: 3, 저장된지문: [], 사진열림: false, 캡처최대: 5, 캡처횟수: 0, 재료: {}
   };
@@ -466,6 +513,7 @@
     화면('editor');
     UI만들기();
     크기맞추기();
+    상태.상자 = 0;
     if (새로만듦) 상태.설계.장면.forEach((s, k) => { 상태.장 = k; 맞춤크기(); 위치정하기('bottom'); });
     상태.장 = 0;
     // '처음 모습으로 되돌리기'의 기준: 자동 썸네일(없으면 방금 만든 기본 틀)
@@ -479,6 +527,9 @@
   const cv = $('cv'), ctx = cv.getContext('2d');
   const mini = $('mini'), mctx = mini.getContext('2d');
   const 현재 = () => 상태.설계.장면[상태.장];
+  const 상자들 = () => R.상자목록(현재());
+  const 상자 = () => { const 모음 = 상자들(); if (상태.상자 >= 모음.length) 상태.상자 = 0; return 모음[상태.상자]; };
+  const 최대상자 = 10, 최대줄 = 6;
 
   function 크기맞추기() {
     const { w, h } = 상태.설계.캔버스;
@@ -515,32 +566,39 @@
     R.그리기(mctx, 상태.설계, 장, 배경이미지(장), { 배율: mini.width / 상태.설계.캔버스.w });
     덧그림(); 점검(); 버튼상태();
   }
-  function 블록영역(장) {
-    const 글씨 = 장.글씨 || [];
-    if (!글씨.length || !글씨.some(t => t.text)) return null;
+  // 상자 하나가 화면에서 차지하는 영역 (설계 좌표)
+  function 상자영역(b) {
+    const 글씨 = R.상자글씨(상태.설계, b).filter(t => t.text);
+    if (!글씨.length) return null;
     let 폭 = 0; 글씨.forEach(t => { 폭 = Math.max(폭, R.줄너비(ctx, t)); });
-    const b = 장.블록;
-    return { x: b.cx - 폭 / 2, y: b.y, w: 폭, h: 글씨.length * Math.round(b.size * (b.줄간격 || 1.15)) };
+    const 줄높이 = Math.round(b.블록.size * (b.블록.줄간격 || 1.15));
+    return { x: b.블록.cx - 폭 / 2, y: b.블록.y, w: 폭, h: (b.문구.줄 || []).length * 줄높이 };
   }
   function 얼굴영역(장) { return (장.얼굴 || []).map(f => R.영역변환(상태.설계, 장, 배경이미지(장), f)); }
   const 겹침 = (a, f) => Math.max(0, Math.min(a.x + a.w, f.x + f.w) - Math.max(a.x, f.x)) * Math.max(0, Math.min(a.y + a.h, f.y + f.h) - Math.max(a.y, f.y)) > 0;
+  const 넘침 = (a, W, H) => a.x < -1 || a.x + a.w > W + 1 || a.y < 0 || a.y + a.h > H;
 
   function 덧그림() {
     const 장 = 현재(), { w: W, h: H } = 상태.설계.캔버스, s = 상태.화면배율;
-    const 영역 = 블록영역(장), 얼굴 = 얼굴영역(장);
+    const 얼굴 = 얼굴영역(장), 영역들 = 상자들().map(상자영역);
     let html = `<div class="guide" style="top:${(H * 0.5 * s).toFixed(1)}px"><span>화면 절반</span></div>`;
-    얼굴.forEach(f => { html += `<div class="face${영역 && 겹침(영역, f) ? ' hit' : ''}" style="left:${f.x * s}px;top:${f.y * s}px;width:${f.w * s}px;height:${f.h * s}px"></div>`; });
-    if (영역) {
-      const bad = 얼굴.some(f => 겹침(영역, f)) || 영역.x < -1 || 영역.x + 영역.w > W + 1 || 영역.y < 0 || 영역.y + 영역.h > H;
-      const cls = bad ? 'sel bad on' : 상태.선택 ? 'sel on' : 'sel';
-      const L = 영역.x * s - 8, T = 영역.y * s - 6, Wd = 영역.w * s + 16, Hd = 영역.h * s + 12;
-      html += `<div class="${cls}" style="left:${L.toFixed(1)}px;top:${T.toFixed(1)}px;width:${Wd.toFixed(1)}px;height:${Hd.toFixed(1)}px">${상태.선택 ? '<i style="left:-6px;top:-6px"></i><i style="right:-6px;top:-6px"></i><i style="left:-6px;bottom:-6px"></i><i style="right:-6px;bottom:-6px"></i>' : ''}</div>`;
-      if (상태.선택 && !잠김()) {
-        const fx = Math.min(Math.max(L + Wd / 2, 120), W * s - 120), fy = Math.max(T - 8, 46);
-        html += `<div class="float" style="left:${fx}px;top:${fy}px">
-          <button data-f="text">✎ 문구</button><button data-f="minus" aria-label="작게">A−</button><button data-f="plus" aria-label="크게">A+</button><button data-f="color">● 강조색</button><button data-f="center">가운데</button></div>`;
+    얼굴.forEach(f => { html += `<div class="face${영역들.some(a => a && 겹침(a, f)) ? ' hit' : ''}" style="left:${f.x * s}px;top:${f.y * s}px;width:${f.w * s}px;height:${f.h * s}px"></div>`; });
+    let 떠있는 = '';
+    영역들.forEach((a, i) => {
+      if (!a) return;
+      const 고름 = 상태.선택 && i === 상태.상자;
+      const bad = 얼굴.some(f => 겹침(a, f)) || 넘침(a, W, H);
+      const cls = 'sel' + (bad ? ' bad' : '') + (고름 || bad ? ' on' : '');
+      const L = a.x * s - 8, T = a.y * s - 6, Wd = a.w * s + 16, Hd = a.h * s + 12;
+      html += `<div class="${cls}" style="left:${L.toFixed(1)}px;top:${T.toFixed(1)}px;width:${Wd.toFixed(1)}px;height:${Hd.toFixed(1)}px">${고름 ? '<i style="left:-6px;top:-6px"></i><i style="right:-6px;top:-6px"></i><i style="left:-6px;bottom:-6px"></i><i style="right:-6px;bottom:-6px"></i>' : ''}</div>`;
+      if (고름 && !잠김()) {
+        const fx = Math.min(Math.max(L + Wd / 2, 150), W * s - 150);
+        const 위 = T - 8 > 46, fy = 위 ? T - 8 : T + Hd + 52;
+        떠있는 = `<div class="float" style="left:${fx}px;top:${fy}px">
+          <button data-f="text">✎ 문구</button><button data-f="minus" aria-label="작게">A−</button><button data-f="plus" aria-label="크게">A+</button><button data-f="color">● 강조색</button><button data-f="center">가운데</button><button data-f="copy" aria-label="복제">⧉ 복제</button>${i > 0 ? '<button data-f="del" aria-label="이 글씨 상자 지우기">🗑</button>' : ''}</div>`;
       }
-    }
+    });
+    html += 떠있는;
     if (!장.배경) html += `<div class="empty-bg"><button class="btn small primary" data-go="bg">배경 장면 고르기</button></div>`;
     $('ov').innerHTML = html;
     $('frame').classList.toggle('hide-guides', !상태.가이드);
@@ -549,31 +607,73 @@
     $('ov').querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => 탭열기(b.dataset.go)));
   }
   function 떠있는도구(f) {
-    const 장 = 현재();
+    const b = 상자();
     if (f === 'text') { 탭열기('text'); const i = $('lines').querySelector('input'); if (i) { i.focus(); i.select(); } return; }
+    if (f === 'copy') return 상자추가(true);
+    if (f === 'del') return 상자지우기(상태.상자);
     변경(() => {
-      if (f === 'minus') 장.블록.size = Math.max(40, Math.round(장.블록.size * 0.92));
-      if (f === 'plus') { 장.블록.size = Math.min(240, Math.round(장.블록.size * 1.08)); 맞춤크기(); }
-      if (f === 'center') 장.블록.cx = 상태.설계.캔버스.w / 2;
-      if (f === 'color') { const i = 강조색들.findIndex(c => c.toUpperCase() === String(장.블록.강조색).toUpperCase()); 장.블록.강조색 = 강조색들[(i + 1) % 강조색들.length]; if (!장.블록.강조줄) 장.블록.강조줄 = (장.문구.줄 || []).length; }
+      if (f === 'minus') b.블록.size = Math.max(24, Math.round(b.블록.size * 0.92));
+      if (f === 'plus') { b.블록.size = Math.min(260, Math.round(b.블록.size * 1.08)); 맞춤크기(); }
+      if (f === 'center') b.블록.cx = 상태.설계.캔버스.w / 2;
+      if (f === 'color') { const i = 강조색들.findIndex(c => c.toUpperCase() === String(b.블록.강조색).toUpperCase()); b.블록.강조색 = 강조색들[(i + 1) % 강조색들.length]; if (!b.블록.강조줄) b.블록.강조줄 = (b.문구.줄 || []).length; }
     }, 'float-' + f);
+  }
+
+  /* ---------- 글씨 상자 추가·지우기 ---------- */
+  function 상자추가(복제) {
+    const 장 = 현재();
+    if (상자들().length >= 최대상자) return 알림(`글씨 상자는 한 장에 ${최대상자}개까지 넣을 수 있어요.`);
+    const { w: W, h: H } = 상태.설계.캔버스, 기준 = 상자();
+    변경(() => {
+      if (!Array.isArray(장.추가상자)) 장.추가상자 = [];
+      const 새 = 복제
+        ? { 문구: { 줄: [...(기준.문구.줄 || [])] }, 블록: { ...깊은복사(기준.블록), y: Math.min(H - 기준.블록.size * 1.2, 기준.블록.y + 기준.블록.size * 0.6), cx: Math.min(W * 0.9, 기준.블록.cx + W * 0.04) } }
+        : { 문구: { 줄: ['새 문구'] }, 블록: { cx: W / 2, y: Math.round(H * 0.08 + 장.추가상자.length * H * 0.07), size: Math.round((W > H ? H * 0.1 : H * 0.055)), 줄간격: 1.15, 강조줄: 0,
+            글자색: '#FFFFFF', 강조색: 기준.블록.강조색 || '#FFE14D', 테두리색: '#111111', 테두리: 7, 그림자: false, 글꼴: 기준.블록.글꼴 || 'Black Han Sans' } };
+      장.추가상자.push(새);
+      상태.상자 = 장.추가상자.length;
+      if (!복제) {
+        // 위쪽부터 내려가며 얼굴·다른 글씨와 겹치지 않는 첫 자리에 둔다
+        const 막힌곳 = [...얼굴영역(장), ...상자들().slice(0, -1).map(상자영역).filter(Boolean)];
+        for (let y = H * 0.05; y < H * 0.9; y += H * 0.03) {
+          새.블록.y = Math.round(y);
+          const a = 상자영역(새);
+          if (a && !막힌곳.some(f => 겹침({ x: a.x - 8, y: a.y - 8, w: a.w + 16, h: a.h + 16 }, f))) break;
+        }
+      }
+      상태.선택 = true;
+    });
+    탭열기('text');
+    const i = $('lines').querySelector('input'); if (i && !복제) { i.focus(); i.select(); }
+    알림(복제 ? '글씨 상자를 복제했어요. 끌어서 원하는 곳에 두세요.' : '글씨 상자를 추가했어요. 문구를 적고 끌어서 원하는 곳에 두세요.');
+  }
+  function 상자지우기(i) {
+    if (i <= 0) return;
+    변경(() => { 현재().추가상자.splice(i - 1, 1); if (!현재().추가상자.length) delete 현재().추가상자; 상태.상자 = 0; 상태.선택 = false; });
+    알림('글씨 상자를 지웠어요.');
   }
 
   /* ---------- 점검 ---------- */
   const 내사진장 = 장 => !!(장 && 장.배경 && 장.배경.종류 === '내사진');
   const 사진없음 = 장 => 내사진장(장) && !배경이미지(장);
   function 문제목록() {
-    const 장 = 현재(), { w: W, h: H } = 상태.설계.캔버스, 영역 = 블록영역(장), out = [];
+    const 장 = 현재(), { w: W, h: H } = 상태.설계.캔버스, out = [];
     if (사진없음(장)) out.push({ 종류: '사진', 막음: true, 글: '이 썸네일은 내 사진을 썼어요. "내 사진"에서 같은 사진을 다시 골라야 받을 수 있어요.' });
-    if (!영역) out.push({ 종류: '빈문구', 막음: true, 글: '문구가 비어 있어요. 한 줄 이상 적어주세요.' });
-    else {
-      const 가린 = 얼굴영역(장).map((f, i) => (겹침(영역, f) && f.x < W && f.y < H && f.x + f.w > 0 && f.y + f.h > 0) ? i : -1).filter(i => i >= 0);
-      if (가린.length) out.push({ 종류: '얼굴', 막음: true, 글: '글씨가 얼굴을 가리고 있어요. 옮기거나 작게 해주세요.', 얼굴: 가린 });
-      if (영역.x < -1 || 영역.x + 영역.w > W + 1) out.push({ 종류: '가로', 막음: true, 글: '글씨가 화면 옆으로 넘쳐요. 작게 하거나 줄을 나눠주세요.' });
-      if (영역.y < 0 || 영역.y + 영역.h > H) out.push({ 종류: '세로', 막음: true, 글: '글씨가 화면 위아래로 넘쳐요.' });
-      else if (영역.y + 영역.h / 2 < H * 0.5) out.push({ 종류: '위쪽', 막음: false, 글: '글씨가 위쪽에 있어요. 아래쪽에 둘 때 더 잘 읽혀요.' });
-      if ((장.문구.줄 || []).join('').replace(/\s/g, '').length > 16) out.push({ 종류: '길이', 막음: false, 글: '문구가 조금 길어요. 2~4단어가 작은 화면에서 잘 읽혀요.' });
-    }
+    const 모음 = 상자들(), 영역들 = 모음.map(상자영역), 얼굴 = 얼굴영역(장);
+    const 이름 = i => 모음.length > 1 ? `글씨 상자 ${i + 1}` : '글씨';
+    if (!영역들[0]) out.push({ 종류: '빈문구', 막음: true, 글: '첫 번째 문구가 비어 있어요. 한 줄 이상 적어주세요.' });
+    const 가린 = new Set();
+    영역들.forEach((a, i) => {
+      if (!a) return;
+      얼굴.forEach((f, k) => { if (겹침(a, f) && f.x < W && f.y < H && f.x + f.w > 0 && f.y + f.h > 0) 가린.add(k); });
+      if (a.x < -1 || a.x + a.w > W + 1) out.push({ 종류: '가로', 막음: true, 상자: i, 글: `${이름(i)}: 화면 옆으로 넘쳐요. 작게 하거나 줄을 나눠주세요.` });
+      if (a.y < 0 || a.y + a.h > H) out.push({ 종류: '세로', 막음: true, 상자: i, 글: `${이름(i)}: 화면 위아래로 넘쳐요. 옮기거나 줄을 줄여주세요.` });
+    });
+    if (가린.size) out.push({ 종류: '얼굴', 막음: true, 글: '글씨가 얼굴을 가리고 있어요. 옮기거나 작게 해주세요.', 얼굴: [...가린] });
+    const a0 = 영역들[0];
+    if (a0 && !넘침(a0, W, H) && a0.y + a0.h / 2 < H * 0.5) out.push({ 종류: '위쪽', 막음: false, 글: '큰 문구가 위쪽에 있어요. 아래쪽에 둘 때 더 잘 읽혀요.' });
+    const 글자수 = 모음.reduce((n, b) => n + (b.문구.줄 || []).join('').replace(/\s/g, '').length, 0);
+    if (글자수 > 22) out.push({ 종류: '길이', 막음: false, 글: '글씨가 많아요. 작은 화면에서는 짧을수록 잘 읽혀요.' });
     if (!장.배경) out.push({ 종류: '배경', 막음: false, 글: '배경이 비어 있어요. "배경 장면"이나 "영상에서"에서 골라주세요.' });
     return out;
   }
@@ -588,7 +688,8 @@
   }
 
   /* ---------- 변경·기록 ---------- */
-  function 스냅샷() { return JSON.stringify(상태.설계.장면.map(s => ({ 블록: s.블록, 문구: s.문구 && s.문구.줄, 배경: s.배경, 그늘: s.그늘, 얼굴: s.얼굴 }))); }
+  const 장요약 = s => ({ 블록: s.블록, 문구: s.문구 && s.문구.줄, 추가: (s.추가상자 || []).map(b => ({ 블록: b.블록, 줄: b.문구 && b.문구.줄 })), 배경: s.배경, 그늘: s.그늘, 얼굴: s.얼굴 });
+  function 스냅샷() { return JSON.stringify(상태.설계.장면.map(장요약)); }
   const 수정됨 = () => 스냅샷() !== 상태.저장본;
   function 변경(fn, 묶음키) {
     const 전 = JSON.stringify(상태.설계.장면);
@@ -605,27 +706,35 @@
     const 출발 = 앞으로 ? 상태.되돌림 : 상태.기록, 도착 = 앞으로 ? 상태.기록 : 상태.되돌림;
     const 항목 = 출발.pop(); if (!항목) return;
     도착.push({ 장면: JSON.stringify(상태.설계.장면), 장: 상태.장, t: 0 });
-    상태.설계.장면 = JSON.parse(항목.장면); 상태.장 = 항목.장;
+    상태.설계.장면 = JSON.parse(항목.장면); 상태.장 = 항목.장; 상태.선택 = false;
+    if (상태.상자 >= 상자들().length) 상태.상자 = 0;
     그리기(); 입력반영(); 목록그리기();
   }
   const 잠김 = () => 상태.기한지남 || 상태.수정횟수 >= 상태.최대;
 
+  // 고른 글씨 상자가 화면 폭을 넘으면 넘지 않을 만큼만 줄이고, 화면 안으로 들인다
   function 맞춤크기() {
-    const 장 = 현재(), W = 상태.설계.캔버스.w, 한계 = W * 0.92;
-    장.글씨 = R.블록에서글씨(상태.설계, 장);
-    const 최대폭 = Math.max(0, ...장.글씨.map(t => R.줄너비(ctx, t)));
-    if (최대폭 > 한계) 장.블록.size = Math.max(40, Math.floor(장.블록.size * 한계 / 최대폭));
-    장.글씨 = R.블록에서글씨(상태.설계, 장);
-    const 반폭 = Math.min(한계, Math.max(0, ...장.글씨.map(t => R.줄너비(ctx, t)))) / 2;
-    장.블록.cx = Math.min(W - 반폭 - W * 0.02, Math.max(반폭 + W * 0.02, 장.블록.cx));
+    const b = 상자(), W = 상태.설계.캔버스.w, 한계 = W * 0.92;
+    const 폭 = () => Math.max(0, ...R.상자글씨(상태.설계, b).map(t => R.줄너비(ctx, t)));
+    const 최대폭 = 폭();
+    if (최대폭 > 한계) b.블록.size = Math.max(24, Math.floor(b.블록.size * 한계 / 최대폭));
+    const 반폭 = Math.min(한계, 폭()) / 2;
+    b.블록.cx = Math.min(W - 반폭 - W * 0.02, Math.max(반폭 + W * 0.02, b.블록.cx));
+  }
+  // 줄 수가 바뀐 뒤 상자가 화면 위아래로 넘치면 화면 안으로 들인다 (아래쪽 상자는 위로 자람)
+  function 화면안으로() {
+    const b = 상자(), H = 상태.설계.캔버스.h;
+    const 높이 = (b.문구.줄 || []).length * b.블록.size * (b.블록.줄간격 || 1.15);
+    if (b.블록.y + 높이 > H * 0.97) b.블록.y = Math.round(H * 0.97 - 높이);
+    if (b.블록.y < H * 0.02) b.블록.y = Math.round(H * 0.02);
   }
   function 위치정하기(pos) {
-    const { w: W, h: H } = 상태.설계.캔버스, 장 = 현재();
-    const 높이 = (장.문구.줄 || []).length * 장.블록.size * (장.블록.줄간격 || 1.15);
-    장.블록.cx = W / 2;
+    const { w: W, h: H } = 상태.설계.캔버스, b = 상자();
+    const 높이 = (b.문구.줄 || []).length * b.블록.size * (b.블록.줄간격 || 1.15);
+    b.블록.cx = W / 2;
     const 중심 = pos === 'top' ? H * 0.2 : pos === 'middle' ? H * 0.5 : H * (W > H ? 0.68 : 0.70);
     const 아래끝 = pos === 'bottom' ? H * (W > H ? 0.90 : 0.86) : H * 0.95;
-    장.블록.y = Math.round(Math.min(아래끝 - 높이, Math.max(H * 0.04, 중심 - 높이 / 2)));
+    b.블록.y = Math.round(Math.min(아래끝 - 높이, Math.max(H * 0.04, 중심 - 높이 / 2)));
   }
 
   /* ---------- 편집 기한 ---------- */
@@ -750,10 +859,47 @@
     finally { btn.disabled = false; btn.textContent = '이 장면 쓰기'; 영상정보(); }
   }
 
+  /* ---------- 도움말 대화창 ---------- */
+  const H = window.RewindThumbHelp;
+  function 대화말(글, 누가, 이동) {
+    const d = document.createElement('div');
+    d.className = 'msg ' + (누가 === 'me' ? 'me' : 'bot');
+    d.textContent = 글;
+    if (이동 && 이동.length) {
+      const g = document.createElement('div'); g.className = 'go';
+      이동.forEach(m => { const b = document.createElement('button'); b.type = 'button'; b.textContent = m.글 + ' →'; b.addEventListener('click', () => 탭열기(m.tab)); g.appendChild(b); });
+      d.appendChild(g);
+    }
+    $('chat-log').appendChild(d);
+    $('chat-log').scrollTop = $('chat-log').scrollHeight;
+  }
+  function 대화답(질문) {
+    const h = H && H.찾기(질문);
+    if (h) return 대화말(h.답, 'bot', h.이동);
+    대화말('그 질문은 제가 정확히 답하기 어려워요. 아래 버튼 중에 비슷한 게 있는지 봐주세요. 그래도 해결이 안 되면 프로젝트 화면의 상담 챗봇에 물어보시면 자세히 알려드려요.', 'bot', []);
+  }
+  function 대화열기(열기) {
+    const 열림 = 열기 ?? $('chat').hidden;
+    $('chat').hidden = !열림;
+    $('editor').classList.toggle('chat-open', 열림);
+    $('b-help').setAttribute('aria-pressed', String(열림));
+    if (열림 && !$('chat-log').children.length) {
+      대화말('안녕하세요! 썸네일 편집을 도와드릴게요. 아래에서 궁금한 걸 누르거나 직접 물어보세요.', 'bot');
+      $('chat-quick').innerHTML = (H ? H.항목 : []).map(h => `<button class="chip" type="button" data-q="${h.id}">${escapeHtml(h.질문)}</button>`).join('');
+      $('chat-quick').querySelectorAll('[data-q]').forEach(b => b.addEventListener('click', () => {
+        const h = H.항목.find(x => x.id === b.dataset.q); 대화말(h.질문, 'me'); 대화말(h.답, 'bot', h.이동);
+      }));
+    }
+    // 편집 화면 크기를 대화창 폭에 맞춰 다시 계산
+    requestAnimationFrame(() => { 크기맞추기(); 그리기(); });
+    if (열림 && window.innerWidth > 900) setTimeout(() => $('chat-in').focus(), 50);
+  }
+
   /* ---------- 탭·입력 ---------- */
   function 탭열기(tab) {
     상태.탭 = tab;
-    document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', String(t.dataset.tab === tab)));
+    if (window.innerWidth <= 900 && !$('chat').hidden) 대화열기(false);
+    document.querySelectorAll('.tab[data-tab]').forEach(t => t.setAttribute('aria-selected', String(t.dataset.tab === tab)));
     document.querySelectorAll('.pane').forEach(p => { p.hidden = p.dataset.pane !== tab; });
     if (window.innerWidth <= 900) document.querySelector('aside.panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
@@ -789,39 +935,82 @@
     const 넣기 = t => { t = String(t || '').replace(/\s+/g, ' ').trim(); if (t && t.length <= 20 && !모음.includes(t)) 모음.push(t); };
     [...(상태.자동본.장면 || []), ...상태.설계.장면].forEach(s => 넣기(s.문구 && (s.문구.원문 || (s.문구.줄 || []).join(' '))));
     넣기(상태.재료.고객문구); 넣기(상태.재료.후킹문구);
-    const 지금 = (현재().문구.줄 || []).join(' ');
+    const 지금 = (상자().문구.줄 || []).join(' ');
     $('rec-wrap').hidden = !모음.length;
     $('recs').innerHTML = 모음.slice(0, 6).map((t, i) => `<button class="chip" data-i="${i}" aria-pressed="${t === 지금}">${escapeHtml(t)}</button>`).join('');
     $('recs').querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
       const t = 모음[Number(b.dataset.i)];
       변경(() => {
-        const 장 = 현재(), 원본 = [...(상태.자동본.장면 || []), ...상태.설계.장면].find(s => s.문구 && (s.문구.원문 === t) && s.문구.줄);
-        장.문구.줄 = 원본 ? [...원본.문구.줄] : 줄로나누기(t);
-        장.문구.원문 = t;
-        장.블록.강조줄 = Math.min(장.블록.강조줄 || 장.문구.줄.length, 장.문구.줄.length) || 장.문구.줄.length;
+        const 박스 = 상자(), 원본 = [...(상태.자동본.장면 || []), ...상태.설계.장면].find(s => s.문구 && (s.문구.원문 === t) && s.문구.줄);
+        박스.문구.줄 = 원본 ? [...원본.문구.줄] : 줄로나누기(t);
+        박스.문구.원문 = t;
+        박스.블록.강조줄 = Math.min(박스.블록.강조줄 || 박스.문구.줄.length, 박스.문구.줄.length) || 박스.문구.줄.length;
         맞춤크기();
       });
     }));
   }
-  function 입력반영() {
-    const 장 = 현재(), b = 장.블록;
-    const 줄 = [...(장.문구.줄 || [])]; while (줄.length < 3) 줄.push('');
-    const box = $('lines');
-    if (!box.children.length) {
-      box.innerHTML = [0, 1, 2].map(i => `<div class="line-row"><input type="text" maxlength="14" data-line="${i}" placeholder="${['첫째 줄', '둘째 줄 (선택)', '셋째 줄 (선택)'][i]}" aria-label="${i + 1}번째 줄"><button type="button" class="star" data-star="${i + 1}" aria-label="${i + 1}번째 줄 강조" title="강조색으로 보여주기"><svg viewBox="0 0 24 24"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg></button></div>`).join('');
-      box.querySelectorAll('input').forEach(inp => inp.addEventListener('input', () => 변경(() => {
-        const 값 = [...box.querySelectorAll('input')].map(x => x.value.replace(/\s+/g, ' ').trim());
-        while (값.length && !값[값.length - 1]) 값.pop();
-        현재().문구.줄 = 값; 현재().문구.원문 = 값.join(' ');
-        if (현재().블록.강조줄 > 값.length) 현재().블록.강조줄 = 값.length;
-        맞춤크기();
-      }, 'line' + inp.dataset.line)));
-      box.querySelectorAll('.star').forEach(s => s.addEventListener('click', () => 변경(() => { const n = Number(s.dataset.star); 현재().블록.강조줄 = 현재().블록.강조줄 === n ? 0 : n; })));
+
+  // 글씨 상자 고르기 칩 + 고른 상자의 줄 입력 (줄 추가·지우기·강조)
+  function 문구패널() {
+    const 모음 = 상자들(), 고른 = 상자();
+    $('boxes').innerHTML = 모음.map((b, i) => {
+      const 이름 = (b.문구.줄 || []).join(' ').trim() || '빈 상자';
+      return `<button class="chip box-chip" data-box="${i}" aria-pressed="${i === 상태.상자}"><b>${i + 1}</b> ${escapeHtml(이름.length > 8 ? 이름.slice(0, 8) + '…' : 이름)}</button>`;
+    }).join('') + `<button class="chip add-chip" id="b-add-box" ${모음.length >= 최대상자 ? 'disabled' : ''}>＋ 글씨 상자</button>`;
+    $('boxes').querySelectorAll('[data-box]').forEach(c => c.addEventListener('click', () => { 상태.상자 = Number(c.dataset.box); 상태.선택 = true; 입력반영(); 덧그림(); }));
+    $('b-add-box').addEventListener('click', () => 상자추가(false));
+    $('box-del').hidden = 상태.상자 === 0;
+    $('box-title').textContent = 모음.length > 1 ? `글씨 상자 ${상태.상자 + 1}` : '문구';
+
+    const 줄 = 고른.문구.줄 && 고른.문구.줄.length ? [...고른.문구.줄] : [''];
+    const box = $('lines'), 입력중 = document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.line : null;
+    const 같은모양 = box.dataset.sig === `${상태.장}-${상태.상자}-${줄.length}`;
+    if (!같은모양) {
+      box.dataset.sig = `${상태.장}-${상태.상자}-${줄.length}`;
+      box.innerHTML = 줄.map((t, i) => `<div class="line-row"><input type="text" maxlength="20" data-line="${i}" placeholder="${i === 0 ? '문구를 적어주세요' : '문구'}" aria-label="${i + 1}번째 줄"><button type="button" class="star" data-star="${i + 1}" aria-label="${i + 1}번째 줄 강조" title="강조색으로 보여주기"><svg viewBox="0 0 24 24"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg></button><button type="button" class="xdel" data-del="${i}" aria-label="${i + 1}번째 줄 지우기" title="이 줄 지우기" ${줄.length <= 1 ? 'disabled' : ''}>✕</button></div>`).join('');
+      box.querySelectorAll('input').forEach(inp => {
+        inp.addEventListener('input', () => 변경(() => {
+          const b = 상자(), i = Number(inp.dataset.line);
+          const 값 = [...(b.문구.줄 && b.문구.줄.length ? b.문구.줄 : [''])];
+          값[i] = inp.value.replace(/\s+/g, ' ').replace(/^\s/, '');
+          b.문구.줄 = 값; b.문구.원문 = 값.join(' ').trim();
+          맞춤크기();
+        }, 'line' + inp.dataset.line));
+        // 엔터: 다음 줄로 (마지막 줄이면 새 줄 추가)
+        inp.addEventListener('keydown', e => {
+          if (e.key !== 'Enter' || e.isComposing) return;
+          e.preventDefault();
+          const i = Number(inp.dataset.line), 다음 = box.querySelector(`input[data-line="${i + 1}"]`);
+          if (다음) 다음.focus(); else 줄추가(true);
+        });
+      });
+      box.querySelectorAll('.star').forEach(st => st.addEventListener('click', () => 변경(() => { const n = Number(st.dataset.star), b = 상자(); b.블록.강조줄 = b.블록.강조줄 === n ? 0 : n; })));
+      box.querySelectorAll('.xdel').forEach(x => x.addEventListener('click', () => 줄지우기(Number(x.dataset.del))));
     }
-    box.querySelectorAll('input').forEach((inp, i) => { if (document.activeElement !== inp) inp.value = 줄[i]; });
-    box.querySelectorAll('.star').forEach(s => s.setAttribute('aria-pressed', String(Number(s.dataset.star) === b.강조줄)));
+    box.querySelectorAll('input').forEach((inp, i) => { if (inp.dataset.line !== 입력중 || document.activeElement !== inp) inp.value = 줄[i] || ''; });
+    box.querySelectorAll('.star').forEach(st => st.setAttribute('aria-pressed', String(Number(st.dataset.star) === 고른.블록.강조줄)));
+    $('b-add-line').disabled = 줄.length >= 최대줄 || 잠김();
+    $('b-add-line').textContent = 줄.length >= 최대줄 ? `한 상자에 ${최대줄}줄까지예요` : '＋ 줄 추가';
+  }
+  function 줄추가(포커스) {
+    const b = 상자(), 줄 = b.문구.줄 && b.문구.줄.length ? b.문구.줄 : [''];
+    if (줄.length >= 최대줄) return 알림(`한 상자에 ${최대줄}줄까지 쓸 수 있어요. 더 넣고 싶으면 "＋ 글씨 상자"를 써보세요.`);
+    변경(() => { b.문구.줄 = [...줄, '']; 화면안으로(); }, 'addline');
+    if (포커스 !== false) { const i = $('lines').querySelector(`input[data-line="${b.문구.줄.length - 1}"]`); if (i) i.focus(); }
+  }
+  function 줄지우기(i) {
+    const b = 상자(), 줄 = [...(b.문구.줄 || [])];
+    if (줄.length <= 1) return;
+    변경(() => {
+      줄.splice(i, 1); b.문구.줄 = 줄; b.문구.원문 = 줄.join(' ').trim();
+      if (b.블록.강조줄 === i + 1) b.블록.강조줄 = 0; else if (b.블록.강조줄 > i + 1) b.블록.강조줄 -= 1;
+    });
+  }
+  function 입력반영() {
+    const 장 = 현재(), b = 상자().블록;
+    문구패널();
     추천문구();
-    const { w: W, h: H } = 상태.설계.캔버스, 영역 = 블록영역(장);
+    const { h: H } = 상태.설계.캔버스, 영역 = 상자영역(상자());
     const 중심 = 영역 ? (영역.y + 영역.h / 2) / H : 0.7;
     const 위치 = 중심 >= 0.6 ? 'bottom' : 중심 >= 0.38 ? 'middle' : 'top';
     $('pos').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.pos === 위치)));
@@ -833,6 +1022,7 @@
     $('c-shadow').checked = !!b.그림자;
     $('sw-main').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.c.toUpperCase() === String(b.글자색).toUpperCase())));
     $('sw-accent').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.c.toUpperCase() === String(b.강조색).toUpperCase())));
+    $('style-for').textContent = 상자들().length > 1 ? `지금 고른 글씨 상자 ${상태.상자 + 1}에 적용돼요` : '';
     const bg = 장.배경 || {};
     설정('r-zoom', bg.확대 || 1, Math.round((bg.확대 || 1) * 100) + '%');
     설정('r-dark', bg.어둡게 || 0, Math.round((bg.어둡게 || 0) * 100) + '%');
@@ -851,23 +1041,28 @@
   }
 
   function UI만들기() {
-    document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => 탭열기(t.dataset.tab)));
+    document.querySelectorAll('.tab[data-tab]').forEach(t => t.addEventListener('click', () => 탭열기(t.dataset.tab)));
     document.querySelectorAll('.card[data-go]').forEach(c => c.addEventListener('click', () => 탭열기(c.dataset.go)));
     $('fonts').innerHTML = Object.entries(R.글꼴목록).map(([k, f]) => `<button type="button" data-font="${k}" style="font-family:${f.css};font-weight:${f.weight}">${f.이름}</button>`).join('');
-    $('fonts').querySelectorAll('button').forEach(b => b.addEventListener('click', () => 변경(() => { 현재().블록.글꼴 = b.dataset.font; 맞춤크기(); })));
+    $('fonts').querySelectorAll('button').forEach(b => b.addEventListener('click', () => 변경(() => { 상자().블록.글꼴 = b.dataset.font; 맞춤크기(); })));
     const 색버튼 = (el, 목록, 키) => {
       el.innerHTML = 목록.map(c => `<button type="button" data-c="${c}" style="background:${c}" aria-label="${c}"></button>`).join('');
-      el.querySelectorAll('button').forEach(b => b.addEventListener('click', () => 변경(() => { 현재().블록[키] = b.dataset.c; if (키 === '강조색' && !현재().블록.강조줄) 현재().블록.강조줄 = (현재().문구.줄 || []).length; })));
+      el.querySelectorAll('button').forEach(b => b.addEventListener('click', () => 변경(() => { const bx = 상자(); bx.블록[키] = b.dataset.c; if (키 === '강조색' && !bx.블록.강조줄) bx.블록.강조줄 = (bx.문구.줄 || []).length; })));
     };
     색버튼($('sw-main'), 글자색들, '글자색'); 색버튼($('sw-accent'), 강조색들, '강조색');
     const 슬라이더 = (id, fn) => $(id).addEventListener('input', e => 변경(() => fn(Number(e.target.value)), id));
-    슬라이더('r-size', v => { 현재().블록.size = v; });
-    슬라이더('r-gap', v => { 현재().블록.줄간격 = v; });
-    슬라이더('r-outline', v => { 현재().블록.테두리 = v; });
+    슬라이더('r-size', v => { 상자().블록.size = v; });
+    슬라이더('r-gap', v => { 상자().블록.줄간격 = v; });
+    슬라이더('r-outline', v => { 상자().블록.테두리 = v; });
     슬라이더('r-zoom', v => { if (현재().배경) 현재().배경.확대 = v; });
     슬라이더('r-dark', v => { if (현재().배경) 현재().배경.어둡게 = v; });
     슬라이더('r-shade', v => { 현재().그늘 = { ...(현재().그늘 || { 시작: 0.45 }), 끝불투명도: v }; });
-    $('c-shadow').addEventListener('change', e => 변경(() => { 현재().블록.그림자 = e.target.checked; }));
+    $('c-shadow').addEventListener('change', e => 변경(() => { 상자().블록.그림자 = e.target.checked; }));
+    $('b-add-line').addEventListener('click', () => 줄추가(true));
+    $('box-del').addEventListener('click', () => 상자지우기(상태.상자));
+    document.addEventListener('keydown', e => {
+      if ((e.key === 'Delete' || e.key === 'Backspace') && 상태.선택 && 상태.상자 > 0 && !/INPUT|TEXTAREA/.test(document.activeElement.tagName) && !잠김()) { e.preventDefault(); 상자지우기(상태.상자); }
+    });
     $('pos').querySelectorAll('button').forEach(b => b.addEventListener('click', () => 변경(() => 위치정하기(b.dataset.pos))));
     $('b-reset').addEventListener('click', async () => {
       const 자동 = (상태.자동본.장면 || [])[상태.장]; if (!자동) return;
@@ -892,6 +1087,13 @@
     $('dlg-video').addEventListener('close', () => vid.pause());
     $('v-use').addEventListener('click', 이장면쓰기);
     $('b-save').addEventListener('click', 저장하기);
+    $('b-help').addEventListener('click', () => 대화열기());
+    $('chat-close').addEventListener('click', () => 대화열기(false));
+    $('chat-form').addEventListener('submit', e => {
+      e.preventDefault();
+      const q = $('chat-in').value.trim(); if (!q) return;
+      $('chat-in').value = ''; 대화말(q, 'me'); setTimeout(() => 대화답(q), 250);
+    });
     $('dlg-cancel').addEventListener('click', () => $('dlg-save').close());
     끌기설정();
     window.addEventListener('resize', () => { 크기맞추기(); 그리기(); });
@@ -903,38 +1105,61 @@
     const fr = $('frame');
     let 끌기 = null, 움직임 = 0;
     const 좌표 = e => { const r = fr.getBoundingClientRect(), s = 상태.화면배율; return { x: (e.clientX - r.left) / s, y: (e.clientY - r.top) / s }; };
-    const 글씨위 = p => { const a = 블록영역(현재()); return a && p.x >= a.x - 12 && p.x <= a.x + a.w + 12 && p.y >= a.y - 12 && p.y <= a.y + a.h + 12; };
+    // 누른 곳에 있는 글씨 상자 (겹치면 위에 그려진 = 나중 상자 먼저)
+    const 누른상자 = p => {
+      const 모음 = 상자들();
+      for (let i = 모음.length - 1; i >= 0; i--) {
+        const a = 상자영역(모음[i]);
+        if (a && p.x >= a.x - 12 && p.x <= a.x + a.w + 12 && p.y >= a.y - 12 && p.y <= a.y + a.h + 12) return i;
+      }
+      return -1;
+    };
     fr.addEventListener('pointermove', e => {
       const p = 좌표(e);
-      if (!끌기) { fr.classList.toggle('over-text', !!글씨위(p)); fr.classList.toggle('over-bg', !글씨위(p) && !!현재().배경); return; }
+      if (!끌기) { const i = 누른상자(p); fr.classList.toggle('over-text', i >= 0); fr.classList.toggle('over-bg', i < 0 && !!현재().배경); return; }
       움직임 += Math.abs(e.movementX) + Math.abs(e.movementY);
       if (잠김()) return;
       const 장 = 현재(), { w: W, h: H } = 상태.설계.캔버스;
       변경(() => {
         if (끌기.종류 === 'text') {
+          const b = 상자들()[끌기.상자];
           let cx = 끌기.cx + (p.x - 끌기.x);
-          if (Math.abs(cx - W / 2) < W * 0.02) cx = W / 2;
-          장.블록.cx = Math.round(cx); 장.블록.y = Math.round(끌기.y0 + (p.y - 끌기.y));
+          if (Math.abs(cx - W / 2) < W * 0.02) cx = W / 2;   // 가운데 가까이 오면 붙인다
+          b.블록.cx = Math.round(cx); b.블록.y = Math.round(끌기.y0 + (p.y - 끌기.y));
         } else if (장.배경 && 끌기.img) {
           const img = 끌기.img, sc = Math.max(W / img.naturalWidth, H / img.naturalHeight) * (장.배경.확대 || 1);
           const 남w = img.naturalWidth * sc - W, 남h = img.naturalHeight * sc - H;
           if (남w > 1) 장.배경.초점x = Math.min(1, Math.max(0, 끌기.fx - (p.x - 끌기.x) / 남w));
           if (남h > 1) 장.배경.초점y = Math.min(1, Math.max(0, 끌기.fy - (p.y - 끌기.y) / 남h));
         }
-      }, 'drag-' + 끌기.종류);
+      }, 'drag-' + 끌기.종류 + (끌기.상자 ?? ''));
     });
     fr.addEventListener('pointerdown', e => {
       if (e.target.closest('.float, .empty-bg')) return;
-      const p = 좌표(e), 장 = 현재();
+      const p = 좌표(e), 장 = 현재(), i = 누른상자(p);
       움직임 = 0;
-      if (글씨위(p)) 끌기 = { 종류: 'text', x: p.x, y: p.y, cx: 장.블록.cx, y0: 장.블록.y };
-      else { 끌기 = 장.배경 ? { 종류: 'bg', x: p.x, y: p.y, fx: 장.배경.초점x ?? 0.5, fy: 장.배경.초점y ?? 0.5, img: 배경이미지(장) } : null; }
+      if (i >= 0) {
+        const b = 상자들()[i];
+        const 바뀜 = 상태.상자 !== i;
+        상태.상자 = i; 상태.선택 = true;
+        끌기 = { 종류: 'text', 상자: i, x: p.x, y: p.y, cx: b.블록.cx, y0: b.블록.y };
+        if (바뀜) 입력반영();
+      } else {
+        상태.선택 = false;
+        끌기 = 장.배경 ? { 종류: 'bg', x: p.x, y: p.y, fx: 장.배경.초점x ?? 0.5, fy: 장.배경.초점y ?? 0.5, img: 배경이미지(장) } : null;
+      }
       if (끌기) { fr.setPointerCapture(e.pointerId); fr.classList.add('dragging'); e.preventDefault(); }
-      상태.선택 = !!(끌기 && 끌기.종류 === 'text') || (!끌기 && false);
-      if (!끌기 || 끌기.종류 !== 'text') 상태.선택 = false;
       덧그림();
     });
-    const 끝 = () => { if (끌기 && 끌기.종류 === 'text' && 움직임 < 4) { 상태.선택 = true; } 끌기 = null; fr.classList.remove('dragging'); 덧그림(); };
+    // 빈 곳을 두 번 누르면 거기에 새 글씨 상자
+    fr.addEventListener('dblclick', e => {
+      if (잠김() || e.target.closest('.float')) return;
+      const p = 좌표(e);
+      if (누른상자(p) >= 0) { 떠있는도구('text'); return; }
+      상자추가(false);
+      const b = 상자(); b.블록.y = Math.round(p.y - b.블록.size / 2); b.블록.cx = Math.round(p.x); 맞춤크기(); 그리기();
+    });
+    const 끝 = () => { 끌기 = null; fr.classList.remove('dragging'); 덧그림(); };
     fr.addEventListener('pointerup', 끝); fr.addEventListener('pointercancel', 끝);
   }
 
@@ -959,7 +1184,7 @@
       c.style.width = Math.round(hpx * W / H) + 'px'; c.style.height = hpx + 'px';
       const 장 = 장면[i]; 장.글씨 = R.블록에서글씨(상태.설계, 장);
       R.그리기(c.getContext('2d'), 상태.설계, 장, 배경이미지(장), { 배율: c.width / W });
-      const 바뀜 = JSON.stringify({ 블록: 장.블록, 문구: 장.문구 && 장.문구.줄, 배경: 장.배경, 그늘: 장.그늘, 얼굴: 장.얼굴 }) !== JSON.stringify(저장[i]);
+      const 바뀜 = JSON.stringify(장요약(장)) !== JSON.stringify(저장[i]);
       let dot = b.querySelector('.dot');
       if (바뀜 && !dot) { dot = document.createElement('span'); dot.className = 'dot'; dot.title = '저장하지 않은 변경'; b.appendChild(dot); }
       if (!바뀜 && dot) dot.remove();
@@ -967,7 +1192,7 @@
     });
   }
   async function 장고르기(i) {
-    상태.장 = i; 상태.선택 = false;
+    상태.장 = i; 상태.선택 = false; 상태.상자 = 0;
     크기맞추기(); 입력반영(); 그리기(); 목록그리기();
     await Promise.all(상태.설계.장면.map(배경준비));
     그리기(); 목록그리기();

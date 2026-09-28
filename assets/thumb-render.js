@@ -143,25 +143,35 @@
     return w;
   }
 
-  // 블록(문구 묶음) → 글씨 배열. 편집 창은 블록만 바꾸고, 그릴 때는 글씨 배열을 쓴다.
-  function 블록에서글씨(설계, 장) {
+  // 글씨 상자 목록: 첫 상자는 장 자체(장.문구·장.블록, 자동 생성과 같은 자리), 나머지는 장.추가상자
+  function 상자목록(장) { return [장, ...((장 && Array.isArray(장.추가상자)) ? 장.추가상자 : [])]; }
+
+  // 상자 하나(문구 + 블록) → 글씨 배열
+  function 상자글씨(설계, 상자, 상자번호) {
     const W = 설계.캔버스.w;
-    const b = 장.블록;
-    const 줄 = (장.문구 && 장.문구.줄) || [];
+    const b = 상자.블록;
+    if (!b) return [];
+    const 줄 = (상자.문구 && 상자.문구.줄) || [];
     const 줄높이 = Math.round(b.size * (b.줄간격 || 1.15));
     const 폭 = Math.round(W * 0.96);
     return 줄.map((text, i) => ({
       text, x: Math.round(b.cx - 폭 / 2), y: Math.round(b.y + i * 줄높이), w: 폭, h: 줄높이,
       size: Math.round(b.size), color: (i + 1) === b.강조줄 ? b.강조색 : b.글자색,
       outline: b.테두리색, outlineWidth: Math.round(b.테두리), shadow: !!b.그림자,
-      font: b.글꼴 || 'Black Han Sans', weight: (글꼴목록[b.글꼴] || 글꼴목록['Black Han Sans']).weight, align: 'center'
+      font: b.글꼴 || 'Black Han Sans', weight: (글꼴목록[b.글꼴] || 글꼴목록['Black Han Sans']).weight, align: 'center', 상자: 상자번호 || 0
     }));
+  }
+
+  // 장의 모든 상자 → 글씨 배열 (그릴 때 쓰는 배열. 편집 창은 상자만 바꾸고 이 배열을 다시 만든다)
+  function 블록에서글씨(설계, 장) {
+    return 상자목록(장).flatMap((상자, i) => 상자글씨(설계, 상자, i));
   }
 
   // 예전 설계(블록 없음)도 편집할 수 있게 글씨 배열에서 블록을 만든다
   function 블록채우기(설계) {
     (설계.장면 || []).forEach(장 => {
       if (장.블록 || !(장.글씨 && 장.글씨.length)) return;
+      장.글씨 = 장.글씨.filter(g => !g.상자);
       const t = 장.글씨[0];
       const 강조 = 장.글씨.findIndex(g => g.color && g.color.toUpperCase() !== '#FFFFFF') + 1;
       장.블록 = { cx: t.x + t.w / 2, y: t.y, size: t.size, 줄간격: t.h / t.size, 강조줄: 강조,
@@ -183,5 +193,5 @@
 
   function 범위(v, a, b) { return Math.min(b, Math.max(a, isFinite(v) ? v : a)); }
 
-  global.RewindThumb = { 글꼴목록, 글꼴준비, 이미지불러오기, 배경주소, 배경배치, 영역변환, 그리기, 줄너비, 블록에서글씨, 블록채우기, 파일로 };
+  global.RewindThumb = { 글꼴목록, 글꼴준비, 이미지불러오기, 배경주소, 배경배치, 영역변환, 그리기, 줄너비, 상자목록, 상자글씨, 블록에서글씨, 블록채우기, 파일로 };
 })(window);
