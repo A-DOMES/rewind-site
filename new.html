@@ -552,10 +552,10 @@
   .thumb-opt .to-txt small { font-size: .86rem; color: var(--ink-dim); line-height: 1.45; }
   .thumb-opt .to-switch { flex: none; position: relative; width: 52px; height: 30px; border-radius: 999px; background: var(--line-strong, #3a322b); transition: background .15s; }
   .thumb-opt .to-switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; transition: transform .15s; box-shadow: 0 1px 3px rgba(0,0,0,.3); }
-  .thumb-opt:has(input:checked) { border-color: var(--amber); background: color-mix(in srgb, var(--amber) 8%, transparent); }
-  .thumb-opt:has(input:checked) .to-switch { background: var(--amber); }
-  .thumb-opt:has(input:checked) .to-switch::after { transform: translateX(22px); }
-  .thumb-opt:has(input:focus-visible) { outline: 2px solid var(--amber); outline-offset: 2px; }
+  .thumb-opt.is-checked { border-color: var(--amber); background: color-mix(in srgb, var(--amber) 8%, transparent); }
+  .thumb-opt.is-checked .to-switch { background: var(--amber); }
+  .thumb-opt.is-checked .to-switch::after { transform: translateX(22px); }
+  .thumb-opt input:focus-visible + .to-ico { outline: 2px solid var(--amber); outline-offset: 2px; border-radius: 12px; }
   .thumb-opt.is-off { cursor: default; opacity: .75; border-style: dashed; }
   .thumb-opt.is-off .to-switch { display: none; }
   .thumb-opt.is-off .to-ico { background: transparent; border: 1px dashed var(--line-strong, #3a322b); }
@@ -581,17 +581,21 @@
   :root[data-theme="dark"] .msg.user .bubble, :root:not([data-theme]) .msg.user .bubble { background: #2a2521; }
 
   /* ===== 첫 화면: 대화 시작 전에는 인사말·입력창·예시를 화면 가운데로 ===== */
-  .chat-column.is-fresh { justify-content: center; padding: 0 24px 8vh; }
-  .chat-column.is-fresh .chat-wrap, .chat-column.is-fresh .chat-inner { display: contents; }
-  .chat-column.is-fresh .msg { order: 1; width: 100%; max-width: 720px; margin: 0 auto 26px; flex-direction: column; align-items: center; text-align: center; gap: 18px; animation: none; }
+  /* [첫 화면/채팅 스크롤] chat-wrap을 실제 스크롤 영역으로 유지한다.
+     display:contents를 사용하면 chat-wrap의 overflow/높이 계산이 사라져
+     입력창을 누를 때 전체 레이아웃이 위로 밀리는 문제가 생길 수 있다. */
+  .chat-column.is-fresh { justify-content: flex-start; padding: 0 24px 8vh; min-height: 0; }
+  .chat-column.is-fresh .chat-wrap { flex: 1 1 auto; min-height: 0; overflow-y: auto; display: flex; justify-content: center; }
+  .chat-column.is-fresh .chat-inner { width: 100%; max-width: 760px; min-height: 100%; padding: 24px 24px 18px; display: flex; flex-direction: column; justify-content: center; }
+  .chat-column.is-fresh .msg { width: 100%; max-width: 720px; margin: 0 auto 26px; flex-direction: column; align-items: center; text-align: center; gap: 18px; animation: none; flex-shrink: 0; }
   .chat-column.is-fresh .msg.bot .avatar { width: 56px; height: 56px; border-radius: 16px; }
   .chat-column.is-fresh .msg.bot .bubble { max-width: 620px; font-size: 1.14rem; line-height: 1.75; color: var(--ink); }
-  .chat-column.is-fresh .composer { order: 2; width: 100%; max-width: 760px; margin: 0 auto; padding: 0; }
+  .chat-column.is-fresh .composer { width: 100%; max-width: 760px; margin: 0 auto; padding: 16px 0; flex-shrink: 0; }
   .chat-column.is-fresh .composer-inner { max-width: none; }
   .chat-column.is-fresh .chat-text-row { padding: 10px 10px 10px 22px; border-radius: 28px; box-shadow: 0 12px 40px rgba(0,0,0,.18); }
   .chat-column.is-fresh .chat-text-row textarea { font-size: 1.04rem; min-height: 28px; }
-  .chat-column.is-fresh .example-row { order: 3; width: 100%; max-width: 760px; margin: 18px auto 0; justify-content: center; }
-  .chat-column.is-fresh .form-status { order: 4; }
+  .chat-column.is-fresh .example-row { width: 100%; max-width: 760px; margin: 18px auto 0; justify-content: center; flex-shrink: 0; }
+  .chat-column.is-fresh .form-status { flex-shrink: 0; }
   @media (max-width: 760px) {
     .chat-column.is-fresh { padding: 0 16px 4vh; }
     .chat-column.is-fresh .msg.bot .bubble { font-size: 1.02rem; }
@@ -858,16 +862,31 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     box.dataset.wasTrial = 체험 ? '1' : '0';
     if (note) note.textContent = 체험 ? '체험판은 이미지 중심으로 만들어져요. 정식 모드에서는 원하는 방식을 고를 수 있어요.' : (현재움직임() === '모두 영상' ? '모든 장면을 움직이는 영상으로 만들어요. 제작 시간이 조금 더 걸려요.' : '');
   }
-  // [썸네일] 정식은 고객이 고를 때만 만든다(기본 꺼짐), 체험판은 제공하지 않음
+  // [썸네일] 정식은 기본 제공(기본 ON), 사용자가 필요 없으면 직접 OFF.
+  // 체험판은 제공하지 않으며, 정식으로 전환할 때 이전 선택이 있으면 복원한다.
   function applyThumbPlan() {
     const opt = document.getElementById('df-thumb-opt'); if (!opt) return;
     const box = document.getElementById('df-thumbnail'), 체험 = planMode !== 'paid';
     opt.classList.toggle('is-off', 체험);
     box.disabled = 체험;
-    if (체험) { box.dataset.paidChoice = box.dataset.paidChoice || (box.checked ? '1' : '0'); box.checked = false; }
-    else if (box.dataset.paidChoice !== undefined) { box.checked = box.dataset.paidChoice === '1'; delete box.dataset.paidChoice; }
+
+    if (체험) {
+      if (box.dataset.paidChoice === undefined) box.dataset.paidChoice = box.checked ? '1' : '0';
+      box.checked = false;
+    } else {
+      if (box.dataset.paidChoice !== undefined) {
+        box.checked = box.dataset.paidChoice === '1';
+        delete box.dataset.paidChoice;
+      } else if (box.dataset.initialized !== '1') {
+        box.checked = true;
+      }
+    }
+
+    box.dataset.initialized = '1';
+    opt.classList.toggle('is-checked', box.checked && !체험);
+
     document.getElementById('df-thumb-title').textContent = 체험 ? '체험판에서는 썸네일을 제공하지 않아요' : 'AI 썸네일 3장 함께 만들기';
-    document.getElementById('df-thumb-sub').textContent = 체험 ? '정식으로 만들면 AI 썸네일 3장(선택)과 직접 편집하기를 쓸 수 있어요' : '원할 때만 켜세요 · 켜지 않아도 완성된 영상에서 원하는 장면을 골라 직접 만들 수 있어요';
+    document.getElementById('df-thumb-sub').textContent = 체험 ? '정식으로 만들면 AI 썸네일 3장(선택)과 직접 편집하기를 쓸 수 있어요' : '원할 때만 켜세요 · 필요 없으면 꺼주세요';
   }
   function updatePrice() {
     applyMotionPlan();
@@ -1645,7 +1664,16 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
 
     if (!isMedia) { setupLayoutPicker(); setupMotionPicker(); setupLengthChips(); }
     wrap.addEventListener('input', updatePrice);
-    wrap.addEventListener('change', updatePrice);
+    wrap.addEventListener('change', (e) => {
+      if (e.target && e.target.id === 'df-thumbnail') {
+        const box = e.target;
+        const opt = document.getElementById('df-thumb-opt');
+        if (opt) opt.classList.toggle('is-checked', box.checked && !box.disabled);
+        // 썸네일 토글 자체는 가격을 다시 계산하거나 폼 레이아웃을 재구성하지 않는다.
+        return;
+      }
+      updatePrice();
+    });
     updatePrice();
 
     document.getElementById('df-tab-topic').addEventListener('click', () => { dfMode = 'topic'; renderDirectForm(); });
