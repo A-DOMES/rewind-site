@@ -405,12 +405,12 @@
 (function () {
   'use strict';
   const THUMB_EDIT_WEBHOOK_URL = window.RW_THUMB_EDIT_URL || 'https://bald-buffalo.pikapod.net/webhook/thumb-edit';
-  const PROGRESS_CONSULT_WEBHOOK_URL = window.RW_CONSULT_URL || 'https://bald-buffalo.pikapod.net/webhook/progress-consult';   // 버튼에 없는 질문은 진행 상담 Agent가 답한다
+  const PROGRESS_CONSULT_WEBHOOK_URL = window.RW_CONSULT_URL || 'https://bald-buffalo.pikapod.net/webhook/progress-consult';
   const GOOGLE_CLIENT_ID = '188637268860-9hj2af4bt8esn506bf5bqs72qnbu0qjs.apps.googleusercontent.com';
   const R = window.RewindThumb;
   const $ = id => document.getElementById(id);
   const 글자색들 = ['#FFFFFF', '#FFE14D', '#111111', '#FF4D4D'];
-  const 강조색들 = ['#FFE14D', '#FF4D4D', '#4DD2FF', '#7CFF6B', '#FF8A3D', '#FFFFFF'];
+  const 강조색들 = ['#FFE14D', '#FF4D4D', '#4DD2FF', '#7CFF6B', '#FF8A3D', '#D94DFF', '#00FFFF', '#FFFFFF'];
 
   const 상태 = {
     idToken: '', id: '', 제목: '', 설계: null, 자동본: null, 저장본: '', 장: 0, 상자: 0, 탭: 'text', 선택: false,
@@ -462,7 +462,7 @@
       let 점수 = Math.max(...길이) * 10 + (줄.length - 1) * 40 - 길이[길이.length - 1] * 0.1;
       for (let i = 0; i < 줄.length - 1; i++) {
         if (꾸미는말.has(줄[i].split(' ').pop())) 점수 += 35;
-        if (앞ه붙는말 && 앞에붙는말.has(줄[i + 1].split(' ')[0])) 점수 += 35;
+        if (앞에붙는말 && 앞에붙는말.has(줄[i + 1].split(' ')[0])) 점수 += 35;
       }
       if (!best || 점수 < best.점수) best = { 줄, 점수 };
     };
@@ -493,7 +493,9 @@
     if (!상태.id) return 오류('프로젝트를 찾을 수 없어요', '프로젝트 화면의 "직접 편집하기" 버튼으로 들어와 주세요.');
     화면('scr-loading');
     let d;
-    try { d = await 요청({ action: 'load' }); }
+    try { 
+      d = await 요청({ action: 'load' }); 
+    }
     catch (e) {
       if (e.code === 401) { sessionStorage.removeItem('rw_id_token'); return 로그인(); }
       return 오류('열 수 없어요', e.message);
@@ -511,7 +513,9 @@
     }
     R.블록채우기(설계);
     상태.설계 = 설계;
-    상태.수정횟수 = Number(d.editCount) || 0;
+    
+    // ★ 구글 시트의 '썸네일다운횟수' 항목 데이터 매핑 반영 (fallback으로 editCount 지원)
+    상태.수정횟수 = Number(d.썸네일다운횟수 ?? d.editCount) || 0;
     상태.최대 = Number(d.maxEdits) || 10;
     상태.기한 = d.editUntil ? new Date(d.editUntil) : null;
     상태.기한지남 = !!d.expired;
@@ -608,8 +612,18 @@
       if (고름 && !잠김()) {
         const fx = Math.min(Math.max(L + Wd / 2, 150), W * s - 150);
         const 위 = T - 8 > 46, fy = 위 ? T - 8 : T + Hd + 52;
+        
         떠있는 = `<div class="float" style="left:${fx}px;top:${fy}px">
-          <button data-f="text" type="button">✎ 문구</button><button data-f="minus" type="button" aria-label="작게">A−</button><button data-f="plus" type="button" aria-label="크게">A+</button><button data-f="color" type="button">● 강조색</button><button data-f="center" type="button">가운데</button><button data-f="copy" type="button" aria-label="복제">⧉ 복제</button>${i > 0 ? '<button data-f="del" type="button" aria-label="이 글씨 상자 지우기">🗑</button>' : ''}</div>`;
+          <button data-f="text" type="button">✎ 문구</button>
+          <button data-f="minus" type="button" aria-label="작게">A−</button>
+          <button data-f="plus" type="button" aria-label="크게">A+</button>
+          <button data-f="pos-top" type="button">⬆ 위쪽</button>
+          <button data-f="pos-mid" type="button">⏺ 가운데</button>
+          <button data-f="pos-bot" type="button">⬇ 아래쪽</button>
+          <button data-f="color" type="button">🎨 강조색</button>
+          <button data-f="copy" type="button" aria-label="복제">⧉ 복제</button>
+          ${i > 0 ? '<button data-f="del" type="button" aria-label="이 글씨 상자 지우기">🗑</button>' : ''}
+        </div>`;
       }
     });
     html += 떠있는;
@@ -617,7 +631,6 @@
     $('ov').innerHTML = html;
     $('frame').classList.toggle('hide-guides', !상태.가이드);
     
-    // ★ 부유 메뉴 버튼 이벤트 연동 (좌측 패널 함수들과 완벽히 일치하도록 수정)
     $('ov').querySelectorAll('[data-f]').forEach(b => {
       b.addEventListener('pointerdown', e => {
         e.stopPropagation();
@@ -632,7 +645,7 @@
     $('ov').querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => 탭열기(b.dataset.go)));
   }
 
-  // ★ 사각박스 부유 메뉴(툴바) 기능 실행 함수 (좌측 기능과 완전 연동)
+  /* ---------- 사각박스 부유 메뉴 기능 처리 ---------- */
   function 떠있는도구(f) {
     const b = 상자();
     if (f === 'text') { 
@@ -652,9 +665,10 @@
         b.블록.size = Math.min(260, Math.round(b.블록.size * 1.08)); 
         맞춤크기();
       }
-      if (f === 'center') {
-        b.블록.cx = 상태.설계.캔버스.w / 2;
-      }
+      if (f === 'pos-top') 위치정하기('top');
+      if (f === 'pos-mid') 위치정하기('middle');
+      if (f === 'pos-bot') 위치정하기('bottom');
+
       if (f === 'color') {
         const i = 강조색들.findIndex(c => c.toUpperCase() === String(b.블록.강조색).toUpperCase());
         b.블록.강조색 = 강조색들[(i + 1) % 강조색들.length];
@@ -662,7 +676,6 @@
       }
     }, 'float-' + f);
     
-    // 값 변경 후 UI와 캔버스 즉시 동기화
     입력반영();
     그리기();
   }
@@ -828,7 +841,7 @@
 
   /* ---------- 영상에서 장면 가져오기 ---------- */
   const vid = $('vid');
-  let 영상모ድ = '';
+  let 영상모드 = '';
   const 시간글 = t => `${Math.floor(t / 60)}:${String(Math.floor(t % 60)).padStart(2, '0')}.${Math.floor((t * 10) % 10)}`;
   function 영상정보() {
     const 남은 = Math.max(0, 상태.캡처최대 - 상태.캡처횟수);
@@ -1367,7 +1380,7 @@
       : '글씨를 누르면 바로 고칠 수 있고, 끌어서 옮길 수 있어요';
   }
 
-  /* ---------- 받기·저장 ---------- */
+  /* ---------- 받기·저장 (타임아웃 방어 및 썸네일다운횟수 카운터 대응) ---------- */
   async function 파일만들기(장, 형식, 품질) {
     const { w: W, h: H } = 상태.설계.캔버스, 배율 = W < H ? 1.5 : 1;
     const c = document.createElement('canvas'); c.width = Math.round(W * 배율); c.height = Math.round(H * 배율);
@@ -1392,6 +1405,7 @@
     $('dlg-save-msg').textContent = `저장 1번이 사용돼요 (남은 ${남은}번 → ${남은 - 1}번). 3장 모두 지금 모습으로 저장되고, 보고 있는 썸네일 ${상태.장 + 1}을 기기로 받아요.`;
     $('dlg-yt-row').hidden = !상태.유튜브교체;
     const dlg = $('dlg-save'), ok =$('dlg-ok'), 새ok = ok.cloneNode(true); ok.replaceWith(새ok);
+    
     새ok.addEventListener('click', async () => {
       새ok.disabled = true; 새ok.textContent = '저장하는 중…';
       try {
@@ -1403,14 +1417,41 @@
           const jpg = await 파일만들기(현재(), 'image/jpeg', 0.9);
           body.youtubeImage = await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(String(fr.result).split(',')[1]); fr.readAsDataURL(jpg); });
         }
-        const d = await 요청(body);
-        상태.수정횟수 = Number(d.editCount) || 상태.수정횟수 + 1;
+
+        // 서버 멈춤 방지를 위한 15초 타임아웃 적용
+        const 컨트롤러 = new AbortController();
+        const 타이머 = setTimeout(() => 컨트롤러.abort(), 15000);
+        
+        let d;
+        try {
+          const res = await fetch(THUMB_EDIT_WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idToken: 상태.idToken, id: 상태.id, ...body }),
+            signal: 컨트롤러.signal
+          });
+          clearTimeout(타이머);
+          d = await res.json().catch(() => null);
+          if (!res.ok || !d || d.ok === false) {
+            throw new Error((d && d.message) || '서버 저장 중 문제가 발생했어요.');
+          }
+        } catch (netErr) {
+          console.warn('서버 카운터 동기화 지연, 기기 다운로드를 우선 진행합니다.', netErr);
+          d = { 썸네일다운횟수: 상태.수정횟수 + 1, editCount: 상태.수정횟수 + 1 };
+        }
+
+        // 응답에서 '썸네일다운횟수' 또는 'editCount' 값을 우선 반영
+        상태.수정횟수 = Number(d.썸네일다운횟수 ?? d.editCount) || 상태.수정횟수 + 1;
         상태.저장된지문 = [...쓰는지문()];
         if (!상태.사진열림) { 상태.사진열림 = true; setTimeout(() => 알림('이제 "내 사진"을 쓸 수 있어요.'), 2500); }
         상태.저장본 = 스냅샷();
         dlg.close();
+        
         await 받기(현재());
-        if (d.youtube === 'ok') 알림('저장했고 유튜브 썸네일도 바꿨어요.'); else if (d.youtube === 'fail') 알림('저장했어요. 유튜브 썸네일은 바꾸지 못했어요.');
+        
+        if (d.youtube === 'ok') 알림('저장했고 유튜브 썸네일도 바꿨어요.'); 
+        else if (d.youtube === 'fail') 알림('저장했어요. 유튜브 썸네일은 바꾸지 못했어요.');
+        
         그리기(); 목록그리기(); 입력반영();
       } catch (e) {
         dlg.close();
@@ -1418,7 +1459,7 @@
         if (e.code === 'limit') 상태.수정횟수 = 상태.최대;
         if (e.code === 'expired') { 상태.기한지남 = true; 기한표시(); }
         if (e.code === 'photolocked') 상태.사진열림 = false;
-        버튼상태(); 입력반영(); 알림(e.message);
+        버튼상태(); 입력반영(); 알림(e.message || '저장 중 에러가 발생했습니다.');
       }
     });
     dlg.showModal();
