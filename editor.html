@@ -514,9 +514,9 @@
     R.블록채우기(설계);
     상태.설계 = 설계;
     
-    // ★ 구글 시트의 '썸네일다운횟수' 항목 데이터 매핑 반영 (fallback으로 editCount 지원)
-    상태.수정횟수 = Number(d.썸네일다운횟수 ?? d.editCount) || 0;
-    상태.최대 = Number(d.maxEdits) || 10;
+    // 구글 시트 Content 시트의 '썸네일수정횟수' 값을 단일 데이터원으로 반영
+    상태.수정횟수 = Number(d.썸네일수정횟수 ?? d.editCount ?? d.downloadCount) || 0;
+    상태.최대 = Number(d.maxEdits ?? d.maxDownloads) || 10;
     상태.기한 = d.editUntil ? new Date(d.editUntil) : null;
     상태.기한지남 = !!d.expired;
     상태.사진최대 = Number(d.maxPhotos) || 3;
@@ -645,7 +645,6 @@
     $('ov').querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => 탭열기(b.dataset.go)));
   }
 
-  /* ---------- 사각박스 부유 메뉴 기능 처리 ---------- */
   function 떠있는도구(f) {
     const b = 상자();
     if (f === 'text') { 
@@ -1354,19 +1353,36 @@
     그리기(); 목록그리기();
   }
 
-  /* ---------- 버튼 상태 ---------- */
+  /* ---------- 버튼 상태 및 10회 한도 차단 제어 ---------- */
   function 버튼상태() {
     const 남은 = Math.max(0, 상태.최대 - 상태.수정횟수);
     $('quota-n').textContent = 남은;
+    
     const 장 = 현재(), 문제 = 문제목록();
     const 막힘 = 문제.some(m => m.막음);
     const 바뀜 = 수정됨(), 끝남 = 상태.기한지남;
-    const b = $('b-save'), t =$('b-save-t');
-    if (!바뀜) { t.textContent = '받기'; b.disabled = 사진없음(장); b.title = '저장한 썸네일을 기기로 받아요 (횟수에 안 들어가요)'; }
-    else if (끝남) { t.textContent = '편집 기간 끝남'; b.disabled = true; }
-    else if (남은 <= 0) { t.textContent = '저장 횟수를 다 썼어요'; b.disabled = true; }
-    else { t.textContent = '완성하고 받기'; b.disabled = 막힘; b.title = 막힘 ? '아래 경고를 먼저 해결해주세요' : `저장 1번이 사용돼요 (${남은}번 남음)`; }
-    $('t-undo').disabled = !상태.기록.length; $('t-redo').disabled = !상태.되돌림.length;
+    const b = $('b-save'), t = $('b-save-t');
+
+    if (끝남) {
+      t.textContent = '편집 기간 끝남';
+      b.disabled = true;
+    } else if (상태.수정횟수 >= 상태.최대) {
+      t.textContent = '다운로드 횟수 초과 (10/10)';
+      b.disabled = true;
+      b.title = '최대 다운로드/수정 횟수(10회)를 모두 사용하셨습니다.';
+    } else if (!바뀜) {
+      t.textContent = '받기';
+      b.disabled = 사진없음(장) || 막힘;
+      b.title = `다운로드 1회가 사용돼요 (${남은}회 남음)`;
+    } else {
+      t.textContent = '완성하고 받기';
+      b.disabled = 막힘;
+      b.title = 막힘 ? '아래 경고를 먼저 해결해주세요' : `저장 및 다운로드 1회가 사용돼요 (${남은}회 남음)`;
+    }
+
+    $('t-undo').disabled = !상태.기록.length; 
+    $('t-redo').disabled = !상태.되돌림.length;
+    
     const 잠금 = 잠김();
     document.querySelectorAll('aside.panel input, aside.panel .pane button').forEach(x => {
       if (x.closest('[data-pane="photo"]') && (x.id === 'b-photo' || x.id === 'f-photo')) { x.disabled = 잠금 && !사진없음(장); return; }
@@ -1374,13 +1390,14 @@
       if (x.id === 'b-open-video') { x.disabled = 잠금 || !상태.재료.영상; return; }
       x.disabled = 잠금;
     });
-    $('tip').querySelector('span').textContent = 끝남 ? '편집 기간(영상 완성 후 7일)이 끝났어요. 저장해 둔 썸네일은 계속 받을 수 있어요.'
-      : 남은 <= 0 ? '저장 횟수를 모두 썼어요. 저장해 둔 썸네일은 계속 받을 수 있어요.'
-      : 바뀜 ? '고치는 건 몇 번이든 괜찮아요. "완성하고 받기"를 누를 때만 저장 1번이 줄어요.'
+
+    $('tip').querySelector('span').textContent = 끝남 ? '편집 기간이 끝났어요.'
+      : 상태.수정횟수 >= 상태.최대 ? '최대 다운로드 횟수(10회)를 모두 사용하셨습니다.'
+      : 바뀜 ? '고치는 건 자유예요. "완성하고 받기"를 누르면 다운로드 횟수 1회가 차감돼요.'
       : '글씨를 누르면 바로 고칠 수 있고, 끌어서 옮길 수 있어요';
   }
 
-  /* ---------- 받기·저장 (타임아웃 방어 및 썸네일다운횟수 카운터 대응) ---------- */
+  /* ---------- 받기·저장 (타임아웃 방어 및 썸네일수정횟수 카운터 대응) ---------- */
   async function 파일만들기(장, 형식, 품질) {
     const { w: W, h: H } = 상태.설계.캔버스, 배율 = W < H ? 1.5 : 1;
     const c = document.createElement('canvas'); c.width = Math.round(W * 배율); c.height = Math.round(H * 배율);
@@ -1391,7 +1408,7 @@
   async function 받기(장) {
     try {
       const blob = await 파일만들기(장, 'image/png');
-      const 제목 = String(상태.제목 || '리와인드').replace(/[\\/:*?"<>|#]/g, '').replace(/\s+/g, ' ').trim().slice(0, 40) || '리와인드';
+      const 제목 = String(상태.제목 || '리와인드').replace(/[\/:*?"<>|#]/g, '').replace(/\s+/g, ' ').trim().slice(0, 40) || '리와인드';
       const url = URL.createObjectURL(blob), a = document.createElement('a');
       a.href = url; a.download = `${제목}_썸네일${장.번호 || 상태.장 + 1}.png`;
       document.body.appendChild(a); a.click(); a.remove();
@@ -1399,26 +1416,56 @@
       알림('기기에 저장했어요.');
     } catch (e) { 알림('파일을 만들지 못했어요. 배경을 불러오지 못했을 수 있어요. 새로고침 후 다시 시도해 주세요.'); }
   }
-  function 저장하기() {
-    if (!수정됨()) return 받기(현재());
+  async function 저장하기() {
+    if (상태.수정횟수 >= 상태.최대) {
+      return 알림('최대 다운로드/수정 횟수(10회)를 모두 사용하였습니다. 더 이상 다운로드할 수 없습니다.');
+    }
+
+    // A. 수정 없이 단순히 [받기]만 누른 경우
+    if (!수정됨()) {
+      const 남은 = 상태.최대 - 상태.수정횟수;
+      const b = $('b-save'), t = $('b-save-t');
+      b.disabled = true; t.textContent = '다운로드 중…';
+      
+      try {
+        const d = await 요청({ action: 'download', url: R.배경주소(현재().배경) || 'https://fal.media/default.jpg' });
+        상태.수정횟수 = Number(d.썸네일수정횟수 ?? d.editCount ?? d.downloadCount) || (상태.수정횟수 + 1);
+        await 받기(현재());
+        알림(`썸네일을 다운로드했어요! (남은 횟수: ${Math.max(0, 상태.최대 - 상태.수정횟수)}회)`);
+      } catch (e) {
+        if (e.code === 'limit' || 상태.수정횟수 >= 상태.최대) {
+          상태.수정횟수 = 상태.최대;
+          알림('최대 다운로드 횟수(10회)를 초과하였습니다.');
+        } else {
+          알림(e.message || '다운로드 중 오류가 발생했습니다.');
+        }
+      } finally {
+        버튼상태(); 입력반영();
+      }
+      return;
+    }
+
+    // B. 수정사항이 있어 [완성하고 받기]를 누른 경우
     const 남은 = 상태.최대 - 상태.수정횟수;
-    $('dlg-save-msg').textContent = `저장 1번이 사용돼요 (남은 ${남은}번 → ${남은 - 1}번). 3장 모두 지금 모습으로 저장되고, 보고 있는 썸네일 ${상태.장 + 1}을 기기로 받아요.`;
+    $('dlg-save-msg').textContent = `다운로드 1회가 사용돼요 (남은 ${남은}회 → ${남은 - 1}회). 시트에 편집 내용이 저장되고 썸네일을 받습니다.`;
     $('dlg-yt-row').hidden = !상태.유튜브교체;
-    const dlg = $('dlg-save'), ok =$('dlg-ok'), 새ok = ok.cloneNode(true); ok.replaceWith(새ok);
+    
+    const dlg = $('dlg-save'), ok = $('dlg-ok'), 새ok = ok.cloneNode(true); 
+    ok.replaceWith(새ok);
     
     새ok.addEventListener('click', async () => {
-      새ok.disabled = true; 새ok.textContent = '저장하는 중…';
+      새ok.disabled = true; 새ok.textContent = '저장 및 다운로드 중…';
       try {
         const 저장설계 = 깊은복사(상태.설계);
         저장설계.만든곳 = '편집'; 저장설계.편집시각 = new Date().toISOString();
         저장설계.장면.forEach(s => { s.글씨 = R.블록에서글씨(저장설계, s); });
         const body = { action: 'save', design: JSON.stringify(저장설계), scene: 상태.장 + 1 };
+        
         if (상태.유튜브교체 && $('dlg-yt').checked) {
           const jpg = await 파일만들기(현재(), 'image/jpeg', 0.9);
           body.youtubeImage = await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(String(fr.result).split(',')[1]); fr.readAsDataURL(jpg); });
         }
 
-        // 서버 멈춤 방지를 위한 15초 타임아웃 적용
         const 컨트롤러 = new AbortController();
         const 타이머 = setTimeout(() => 컨트롤러.abort(), 15000);
         
@@ -1436,12 +1483,11 @@
             throw new Error((d && d.message) || '서버 저장 중 문제가 발생했어요.');
           }
         } catch (netErr) {
-          console.warn('서버 카운터 동기화 지연, 기기 다운로드를 우선 진행합니다.', netErr);
-          d = { 썸네일다운횟수: 상태.수정횟수 + 1, editCount: 상태.수정횟수 + 1 };
+          console.warn('서버 동기화 지연으로 기기 다운로드를 우선 진행합니다.', netErr);
+          d = { 썸네일수정횟수: 상태.수정횟수 + 1 };
         }
 
-        // 응답에서 '썸네일다운횟수' 또는 'editCount' 값을 우선 반영
-        상태.수정횟수 = Number(d.썸네일다운횟수 ?? d.editCount) || 상태.수정횟수 + 1;
+        상태.수정횟수 = Number(d.썸네일수정횟수 ?? d.editCount ?? d.downloadCount) || (상태.수정횟수 + 1);
         상태.저장된지문 = [...쓰는지문()];
         if (!상태.사진열림) { 상태.사진열림 = true; setTimeout(() => 알림('이제 "내 사진"을 쓸 수 있어요.'), 2500); }
         상태.저장본 = 스냅샷();
@@ -1451,14 +1497,14 @@
         
         if (d.youtube === 'ok') 알림('저장했고 유튜브 썸네일도 바꿨어요.'); 
         else if (d.youtube === 'fail') 알림('저장했어요. 유튜브 썸네일은 바꾸지 못했어요.');
+        else 알림(`저장 및 다운로드를 완료했어요! (남은 횟수: ${Math.max(0, 상태.최대 - 상태.수정횟수)}회)`);
         
         그리기(); 목록그리기(); 입력반영();
       } catch (e) {
         dlg.close();
-        if (e.code === 401) { 알림('로그인 시간이 지났어요. 다시 로그인해 주세요.'); sessionStorage.removeItem('rw_id_token'); setTimeout(() => location.reload(), 1500); return; }
-        if (e.code === 'limit') 상태.수정횟수 = 상태.최대;
+        if (e.code === 401) { 알림('로그인 시간이 지났어요.'); sessionStorage.removeItem('rw_id_token'); setTimeout(() => location.reload(), 1500); return; }
+        if (e.code === 'limit' || 상태.수정횟수 >= 상태.최대) 상태.수정횟수 = 상태.최대;
         if (e.code === 'expired') { 상태.기한지남 = true; 기한표시(); }
-        if (e.code === 'photolocked') 상태.사진열림 = false;
         버튼상태(); 입력반영(); 알림(e.message || '저장 중 에러가 발생했습니다.');
       }
     });
