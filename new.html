@@ -471,6 +471,18 @@
     :root[data-theme="system"] .side-item .ico svg, :root[data-theme="system"] .example-chip svg { stroke: color-mix(in srgb, var(--c) 72%, #000); }
     :root[data-theme="system"] .side-item .ico { background: color-mix(in srgb, var(--c) 22%, transparent); }
   }
+  /* [아이콘 선명도] 왼쪽 메뉴·계정 메뉴 아이콘: 어두운 화면은 더 밝고 또렷하게, 밝은 화면은 더 짙게 */
+  .side-item .ico, .acc-item .ico { background: color-mix(in srgb, var(--c) 26%, transparent); }
+  .side-item .ico svg { stroke: color-mix(in srgb, var(--c) 80%, #fff); stroke-width: 2.3; }
+  .acc-item .ico { width: 28px; height: 28px; }
+  .acc-item .ico svg { width: 18px; height: 18px; stroke: color-mix(in srgb, var(--c) 80%, #fff); stroke-width: 2.2; }
+  .side-item.soon-btn .ico, .soon-group .side-item .ico { opacity: .92; }
+  :root[data-theme="light"] .side-item .ico svg, :root[data-theme="light"] .acc-item .ico svg { stroke: color-mix(in srgb, var(--c) 50%, #000); stroke-width: 2.3; }
+  :root[data-theme="light"] .side-item .ico, :root[data-theme="light"] .acc-item .ico { background: color-mix(in srgb, var(--c) 24%, transparent); }
+  @media (prefers-color-scheme: light) {
+    :root[data-theme="system"] .side-item .ico svg, :root[data-theme="system"] .acc-item .ico svg { stroke: color-mix(in srgb, var(--c) 50%, #000); stroke-width: 2.3; }
+    :root[data-theme="system"] .side-item .ico, :root[data-theme="system"] .acc-item .ico { background: color-mix(in srgb, var(--c) 24%, transparent); }
+  }
   .df-field input[type="checkbox"] { width: 18px; height: 18px; min-height: 0; padding: 0; accent-color: var(--amber); flex-shrink: 0; }
 
   /* ===== 사이드바 v3: 런웨이식 계정 메뉴 + 곧 추가될 기능 묶음 ===== */
