@@ -258,7 +258,7 @@
   <a class="back" id="back-link" href="./dashboard.html">← 프로젝트로</a>
   <div class="top-title" id="top-title"></div>
   <span class="pill" id="deadline" hidden></span>
-  <span class="pill" id="quota" hidden>저장 <b id="quota-n">10</b>번 남음</span>
+  <span class="pill" id="quota" hidden>다운로드 <b id="quota-n">10</b>번 남음</span>
   <button class="btn primary" id="b-save" hidden><svg class="i" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg><span id="b-save-t">받기</span></button>
 </header>
 
@@ -531,6 +531,7 @@
     await R.글꼴준비();
     기한표시();
     화면('editor');
+    if (상태.최대 - 상태.수정횟수 === 1 && !상태.기한지남) setTimeout(() => 알림('다운로드가 마지막 1번 남았습니다.'), 2500);
     UI만들기();
     크기맞추기();
     상태.상자 = 0;
@@ -1373,7 +1374,7 @@
     } else if (!바뀜) {
       t.textContent = '받기';
       b.disabled = 사진없음(장) || 막힘;
-      b.title = `다운로드 1회가 사용돼요 (${남은}회 남음)`;
+      b.title = 남은 === 1 ? '마지막 1번 남았습니다' : `다운로드 1회가 사용돼요 (${남은}회 남음)`;
     } else {
       t.textContent = '완성하고 받기';
       b.disabled = 막힘;
@@ -1434,7 +1435,10 @@ async function 파일만들기(장, 형식, 품질) {
 
 /* ---------- 실제 다운로드 ---------- */
 
+let 받는중 = false;
 async function 받기(장) {
+  if (받는중) return false;
+  받는중 = true;
   try {
 
     /* 이미 10회를 모두 사용했으면 다운로드하지 않는다. */
@@ -1442,7 +1446,7 @@ async function 받기(장) {
     const 최대횟수 = Number(상태.최대) || 10;
 
     if (사용횟수 >= 최대횟수) {
-      알림('10회 모두 적용했어요. 더 이상 받을 수 없어요.');
+      알림('다운로드를 모두 사용했습니다. (10/10)');
       return false;
     }
 
@@ -1476,13 +1480,7 @@ async function 받기(장) {
         body: JSON.stringify({
           idToken: 상태.idToken,
           id: 상태.id,
-          action: 'download',
-
-          /*
-            n8n에서 허용주소 검사를 하기 때문에
-            현재 썸네일의 배경 URL을 함께 전달한다.
-          */
-          url: 현재()?.url || 장?.url || ''
+          action: 'download'
         }),
         signal: 컨트롤러.signal
       });
@@ -1558,7 +1556,9 @@ async function 받기(장) {
     );
 
     if (남은 === 0) {
-      알림('10회 모두 적용했어요.');
+      알림('다운로드를 모두 사용했습니다. (10/10)');
+    } else if (남은 === 1) {
+      알림('기기에 저장했어요. 마지막 1번 남았습니다.');
     } else {
       알림(`기기에 저장했어요. ${남은}번 남았어요.`);
     }
@@ -1600,6 +1600,8 @@ async function 받기(장) {
     );
 
     return false;
+  } finally {
+    받는중 = false;
   }
 }
 
@@ -1629,8 +1631,8 @@ function 저장하기() {
   */
   $('dlg-save-msg').textContent =
     남은 > 0
-      ? `저장 후 현재 썸네일을 기기로 받아요. 다운로드 ${남은}번 남음.`
-      : '10회 모두 적용했어요. 더 이상 받을 수 없어요.';
+      ? (남은 === 1 ? '마지막 1번 남았습니다. 저장 후 현재 썸네일을 기기로 받아요.' : `저장 후 현재 썸네일을 기기로 받아요. 다운로드 ${남은}번 남음.`)
+      : '다운로드를 모두 사용했습니다. (10/10)';
 
 
   $('dlg-yt-row').hidden = !상태.유튜브교체;
