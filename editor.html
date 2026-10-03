@@ -1397,133 +1397,530 @@
       : '글씨를 누르면 바로 고칠 수 있고, 끌어서 옮길 수 있어요';
   }
 
-  /* ---------- 받기·저장 (타임아웃 방어 및 썸네일수정횟수 카운터 대응) ---------- */
-  async function 파일만들기(장, 형식, 품질) {
-    const { w: W, h: H } = 상태.설계.캔버스, 배율 = W < H ? 1.5 : 1;
-    const c = document.createElement('canvas'); c.width = Math.round(W * 배율); c.height = Math.round(H * 배율);
-    장.글씨 = R.블록에서글씨(상태.설계, 장);
-    R.그리기(c.getContext('2d'), 상태.설계, 장, 배경이미지(장), { 배율 });
-    return R.파일로(c, 형식, 품질);
-  }
-  async function 받기(장) {
+/* ---------- 받기·저장 (최종: 실제 다운로드 성공 시에만 1회 차감) ---------- */
+
+/*
+  카운터 규칙
+  - 시트 썸네일수정횟수 = 실제 다운로드 성공 횟수
+  - 최대 10회
+  - HTML 표시 = 10 - 사용횟수
+  - 저장(save)은 카운터를 증가시키지 않음
+  - 받기(download) 성공 시에만 카운터 +1
+  - 다운로드 실패 시 카운터 변화 없음
+  - 내 사진 사용/편집/미리보기도 카운터와 무관
+*/
+
+async function 파일만들기(장, 형식, 품질) {
+  const { w: W, h: H } = 상태.설계.캔버스,
+        배율 = W < H ? 1.5 : 1;
+
+  const c = document.createElement('canvas');
+  c.width = Math.round(W * 배율);
+  c.height = Math.round(H * 배율);
+
+  장.글씨 = R.블록에서글씨(상태.설계, 장);
+
+  R.그리기(
+    c.getContext('2d'),
+    상태.설계,
+    장,
+    배경이미지(장),
+    { 배율 }
+  );
+
+  return R.파일로(c, 형식, 품질);
+}
+
+
+/* ---------- 실제 다운로드 ---------- */
+
+async function 받기(장) {
+  try {
+
+    /* 이미 10회를 모두 사용했으면 다운로드하지 않는다. */
+    const 사용횟수 = Number(상태.수정횟수) || 0;
+    const 최대횟수 = Number(상태.최대) || 10;
+
+    if (사용횟수 >= 최대횟수) {
+      알림('10회 모두 적용했어요. 더 이상 받을 수 없어요.');
+      return false;
+    }
+
+    /*
+      먼저 현재 썸네일을 브라우저에서 완성한다.
+      서버 카운터는 다운로드가 실제 성공한 뒤 증가시킨다.
+    */
+    const blob = await 파일만들기(장, 'image/png');
+
+    if (!blob || !blob.size) {
+      throw new Error('파일을 만들지 못했어요.');
+    }
+
+    /*
+      서버에 실제 다운로드 성공을 기록한다.
+      v1.5 n8n:
+        action: 'download'
+      성공하면 썸네일수정횟수가 +1 된다.
+    */
+    const 컨트롤러 = new AbortController();
+    const 타이머 = setTimeout(() => 컨트롤러.abort(), 15000);
+
+    let d;
+
     try {
-      const blob = await 파일만들기(장, 'image/png');
-      const 제목 = String(상태.제목 || '리와인드').replace(/[\/:*?"<>|#]/g, '').replace(/\s+/g, ' ').trim().slice(0, 40) || '리와인드';
-      const url = URL.createObjectURL(blob), a = document.createElement('a');
-      a.href = url; a.download = `${제목}_썸네일${장.번호 || 상태.장 + 1}.png`;
-      document.body.appendChild(a); a.click(); a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 30000);
-      알림('기기에 저장했어요.');
-    } catch (e) { 알림('파일을 만들지 못했어요. 배경을 불러오지 못했을 수 있어요. 새로고침 후 다시 시도해 주세요.'); }
-  }
-  async function 저장하기() {
-    if (상태.수정횟수 >= 상태.최대) {
-      return 알림('최대 다운로드/수정 횟수(10회)를 모두 사용하였습니다. 더 이상 다운로드할 수 없습니다.');
-    }
+      const res = await fetch(THUMB_EDIT_WEBHOOK_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          idToken: 상태.idToken,
+          id: 상태.id,
+          action: 'download',
 
-    // A. 수정 없이 단순히 [받기]만 누른 경우
-    if (!수정됨()) {
-      const 남은 = 상태.최대 - 상태.수정횟수;
-      const b = $('b-save'), t = $('b-save-t');
-      b.disabled = true; t.textContent = '다운로드 중…';
-      
-      try {
-        const d = await 요청({ action: 'download', url: R.배경주소(현재().배경) || 'https://fal.media/default.jpg' });
-        상태.수정횟수 = Number(d.썸네일수정횟수 ?? d.editCount ?? d.downloadCount) || (상태.수정횟수 + 1);
-        await 받기(현재());
-        알림(`썸네일을 다운로드했어요! (남은 횟수: ${Math.max(0, 상태.최대 - 상태.수정횟수)}회)`);
-      } catch (e) {
-        if (e.code === 'limit' || 상태.수정횟수 >= 상태.최대) {
-          상태.수정횟수 = 상태.최대;
-          알림('최대 다운로드 횟수(10회)를 초과하였습니다.');
-        } else {
-          알림(e.message || '다운로드 중 오류가 발생했습니다.');
-        }
-      } finally {
-        버튼상태(); 입력반영();
+          /*
+            n8n에서 허용주소 검사를 하기 때문에
+            현재 썸네일의 배경 URL을 함께 전달한다.
+          */
+          url: 현재()?.url || 장?.url || ''
+        }),
+        signal: 컨트롤러.signal
+      });
+
+      clearTimeout(타이머);
+
+      d = await res.json().catch(() => null);
+
+      if (!res.ok || !d || d.ok === false) {
+        const err = new Error(
+          (d && d.message) || '다운로드 처리 중 문제가 발생했어요.'
+        );
+
+        if (d?.code) err.code = d.code;
+
+        throw err;
       }
-      return;
+
+    } catch (netErr) {
+      clearTimeout(타이머);
+      throw netErr;
     }
 
-    // B. 수정사항이 있어 [완성하고 받기]를 누른 경우
-    const 남은 = 상태.최대 - 상태.수정횟수;
-    $('dlg-save-msg').textContent = `다운로드 1회가 사용돼요 (남은 ${남은}회 → ${남은 - 1}회). 시트에 편집 내용이 저장되고 썸네일을 받습니다.`;
-    $('dlg-yt-row').hidden = !상태.유튜브교체;
-    
-    const dlg = $('dlg-save'), ok = $('dlg-ok'), 새ok = ok.cloneNode(true); 
-    ok.replaceWith(새ok);
-    
-    새ok.addEventListener('click', async () => {
-      새ok.disabled = true; 새ok.textContent = '저장 및 다운로드 중…';
+
+    /*
+      서버가 성공적으로 카운터를 처리한 경우에만
+      HTML의 횟수도 갱신한다.
+    */
+    const 서버횟수 = Number(
+      d.downloadCount ??
+      d.editCount ??
+      d.썸네일수정횟수
+    );
+
+    if (Number.isFinite(서버횟수)) {
+      상태.수정횟수 = 서버횟수;
+    } else {
+      상태.수정횟수 = 사용횟수 + 1;
+    }
+
+
+    /* 실제 파일을 기기에 저장한다. */
+    const 제목 = String(
+      상태.제목 || '리와인드'
+    )
+      .replace(/[\\/:*?"<>|#]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .slice(0, 40) || '리와인드';
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+
+    a.href = url;
+    a.download =
+      `${제목}_썸네일${장.번호 || 상태.장 + 1}.png`;
+
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    setTimeout(() => URL.revokeObjectURL(url), 30000);
+
+
+    /* 화면의 남은 횟수 갱신 */
+    버튼상태();
+    입력반영();
+    목록그리기();
+
+    const 남은 = Math.max(
+      0,
+      최대횟수 - 상태.수정횟수
+    );
+
+    if (남은 === 0) {
+      알림('10회 모두 적용했어요.');
+    } else {
+      알림(`기기에 저장했어요. ${남은}번 남았어요.`);
+    }
+
+    return true;
+
+  } catch (e) {
+
+    /*
+      다운로드 실패 시 절대로 카운터를 증가시키지 않는다.
+    */
+    console.warn('다운로드 실패:', e);
+
+    if (e.code === 401) {
+      알림('로그인 시간이 지났어요. 다시 로그인해 주세요.');
+      sessionStorage.removeItem('rw_id_token');
+
+      setTimeout(() => location.reload(), 1500);
+      return false;
+    }
+
+    if (e.code === 'limit') {
+      상태.수정횟수 = 상태.최대;
+      버튼상태();
+      입력반영();
+
+      알림('10회 모두 적용했어요. 더 이상 받을 수 없어요.');
+      return false;
+    }
+
+    if (e.code === 'expired') {
+      상태.기한지남 = true;
+      기한표시();
+    }
+
+    알림(
+      e.message ||
+      '다운로드 중 문제가 발생했어요. 다시 시도해 주세요.'
+    );
+
+    return false;
+  }
+}
+
+
+/* ---------- 저장 ---------- */
+
+function 저장하기() {
+
+  /*
+    수정하지 않았다면 저장할 필요가 없으므로
+    바로 다운로드만 한다.
+    다운로드할 때만 카운터가 1회 증가한다.
+  */
+  if (!수정됨()) {
+    return 받기(현재());
+  }
+
+
+  const 사용횟수 = Number(상태.수정횟수) || 0;
+  const 최대횟수 = Number(상태.최대) || 10;
+  const 남은 = Math.max(0, 최대횟수 - 사용횟수);
+
+  /*
+    10회 모두 사용했다면 저장 후 받을 수 없다.
+    단, 기존 저장 자체를 막는 것이 목적이 아니라
+    '받기'만 막는다.
+  */
+  $('dlg-save-msg').textContent =
+    남은 > 0
+      ? `저장 후 현재 썸네일을 기기로 받아요. 다운로드 ${남은}번 남음.`
+      : '10회 모두 적용했어요. 더 이상 받을 수 없어요.';
+
+
+  $('dlg-yt-row').hidden = !상태.유튜브교체;
+
+  const dlg = $('dlg-save');
+  const ok = $('dlg-ok');
+  const 새ok = ok.cloneNode(true);
+
+  ok.replaceWith(새ok);
+
+
+  새ok.addEventListener('click', async () => {
+
+    새ok.disabled = true;
+    새ok.textContent = '저장하는 중…';
+
+    try {
+
+      const 저장설계 = 깊은복사(상태.설계);
+
+      저장설계.만든곳 = '편집';
+      저장설계.편집시각 = new Date().toISOString();
+
+      저장설계.장면.forEach(s => {
+        s.글씨 = R.블록에서글씨(저장설계, s);
+      });
+
+
+      /*
+        중요:
+        save에서는 썸네일수정횟수를 절대로 증가시키지 않는다.
+      */
+      const body = {
+        action: 'save',
+        design: JSON.stringify(저장설계),
+        scene: 상태.장 + 1
+      };
+
+
+      if (상태.유튜브교체 && $('dlg-yt').checked) {
+
+        const jpg = await 파일만들기(
+          현재(),
+          'image/jpeg',
+          0.9
+        );
+
+        body.youtubeImage = await new Promise(resolve => {
+
+          const fr = new FileReader();
+
+          fr.onload = () => {
+            resolve(
+              String(fr.result).split(',')[1]
+            );
+          };
+
+          fr.readAsDataURL(jpg);
+        });
+      }
+
+
+      /* 서버에 저장만 한다. 카운터는 증가하지 않는다. */
+      const 컨트롤러 = new AbortController();
+
+      const 타이머 = setTimeout(
+        () => 컨트롤러.abort(),
+        15000
+      );
+
+      let d;
+
       try {
-        const 저장설계 = 깊은복사(상태.설계);
-        저장설계.만든곳 = '편집'; 저장설계.편집시각 = new Date().toISOString();
-        저장설계.장면.forEach(s => { s.글씨 = R.블록에서글씨(저장설계, s); });
-        const body = { action: 'save', design: JSON.stringify(저장설계), scene: 상태.장 + 1 };
-        
-        if (상태.유튜브교체 && $('dlg-yt').checked) {
-          const jpg = await 파일만들기(현재(), 'image/jpeg', 0.9);
-          body.youtubeImage = await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(String(fr.result).split(',')[1]); fr.readAsDataURL(jpg); });
-        }
 
-        const 컨트롤러 = new AbortController();
-        const 타이머 = setTimeout(() => 컨트롤러.abort(), 15000);
-        
-        let d;
-        try {
-          const res = await fetch(THUMB_EDIT_WEBHOOK_URL, {
+        const res = await fetch(
+          THUMB_EDIT_WEBHOOK_URL,
+          {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ idToken: 상태.idToken, id: 상태.id, ...body }),
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              idToken: 상태.idToken,
+              id: 상태.id,
+              ...body
+            }),
             signal: 컨트롤러.signal
-          });
-          clearTimeout(타이머);
-          d = await res.json().catch(() => null);
-          if (!res.ok || !d || d.ok === false) {
-            throw new Error((d && d.message) || '서버 저장 중 문제가 발생했어요.');
           }
-        } catch (netErr) {
-          console.warn('서버 동기화 지연으로 기기 다운로드를 우선 진행합니다.', netErr);
-          d = { 썸네일수정횟수: 상태.수정횟수 + 1 };
+        );
+
+        clearTimeout(타이머);
+
+        d = await res.json().catch(() => null);
+
+        if (!res.ok || !d || d.ok === false) {
+
+          const err = new Error(
+            (d && d.message) ||
+            '서버 저장 중 문제가 발생했어요.'
+          );
+
+          if (d?.code) err.code = d.code;
+
+          throw err;
         }
 
-        상태.수정횟수 = Number(d.썸네일수정횟수 ?? d.editCount ?? d.downloadCount) || (상태.수정횟수 + 1);
-        상태.저장된지문 = [...쓰는지문()];
-        if (!상태.사진열림) { 상태.사진열림 = true; setTimeout(() => 알림('이제 "내 사진"을 쓸 수 있어요.'), 2500); }
-        상태.저장본 = 스냅샷();
-        dlg.close();
-        
-        await 받기(현재());
-        
-        if (d.youtube === 'ok') 알림('저장했고 유튜브 썸네일도 바꿨어요.'); 
-        else if (d.youtube === 'fail') 알림('저장했어요. 유튜브 썸네일은 바꾸지 못했어요.');
-        else 알림(`저장 및 다운로드를 완료했어요! (남은 횟수: ${Math.max(0, 상태.최대 - 상태.수정횟수)}회)`);
-        
-        그리기(); 목록그리기(); 입력반영();
-      } catch (e) {
-        dlg.close();
-        if (e.code === 401) { 알림('로그인 시간이 지났어요.'); sessionStorage.removeItem('rw_id_token'); setTimeout(() => location.reload(), 1500); return; }
-        if (e.code === 'limit' || 상태.수정횟수 >= 상태.최대) 상태.수정횟수 = 상태.최대;
-        if (e.code === 'expired') { 상태.기한지남 = true; 기한표시(); }
-        버튼상태(); 입력반영(); 알림(e.message || '저장 중 에러가 발생했습니다.');
+      } catch (netErr) {
+
+        clearTimeout(타이머);
+        throw netErr;
+      }
+
+
+      /*
+        save 응답에서는 카운터를 변경하지 않는다.
+        서버의 현재 다운로드 횟수만 반영한다.
+      */
+      if (
+        Number.isFinite(Number(d?.downloadCount))
+      ) {
+        상태.수정횟수 =
+          Number(d.downloadCount);
+      }
+
+
+      상태.저장된지문 = [...쓰는지문()];
+
+      /*
+        내 사진 사용 여부는 다운로드 카운터와 관계없다.
+      */
+      if (!상태.사진열림) {
+        상태.사진열림 = true;
+
+        setTimeout(
+          () => 알림('이제 "내 사진"을 쓸 수 있어요.'),
+          2500
+        );
+      }
+
+
+      상태.저장본 = 스냅샷();
+
+      dlg.close();
+
+
+      /*
+        저장이 끝난 뒤 실제 '받기'를 실행한다.
+        여기서 action:'download'가 호출되며
+        성공했을 때만 시트 카운터가 +1 된다.
+      */
+      const 다운로드성공 = await 받기(현재());
+
+
+      if (d.youtube === 'ok') {
+        알림(
+          다운로드성공
+            ? '저장했고 유튜브 썸네일도 바꿨어요.'
+            : '저장했고 유튜브 썸네일도 바꿨어요. 다운로드는 다시 시도해 주세요.'
+        );
+
+      } else if (d.youtube === 'fail') {
+        알림(
+          다운로드성공
+            ? '저장했어요. 유튜브 썸네일은 바꾸지 못했어요.'
+            : '저장했어요. 다운로드는 다시 시도해 주세요.'
+        );
+      }
+
+
+      그리기();
+      목록그리기();
+      입력반영();
+
+
+    } catch (e) {
+
+      dlg.close();
+
+      if (e.code === 401) {
+
+        알림('로그인 시간이 지났어요. 다시 로그인해 주세요.');
+
+        sessionStorage.removeItem(
+          'rw_id_token'
+        );
+
+        setTimeout(
+          () => location.reload(),
+          1500
+        );
+
+        return;
+      }
+
+
+      if (e.code === 'limit') {
+        상태.수정횟수 = 상태.최대;
+      }
+
+
+      if (e.code === 'expired') {
+        상태.기한지남 = true;
+        기한표시();
+      }
+
+
+      버튼상태();
+      입력반영();
+
+      알림(
+        e.message ||
+        '저장 중 에러가 발생했습니다.'
+      );
+    }
+  });
+
+
+  dlg.showModal();
+}
+
+
+/* ---------- 로그인 ---------- */
+
+function 로그인() {
+  화면('scr-login');
+
+  const 준비 = () => {
+
+    if (
+      !(window.google &&
+        google.accounts &&
+        google.accounts.id)
+    ) {
+      return setTimeout(준비, 200);
+    }
+
+    google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      auto_select: true,
+
+      callback: r => {
+
+        if (!decodeJwt(r.credential)) return;
+
+        sessionStorage.setItem(
+          'rw_id_token',
+          r.credential
+        );
+
+        시작(r.credential);
       }
     });
-    dlg.showModal();
-  }
 
-  /* ---------- 로그인 ---------- */
-  function 로그인() {
-    화면('scr-login');
-    const 준비 = () => {
-      if (!(window.google && google.accounts && google.accounts.id)) return setTimeout(준비, 200);
-      google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, auto_select: true, callback: r => { if (!decodeJwt(r.credential)) return; sessionStorage.setItem('rw_id_token', r.credential); 시작(r.credential); } });
-      google.accounts.id.renderButton($('gsi-area'), { theme: 'filled_black', size: 'large', text: 'continue_with', shape: 'pill' });
-      try { google.accounts.id.prompt(); } catch (e) {}
-    };
-    준비();
-  }
-  const 저장토큰 = sessionStorage.getItem('rw_id_token'), 정보 = 저장토큰 && decodeJwt(저장토큰);
-  if (정보 && 정보.exp && 정보.exp > Date.now() / 1000 + 120) 시작(저장토큰); else 로그인();
+
+    google.accounts.id.renderButton(
+      $('gsi-area'),
+      {
+        theme: 'filled_black',
+        size: 'large',
+        text: 'continue_with',
+        shape: 'pill'
+      }
+    );
+
+
+    try {
+      google.accounts.id.prompt();
+    } catch (e) {}
+  };
+
+  준비();
+}
+
+
+const 저장토큰 =
+  sessionStorage.getItem('rw_id_token');
+
+const 정보 =
+  저장토큰 && decodeJwt(저장토큰);
+
+if (
+  정보 &&
+  정보.exp &&
+  정보.exp > Date.now() / 1000 + 120
+) {
+  시작(저장토큰);
+} else {
+  로그인();
+}
+
 })();
 </script>
 </body>
