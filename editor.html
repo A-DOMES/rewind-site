@@ -133,6 +133,13 @@
   .frame { position: relative; line-height: 0; box-shadow: 0 20px 50px rgba(0,0,0,.45); touch-action: none; user-select: none; -webkit-user-select: none; }
   .frame canvas { display: block; width: 100%; height: 100%; }
   .ov { position: absolute; inset: 0; pointer-events: none; }
+  /* 썸네일 모양 고르기 */
+  .shapebar { display: flex; align-items: center; gap: 8px; flex: none; overflow-x: auto; padding-bottom: 2px; -webkit-overflow-scrolling: touch; scrollbar-width: thin; }
+  .shapebar .shape-lbl { flex: none; font-size: .8rem; color: var(--ink-dim); white-space: nowrap; }
+  .chip.shape { display: inline-flex; align-items: center; gap: 6px; flex: none; white-space: nowrap; min-height: 34px; padding: 4px 11px; }
+  .chip.shape svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.7; flex: none; }
+  .chip.shape .orig { font-style: normal; font-size: .68rem; color: var(--amber); }
+  .chip.shape:disabled { opacity: .45; }
   .guide { position: absolute; left: 0; right: 0; border-top: 1px dashed rgba(255,225,77,.7); }
   .guide span { position: absolute; right: 6px; top: 3px; font-size: 11px; line-height: 1.2; color: #ffe14d; background: rgba(0,0,0,.6); padding: 2px 6px; border-radius: 4px; }
   .face { position: absolute; border: 2px dashed rgba(255,255,255,.75); border-radius: 50%; }
@@ -351,6 +358,7 @@
   </aside>
 
   <main class="work">
+    <div class="shapebar" id="shapebar" role="group" aria-label="썸네일 모양"><span class="shape-lbl">썸네일 모양</span><span id="shape-chips" style="display:contents"></span></div>
     <div class="stage" id="stage">
       <div class="tip" id="tip"><b>팁</b><span>글씨를 누르면 바로 고칠 수 있고, 끌어서 옮길 수 있어요</span></div>
       <div class="frame" id="frame">
@@ -423,7 +431,7 @@
   const 상태 = {
     idToken: '', id: '', 제목: '', 설계: null, 자동본: null, 저장본: '', 장: 0, 상자: 0, 탭: 'text', 선택: false,
     수정횟수: 0, 최대: 10, 유튜브교체: false, 이미지: {}, 기록: [], 되돌림: [], 가이드: true,
-    기한: null, 기한지남: false, 사진최대: 3, 저장된지문: [], 사진열림: false, 캡처최대: 5, 캡처횟수: 0, 재료: {}
+    기한: null, 기한지남: false, 저장모양: '', 원모양: '', 사진최대: 3, 저장된지문: [], 사진열림: false, 캡처최대: 5, 캡처횟수: 0, 재료: {}
   };
 
   /* ---------- 공통 ---------- */
@@ -492,6 +500,44 @@
     return { 버전: 3, 만든곳: '기본틀', 캔버스: { w: W, h: H, 종류: 롱폼 ? '롱폼' : '쇼츠' }, 장면 };
   }
 
+  /* ---------- 썸네일 모양 (영상 모양과 다르게도 만들 수 있다) ---------- */
+  // w·h = 편집 때 쓰는 크기, 배율 = 받을 때 곱하는 값 (9:16 → 1080×1920, 16:9 → 1280×720 ...)
+  const 모양목록 = [
+    { key: '9:16', 이름: '세로', w: 720, h: 1280, 배율: 1.5 },
+    { key: '16:9', 이름: '가로', w: 1280, h: 720, 배율: 1 },
+    { key: '1:1', 이름: '정사각', w: 720, h: 720, 배율: 1.5 },
+    { key: '4:5', 이름: '세로', w: 720, h: 900, 배율: 1.5 },
+    { key: '3:4', 이름: '세로', w: 720, h: 960, 배율: 1.5 },
+    { key: '2.35:1', 이름: '와이드', w: 1280, h: 545, 배율: 1 }
+  ];
+  const 모양찾기 = c => (c && 모양목록.find(m => m.w === c.w && m.h === c.h)) || null;
+  const 현재모양키 = () => { const m = 모양찾기(상태.설계 && 상태.설계.캔버스); return m ? m.key : ''; };
+
+  // 한 글씨 상자를 새 모양으로 옮긴다: 크기는 줄어드는 쪽에 맞추고, 세로 위치는 비율로, 가로 폭을 넘으면 줄인다
+  function 상자모양맞춤(b, 전, 후, 측정) {
+    const bl = b.블록; if (!bl) return;
+    const 줄수 = Math.max(1, (b.문구 && b.문구.줄 ? b.문구.줄.length : 1));
+    const 간격 = bl.줄간격 || 1.15;
+    const kx = 후.w / 전.w, ky = 후.h / 전.h, k = Math.min(kx, ky);
+    const 중심 = (bl.y + 줄수 * bl.size * 간격 / 2) / 전.h;
+    bl.size = Math.max(24, Math.round(bl.size * k));
+    bl.테두리 = Math.max(2, Math.round((bl.테두리 || 0) * k));
+    bl.cx = Math.round(bl.cx * kx);
+    const 한계 = 후.w * 0.92;
+    let 폭 = 측정(b);
+    if (폭 > 한계) bl.size = Math.max(24, Math.floor(bl.size * 한계 / 폭));
+    else if (폭 > 0 && 폭 < 한계 * 0.8 && bl.size < 후.h * 0.1) {   // 가로로 넉넉한 모양에서 글씨가 너무 작아지면 키운다
+      const g = Math.min(한계 / 폭, 1.5, (후.h * 0.14) / bl.size);
+      if (g > 1) bl.size = Math.round(bl.size * g);
+    }
+    폭 = 측정(b);
+    const 반폭 = Math.min(한계, 폭) / 2;
+    bl.cx = Math.round(Math.min(후.w - 반폭 - 후.w * 0.02, Math.max(반폭 + 후.w * 0.02, bl.cx)));
+    const 높이 = 줄수 * bl.size * 간격;
+    bl.y = Math.round(Math.max(후.h * 0.02, Math.min(후.h * 0.97 - 높이, 중심 * 후.h - 높이 / 2)));
+  }
+  function 장면모양변환(장, 전, 후, 측정) { R.상자목록(장).forEach(b => 상자모양맞춤(b, 전, 후, 측정)); }
+
   /* ---------- 불러오기 ---------- */
   async function 시작(idToken) {
     상태.idToken = idToken;
@@ -547,6 +593,8 @@
     상태.장 = 0;
     상태.자동본 = 깊은복사(상태.설계.자동본 || 상태.설계); delete 상태.자동본.자동본;
     상태.저장본 = 새로만듦 ? '' : 스냅샷();
+    상태.원모양 = 현재모양키(); 상태.저장모양 = 상태.원모양;
+    모양버튼그리기();
     if (새로만듦) 알림('기본 틀로 시작해요. 왼쪽 "영상에서"로 원하는 장면을 골라 네모 상자로 영역을 정해 보세요.');
     await 장고르기(0);
   }
@@ -755,16 +803,44 @@
     }));
   }
 
+  /* ---------- 썸네일 모양 바꾸기 ---------- */
+  function 모양버튼그리기() {
+    const el = $('shape-chips'); if (!el) return;
+    const 지금 = 현재모양키();
+    el.innerHTML = 모양목록.map(m => {
+      const 큰 = 18, bw = m.w >= m.h ? 큰 : 큰 * m.w / m.h, bh = m.w >= m.h ? 큰 * m.h / m.w : 큰;
+      const 원 = m.key === 상태.원모양;
+      return `<button type="button" class="chip shape" data-shape="${m.key}" aria-pressed="${m.key === 지금}" title="${m.이름} ${m.key}${원 ? ' · 영상과 같은 모양' : ''} · 받으면 ${Math.round(m.w * m.배율)}×${Math.round(m.h * m.배율)}"${잠김() ? ' disabled' : ''}><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="${(24 - bw) / 2}" y="${(24 - bh) / 2}" width="${bw}" height="${bh}" rx="2"/></svg><span>${m.key}</span>${원 ? '<i class="orig">영상</i>' : ''}</button>`;
+    }).join('');
+    el.querySelectorAll('button').forEach(b => b.addEventListener('click', () => 모양바꾸기(b.dataset.shape)));
+  }
+  function 모양바꾸기(key) {
+    const m = 모양목록.find(x => x.key === key);
+    if (!m || 잠김()) return;
+    const 전 = 상태.설계.캔버스;
+    if (전.w === m.w && 전.h === m.h) return;
+    const 측정 = b => Math.max(0, ...R.상자글씨(상태.설계, b).map(t => R.줄너비(ctx, t)));
+    const 기록 = { 장면: JSON.stringify(상태.설계.장면), 장: 상태.장, 키: 'shape', t: Date.now(), 캔: JSON.stringify(전) };
+    const 후 = { ...전, w: m.w, h: m.h, 모양: key };
+    상태.설계.캔버스 = 후;
+    상태.설계.장면.forEach(장 => 장면모양변환(장, 전, 후, 측정));
+    상태.기록.push(기록); if (상태.기록.length > 80) 상태.기록.shift();
+    상태.되돌림 = []; 상태.선택 = false;
+    크기맞추기(); 배경목록(); 모양버튼그리기();
+    그리기(); 입력반영(); 목록그리기();
+    알림(`${m.이름} ${m.key} 모양으로 바꿨어요. 글씨 위치를 한 번 확인해 주세요.`);
+  }
+
   /* ---------- 변경·기록 ---------- */
   const 장요약 = s => ({ 블록: s.블록, 문구: s.문구 && s.문구.줄, 추가: (s.추가상자 || []).map(b => ({ 블록: b.블록, 줄: b.문구 && b.문구.줄 })), 배경: s.배경, 그늘: s.그늘, 얼굴: s.얼굴 });
   function 스냅샷() { return JSON.stringify(상태.설계.장면.map(장요약)); }
-  const 수정됨 = () => 스냅샷() !== 상태.저장본;
+  const 수정됨 = () => 스냅샷() !== 상태.저장본 || 현재모양키() !== 상태.저장모양;
   function 변경(fn, 묶음키) {
     const 전 = JSON.stringify(상태.설계.장면);
     fn();
     if (JSON.stringify(상태.설계.장면) === 전) return;
     const 지금 = Date.now(), 마지막 = 상태.기록[상태.기록.length - 1];
-    if (!(묶음키 && 마지막 && 마지막.키 === 묶음키 && 지금 - 마지막.t < 800)) 상태.기록.push({ 장면: 전, 장: 상태.장, 키: 묶음키, t: 지금 });
+    if (!(묶음키 && 마지막 && 마지막.키 === 묶음키 && 지금 - 마지막.t < 800)) 상태.기록.push({ 장면: 전, 장: 상태.장, 키: 묶음키, t: 지금, 캔: JSON.stringify(상태.설계.캔버스) });
     else 마지막.t = 지금;
     if (상태.기록.length > 80) 상태.기록.shift();
     상태.되돌림 = [];
@@ -773,8 +849,9 @@
   function 되돌리기(앞으로) {
     const 출발 = 앞으로 ? 상태.되돌림 : 상태.기록, 도착 = 앞으로 ? 상태.기록 : 상태.되돌림;
     const 항목 = 출발.pop(); if (!항목) return;
-    도착.push({ 장면: JSON.stringify(상태.설계.장면), 장: 상태.장, t: 0 });
+    도착.push({ 장면: JSON.stringify(상태.설계.장면), 장: 상태.장, t: 0, 캔: JSON.stringify(상태.설계.캔버스) });
     상태.설계.장면 = JSON.parse(항목.장면); 상태.장 = 항목.장; 상태.선택 = false;
+    if (항목.캔 && 항목.캔 !== JSON.stringify(상태.설계.캔버스)) { 상태.설계.캔버스 = JSON.parse(항목.캔); 크기맞추기(); 배경목록(); 모양버튼그리기(); }
     if (상태.상자 >= 상자들().length) 상태.상자 = 0;
     그리기(); 입력반영(); 목록그리기();
   }
@@ -1231,7 +1308,12 @@
     $('pos').querySelectorAll('button').forEach(b => b.addEventListener('click', () => 변경(() => 위치정하기(b.dataset.pos))));
     $('b-reset').addEventListener('click', async () => {
       const 자동 = (상태.자동본.장면 || [])[상태.장]; if (!자동) return;
-      변경(() => { 상태.설계.장면[상태.장] = R.블록채우기({ 캔버스: 상태.설계.캔버스, 장면: [깊은복사(자동)] }).장면[0]; });
+      변경(() => {
+        const 새 = R.블록채우기({ 캔버스: 상태.설계.캔버스, 장면: [깊은복사(자동)] }).장면[0];
+        const 원 = 상태.자동본.캔버스, 지금 = 상태.설계.캔버스;
+        if (원 && (원.w !== 지금.w || 원.h !== 지금.h)) 장면모양변환(새, 원, 지금, b => Math.max(0, ...R.상자글씨(상태.설계, b).map(t => R.줄너비(ctx, t))));
+        상태.설계.장면[상태.장] = 새;
+      });
       await 배경준비(현재()); 그리기(); 알림('처음 모습으로 되돌렸어요.');
     });
     $('t-undo').addEventListener('click', () => 되돌리기(false));
@@ -1368,6 +1450,7 @@
   function 버튼상태() {
     const 남은 = Math.max(0, 상태.최대 - 상태.수정횟수);
     $('quota-n').textContent = 남은;
+    document.querySelectorAll('#shape-chips button').forEach(b => { b.disabled = 잠김(); });
     
     const 장 = 현재(), 문제 = 문제목록();
     const 막힘 = 문제.some(m => m.막음);
@@ -1419,7 +1502,7 @@
 
 async function 파일만들기(장, 형식, 품질) {
   const { w: W, h: H } = 상태.설계.캔버스,
-        배율 = W < H ? 1.5 : 1;
+        배율 = (모양찾기(상태.설계.캔버스) || {}).배율 || (W < H ? 1.5 : 1);
 
   const c = document.createElement('canvas');
   c.width = Math.round(W * 배율);
@@ -1557,6 +1640,7 @@ async function 받기(장) {
 
     setTimeout(() => URL.revokeObjectURL(url), 30000);
     상태.저장본 = 스냅샷();   // 받은 시점까지의 편집은 '받음'으로 본다 (창을 닫을 때 경고 기준)
+    상태.저장모양 = 현재모양키();
 
 
     /* 화면의 남은 횟수 갱신 */
@@ -1640,7 +1724,9 @@ function 저장하기() {
   $('dlg-save-msg').textContent = 남은 > 0
     ? (남은 === 1 ? '마지막 1번 남았습니다. 현재 썸네일을 기기로 받아요.' : `현재 썸네일을 기기로 받아요. 다운로드 ${남은}번 남음.`)
     : '다운로드를 모두 사용했습니다. (10/10)';
-  $('dlg-yt-row').hidden = false;
+  const 같은모양 = 현재모양키() === 상태.원모양;
+  $('dlg-yt-row').hidden = !같은모양;
+  $('dlg-yt').checked = 같은모양;
 
   const dlg = $('dlg-save'), ok = $('dlg-ok'), 새ok = ok.cloneNode(true);
   새ok.disabled = 남은 <= 0;
