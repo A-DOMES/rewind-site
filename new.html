@@ -1027,7 +1027,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       // [신규] 정식 모드는 영상 길이·움직임 방식까지 골라야 필수 항목이 채워진 것 (선택 버튼이 떠 있는 동안 '진행하기' 버튼을 띄우지 않음)
       const 선택대기 = Array.isArray(data.choices) && data.choices.length > 0;
       const 필수충족 = !선택대기 && (mode === 'media' ? !!(answers.driveLink && answers.form)
-        : !!(answers.topic && answers.form && (planMode !== 'paid' || !('choices' in data) || (answers.videoLength && answers.motion)))); // 'choices'를 주는 상담 Agent v6부터 적용 (v5와도 호환)
+        : !!(answers.topic && answers.form && (planMode !== 'paid' || !('choices' in data) || (answers.videoLength && answers.motion && (!data.thumbnailStep || answers.thumbnail))))); // 'choices'는 상담 Agent v6부터, 'thumbnailStep'(AI 썸네일 질문)은 v7부터 적용 (이전 버전과도 호환)
       // [수정] 마무리 단계(complete)에서도 체험/승인/재작성 안내 문구는 요약 카드 앞에 보여준다.
       const 추천목록 = Array.isArray(data.suggestions) ? data.suggestions.filter(s => typeof s === 'string' && s.trim()).slice(0, 3) : [];
       if (data.reply) {
@@ -1673,7 +1673,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
         if (val('df-videoLength')) answers.videoLength = val('df-videoLength');
         if (val('df-sceneCount')) answers.sceneCount = val('df-sceneCount');
         if (val('df-directorNote')) answers.directorNote = val('df-directorNote');
-        if (planMode === 'paid' && document.getElementById('df-thumbnail')?.checked) answers.thumbnail = 'TRUE';
+        if (planMode === 'paid') answers.thumbnail = document.getElementById('df-thumbnail')?.checked ? 'TRUE' : 'FALSE';   // 끈 것도 분명히 보내서 챗봇이 다시 묻지 않게 한다
         // [화면 구성·자막 위치] '자동'이면 보내지 않는다(서버·렌더링이 기본값 처리). 롱폼은 화면 구성이 항상 전체화면형이라 보내지 않음.
         const 고른구성 = document.querySelector('input[name="df-layout"]:checked')?.value || '자동';
         const 고른자막 = document.querySelector('input[name="df-captionPos"]:checked')?.value || '자동';
