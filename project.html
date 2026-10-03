@@ -452,6 +452,9 @@
   #login-expired-bar { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 400; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; justify-content: center; max-width: calc(100% - 32px); padding: 12px 14px 12px 20px; border-radius: 999px; background: var(--bg-raised); border: 1px solid var(--amber); color: var(--ink); font-size: 0.92rem; box-shadow: 0 16px 40px rgba(0,0,0,.35); }
   #login-expired-bar button { min-height: 40px; padding: 0 18px; border: 0; border-radius: 999px; background: var(--amber); color: var(--on-amber); font-family: inherit; font-weight: 600; cursor: pointer; }
 
+  .proj-delete { background: none; border: 0; padding: 8px 12px; color: var(--ink-faint); font: inherit; font-size: .85rem; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+  .proj-delete:hover { color: var(--err, #d64545); }
+  .delete-note { margin: 6px 0 0; font-size: .8rem; color: var(--ink-faint); }
   /* 위치 표시줄: 이전 버튼 + 현재 위치 + 새로 만들기 바로가기 */
   .breadcrumb { flex-wrap: wrap; row-gap: 6px; }
   .breadcrumb .crumb-back { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px 6px 9px; margin-right: 6px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink-dim); font-size: 0.82rem; line-height: 1; white-space: nowrap; }
@@ -586,6 +589,10 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       <a class="btn-ghost" href="./dashboard.html">← 내 프로젝트로 돌아가기</a>
       <a class="btn-ghost" href="./new.html">+ 새 영상 만들기</a>
     </div>
+    <div class="delete-row" style="text-align:center; margin-top:18px;">
+      <button type="button" class="proj-delete" id="proj-delete" hidden>이 프로젝트 삭제</button>
+      <p class="delete-note" id="proj-delete-note" hidden>지금 만들고 있는 프로젝트는 완성되거나 검수 단계가 되면 삭제할 수 있어요.</p>
+    </div>
   </div>
 
 </main>
@@ -600,6 +607,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   const GOOGLE_CLIENT_ID = '188637268860-9hj2af4bt8esn506bf5bqs72qnbu0qjs.apps.googleusercontent.com';
   let currentIdToken = null;
   let currentProject = null;
+  window.__rwCurrentProject = () => currentProject; window.__rwToken = () => currentIdToken;
   let agentHistory = [];
 
   const STEP_ORDER = ['기획', '대본검수대기', '장면구성대기', '장면구성중', '검수 대기', '검수완료', '제작 중', '배포'];
@@ -895,6 +903,11 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     currentProject = p;
     document.getElementById('crumb-title').textContent = p.title || '주제 준비 중';
     document.getElementById('proj-title').textContent = p.title || '주제 준비 중';
+    {
+      const 상태 = p.원래상태 || p.status, 가능 = !window.RewindDelete || window.RewindDelete.canDelete(상태);
+      document.getElementById('proj-delete').hidden = !가능;
+      document.getElementById('proj-delete-note').hidden = 가능;
+    }
     document.getElementById('proj-form').textContent = p.form || '쇼츠';
     document.getElementById('proj-date').textContent = 만든시각글(p) ? ('신청 ' + 만든시각글(p)) : '';
 
@@ -1423,5 +1436,13 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
 })();
 </script>
 
+<script src="./assets/project-delete.js"></script>
+<script>
+  document.getElementById('proj-delete').addEventListener('click', () => {
+    const p = window.__rwCurrentProject && window.__rwCurrentProject();
+    if (!p || !window.RewindDelete) return;
+    window.RewindDelete.ask({ id: p.id, title: p.title, token: () => window.__rwToken && window.__rwToken(), onDone: () => { location.href = './dashboard.html'; } });
+  });
+</script>
 </body>
 </html>

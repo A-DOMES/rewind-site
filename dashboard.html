@@ -160,6 +160,11 @@
     transition: border-color 0.15s;
   }
   .reel-row:hover { border-color: var(--ink-faint); }
+  .reel-wrap { position: relative; }
+  @media (max-width: 520px) { header.shell { gap: 8px; } header.shell .logo { font-size: 0; gap: 0; } header.shell { padding-left: 14px; padding-right: 14px; } .shell-right { gap: 8px; } .shell-right .btn-primary { white-space: nowrap; padding: 9px 12px; font-size: .8rem; border-radius: 999px; line-height: 1.2; } }
+  .reel-del { position: absolute; top: 8px; right: 8px; z-index: 2; width: 34px; height: 34px; display: grid; place-items: center; border: 0; border-radius: 10px; background: transparent; color: var(--ink-faint); cursor: pointer; opacity: .75; }
+  .reel-del svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .reel-del:hover, .reel-del:focus-visible { opacity: 1; color: var(--err, #d64545); background: color-mix(in srgb, var(--err, #d64545) 12%, transparent); }
   .reel-edge { align-self: stretch; background: var(--status-plan); }
   .reel-row[data-status="제작 중"] .reel-edge { background: var(--status-making); }
   .reel-row[data-status="검수 대기"] .reel-edge { background: var(--status-review); }
@@ -580,7 +585,9 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   }
   document.addEventListener('visibilitychange', () => { if (!document.hidden && dashToken) { dashTick(); if (!dashPollTimer) dashPollTimer = setInterval(dashTick, 15000); } });
 
+  const deletedIds = new Set(); // 방금 삭제한 것은 새로고침(15초 점검)에서 잠깐 다시 보이지 않게
   function renderProjects(projects) {
+    projects = (projects || []).filter(p => !deletedIds.has(String(p.id)));
     document.getElementById('loading').style.display = 'none';
     if (!projects || projects.length === 0) {
       document.getElementById('empty').style.display = 'block';
@@ -608,7 +615,9 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       const meta = hasError === '1'
         ? `<span class="err">${escapeHtml(p.errorLog)}</span>`
         : `${escapeHtml(p.form || '쇼츠')} · ${escapeHtml(만든시각글(p))}`;
+      const 지울수있음 = window.RewindDelete && window.RewindDelete.canDelete(p.status);
       return `
+        <div class="reel-wrap" data-id="${escapeHtml(p.id)}">
         <a class="reel-row" href="./project.html?id=${encodeURIComponent(p.id)}" data-status="${escapeHtml(p.status)}" data-error="${hasError}">
           <div class="reel-edge"></div>
           <div class="reel-icon">▶</div>
@@ -618,8 +627,20 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
           </div>
           <div class="status-chip">${escapeHtml(label)}</div>
           <div class="reel-arrow">›</div>
-        </a>`;
+        </a>
+        ${지울수있음 ? `<button type="button" class="reel-del" data-del="${escapeHtml(p.id)}" aria-label="이 프로젝트 삭제" title="삭제"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg></button>` : ''}
+        </div>`;
     }).join('');
+    // 삭제 버튼: 목록에서 바로 지우고, 비면 빈 화면 안내를 보여준다
+    list.querySelectorAll('.reel-del').forEach(btn => btn.addEventListener('click', (e) => {
+      e.preventDefault(); e.stopPropagation();
+      const id = btn.dataset.del, p = projects.find(x => String(x.id) === String(id));
+      window.RewindDelete.ask({ id, title: p && p.title, token: () => dashToken, onDone: () => {
+        const w = btn.closest('.reel-wrap'); if (w) w.remove();
+        deletedIds.add(String(id));
+        if (!list.querySelector('.reel-wrap')) { list.style.display = 'none'; document.getElementById('empty').style.display = 'block'; }
+      } });
+    }));
   }
 
   function escapeHtml(s) {
@@ -691,5 +712,6 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
 })();
 </script>
 
+<script src="./assets/project-delete.js"></script>
 </body>
 </html>
