@@ -518,6 +518,18 @@
   .account-menu-pop .logout { color: var(--ink); font-size: 0.9rem; text-decoration: none; margin: 0; }
 
 
+
+  /* 위치 표시줄 */
+  .crumb-bar { display: flex; align-items: center; gap: 8px; padding: 12px 20px 0; font-size: 0.86rem; color: var(--ink-faint); min-height: 38px; }
+  .crumb-bar button { font: inherit; color: inherit; background: transparent; border: 0; padding: 0; cursor: pointer; }
+  .crumb-bar .cb-root:hover { color: var(--ink); }
+  .crumb-bar .cb-back { display: inline-flex; align-items: center; padding: 6px 12px 6px 9px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink-dim); font-size: 0.82rem; line-height: 1; white-space: nowrap; }
+  .crumb-bar .cb-back:hover { color: var(--ink); border-color: var(--line-strong, var(--line)); }
+  .crumb-bar .cb-sep { opacity: .5; }
+  .crumb-bar .cb-here { color: var(--ink); font-weight: 600; }
+  .crumb-bar .cb-root.is-here { color: var(--ink); font-weight: 600; cursor: default; }
+  @media (max-width: 760px) { .crumb-bar { padding: 10px 16px 0; } }
+
   /* [모바일] 왼쪽 메뉴가 숨겨지는 대신 아래쪽에 메뉴 줄을 둔다 */
   .mobile-nav, .mobile-more { display: none; }
   #app:not([style*="block"]) ~ .mobile-nav, #app:not([style*="block"]) ~ .mobile-more { display: none !important; }
@@ -757,6 +769,12 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     </div>
 
     <div class="main">
+      <nav class="crumb-bar" id="crumb-bar" aria-label="현재 위치">
+        <button type="button" class="cb-back" id="crumb-back" hidden>← 이전</button>
+        <button type="button" class="cb-root" id="crumb-root">새로 만들기</button>
+        <span class="cb-sep" id="crumb-sep" hidden>›</span>
+        <span class="cb-here" id="crumb-here" aria-current="page" hidden></span>
+      </nav>
       <div class="top-mode-bar">
         <button class="top-mode-badge" id="top-mode-badge" title="눌러서 체험/정식 전환"><span class="dot"></span> <span id="top-mode-label">체험 모드</span></button>
       <div class="theme-switch" role="group" aria-label="화면 테마">
@@ -1107,6 +1125,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     ['과학·기술', '#5fb8ff'], ['역사·상식', '#c9a27a'], ['교육·공부법', '#9ad06b'], ['취미·자기계발', '#f59bd0']
   ];
   function showCategoryPicker() {
+    주제찾기열림 = true; if (window.갱신위치표시) window.갱신위치표시();
     // [수정] 직접 설정하기 화면이 열려 있어도 닫지 않는다 - 채팅 쪽에서 분야를 고르고, 고른 주제는 폼의 주제 칸에 바로 넣어준다
     exampleRow.style.display = 'none';
     document.querySelectorAll('.suggest-row').forEach(r => r.remove());
@@ -1349,6 +1368,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   }
 
   function startFreshChat(skipPendingCheck) {
+    주제찾기열림 = false;
     mode = null; answers = {}; history = [];
     clearChatState();
     chatLog.innerHTML = '';
@@ -1822,6 +1842,41 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       setTimeout(initGate, 200);
     }
   }
+
+
+  /* 위치 표시줄: 지금 어느 화면인지 + 이전 버튼 */
+  let 주제찾기열림 = false;
+  (function setupCrumb() {
+    const back = document.getElementById('crumb-back'), root = document.getElementById('crumb-root'),
+          sep = document.getElementById('crumb-sep'), here = document.getElementById('crumb-here'),
+          rowEl = document.getElementById('split-row');
+    if (!back || !root || !rowEl) return;
+    const 상태 = () => rowEl.classList.contains('split-active') ? 'direct' : ((주제찾기열림 && !chatLog.querySelector('.msg.user')) ? 'topic' : 'chat');
+    const 갱신 = () => {
+      const st = 상태();
+      back.hidden = st === 'chat'; sep.hidden = here.hidden = st === 'chat';
+      here.textContent = st === 'direct' ? '직접 설정하기' : st === 'topic' ? '주제 찾기' : '';
+      root.classList.toggle('is-here', st === 'chat');
+    };
+    window.갱신위치표시 = 갱신;
+    back.addEventListener('click', () => {
+      const st = 상태();
+      if (st === 'direct') showChatFromDirectForm();
+      else if (st === 'topic') { 주제찾기열림 = false; startFreshChat(true); }
+      갱신();
+    });
+    root.addEventListener('click', () => {
+      const st = 상태();
+      if (st === 'chat' && chatLog.querySelector('.msg.user')) {
+        if (!confirm('지금 대화를 닫고 새로 시작할까요?')) return;
+      }
+      if (st === 'direct') showChatFromDirectForm();
+      주제찾기열림 = false; startFreshChat(true); 갱신();
+    });
+    new MutationObserver(갱신).observe(rowEl, { attributes: true, attributeFilter: ['class'] });
+    new MutationObserver(갱신).observe(chatLog, { childList: true });
+    갱신();
+  })();
 
   /* [모바일] 아래 메뉴 줄: 숨겨진 왼쪽 메뉴의 버튼을 그대로 눌러 준다 */
   (function setupMobileNav() {

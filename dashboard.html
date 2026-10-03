@@ -371,6 +371,15 @@
   /* 로그인 만료 알림 */
   #login-expired-bar { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 400; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; justify-content: center; max-width: calc(100% - 32px); padding: 12px 14px 12px 20px; border-radius: 999px; background: var(--bg-raised); border: 1px solid var(--amber); color: var(--ink); font-size: 0.92rem; box-shadow: 0 16px 40px rgba(0,0,0,.35); }
   #login-expired-bar button { min-height: 40px; padding: 0 18px; border: 0; border-radius: 999px; background: var(--amber); color: var(--on-amber); font-family: inherit; font-weight: 600; cursor: pointer; }
+
+  /* 위치 표시줄: 이전 버튼 + 현재 위치 + 새로 만들기 바로가기 */
+  .breadcrumb { flex-wrap: wrap; row-gap: 6px; }
+  .breadcrumb .crumb-back { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px 6px 9px; margin-right: 6px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink-dim); font-size: 0.82rem; line-height: 1; white-space: nowrap; }
+  .breadcrumb .crumb-back:hover { color: var(--ink); border-color: var(--line-strong, var(--line)); }
+  .breadcrumb .crumb-new { margin-left: auto; padding: 6px 12px; border: 1px solid var(--amber); border-radius: 999px; color: var(--amber); font-size: 0.82rem; line-height: 1; white-space: nowrap; }
+  .breadcrumb .crumb-new:hover { background: color-mix(in srgb, var(--amber) 12%, transparent); color: var(--amber); }
+  .breadcrumb .here { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 40vw; }
+  @media (max-width: 520px) { .breadcrumb { flex-wrap: nowrap; } .breadcrumb .crumb-root, .breadcrumb .crumb-root + .sep { display: none; } .breadcrumb .here { max-width: none; min-width: 0; flex: 0 1 auto; } .breadcrumb a, .breadcrumb .sep { flex: none; } }
 </style>
 <script>
 /* 테마 전환: 기존 기능 코드와 분리된 독립 스크립트 */
@@ -429,7 +438,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
 
 
 <header class="shell">
-  <a class="logo" href="./index.html"><img src="./리와인드_로고1_512px.png" alt=""> 리와인드</a>
+  <a class="logo" href="./new.html" title="새로 만들기 화면으로"><img src="./리와인드_로고1_512px.png" alt=""> 리와인드</a>
   <div class="shell-right">
     <div class="theme-switch" role="group" aria-label="화면 테마">
       <button type="button" data-t="system" aria-label="기기 설정 따르기" title="기기 설정 따르기"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></button>
@@ -449,9 +458,10 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
 </header>
 
 <nav class="breadcrumb" aria-label="현재 위치">
-  <a href="./index.html">리와인드</a>
+  <a class="crumb-back" href="./new.html" title="이전 화면(새로 만들기)으로">← 이전</a>
+  <a class="crumb-root" href="./new.html">새로 만들기</a>
   <span class="sep">›</span>
-  <span class="here">내 프로젝트</span>
+  <span class="here" aria-current="page">내 프로젝트</span>
 </nav>
 
 <main class="wrap">

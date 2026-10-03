@@ -47,6 +47,11 @@
   .logo img { width: 24px; height: 24px; border-radius: 6px; }
   .back { color: var(--ink-dim); text-decoration: none; font-size: .88rem; white-space: nowrap; }
   .back:hover { color: var(--ink); }
+  .crumb-back { display: inline-flex; align-items: center; height: 34px; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: 999px; }
+  .crumb-new { flex: none; height: 34px; display: inline-flex; align-items: center; padding: 0 12px; border: 1px solid var(--amber); border-radius: 999px; color: var(--amber); }
+  .crumb-new:hover { color: var(--amber); background: color-mix(in srgb, var(--amber) 12%, transparent); }
+  .top-title a { color: inherit; text-decoration: none; } .top-title a:hover { color: var(--ink); text-decoration: underline; }
+  .top-title .sep { opacity: .5; margin: 0 2px; } .top-title .here { color: var(--ink); }
   .top-title { flex: 1; min-width: 0; font-size: .88rem; color: var(--ink-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .pill { flex: none; display: inline-flex; align-items: center; gap: 4px; height: 34px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--line-strong); font-size: .8rem; color: var(--ink-dim); white-space: nowrap; }
   .pill b { color: var(--amber); }
@@ -227,7 +232,9 @@
   /* ===== 휴대폰 ===== */
   @media (max-width: 900px) {
     header.top { gap: 8px; padding: 0 12px; }
-    .top-title, .back, #deadline { display: none; }
+    .top-title, #deadline { display: none; }
+    .crumb-back .b-txt { display: none; } .crumb-back { padding: 0 11px; }
+    .crumb-new { padding: 0 10px; font-size: .8rem; }
     .logo span { display: none; }
     .app { display: flex; flex-direction: column; height: auto; padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px)); }
     .work { order: 1; padding: 12px 12px 4px; }
@@ -254,9 +261,10 @@
 <body>
 
 <header class="top">
-  <a class="logo" href="./dashboard.html"><img src="./리와인드_로고1_512px.png" alt=""><span>리와인드</span></a>
-  <a class="back" id="back-link" href="./dashboard.html">← 프로젝트로</a>
-  <div class="top-title" id="top-title"></div>
+  <a class="logo" href="./new.html" title="새로 만들기 화면으로"><img src="./리와인드_로고1_512px.png" alt=""><span>리와인드</span></a>
+  <a class="back crumb-back" id="back-link" href="./dashboard.html" title="이전 화면(프로젝트)으로"><span aria-hidden="true">←</span><span class="b-txt"> 이전</span></a>
+  <nav class="top-title" id="top-title" aria-label="현재 위치"></nav>
+  <a class="back crumb-new" href="./new.html" title="새 영상 만들기">+ 새로 만들기</a>
   <span class="pill" id="deadline" hidden></span>
   <span class="pill" id="quota" hidden>다운로드 <b id="quota-n">10</b>번 남음</span>
   <button class="btn primary" id="b-save" hidden><svg class="i" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg><span id="b-save-t">받기</span></button>
@@ -526,7 +534,7 @@
     상태.캡처횟수 = Number(d.captureCount) || 0;
     상태.유튜브교체 = !!d.youtubeReplace;
     상태.제목 = d.title || '';
-    $('top-title').textContent = 상태.제목;
+    $('top-title').innerHTML = '<a href="./dashboard.html">내 프로젝트</a> <span class="sep">›</span> <a href="./project.html?id=' + encodeURIComponent(상태.id) + '">' + escapeHtml(상태.제목 || '프로젝트') + '</a> <span class="sep">›</span> <span class="here" aria-current="page">썸네일 편집</span>';
     document.title = (상태.제목 ? 상태.제목.slice(0, 24) + ' · ' : '') + '썸네일 편집 — 리와인드';
     await R.글꼴준비();
     기한표시();
