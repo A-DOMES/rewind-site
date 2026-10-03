@@ -525,6 +525,7 @@
   .crumb-bar .cb-root:hover { color: var(--ink); }
   .crumb-bar .cb-back { display: inline-flex; align-items: center; padding: 6px 12px 6px 9px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink-dim); font-size: 0.82rem; line-height: 1; white-space: nowrap; }
   .crumb-bar .cb-back:hover { color: var(--ink); border-color: var(--line-strong, var(--line)); }
+  .crumb-bar [hidden] { display: none !important; }
   .crumb-bar .cb-sep { opacity: .5; }
   .crumb-bar .cb-here { color: var(--ink); font-weight: 600; }
   .crumb-bar .cb-root.is-here { color: var(--ink); font-weight: 600; cursor: default; }
@@ -1085,13 +1086,13 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       const 필수충족 = !선택대기 && (mode === 'media' ? !!(answers.driveLink && answers.form)
         : !!(answers.topic && answers.form && (planMode !== 'paid' || !('choices' in data) || (answers.videoLength && answers.motion && (!data.thumbnailStep || answers.thumbnail))))); // 'choices'는 상담 Agent v6부터, 'thumbnailStep'(AI 썸네일 질문)은 v7부터 적용 (이전 버전과도 호환)
       // [수정] 마무리 단계(complete)에서도 체험/승인/재작성 안내 문구는 요약 카드 앞에 보여준다.
-      const 추천목록 = Array.isArray(data.suggestions) ? data.suggestions.filter(s => typeof s === 'string' && s.trim()).slice(0, 3) : [];
+      const 추천목록 = Array.isArray(data.suggestions) ? data.suggestions.filter(s => typeof s === 'string' && s.trim()).slice(0, 10) : [];
       if (data.reply) {
         addMsg('bot', renderReply(data.reply));
         // 추천한 주제는 대화 기록에 남겨서, "다른 주제" 요청 때 같은 주제가 다시 나오지 않게 한다
         history.push({ role: 'bot', text: data.reply + (추천목록.length ? `\n[추천: ${추천목록.join(' / ')}]` : '') });
       }
-      if (추천목록.length) showSuggestions(추천목록);
+      if (추천목록.length) { showSuggestions(추천목록); requestAnimationFrame(() => { const w = chatLog.parentElement; if (w) w.scrollTop = w.scrollHeight; }); }
       if (Array.isArray(data.choices) && data.choices.length) showChoices(data.choices);
       if (요금표나중에) showPriceCard(text);
       saveChatState();
