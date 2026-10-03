@@ -1435,6 +1435,13 @@ async function 파일만들기(장, 형식, 품질) {
 
 /* ---------- 실제 다운로드 ---------- */
 
+
+/* 서버 호출 실패 문구: 오래 걸림 / 연결 실패를 구분해서 보여준다 */
+function 오류문구(e, 기본) {
+  if (e && e.name === 'AbortError') return '서버 응답이 너무 늦어요. 잠시 뒤 다시 시도해 주세요. (횟수는 차감되지 않았어요)';
+  if (e && e.name === 'TypeError') return '서버에 연결하지 못했어요. 인터넷 연결을 확인하거나 새로고침 후 다시 시도해 주세요.';
+  return (e && e.message) || 기본;
+}
 let 받는중 = false;
 async function 받기(장) {
   if (받는중) return false;
@@ -1467,7 +1474,7 @@ async function 받기(장) {
       성공하면 썸네일수정횟수가 +1 된다.
     */
     const 컨트롤러 = new AbortController();
-    const 타이머 = setTimeout(() => 컨트롤러.abort(), 15000);
+    const 타이머 = setTimeout(() => 컨트롤러.abort(), 60000);
 
     let d;
 
@@ -1594,10 +1601,7 @@ async function 받기(장) {
       기한표시();
     }
 
-    알림(
-      e.message ||
-      '다운로드 중 문제가 발생했어요. 다시 시도해 주세요.'
-    );
+    알림(오류문구(e, '다운로드 중 문제가 발생했어요. 다시 시도해 주세요.'));
 
     return false;
   } finally {
@@ -1641,13 +1645,16 @@ function 저장하기() {
   const ok = $('dlg-ok');
   const 새ok = ok.cloneNode(true);
 
+  // 이전에 '저장하는 중…'으로 잠긴 버튼을 그대로 복사하면 두 번째부터 눌리지 않는다 → 매번 처음 상태로 되돌린다
+  새ok.disabled = false;
+  새ok.textContent = '저장하고 받기';
   ok.replaceWith(새ok);
 
 
   새ok.addEventListener('click', async () => {
 
     새ok.disabled = true;
-    새ok.textContent = '저장하는 중…';
+    새ok.textContent = '저장하는 중… (최대 1분)';
 
     try {
 
@@ -1700,7 +1707,7 @@ function 저장하기() {
 
       const 타이머 = setTimeout(
         () => 컨트롤러.abort(),
-        15000
+        60000
       );
 
       let d;
@@ -1842,10 +1849,7 @@ function 저장하기() {
       버튼상태();
       입력반영();
 
-      알림(
-        e.message ||
-        '저장 중 에러가 발생했습니다.'
-      );
+      알림(오류문구(e, '저장 중 에러가 발생했습니다.').replace('(횟수는 차감되지 않았어요)', '(저장은 서버에서 계속 처리 중일 수 있어요)'));
     }
   });
 
