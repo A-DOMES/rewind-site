@@ -289,6 +289,7 @@
   .gate-slide .gs svg { width: 84px; height: 84px; opacity: .35; fill: none; stroke: #f2e9da; stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round; }
   .gate-slide .gsub { padding: 0 20px 36px; text-align: center; font-weight: 600; font-size: 1rem; line-height: 1.45; color: #fff; text-shadow: 0 0 2px #000, 0 0 2px #000; }
   .gate-slide .gband { background: #e2a23c; color: #1a1410; padding: 16px 18px; text-align: center; font-weight: 700; font-size: 1.02rem; line-height: 1.4; text-shadow: none; }
+  .gate-slide .gate-vid { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
   .gate-slide .gbar { position: absolute; left: 12px; right: 12px; bottom: 12px; height: 3px; border-radius: 2px; background: rgba(255,255,255,.22); overflow: hidden; }
   .gate-slide .gbar i { display: block; height: 100%; width: 0; background: #e2a23c; animation: gbar 12s linear infinite; }
   .gate-slide:nth-child(2) .gbar i { animation-delay: 4s; } .gate-slide:nth-child(3) .gbar i { animation-delay: 8s; }
@@ -406,10 +407,9 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
           <div class="gsub">버튼 하나로 이불 빨래까지 끝나요</div>
           <div class="gbar"><i></i></div>
         </div>
-        <div class="gate-slide" style="background:#23292a;">
-          <div class="gs"><svg viewBox="0 0 24 24"><path d="M3 20h18M5 20V10l7-5 7 5v10"/><path d="M9 20v-5h6v5"/></svg></div>
-          <div class="gband">농지를 살 때<br>꼭 확인할 세 가지</div>
-          <div style="height:30px;background:#23292a;"></div>
+        <div class="gate-slide" id="gate-vid-slide" style="background:#0f0d0b;">
+          <!-- 리와인드로 실제 만든 영상 (소리 없음). 이 화면이 보이는 순간마다 처음부터 다시 재생한다 -->
+          <video class="gate-vid" muted playsinline preload="auto" poster="./assets/sample-space.jpg" aria-hidden="true"><source src="./assets/sample-space.mp4" type="video/mp4"><source src="./assets/sample-space.webm" type="video/webm"></video>
           <div class="gbar"><i></i></div>
         </div>
         <div class="gate-slide" style="background:#2b2430;">
@@ -713,5 +713,24 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
 </script>
 
 <script src="./assets/project-delete.js"></script>
+<script>
+// [로그인 화면] 가운데 슬라이드의 샘플 영상: 슬라이드가 나타날 때마다 '우주 지름 930억' 장면부터 재생 (약 4초 동안만 보임)
+(function () {
+  var slide = document.getElementById('gate-vid-slide');
+  var v = slide && slide.querySelector('video');
+  if (!v) return;
+  var START = 5.3, 멈춤 = null;
+  function 재생() {
+    clearTimeout(멈춤);
+    if (v.readyState < 1) v.addEventListener('loadedmetadata', function () { try { v.currentTime = START; } catch (e) {} }, { once: true });
+    else { try { v.currentTime = START; } catch (e) {} }
+    var p = v.play(); if (p && p.catch) p.catch(function () {});
+    멈춤 = setTimeout(function () { v.pause(); }, 4400);
+  }
+  function 맞나(e) { return e.target === slide; }
+  slide.addEventListener('animationstart', function (e) { if (맞나(e)) 재생(); });
+  slide.addEventListener('animationiteration', function (e) { if (맞나(e)) 재생(); });
+})();
+</script>
 </body>
 </html>
