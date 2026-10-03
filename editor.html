@@ -462,7 +462,7 @@
       let 점수 = Math.max(...길이) * 10 + (줄.length - 1) * 40 - 길이[길이.length - 1] * 0.1;
       for (let i = 0; i < 줄.length - 1; i++) {
         if (꾸미는말.has(줄[i].split(' ').pop())) 점수 += 35;
-        if (앞ه붙는말 && 앞에붙는말.has(줄[i + 1].split(' ')[0])) 점수 += 35;
+        if (앞에붙는말 && 앞에붙는말.has(줄[i + 1].split(' ')[0])) 점수 += 35;
       }
       if (!best || 점수 < best.점수) best = { 줄, 점수 };
     };
@@ -1424,7 +1424,7 @@
     // A. 수정 없이 단순히 [받기]만 누른 경우
     if (!수정됨()) {
       const 남은 = 상태.최대 - 상태.수정횟수;
-      const b = $('b-save'), t =$('b-save-t');
+      const b = $('b-save'), t = $('b-save-t');
       b.disabled = true; t.textContent = '다운로드 중…';
       
       try {
@@ -1450,7 +1450,7 @@
     $('dlg-save-msg').textContent = `다운로드 1회가 사용돼요 (남은 ${남은}회 → ${남은 - 1}회). 시트에 편집 내용이 저장되고 썸네일을 받습니다.`;
     $('dlg-yt-row').hidden = !상태.유튜브교체;
     
-    const dlg = $('dlg-save'), ok =$('dlg-ok'), 새ok = ok.cloneNode(true); 
+    const dlg = $('dlg-save'), ok = $('dlg-ok'), 새ok = ok.cloneNode(true); 
     ok.replaceWith(새ok);
     
     새ok.addEventListener('click', async () => {
@@ -1495,7 +1495,7 @@
         
         await 받기(현재());
         
-        if (d.youtube === 'ok') 알림('저장했고 유튜브 썸네일도 바켰어요.'); 
+        if (d.youtube === 'ok') 알림('저장했고 유튜브 썸네일도 바꿨어요.'); 
         else if (d.youtube === 'fail') 알림('저장했어요. 유튜브 썸네일은 바꾸지 못했어요.');
         else 알림(`저장 및 다운로드를 완료했어요! (남은 횟수: ${Math.max(0, 상태.최대 - 상태.수정횟수)}회)`);
         
