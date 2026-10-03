@@ -707,18 +707,18 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     }
   });
 
-  // [신규] 썸네일 편집 버튼: 정식 영상만, 완성 후 7일까지 편집 (지난 뒤에도 저장한 썸네일은 편집 창에서 받을 수 있음)
+  // [신규] 썸네일 편집 버튼: 정식 영상만, 완성 후 7일까지 편집·받기 (편집 내용은 서버에 저장하지 않고 받은 이미지 파일만 남는다)
   function 썸네일편집버튼(p) {
     if (!p.paid) return '';
     const href = './editor.html?id=' + encodeURIComponent(String(p.id ?? '').replace(/\.0$/, ''));
     const d = 보관기한(p), 남은 = d ? 남은기간글(d) : '';
     const 설명 = !d ? '문구·글씨·배경을 바꿔 기기로 바로 받아요 · 완성 후 7일까지'
       : 남은 ? `문구·글씨·배경을 바꿔 기기로 바로 받아요 · ${짧은날짜(d)}까지 (${남은})`
-      : '편집 기간(완성 후 7일)이 끝났어요 · 저장해 둔 썸네일은 여기서 받을 수 있어요';
+      : '편집 기간(완성 후 7일)이 끝났어요 · 이미 받아 둔 이미지는 계속 쓸 수 있어요';
     return `
         <a class="thumb-edit${d && !남은 ? ' is-over' : ''}" href="${href}">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13 7l4 4"/></svg>
-          <span><b>${d && !남은 ? '저장한 썸네일 받기' : '직접 편집하기'}</b><small>${설명}</small></span>
+          <span><b>${d && !남은 ? '편집 기간 끝남' : '직접 편집하기'}</b><small>${설명}</small></span>
         </a>`;
   }
 
