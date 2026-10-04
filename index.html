@@ -87,6 +87,7 @@
   .screen .bar i { display: block; width: 38%; height: 100%; background: #e2a23c; animation: play 9s linear infinite; }
   @keyframes play { from { width: 4%; } to { width: 100%; } }
   /* [샘플 영상] 휴대폰 화면에서 실제로 만든 영상을 번갈아 재생 */
+  .screen video.wide { object-fit: contain; }
   .screen video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background: #0f0d0b; transition: opacity .35s ease; }
   .screen video.is-fading { opacity: 0; }
   .screen.has-video .bar i { animation: none; width: 0; transition: width .25s linear; }
@@ -493,6 +494,13 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       <div class="rate-scroll"><table class="rate-table" id="rate-table"></table></div>
       <p class="rate-note">기본료 3,000원 + 영상 길이(분) × 분당 요금 (이미지 중심 7,000원 · 혼합 11,000원 · 모두 영상 17,000원), 100원 단위 반올림. 60분 초과 시 20% 추가.</p>
     </div>
+    <div class="rate-wrap">
+      <h3 class="rate-title">롱폼 요금 · 수면음악 / 야담 <span style="font-weight:400;font-size:.8em">(추정)</span></h3>
+      <p class="rate-sub">1시간 기준 예상 금액이에요. 길이를 늘리면 “1시간 늘 때마다” 금액만큼 더해져요.</p>
+      <div class="rate-scroll"><table class="rate-table" id="rate-table-long"></table></div>
+      <p class="rate-note" id="rate-long-example"></p>
+      <p class="rate-note">정확한 요금은 신청 화면의 직접 설정하기나 챗봇에서 길이·등급을 넣으면 바로 계산돼요(수면음악 최대 8시간, 야담 최대 2시간). 수면음악은 지금 신청할 수 있고, 야담은 곧 열려요.</p>
+    </div>
     <p class="choice-note">두 경우 모두 구글 계정으로 30초면 신청할 수 있어요.</p>
   </div>
 </section>
@@ -509,6 +517,23 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   if (!t) return;
   t.innerHTML = '<tr><th>형태 · 길이</th>' + ms.map(m => `<th class="${CLS[m]}"><b>${m}</b><span class="d">${DESC[m]}</span></th>`).join('') + '</tr>' +
     rows.map(([l, len]) => `<tr><td>${l}</td>` + ms.map(m => `<td class="${CLS[m]}">${price(len, m).toLocaleString('ko-KR')}원</td>`).join('') + '</tr>').join('');
+  // [롱폼 요금표] 접수 워크플로(v3.7)의 요금 공식과 같은 값 - 기본료 + 길이 × 등급별 요금, 1,000원 단위 반올림 후 100원 차감
+  const LONG = { '경제형': { 수면음악: [4000, 1500], 야담: [5000, 600] }, '표준형': { 수면음악: [6000, 2000], 야담: [6000, 900] }, '고급형': { 수면음악: [9000, 3500], 야담: [8000, 1300] } };
+  const lp = (tier, kind, min) => { const [b, r] = LONG[tier][kind]; const v = b + (kind === '수면음악' ? (min / 60) * r : min * r); return Math.max(900, Math.round(v / 1000) * 1000 - 100); };
+  const fmt = n => n.toLocaleString('ko-KR') + '원';
+  const perHour = (tier, kind) => LONG[tier][kind][1] * (kind === '수면음악' ? 1 : 60);
+  const tiers = Object.keys(LONG);
+  const lt = document.getElementById('rate-table-long');
+  if (lt) {
+    const row = (label, f) => `<tr><td>${label}</td>` + tiers.map(k => `<td>${f(k)}</td>`).join('') + '</tr>';
+    lt.innerHTML = '<tr><th>유형</th>' + tiers.map(k => `<th><b>${k}</b></th>`).join('') + '</tr>' +
+      row('수면음악 1시간', k => '약 ' + fmt(lp(k, '수면음악', 60))) +
+      row('수면음악 1시간 늘 때마다', k => '+' + fmt(perHour(k, '수면음악'))) +
+      row('야담 1시간', k => '약 ' + fmt(lp(k, '야담', 60))) +
+      row('야담 1시간 늘 때마다', k => '+' + fmt(perHour(k, '야담')));
+  }
+  const ex = document.getElementById('rate-long-example');
+  if (ex) ex.textContent = `예) 표준형 야담: 1시간 30분 약 ${fmt(lp('표준형', '야담', 90))}, 2시간 약 ${fmt(lp('표준형', '야담', 120))} · 표준형 수면음악: 3시간 약 ${fmt(lp('표준형', '수면음악', 180))}, 8시간 약 ${fmt(lp('표준형', '수면음악', 480))}`;
 })();
 </script>
 
@@ -556,7 +581,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
 </footer>
 
 <script>
-// [샘플 영상] 리와인드로 실제 만든 영상 2편을 휴대폰 화면에서 번갈아 재생 (소리 없음).
+// [샘플 영상] 리와인드로 실제 만든 영상을 휴대폰 화면에서 번갈아 재생 (소리 없음).
 // 움직임 줄이기 설정이거나 영상을 못 불러오면 기존 그림 화면을 그대로 둔다.
 (() => {
   const screen = document.getElementById('hero-screen');
@@ -568,8 +593,8 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       strip: ['strip-ai-1.jpg', 'strip-ai-2.jpg', 'strip-ai-3.jpg'], tc: ['00:00:01', '00:00:04', '00:00:07'] },
     { src: './assets/sample-product.mp4', poster: './assets/sample-product.jpg', kind: '상품 소개 쇼츠', scenes: 2,
       strip: ['strip-product-1.jpg', 'strip-product-2.jpg', 'strip-product-3.jpg'], tc: ['00:00:01', '00:00:06', '00:00:11'] },
-    { src: './assets/sample-info.mp4', poster: './assets/sample-info.jpg', kind: '정보 전달 쇼츠', scenes: 3,
-      strip: ['strip-info-1.jpg', 'strip-info-2.jpg', 'strip-info-3.jpg'], tc: ['00:00:02', '00:00:06', '00:00:10'] },
+    { src: './assets/sample-yadam.mp4', poster: './assets/sample-yadam.jpg', kind: '야담 영상 · 롱폼', scenes: 3, wide: true,
+      strip: ['strip-yadam-1.jpg', 'strip-yadam-2.jpg', 'strip-yadam-3.jpg'], tc: ['00:00:02', '00:00:09', '00:00:16'] },
     { src: './assets/sample-space.mp4', poster: './assets/sample-space.jpg', kind: '교양·과학 쇼츠', scenes: 2,
       strip: ['strip-space-1.jpg', 'strip-space-2.jpg', 'strip-space-3.jpg'], tc: ['00:00:02', '00:00:06', '00:00:10'] }
   ];
@@ -609,6 +634,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     const c = clips[n];
     필름바꾸기(n); // 이미 바뀌어 있으면 아무것도 안 함
     v.poster = c.poster;
+    v.classList.toggle('wide', !!c.wide); // 가로 영상은 잘리지 않게 전체를 보여준다
     // 대부분 브라우저는 mp4, 일부(H.264 미지원 환경)는 webm
     v.src = v.canPlayType('video/mp4; codecs="avc1.4D401E"') ? c.src : c.src.replace(/\.mp4$/, '.webm');
     const p = v.play(); if (p && p.catch) p.catch(() => {});
