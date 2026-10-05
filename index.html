@@ -227,6 +227,7 @@
   .rate-scroll { overflow-x: auto; }
   .rate-table { width: 100%; border-collapse: collapse; font-size: 0.95rem; min-width: 440px; }
   .rate-table th, .rate-table td { padding: 11px 10px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .rate-table th:not(:first-child), .rate-table td:not(:first-child) { text-align: center; }
   .rate-table th:first-child, .rate-table td:first-child { text-align: left; }
   .rate-table th { color: var(--ink-faint); font-weight: 500; font-size: 0.85rem; vertical-align: bottom; }
   .rate-table th b { display: block; color: var(--ink); font-size: 0.95rem; }
@@ -237,6 +238,7 @@
   .rate-table .mc-img { --mc: #4a9be8; } .rate-table .mc-mix { --mc: #e2a23c; } .rate-table .mc-all { --mc: #f0694a; }
   .rate-table th.mc { background: color-mix(in srgb, var(--mc) 18%, transparent); box-shadow: inset 0 3px 0 var(--mc); }
   .rate-table td.mc { background: color-mix(in srgb, var(--mc) 7%, transparent); color: var(--ink); }
+  .rate-table th.rh { background: color-mix(in srgb, var(--ink-faint) 14%, transparent); box-shadow: inset 0 3px 0 var(--ink-faint); }
   .rate-table th.mc b::before { content: ""; display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--mc); margin-right: 6px; vertical-align: 1px; }
   @media (max-width: 560px) { .rate-table { min-width: 0; font-size: 0.82rem; } .rate-table th, .rate-table td { padding: 10px 5px; } .rate-table th .d { display: none; } .rate-table th b { font-size: 0.8rem; } }
   .rate-note { color: var(--ink-faint); font-size: 0.82rem; margin: 14px 0 0; line-height: 1.6; }
@@ -545,7 +547,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       <p class="rate-note">기본 30P + 영상 길이(분) × 분당 포인트 (이미지 중심 70P · 혼합 110P · 모두 영상 170P), 1P 단위 반올림. 60분 초과 시 20% 추가. 포인트는 충전해서 쓰고, 영상을 만들 때 필요한 만큼 차감돼요.</p>
     </div>
     <div class="rate-wrap">
-      <h3 class="rate-title">롱폼 요금 · 분위기 영상 / 야담 <span style="font-weight:400;font-size:.8em">(추정)</span></h3>
+      <h3 class="rate-title">롱폼 요금 · 분위기 영상 / 야담</h3>
       <p class="rate-sub">예시예요. 한 장면을 길게 보여주는 영상이라 길어도 요금 부담이 크지 않아요. 길이를 바꾸면 요금도 함께 달라져요.</p>
       <p class="use-line"><b>분위기 영상</b>은 이런 영상에 써요 <span class="use-chip">수면</span><span class="use-chip">공부·집중</span><span class="use-chip">힐링·명상</span><span class="use-chip">카페 분위기</span><span class="use-chip">빗소리·자연음</span></p>
       <div class="rate-scroll"><table class="rate-table" id="rate-table-long"></table></div>
@@ -566,7 +568,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   const CLS = { '이미지 중심': 'mc mc-img', '혼합': 'mc mc-mix', '모두 영상': 'mc mc-all' };
   const t = document.getElementById('rate-table');
   if (!t) return;
-  t.innerHTML = '<tr><th>형태 · 길이</th>' + ms.map(m => `<th class="${CLS[m]}"><b>${m}</b><span class="d">${DESC[m]}</span></th>`).join('') + '</tr>' +
+  t.innerHTML = '<tr><th class="rh"><b>형태 · 길이</b><span class="d">(예시 비용)</span></th>' + ms.map(m => `<th class="${CLS[m]}"><b>${m}</b><span class="d">${DESC[m]}</span></th>`).join('') + '</tr>' +
     rows.map(([l, len]) => `<tr><td>${l}</td>` + ms.map(m => `<td class="${CLS[m]}">${price(len, m).toLocaleString('ko-KR')}P</td>`).join('') + '</tr>').join('');
   // [롱폼 요금표(포인트)] 접수 워크플로(v3.9)의 요금 공식과 같은 값 - 기본 + 길이 × 등급별 포인트, 1P 단위 반올림, 최소 9P
   const LONG = { '경제형': { 수면음악: [40, 15], 야담: [50, 6] }, '표준형': { 수면음악: [60, 20], 야담: [60, 9] }, '고급형': { 수면음악: [90, 35], 야담: [80, 13] } };
@@ -579,7 +581,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     const lab = { 수면음악: '분위기 영상' };
     const cases = [['수면음악', 30], ['수면음악', 60], ['수면음악', 180], ['수면음악', 480], ['야담', 30], ['야담', 60], ['야담', 120]];
     const hl = m => m < 60 ? m + '분' : (m % 60 ? Math.floor(m / 60) + '시간 ' + (m % 60) + '분' : m / 60 + '시간');
-    lt.innerHTML = '<tr><th>유형 · 길이</th>' + tiers.map(k => `<th><b>${k}</b></th>`).join('') + '</tr>' +
+    lt.innerHTML = '<tr><th><b>유형 · 길이</b></th>' + tiers.map(k => `<th><b>${k}</b></th>`).join('') + '</tr>' +
       cases.map(([kind, m]) => row((lab[kind] || kind) + ' ' + hl(m), k => '약 ' + fmt(lp(k, kind, m)))).join('');
   }
   const ex = document.getElementById('rate-long-example');
