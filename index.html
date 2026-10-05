@@ -209,6 +209,9 @@
   @media (max-width: 760px) { .choice-grid { grid-template-columns: 1fr; } }
   .rate-wrap { max-width: 1000px; margin: 28px auto 0; border: 1px solid var(--line); background: var(--bg-raised); border-radius: 24px; padding: clamp(22px, 3.5vw, 34px); }
   .rate-title { font-size: 1.15rem; font-weight: 700; margin: 0; }
+  .use-line { font-size: 0.88rem; color: var(--ink-dim); margin: 0 0 14px; line-height: 2; }
+  .use-line b { color: var(--ink); }
+  .use-chip { display: inline-block; margin-left: 6px; padding: 2px 11px; border-radius: 999px; border: 1px solid var(--line); font-size: 0.8rem; color: var(--ink-dim); }
   .rate-sub { color: var(--ink-faint); font-size: 0.9rem; margin: 6px 0 16px; }
   .rate-scroll { overflow-x: auto; }
   .rate-table { width: 100%; border-collapse: collapse; font-size: 0.95rem; min-width: 440px; }
@@ -307,7 +310,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       <button type="button" data-t="dark" aria-label="어둡게" title="어둡게"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></button>
     </div></span>
     <a class="plain" href="./dashboard.html">로그인</a>
-    <a class="btn btn-amber" href="./new.html?mode=trial">무료로 시작하기</a>
+    <a class="btn btn-amber" href="./new.html?mode=trial">체험으로 시작하기</a>
   </nav>
 </header>
 
@@ -317,7 +320,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     <h1>주제 하나로 완성되는<br><span class="soft">세로형 영상</span></h1>
     <p class="lede">대본, 목소리, 장면 구성까지 AI가 만드는 숏폼 영상 서비스예요. 촬영도 편집도 필요 없고, 중요한 순간마다 직접 확인하고 승인하시면 됩니다.</p>
     <div class="ctas">
-      <a class="btn btn-amber" href="./new.html?mode=trial">무료로 3편 만들어보기
+      <a class="btn btn-amber" href="./new.html?mode=trial">가입하고 체험 포인트 50P 받기
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
       <a class="btn btn-line" href="#how">만드는 과정 보기</a>
     </div>
@@ -465,19 +468,19 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     </div>
     <div class="choice-grid">
       <div class="choice">
-        <div class="head"><h3>무료 체험</h3><span class="kick">이메일당 3회</span></div>
-        <div class="big">0원</div>
+        <div class="head"><h3>체험</h3><span class="kick">가입 시 50P</span></div>
+        <div class="big">50P<small>가입하면 체험 포인트</small></div>
         <ul>
-          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>결제 없이 최대 3편까지</li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>결제 없이 체험 포인트로 쇼츠 1분 체험을 2번까지</li>
           <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>완성된 영상을 그대로 확인</li>
           <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>마음에 들면 그때 정식으로 전환</li>
           <li class="no"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>체험판에서는 썸네일을 제공하지 않아요</li>
         </ul>
-        <a class="btn btn-line" href="./new.html?mode=trial">무료로 시작하기</a>
+        <a class="btn btn-line" href="./new.html?mode=trial">체험으로 시작하기</a>
       </div>
       <div class="choice featured">
-        <div class="head"><h3>정식 이용</h3><span class="kick">편당 결제</span></div>
-        <div class="big">8,300원<small>쇼츠 45초부터</small></div>
+        <div class="head"><h3>정식 이용</h3><span class="kick">포인트로 결제</span></div>
+        <div class="big">83P<small>쇼츠 45초부터</small></div>
         <ul>
           <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>움직임 방식을 직접 선택 (이미지 중심 · 혼합 · 모두 영상)</li>
           <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>워터마크 없는 정식 화질</li>
@@ -492,14 +495,15 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       <h3 class="rate-title">정식 요금표</h3>
       <p class="rate-sub">영상 길이와 움직임 방식으로 정해져요. 장면 수는 요금과 상관없어요.</p>
       <div class="rate-scroll"><table class="rate-table" id="rate-table"></table></div>
-      <p class="rate-note">기본료 3,000원 + 영상 길이(분) × 분당 요금 (이미지 중심 7,000원 · 혼합 11,000원 · 모두 영상 17,000원), 100원 단위 반올림. 60분 초과 시 20% 추가.</p>
+      <p class="rate-note">기본 30P + 영상 길이(분) × 분당 포인트 (이미지 중심 70P · 혼합 110P · 모두 영상 170P), 1P 단위 반올림. 60분 초과 시 20% 추가. 포인트는 충전해서 쓰고, 영상을 만들 때 필요한 만큼 차감돼요.</p>
     </div>
     <div class="rate-wrap">
-      <h3 class="rate-title">롱폼 요금 · 수면음악 / 야담 <span style="font-weight:400;font-size:.8em">(추정)</span></h3>
-      <p class="rate-sub">1시간 기준 예상 금액이에요. 길이를 늘리면 “1시간 늘 때마다” 금액만큼 더해져요.</p>
+      <h3 class="rate-title">롱폼 요금 · 분위기 영상 / 야담 <span style="font-weight:400;font-size:.8em">(추정)</span></h3>
+      <p class="rate-sub">길이별 예상 총액이에요. 길이를 바꾸면 요금도 함께 달라져요.</p>
+      <p class="use-line"><b>분위기 영상</b>은 이런 영상에 써요 <span class="use-chip">수면</span><span class="use-chip">공부·집중</span><span class="use-chip">힐링·명상</span><span class="use-chip">카페 분위기</span><span class="use-chip">빗소리·자연음</span></p>
       <div class="rate-scroll"><table class="rate-table" id="rate-table-long"></table></div>
       <p class="rate-note" id="rate-long-example"></p>
-      <p class="rate-note">정확한 요금은 신청 화면의 직접 설정하기나 챗봇에서 길이·등급을 넣으면 바로 계산돼요(수면음악 최대 8시간, 야담 최대 2시간). 수면음악은 지금 신청할 수 있고, 야담은 곧 열려요.</p>
+      <p class="rate-note">정확한 요금은 신청 화면의 직접 설정하기나 챗봇에서 길이·등급을 넣으면 바로 계산돼요(분위기 영상 최대 8시간, 야담 최대 2시간). 분위기 영상은 수면·휴식·집중·카페 같은 긴 소리 영상이에요. 지금 신청할 수 있고, 야담은 곧 열려요.</p>
     </div>
     <p class="choice-note">두 경우 모두 구글 계정으로 30초면 신청할 수 있어요.</p>
   </div>
@@ -507,33 +511,32 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
 </main>
 <script>
 (() => {
-  const RATE = { '이미지 중심': 7000, '혼합': 11000, '모두 영상': 17000 };
+  const RATE = { '이미지 중심': 70, '혼합': 110, '모두 영상': 170 };
   const DESC = { '이미지 중심': '이미지+카메라 움직임', '혼합': '핵심 장면만 영상 · 추천', '모두 영상': '모든 장면 움직임' };
-  const price = (len, m) => Math.round((3000 + len * RATE[m]) * (len > 60 ? 1.2 : 1) / 100) * 100;
+  const price = (len, m) => Math.round((30 + len * RATE[m]) * (len > 60 ? 1.2 : 1));   // 모든 요금은 포인트(P) 단위
   const rows = [['쇼츠 30초', 0.5], ['쇼츠 45초', 0.75], ['쇼츠 1분', 1], ['쇼츠 2분', 2], ['롱폼 3분', 3], ['롱폼 5분', 5], ['롱폼 10분', 10]];
   const ms = Object.keys(RATE);
   const CLS = { '이미지 중심': 'mc mc-img', '혼합': 'mc mc-mix', '모두 영상': 'mc mc-all' };
   const t = document.getElementById('rate-table');
   if (!t) return;
   t.innerHTML = '<tr><th>형태 · 길이</th>' + ms.map(m => `<th class="${CLS[m]}"><b>${m}</b><span class="d">${DESC[m]}</span></th>`).join('') + '</tr>' +
-    rows.map(([l, len]) => `<tr><td>${l}</td>` + ms.map(m => `<td class="${CLS[m]}">${price(len, m).toLocaleString('ko-KR')}원</td>`).join('') + '</tr>').join('');
-  // [롱폼 요금표] 접수 워크플로(v3.7)의 요금 공식과 같은 값 - 기본료 + 길이 × 등급별 요금, 1,000원 단위 반올림 후 100원 차감
-  const LONG = { '경제형': { 수면음악: [4000, 1500], 야담: [5000, 600] }, '표준형': { 수면음악: [6000, 2000], 야담: [6000, 900] }, '고급형': { 수면음악: [9000, 3500], 야담: [8000, 1300] } };
-  const lp = (tier, kind, min) => { const [b, r] = LONG[tier][kind]; const v = b + (kind === '수면음악' ? (min / 60) * r : min * r); return Math.max(900, Math.round(v / 1000) * 1000 - 100); };
-  const fmt = n => n.toLocaleString('ko-KR') + '원';
-  const perHour = (tier, kind) => LONG[tier][kind][1] * (kind === '수면음악' ? 1 : 60);
+    rows.map(([l, len]) => `<tr><td>${l}</td>` + ms.map(m => `<td class="${CLS[m]}">${price(len, m).toLocaleString('ko-KR')}P</td>`).join('') + '</tr>').join('');
+  // [롱폼 요금표(포인트)] 접수 워크플로(v3.9)의 요금 공식과 같은 값 - 기본 + 길이 × 등급별 포인트, 1P 단위 반올림, 최소 9P
+  const LONG = { '경제형': { 수면음악: [40, 15], 야담: [50, 6] }, '표준형': { 수면음악: [60, 20], 야담: [60, 9] }, '고급형': { 수면음악: [90, 35], 야담: [80, 13] } };
+  const lp = (tier, kind, min) => { const [b, r] = LONG[tier][kind]; return Math.max(9, Math.round(b + (kind === '수면음악' ? (min / 60) * r : min * r))); };
+  const fmt = n => n.toLocaleString('ko-KR') + 'P';
   const tiers = Object.keys(LONG);
   const lt = document.getElementById('rate-table-long');
   if (lt) {
     const row = (label, f) => `<tr><td>${label}</td>` + tiers.map(k => `<td>${f(k)}</td>`).join('') + '</tr>';
-    lt.innerHTML = '<tr><th>유형</th>' + tiers.map(k => `<th><b>${k}</b></th>`).join('') + '</tr>' +
-      row('수면음악 1시간', k => '약 ' + fmt(lp(k, '수면음악', 60))) +
-      row('수면음악 1시간 늘 때마다', k => '+' + fmt(perHour(k, '수면음악'))) +
-      row('야담 1시간', k => '약 ' + fmt(lp(k, '야담', 60))) +
-      row('야담 1시간 늘 때마다', k => '+' + fmt(perHour(k, '야담')));
+    const lab = { 수면음악: '분위기 영상' };
+    const cases = [['수면음악', 30], ['수면음악', 60], ['수면음악', 180], ['수면음악', 480], ['야담', 30], ['야담', 60], ['야담', 120]];
+    const hl = m => m < 60 ? m + '분' : (m % 60 ? Math.floor(m / 60) + '시간 ' + (m % 60) + '분' : m / 60 + '시간');
+    lt.innerHTML = '<tr><th>유형 · 길이</th>' + tiers.map(k => `<th><b>${k}</b></th>`).join('') + '</tr>' +
+      cases.map(([kind, m]) => row((lab[kind] || kind) + ' ' + hl(m), k => '약 ' + fmt(lp(k, kind, m)))).join('');
   }
   const ex = document.getElementById('rate-long-example');
-  if (ex) ex.textContent = `예) 표준형 야담: 1시간 30분 약 ${fmt(lp('표준형', '야담', 90))}, 2시간 약 ${fmt(lp('표준형', '야담', 120))} · 표준형 수면음악: 3시간 약 ${fmt(lp('표준형', '수면음악', 180))}, 8시간 약 ${fmt(lp('표준형', '수면음악', 480))}`;
+  if (ex) ex.textContent = `예) 표준형 야담 1시간 30분 약 ${fmt(lp('표준형', '야담', 90))} · 표준형 분위기 영상 2시간 30분 약 ${fmt(lp('표준형', '수면음악', 150))}`;
 })();
 </script>
 

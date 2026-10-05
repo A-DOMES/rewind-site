@@ -526,6 +526,15 @@
 
   .sidebar-footer { display: flex; flex-direction: column; gap: 10px; border-top: 0; }
   .sidebar .mode-badge { margin: 0; width: 100%; text-align: left; border-radius: 14px; padding: 12px 14px; background: var(--amber-wash); border: 1px solid var(--amber-dim); color: var(--ink); font-size: 0.86rem; line-height: 1.5; font-weight: 500; }
+  .pt-badge { display:flex; flex-direction:column; gap:4px; width:100%; padding:10px 14px; border-radius:14px; border:1px solid var(--line); background:transparent; color:var(--ink); font-size:.86rem; }
+  .pt-row { display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
+  .pt-badge b { font-size:1.05rem; font-variant-numeric:tabular-nums; }
+  .pt-badge small { color:var(--ink-faint); font-size:.74rem; }
+  .top-pt { display:none; font-size:.78rem; padding:4px 10px; border-radius:999px; border:1px solid var(--line); color:var(--ink); white-space:nowrap; font-variant-numeric:tabular-nums; }
+  .top-pt.on { display:inline-block; }
+  .cp-ask { margin-top:8px; }
+  .pt-line { margin-top:6px; font-size:.84rem; color:var(--ink-faint); }
+  .pt-line.short { color:#e0795a; }
   .sidebar .mode-badge .hint { color: var(--ink-faint); font-weight: 400; }
   .sidebar .mode-badge .dot { background: var(--amber); }
   .account-wrap { position: relative; }
@@ -690,6 +699,18 @@
 
   /* [주제 추천] 상담 중 추천 주제 버튼 */
   .suggest-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 2px 0 14px 46px; }
+  .df-use { margin:0 0 16px; } .df-use p { margin:0 0 8px; font-size:.86rem; color:var(--ink-dim); line-height:1.55; } .df-use b { color:var(--ink); font-weight:600; }
+  .len-pick { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .len-box { display:flex; align-items:center; border:1px solid var(--line); border-radius:12px; background:var(--bg-input); overflow:hidden; }
+  .len-box button { width:40px; height:44px; border:0; background:transparent; color:var(--ink-dim); font-size:1.15rem; cursor:pointer; }
+  .len-box button:hover { background:var(--amber-wash); color:var(--amber); }
+  .len-box input { width:56px; height:44px; text-align:center; border:0; border-inline:1px solid var(--line); background:transparent; color:var(--ink); font:inherit; font-size:1.05rem; -moz-appearance:textfield; border-radius:0; }
+  .len-box input::-webkit-outer-spin-button, .len-box input::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+  .len-unit { color:var(--ink-dim); margin-right:8px; }
+  .len-read { margin-top:10px; font-size:.95rem; color:var(--ink); }
+  .len-read .len-sub { color:var(--ink-faint); font-size:.82rem; }
+  .len-read .len-warn { color:var(--amber); font-size:.85rem; }
+  @media (max-width:480px) { .len-pick { flex-wrap:nowrap; gap:4px; } .len-box button { width:32px; } .len-box input { width:42px; } .len-unit { margin-right:2px; font-size:.9rem; } }
   .len-chips { display: flex; flex-wrap: wrap; gap: 6px; }
   .len-chip { font: inherit; font-size: .84rem; padding: 7px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--bg); color: var(--ink-dim); cursor: pointer; }
   .len-chip.on { border-color: var(--amber); color: var(--ink); background: color-mix(in srgb, var(--amber) 14%, var(--bg)); font-weight: 600; }
@@ -752,7 +773,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       <p class="gate-lede">구글 계정으로 30초면 시작할 수 있어요. 신청 확인과 완성 알림도 이 계정으로 보내드려요.</p>
       <div id="gsi-area"></div>
       <ul class="gate-perks">
-        <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>이메일당 3편까지 무료로 체험</li>
+        <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>가입하면 체험 포인트 50P를 드려요</li>
         <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>대본과 최종 장면은 직접 확인하고 승인</li>
         <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>완성되면 이 계정 이메일로 알려드려요</li>
       </ul>
@@ -780,7 +801,8 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
         <button class="side-item soon-btn"><span class="ico" style="--c:#ff8cc0"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="18" r="2"/><path d="M8 6h5a3 3 0 0 1 3 3v7"/></svg></span><span class="soon-text"><b>시리즈 자동 제작</b><small>정해둔 주기마다 영상 만들고 올리기</small></span></button>
       </details>
       <div class="sidebar-footer">
-        <button class="mode-badge" id="mode-badge" title="눌러서 체험/정식 전환"><span class="dot"></span> <span id="mode-label">체험 모드 · 무료 3회</span></button>
+        <div class="pt-badge" id="pt-badge" hidden><div class="pt-row"><span>체험 포인트</span><b id="pt-trial">–</b></div><div class="pt-row"><span>충전 포인트</span><b id="pt-val">–</b></div></div>
+        <button class="mode-badge" id="mode-badge" title="눌러서 체험/정식 전환"><span class="dot"></span> <span id="mode-label">체험 모드 · 체험 포인트</span></button>
         <div class="account-wrap">
           <div class="account-menu-pop" id="account-pop" role="menu" hidden>
             <div class="acc-head"><img class="acc-head-img" alt=""><div><b class="acc-head-name"></b><small id="acc-plan">개인 · 체험 모드</small></div></div>
@@ -814,6 +836,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
         <span class="cb-here" id="crumb-here" aria-current="page" hidden></span>
       </nav>
       <div class="top-mode-bar">
+        <span class="top-pt" id="top-pt"></span>
         <button class="top-mode-badge" id="top-mode-badge" title="눌러서 체험/정식 전환"><span class="dot"></span> <span id="top-mode-label">체험 모드</span></button>
       <div class="theme-switch" role="group" aria-label="화면 테마">
       <button type="button" data-t="system" aria-label="기기 설정 따르기" title="기기 설정 따르기"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></button>
@@ -876,6 +899,10 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
 (() => {
   const WEBHOOK_URL = 'https://bald-buffalo.pikapod.net/webhook/web-request';
   const CONSULT_WEBHOOK_URL = 'https://bald-buffalo.pikapod.net/webhook/order-consult';
+  const POINTS_WEBHOOK_URL = 'https://bald-buffalo.pikapod.net/webhook/my-points';
+  let myPoints = null;  // 충전 포인트 (null = 아직 모름·조회 실패)
+  let myTrial = null;   // 체험 포인트
+  let trialPending = false; // 오늘 가입 포인트 지급이 마감된 경우
   const PROJECTS_WEBHOOK_URL = 'https://bald-buffalo.pikapod.net/webhook/my-projects';
   const REVIEW_ACTION_WEBHOOK_URL = 'https://bald-buffalo.pikapod.net/webhook/review-action';
   const GOOGLE_CLIENT_ID = '188637268860-9hj2af4bt8esn506bf5bqs72qnbu0qjs.apps.googleusercontent.com';
@@ -899,7 +926,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     topic: '주제', productLink: '제품 링크', productImageUrl: '제품 이미지', target: '타겟', form: '영상 형태', tempo: '말하기 속도',
     voiceGender: '목소리', voiceAge: '목소리 연령대', directorNote: '연출 메모', style: '연출 스타일', characterUse: '캐릭터 통일',
     driveLink: '드라이브 링크', mediaNote: '분위기 메모',
-    sceneCount: '장면 수', videoLength: '영상 길이', estimatedPrice: '예상 비용', hookText: '화면 상단 문구',
+    sceneCount: '장면 수', videoLength: '영상 길이', estimatedPrice: '필요 포인트', hookText: '화면 상단 문구',
     layout: '화면 구성', captionPos: '자막 위치', motion: '움직임 방식',
     videoType: '영상 종류', tier: '품질 등급', screenMode: '화면 움직임', soundRequest: '소리 요청', sceneSeconds: '그림 바뀌는 간격(초)', soundMode: '소리', musicFolderUrl: '내 음악 폴더'
   };
@@ -927,8 +954,8 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       badge.classList.add('paid'); modeLabel.innerHTML = '정식 모드 · 결제 안내가 이메일로 갑니다<br><span class="hint">(누르면 체험으로)</span>';
       topBadge.classList.add('paid'); topModeLabel.textContent = '정식 모드';
     } else {
-      badge.classList.remove('paid'); modeLabel.innerHTML = '체험 모드 · 무료 3회<br><span class="hint">(누르면 정식으로)</span>';
-      topBadge.classList.remove('paid'); topModeLabel.textContent = '체험 모드 · 무료 3회';
+      badge.classList.remove('paid'); modeLabel.innerHTML = '체험 모드 · 체험 포인트<br><span class="hint">(누르면 정식으로)</span>';
+      topBadge.classList.remove('paid'); topModeLabel.textContent = '체험 모드 · 체험 포인트';
     }
   }
   updateModeBadge();
@@ -959,6 +986,34 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     document.getElementById('df-thumb-title').textContent = 체험 ? '체험판에서는 썸네일을 제공하지 않아요' : 'AI 썸네일 3장 함께 만들기';
     document.getElementById('df-thumb-sub').textContent = 체험 ? '정식으로 만들면 AI 썸네일 3장(선택)과 직접 편집하기를 쓸 수 있어요' : '원할 때만 켜세요 · 켜지 않아도 완성된 영상에서 원하는 장면을 골라 직접 만들 수 있어요';
   }
+  function pointLine(need) {
+    const trial = planMode !== 'paid';
+    const have = trial ? myTrial : myPoints;
+    const name = trial ? '체험 포인트' : '포인트';
+    if (have === null) return trial && trialPending ? '<p class="pt-line short">오늘 체험 포인트 지급이 마감됐어요. 내일 다시 방문하시면 받으실 수 있어요</p>' : '';
+    const short = need - have;
+    if (short > 0) return `<p class="pt-line short">필요 ${pt(need)} / 보유 ${pt(have)} · ${name}가 ${pt(Math.ceil(short))} 부족해요${trial ? ' (정식 모드는 충전해서 이용해요. 충전 기능은 곧 열려요)' : ' (충전 기능은 곧 열려요)'}</p>`;
+    return `<p class="pt-line">필요 ${pt(need)} / 보유 ${name} ${pt(have)}</p>`;
+  }
+  function renderPoints() {
+    const b = document.getElementById('pt-badge'), t = document.getElementById('top-pt');
+    if (myPoints === null && myTrial === null) { b.hidden = true; t.classList.remove('on'); return; }
+    b.hidden = false;
+    document.getElementById('pt-trial').textContent = myTrial === null ? '–' : pt(myTrial);
+    document.getElementById('pt-val').textContent = myPoints === null ? '–' : pt(myPoints);
+    t.textContent = '체험 ' + (myTrial === null ? '–' : pt(myTrial)) + ' · 충전 ' + (myPoints === null ? '–' : pt(myPoints)); t.classList.add('on');
+  }
+  async function loadPoints(idToken) {
+    try {
+      const res = await fetch(POINTS_WEBHOOK_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ idToken }) });
+      const d = await res.json().catch(() => null);
+      const ok = res.ok && d && d.ok && typeof d.balance === 'number';
+      myPoints = ok ? d.balance : null;
+      myTrial = ok && typeof d.trialBalance === 'number' ? d.trialBalance : null;
+      trialPending = !!(ok && d.trialPending);
+    } catch (e) { myPoints = null; myTrial = null; trialPending = false; }
+    renderPoints(); refreshDirectFormIfOpen();
+  }
   function updatePrice() {
     applyMotionPlan();
     applyThumbPlan();
@@ -969,17 +1024,20 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       const 분 = 롱폼길이분();
       const 등급 = 현재등급();
       if (planMode !== 'paid') {
-        priceBox.innerHTML = '<div class="amt" style="font-size:1rem;">지금은 체험판이라 무료예요</div><p>체험판은 3분 길이까지 만들어요. 마음에 들면 정식으로 전환하실 수 있어요</p>';
+        const 체험가 = trialPriceOf(종류, 등급, 분);
+        priceBox.innerHTML = `<div class="amt" id="df-price-amt">체험 ${pt(체험가)}</div><p>체험판은 3분 길이까지 만들어요 · 체험 포인트로 결제돼요</p>${pointLine(체험가)}`;
         return;
       }
       const 값 = longPrice(종류, 등급, 분);
       const 최고 = longPrice(종류, '고급형', 분);
-      const 막대 = '<div class="mb-chart">' + LONG_TIERS.map(t => { const v = longPrice(종류, t, 분); return `<div class="mb-row${t === 등급 ? ' on' : ''}"><span>${t}</span><span class="mb-bar"><span class="mb-fill" style="width:${Math.round(v / 최고 * 100)}%;display:block;background:${t === 등급 ? 'var(--amber)' : 'var(--line)'}"></span></span><span class="v">${won(v)}</span></div>`; }).join('') + '</div>';
-      priceBox.innerHTML = `<div class="amt" id="df-price-amt">약 ${won(값)}</div><p>${종류} ${hourLabel(분)} · ${등급} · 소리: ${소리이름[현재소리()]} · 1시간 늘면 약 +${won(longPerHour(종류, 등급))}</p>${막대}`;
+      const 막대 = '<div class="mb-chart">' + LONG_TIERS.map(t => { const v = longPrice(종류, t, 분); return `<div class="mb-row${t === 등급 ? ' on' : ''}"><span>${t}</span><span class="mb-bar"><span class="mb-fill" style="width:${Math.round(v / 최고 * 100)}%;display:block;background:${t === 등급 ? 'var(--amber)' : 'var(--line)'}"></span></span><span class="v">${pt(v)}</span></div>`; }).join('') + '</div>';
+      priceBox.innerHTML = `<div class="amt" id="df-price-amt">약 ${pt(값)}</div><p>${kindName(종류)} ${hourLabel(분)} · ${등급} · 소리: ${소리이름[현재소리()]}</p>${pointLine(값)}${막대}`;
       return;
     }
     if (planMode !== 'paid') {
-      priceBox.innerHTML = '<div class="amt" style="font-size:1rem;">지금은 체험판이라 무료예요</div><p>마음에 들면 나중에 정식으로 전환하실 수 있어요</p>';
+      const 체험길이 = (() => { const li = document.getElementById('df-videoLength'), f = document.getElementById('df-form'); const v = li && parseFloat(li.value) > 0 ? parseFloat(li.value) : defaultLen(f && f.value === '롱폼' ? '롱폼' : '쇼츠'); return v; })();
+      const 체험가 = trialPriceShort(체험길이);
+      priceBox.innerHTML = `<div class="amt" id="df-price-amt">체험 ${pt(체험가)}</div><p>체험판은 이미지 중심으로 3분 길이까지 만들어요 · 체험 포인트로 결제돼요</p>${pointLine(체험가)}`;
       return;
     }
     const form = document.getElementById('df-form');
@@ -990,9 +1048,9 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     const 최고 = computePrice(len, '모두 영상');
     const 막대 = dfMode === 'media' ? '' : '<div class="mb-chart">' + MOTION_LIST.map(m => {
       const v = computePrice(len, m);
-      return `<div class="mb-row ${MOTION_CLS[m]}${m === 고른 ? ' on' : ''}"><span>${m}</span><span class="mb-bar"><span class="mb-fill" style="width:${Math.round(v / 최고 * 100)}%;display:block"></span></span><span class="v">${won(v)}</span></div>`;
+      return `<div class="mb-row ${MOTION_CLS[m]}${m === 고른 ? ' on' : ''}"><span>${m}</span><span class="mb-bar"><span class="mb-fill" style="width:${Math.round(v / 최고 * 100)}%;display:block"></span></span><span class="v">${pt(v)}</span></div>`;
     }).join('') + '</div>';
-    priceBox.innerHTML = `<div class="amt" id="df-price-amt">약 ${won(computePrice(len, 고른))}</div><p>${lenLabel(len)}${lenInput && lenInput.value ? '' : '(기본)'} · ${고른} 기준 예상 비용 · 장면 수는 요금과 무관</p>${막대}`;
+    priceBox.innerHTML = `<div class="amt" id="df-price-amt">약 ${pt(computePrice(len, 고른))}</div><p>${lenLabel(len)}${lenInput && lenInput.value ? '' : '(기본)'} · ${고른} 기준 필요 포인트 · 장면 수는 요금과 무관</p>${pointLine(computePrice(len, 고른))}${막대}`;
   }
   function refreshDirectFormIfOpen() {
     updatePrice(); // 폼이 안 열려있으면 updatePrice 안에서 조용히 무시됨
@@ -1117,14 +1175,14 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       return;
     }
     // [수면음악·야담] 이 종류는 직접 설정하기에서 신청한다 - 상담 챗봇이 일반 영상 질문(움직임 방식 등)을 하지 않도록 여기서 안내한다
-    if (/(수면\s*음악|수면용|잠들|자장가|야담)/.test(text) && !요금패턴.test(text)) {
+    if (/(수면\s*음악|수면용|잠들|자장가|야담|분위기\s*영상)/.test(text) && !요금패턴.test(text)) {
       exampleRow.style.display = 'none';
       addMsg('user', escapeHtml(text));
       history.push({ role: 'user', text });
       const 야담 = /야담/.test(text);
       const el = addMsg('bot', 야담
-        ? '야담 영상은 곧 열릴 예정이에요. 지금은 일반 영상(쇼츠·롱폼)이나 수면음악을 만들 수 있어요. 요금이 궁금하시면 "야담 1시간 얼마예요?"처럼 물어보세요.'
-        : '수면음악 영상은 직접 설정하기에서 만들 수 있어요. 길이(시간)와 등급, 듣고 싶은 소리를 고르면 요금이 바로 계산돼요.<div style="margin-top:10px"><button type="button" class="btn-gold-sm" data-open-sleep>수면음악 설정 열기</button></div>');
+        ? '야담 영상은 곧 열릴 예정이에요. 지금은 일반 영상(쇼츠·롱폼)이나 분위기 영상을 만들 수 있어요. 요금이 궁금하시면 "야담 1시간 얼마예요?"처럼 물어보세요.'
+        : '분위기 영상(수면·휴식·집중용 긴 소리 영상)은 직접 설정하기에서 만들 수 있어요. 길이와 등급, 듣고 싶은 소리를 고르면 요금이 바로 계산돼요.<div style="margin-top:10px"><button type="button" class="btn-gold-sm" data-open-sleep>분위기 영상 설정 열기</button></div>');
       const btn = el.querySelector('[data-open-sleep]');
       if (btn) btn.addEventListener('click', () => { dfPreType = '수면음악'; showDirectForm(); });
       history.push({ role: 'bot', text: 야담 ? '[야담은 아직 준비 중 안내]' : '[수면음악은 직접 설정하기에서 신청 안내]' });
@@ -1154,7 +1212,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     try {
       const res = await fetch(CONSULT_WEBHOOK_URL, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idToken: googleIdToken, history, message: text, pastProjects, collected: answers, mode, planMode })
+        body: JSON.stringify({ idToken: googleIdToken, history, message: text, pastProjects, collected: answers, mode, planMode, balance: { trial: myTrial, paid: myPoints } })
       });
       const data = await res.json().catch(() => null);
       if (!res.ok || !data || data.ok === false) throw new Error(`요청 실패 (status: ${res.status}, ok: ${res.ok}, data: ${JSON.stringify(data)})`);
@@ -1338,9 +1396,9 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     const rows = Object.keys(answers)
       .filter(k => answers[k] && k !== 'thumbnail' && k !== 'musicRights' && !(k === 'estimatedPrice' && planMode !== 'paid'))
       .filter(k => !((k === 'productLink' || k === 'productImageUrl') && !/^https?:\/\//i.test(String(answers[k]))))
-      .map(k => `<div class="summary-row"><span class="k">${FIELD_LABEL[k] || k}</span><span class="v">${k === 'characterUse' ? (answers[k] ? '예' : '아니오') : k === 'estimatedPrice' && !isNaN(Number(answers[k])) ? Number(answers[k]).toLocaleString('ko-KR') + '원' : k === 'videoLength' && answers.videoType ? hourLabel(parseFloat(answers[k])) : k === 'soundMode' ? (소리이름[answers[k]] || answers[k]) : escapeHtml(String(answers[k])).slice(0, 60)}</span></div>`)
+      .map(k => `<div class="summary-row"><span class="k">${FIELD_LABEL[k] || k}</span><span class="v">${k === 'characterUse' ? (answers[k] ? '예' : '아니오') : k === 'estimatedPrice' && !isNaN(Number(answers[k])) ? Number(answers[k]).toLocaleString('ko-KR') + 'P' : k === 'videoLength' && answers.videoType ? hourLabel(parseFloat(answers[k])) : k === 'videoType' ? kindName(answers[k]) : k === 'soundMode' ? (소리이름[answers[k]] || answers[k]) : escapeHtml(String(answers[k])).slice(0, 60)}</span></div>`)
       .join('');
-    const 방식행 = `<div class="summary-row summary-mode ${planMode === 'paid' ? 'is-paid' : 'is-trial'}"><span class="k">제작 방식</span><span class="v">${planMode === 'paid' ? '정식 제작 (결제 안내 메일 발송)' : answers.videoType ? '무료 체험 (3분 미리보기)' : '무료 체험 (워터마크 미리보기)'}</span></div>`;
+    const 방식행 = `<div class="summary-row summary-mode ${planMode === 'paid' ? 'is-paid' : 'is-trial'}"><span class="k">제작 방식</span><span class="v">${planMode === 'paid' ? '정식 제작 (결제 안내 메일 발송)' : answers.videoType ? `체험 (3분 미리보기 · 체험 ${pt(신청체험가())})` : `체험 (워터마크 미리보기 · 체험 ${pt(신청체험가())})`}</span></div>`;
     const 썸네일원함 = /^(true|예|네|응|yes|y|1|원해요|만들어)/i.test(String(answers.thumbnail ?? '').trim());
     const 썸네일행 = `<div class="summary-row"><span class="k">썸네일</span><span class="v">${planMode !== 'paid' ? '체험판에서는 제공하지 않아요' : 썸네일원함 ? 'AI 썸네일 3장 함께 만들기' : '만들지 않음 (완성 후 영상 장면으로 직접 만들 수 있어요)'}</span></div>`;
     addMsg('bot', `이렇게 만들어드릴게요.<div class="summary-card">${방식행}${answers.videoType ? '' : 썸네일행}${rows || '<div class="summary-row"><span class="k">확인된 내용이 없어요</span></div>'}</div>`);
@@ -1350,14 +1408,14 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     consentWrap.className = 'confirm-consent';
     consentWrap.innerHTML = `
       <input type="checkbox" id="terms-consent" style="margin-top:3px;">
-      <label for="terms-consent"><a href="./terms.html" target="_blank">이용약관 및 개인정보 처리방침</a>에 동의합니다.${mode === 'media' ? ' 업로드 원본은 구글 드라이브에 보관되며, 무료체험 후 24시간 안에 결제가 확인되지 않으면 시스템의 분석 정보는 자동 삭제됩니다.' : ''}</label>`;
+      <label for="terms-consent"><a href="./terms.html" target="_blank">이용약관 및 개인정보 처리방침</a>에 동의합니다.${mode === 'media' ? ' 업로드 원본은 구글 드라이브에 보관되며, 체험 후 24시간 안에 결제가 확인되지 않으면 시스템의 분석 정보는 자동 삭제됩니다.' : ''}</label>`;
     composer.appendChild(consentWrap);
 
     const actions = document.createElement('div');
     actions.className = 'confirm-actions';
     const confirmBtn = document.createElement('button');
     confirmBtn.className = 'btn-gold-sm';
-    confirmBtn.textContent = planMode === 'paid' ? '네, 정식으로 만들어주세요' : '네, 무료 체험으로 만들어주세요';
+    confirmBtn.textContent = planMode === 'paid' ? '네, 정식으로 만들어주세요' : '네, 체험으로 만들어주세요';
     confirmBtn.disabled = true;
     const editBtn = document.createElement('button');
     editBtn.className = 'btn-line-sm';
@@ -1428,7 +1486,17 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     if (answers.sceneCount) payload.sceneCount = answers.sceneCount;
     if (answers.videoLength) payload.videoLength = answers.videoLength;
     if (answers.estimatedPrice) payload.estimatedPrice = answers.estimatedPrice;
+    if (planMode !== 'paid') payload.trialPrice = 신청체험가();
 
+    const 필요P = planMode === 'paid' ? Number(answers.estimatedPrice) : 신청체험가();
+    const 보유P = planMode === 'paid' ? myPoints : myTrial;
+    if (보유P !== null && 필요P > 보유P) {
+      status.textContent = planMode === 'paid' ? `포인트가 부족해요. 필요 ${pt(필요P)} / 보유 ${pt(보유P)} (충전 기능은 곧 열려요)` : `체험 포인트가 부족해요. 필요 ${pt(필요P)} / 보유 ${pt(보유P)}. 정식 모드는 충전해서 이용해요(충전 기능은 곧 열려요)`;
+      접수중 = false; 버튼들.forEach(b => { b.disabled = false; });
+      if (확인버튼) 확인버튼.textContent = 원래문구;
+      status.className = 'form-status err';
+      return;
+    }
     try {
       const res = await fetch(WEBHOOK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
       const data = await res.json().catch(() => null);
@@ -1537,9 +1605,10 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
 
   /* ===================== 직접 설정하기 (채팅 대신 폼으로) ===================== */
   // ───── 요금 (모든 화면·챗봇·서버가 같은 공식을 쓴다: 전체 상담 Agent v5, 웹 신청 접수 v3.2) ─────
-  // 기본료 3,000원 + 영상 길이(분) × 움직임 방식별 분당 요금, 60분 넘으면 20% 추가, 100원 단위 반올림
-  const PRICE_BASE = 3000;
-  const MOTION_RATE = { '이미지 중심': 7000, '혼합': 11000, '모두 영상': 17000 };
+  // [포인트] 모든 요금은 포인트(P)로 정의·계산한다. 1P = 100원은 충전·결제 단계에서만 쓰는 환산값이라 이 화면 계산에는 나오지 않는다.
+  // 기본료 30P + 영상 길이(분) × 움직임 방식별 분당 포인트, 60분 넘으면 20% 추가, 1P 단위 반올림
+  const PRICE_BASE = 30;
+  const MOTION_RATE = { '이미지 중심': 70, '혼합': 110, '모두 영상': 170 };
   const MOTION_LIST = ['이미지 중심', '혼합', '모두 영상'];
   const MOTION_DESC = {
     '이미지 중심': 'AI 이미지에 카메라 움직임(줌·이동). 설명·정보형에 알맞아요',
@@ -1554,23 +1623,33 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     const len = Math.max(0.25, Number(lengthMin) || 0.75);
     let price = PRICE_BASE + len * MOTION_RATE[motionOf(motion)];
     if (len > 60) price *= 1.2;
-    return Math.round(price / 100) * 100;
+    return Math.round(price);
   }
-  function won(n) { return Number(n).toLocaleString('ko-KR') + '원'; }
-  // [롱폼 유형 요금] 접수 워크플로(v3.7)·index.html 요금표와 같은 공식: 기본료 + 길이 × 등급별 요금, 1,000원 단위 반올림 후 100원 차감
-  // 수면음악은 '시간당', 야담은 '분당' 요금. 값 조정은 접수 워크플로와 함께 고친다.
+  function pt(n) { return Number(n).toLocaleString('ko-KR') + 'P'; }
+  // [롱폼 유형 요금(포인트)] 접수 워크플로(v3.9)·index.html 요금표와 같은 공식: 기본 + 길이 × 등급별 포인트, 1P 단위 반올림, 최소 9P
+  // 분위기 영상(내부 값 '수면음악')은 시간당, 야담은 분당 포인트. 값 조정은 접수 워크플로와 함께 고친다.
   const LONG_TIERS = ['경제형', '표준형', '고급형'];
   const LONG_RATE = {
-    '경제형': { '수면음악': [4000, 1500], '야담': [5000, 600] },
-    '표준형': { '수면음악': [6000, 2000], '야담': [6000, 900] },
-    '고급형': { '수면음악': [9000, 3500], '야담': [8000, 1300] }
+    '경제형': { '수면음악': [40, 15], '야담': [50, 6] },
+    '표준형': { '수면음악': [60, 20], '야담': [60, 9] },
+    '고급형': { '수면음악': [90, 35], '야담': [80, 13] }
   };
   const LONG_MAX_MIN = { '수면음악': 480, '야담': 120 };
+  // [표시 이름] 화면·안내 문구에서 보이는 이름은 여기 한 곳에서만 바꾼다. 내부 값('수면음악')은 시트·서버·워크플로와 이어져 있어서 그대로 둔다.
+  const LONG_LABEL = { '수면음악': '분위기 영상', '야담': '야담' };
+  const kindName = k => LONG_LABEL[k] || k;
   function longPrice(kind, tier, min) {
     const [base, rate] = (LONG_RATE[tier] || LONG_RATE['표준형'])[kind];
     const m = Math.min(Math.max(0.25, Number(min) || 60), LONG_MAX_MIN[kind]);
     const raw = base + (kind === '수면음악' ? (m / 60) * rate : m * rate);
-    return Math.max(900, Math.round(raw / 1000) * 1000 - 100);
+    return Math.max(9, Math.round(raw));
+  }
+  // [체험 포인트] 체험 가격 = 정식 이미지 중심(길이 3분까지) 가격의 25%, 최소 5P. 서버(접수 v3.11)와 같은 식이다.
+  function trialPriceOf(kind, tier, min) { return Math.max(5, Math.round(longPrice(kind, tier, Math.min(Number(min) || 60, 3)) * 0.25)); }
+  function trialPriceShort(len) { return Math.max(5, Math.round(computePrice(Math.min(len, 3), '이미지 중심') * 0.25)); }
+  function 신청체험가() {
+    if (answers.videoType) return trialPriceOf(answers.videoType, answers.tier || '표준형', parseFloat(answers.videoLength) || 60);
+    return trialPriceShort(answers.videoLength ? parseFloat(answers.videoLength) : defaultLen(answers.form));
   }
   function longPerHour(kind, tier) { const r = LONG_RATE[tier][kind][1]; return kind === '수면음악' ? r : r * 60; }
   function hourLabel(min) { const m = Math.round(min); const h = Math.floor(m / 60), r = m % 60; return h ? (r ? `${h}시간 ${r}분` : `${h}시간`) : `${r}분`; }
@@ -1593,17 +1672,17 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     ['쇼츠', 0.5], ['쇼츠', 0.75], ['쇼츠', 1], ['쇼츠', 2], ['롱폼', 3], ['롱폼', 5], ['롱폼', 10]
   ];
   function priceTableHtml(hit) {
-    const head = '<tr><th>형태 · 길이</th>' + MOTION_LIST.map(m => `<th class="num ${MOTION_CLS[m]}">${m}<small>분당 ${MOTION_RATE[m].toLocaleString()}원</small></th>`).join('') + '</tr>';
+    const head = '<tr><th>형태 · 길이</th>' + MOTION_LIST.map(m => `<th class="num ${MOTION_CLS[m]}">${m}<small>분당 ${MOTION_RATE[m].toLocaleString()}P</small></th>`).join('') + '</tr>';
     const rows = PRICE_ROWS.map(([f, len]) => '<tr><td>' + f + ' · ' + lenLabel(len) + '</td>' + MOTION_LIST.map(m => {
       const on = hit && Math.abs(hit.len - len) < 1e-9 && hit.motion === m;
-      return `<td class="num ${MOTION_CLS[m]}${on ? ' hit' : ''}">${won(computePrice(len, m))}</td>`;
+      return `<td class="num ${MOTION_CLS[m]}${on ? ' hit' : ''}">${pt(computePrice(len, m))}</td>`;
     }).join('') + '</tr>').join('');
     return head + rows;
   }
   function motionLegendHtml() {
-    return MOTION_LIST.map(m => `<div class="ml-item ${MOTION_CLS[m]}">${motionSvg(m)}<div><b>${m}${m === '혼합' ? ' · 추천' : ''}</b><span>${MOTION_DESC[m]}</span><em>분당 ${MOTION_RATE[m].toLocaleString()}원</em></div></div>`).join('');
+    return MOTION_LIST.map(m => `<div class="ml-item ${MOTION_CLS[m]}">${motionSvg(m)}<div><b>${m}${m === '혼합' ? ' · 추천' : ''}</b><span>${MOTION_DESC[m]}</span><em>분당 ${MOTION_RATE[m].toLocaleString()}P</em></div></div>`).join('');
   }
-  const PRICE_NOTE = '기본료 3,000원 + 영상 길이(분) × 움직임 방식별 분당 요금이에요. 장면 수는 요금에 영향이 없고, 100원 단위로 반올림해요. 60분이 넘으면 20% 추가돼요. 체험판은 무료이고 이미지 중심으로 만들어져요.';
+  const PRICE_NOTE = '기본 30P + 영상 길이(분) × 움직임 방식별 분당 포인트예요. 장면 수는 요금에 영향이 없고, 1P 단위로 반올림해요. 60분이 넘으면 20% 추가돼요. 체험판은 체험 포인트로 이용하고(정식 이미지 중심 가격의 25%) 이미지 중심으로 만들어져요.';
 
   /* ===================== 요금 안내 모달 ===================== */
   (function setupPriceModal() {
@@ -1613,7 +1692,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     document.getElementById('price-modal-note').textContent = PRICE_NOTE;
     const 롱폼안내 = document.createElement('p');
     롱폼안내.className = 'note';
-    롱폼안내.textContent = '수면음악은 기본료 + 시간당 요금이에요(경제 4,000원+1,500원 · 표준 6,000원+2,000원 · 고급 9,000원+3,500원, 최대 8시간). 야담은 곧 열려요. 정확한 금액은 직접 설정하기에서 길이를 넣으면 바로 계산돼요.';
+    롱폼안내.textContent = `${kindName('수면음악')}은 길이와 등급으로 요금이 정해져요(30분·1시간·3시간·8시간 기준 — ` + LONG_TIERS.map(t => `${t} ${[30, 60, 180, 480].map(m => longPrice('수면음악', t, m).toLocaleString('ko-KR')).join(' / ')}P`).join(' · ') + '). 야담은 곧 열려요. 정확한 금액은 직접 설정하기에서 길이를 넣으면 바로 계산돼요.';
     document.getElementById('price-modal-note').after(롱폼안내);
     document.getElementById('to-price-table').addEventListener('click', () => overlay.classList.add('show'));
     document.getElementById('price-modal-close').addEventListener('click', () => overlay.classList.remove('show'));
@@ -1645,29 +1724,30 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   }
   function showLongPriceCard(text) {
     const kind = /야담/.test(text) ? '야담' : '수면음악';
+    const 이름 = kindName(kind);
     const 입력분 = parseLongMinutes(text);
     const 분 = Math.min(입력분 || 60, LONG_MAX_MIN[kind]);
     const 잘림 = 입력분 && 입력분 > LONG_MAX_MIN[kind];
-    const 줄 = LONG_TIERS.map(t => `<tr><td>${t}</td><td class="num">${won(longPrice(kind, t, 분))}</td><td class="num">+${won(longPerHour(kind, t))}</td></tr>`).join('');
-    const 안내 = kind === '야담' ? '야담 영상 신청은 곧 열려요. 요금은 미리 안내해 드려요.' : '직접 설정하기에서 수면음악을 고르면 길이를 넣는 즉시 정확한 요금이 계산돼요.';
-    const 체험안내 = planMode !== 'paid' ? '<p class="cp-note">지금은 체험 모드라 3분 길이까지 무료로 만들어드려요. 아래는 정식 제작 요금이에요.</p>' : '';
-    const html = `${kind} ${hourLabel(분)} 기준 예상 요금이에요${입력분 ? '' : '(길이를 말씀하시지 않아 1시간으로 계산했어요)'}.${잘림 ? ` ${kind}은 최대 ${hourLabel(LONG_MAX_MIN[kind])}까지라 그 길이로 계산했어요.` : ''}<div class="chat-price"><table class="price-table"><tr><th>등급</th><th class="num">예상 요금</th><th class="num">1시간 늘면</th></tr>${줄}</table></div>${체험안내}<p class="cp-note">${안내} 길이는 시간 단위로 늘리면 위 금액이 더해지는 방식이에요.</p>`;
+    const 줄 = LONG_TIERS.map(t => `<tr><td>${t}</td><td class="num">${pt(longPrice(kind, t, 분))}</td></tr>`).join('');
+    const 안내 = kind === '야담' ? '야담 영상 신청은 곧 열려요. 요금은 미리 안내해 드려요.' : '직접 설정하기에서 분위기 영상을 고르면 길이를 넣는 즉시 정확한 요금이 계산돼요.';
+    const 체험안내 = planMode !== 'paid' ? '<p class="cp-note">지금은 체험 모드라 3분 길이까지 체험 포인트로 만들어드려요. 아래는 정식 제작 요금이에요.</p>' : '';
+    const html = `${이름} ${hourLabel(분)} 기준 예상 요금이에요${입력분 ? '' : '(길이를 말씀하시지 않아 1시간으로 계산했어요)'}.${잘림 ? ` ${이름}은 최대 ${hourLabel(LONG_MAX_MIN[kind])}까지라 그 길이로 계산했어요.` : ''}<div class="chat-price"><table class="price-table"><tr><th>등급</th><th class="num">예상 요금</th></tr>${줄}</table></div>${체험안내}<p class="cp-note">${안내} 길이를 바꾸면 요금도 함께 달라져요.</p>`;
     addMsg('bot', html);
-    history.push({ role: 'bot', text: `[요금 안내] ${kind} ${hourLabel(분)}: ` + LONG_TIERS.map(t => `${t} ${longPrice(kind, t, 분)}원`).join(', ') });
+    history.push({ role: 'bot', text: `[요금 안내] ${이름} ${hourLabel(분)}: ` + LONG_TIERS.map(t => `${t} ${longPrice(kind, t, 분)}P`).join(', ') });
     saveChatState();
   }
   function showPriceCard(text) {
-    if (/수면|야담/.test(text)) { showLongPriceCard(text); return; }
+    if (/수면|야담|분위기\s*영상/.test(text)) { showLongPriceCard(text); return; }
     const len = parseLenFromText(text) ?? (answers.videoLength ? parseFloat(answers.videoLength) : null);
     const motion = parseMotionFromText(text) || answers.motion || null;
     const 기준길이 = len ?? defaultLen(answers.form);
     const 기준방식 = motionOf(motion);
     const 추정 = `${answers.form === '롱폼' ? '롱폼' : (기준길이 >= 3 && !answers.form ? '롱폼' : '쇼츠')} ${lenLabel(기준길이)} · ${기준방식}${len == null || !motion ? ' (정하지 않은 부분은 기본값)' : ''}`;
     const 강조 = PRICE_ROWS.some(([, l]) => Math.abs(l - 기준길이) < 1e-9) ? { len: 기준길이, motion: 기준방식 } : null;
-    const 체험안내 = planMode !== 'paid' ? '<p class="cp-note">지금은 체험 모드라 무료로 만들어드려요(이미지 중심 · 워터마크). 아래는 정식 제작 요금이에요.</p>' : '';
-    const html = `요금은 영상 길이와 움직임 방식으로 정해져요. 장면 수는 요금과 상관없어요.<div class="chat-price"><div class="cp-est">${escapeHtml(추정)} → <b>${won(computePrice(기준길이, 기준방식))}</b></div><table class="price-table">${priceTableHtml(강조)}</table><p class="cp-note">${PRICE_NOTE}</p>${체험안내}</div>`;
+    const 체험안내 = planMode !== 'paid' ? '<p class="cp-note">지금은 체험 모드라 체험 포인트로 만들어드려요(이미지 중심 · 워터마크, 정식 가격의 25%). 아래는 정식 제작 요금이에요.</p>' : '';
+    const html = `요금은 영상 길이와 움직임 방식으로 정해져요. 장면 수는 요금과 상관없어요.<div class="chat-price"><div class="cp-est">${escapeHtml(추정)} → <b>${pt(computePrice(기준길이, 기준방식))}</b></div><table class="price-table">${priceTableHtml(강조)}</table><p class="cp-note">${PRICE_NOTE}</p>${체험안내}</div><p class="cp-ask">${planMode !== 'paid' ? `체험 포인트로는 쇼츠 1분(이미지 중심) ${trialPriceShort(1)}P부터 만들어 볼 수 있어요. ` : ''}어떤 길이와 방식으로 만들어 볼까요?</p>`;
     addMsg('bot', html);
-    history.push({ role: 'bot', text: `[요금표 안내] ${추정} = ${computePrice(기준길이, 기준방식)}원. 분당 요금: 이미지 중심 7,000원 / 혼합 11,000원 / 모두 영상 17,000원, 기본료 3,000원.` });
+    history.push({ role: 'bot', text: `[요금표 안내] ${추정} = ${computePrice(기준길이, 기준방식)}P. 분당 포인트: 이미지 중심 70P / 혼합 110P / 모두 영상 170P, 기본 30P.` });
     saveChatState();
   }
 
@@ -1842,18 +1922,26 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     return h > 0 ? Math.min(h * 60, 480) : 60; // 비워두면 1시간
   }
   function typeSectionHtml() {
-    return `<section class="df-sec" style="--c:#74b6ff"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z"/></svg></span><div><h3>어떤 영상인가요</h3><p>쇼츠·일반 영상, 또는 길게 틀어두는 영상</p></div></div>
+    return `<section class="df-sec" style="--c:#74b6ff"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z"/></svg></span><div><h3>어떤 영상인가요</h3><p>쇼츠·일반 영상, 또는 길게 틀어두는 분위기 영상</p></div></div>
       <div class="df-types" id="df-types">
         <label><input type="radio" name="df-type" value="일반" checked><span class="tcard"><b>일반 영상</b><small>쇼츠 · 롱폼</small></span></label>
-        <label><input type="radio" name="df-type" value="수면음악"><span class="tcard"><b>수면음악</b><small>빗소리·자연음 최대 8시간</small></span></label>
+        <label><input type="radio" name="df-type" value="수면음악"><span class="tcard"><b>${kindName('수면음악')}</b><small>수면 · 집중 · 힐링 · 카페</small></span></label>
         <label><input type="radio" name="df-type" value="야담" disabled><span class="tcard"><b>야담</b><small>곧 열려요</small></span></label>
       </div></section>`;
   }
   function sleepSectionHtml() {
-    const tier = (t, sub) => `<label><input type="radio" name="df-tier" value="${t}"${t === '표준형' ? ' checked' : ''}><span class="tcard"><b>${t}</b><small>${sub}<br>시간당 ${LONG_RATE[t]['수면음악'][1].toLocaleString()}원</small></span></label>`;
+    const tier = (t, sub) => `<label><input type="radio" name="df-tier" value="${t}"${t === '표준형' ? ' checked' : ''}><span class="tcard"><b>${t}</b><small>${sub}<br>1시간 ${longPrice('수면음악', t, 60).toLocaleString('ko-KR')}P</small></span></label>`;
     const mode = (v, sub) => `<label><input type="radio" name="df-smode" value="${v}"${v === '숨쉬기' ? ' checked' : ''}><span class="tcard"><b>${v}${v === '숨쉬기' ? ' · 추천' : ''}</b><small>${sub}</small></span></label>`;
-    return `<section class="df-sec df-sleep df-hide" style="--c:#8fa9ff"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg></span><div><h3>수면음악 설정</h3><p>길이와 소리를 정해주세요. 요금은 아래에서 바로 계산돼요</p></div></div>
-      <div class="df-field"><label>영상 길이(시간) <span class="opt">최대 8시간 · 비워두면 1시간</span></label><input type="number" id="df-lt-hours" min="0.1" max="8" step="0.5" placeholder="예: 2, 1.5, 8"><div class="len-chips" id="df-lt-chips"></div><p class="df-hint" id="df-lt-note"></p></div>
+    return `<section class="df-sec df-sleep df-hide" style="--c:#8fa9ff"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg></span><div><h3>${kindName('수면음악')} 설정</h3><p>길이와 소리를 정해주세요. 요금은 아래에서 바로 계산돼요</p></div></div>
+      <div class="df-use"><p>수면, 공부·집중, 힐링, 명상, 카페처럼 <b>길게 틀어두는 영상</b>이에요. 눌러서 예시로 시작해 보세요.</p><div class="len-chips" id="df-ex-chips">${[['수면 · 비 오는 밤 빗소리','비 오는 밤 작은 오두막의 빗소리'],['집중 · 도서관 BGM','도서관 같은 조용한 공부 집중 BGM'],['힐링 · 숲속 시냇물','숲속 시냇물 소리 힐링 자연음'],['카페 · 재즈','비 오는 날 재즈 카페 분위기']].map(([l, t]) => `<button type="button" class="len-chip" data-topic="${t}">${l}</button>`).join('')}</div></div>
+      <div class="df-field"><label>영상 길이 <span class="opt">30분 ~ 8시간</span></label>
+        <input type="hidden" id="df-lt-hours" value="1">
+        <div class="len-pick">
+          <div class="len-box"><button type="button" data-step="h:-1" aria-label="시간 줄이기">−</button><input type="number" id="df-lt-h" inputmode="numeric" min="0" max="8" step="1" value="1" aria-label="시간"><button type="button" data-step="h:1" aria-label="시간 늘리기">＋</button></div><span class="len-unit">시간</span>
+          <div class="len-box"><button type="button" data-step="m:-10" aria-label="분 줄이기">−</button><input type="number" id="df-lt-m" inputmode="numeric" min="0" max="59" step="1" value="0" aria-label="분"><button type="button" data-step="m:10" aria-label="분 늘리기">＋</button></div><span class="len-unit">분</span>
+        </div>
+        <div class="len-read" id="df-lt-read"></div>
+        <div class="len-chips" id="df-lt-chips"></div><p class="df-hint" id="df-lt-note"></p></div>
       <div class="df-field"><label>품질 등급</label><div class="df-chipset" role="radiogroup" aria-label="품질 등급">${tier('경제형', '기본 그림·소리')}${tier('표준형', '추천 · 균형')}${tier('고급형', '그림·소리 더 풍성')}</div></div>
       <div class="df-field"><label>화면 움직임</label><div class="df-chipset" role="radiogroup" aria-label="화면 움직임">${mode('정지', '그림이 고정')}${mode('숨쉬기', '아주 천천히 움직임')}${mode('전환', '그림이 바뀜')}</div></div>
       <div class="df-field"><label>소리는 어떻게 할까요 <em class="req">*</em></label>
@@ -1883,9 +1971,9 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     document.querySelectorAll('#df-fields .df-std').forEach(el => el.classList.toggle('df-hide', 롱폼));
     document.querySelectorAll('#df-fields .df-sleep').forEach(el => el.classList.toggle('df-hide', 종류 !== '수면음악'));
     const topic = document.getElementById('df-topic');
-    if (topic) topic.placeholder = 종류 === '수면음악' ? '예: 비 오는 밤 작은 오두막, 잠들기 좋은 빗소리' : '예: LG 통돌이 17kg DD모터 인공지능 세탁기 (T17DX3) 소개';
+    if (topic) topic.placeholder = 종류 === '수면음악' ? '예: 비 오는 밤 작은 오두막의 빗소리 · 공부할 때 듣는 조용한 카페' : '예: LG 통돌이 17kg DD모터 인공지능 세탁기 (T17DX3) 소개';
     const note = document.getElementById('df-lt-note');
-    if (note) note.textContent = planMode !== 'paid' ? '체험판은 3분 길이로 만들어요.' : '0.5시간(30분) 단위로 입력할 수 있어요. 길어져도 요금은 길이에 비례해 크게 늘지 않아요.';
+    if (note) note.textContent = planMode !== 'paid' ? '체험판은 3분 길이로 만들어요.' : '시간과 분을 따로 넣어요. 30분부터 8시간까지 만들 수 있어요.';
     updatePrice();
   }
   function setupLongform() {
@@ -1893,19 +1981,44 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     if (!types) return;
     if (dfPreType) { const r = document.querySelector(`input[name="df-type"][value="${dfPreType}"]`); if (r && !r.disabled) r.checked = true; dfPreType = null; }
     const chips = document.getElementById('df-lt-chips');
-    const hours = document.getElementById('df-lt-hours');
-    function draw() {
-      const cur = parseFloat(hours.value) || 1;
-      chips.innerHTML = [0.5, 1, 3, 8].map(h => `<button type="button" class="len-chip${Math.abs(h - cur) < 1e-9 ? ' on' : ''}" data-h="${h}">${h < 1 ? '30분' : h + '시간'}</button>`).join('');
+    const hours = document.getElementById('df-lt-hours');   // 숨은 값(시간, 소수) - 요금 계산·접수는 이 값을 그대로 쓴다
+    const hIn = document.getElementById('df-lt-h'), mIn = document.getElementById('df-lt-m');
+    const read = document.getElementById('df-lt-read');
+    const MIN = 30, MAX = 480;
+    let 안내 = '';
+    function 분표시(m) { const h = Math.floor(m / 60), r = m % 60; return h ? (r ? `${h}시간 ${r}분` : `${h}시간`) : `${r}분`; }
+    function setTotal(total, fromUser) {
+      let m = Math.round(Number.isFinite(total) ? total : 60);
+      안내 = '';
+      if (m < MIN) { m = MIN; if (fromUser) 안내 = '최소 30분으로 맞췄어요.'; }
+      if (m > MAX) { m = MAX; if (fromUser) 안내 = '최대 8시간으로 맞췄어요.'; }
+      hIn.value = Math.floor(m / 60); mIn.value = m % 60;
+      hours.value = String(Math.round(m / 60 * 1000) / 1000);
+      hours.dispatchEvent(new Event('input', { bubbles: true }));
+      draw(m);
     }
-    chips.addEventListener('click', e => { const b = e.target.closest('.len-chip'); if (!b) return; hours.value = b.dataset.h; hours.dispatchEvent(new Event('input', { bubbles: true })); draw(); });
-    hours.addEventListener('input', draw);
+    function draw(m) {
+      const tier = 현재등급();
+      const 요금 = longPrice('수면음악', tier, m);
+      read.innerHTML = `총 <b>${분표시(m)}</b> · 약 <b>${요금.toLocaleString('ko-KR')}P</b>` + (planMode !== 'paid' ? ' <span class="len-sub">(체험판은 3분 영상이 체험 포인트로 만들어져요)</span>' : '') + (안내 ? `<span class="len-warn"> ${안내}</span>` : '');
+      chips.innerHTML = [30, 60, 180, 480].map(v => `<button type="button" class="len-chip${v === m ? ' on' : ''}" data-m="${v}">${v < 60 ? '30분' : (v / 60) + '시간'}</button>`).join('');
+    }
+    const 현재분 = () => (parseInt(hIn.value, 10) || 0) * 60 + (parseInt(mIn.value, 10) || 0);
+    document.getElementById('df-ex-chips').addEventListener('click', e => { const b = e.target.closest('.len-chip'); if (!b) return; const t = document.getElementById('df-topic'); if (t) { t.value = b.dataset.topic; t.dispatchEvent(new Event('input', { bubbles: true })); } });
+    chips.addEventListener('click', e => { const b = e.target.closest('.len-chip'); if (!b) return; setTotal(parseInt(b.dataset.m, 10), false); });
+    document.querySelectorAll('.len-box button').forEach(b => b.addEventListener('click', () => {
+      const [k, d] = b.dataset.step.split(':'); const step = parseInt(d, 10);
+      setTotal(현재분() + (k === 'h' ? step * 60 : step), true);
+    }));
+    [hIn, mIn].forEach(el => el.addEventListener('change', () => setTotal(현재분(), true)));
+    document.querySelectorAll('input[name="df-tier"]').forEach(r => r.addEventListener('change', () => draw(현재분() || 60)));
+    setTotal(60, false);
     types.addEventListener('change', applyType);
     document.querySelectorAll('input[name="df-sound"]').forEach(r => r.addEventListener('change', () => {
       ['자동', '내음악', '없음'].forEach(k => { const el = document.getElementById('df-sp-' + k); if (el) el.classList.toggle('df-hide', k !== 현재소리()); });
       updatePrice();
     }));
-    draw(); applyType();
+    applyType();
   }
 
   function renderDirectForm() {
@@ -1924,7 +2037,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
         <div id="df-fields"></div>
         <div class="df-price">
           <div class="amt" id="df-price-amt">약 -</div>
-          <p>선택하신 내용 기준 예상 비용 (실제 확정은 다음 화면에서)</p>
+          <p>선택하신 내용 기준으로 필요한 포인트예요 (실제 확정은 다음 화면에서)</p>
         </div>
         <div class="confirm-actions">
           <button class="btn-line-sm" id="df-cancel">채팅으로 돌아가기</button>
@@ -1974,7 +2087,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
         answers.estimatedPrice = longPrice('수면음악', answers.tier, 분);
         mode = 'topic';
         showChatFromDirectForm();
-        addMsg('user', '직접 설정하기로 수면음악 영상을 설정했어요.');
+        addMsg('user', '직접 설정하기로 분위기 영상을 설정했어요.');
         history.push({ role: 'user', text: '직접 설정하기로 수면음악 영상을 설정했어요.' });
         saveChatState();
         showSummary(); // 상담 챗봇을 거치지 않고 바로 확인 단계로 (이 종류는 움직임 방식·썸네일 같은 질문이 없다)
@@ -2023,6 +2136,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     const profile = decodeJwt(idToken);
     if (!profile) return;
     googleIdToken = idToken;
+    loadPoints(idToken);
     document.getElementById('gate').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     document.getElementById('account-avatar').src = profile.picture || '';

@@ -510,7 +510,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       <p class="gate-lede">신청하실 때 사용한 구글 계정으로 로그인해주세요. 다른 계정의 프로젝트는 볼 수 없어요.</p>
       <div id="gsi-area"></div>
       <ul class="gate-perks">
-        <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>이메일당 3편까지 무료로 체험</li>
+        <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>가입하면 체험 포인트 50P를 드려요</li>
         <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>대본과 최종 장면은 직접 확인하고 승인</li>
         <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>완성되면 이 계정 이메일로 알려드려요</li>
       </ul>
@@ -803,9 +803,9 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       // 체험판 - 원본 다운로드 링크는 노출하지 않고 화면 안에서만 재생
       card.innerHTML = `
         <h2>미리보기가 준비됐어요</h2>
-        <p>워터마크가 있는 체험판이에요. 아래에서 바로 확인해보세요.</p>
+        <p>체험판이에요. 이 화면에서 바로 확인해보세요.</p>
         ${player}
-        <p class="video-note">마음에 드시면 아래 "정식으로 만들기"에서 워터마크 없는 고화질 버전을 받으실 수 있어요.</p>
+        <p class="video-note">마음에 드시면 아래 "정식으로 만들기"에서 전체 영상을 다운로드하실 수 있어요.</p>
         ${ytMatch ? '' : 보관안내(p)}`;
     }
   }
@@ -1141,8 +1141,8 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     card.style.display = 'block';
     card.innerHTML = `
       <h3>이 영상, 마음에 드시나요?</h3>
-      <p class="sub">지금 보신 건 워터마크가 있는 체험판이에요.<br>정식으로 만들면 워터마크 없이 고화질로 받으실 수 있어요.</p>
-      ${p.estimatedPrice ? `<div class="price">약 ${Number(p.estimatedPrice).toLocaleString()}원</div>` : ''}
+      <p class="sub">지금 보신 건 체험판이에요.<br>정식으로 만들면 영상을 다운로드해서 쓰실 수 있어요.</p>
+      ${p.estimatedPrice ? `<div class="price">약 ${Number(p.estimatedPrice).toLocaleString()}P</div>` : ''}
       <button id="upgrade-btn">정식으로 만들기</button>
       <p class="requested" id="upgrade-status"></p>`;
 
