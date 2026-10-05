@@ -110,6 +110,7 @@ h4 b{color:var(--amber);margin-left:2px}
 .g-pin.bad{background:var(--err)}
 .verdict{font-size:.78rem;font-weight:600;margin-top:2px}
 .verdict.ok{color:var(--green)}.verdict.bad{color:var(--err)}
+.lite .pts,.lite #bRw,.lite #mrw,.lite button.rw{display:none!important}
 .pts{display:flex;align-items:center;justify-content:space-between;margin-top:4px;font-size:.84rem;color:var(--dim)}
 .pts b{color:var(--ink);font-variant-numeric:tabular-nums}
 .eye{width:28px;height:28px;border-radius:50%;color:var(--faint);font-size:.9rem}
@@ -740,6 +741,7 @@ function init(o){
   cfg.type=o.type==='short'?'short':'long';
   cfg.src=o.src==='mine'?'mine':'ai';
   cfg.mode=o.mode==='review'?'review':'pre';
+  cfg.lite=!!o.lite&&o.lite!=='0';document.documentElement.classList.toggle('lite',cfg.lite); /* lite: 내 대본만 쓰는 실사용판 — AI 기능·포인트 표시 숨김 */
   cfg.target=o.target||(cfg.type==='short'?1:4);
   cfg.blank=cfg.src==='mine';
   uid=0;undo=[];redo=[];imported=false;spentRewrite=0;spentAI=0;balance=BALANCE0;lastImport=null;q='';matches=[];mi=-1;
@@ -1079,7 +1081,10 @@ function describeImport(res){
   if(h.english>3||h.numbers||h.longSentences){sub.push('음성으로 읽을 때 확인해 보세요: '+[h.english>3?'영문 '+h.english+'곳':'',h.numbers?'긴 숫자 '+h.numbers+'곳':'',h.longSentences?'긴 문장 '+h.longSentences+'곳':''].filter(Boolean).join(' · '))}
   var main=res.changed?'문법에 맞게 대본의 형식을 재구성했어요'+(parts.length?' · '+parts.join(' · '):'')+' · 글 내용은 바꾸지 않았어요':'형식이 이미 맞아서 그대로 적용했어요';
   var acts=[['원문 보기',openOrig],['되돌리기',function(){doUndo();hideBanner()}]];
-  if(res.needsAI){
+  if(res.needsAI&&cfg.lite){
+    var why0={dialogue:'대화(시나리오) 형식의 글이에요',foreign:'한국어가 아닌 글이에요',outline:'개요(목록) 형태의 글이에요'}[res.needsAI.reason];
+    showBanner(main+'<small>'+why0+'. 내레이션으로 읽을 문장으로 직접 고쳐 주세요.</small>',acts);
+  }else if(res.needsAI){
     var why={dialogue:'대화(시나리오) 형식의 글이에요',foreign:'한국어가 아닌 글이에요',outline:'개요(목록) 형태의 글이에요'}[res.needsAI.reason];
     var fee=aiPolishFee(minutes());
     showBanner(main+'<small>'+why+'. 내레이션 문장으로 바꾸려면 AI 정리가 필요해요 · <b>'+P(fee)+'</b> 사용 (보유 '+P(balance)+')</small>',[['AI로 정리하기',function(){runPolish(fee)},true],['이대로 쓰기',hideBanner]].concat(acts.slice(0,1)),true);
@@ -1154,18 +1159,22 @@ $('approve').onclick=function(){
   var rows='<dt>'+(short?'문단':'챕터')+'</dt><dd>'+(short?paras:ch.length)+'개</dd><dt>글자 수</dt><dd>'+s.n.toLocaleString('ko-KR')+'자</dd><dt>예상 영상 길이</dt><dd>약 '+fmtLen(s.m)+'</dd>';
   var prod=s.prod, extra='';
   var review=cfg.mode==='review';
+  var lite=!!cfg.lite;
   if(review&&s.hasT&&!s.ok){var base=prodPrice(cfg.target);extra='<dt>주문 제작 포인트</dt><dd>'+P(base)+'</dd><dt>길이에 따른 변동</dt><dd>'+sgn(prod-base)+'</dd>'}
+  if(!lite){
   rows+=extra+'<dt>제작 포인트</dt><dd>'+P(prod)+'</dd>';
   rows+='<dt>AI 대본비</dt><dd>'+(cfg.src==='ai'?P(aiScriptFee(cfg.target))+' <small>지불 완료</small>':'없음 <small>(내 대본)</small>')+'</dd>';
   if(spentRewrite||spentAI)rows+='<dt>다시 쓰기·AI 정리</dt><dd>'+P(spentRewrite+spentAI)+' <small>사용함</small></dd>';
   rows+='<dt>보유 포인트</dt><dd>'+P(balance)+'</dd>';
-  if(review)rows+='<dt>승인 후 남는 포인트</dt><dd>'+P(balance-(s.ok?s.base||prod:prod))+'</dd>';
+  }
+  if(review&&!lite)rows+='<dt>승인 후 남는 포인트</dt><dd>'+P(balance-(s.ok?s.base||prod:prod))+'</dd>';
   $('oksum').innerHTML=rows;
   $('okTitle').textContent=review?'이 대본으로 영상을 만들까요?':'이 대본으로 확정할까요?';
   $('okNote').textContent=(review?'승인하면 대본이 고정되고 이미지·음성 제작이 시작돼요.':'확정하면 영상 설정으로 돌아가요. 확정한 대본은 이 브라우저의 보관함에 저장돼요.')+' 영상 제작을 시작하면 대본이 제작을 위해 서버로 전달되고, 제작이 끝나면 삭제돼요.';
   $('okyes').textContent=review?'승인하고 제작 시작':'확정하기';
   var w=$('okwarn');
-  if(review&&s.hasT&&!s.ok){w.hidden=false;w.textContent='대본 길이가 주문과 달라서 제작 포인트가 '+sgn(prod-prodPrice(cfg.target))+' 바뀌어요. 이대로 진행하면 새 포인트로 제작해요.'}
+  if(lite)w.hidden=true;
+  else if(review&&s.hasT&&!s.ok){w.hidden=false;w.textContent='대본 길이가 주문과 달라서 제작 포인트가 '+sgn(prod-prodPrice(cfg.target))+' 바뀌어요. 이대로 진행하면 새 포인트로 제작해요.'}
   else if(!review&&prod>balance){w.hidden=false;w.textContent='제작에는 '+P(prod)+'가 필요해요. 신청 전에 '+P(prod-balance)+'를 더 충전해야 해요.'}
   else w.hidden=true;
   var needR=imported;$('okchk').hidden=!needR;$('okrights').checked=false;$('okyes').disabled=needR;
@@ -1197,7 +1206,7 @@ document.addEventListener('keydown',function(e){
 /* ---------- 시작 ---------- */
 (function(){
   var u={};try{new URLSearchParams(location.search).forEach(function(v,k){u[k]=v})}catch(e){}
-  init({type:u.type||'long',src:u.src||'ai',mode:u.mode||'pre',target:u.target?+u.target:0});
+  init({type:u.type||'long',src:u.src||'ai',mode:u.mode||'pre',lite:u.lite,target:u.target?+u.target:0});
   applyRail();syncRwBtn();
 })();
 var _stats=stats;stats=function(){var r=_stats();syncRwBtn();return r};
