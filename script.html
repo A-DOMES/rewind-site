@@ -41,6 +41,8 @@ input{font:inherit;color:inherit}
 .lp-in{display:flex;flex-direction:column;min-height:0;flex:1;overflow:hidden}
 .lp-head{padding:16px 16px 6px}
 .ttl{width:100%;border:0;background:transparent;font:700 1.05rem var(--sans);letter-spacing:-.02em;padding:2px 4px;margin-left:-4px;border-radius:8px;color:var(--ink)}
+.ttl-lb{display:block;font:600 .72rem var(--sans);color:var(--mute,#888);margin:0 0 2px;letter-spacing:-.01em}
+.ttl::placeholder{color:var(--mute,#888);font-weight:500}
 .ttl:hover,.ttl:focus{background:var(--raised);outline:none}
 .sub{display:flex;align-items:center;gap:8px;color:var(--faint);font-size:.78rem;padding:0 0 0 0}
 .dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex:none}
@@ -297,7 +299,8 @@ h4 b{color:var(--amber);margin-left:2px}
     <aside class="lp" id="lp">
       <div class="lp-in">
         <div class="lp-head">
-          <input class="ttl" id="ttl" aria-label="대본 제목" value="">
+          <label class="ttl-lb" for="ttl">제목</label>
+          <input class="ttl" id="ttl" aria-label="대본 제목" placeholder="제목을 입력하세요" value="">
           <div class="sub"><span class="save" id="save"><i class="dot"></i><span id="saveTxt">자동 저장됨</span></span><span id="subinfo"></span></div>
         </div>
         <div class="srch">
