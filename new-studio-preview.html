@@ -288,7 +288,34 @@
   body.studio-open .split-row { display: none !important; }
   body.studio-focus .sidebar { display: none !important; }
   @media (max-width: 760px) { body.studio-open .top-mode-bar { display: none; } }
-  @media (max-width: 760px) { #studio-frame { margin-bottom: 58px; } }
+  @media (max-width: 760px) { #studio-frame, #script-hub { margin-bottom: 58px; } }
+  body.studio-open #script-hub { display:none; }
+  body.studio-open.hub-open #script-hub { display:block !important; }
+  body.studio-open.hub-open #studio-frame { display:none !important; }
+  .sh-in{max-width:760px;margin:0 auto;padding:40px 24px 60px;display:flex;flex-direction:column;gap:22px}
+  .sh-in h2{font-size:1.35rem;margin:0;letter-spacing:-.02em}
+  .sh-in p.sub{margin:4px 0 0;color:var(--ink-dim);font-size:.92rem}
+  .sh-lab{font-size:.82rem;color:var(--ink-faint);font-weight:600;margin-bottom:8px}
+  .sh-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .sh-opt{text-align:left;border:1px solid var(--line);background:var(--bg-raised);color:var(--ink);border-radius:14px;padding:14px 16px;cursor:pointer;font:inherit}
+  .sh-opt b{display:block;font-size:.98rem}
+  .sh-opt span{display:block;margin-top:3px;font-size:.82rem;color:var(--ink-dim)}
+  .sh-opt[aria-pressed=true]{border-color:var(--amber);background:var(--amber-wash)}
+  .sh-go{align-self:flex-start;border:0;border-radius:999px;background:var(--amber);color:var(--on-amber);font:inherit;font-weight:700;padding:12px 26px;cursor:pointer}
+  .sh-lib{display:flex;flex-direction:column;gap:8px}
+  .sh-item{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--line);background:var(--bg-raised);border-radius:12px;padding:11px 14px;font-size:.9rem}
+  .sh-item small{color:var(--ink-faint)}
+  .sh-item button{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:999px;padding:6px 14px;font:inherit;font-size:.82rem;cursor:pointer}
+  .sh-empty{color:var(--ink-faint);font-size:.88rem;padding:6px 2px}
+  .sc-card{margin:14px 0;border:1px solid var(--line);background:var(--bg-raised);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+  .sc-card h4{margin:0;font-size:.95rem}
+  .sc-card .sc-opts{display:flex;flex-wrap:wrap;gap:8px}
+  .sc-card .sc-opts button{border:1px solid var(--line);background:transparent;color:var(--ink-dim);border-radius:999px;padding:7px 14px;font:inherit;font-size:.86rem;cursor:pointer}
+  .sc-card .sc-opts button[aria-pressed=true]{border-color:var(--amber);color:var(--amber);background:var(--amber-wash)}
+  .sc-card .sc-act{align-self:flex-start;border:1px solid var(--amber);background:transparent;color:var(--amber);border-radius:999px;padding:8px 18px;font:inherit;font-weight:600;cursor:pointer}
+  .sc-card.ready{border-color:var(--amber)}
+  .sc-card .sc-note{font-size:.82rem;color:var(--ink-dim);margin:0}
+
 
   /* ===== 디자인 v2 (필름 스튜디오) — 기존 규칙 위에 덮어쓰는 층. 아래만 지우면 이전 디자인으로 돌아감 ===== */
   :root, :root:not([data-theme="__v2"]), :root[data-theme] {
@@ -775,7 +802,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
         <a class="side-item active" href="./new.html"><span class="ico" style="--c:#74b6ff"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-6 8 6v8h-5v-5h-6v5H4z"/></svg></span> 홈</a>
         <a class="side-item" href="./dashboard.html"><span class="ico" style="--c:#b99bff"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 4v16M16 4v16M4 9h4M4 15h4M16 9h4M16 15h4"/></svg></span> 내 프로젝트</a>
         <button class="side-item" id="to-direct-form"><span class="ico" style="--c:#e2a23c"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/></svg></span> 직접 설정하기</button>
-        <button class="side-item" id="to-longscript"><span class="ico" style="--c:#8ad7c4"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg></span> 롱폼 대본</button>
+        <button class="side-item" id="to-longscript"><span class="ico" style="--c:#8ad7c4"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg></span> 대본 만들기</button>
         <button class="side-item" id="to-topic-finder"><span class="ico" style="--c:#ffc857"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.4 1 1.1 1 1.8V16h5v-.3c0-.7.4-1.4 1-1.8A6 6 0 0 0 12 3z"/></svg></span> 주제 찾기</button>
         <button class="side-item" id="to-price-table"><span class="ico" style="--c:#86d980"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M14.5 9.5h-3.5a1.5 1.5 0 0 0 0 3h2a1.5 1.5 0 0 1 0 3H9.5M12 7.5v1.5M12 15.5V17"/></svg></span> 요금 안내</button>
       </nav>
@@ -827,7 +854,8 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       <button type="button" data-t="dark" aria-label="어둡게" title="어둡게"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></button>
     </div>
       </div>
-      <iframe id="studio-frame" title="롱폼 대본 작업실" style="display:none;flex:1;border:0;width:100%;min-height:0;background:var(--bg)"></iframe>
+      <div id="script-hub" style="display:none;flex:1;min-height:0;overflow:auto;background:var(--bg)"></div>
+      <iframe id="studio-frame" title="대본 작업실" style="display:none;flex:1;border:0;width:100%;min-height:0;background:var(--bg)"></iframe>
       <div class="split-row" id="split-row">
         <div class="direct-form-wrap" id="direct-form-wrap" style="display:none;"></div>
         <div class="split-resizer" id="split-resizer" title="드래그해서 크기 조절"></div>
@@ -861,7 +889,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   <button type="button" data-go="more" aria-haspopup="true" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></svg>더보기</button>
 </nav>
 <div class="mobile-more" id="mobile-more" role="menu">
-  <button type="button" data-go="script" role="menuitem">롱폼 대본</button>
+  <button type="button" data-go="script" role="menuitem">대본 만들기</button>
   <button type="button" data-go="price" role="menuitem">요금 안내</button>
   <button type="button" data-go="mode" role="menuitem">체험/정식 전환</button>
   <button type="button" data-go="logout" role="menuitem">로그아웃</button>
@@ -1953,6 +1981,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     wrap.addEventListener('input', updatePrice);
     wrap.addEventListener('change', updatePrice);
     updatePrice();
+    if (window.__rwInjectScriptCard) window.__rwInjectScriptCard();
 
     document.getElementById('df-tab-topic').addEventListener('click', () => { dfMode = 'topic'; renderDirectForm(); });
     document.getElementById('df-tab-media').addEventListener('click', () => { dfMode = 'media'; renderDirectForm(); });
@@ -2035,6 +2064,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     document.getElementById('app').style.display = 'block';
     document.getElementById('account-avatar').src = profile.picture || '';
     document.getElementById('account-name').textContent = profile.name || profile.email || '';
+    window.__rwEmail = profile.email || '';
     // [수정] 예전엔 목록을 불러오는 1~3초 동안 예시 버튼 줄이 혼자 보였다가 사라졌다.
     // 이전 대화가 있으면 목록을 기다릴 필요 없이 바로 보여주고, 없으면 '불러오는 중'만 보여준 뒤(최대 4초) 상황에 맞는 첫 화면을 그린다.
     const 이전대화 = loadChatState();
@@ -2214,25 +2244,53 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')openM(false)
 function upd(){var fresh=!log.querySelector('.msg.user')&&!(row&&row.classList.contains('split-active'))&&!!log.querySelector('.msg.bot');col.classList.toggle('is-fresh',fresh);}
 new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new MutationObserver(upd).observe(row,{attributes:true,attributeFilter:['class']});upd();})();
 
-/* 롱폼 대본 작업실: 오른쪽 작업 영역에 longscript.html을 액자로 띄운다 */
+/* 대본 만들기: 숏폼/롱폼 고르기 → 시작 방법 → 2분할 작업실(script.html)을 오른쪽 영역에 띄운다 */
 (function(){
-  var btn=document.getElementById('to-longscript'),fr=document.getElementById('studio-frame');
-  if(!btn||!fr)return;
+  var btn=document.getElementById('to-longscript'),fr=document.getElementById('studio-frame'),hub=document.getElementById('script-hub');
+  if(!btn||!fr||!hub)return;
   var here=document.getElementById('crumb-here'),sep=document.getElementById('crumb-sep'),back=document.getElementById('crumb-back'),root=document.getElementById('crumb-root');
-  function open(){
-    if(!fr.getAttribute('src'))fr.setAttribute('src','./longscript.html');
-    document.body.classList.add('studio-open');
-    if(back)back.hidden=false;if(sep)sep.hidden=false;if(here){here.hidden=false;here.textContent='롱폼 대본'}
-    if(root)root.classList.remove('is-here');
-    document.querySelectorAll('.side-item').forEach(function(b){b.classList.toggle('active',b===btn)});
+  var KEY='rw_scripts', pick={type:'long',src:'ai'}, ret=null; /* ret: 직접 설정하기에서 열었을 때 돌아올 곳 */
+  /* 보관함: 이 브라우저(IndexedDB)에만 저장, 로그인 이메일별로 칸을 나눈다. 서버(시트)에는 보내지 않는다. */
+  var cache=[];
+  function dbKey(){return 'rw:'+(window.__rwEmail||'guest')}
+  function idb(cb){try{var r=indexedDB.open('rewind',1);r.onupgradeneeded=function(){r.result.createObjectStore('scripts')};r.onsuccess=function(){cb(r.result)};r.onerror=function(){cb(null)}}catch(e){cb(null)}}
+  function loadLib(cb){idb(function(d){if(!d){cb&&cb();return}try{var q=d.transaction('scripts').objectStore('scripts').get(dbKey());q.onsuccess=function(){cache=q.result||[];cb&&cb()};q.onerror=function(){cb&&cb()}}catch(e){cb&&cb()}})}
+  function lib(){return cache}
+  function saveLib(a){cache=a.slice(0,30);idb(function(d){if(d)try{d.transaction('scripts','readwrite').objectStore('scripts').put(cache,dbKey())}catch(e){}})}
+  function esc(t){return String(t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  function crumb(t){if(back)back.hidden=false;if(sep)sep.hidden=false;if(here){here.hidden=false;here.textContent=t}if(root)root.classList.remove('is-here')}
+  function active(on){document.querySelectorAll('.side-item').forEach(function(b){b.classList.toggle('active',on&&b===btn)})}
+  function openFrame(type,src,from,load){
+    ret=from||null;
+    fr.setAttribute('src','./script.html?type='+type+'&src='+src+'&mode=pre&t='+Date.now());
+    if(load)fr.addEventListener('load',function once(){fr.removeEventListener('load',once);try{fr.contentWindow.postMessage({type:'rw-script-init',cfg:{type:type,src:'mine',mode:'pre',load:load}},'*')}catch(e){}});
+    document.body.classList.add('studio-open');document.body.classList.remove('hub-open');
+    crumb(from==='direct'?'직접 설정하기 › 대본 만들기':'대본 만들기');
+    if(from!=='direct')active(true);
   }
+  function renderHub(){
+    var L=lib();
+    hub.innerHTML='<div class="sh-in"><div><h2>대본 만들기</h2><p class="sub">영상 길이에 맞춰 고르세요. 만든 대본은 이 브라우저의 보관함에 저장돼요. 브라우저 데이터를 지우면 사라지니 중요한 대본은 파일로도 저장해 두세요.</p></div>'+
+    '<div><div class="sh-lab">어떤 영상인가요</div><div class="sh-row"><button class="sh-opt" data-t="short"><b>숏폼</b><span>한 편으로 이어지는 짧은 대본</span></button><button class="sh-opt" data-t="long"><b>롱폼</b><span>챕터로 나눠 쓰는 긴 대본</span></button></div></div>'+
+    '<div><div class="sh-lab">어떻게 시작할까요</div><div class="sh-row"><button class="sh-opt" data-s="ai"><b>AI가 써 줘요</b><span>주제를 알려 주면 초안을 써 드려요 · 대본비 별도</span></button><button class="sh-opt" data-s="mine"><b>내 대본으로 시작</b><span>붙여넣거나 파일로 가져와요 · 무료</span></button></div></div>'+
+    '<button class="sh-go" id="sh-go">작업실 열기</button>'+
+    '<div><div class="sh-lab">보관함</div><div class="sh-lib">'+(L.length?L.map(function(x,i){return'<div class="sh-item"><span>'+esc(x.title)+' <small>'+(x.type==='short'?'숏폼':'롱폼')+' · 약 '+x.minutes+'분</small></span><button data-open="'+i+'">열기</button></div>'}).join(''):'<div class="sh-empty">아직 보관된 대본이 없어요. 확정한 대본이 여기에 모여요.</div>')+'</div></div></div>';
+    function mark(){hub.querySelectorAll('[data-t]').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.t===pick.type)});hub.querySelectorAll('[data-s]').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.s===pick.src)})}
+    mark();
+    hub.querySelectorAll('[data-t]').forEach(function(b){b.onclick=function(){pick.type=b.dataset.t;mark()}});
+    hub.querySelectorAll('[data-s]').forEach(function(b){b.onclick=function(){pick.src=b.dataset.s;mark()}});
+    hub.querySelector('#sh-go').onclick=function(){openFrame(pick.type,pick.src,null)};
+    hub.querySelectorAll('[data-open]').forEach(function(b){b.onclick=function(){var x=lib()[+b.dataset.open];openFrame(x.type,'mine',null,{title:x.title,chapters:x.chapters})}});
+    hub.querySelectorAll('[data-del]').forEach(function(b){b.onclick=function(){var a=lib().slice();a.splice(+b.dataset.del,1);saveLib(a);renderHub()}});
+  }
+  function openHub(){loadLib(renderHub);renderHub();document.body.classList.add('studio-open','hub-open');crumb('대본 만들기');active(true)}
   function close(){
     if(!document.body.classList.contains('studio-open'))return;
-    document.body.classList.remove('studio-open','studio-focus');
-    document.querySelectorAll('.side-item').forEach(function(b){b.classList.remove('active')});
+    document.body.classList.remove('studio-open','studio-focus','hub-open');
+    active(false);
     if(window.갱신위치표시)window.갱신위치표시();
   }
-  btn.addEventListener('click',open);
+  btn.addEventListener('click',openHub);
   /* 다른 메뉴·이전·새로 만들기를 누르면 작업실을 닫고 원래 화면으로 */
   document.addEventListener('click',function(e){
     if(e.target.closest('#to-longscript'))return;
@@ -2242,11 +2300,54 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
     if(e.source!==fr.contentWindow)return;var d=e.data||{};
     if(d.type==='rw-studio-focus')document.body.classList.toggle('studio-focus',!!d.on);
     if(d.type==='rw-studio-approve')close();
+    if(d.type==='rw-script-confirm'){
+      var a=lib();a.unshift({id:d.scriptId,title:d.title,type:d.type2,src:d.src,imported:!!d.imported,chapters:d.chapters,chars:d.chars,minutes:d.minutes,prod:d.prod,at:Date.now()});saveLib(a);
+      window.__rwScript={id:d.scriptId,title:d.title,type:d.type2,src:'ready',imported:!!d.imported,minutes:d.minutes,prod:d.prod};
+      var from=ret;close();
+      if(from==='direct'){if(window.__rwRefreshScriptCard)window.__rwRefreshScriptCard()}
+    }
   });
-  /* 테마를 액자에도 전달 */
+  /* 직접 설정하기의 '대본' 카드에서 호출 */
+  window.__rwOpenStudio=function(type,src,load){openFrame(type,src,'direct',load);active(false)};
+  window.__rwLoadLib=loadLib;
+  window.__rwScriptLib=lib;
   function sendTheme(){try{fr.contentWindow.postMessage({type:'rw-theme',theme:document.documentElement.getAttribute('data-theme')||'system'},'*')}catch(e){}}
   new MutationObserver(sendTheme).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
   fr.addEventListener('load',sendTheme);
+})();
+
+/* 직접 설정하기 '대본' 카드: AI가 써 줘요 / 내 대본 / 보관함 → 대본 만들기 */
+(function(){
+  var mode='skip'; /* skip=대본 만들기 건너뛰기(제출 후 AI가 씀) */
+  function type(){var f=document.getElementById('df-form');return f&&f.value==='쇼츠'?'short':'long'}
+  function render(){
+    var host=document.getElementById('df-script-card');if(!host)return;
+    var sleep=(document.querySelector('input[name="df-type"]:checked')||{}).value==='수면음악';host.style.display=sleep?'none':'';
+    var r=window.__rwScript, L=(window.__rwScriptLib||function(){return[]})();
+    if(r&&r.src==='ready'){
+      host.className='sc-card ready';
+      host.innerHTML='<h4>대본 준비됨</h4><p class="sc-note">'+r.title.replace(/</g,'&lt;')+' · 약 '+r.minutes+'분 · '+(r.imported?'내 대본':'AI 대본')+'. 이 대본으로 영상을 만들어요.</p><div class="sc-opts"><button type="button" id="sc-edit">다시 열기</button><button type="button" id="sc-clear">대본 빼기</button></div>';
+      host.querySelector('#sc-edit').onclick=function(){var x=L.filter(function(y){return y.id===r.id})[0];window.__rwOpenStudio(r.type,'mine',x?{title:x.title,chapters:x.chapters}:null)};
+      host.querySelector('#sc-clear').onclick=function(){window.__rwScript=null;render()};
+      return;
+    }
+    host.className='sc-card';
+    host.innerHTML='<h4>대본</h4><div class="sc-opts"><button type="button" data-m="skip" aria-pressed="'+(mode==='skip')+'">제출하면 AI가 써 줘요</button><button type="button" data-m="ai" aria-pressed="'+(mode==='ai')+'">먼저 AI 초안 보기</button><button type="button" data-m="mine" aria-pressed="'+(mode==='mine')+'">내 대본</button>'+(L.length?'<button type="button" data-m="lib" aria-pressed="'+(mode==='lib')+'">보관함에서 불러오기</button>':'')+'</div>'+
+    '<p class="sc-note">'+({skip:'대본은 접수 뒤에 AI가 쓰고, 확인한 다음 제작해요. AI 대본비가 따로 들어요.',ai:'초안을 보고 고친 뒤 확정해요. AI 대본비는 초안을 쓸 때 내요.',mine:'붙여넣거나 파일로 가져와요. 대본비는 없어요.',lib:'확정해 둔 대본을 골라요.'})[mode]+'</p>'+
+    (mode==='skip'?'':mode==='lib'?'<div class="sh-lib">'+L.slice(0,5).map(function(x,i){return'<div class="sh-item"><span>'+x.title.replace(/</g,'&lt;')+' <small>'+(x.type==='short'?'숏폼':'롱폼')+' · 약 '+x.minutes+'분</small></span><button type="button" data-use="'+i+'">이 대본 쓰기</button></div>'}).join('')+'</div>':'<button type="button" class="sc-act" id="sc-open">대본 만들기</button>');
+    host.querySelectorAll('[data-m]').forEach(function(b){b.onclick=function(){mode=b.dataset.m;render()}});
+    var o=host.querySelector('#sc-open');if(o)o.onclick=function(){window.__rwOpenStudio(type(),mode==='ai'?'ai':'mine')};
+    host.querySelectorAll('[data-use]').forEach(function(b){b.onclick=function(){var x=L[+b.dataset.use];window.__rwScript={id:x.id,title:x.title,type:x.type,src:'ready',imported:x.imported,minutes:x.minutes,prod:x.prod};render()}});
+  }
+  window.__rwRefreshScriptCard=render;
+  window.__rwInjectScriptCard=function(){
+    if(document.getElementById('df-script-card'))return;
+    var f=document.getElementById('df-fields');if(!f||document.getElementById('df-tab-media').classList.contains('active'))return;
+    var d=document.createElement('div');d.id='df-script-card';d.className='sc-card';
+    var first=f.querySelector('.df-sec');(first&&first.nextSibling?f.insertBefore(d,first.nextSibling):f.appendChild(d));
+    render();if(window.__rwLoadLib)window.__rwLoadLib(render);
+    var w=document.getElementById('direct-form-wrap');if(w&&!w.__sc){w.__sc=1;w.addEventListener('change',function(e){if(e.target&&(e.target.name==='df-type'))render()})}
+  };
 })();
 </script>
 </body>
