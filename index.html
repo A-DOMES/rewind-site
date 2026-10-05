@@ -143,6 +143,15 @@
   .tag { font-size: 0.8rem; font-weight: 600; color: var(--on-amber); background: var(--ink-dim); border-radius: 999px; padding: 4px 12px; }
   @media (max-width: 980px) { .ways { grid-template-columns: 1fr; } .way .poster { height: 140px; } }
 
+  .ways.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .way .uses { display: flex; flex-wrap: wrap; gap: 6px; }
+  .way .uses .use-chip { margin-left: 0; }
+  .way .poster.pic { background-size: cover; background-position: center; }
+  .way .poster.vid video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .way .poster.vid .tag { position: relative; z-index: 1; }
+  .tag.tag-dark { background: rgba(15,13,11,.62); color: #f1e9db; }
+  @media (max-width: 980px) { .ways.two { grid-template-columns: 1fr; } }
+
   /* layouts */
   .layouts { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 60px; align-items: center; }
   .layouts h2 { font-size: clamp(1.9rem, 3.6vw, 2.8rem); font-weight: 700; }
@@ -435,8 +444,8 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   <div class="inner th-wrap">
     <div class="th-copy">
       <span class="th-kick">정식 영상 전용</span>
-      <h2>눌리는 썸네일까지,<br>한 번에</h2>
-      <p class="th-lede">신청할 때 선택하면 AI가 잘 눌리는 썸네일 3장을 함께 만들어요. 선택하지 않아도 완성된 영상에서 원하는 장면을 골라 직접 만들 수 있어요.</p>
+      <h2>썸네일 제작까지,<br>한 번에</h2>
+      <p class="th-lede">신청할 때 선택하면 AI가 썸네일 3장을 함께 만들어요. 선택하지 않아도 완성된 영상에서 원하는 장면을 골라 직접 만들 수 있어요.</p>
       <ul class="th-points">
         <li><span class="th-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg></span><div><b>AI가 3가지 문구로 (선택)</b><p>궁금증·결과·경고형 문구를 장마다 다르게 쓰고, 얼굴은 가리지 않게 배치해요.</p></div></li>
         <li><span class="th-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13 7l4 4"/></svg></span><div><b>내 마음대로 직접 편집</b><p>영상에서 원하는 순간을 골라 네모 상자로 잘라 쓰고, 문구와 글씨 상자는 원하는 곳에 색·크기도 자유롭게 정해요.</p></div></li>
@@ -454,6 +463,41 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
         <div class="th-tx th-sel"><div class="th-float"><span>✎ 문구</span><span>A+</span><span>● 강조색</span></div>빨래 시간<br><em>절반</em></div>
       </div>
       <div class="th-card" style="background-image:url('./assets/strip-product-3.jpg')"><span class="th-tag">AI 추천 · 경고</span><div class="th-tx">모르면<br><em>손해</em></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="band alt" id="long">
+  <div class="inner">
+    <div class="sec-head">
+      <h2>쇼츠 말고,<br>긴 영상도 만들어요</h2>
+      <p>한 가지 분위기나 이야기를 길게 이어 가는 영상이에요. 길이와 분위기만 정하면 장면과 소리는 AI가 만들어요.</p>
+    </div>
+    <div class="ways two">
+      <a class="way" href="./new.html">
+        <div class="poster pic vid" style="background-image:url('./assets/sample-mood.jpg'); --c:#8fd4d0;">
+          <video id="mood-video" muted loop playsinline preload="metadata" poster="./assets/sample-mood.jpg" aria-hidden="true">
+            <source src="./assets/sample-mood.webm" type="video/webm"><source src="./assets/sample-mood.mp4" type="video/mp4">
+          </video>
+          <span class="tag tag-dark">비 오는 꽃밭 · 샘플</span>
+        </div>
+        <div class="body">
+          <h3>분위기 영상</h3>
+          <p>비 오는 밤의 빗소리, 조용한 카페처럼 한 가지 분위기를 길게 이어 가는 영상이에요. 원하는 소리와 장면을 직접 골라요.</p>
+          <div class="uses"><span class="use-chip">수면</span><span class="use-chip">공부·집중</span><span class="use-chip">힐링</span><span class="use-chip">배경 영상</span></div>
+          <span class="go">직접 설정하기에서 만들기</span>
+        </div>
+      </a>
+      <div class="way soon">
+        <div class="poster pic" style="background-image:linear-gradient(0deg,rgba(15,13,11,.55),rgba(15,13,11,.05)),url('./assets/sample-yadam.jpg'); --c:#e2a23c;">
+          <span class="tag">곧 열려요</span>
+        </div>
+        <div class="body">
+          <h3>야담</h3>
+          <p>옛이야기를 목소리로 읽어 주고 장면을 그림으로 보여 주는 영상이에요. 30분 이상 길게 들려주는 이야기 콘텐츠에 알맞아요.</p>
+          <div class="uses"><span class="use-chip">옛이야기</span><span class="use-chip">설화·야사</span></div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -661,6 +705,18 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     es.forEach(e => { if (e.isIntersecting) { if (!v.src) load(i); else v.play().catch(() => {}); } else v.pause(); });
   }, { threshold: 0.2 }) : null;
   if (io) io.observe(screen); else load(0);
+})();
+</script>
+<script>
+// [분위기 영상 샘플] 카드 안에서 소리 없이 반복 재생. 움직임 줄이기 설정이면 멈춘 그림만 보여준다.
+(() => {
+  const v = document.getElementById('mood-video');
+  if (!v) return;
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const play = () => { const p = v.play(); if (p && p.catch) p.catch(() => {}); };
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(es => es.forEach(e => e.isIntersecting ? play() : v.pause()), { threshold: 0.3 }).observe(v);
+  } else play();
 })();
 </script>
 </body>
