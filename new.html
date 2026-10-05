@@ -1031,7 +1031,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       const 값 = longPrice(종류, 등급, 분);
       const 최고 = longPrice(종류, '고급형', 분);
       const 막대 = '<div class="mb-chart">' + LONG_TIERS.map(t => { const v = longPrice(종류, t, 분); return `<div class="mb-row${t === 등급 ? ' on' : ''}"><span>${t}</span><span class="mb-bar"><span class="mb-fill" style="width:${Math.round(v / 최고 * 100)}%;display:block;background:${t === 등급 ? 'var(--amber)' : 'var(--line)'}"></span></span><span class="v">${pt(v)}</span></div>`; }).join('') + '</div>';
-      priceBox.innerHTML = `<div class="amt" id="df-price-amt">약 ${pt(값)}</div><p>${kindName(종류)} ${hourLabel(분)} · ${등급} · 소리: ${소리이름[현재소리()]}</p>${pointLine(값)}${막대}`;
+      priceBox.innerHTML = `<div class="amt" id="df-price-amt">약 ${pt(값)}</div><p>${kindName(종류)} ${hourLabel(분)} · ${등급} · ${종류 === '야담' ? '목소리: ' + ((document.getElementById('df-yvoice') || {}).value || '남성') : '소리: ' + 소리이름[현재소리()]}</p>${pointLine(값)}${막대}`;
       return;
     }
     if (planMode !== 'paid') {
@@ -1181,11 +1181,11 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       history.push({ role: 'user', text });
       const 야담 = /야담/.test(text);
       const el = addMsg('bot', 야담
-        ? '야담 영상은 곧 열릴 예정이에요. 지금은 일반 영상(쇼츠·롱폼)이나 분위기 영상을 만들 수 있어요. 요금이 궁금하시면 "야담 1시간 얼마예요?"처럼 물어보세요.'
+        ? '야담은 직접 설정하기에서 만들 수 있어요. 소재와 길이, 목소리를 고르면 요금이 바로 계산돼요.<div style="margin-top:10px"><button type="button" class="btn-gold-sm" data-open-sleep>야담 설정 열기</button></div>'
         : '분위기 영상(수면·휴식·집중용 긴 소리 영상)은 직접 설정하기에서 만들 수 있어요. 길이와 등급, 듣고 싶은 소리를 고르면 요금이 바로 계산돼요.<div style="margin-top:10px"><button type="button" class="btn-gold-sm" data-open-sleep>분위기 영상 설정 열기</button></div>');
       const btn = el.querySelector('[data-open-sleep]');
-      if (btn) btn.addEventListener('click', () => { dfPreType = '수면음악'; showDirectForm(); });
-      history.push({ role: 'bot', text: 야담 ? '[야담은 아직 준비 중 안내]' : '[수면음악은 직접 설정하기에서 신청 안내]' });
+      if (btn) btn.addEventListener('click', () => { dfPreType = 야담 ? '야담' : '수면음악'; showDirectForm(); });
+      history.push({ role: 'bot', text: 야담 ? '[야담은 직접 설정하기에서 신청 안내]' : '[수면음악은 직접 설정하기에서 신청 안내]' });
       saveChatState();
       renderComposer();
       return;
@@ -1692,7 +1692,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     document.getElementById('price-modal-note').textContent = PRICE_NOTE;
     const 롱폼안내 = document.createElement('p');
     롱폼안내.className = 'note';
-    롱폼안내.textContent = `${kindName('수면음악')}은 길이와 등급으로 요금이 정해져요(30분·1시간·3시간·8시간 기준 — ` + LONG_TIERS.map(t => `${t} ${[30, 60, 180, 480].map(m => longPrice('수면음악', t, m).toLocaleString('ko-KR')).join(' / ')}P`).join(' · ') + '). 야담은 곧 열려요. 정확한 금액은 직접 설정하기에서 길이를 넣으면 바로 계산돼요.';
+    롱폼안내.textContent = `${kindName('수면음악')}은 길이와 등급으로 요금이 정해져요(30분·1시간·3시간·8시간 기준 — ` + LONG_TIERS.map(t => `${t} ${[30, 60, 180, 480].map(m => longPrice('수면음악', t, m).toLocaleString('ko-KR')).join(' / ')}P`).join(' · ') + '). ' + `야담은 길이와 등급으로 정해져요(10분·30분·1시간·2시간 기준 — ` + LONG_TIERS.map(t => `${t} ${[10, 30, 60, 120].map(m => longPrice('야담', t, m).toLocaleString('ko-KR')).join(' / ')}P`).join(' · ') + '). 정확한 금액은 직접 설정하기에서 길이를 넣으면 바로 계산돼요.';
     document.getElementById('price-modal-note').after(롱폼안내);
     document.getElementById('to-price-table').addEventListener('click', () => overlay.classList.add('show'));
     document.getElementById('price-modal-close').addEventListener('click', () => overlay.classList.remove('show'));
@@ -1729,7 +1729,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     const 분 = Math.min(입력분 || 60, LONG_MAX_MIN[kind]);
     const 잘림 = 입력분 && 입력분 > LONG_MAX_MIN[kind];
     const 줄 = LONG_TIERS.map(t => `<tr><td>${t}</td><td class="num">${pt(longPrice(kind, t, 분))}</td></tr>`).join('');
-    const 안내 = kind === '야담' ? '야담 영상 신청은 곧 열려요. 요금은 미리 안내해 드려요.' : '직접 설정하기에서 분위기 영상을 고르면 길이를 넣는 즉시 정확한 요금이 계산돼요.';
+    const 안내 = `직접 설정하기에서 ${이름}을(를) 고르면 길이를 넣는 즉시 정확한 요금이 계산돼요.`;
     const 체험안내 = planMode !== 'paid' ? '<p class="cp-note">지금은 체험 모드라 3분 길이까지 체험 포인트로 만들어드려요. 아래는 정식 제작 요금이에요.</p>' : '';
     const html = `${이름} ${hourLabel(분)} 기준 예상 요금이에요${입력분 ? '' : '(길이를 말씀하시지 않아 1시간으로 계산했어요)'}.${잘림 ? ` ${이름}은 최대 ${hourLabel(LONG_MAX_MIN[kind])}까지라 그 길이로 계산했어요.` : ''}<div class="chat-price"><table class="price-table"><tr><th>등급</th><th class="num">예상 요금</th></tr>${줄}</table></div>${체험안내}<p class="cp-note">${안내} 길이를 바꾸면 요금도 함께 달라져요.</p>`;
     addMsg('bot', html);
@@ -1915,18 +1915,22 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   function 현재종류() { return document.querySelector('input[name="df-type"]:checked')?.value || '일반'; }
   function 현재소리() { return document.querySelector('input[name="df-sound"]:checked')?.value || '자동'; }
   const 소리이름 = { '자동': 'AI가 만든 소리', '내음악': '내 음악', '없음': '소리 없음' };
-  function 현재등급() { return document.querySelector('input[name="df-tier"]:checked')?.value || '표준형'; }
+  function 현재등급() { return document.querySelector(현재종류() === '야담' ? 'input[name="df-ytier"]:checked' : 'input[name="df-tier"]:checked')?.value || '표준형'; }
   function 롱폼길이분() {
+    if (현재종류() === '야담') {
+      const y = parseFloat(document.getElementById('df-yd-min')?.value);
+      return y > 0 ? Math.min(Math.max(y, 5), 120) : 10; // 비워두면 10분
+    }
     const el = document.getElementById('df-lt-hours');
     const h = el ? parseFloat(el.value) : NaN;
     return h > 0 ? Math.min(h * 60, 480) : 60; // 비워두면 1시간
   }
   function typeSectionHtml() {
-    return `<section class="df-sec" style="--c:#74b6ff"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z"/></svg></span><div><h3>어떤 영상인가요</h3><p>쇼츠·일반 영상, 또는 길게 틀어두는 분위기 영상</p></div></div>
+    return `<section class="df-sec" style="--c:#74b6ff"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z"/></svg></span><div><h3>어떤 영상인가요</h3><p>쇼츠·일반 영상, 길게 틀어두는 분위기 영상, 이야기를 들려주는 야담</p></div></div>
       <div class="df-types" id="df-types">
         <label><input type="radio" name="df-type" value="일반" checked><span class="tcard"><b>일반 영상</b><small>쇼츠 · 롱폼</small></span></label>
         <label><input type="radio" name="df-type" value="수면음악"><span class="tcard"><b>${kindName('수면음악')}</b><small>수면 · 집중 · 힐링 · 카페</small></span></label>
-        <label><input type="radio" name="df-type" value="야담" disabled><span class="tcard"><b>야담</b><small>곧 열려요</small></span></label>
+        <label><input type="radio" name="df-type" value="야담"><span class="tcard"><b>야담</b><small>옛이야기 · 이야기 영상</small></span></label>
       </div></section>`;
   }
   function sleepSectionHtml() {
@@ -1965,17 +1969,35 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       <div class="df-field"><label>그림 바뀌는 간격(초) <span class="opt">선택 · 5~600 · 비워두면 12초</span></label><input type="number" id="df-sceneSeconds" min="5" max="600" step="1" placeholder="12"></div>
     </section>`;
   }
+  function yadamSectionHtml() {
+    const tier = (t, sub) => `<label><input type="radio" name="df-ytier" value="${t}"${t === '표준형' ? ' checked' : ''}><span class="tcard"><b>${t}</b><small>${sub}<br>10분 ${longPrice('야담', t, 10).toLocaleString('ko-KR')}P</small></span></label>`;
+    return `<section class="df-sec df-yadam df-hide" style="--c:#e2a23c"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h6a2 2 0 0 1 2 2v12a2 2 0 0 0-2-2H4z"/><path d="M20 5h-6a2 2 0 0 0-2 2v12a2 2 0 0 1 2-2h6z"/></svg></span><div><h3>야담 설정</h3><p>소재와 길이, 목소리를 정해주세요. 이야기는 AI가 지어서 들려줘요</p></div></div>
+      <div class="df-use"><p>옛이야기를 이야기꾼의 목소리로 들려주고 장면을 그림으로 보여줘요. 눌러서 소재 예시로 시작해 보세요.</p><div class="len-chips" id="df-yd-ex">${[['도깨비와 욕심 많은 부자','욕심 많은 부자와 도깨비의 내기 이야기'],['효자와 호랑이','산길에서 호랑이를 만난 효자 이야기'],['지혜로운 사또','마을의 억울한 일을 지혜롭게 풀어내는 사또 이야기'],['선녀와 나무꾼','하늘에서 내려온 선녀와 나무꾼 이야기']].map(([l, t]) => `<button type="button" class="len-chip" data-topic="${t}">${l}</button>`).join('')}</div></div>
+      <div class="df-field"><label>영상 길이 <span class="opt">5분 ~ 2시간</span></label>
+        <div class="len-pick"><div class="len-box"><button type="button" data-ystep="-5" aria-label="5분 줄이기">−</button><input type="number" id="df-yd-min" inputmode="numeric" min="5" max="120" step="1" value="10" aria-label="분"><button type="button" data-ystep="5" aria-label="5분 늘리기">＋</button></div><span class="len-unit">분</span></div>
+        <div class="len-read" id="df-yd-read"></div>
+        <div class="len-chips" id="df-yd-chips"></div><p class="df-hint" id="df-yd-note"></p></div>
+      <div class="df-field"><label>품질 등급</label><div class="df-chipset" role="radiogroup" aria-label="품질 등급">${tier('경제형', '45초마다')}${tier('표준형', '추천 · 30초마다')}${tier('고급형', '20초마다 · 풍성')}</div></div>
+      <div class="df-field"><label>이야기꾼 목소리</label><select id="df-yvoice"><option value="남성">남성 · 차분한 이야기꾼</option><option value="여성">여성 · 부드러운 이야기꾼</option></select></div>
+      <p class="df-hint">이야기는 조선 배경의 창작 이야기나 널리 알려진 민담으로 만들어요. 실존 인물·실제 사건은 넣지 않아요. 자막이 함께 들어가고, 분위기 있는 국악풍 배경음악이 작게 깔려요.</p>
+    </section>`;
+  }
   function applyType() {
     const 종류 = 현재종류();
     const 롱폼 = 종류 !== '일반';
     document.querySelectorAll('#df-fields .df-std').forEach(el => el.classList.toggle('df-hide', 롱폼));
     document.querySelectorAll('#df-fields .df-sleep').forEach(el => el.classList.toggle('df-hide', 종류 !== '수면음악'));
+    document.querySelectorAll('#df-fields .df-yadam').forEach(el => el.classList.toggle('df-hide', 종류 !== '야담'));
     const topic = document.getElementById('df-topic');
-    if (topic) topic.placeholder = 종류 === '수면음악' ? '예: 비 오는 밤 작은 오두막의 빗소리 · 공부할 때 듣는 조용한 카페' : '예: LG 통돌이 17kg DD모터 인공지능 세탁기 (T17DX3) 소개';
+    if (topic) topic.placeholder = 종류 === '수면음악' ? '예: 비 오는 밤 작은 오두막의 빗소리 · 공부할 때 듣는 조용한 카페' : 종류 === '야담' ? '예: 욕심 많은 부자가 도깨비와 내기를 하는 이야기' : '예: LG 통돌이 17kg DD모터 인공지능 세탁기 (T17DX3) 소개';
     const note = document.getElementById('df-lt-note');
     if (note) note.textContent = planMode !== 'paid' ? '체험판은 3분 길이로 만들어요.' : '시간과 분을 따로 넣어요. 30분부터 8시간까지 만들 수 있어요.';
+    const yn = document.getElementById('df-yd-note');
+    if (yn) yn.textContent = planMode !== 'paid' ? '체험판은 3분 길이의 짧은 이야기로 만들어요.' : '5분부터 2시간까지 만들 수 있어요.';
+    if (typeof drawYadam === 'function') drawYadam();
     updatePrice();
   }
+  let drawYadam = null;
   function setupLongform() {
     const types = document.getElementById('df-types');
     if (!types) return;
@@ -2018,6 +2040,32 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       ['자동', '내음악', '없음'].forEach(k => { const el = document.getElementById('df-sp-' + k); if (el) el.classList.toggle('df-hide', k !== 현재소리()); });
       updatePrice();
     }));
+    // 야담: 길이(분)·등급·소재 예시
+    const ydIn = document.getElementById('df-yd-min'), ydRead = document.getElementById('df-yd-read'), ydChips = document.getElementById('df-yd-chips');
+    let ydWarn = '';
+    drawYadam = function () {
+      if (!ydIn) return;
+      const m = 롱폼길이분();
+      const 요금 = longPrice('야담', 현재등급(), m);
+      ydRead.innerHTML = `총 <b>${hourLabel(m)}</b> · 약 <b>${요금.toLocaleString('ko-KR')}P</b>` + (planMode !== 'paid' ? ' <span class="len-sub">(체험판은 3분 영상이 체험 포인트로 만들어져요)</span>' : '') + (ydWarn ? `<span class="len-warn"> ${ydWarn}</span>` : '');
+      ydChips.innerHTML = [10, 30, 60, 120].map(v => `<button type="button" class="len-chip${v === m ? ' on' : ''}" data-m="${v}">${v < 60 ? v + '분' : (v / 60) + '시간'}</button>`).join('');
+    };
+    function setYd(v, fromUser) {
+      let m = Math.round(Number.isFinite(v) ? v : 10); ydWarn = '';
+      if (m < 5) { m = 5; if (fromUser) ydWarn = '최소 5분으로 맞췄어요.'; }
+      if (m > 120) { m = 120; if (fromUser) ydWarn = '최대 2시간으로 맞췄어요.'; }
+      ydIn.value = m;
+      ydIn.dispatchEvent(new Event('input', { bubbles: true }));
+      drawYadam();
+    }
+    if (ydIn) {
+      ydIn.addEventListener('change', () => setYd(parseFloat(ydIn.value), true));
+      ydChips.addEventListener('click', e => { const b = e.target.closest('.len-chip'); if (b) setYd(parseInt(b.dataset.m, 10), false); });
+      document.querySelectorAll('[data-ystep]').forEach(b => b.addEventListener('click', () => setYd((parseFloat(ydIn.value) || 10) + parseInt(b.dataset.ystep, 10), true)));
+      document.querySelectorAll('input[name="df-ytier"]').forEach(r => r.addEventListener('change', drawYadam));
+      document.getElementById('df-yd-ex').addEventListener('click', e => { const b = e.target.closest('.len-chip'); const t = document.getElementById('df-topic'); if (b && t) { t.value = b.dataset.topic; t.dispatchEvent(new Event('input', { bubbles: true })); } });
+      setYd(10, false);
+    }
     applyType();
   }
 
@@ -2051,7 +2099,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
         <section class="df-sec" style="--c:#74b6ff"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span><div><h3>내 자료</h3><p>사진·영상이 담긴 구글 드라이브 폴더</p></div></div><div class="df-field"><label>구글 드라이브 폴더 링크 <em class="req">*</em></label><input type="url" id="df-driveLink" placeholder="https://drive.google.com/drive/folders/..."></div><div class="df-field"><label>어떤 이야기·분위기로 만들지 <span class="opt">선택 · 500자</span></label><textarea id="df-mediaNote" maxlength="500"></textarea></div></section><section class="df-sec" style="--c:#4fd6bd"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></span><div><h3>목소리</h3><p>비워두면 내용에 맞게 골라드려요</p></div></div><div class="df-grid2"><div class="df-field"><label>목소리</label><select id="df-voiceGender"><option value="">자동</option><option value="여성">여성</option><option value="남성">남성</option></select></div><div class="df-field"><label>목소리 연령대</label><select id="df-voiceAge">${ageOptions()}</select></div></div></section>`;
     } else {
       fieldsEl.innerHTML = `${typeSectionHtml()}
-        <section class="df-sec" style="--c:#e2a23c"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13 7l4 4"/></svg></span><div><h3>무엇을 만들까요</h3><p>주제만 적어도 나머지는 AI가 채워요</p></div></div><div class="df-field"><label>주제 <em class="req">*</em> <span class="opt">300자</span></label><textarea id="df-topic" maxlength="300" placeholder="예: LG 통돌이 17kg DD모터 인공지능 세탁기 (T17DX3) 소개"></textarea></div><div class="df-field"><label>영상 이렇게 만들어주세요 <span class="opt">선택 · 300자</span></label><textarea id="df-style" maxlength="300" placeholder="비워두면 내용에 맞게 자동 · 예: 밝고 경쾌한 분위기로, 가족이 함께 쓰는 느낌으로"></textarea></div><div class="df-field df-check df-std"><label><input type="checkbox" id="df-characterUse"><span>영상 내내 같은 캐릭터(인물)가 나오게 하기</span></label></div></section>${sleepSectionHtml()}<section class="df-sec df-std" style="--c:#ff8f6b"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg></span><div><h3>제품 정보</h3><p>상품 소개 영상일 때만 넣어주세요</p></div></div><div class="df-field"><label>제품 링크 <span class="opt">선택</span></label><input type="url" id="df-productLink" placeholder="https://..."></div><div class="df-field"><label>제품 이미지 URL <span class="opt">선택</span></label><input type="url" id="df-productImageUrl" placeholder="https://..."></div></section><section class="df-sec df-std" style="--c:#b99bff"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 5v14M17 5v14M3 9h4M3 15h4M17 9h4M17 15h4"/></svg></span><div><h3>영상 형식</h3><p>형태, 길이, 움직임, 화면 구성</p></div></div><div class="df-grid2"><div class="df-field"><label>영상 형태 <em class="req">*</em></label><select id="df-form"><option value="쇼츠">쇼츠 · 세로 9:16 (짧게)</option><option value="롱폼">롱폼 · 가로 16:9 (길게)</option></select></div><div class="df-field"><label>타겟 연령대</label><select id="df-target">${ageOptions()}</select></div><div class="df-field"><label>영상 길이(분) <span class="opt">선택</span></label><input type="number" id="df-videoLength" min="0" step="0.1" placeholder="비워두면 1분"></div><div class="df-field"><label>장면 수 <span class="opt">선택</span></label><input type="number" id="df-sceneCount" min="1" step="1" placeholder="비워두면 자동"></div></div><div class="df-field"><label>영상 길이 빠르게 고르기 <span class="opt">요금이 달라져요</span></label><div class="len-chips" id="df-len-chips"></div></div><div class="df-field"><label>움직임 방식 <span class="opt">요금이 달라져요</span></label><div class="lp-grid" id="df-motion" role="radiogroup" aria-label="움직임 방식"></div><p class="lp-note" id="df-motion-note"></p></div><div class="df-field"><label>화면 상단 문구 <span class="opt">선택 · 18자</span></label><input type="text" id="df-hookText" maxlength="18" placeholder="비워두면 자동 · 예: 아직도 빨래 코스 고민하세요?"></div><div class="df-field"><label>화면 구성 <span class="opt">선택</span></label><div class="lp-grid" id="df-layout" role="radiogroup" aria-label="화면 구성"></div><p class="lp-note" id="df-layout-note"></p></div><div class="df-field"><label>자막 위치 <span class="opt">선택</span></label><div class="lp-grid" id="df-captionPos" role="radiogroup" aria-label="자막 위치"></div></div></section><section class="df-sec df-std" style="--c:#4fd6bd"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></span><div><h3>목소리</h3><p>비워두면 내용에 맞게 골라드려요</p></div></div><div class="df-grid2"><div class="df-field"><label>말하기 속도</label><select id="df-tempo"><option value="">자동</option><option value="차분">차분하게</option><option value="중간">보통</option><option value="빠름">빠르고 경쾌하게</option></select></div><div class="df-field"><label>목소리</label><select id="df-voiceGender"><option value="">자동</option><option value="여성">여성</option><option value="남성">남성</option></select></div><div class="df-field"><label>목소리 연령대</label><select id="df-voiceAge">${ageOptions()}</select></div></div></section><section class="df-sec df-std" style="--c:#ff8cc0"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 17l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg></span><div><h3>연출과 추가 옵션</h3><p>꼭 원하는 장면이 있다면 적어주세요</p></div></div><div class="df-field"><label>꼭 넣고 싶은 연출 <span class="opt">선택 · 500자</span></label><textarea id="df-directorNote" maxlength="500"></textarea></div><div class="df-field"><label class="thumb-opt" id="df-thumb-opt"><input type="checkbox" id="df-thumbnail"><span class="to-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 15h10M9 11h6"/></svg></span><span class="to-txt"><b id="df-thumb-title">AI 썸네일 3장 함께 만들기</b><small id="df-thumb-sub">원할 때만 켜세요 · 켜지 않아도 완성된 영상에서 원하는 장면을 골라 직접 만들 수 있어요</small></span><span class="to-switch" aria-hidden="true"></span></label></div></section>`;
+        <section class="df-sec" style="--c:#e2a23c"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13 7l4 4"/></svg></span><div><h3>무엇을 만들까요</h3><p>주제만 적어도 나머지는 AI가 채워요</p></div></div><div class="df-field"><label>주제 <em class="req">*</em> <span class="opt">300자</span></label><textarea id="df-topic" maxlength="300" placeholder="예: LG 통돌이 17kg DD모터 인공지능 세탁기 (T17DX3) 소개"></textarea></div><div class="df-field"><label>영상 이렇게 만들어주세요 <span class="opt">선택 · 300자</span></label><textarea id="df-style" maxlength="300" placeholder="비워두면 내용에 맞게 자동 · 예: 밝고 경쾌한 분위기로, 가족이 함께 쓰는 느낌으로"></textarea></div><div class="df-field df-check df-std"><label><input type="checkbox" id="df-characterUse"><span>영상 내내 같은 캐릭터(인물)가 나오게 하기</span></label></div></section>${sleepSectionHtml()}${yadamSectionHtml()}<section class="df-sec df-std" style="--c:#ff8f6b"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg></span><div><h3>제품 정보</h3><p>상품 소개 영상일 때만 넣어주세요</p></div></div><div class="df-field"><label>제품 링크 <span class="opt">선택</span></label><input type="url" id="df-productLink" placeholder="https://..."></div><div class="df-field"><label>제품 이미지 URL <span class="opt">선택</span></label><input type="url" id="df-productImageUrl" placeholder="https://..."></div></section><section class="df-sec df-std" style="--c:#b99bff"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 5v14M17 5v14M3 9h4M3 15h4M17 9h4M17 15h4"/></svg></span><div><h3>영상 형식</h3><p>형태, 길이, 움직임, 화면 구성</p></div></div><div class="df-grid2"><div class="df-field"><label>영상 형태 <em class="req">*</em></label><select id="df-form"><option value="쇼츠">쇼츠 · 세로 9:16 (짧게)</option><option value="롱폼">롱폼 · 가로 16:9 (길게)</option></select></div><div class="df-field"><label>타겟 연령대</label><select id="df-target">${ageOptions()}</select></div><div class="df-field"><label>영상 길이(분) <span class="opt">선택</span></label><input type="number" id="df-videoLength" min="0" step="0.1" placeholder="비워두면 1분"></div><div class="df-field"><label>장면 수 <span class="opt">선택</span></label><input type="number" id="df-sceneCount" min="1" step="1" placeholder="비워두면 자동"></div></div><div class="df-field"><label>영상 길이 빠르게 고르기 <span class="opt">요금이 달라져요</span></label><div class="len-chips" id="df-len-chips"></div></div><div class="df-field"><label>움직임 방식 <span class="opt">요금이 달라져요</span></label><div class="lp-grid" id="df-motion" role="radiogroup" aria-label="움직임 방식"></div><p class="lp-note" id="df-motion-note"></p></div><div class="df-field"><label>화면 상단 문구 <span class="opt">선택 · 18자</span></label><input type="text" id="df-hookText" maxlength="18" placeholder="비워두면 자동 · 예: 아직도 빨래 코스 고민하세요?"></div><div class="df-field"><label>화면 구성 <span class="opt">선택</span></label><div class="lp-grid" id="df-layout" role="radiogroup" aria-label="화면 구성"></div><p class="lp-note" id="df-layout-note"></p></div><div class="df-field"><label>자막 위치 <span class="opt">선택</span></label><div class="lp-grid" id="df-captionPos" role="radiogroup" aria-label="자막 위치"></div></div></section><section class="df-sec df-std" style="--c:#4fd6bd"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></span><div><h3>목소리</h3><p>비워두면 내용에 맞게 골라드려요</p></div></div><div class="df-grid2"><div class="df-field"><label>말하기 속도</label><select id="df-tempo"><option value="">자동</option><option value="차분">차분하게</option><option value="중간">보통</option><option value="빠름">빠르고 경쾌하게</option></select></div><div class="df-field"><label>목소리</label><select id="df-voiceGender"><option value="">자동</option><option value="여성">여성</option><option value="남성">남성</option></select></div><div class="df-field"><label>목소리 연령대</label><select id="df-voiceAge">${ageOptions()}</select></div></div></section><section class="df-sec df-std" style="--c:#ff8cc0"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 17l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg></span><div><h3>연출과 추가 옵션</h3><p>꼭 원하는 장면이 있다면 적어주세요</p></div></div><div class="df-field"><label>꼭 넣고 싶은 연출 <span class="opt">선택 · 500자</span></label><textarea id="df-directorNote" maxlength="500"></textarea></div><div class="df-field"><label class="thumb-opt" id="df-thumb-opt"><input type="checkbox" id="df-thumbnail"><span class="to-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 15h10M9 11h6"/></svg></span><span class="to-txt"><b id="df-thumb-title">AI 썸네일 3장 함께 만들기</b><small id="df-thumb-sub">원할 때만 켜세요 · 켜지 않아도 완성된 영상에서 원하는 장면을 골라 직접 만들 수 있어요</small></span><span class="to-switch" aria-hidden="true"></span></label></div></section>`;
     }
 
     if (!isMedia) { setupLayoutPicker(); setupMotionPicker(); setupLengthChips(); setupLongform(); }
@@ -2068,6 +2116,20 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
         if (!val('df-driveLink')) { alert('드라이브 링크를 입력해주세요.'); return; }
         answers = { driveLink: val('df-driveLink') };
         if (val('df-mediaNote')) answers.mediaNote = val('df-mediaNote');
+      } else if (현재종류() === '야담') {
+        if (!val('df-topic')) { alert('어떤 이야기를 들려줄지 적어주세요.'); return; }
+        const 분 = planMode === 'paid' ? 롱폼길이분() : 3;
+        answers = { topic: val('df-topic'), form: '롱폼', videoType: '야담', tier: 현재등급(), videoLength: String(Math.round(분 * 100) / 100) };
+        if (val('df-style')) answers.style = val('df-style');
+        answers.voiceGender = val('df-yvoice') || '남성';
+        answers.estimatedPrice = longPrice('야담', answers.tier, 분);
+        mode = 'topic';
+        showChatFromDirectForm();
+        addMsg('user', '직접 설정하기로 야담 영상을 설정했어요.');
+        history.push({ role: 'user', text: '직접 설정하기로 야담 영상을 설정했어요.' });
+        saveChatState();
+        showSummary();
+        return;
       } else if (현재종류() === '수면음악') {
         if (!val('df-topic')) { alert('어떤 분위기의 영상인지 적어주세요.'); return; }
         const 소리 = 현재소리();
