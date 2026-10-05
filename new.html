@@ -107,6 +107,18 @@
   .df-chipset { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
   .df-hint { font-size: 0.78rem; color: var(--ink-faint); margin: 6px 0 0; line-height: 1.5; }
   .df-musicbox { margin: 0 0 14px; }
+  .df-sound { display: grid; gap: 8px; margin-bottom: 12px; }
+  .df-sound label { margin: 0; position: relative; display: block; }
+  .df-sound input { position: absolute; opacity: 0; pointer-events: none; }
+  .df-sound .scard { display: flex; gap: 12px; align-items: center; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; cursor: pointer; background: var(--bg); }
+  .df-sound .scard .dot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--line); flex-shrink: 0; }
+  .df-sound .scard b { display: block; font-size: 0.94rem; color: var(--ink); font-weight: 600; }
+  .df-sound .scard small { display: block; margin-top: 2px; font-size: 0.78rem; color: var(--ink-faint); font-weight: 400; line-height: 1.4; }
+  .df-sound input:checked + .scard { border-color: var(--amber); background: color-mix(in srgb, var(--amber) 12%, var(--bg)); box-shadow: 0 0 0 1px var(--amber) inset; }
+  .df-sound input:checked + .scard .dot { border-color: var(--amber); background: radial-gradient(circle, var(--amber) 0 45%, transparent 50%); }
+  .df-soundpanel { border-left: 3px solid var(--amber); padding: 4px 0 2px 12px; margin: 0 0 14px; }
+  .df-guide { font-size: 0.8rem; color: var(--ink-dim); line-height: 1.65; background: var(--bg); border: 1px dashed var(--line); border-radius: 10px; padding: 10px 12px; margin-top: 8px; }
+  .df-guide ol { margin: 4px 0 0; padding-left: 18px; }
   .df-field label { display: block; font-size: 0.82rem; color: var(--ink-faint); margin-bottom: 6px; }
   .df-field input, .df-field select, .df-field textarea {
     width: 100%; background: var(--bg-input); border: 1px solid var(--line); color: var(--ink);
@@ -889,7 +901,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     driveLink: '드라이브 링크', mediaNote: '분위기 메모',
     sceneCount: '장면 수', videoLength: '영상 길이', estimatedPrice: '예상 비용', hookText: '화면 상단 문구',
     layout: '화면 구성', captionPos: '자막 위치', motion: '움직임 방식',
-    videoType: '영상 종류', tier: '품질 등급', screenMode: '화면 움직임', soundRequest: '소리 요청', sceneSeconds: '그림 바뀌는 간격(초)', customMusicUrls: '내 음악 파일'
+    videoType: '영상 종류', tier: '품질 등급', screenMode: '화면 움직임', soundRequest: '소리 요청', sceneSeconds: '그림 바뀌는 간격(초)', soundMode: '소리', musicFolderUrl: '내 음악 폴더'
   };
 
   function decodeJwt(token) {
@@ -963,7 +975,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       const 값 = longPrice(종류, 등급, 분);
       const 최고 = longPrice(종류, '고급형', 분);
       const 막대 = '<div class="mb-chart">' + LONG_TIERS.map(t => { const v = longPrice(종류, t, 분); return `<div class="mb-row${t === 등급 ? ' on' : ''}"><span>${t}</span><span class="mb-bar"><span class="mb-fill" style="width:${Math.round(v / 최고 * 100)}%;display:block;background:${t === 등급 ? 'var(--amber)' : 'var(--line)'}"></span></span><span class="v">${won(v)}</span></div>`; }).join('') + '</div>';
-      priceBox.innerHTML = `<div class="amt" id="df-price-amt">약 ${won(값)}</div><p>${종류} ${hourLabel(분)} · ${등급} 기준 예상 비용 · 1시간 늘면 약 +${won(longPerHour(종류, 등급))}</p>${막대}`;
+      priceBox.innerHTML = `<div class="amt" id="df-price-amt">약 ${won(값)}</div><p>${종류} ${hourLabel(분)} · ${등급} · 소리: ${소리이름[현재소리()]} · 1시간 늘면 약 +${won(longPerHour(종류, 등급))}</p>${막대}`;
       return;
     }
     if (planMode !== 'paid') {
@@ -1093,6 +1105,17 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     // [요금 질문] "얼마예요?", "요금표 보여줘", "2분짜리 모두 영상이면 가격은?" → 서버를 거치지 않고 정확한 요금표 카드로 바로 답한다.
     // 설정 변경(“모두 영상으로 바꿔줘”)이 같이 들어 있으면 표를 보여준 뒤 챗봇에게도 보내서 설정에 반영한다.
     const 요금패턴 = /(가격|요금|비용|얼마|견적|단가)/;
+    // [음악 폴더 공유 방법] "음악은 어떻게 올려요?", "폴더 공유는 어떻게 해요?" → 서버를 거치지 않고 정해진 안내로 바로 답한다
+    if (/(음악|노래|곡).{0,12}(올려|올리|넣|공유|폴더|드라이브)|(폴더|드라이브).{0,12}(공유|음악)/.test(text)) {
+      exampleRow.style.display = 'none';
+      addMsg('user', escapeHtml(text));
+      history.push({ role: 'user', text });
+      addMsg('bot', '내 음악으로 만들고 싶으시면 구글 드라이브 폴더를 이렇게 공유해 주세요.<ol style="margin:8px 0 0 18px;padding:0"><li>구글 드라이브에서 <b>새로 만들기 → 새 폴더</b>를 만들어요.</li><li>쓰고 싶은 음악 파일(mp3, wav, m4a)을 폴더에 넣어요.</li><li>폴더에서 마우스 오른쪽 버튼 → <b>공유</b>를 눌러요.</li><li><b>일반 액세스</b>를 <b>링크가 있는 모든 사용자</b>, 역할을 <b>뷰어</b>로 바꿔요.</li><li><b>링크 복사</b>를 눌러 직접 설정하기의 수면음악 → “내 음악을 쓸게요” 칸에 붙여넣어요.</li></ol><div style="margin-top:8px">폴더 안의 음악은 이름순으로 이어서 반복 재생되고, 영상이 완성된 뒤에는 공유를 꺼도 돼요. 사용 권리가 있는 음악만 넣어주세요.</div>');
+      history.push({ role: 'bot', text: '[음악 폴더 공유 방법 안내함]' });
+      saveChatState();
+      renderComposer();
+      return;
+    }
     // [수면음악·야담] 이 종류는 직접 설정하기에서 신청한다 - 상담 챗봇이 일반 영상 질문(움직임 방식 등)을 하지 않도록 여기서 안내한다
     if (/(수면\s*음악|수면용|잠들|자장가|야담)/.test(text) && !요금패턴.test(text)) {
       exampleRow.style.display = 'none';
@@ -1315,7 +1338,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     const rows = Object.keys(answers)
       .filter(k => answers[k] && k !== 'thumbnail' && k !== 'musicRights' && !(k === 'estimatedPrice' && planMode !== 'paid'))
       .filter(k => !((k === 'productLink' || k === 'productImageUrl') && !/^https?:\/\//i.test(String(answers[k]))))
-      .map(k => `<div class="summary-row"><span class="k">${FIELD_LABEL[k] || k}</span><span class="v">${k === 'characterUse' ? (answers[k] ? '예' : '아니오') : k === 'estimatedPrice' && !isNaN(Number(answers[k])) ? Number(answers[k]).toLocaleString('ko-KR') + '원' : k === 'videoLength' && answers.videoType ? hourLabel(parseFloat(answers[k])) : escapeHtml(String(answers[k])).slice(0, 60)}</span></div>`)
+      .map(k => `<div class="summary-row"><span class="k">${FIELD_LABEL[k] || k}</span><span class="v">${k === 'characterUse' ? (answers[k] ? '예' : '아니오') : k === 'estimatedPrice' && !isNaN(Number(answers[k])) ? Number(answers[k]).toLocaleString('ko-KR') + '원' : k === 'videoLength' && answers.videoType ? hourLabel(parseFloat(answers[k])) : k === 'soundMode' ? (소리이름[answers[k]] || answers[k]) : escapeHtml(String(answers[k])).slice(0, 60)}</span></div>`)
       .join('');
     const 방식행 = `<div class="summary-row summary-mode ${planMode === 'paid' ? 'is-paid' : 'is-trial'}"><span class="k">제작 방식</span><span class="v">${planMode === 'paid' ? '정식 제작 (결제 안내 메일 발송)' : answers.videoType ? '무료 체험 (3분 미리보기)' : '무료 체험 (워터마크 미리보기)'}</span></div>`;
     const 썸네일원함 = /^(true|예|네|응|yes|y|1|원해요|만들어)/i.test(String(answers.thumbnail ?? '').trim());
@@ -1397,7 +1420,8 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       if (answers.screenMode) payload.screenMode = answers.screenMode;
       if (answers.soundRequest) payload.soundRequest = answers.soundRequest;
       if (answers.sceneSeconds) payload.sceneSeconds = answers.sceneSeconds;
-      if (answers.customMusicUrls) { payload.customMusicUrls = answers.customMusicUrls; payload.musicRights = answers.musicRights === true; }
+      if (answers.soundMode) payload.soundMode = answers.soundMode;
+      if (answers.musicFolderUrl) { payload.musicFolderUrl = answers.musicFolderUrl; payload.musicRights = answers.musicRights === true; }
       delete payload.motion;
     }
     if (answers.hookText) payload.hookText = answers.hookText;
@@ -1809,6 +1833,8 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   // ===== 영상 종류(일반 / 수면음악 / 야담) 선택 - 직접 설정하기 =====
   let dfPreType = null; // 챗봇에서 "수면음악 만들고 싶어요" 하면 직접 설정하기를 이 종류로 열어준다
   function 현재종류() { return document.querySelector('input[name="df-type"]:checked')?.value || '일반'; }
+  function 현재소리() { return document.querySelector('input[name="df-sound"]:checked')?.value || '자동'; }
+  const 소리이름 = { '자동': 'AI가 만든 소리', '내음악': '내 음악', '없음': '소리 없음' };
   function 현재등급() { return document.querySelector('input[name="df-tier"]:checked')?.value || '표준형'; }
   function 롱폼길이분() {
     const el = document.getElementById('df-lt-hours');
@@ -1830,10 +1856,25 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       <div class="df-field"><label>영상 길이(시간) <span class="opt">최대 8시간 · 비워두면 1시간</span></label><input type="number" id="df-lt-hours" min="0.1" max="8" step="0.5" placeholder="예: 2, 1.5, 8"><div class="len-chips" id="df-lt-chips"></div><p class="df-hint" id="df-lt-note"></p></div>
       <div class="df-field"><label>품질 등급</label><div class="df-chipset" role="radiogroup" aria-label="품질 등급">${tier('경제형', '기본 그림·소리')}${tier('표준형', '추천 · 균형')}${tier('고급형', '그림·소리 더 풍성')}</div></div>
       <div class="df-field"><label>화면 움직임</label><div class="df-chipset" role="radiogroup" aria-label="화면 움직임">${mode('정지', '그림이 고정')}${mode('숨쉬기', '아주 천천히 움직임')}${mode('전환', '그림이 바뀜')}</div></div>
-      <div class="df-field"><label>듣고 싶은 소리 <span class="opt">선택 · 300자</span></label><textarea id="df-soundRequest" maxlength="300" placeholder="비워두면 주제에 맞게 AI가 정해요 · 예: 양철지붕 빗소리, 은은한 피아노"></textarea></div>
+      <div class="df-field"><label>소리는 어떻게 할까요 <em class="req">*</em></label>
+        <div class="df-sound" role="radiogroup" aria-label="소리 선택">
+          <label><input type="radio" name="df-sound" value="자동" checked><span class="scard"><span class="dot"></span><span><b>AI가 소리를 만들어요</b><small>빗소리·파도·피아노처럼 듣고 싶은 소리를 알려주세요</small></span></span></label>
+          <label><input type="radio" name="df-sound" value="내음악"><span class="scard"><span class="dot"></span><span><b>내 음악을 쓸게요</b><small>구글 드라이브 폴더에 넣은 음악만 사용해요</small></span></span></label>
+          <label><input type="radio" name="df-sound" value="없음"><span class="scard"><span class="dot"></span><span><b>소리 없이 만들어요</b><small>영상만 필요해요. 음악은 나중에 직접 넣을 수 있어요</small></span></span></label>
+        </div>
+        <div class="df-soundpanel" id="df-sp-자동"><label style="font-weight:400">듣고 싶은 소리 <span class="opt">선택 · 300자</span></label><textarea id="df-soundRequest" maxlength="300" placeholder="비워두면 주제에 맞게 AI가 정해요 · 예: 양철지붕 빗소리, 은은한 피아노"></textarea></div>
+        <div class="df-soundpanel df-hide" id="df-sp-내음악"><label style="font-weight:400">내 음악 폴더 링크 <em class="req">*</em></label><input type="url" id="df-musicFolder" placeholder="https://drive.google.com/drive/folders/…">
+          <div class="df-guide"><b>음악 폴더 공유 방법</b><ol>
+            <li>구글 드라이브에서 <b>새로 만들기 → 새 폴더</b>를 만들어요.</li>
+            <li>쓰고 싶은 음악 파일(mp3, wav, m4a)을 폴더에 넣어요.</li>
+            <li>폴더에서 마우스 오른쪽 버튼 → <b>공유</b>를 눌러요.</li>
+            <li><b>일반 액세스</b>를 <b>링크가 있는 모든 사용자</b>, 역할을 <b>뷰어</b>로 바꿔요.</li>
+            <li><b>링크 복사</b>를 눌러 위 칸에 붙여넣어요.</li></ol>
+            <div style="margin-top:6px">폴더 안의 음악은 이름순으로 이어서 반복 재생돼요. 이 음악만 사용하고 AI 소리는 만들지 않아요. 영상이 완성된 뒤에는 공유를 꺼도 돼요.</div></div>
+          <label class="df-musicbox" style="margin-top:10px;display:flex;gap:8px;align-items:flex-start"><input type="checkbox" id="df-musicRights"><span style="font-weight:400;font-size:0.82rem;color:var(--ink-dim)">제공하는 음악의 사용 권리가 저에게 있음을 확인합니다.</span></label></div>
+        <div class="df-soundpanel df-hide" id="df-sp-없음"><p class="df-hint" style="margin:0">소리가 없는 영상이 만들어져요. 유튜브에 올리기 전에 편집기에서 음악을 넣으셔도 돼요.</p></div>
+      </div>
       <div class="df-field"><label>그림 바뀌는 간격(초) <span class="opt">선택 · 5~600 · 비워두면 12초</span></label><input type="number" id="df-sceneSeconds" min="5" max="600" step="1" placeholder="12"></div>
-      <div class="df-field"><label>내 음악 파일 주소 <span class="opt">선택 · 줄바꿈으로 여러 개</span></label><textarea id="df-musicUrls" placeholder="https://… (넣으면 이 파일의 소리만 쓰고, AI 소리는 만들지 않아요)"></textarea>
-        <label class="df-musicbox" style="margin-top:8px;display:flex;gap:8px;align-items:flex-start"><input type="checkbox" id="df-musicRights"><span style="font-weight:400;font-size:0.82rem;color:var(--ink-dim)">제공하는 음악의 사용 권리가 저에게 있음을 확인합니다.</span></label></div>
     </section>`;
   }
   function applyType() {
@@ -1860,6 +1901,10 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     chips.addEventListener('click', e => { const b = e.target.closest('.len-chip'); if (!b) return; hours.value = b.dataset.h; hours.dispatchEvent(new Event('input', { bubbles: true })); draw(); });
     hours.addEventListener('input', draw);
     types.addEventListener('change', applyType);
+    document.querySelectorAll('input[name="df-sound"]').forEach(r => r.addEventListener('change', () => {
+      ['자동', '내음악', '없음'].forEach(k => { const el = document.getElementById('df-sp-' + k); if (el) el.classList.toggle('df-hide', k !== 현재소리()); });
+      updatePrice();
+    }));
     draw(); applyType();
   }
 
@@ -1912,15 +1957,20 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
         if (val('df-mediaNote')) answers.mediaNote = val('df-mediaNote');
       } else if (현재종류() === '수면음악') {
         if (!val('df-topic')) { alert('어떤 분위기의 영상인지 적어주세요.'); return; }
-        const 주소 = val('df-musicUrls');
-        if (주소 && !document.getElementById('df-musicRights').checked) { alert('내 음악 파일을 쓰시려면 사용 권리 확인에 체크해주세요.'); return; }
+        const 소리 = 현재소리();
+        const 폴더 = val('df-musicFolder');
+        if (소리 === '내음악') {
+          if (!/drive\.google\.com\/(drive\/(u\/\d+\/)?folders\/|open\?id=)[A-Za-z0-9_-]{10,}/.test(폴더)) { alert('구글 드라이브 폴더 링크를 붙여넣어주세요. (https://drive.google.com/drive/folders/… 모양이에요)'); return; }
+          if (!document.getElementById('df-musicRights').checked) { alert('내 음악을 쓰시려면 사용 권리 확인에 체크해주세요.'); return; }
+        }
         const 분 = planMode === 'paid' ? 롱폼길이분() : 3;
         answers = { topic: val('df-topic'), form: '롱폼', videoType: '수면음악', tier: 현재등급(), videoLength: String(Math.round(분 * 100) / 100) };
         answers.screenMode = document.querySelector('input[name="df-smode"]:checked')?.value || '숨쉬기';
         if (val('df-style')) answers.style = val('df-style');
-        if (val('df-soundRequest')) answers.soundRequest = val('df-soundRequest');
+        answers.soundMode = 소리;
+        if (소리 === '자동' && val('df-soundRequest')) answers.soundRequest = val('df-soundRequest');
         if (val('df-sceneSeconds')) answers.sceneSeconds = val('df-sceneSeconds');
-        if (주소) { answers.customMusicUrls = 주소; answers.musicRights = true; }
+        if (소리 === '내음악') { answers.musicFolderUrl = 폴더; answers.musicRights = true; }
         answers.estimatedPrice = longPrice('수면음악', answers.tier, 분);
         mode = 'topic';
         showChatFromDirectForm();
