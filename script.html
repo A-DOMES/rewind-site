@@ -533,7 +533,7 @@ h4 b{color:var(--amber);font-size:1rem;margin-left:0}
 
 <div class="mbar" id="mbar">
   <div class="sumline" id="sumline"><span id="mLen"></span><span id="mPt"></span></div>
-  <div class="btns"><button id="mprev">‹ 이전</button><button class="mid" id="mrw">이 챕터 다시 쓰기</button><button id="mmenu">목록·도구</button></div>
+  <div class="btns"><button id="mprev">‹ 앞 챕터</button><button class="mid" id="mrw">이 챕터 다시 쓰기</button><button id="mmenu">목록·도구</button></div>
 </div>
 <div class="scrim" id="scrim"></div>
 
@@ -972,7 +972,7 @@ function init(o){
   $('listH').style.display=short?'none':'';$('list').style.display=short?'none':'';$('add').style.display=short?'none':'';$('shortTip').hidden=!short;
   ['prev','next','bSplit','bMerge'].forEach(function(i){$(i).style.display=short?'none':''});
   $('mobtools').style.display=short&&isM()?'none':'';
-  $('mprev').textContent=short?'‹ 맨 위':'‹ 이전';$('mmenu').style.flex=short?'1':'';
+  $('mprev').textContent=short?'‹ 맨 위':'‹ 앞 챕터';$('mmenu').style.flex=short?'1':'';
   $('fcopych').style.display=short?'none':'';
   $('bRw').textContent=short?'전체 다시 쓰기':'이 챕터 다시 쓰기';
   $('approve').textContent=cfg.mode==='review'?'이 대본으로 승인하고 제작':'이 대본으로 확정';
