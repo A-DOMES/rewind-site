@@ -154,6 +154,8 @@
   @media (max-width: 480px) { .df-grid2 { grid-template-columns: 1fr; } }
   .df-price { border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; background: var(--bg-raised); text-align: center; margin: 18px 0; }
   .df-price .amt { font-family: 'Fraunces', serif; font-size: 1.3rem; color: var(--gold); font-weight: 600; }
+  .df-price .amt .lab { font-family: inherit; font-size: 0.9rem; font-weight: 500; color: var(--ink-dim); margin-right: 4px; }
+  .df-price .amt .val { font-size: 1.7rem; font-weight: 700; }
   .df-price p { margin: 4px 0 0; font-size: 0.78rem; color: var(--ink-faint); }
   .mode-badge {
     display: flex; align-items: flex-start; gap: 8px; width: 100%;
@@ -452,6 +454,8 @@
   .df-field input:focus, .df-field select:focus, .df-field textarea:focus { outline: none; border-color: var(--amber); }
   .df-price { border-radius: 16px; background: var(--bg); }
   .df-price .amt { font-size: 1.6rem; }
+  .df-price .amt .lab { font-size: 0.95rem; }
+  .df-price .amt .val { font-size: 2rem; }
   .split-resizer { background: #2a241f; width: 8px; flex-basis: 8px; }
   .split-resizer::after { content: ""; position: absolute; top: 50%; left: 2px; width: 4px; height: 44px; margin-top: -22px; border-radius: 2px; background: #4a4038; }
 
@@ -1145,7 +1149,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       const 등급 = 현재등급();
       if (planMode !== 'paid') {
         const 체험가 = trialPriceOf(종류, 등급, 분, 인트로초(), 낭독중());
-        const 부족 = pointLine(체험가); priceBox.innerHTML = `<div class="amt" id="df-price-amt">예상 금액 ${pt(체험가)}</div><p>3분 길이의 영상으로 만들어져요</p>${/short/.test(부족) ? 부족 : ''}`;
+        const 부족 = pointLine(체험가); priceBox.innerHTML = `<div class="amt" id="df-price-amt"><span class="lab">예상 지출 포인트 :</span> <b class="val">${pt(체험가)}</b></div><p>3분 길이의 영상으로 만들어져요</p>${/short/.test(부족) ? 부족 : ''}`;
         return;
       }
       const 초 = 인트로초();
@@ -1153,13 +1157,13 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       const 값 = longPrice(종류, 등급, 분, 초, 낭);
       const 최고 = longPrice(종류, '고급형', 분, 초, 낭);
       const 막대 = '<div class="mb-chart">' + LONG_TIERS.map(t => { const v = longPrice(종류, t, 분, 초, 낭); return `<div class="mb-row${t === 등급 ? ' on' : ''}"><span>${t}</span><span class="mb-bar"><span class="mb-fill" style="width:${Math.round(v / 최고 * 100)}%;display:block;background:${t === 등급 ? 'var(--amber)' : 'var(--line)'}"></span></span><span class="v">${pt(v)}</span></div>`; }).join('') + '</div>';
-      priceBox.innerHTML = `<div class="amt" id="df-price-amt">예상 금액 ${pt(값)}</div><p>${kindName(종류)} ${종류 === '수면음악' && 분 < 30 ? lenLabel(분) : hourLabel(분)}${낭 ? ' · AI 목소리 낭독 +' + Math.max(NAR_MIN, Math.round(NAR_PER_MIN * 분)) + 'P' : ''} · ${등급} · ${종류 === '야담' ? '목소리: ' + ((document.getElementById('df-yvoice') || {}).value || '남성') : '소리: ' + 소리이름[현재소리()]}</p>${pointLine(값)}${막대}`;
+      priceBox.innerHTML = `<div class="amt" id="df-price-amt"><span class="lab">예상 지출 포인트 :</span> <b class="val">${pt(값)}</b></div><p>${kindName(종류)} ${종류 === '수면음악' && 분 < 30 ? lenLabel(분) : hourLabel(분)}${낭 ? ' · AI 목소리 낭독 +' + Math.max(NAR_MIN, Math.round(NAR_PER_MIN * 분)) + 'P' : ''} · ${등급} · ${종류 === '야담' ? '목소리: ' + ((document.getElementById('df-yvoice') || {}).value || '남성') : '소리: ' + 소리이름[현재소리()]}</p>${pointLine(값)}${막대}`;
       return;
     }
     if (planMode !== 'paid') {
       const 체험길이 = (() => { const li = document.getElementById('df-videoLength'), f = document.getElementById('df-form'); const v = li && parseFloat(li.value) > 0 ? parseFloat(li.value) : defaultLen(f && f.value === '롱폼' ? '롱폼' : '쇼츠'); return v; })();
       const 체험가 = trialPriceShort(체험길이);
-      const 부족2 = pointLine(체험가); priceBox.innerHTML = `<div class="amt" id="df-price-amt">예상 금액 ${pt(체험가)}</div><p>이미지 중심의 3분 길이 영상으로 만들어져요</p>${/short/.test(부족2) ? 부족2 : ''}`;
+      const 부족2 = pointLine(체험가); priceBox.innerHTML = `<div class="amt" id="df-price-amt"><span class="lab">예상 지출 포인트 :</span> <b class="val">${pt(체험가)}</b></div><p>이미지 중심의 3분 길이 영상으로 만들어져요</p>${/short/.test(부족2) ? 부족2 : ''}`;
       return;
     }
     const form = document.getElementById('df-form');
@@ -2517,7 +2521,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
         </div>
         <div id="df-fields"></div>
         <div class="df-price">
-          <div class="amt" id="df-price-amt">약 -</div>
+          <div class="amt" id="df-price-amt"><span class="lab">예상 지출 포인트 :</span> <b class="val">-</b></div>
           <p>선택하신 내용 기준으로 필요한 포인트예요 (실제 확정은 다음 화면에서)</p>
         </div>
         <div class="confirm-actions">
