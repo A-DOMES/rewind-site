@@ -934,8 +934,16 @@ function introHead(c,i){
     (c.off?'':'<span class="step"><button data-a="imin" data-id="'+c.id+'" aria-label="인트로 줄이기">−</button><b>'+shown+'초</b><button data-a="iplus" data-id="'+c.id+'" aria-label="인트로 늘리기">＋</button></span>')+'</div>'+
     '<div class="inote">'+(c.off?'꺼 두면 인트로 영상 없이 본편부터 시작해요.':'줄이면 문장 단위로 자동으로 다듬어요 · 원본은 약 '+full+'초 (다시 늘리면 복원)')+'</div></div>';
 }
+var introAiAsk=false,introAiBusy=false;
+function introAiBtn(){
+  var a=typeof aiCtx==='function'?aiCtx():null;
+  if(cfg.kind!=='yadam')return '';
+  if(!a)return '<button disabled title="로그인한 직접 설정하기 화면에서 쓸 수 있어요">AI로 만들기 · 로그인 후</button>';
+  if(introAiBusy)return '<button disabled>쓰는 중이에요…</button>';
+  return '<button class="go" data-a="ibai">'+(introAiAsk?'2P 쓰고 만들기 · 한 번 더':'AI로 만들기 · 2P')+'</button>'
+}
 function introBar(){
-  return '<div class="introbar"><span><b>인트로가 없어요.</b> 없으면 인트로 영상 없이 시작해요.</span><button class="go" data-a="ibadd">+ 인트로 붙이기</button><button data-a="ibcopy">요청문 복사</button><button disabled title="곧 열려요">AI로 만들기 · 곧</button></div>';
+  return '<div class="introbar"><span><b>인트로가 없어요.</b> 없으면 인트로 영상 없이 시작해요.</span><button class="go" data-a="ibadd">+ 인트로 붙이기</button><button data-a="ibcopy">요청문 복사</button>'+introAiBtn()+'</div>';
 }
 function renderSheet(){
   var short=cfg.type==='short';
@@ -1087,6 +1095,7 @@ $('sheet').addEventListener('click',function(e){var b=e.target.closest('button')
   if(a==='isw'&&c){snap();c.off=!c.off;renderAll();markDirty()}
   if(a==='imin'&&c)introStep(c,-1);if(a==='iplus'&&c)introStep(c,1);
   if(a==='ibadd')$('addIntro').click();
+  if(a==='ibai')introAiRun();
   if(a==='ibcopy')copyText(INTRO_TEXT,b)});
 $('sheet').addEventListener('keydown',function(e){if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();doSplit()}});
 $('pane').addEventListener('scroll',function(){
@@ -1470,6 +1479,24 @@ async function aiCall(a,prompt,minutes,idx,total){
   return d
 }
 $('aiRun').onclick=aiRun;
+async function introAiRun(){
+  var a=aiCtx();if(!a||introAiBusy)return;
+  var body=ch.filter(function(c){return !isIntro(c)&&!c.off}).map(function(c){return c.text}).join('\n\n').trim();
+  if(body.length<200){toast('먼저 본편 대본을 채워 주세요');return}
+  var have=a.balance?a.balance():null;
+  if(have!==null&&have<2){toast('포인트가 부족해요. 필요 2P / 보유 '+have+'P');return}
+  if(!introAiAsk){introAiAsk=true;renderAll();setTimeout(function(){if(introAiAsk&&!introAiBusy){introAiAsk=false;renderAll()}},5000);return}
+  introAiAsk=false;introAiBusy=true;renderAll();
+  if(body.length>16000)body=body.slice(0,10000)+'\n…\n'+body.slice(-5000);
+  var prompt=INTRO_TEXT.replace(/\n\n이 요청문 뒤에[\s\S]*$/,'')+'\n\n인트로 길이: '+B.intro+'초\n\n대본:\n'+body;
+  try{
+    var r=await fetch(a.url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({idToken:a.token(),planMode:a.mode(),kind:'intro',prompt:prompt,minutes:0.25,partIndex:0,partTotal:1})});
+    var d=await r.json().catch(function(){return null});
+    if(!r.ok||!d||!d.ok)throw new Error((d&&d.message)||'AI가 응답하지 못했어요. 잠시 뒤 다시 시도해 주세요.');
+    introAiBusy=false;
+    if(addIntro(d.text)){if(a.refresh)a.refresh();toast('인트로를 만들었어요 · '+d.charged+'P 사용')}else renderAll()
+  }catch(e){introAiBusy=false;renderAll();toast((e&&e.message)||'인트로를 만들지 못했어요')}
+}
 resetBrief();
 document.querySelectorAll('.paths button').forEach(function(b){b.onclick=function(){document.querySelectorAll('.paths button').forEach(function(x){x.classList.toggle('on',x===b)});$('dz').dataset.path=b.dataset.p;if(b.dataset.p==='ai')aiRefresh()}});
 function addIntro(raw){
