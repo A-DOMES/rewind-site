@@ -114,7 +114,34 @@ h4 b{color:var(--amber);margin-left:2px}
 .verdict{font-size:.78rem;font-weight:600;margin-top:2px}
 .verdict.ok{color:var(--green)}.verdict.bad{color:var(--err)}
 .askai{display:none;margin:2px 0 12px;font-size:.9rem;color:var(--dim)}
-.lite .askai{display:block}
+.lite .dz[data-path=other] .askai{display:block}
+.paths{display:none;gap:6px;margin:0 0 14px;justify-content:center;flex-wrap:wrap}
+.lite .paths{display:flex}
+.paths button{border:1px solid var(--line);background:transparent;color:var(--dim);border-radius:999px;padding:8px 16px;font:inherit;font-size:.9rem;cursor:pointer}
+.paths button.on{border-color:var(--amber);color:var(--amber);font-weight:600}
+.paths button small{margin-left:6px;font-size:.72rem;color:var(--faint)}
+.aisoon{display:none;margin:0 0 12px;padding:14px;border:1px dashed var(--line);border-radius:12px;font-size:.88rem;color:var(--dim);line-height:1.6}
+.lite .dz[data-path=ai] .aisoon{display:block}
+.lite .dz[data-path=ai] #pasteBox,.lite .dz[data-path=ai] .btns{display:none}
+.askai .steps{margin:8px 0 0;font-size:.84rem;color:var(--dim);line-height:1.7}
+.chap-h.ih{background:var(--wash);border-radius:12px;padding:8px 12px;flex-wrap:wrap;margin-bottom:6px}
+.chap-h.ih h2{flex:none}
+.chap-h.ih .ictl{display:flex;align-items:center;gap:8px;margin-left:auto;flex-wrap:wrap}
+.chap-h.ih button{opacity:1;font-size:.82rem}
+.chap-h.ih .sw.on{border-color:var(--amber);color:var(--amber);font-weight:600}
+.chap-h.ih .step{display:inline-flex;align-items:center;gap:4px}
+.chap-h.ih .step button{padding:2px 11px;font-size:1rem}
+.chap-h.ih .step b{min-width:3.2em;text-align:center;font-size:.95rem;font-variant-numeric:tabular-nums}
+.chap-h.ih .inote{flex-basis:100%;font-size:.78rem;color:var(--faint);font-weight:400}
+.chap.off .box{opacity:.4}
+.row.off .rm{text-decoration:line-through;opacity:.6}
+.introbar{margin:0 0 20px;padding:12px 14px;border:1px dashed var(--amber-dim);border-radius:12px;font-size:.88rem;color:var(--dim);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.introbar b{color:var(--ink)}
+.introbar button{border:1px solid var(--line2);background:transparent;color:var(--ink);border-radius:999px;padding:5px 13px;font:inherit;font-size:.82rem;cursor:pointer}
+.introbar button.go{border-color:var(--amber);color:var(--amber)}
+.introbar button[disabled]{opacity:.5;cursor:default}
+.linkbtn{background:none;border:0;color:var(--amber);font:inherit;font-size:.86rem;cursor:pointer;padding:0;text-decoration:underline}
+
 .askai button{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:999px;padding:5px 14px;font:inherit;font-size:.86rem;cursor:pointer;margin-left:6px}
 .askai .askhint{margin-top:6px;font-size:.82rem;color:var(--faint)}
 .askai button.done{border-color:var(--amber);color:var(--amber)}
@@ -369,10 +396,12 @@ h4 b{color:var(--amber);margin-left:2px}
         <div class="chips-m" id="chipsM"></div>
         <div class="sheet" id="sheet"></div>
         <div class="empty" id="empty">
-          <div class="dz" id="dz">
+          <div class="dz" id="dz" data-path="paste">
             <h3>대본을 붙여넣거나 파일을 끌어다 놓으세요</h3>
             <p>다른 AI로 쓴 글, 시나리오, 자막 파일도 괜찮아요.<br>대본 형식은 자동으로 맞춰 드려요.</p>
-            <div class="askai">다른 AI로 쓰시나요?<button type="button" id="copyAsk" data-t="ask">대본 요청문 복사</button><button type="button" id="copyIntro" data-t="intro">인트로 요청문 복사</button><div class="askhint"><b>대본</b>: 요청문을 보내고 끝에 길이만 적으세요. 예: “3분짜리로 해주세요”<br><b>인트로를 따로 붙이려면</b>: 인트로 요청문과 대본을 AI에게 보내고 “인트로 15초”라고 적으세요. 나온 글은 작업실의 <b>+ 인트로 붙이기</b>에 붙여넣으면 맨 앞에 들어가요.</div></div>
+            <div class="paths" role="tablist"><button type="button" data-p="paste" class="on">붙여넣기·파일</button><button type="button" data-p="ai">AI로 쓰기<small>곧</small></button><button type="button" data-p="other">다른 AI로 쓰기</button></div>
+            <div class="aisoon"><b>AI로 쓰기는 곧 열려요.</b><br>주제만 말하면 대본을 써 주고, 대본에 어울리는 인트로도 자동으로 붙여 드려요. 그때까지는 <b>다른 AI로 쓰기</b>나 <b>붙여넣기·파일</b>을 이용해 주세요.</div>
+            <div class="askai">요청문을 복사해서 쓰시는 AI에 보내세요.<br><button type="button" id="copyAsk" style="margin-left:0">대본 요청문 (대본만)</button><button type="button" id="copyAskFull">대본+인트로 요청문</button><div class="steps"><b>1</b> 요청문을 복사해 AI에 붙여넣고 끝에 길이를 적어요. 예: “3분짜리” 또는 “3분짜리, 인트로 10초”<br><b>2</b> AI가 써 준 글을 아래 칸에 붙여넣어요.<br><b>3</b> 인트로가 같이 왔다면 맨 앞에 [인트로] 장으로 자동 정리돼요.</div></div>
             <textarea id="pasteBox" placeholder="여기에 붙여넣기 (Ctrl+V)" aria-label="대본 붙여넣기"></textarea>
             <div class="btns"><button class="btn gold" id="pasteGo">이 글로 시작</button><button class="btn" id="pickFile">파일 선택</button><button class="btn" id="startTyping">직접 쓰기</button></div>
             <div class="ex2" id="ex2"></div>
@@ -438,6 +467,7 @@ h4 b{color:var(--amber);margin-left:2px}
 <div class="modal" id="intro" role="dialog" aria-modal="true">
   <h3>인트로 붙이기</h3>
   <div class="note">AI가 써 준 인트로를 붙여넣으세요. 대본 맨 앞의 [인트로] 장으로 들어가고, 이미 있으면 바꿔요.</div>
+  <div class="note" style="margin-top:-4px">인트로가 없나요? <button type="button" class="linkbtn" id="copyIntro">인트로 요청문 복사</button> → AI에 대본과 함께 보내고 “인트로 15초”라고 적으세요.</div>
   <textarea class="field" id="introText" rows="6" placeholder="[인트로]&#10;관아 뒤뜰에서 죽은 사내가 걸어 나왔다…" aria-label="인트로 문구"></textarea>
   <div class="d-f" style="padding:14px 0 0;border:0">
     <button class="btn" id="introNo">취소</button>
@@ -737,18 +767,36 @@ function P(n){return Math.round(n).toLocaleString('ko-KR')+'P'}
 function sgn(n){return (n>0?'+':n<0?'−':'')+Math.abs(Math.round(n)).toLocaleString('ko-KR')+'P'}
 function mask(txt){return showPts?txt:'••••P'}
 function chars(t){return t.replace(/\s/g,'').length}
-function total(){return ch.reduce(function(a,c){return a+chars(c.text)},0)}
+function total(){return ch.reduce(function(a,c){return a+(c.off?0:chars(c.text))},0)}
 function minutes(){return total()/PACE}
 /* [인트로] 장은 분이 아니라 초로 보여 준다 (1초 약 PACE/60자) */
 function isIntro(c){return /^\s*\[?\s*인트로\s*\]?\s*$/.test(c.title||'')}
-function lenLabel(c){return isIntro(c)?'약 '+Math.max(1,Math.round(chars(c.text)/(PACE/60)))+'초':(Math.round(chars(c.text)/PACE*10)/10)+'분'}
+function lenLabel(c){return c.off?'사용 안 함':isIntro(c)?'약 '+Math.max(1,Math.round(chars(c.text)/(PACE/60)))+'초':(Math.round(chars(c.text)/PACE*10)/10)+'분'}
 function fmtLen(m){if(cfg.type==='short'){return Math.round(m*60)+'초'}var h=Math.floor(m/60),mm=m%60;return h?h+'시간 '+Math.round(mm)+'분':(Math.round(m*10)/10)+'분'}
 function prodPrice(m){var r=RATE[cfg.type];if(cfg.type==='short')return Math.round((r.base+Math.max(m,0.1)*r.per)/100)*100;return Math.max(900,Math.round((r.base+Math.max(1,Math.round(m))*r.per)/1000)*1000-100)}
 function aiScriptFee(m){return Math.max(100,Math.round(30*m))}
 function aiPolishFee(m){return Math.max(100,Math.round(20*m))}
 function toast(m){var t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show')},2400)}
 function markDirty(){var s=$('save');s.classList.add('dirty');$('saveTxt').textContent='저장 중…';clearTimeout(dirtyT);dirtyT=setTimeout(function(){s.classList.remove('dirty');$('saveTxt').textContent='자동 저장됨'},900)}
-function C(t,x){return{id:++uid,title:t,text:x,mod:false}}
+function C(t,x){var o={id:++uid,title:t,text:x,mod:false};if(isIntro(o)){o.introFull=x;o.introTarget=null}return o}
+/* 인트로 길이 조정: 원본(introFull)을 문장 단위로 줄이고, 원본 길이 이상이면 원본으로 복원 */
+function cps(){return PACE/60}
+function secOf(t){return Math.max(1,Math.round(chars(t)/cps()))}
+function introFullOf(c){return c.introFull||c.text}
+function sentences(t){var m=t.replace(/\r/g,'').match(/[^.!?。…\n]+(?:[.!?。…]+["'”’)\]]*)?\s*/g)||[t];return m.filter(function(x){return x.trim()})}
+function trimIntro(c,sec){
+  var full=introFullOf(c);c.introFull=full;c.introTarget=sec;
+  if(secOf(full)<=sec){c.text=full;return}
+  var goal=sec*cps(),out='',n=0;
+  sentences(full).forEach(function(x,k){var l=chars(x);if(k===0||n+l<=goal*1.12){out+=x;n+=l}else{n=1e9}});
+  c.text=out.trim();c.mod=true
+}
+function introStep(c,dir){
+  var full=secOf(introFullOf(c)),curT=c.introTarget||secOf(c.text),t;
+  if(dir>0){if(curT>=full){toast('원본 인트로는 약 '+full+'초예요. 더 길게는 AI가 늘려 드려요 (곧 열려요)');return}t=Math.min(Math.floor(curT/5)*5+5,full)}
+  else{if(curT<=5){toast('인트로는 5초부터 만들 수 있어요');return}t=Math.max(5,Math.ceil(curT/5)*5-5)}
+  snap();trimIntro(c,t);renderAll();markDirty()
+}
 function idx(id){return ch.findIndex(function(c){return c.id===id})}
 function cur(){return ch[idx(sel)]||ch[0]}
 function snapObj(){return JSON.stringify({ch:ch,title:title,sel:sel,blank:cfg.blank,imported:imported})}
@@ -818,7 +866,7 @@ function init(o){
 function rowHtml(c,i){
   var m=Math.round(chars(c.text)/PACE*10)/10;
   var hits=hitsIn(c.id);
-  return '<div class="row'+(c.id===sel?' on':'')+'" draggable="true" data-id="'+c.id+'" title="'+esc(c.title)+'"><span class="num">'+(i+1)+'</span><span class="rt">'+esc(c.title)+'</span>'+(hits?'<span class="hit">'+hits+'곳</span>':'')+(c.mod?'<i class="mod" title="수정함"></i>':'')+'<span class="rm">'+lenLabel(c)+'</span><span class="ra"><button data-a="up" aria-label="위로">↑</button><button data-a="dn" aria-label="아래로">↓</button><button data-a="ren" aria-label="이름 바꾸기">✎</button><button class="del" data-a="del" aria-label="삭제">✕</button></span></div>';
+  return '<div class="row'+(c.id===sel?' on':'')+(c.off?' off':'')+'" draggable="true" data-id="'+c.id+'" title="'+esc(c.title)+'"><span class="num">'+(i+1)+'</span><span class="rt">'+esc(c.title)+'</span>'+(hits?'<span class="hit">'+hits+'곳</span>':'')+(c.mod?'<i class="mod" title="수정함"></i>':'')+'<span class="rm">'+lenLabel(c)+'</span><span class="ra"><button data-a="up" aria-label="위로">↑</button><button data-a="dn" aria-label="아래로">↓</button><button data-a="ren" aria-label="이름 바꾸기">✎</button><button class="del" data-a="del" aria-label="삭제">✕</button></span></div>';
 }
 function renderRail(){
   $('list').innerHTML=ch.map(rowHtml).join('');
@@ -845,11 +893,20 @@ function mirrorHtml(text){
   }
   return h+'​';
 }
+function introHead(c,i){
+  var full=secOf(introFullOf(c)),now=secOf(c.text),shown=c.introTarget&&c.introTarget<full?c.introTarget:now;
+  return '<div class="chap-h ih"><span class="n">★</span><h2>인트로</h2><div class="ictl"><button class="sw'+(c.off?'':' on')+'" data-a="isw" data-id="'+c.id+'" aria-pressed="'+(!c.off)+'">'+(c.off?'사용 안 함':'사용 중')+'</button>'+
+    (c.off?'':'<span class="step"><button data-a="imin" data-id="'+c.id+'" aria-label="인트로 줄이기">−</button><b>'+shown+'초</b><button data-a="iplus" data-id="'+c.id+'" aria-label="인트로 늘리기">＋</button></span>')+'</div>'+
+    '<div class="inote">'+(c.off?'꺼 두면 인트로 영상 없이 본편부터 시작해요.':'줄이면 문장 단위로 자동으로 다듬어요 · 원본은 약 '+full+'초 (다시 늘리면 복원)')+'</div></div>';
+}
+function introBar(){
+  return '<div class="introbar"><span><b>인트로가 없어요.</b> 없으면 인트로 영상 없이 시작해요.</span><button class="go" data-a="ibadd">+ 인트로 붙이기</button><button data-a="ibcopy">요청문 복사</button><button disabled title="곧 열려요">AI로 만들기 · 곧</button></div>';
+}
 function renderSheet(){
   var short=cfg.type==='short';
-  $('sheet').innerHTML=ch.map(function(c,i){
-    var head=short?'':'<div class="chap-h"><span class="n">'+(i+1)+'</span><h2>'+esc(c.title)+'</h2>'+(i>0?'<button class="mg" data-id="'+c.id+'">위와 합치기</button>':'')+'<button class="rw" data-id="'+c.id+'">다시 쓰기</button></div>';
-    return '<article class="chap'+(c.id===sel?' on':'')+'" id="ch'+c.id+'" data-id="'+c.id+'">'+head+'<div class="box"><div class="mirror" aria-hidden="true">'+mirrorHtml(c.text)+'</div><textarea data-id="'+c.id+'" spellcheck="false" placeholder="'+(short?'대본을 입력하세요':'이 챕터의 내레이션을 입력하세요')+'" aria-label="'+esc(c.title)+' 본문">'+esc(c.text)+'</textarea></div></article>';
+  $('sheet').innerHTML=(!short&&!cfg.blank&&ch.length&&!ch.some(isIntro)?introBar():'')+ch.map(function(c,i){
+    var head=short?'':isIntro(c)?introHead(c,i):'<div class="chap-h"><span class="n">'+(i+1)+'</span><h2>'+esc(c.title)+'</h2>'+(i>0?'<button class="mg" data-id="'+c.id+'">위와 합치기</button>':'')+'<button class="rw" data-id="'+c.id+'">다시 쓰기</button></div>';
+    return '<article class="chap'+(c.id===sel?' on':'')+(c.off?' off':'')+'" id="ch'+c.id+'" data-id="'+c.id+'">'+head+'<div class="box"><div class="mirror" aria-hidden="true">'+mirrorHtml(c.text)+'</div><textarea data-id="'+c.id+'" spellcheck="false" placeholder="'+(short?'대본을 입력하세요':'이 챕터의 내레이션을 입력하세요')+'" aria-label="'+esc(c.title)+' 본문">'+esc(c.text)+'</textarea></div></article>';
   }).join('');
   document.querySelectorAll('#sheet textarea').forEach(fit);
   applyCur();
@@ -982,7 +1039,7 @@ $('bMerge').onclick=function(){doMerge(sel)};$('mMerge').onclick=function(){doMe
 /* ---------- 입력 ---------- */
 $('sheet').addEventListener('input',function(e){
   if(e.target.tagName!=='TEXTAREA')return;
-  var c=ch[idx(+e.target.dataset.id)];c.text=e.target.value;c.mod=true;fit(e.target);markDirty();
+  var c=ch[idx(+e.target.dataset.id)];c.text=e.target.value;c.mod=true;if(isIntro(c)){c.introFull=c.text;c.introTarget=null}fit(e.target);markDirty();
   var mir=document.querySelector('#ch'+c.id+' .mirror');if(mir)mir.innerHTML=mirrorHtml(c.text);
   if(q){recalcMatches();applyCur()}
   stats();
@@ -990,7 +1047,12 @@ $('sheet').addEventListener('input',function(e){
 });
 $('sheet').addEventListener('beforeinput',function(){var n=Date.now();if(n-lastSnap>4000){snap();lastSnap=n}});
 $('sheet').addEventListener('focusin',function(e){if(e.target.tagName==='TEXTAREA'&&+e.target.dataset.id!==sel)select(+e.target.dataset.id,false)});
-$('sheet').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;if(b.classList.contains('rw'))openRw(+b.dataset.id);if(b.classList.contains('mg'))doMerge(+b.dataset.id)});
+$('sheet').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;if(b.classList.contains('rw'))openRw(+b.dataset.id);if(b.classList.contains('mg'))doMerge(+b.dataset.id);
+  var a=b.dataset.a;if(!a)return;var c=ch[idx(+b.dataset.id)];
+  if(a==='isw'&&c){snap();c.off=!c.off;renderAll();markDirty()}
+  if(a==='imin'&&c)introStep(c,-1);if(a==='iplus'&&c)introStep(c,1);
+  if(a==='ibadd')$('addIntro').click();
+  if(a==='ibcopy')copyText(INTRO_TEXT,b)});
 $('sheet').addEventListener('keydown',function(e){if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();doSplit()}});
 $('pane').addEventListener('scroll',function(){
   var y=$('pane').scrollTop,top=y+70,cu=null;
@@ -1224,12 +1286,15 @@ $('approve').onclick=function(){
 };
 var INTRO_TEXT='아래에 붙여넣는 야담 대본을 읽고, 대본 맨 앞에 붙일 인트로 문구만 써 주세요.\n\n규칙:\n- 출력은 첫 줄 [인트로] 한 줄과 그 아래 인트로 문장뿐이에요. 인사, 설명, 후속 제안은 쓰지 마세요.\n- 대본에서 가장 궁금증을 끄는 장면(긴장되는 순간, 반전의 실마리)을 예고하듯 써 주세요. 결말과 반전의 정답은 밝히지 마세요.\n- 길이는 제가 말하는 초에 맞추세요. 1초는 공백을 뺀 약 6자예요. 10초는 약 60자, 15초는 약 90자, 20초는 약 120자, 30초는 약 180자예요. 말하지 않으면 10초로 쓰세요.\n- 성우가 그대로 읽는 문장으로만 쓰세요. 굵은 글씨, 별표, 이모지, 목록 기호는 쓰지 마세요.\n- 대본 문장을 그대로 베끼지 말고, 인트로용으로 짧게 다시 쓰세요. 실존 인물은 쓰지 마세요.\n\n이 요청문 뒤에 제가 대본을 붙이고 \"인트로 15초\"처럼 말할 거예요.';
 var ASK_TEXT='조선 시대 배경의 야담(옛이야기) 내레이션 대본을 써 주세요.\n주제를 따로 말하지 않으면, 시청자가 끝까지 보고 싶어지는 흥미진진하고 반전이 있는 소재를 직접 골라 주세요.\n\n분량 규칙:\n- 제가 마지막에 말하는 시간(예: "3분짜리로 해주세요")에 맞춰 쓰세요.\n- 1분은 공백을 뺀 약 350자예요. 3분은 약 1,050자, 5분은 약 1,750자, 10분은 약 3,500자예요.\n- 시간을 말하지 않으면 10분으로 쓰세요.\n\n형식 규칙:\n- 대본 외의 말은 쓰지 마세요. 인사, 설명, "원하시면 ~" 같은 후속 제안 없이 대본만 출력하세요.\n- 첫 줄에 제목 한 줄만 쓰고, 한 줄을 띄운 뒤 본문을 시작하세요.\n- 이야기가 길면 [1막], [2막]처럼 구분 줄을 한 줄로만 넣으세요.\n- 본문은 성우가 그대로 읽는 문장으로만 쓰세요. 지문, 효과음 설명, 화자 표시, 장면 설명은 쓰지 마세요.\n- 굵은 글씨, 별표, 구분선(---), 이모지, 목록 기호는 쓰지 마세요.\n- 첫 문장은 시청자의 궁금증을 끄는 장면으로 시작하세요. 실존 인물은 쓰지 마세요.\n\n마지막에 제가 "3분짜리로 해주세요"처럼 길이를 말할 거예요.';
-['copyAsk','copyIntro'].forEach(function(id){$(id).onclick=function(){
-  var b=this,label=b.textContent,txt=id==='copyIntro'?INTRO_TEXT:ASK_TEXT;
+var ASK_FULL=ASK_TEXT.replace('형식 규칙:','인트로 규칙:\n- 본문 맨 앞에 [인트로] 한 줄을 쓰고, 그 아래에 인트로 문장을 쓰세요. 인트로는 이야기에서 가장 궁금증을 끄는 장면을 예고하듯 짧게 다시 쓰고, 결말과 반전의 정답은 밝히지 마세요.\n- 인트로 길이는 제가 말하는 초에 맞추세요. 1초는 공백을 뺀 약 6자예요. 10초는 약 60자, 15초는 약 90자, 20초는 약 120자예요. 말하지 않으면 10초로 쓰세요.\n- 인트로가 끝나면 한 줄을 띄우고 [1막]부터 본문을 시작하세요. 인트로는 본문 분량에 넣지 않아요.\n\n형식 규칙:').replace('마지막에 제가 "3분짜리로 해주세요"처럼 길이를 말할 거예요.','마지막에 제가 "3분짜리, 인트로 10초"처럼 길이를 말할 거예요.');
+function copyText(txt,b){
+  var label=b.textContent;
   function ok(){b.textContent='복사했어요';b.classList.add('done');setTimeout(function(){b.textContent=label;b.classList.remove('done')},2200)}
   function fb(){var t=document.createElement('textarea');t.value=txt;t.style.cssText='position:fixed;opacity:0';document.body.appendChild(t);t.select();try{document.execCommand('copy');ok()}catch(e){toast('복사하지 못했어요. 직접 선택해서 복사해 주세요')}document.body.removeChild(t)}
   try{navigator.clipboard.writeText(txt).then(ok,fb)}catch(e){fb()}
-}});
+}
+[['copyAsk',ASK_TEXT],['copyAskFull',ASK_FULL],['copyIntro',INTRO_TEXT]].forEach(function(p){$(p[0]).onclick=function(){copyText(p[1],this)}});
+document.querySelectorAll('.paths button').forEach(function(b){b.onclick=function(){document.querySelectorAll('.paths button').forEach(function(x){x.classList.toggle('on',x===b)});$('dz').dataset.path=b.dataset.p}});
 function addIntro(raw){
   var res=RWNormalize.normalize(raw,{type:'long'});
   if(!res.chars){toast('읽을 수 있는 글을 찾지 못했어요');return false}
@@ -1238,7 +1303,7 @@ function addIntro(raw){
   if(!text){toast('인트로 문장을 찾지 못했어요');return false}
   snap();
   var first=ch[0];
-  if(first&&isIntro(first)){first.text=text;first.mod=true}
+  if(first&&isIntro(first)){first.text=text;first.introFull=text;first.introTarget=null;first.off=false;first.mod=true}
   else{var n=C('인트로',text);n.mod=true;ch.unshift(n)}
   sel=ch[0].id;cfg.blank=false;renderAll();markDirty();$('pane').scrollTo({top:0});
   toast('인트로를 맨 앞에 넣었어요');return true
@@ -1250,7 +1315,7 @@ $('okrights').onchange=function(){$('okyes').disabled=!this.checked};
 $('okno').onclick=closeAll;
 $('okyes').onclick=function(){
   var s=stats();closeAll();
-  tell({type:cfg.mode==='review'?'rw-studio-approve':'rw-script-confirm',scriptId:'S-'+Date.now().toString(36),title:title,type2:cfg.type,src:cfg.src,imported:imported,chapters:ch.map(function(c){return{title:c.title,text:c.text}}),chars:s.n,minutes:Math.round(s.m*10)/10,prod:s.prod});
+  tell({type:cfg.mode==='review'?'rw-studio-approve':'rw-script-confirm',scriptId:'S-'+Date.now().toString(36),title:title,type2:cfg.type,src:cfg.src,imported:imported,chapters:ch.filter(function(c){return !c.off}).map(function(c){return{title:c.title,text:c.text}}),chars:s.n,minutes:Math.round(s.m*10)/10,prod:s.prod});
   toast(inFrame?'대본을 확정했어요':'시안 화면이라 실제로 확정되지는 않아요');
 };
 
