@@ -114,23 +114,44 @@ h4 b{color:var(--amber);margin-left:2px}
 .verdict{font-size:.78rem;font-weight:600;margin-top:2px}
 .verdict.ok{color:var(--green)}.verdict.bad{color:var(--err)}
 .askai{display:none;margin:2px 0 12px;font-size:.9rem;color:var(--dim)}
+#briefHead{font-size:.9rem;color:var(--dim);margin:0 0 14px}
 .lite .dz[data-path=other] .askai{display:block}
-.paths{display:none;gap:6px;margin:0 0 14px;justify-content:center;flex-wrap:wrap}
-.lite .paths{display:flex}
-.paths button{border:1px solid var(--line);background:transparent;color:var(--dim);border-radius:999px;padding:8px 16px;font:inherit;font-size:.9rem;cursor:pointer}
-.paths button.on{border-color:var(--amber);color:var(--amber);font-weight:600}
-.paths button small{margin-left:6px;font-size:.72rem;color:var(--faint)}
+.paths{display:none}
+.lite .paths{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 20px;text-align:left}
+.paths button{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:4px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);border-radius:16px;padding:14px 14px 15px;font:inherit;text-align:left;cursor:pointer;transition:border-color .15s,background-color .15s}
+.paths button:hover{border-color:var(--line2)}
+.paths button.on{border-color:var(--amber);background:var(--wash)}
+.paths .pi{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--input);color:var(--dim);margin-bottom:6px}
+.paths button.on .pi{background:var(--amber);color:var(--on-amber)}
+.paths .pi svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.paths b{font-size:1.02rem;font-weight:700;letter-spacing:-.01em;line-height:1.3}
+.paths small{font-size:.8rem;line-height:1.45;color:var(--faint)}
+.paths em{position:absolute;top:10px;right:10px;font-style:normal;font-size:.72rem;font-weight:600;color:var(--faint);border:1px solid var(--line2);border-radius:999px;padding:1px 8px}
+@media (max-width:640px){.lite .paths{grid-template-columns:1fr}.paths button{flex-direction:row;flex-wrap:wrap;align-items:center;column-gap:12px}.paths .pi{margin:0}.paths b{flex:1}.paths small{flex-basis:100%;padding-left:46px}}
+/* 새로 만들기 화면 안(lite): 왼쪽 정렬, 카드 → 양식 순서 */
+.lite .dz{display:flex;flex-direction:column;align-items:stretch;text-align:left}
+.lite .dz .paths{order:-1}
+.lite .dz[data-path=ai],.lite .dz[data-path=other]{border-style:solid;border-width:1px}
+.lite .dz:not([data-path=paste]) #dzH,.lite .dz:not([data-path=paste]) #dzP{display:none}
+.lite .dz .btns,.lite .askai .reqs,.lite .aiprog .acts{justify-content:flex-start}
+.lite .dz[data-path=paste] .btns{margin-top:2px}
 .aisoon{display:none;margin:0 0 12px;padding:14px;border:1px dashed var(--line);border-radius:12px;font-size:.88rem;color:var(--dim);line-height:1.6}
 .lite .dz[data-path=ai].noai .aisoon{display:block}
 .lite .dz[data-path=ai] #pasteBox,.lite .dz[data-path=ai] .btns{display:none}
 .lite .dz[data-path=ai]:not(.noai) .askai{display:block}
 .lite .dz[data-path=ai] .askai .steps,.lite .dz[data-path=ai] .askai .copyreqs,.lite .dz[data-path=ai].noai .askai{display:none}
-.aigo{display:none;margin-top:14px;text-align:center}
+.aigo{display:none;margin-top:22px;padding-top:20px;border-top:1px solid var(--line);text-align:left}
 .lite .dz[data-path=ai]:not(.noai) .aigo{display:block}
 .aigo .aiintro{display:inline-flex;gap:8px;align-items:center;font-size:.88rem;color:var(--dim);margin-bottom:8px;cursor:pointer}
-.aigo .aiest{font-size:.86rem;color:var(--dim);line-height:1.6;margin:4px 0 10px}
-.aigo .aiest b{color:var(--text)}.aigo .aiest .warn{color:var(--err)}
-.aigo .reqs button:disabled{opacity:.45;cursor:default}
+.aigo .aiest{font-size:.84rem;color:var(--faint);line-height:1.6;margin:10px 0 14px;padding:14px 16px;border:1px solid var(--line);border-radius:14px;background:var(--bg)}
+.aigo .aiest .lab{font-size:.92rem;font-weight:500;color:var(--dim);margin-right:6px}
+.aigo .aiest .val{font-family:var(--serif,inherit);font-size:1.5rem;font-weight:700;color:var(--amber)}
+.aigo .aiest .meta{display:block;margin-top:4px}
+.aigo .aiest b{color:inherit}.aigo .aiest .warn{color:var(--err)}
+.askai .aigo .reqs button{width:100%;padding:14px 18px;font-size:1.02rem;border-radius:999px}
+.askai .aigo .reqs button.main{background:var(--amber);color:var(--on-amber);border-color:var(--amber)}
+.askai .aigo .reqs button:disabled{opacity:.45;cursor:default}
+.lite .dz[data-path=ai] #briefHead .bh-o,.lite .dz[data-path=other] #briefHead .bh-a{display:none}
 .aiprog{margin-top:12px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;font-size:.88rem;color:var(--dim);line-height:1.6}
 .aiprog .bar{height:4px;border-radius:2px;background:var(--line);margin:8px 0;overflow:hidden}
 .aiprog .bar i{display:block;height:100%;width:30%;background:var(--amber);border-radius:2px;animation:aibar 1.4s ease-in-out infinite}
@@ -138,15 +159,19 @@ h4 b{color:var(--amber);margin-left:2px}
 @media (prefers-reduced-motion:reduce){.aiprog .bar i{animation:none;width:100%}}
 .aiprog .acts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:6px}
 .aiprog .acts button{border:1px solid var(--line);background:transparent;color:var(--dim);border-radius:999px;padding:7px 14px;font:inherit;font-size:.86rem;cursor:pointer}
-.brief{text-align:left;margin:12px 0 4px;display:grid;gap:12px}
-.brief .f label{display:block;font-size:.8rem;color:var(--dim);margin-bottom:5px}
-.brief .f label small{color:var(--faint);margin-left:4px}
-.brief .f input[type=text],.brief .f textarea{width:100%;border:1px solid var(--line2);border-radius:12px;background:var(--bg);color:var(--ink);padding:10px 12px;font:inherit;font-size:.92rem;margin:0;height:auto;box-sizing:border-box}
-.brief .f textarea{height:70px;resize:none}
+.brief{text-align:left;margin:4px 0 4px;display:grid;grid-template-columns:minmax(0,1fr);gap:18px}
+.brief .f,.brief .g2>div{min-width:0}
+.brief .f label{display:flex;flex-wrap:wrap;align-items:center;gap:2px 8px;font-size:1rem;font-weight:700;color:var(--ink);margin-bottom:8px;letter-spacing:-.01em}
+.brief .f label .hi{display:grid;place-items:center;width:28px;height:28px;border-radius:9px;background:var(--wash);color:var(--amber);flex:none}
+.brief .f label .hi svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.brief .f label small{font-size:.78rem;font-weight:400;color:var(--faint);margin-left:0}
+.brief .f input[type=text],.brief .f textarea{width:100%;border:1px solid var(--line2);border-radius:12px;background:var(--bg);color:var(--ink);padding:12px 14px;font:inherit;font-size:.95rem;margin:0;height:auto;box-sizing:border-box}
+.brief .f textarea{height:84px;resize:none}
 .brief .f input:focus,.brief .f textarea:focus{outline:none;border-color:var(--amber)}
 .brief .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:520px){.lite .dz{padding:22px 16px}.brief .g2{grid-template-columns:minmax(0,1fr)}}
 .brief .chips{display:flex;flex-wrap:wrap;gap:6px}
-.askai .brief .chips button{margin:0;padding:6px 13px}
+.askai .brief .chips button{margin:0;padding:8px 15px;font-size:.9rem}
 .askai .brief .chips button.on{border-color:var(--amber);color:var(--amber);font-weight:600}
 .brief .stp{display:flex;align-items:center;gap:8px}
 .askai .brief .stp button{margin:0;padding:3px 13px;font-size:1rem}
@@ -436,9 +461,9 @@ h4 b{color:var(--amber);margin-left:2px}
           <div class="dz" id="dz" data-path="paste">
             <h3 id="dzH">대본을 붙여넣거나 파일을 끌어다 놓으세요</h3>
             <p id="dzP">다른 AI로 쓴 글, 시나리오, 자막 파일도 괜찮아요.<br>대본 형식은 자동으로 맞춰 드려요.</p>
-            <div class="paths" role="tablist"><button type="button" data-p="paste" class="on">붙여넣기·파일</button><button type="button" data-p="ai" id="aiTab">AI로 쓰기<small>곧</small></button><button type="button" data-p="other">다른 AI로 쓰기</button></div>
+            <div class="paths" role="tablist"><button type="button" data-p="paste" class="on"><span class="pi"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 11h6M9 15h4"/></svg></span><b>붙여넣기 · 파일</b><small id="pSub1">이미 쓴 대본이 있어요</small></button><button type="button" data-p="ai" id="aiTab"><span class="pi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg></span><b>AI로 쓰기</b><small id="pSub2">여기서 바로 Claude가 대본을 써 드려요</small><em id="aiTabNote" hidden>로그인 후</em></button><button type="button" data-p="other"><span class="pi"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></span><b>다른 AI로 쓰기</b><small>요청문을 복사해 내가 쓰는 AI에 붙여넣어요</small></button></div>
             <div class="aisoon" id="aiSoon"></div>
-            <div class="askai"><div id="briefHead"></div><div class="brief" id="brief"></div><div class="reqs copyreqs"><button type="button" id="copyAsk" class="main">대본 요청문 복사 (대본만)</button><button type="button" id="copyAskFull" class="main">대본+인트로 요청문 복사</button></div><div class="steps" id="askSteps"></div><div class="aigo" id="aiGo"><label class="aiintro" id="aiIntroWrap"><input type="checkbox" id="aiIntro" checked> 인트로도 함께 만들기</label><div class="aiest" id="aiEst"></div><div class="reqs"><button type="button" id="aiRun" class="main">AI로 대본 만들기</button></div><div class="aiprog" id="aiProg" hidden></div></div></div>
+            <div class="askai"><div id="briefHead"></div><div class="brief" id="brief"></div><div class="reqs copyreqs"><button type="button" id="copyAsk" class="main">대본 요청문 복사 (대본만)</button><button type="button" id="copyAskFull" class="main">대본+인트로 요청문 복사</button></div><div class="steps" id="askSteps"></div><div class="aigo" id="aiGo"><label class="aiintro" id="aiIntroWrap"><input type="checkbox" id="aiIntro" checked> 인트로도 함께 만들기</label><div class="aiest" id="aiEst"></div><div class="reqs"><button type="button" id="aiRun" class="main">대본 만들기</button></div><div class="aiprog" id="aiProg" hidden></div></div></div>
             <textarea id="pasteBox" placeholder="여기에 붙여넣기 (Ctrl+V)" aria-label="대본 붙여넣기"></textarea>
             <div class="btns"><button class="btn gold" id="pasteGo">이 글로 시작</button><button class="btn" id="pickFile">파일 선택</button><button class="btn" id="startTyping">직접 쓰기</button></div>
             <div class="ex2" id="ex2"></div>
@@ -1390,6 +1415,20 @@ function occName(){return B.occ==='직접'?(B.occCustom||'').trim():B.occ}
 function resetBrief(){B={topic:'',mood:'',min:10,intro:10,to:'',from:'',occ:'',occCustom:'',rel:'',info:'',msg:'',sec:60}}
 function stp(k,val,unit,note){return '<div class="stp"><button type="button" data-st="'+k+':-1" aria-label="줄이기">−</button><b>'+val+unit+'</b><button type="button" data-st="'+k+':1" aria-label="늘리기">＋</button>'+(note?'<small>'+note+'</small>':'')+'</div>'}
 function chips(list,k,cur){return '<div class="chips">'+list.map(function(x){return '<button type="button" data-ch="'+k+':'+x+'" class="'+(cur===x?'on':'')+'" aria-pressed="'+(cur===x)+'">'+x+'</button>'}).join('')+'</div>'}
+var LAB_ICO={
+ '어떤 날인가요?':'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+ '고인 성함':'<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/>',
+ '나와의 관계':'<circle cx="9" cy="8" r="3.2"/><circle cx="17" cy="9" r="2.6"/><path d="M3 20c.6-3.4 3-5 6-5s5.4 1.6 6 5M16 15c2.6 0 4.4 1.4 5 4"/>',
+ '보내는 사람':'<path d="M21 3L10 14M21 3l-7 18-4-7-7-4z"/>',
+ '받는 사람':'<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/>',
+ '알릴 내용':'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>',
+ '전하고 싶은 말':'<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>',
+ '길이':'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/>',
+ '주제':'<path d="M20 12l-8 8-9-9V4h7z"/><circle cx="8" cy="8" r="1.2"/>',
+ '분위기':'<path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/>',
+ '인트로':'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z"/>'
+};
+function decorate(h){return h.replace(/<label([^>]*)>([^<]+?)(\s*<small>|<\/label>)/g,function(m,attrs,txt,tail){var t=txt.trim(),ic=LAB_ICO[t];if(!ic)return m;return '<label'+attrs+'><span class="hi"><svg viewBox="0 0 24 24" aria-hidden="true">'+ic+'</svg></span><span>'+t+'</span>'+(tail.indexOf('small')>-1?'<small>':'</label>')})}
 function renderBrief(){
   var h;
   if(cfg.kind==='mood'){
@@ -1403,7 +1442,7 @@ function renderBrief(){
       '<div class="f"><label for="brFrom">보내는 사람 <small>예: 딸 민지</small></label><input type="text" id="brFrom" data-b="from" value="'+esc(B.from)+'" maxlength="30" placeholder="나는 누구인가요?"></div></div>')+
       '<div class="f"><label for="brMsg">전하고 싶은 말 <small>비워도 돼요</small></label><textarea id="brMsg" data-b="msg" maxlength="600" placeholder="'+(memo?'예: 늘 자식 걱정만 하셨던 아버지께 마지막으로 하고 싶은 말':'예: 항상 고맙다고, 올해는 꼭 같이 여행 가자고')+'">'+esc(B.msg)+'</textarea></div>'+
       '<div class="f"><label>길이</label>'+stp('sec',B.sec,'초','약 '+Math.round(B.sec*6)+'자')+'</div>';
-    $('briefHead').innerHTML='칸을 채우고(몰라도 돼요) 요청문을 복사해 쓰시는 AI에 보내세요.';
+    $('briefHead').innerHTML='<span class="bh-o">칸을 채우고(몰라도 돼요) 요청문을 복사해 쓰시는 AI에 보내세요.</span><span class="bh-a">칸을 채우면(몰라도 돼요) 그대로 영상 편지 글을 써 드려요. 비워 두면 AI가 알아서 골라요.</span>';
     $('askSteps').innerHTML='<b>1</b> 요청문을 복사해 AI에 붙여넣어요. 길이는 따로 적지 않아도 돼요.<br><b>2</b> AI가 써 준 글을 <b>붙여넣기·파일</b> 탭의 칸에 붙여넣어요.<br><b>3</b> 읽기 좋게 자동으로 정리되고, 확정하면 보관함에 저장돼요.';
     $('copyAsk').textContent='영상 편지 요청문 복사';
   }else{
@@ -1411,11 +1450,11 @@ function renderBrief(){
       '<div class="f"><label>분위기 <small>고르지 않으면 AI가 알아서</small></label>'+chips(MOODS,'mood',B.mood)+'</div>'+
       '<div class="g2"><div class="f"><label>길이</label>'+stp('min',B.min,'분','약 '+(B.min*350).toLocaleString('ko-KR')+'자')+'</div>'+
       '<div class="f"><label>인트로 <small>대본+인트로 요청문에만</small></label>'+stp('intro',B.intro,'초','')+'</div></div>';
-    $('briefHead').innerHTML='칸을 채우고(몰라도 돼요) 요청문을 복사해 쓰시는 AI에 보내세요.';
+    $('briefHead').innerHTML='<span class="bh-o">칸을 채우고(몰라도 돼요) 요청문을 복사해 쓰시는 AI에 보내세요.</span><span class="bh-a">칸을 채우면(몰라도 돼요) 그대로 대본을 써 드려요. 비워 두면 AI가 알아서 골라요.</span>';
     $('askSteps').innerHTML='<b>1</b> 요청문을 복사해 AI에 붙여넣어요. 길이와 주제는 이미 들어 있어요.<br><b>2</b> AI가 써 준 글을 <b>붙여넣기·파일</b> 탭의 칸에 붙여넣어요.<br><b>3</b> 인트로가 같이 왔다면 맨 앞에 [인트로] 장으로 자동 정리돼요.';
     $('copyAsk').textContent='대본 요청문 복사 (대본만)';
   }
-  $('brief').innerHTML=h;
+  $('brief').innerHTML=decorate(h);
   if(typeof aiRefresh==='function')aiRefresh()
 }
 function setupKind(){
@@ -1424,6 +1463,8 @@ function setupKind(){
   $('dzH').textContent=mood?'영상 편지 글을 붙여넣거나 파일을 끌어다 놓으세요':'대본을 붙여넣거나 파일을 끌어다 놓으세요';
   $('dzP').innerHTML=mood?'직접 쓴 글도, 다른 AI가 써 준 글도 괜찮아요.<br>읽기 좋게 자동으로 정리해 드려요.':'다른 AI로 쓴 글, 시나리오, 자막 파일도 괜찮아요.<br>대본 형식은 자동으로 맞춰 드려요.';
   $('aiSoon').innerHTML=mood?'<b>AI로 쓰기는 로그인한 뒤 쓸 수 있어요.</b><br>직접 설정하기 화면에서 로그인하면 받는 사람과 하고 싶은 말만 적어도 영상 편지 글을 대신 써 드려요. 지금은 <b>다른 AI로 쓰기</b>나 <b>붙여넣기·파일</b>을 이용해 주세요.':'<b>AI로 쓰기는 로그인한 뒤 쓸 수 있어요.</b><br>직접 설정하기 화면에서 로그인하면 주제만 말해도 대본을 써 주고, 대본에 어울리는 인트로도 자동으로 붙여 드려요. 지금은 <b>다른 AI로 쓰기</b>나 <b>붙여넣기·파일</b>을 이용해 주세요.';
+  $('pSub1').textContent=mood?'이미 쓴 글이 있어요':'이미 쓴 대본이 있어요';
+  $('pSub2').textContent=mood?'여기서 바로 Claude가 영상 편지 글을 써 드려요':'여기서 바로 Claude가 대본을 써 드려요';
   aiRefresh();
   $('shortTip').textContent=mood?'영상 편지는 한 편으로 이어져요. 문단은 빈 줄로 나눠요.':'숏폼은 한 편으로 이어져요. 문단은 빈 줄로 나눠요.';
   $('dz').dataset.path='paste';
@@ -1462,14 +1503,14 @@ function aiPrice(parts){var t=0;parts.forEach(function(m,i){var p=Math.round(m*A
 function aiRefresh(){
   var a=aiCtx(),tab=$('aiTab');
   $('dz').classList.toggle('noai',!a);
-  if(tab)tab.innerHTML='AI로 쓰기'+(a?'':'<small>로그인 후</small>');
+  var note=$('aiTabNote');if(note)note.hidden=!!a;
   $('aiIntroWrap').style.display=cfg.kind==='mood'?'none':'inline-flex';
   if(!a)return;
   var M=aiMinutes(),parts=aiParts(M),price=aiPrice(parts),paid=a.mode()==='paid',have=a.balance?a.balance():null,bad='';
   if(!paid&&M>AI_TRIAL_MIN)bad='체험은 '+AI_TRIAL_MIN+'분까지 쓸 수 있어요. 길이를 줄이거나 정식 모드로 바꿔 주세요.';
   else if(M>AI_MAX_MIN)bad='AI로 쓰기는 '+AI_MAX_MIN+'분까지 쓸 수 있어요. 더 긴 대본은 다른 AI로 쓰기를 이용해 주세요.';
   else if(have!==null&&have<price)bad=(paid?'충전':'체험')+' 포인트가 부족해요. 필요 '+price+'P / 보유 '+have+'P';
-  $('aiEst').innerHTML='<b>약 '+price+'P</b> · '+(paid?'충전 포인트':'체험 포인트')+'에서 써요'+(have!==null?' (보유 '+have+'P)':'')+'<br>분당 '+AI_PM+'P, 최소 '+AI_MIN_P+'P · '+(parts.length>1?'실패한 조각은 차감되지 않아요':'쓰기에 실패하면 차감되지 않아요')+(parts.length>1?'<br>길어서 '+parts.length+'번에 나눠 써요. 한 번에 30초쯤 걸려요.':'')+(bad?'<br><span class="warn">'+bad+'</span>':'');
+  $('aiEst').innerHTML='<span class="lab">예상 지출 포인트 :</span><b class="val">'+price+'P</b><span class="meta">'+(paid?'충전 포인트':'체험 포인트')+'에서 써요'+(have!==null?' (보유 '+have+'P)':'')+' · 분당 '+AI_PM+'P, 최소 '+AI_MIN_P+'P · '+(parts.length>1?'실패한 조각은 차감되지 않아요':'쓰기에 실패하면 차감되지 않아요')+'</span>'+(parts.length>1?'<span class="meta">길어서 '+parts.length+'번에 나눠 써요. 한 번에 30초쯤 걸려요.</span>':'')+(bad?'<span class="meta warn">'+bad+'</span>':'');
   $('aiRun').disabled=!!bad||aiBusy
 }
 var aiBusy=false,aiStop=false;
