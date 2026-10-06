@@ -1748,7 +1748,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   // [분위기 영상 말 넣기] AI 목소리로 읽어 주면 낭독 요금(분당 NAR_PER_MIN P, 최소 NAR_MIN P)이 더해진다. 글자로 보여주기·내 목소리 녹음은 추가 요금이 없다. (접수 서버도 같은 값)
   const NAR_PER_MIN = 3, NAR_MIN = 3;
   const NARRATION_READY = true;    // 글자·AI 목소리 넣기 제작 연결 완료(접수 v3.17 + 롱폼_수면음악 v1.6)
-  const NARRATION_OWN_READY = false;   // 내 목소리 녹음 제작 연결(렌더 서버 변경 필요)이 끝나면 true 로 바꾼다. false 인 동안은 화면만 미리 볼 수 있고 접수는 막는다.
+  const NARRATION_OWN_READY = true;    // 내 목소리 녹음 제작 연결 완료(접수 v3.18 + 롱폼_수면음악 v1.7 + 렌더 서버)
   function longPrice(kind, tier, min, 인트로초, 낭독) {
     if (kind === '야담' && 인트로초 > 0) return ylPrice(tier, min, 인트로초);
     const [base, rate] = (LONG_RATE[tier] || LONG_RATE['표준형'])[kind];
@@ -2095,7 +2095,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
           <label><input type="radio" name="df-nar" value="없음" checked><span class="scard"><span class="dot"></span><span><b>말 없이 소리와 그림만</b><small>수면·집중·힐링 영상처럼 만들어요</small></span></span></label>
           <label><input type="radio" name="df-nar" value="글자"><span class="scard"><span class="dot"></span><span><b>대본을 글자로 보여줘요</b><small>소리는 그대로 두고, 글이 화면에 천천히 나와요</small></span></span></label>
           <label><input type="radio" name="df-nar" value="목소리"><span class="scard"><span class="dot"></span><span><b>대본을 AI 목소리로 읽어요</b><small>대본을 읽어 주고 배경 소리는 작게 깔려요 · 분당 ${NAR_PER_MIN}P 추가</small></span></span></label>
-          <label><input type="radio" name="df-nar" value="내목소리"><span class="scard"><span class="dot"></span><span><b>내 목소리 녹음을 넣어요</b><small>부모님께 드리는 편지처럼 직접 말한 녹음을 써요 · 추가 요금 없음<i class="df-soon">곧</i></small></span></span></label>
+          <label><input type="radio" name="df-nar" value="내목소리"><span class="scard"><span class="dot"></span><span><b>내 목소리 녹음을 넣어요</b><small>부모님께 드리는 편지처럼 직접 말한 녹음을 써요 · 추가 요금 없음</small></span></span></label>
         </div>
         <div class="df-soundpanel df-hide" id="df-np-script"><div id="df-mood-script"></div>
           <div id="df-mvoice-wrap" class="df-hide" style="margin-top:12px">
@@ -2108,7 +2108,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
             <div class="df-chipset" role="radiogroup" aria-label="읽는 속도" style="grid-template-columns:repeat(3,1fr)">${['느리게', '보통', '빠르게'].map((t, i) => `<label><input type="radio" name="df-mspeed" value="${t}"${i === 1 ? ' checked' : ''}><span class="tcard"><b>${t}</b></span></label>`).join('')}</div></div></div>
         <div class="df-soundpanel df-hide" id="df-np-own"><label style="font-weight:400">내 목소리 녹음 링크 <em class="req">*</em></label><input type="url" id="df-voiceUrl" placeholder="https://drive.google.com/file/d/… 또는 폴더 링크">
           <div class="df-guide"><b>녹음 파일 공유 방법</b><ol><li>휴대폰 녹음기로 녹음한 파일(mp3, m4a, wav)을 구글 드라이브에 올려요.</li><li>파일에서 마우스 오른쪽 버튼 → <b>공유</b> → <b>링크가 있는 모든 사용자(뷰어)</b>로 바꿔요.</li><li><b>링크 복사</b>를 눌러 위 칸에 붙여넣어요.</li></ol>
-            <div style="margin-top:6px">녹음 길이가 곧 영상 길이예요. 아래 <b>영상 길이</b>에 대략의 길이를 입력해 주세요.</div></div>
+            <div style="margin-top:6px">녹음 길이가 곧 영상 길이예요. 아래 <b>영상 길이</b>에 대략의 길이를 입력해 주세요. 요금은 이 길이로 계산되고, 입력한 길이보다 25% 넘게 긴 녹음은 끝부분이 잘려요. 폴더 링크를 주면 폴더 안의 첫 번째 녹음 파일을 써요.</div></div>
           <label class="df-musicbox" style="margin-top:10px;display:flex;gap:8px;align-items:flex-start"><input type="checkbox" id="df-voiceRights"><span style="font-weight:400;font-size:0.82rem;color:var(--ink-dim)">제공하는 녹음의 사용 권리가 저에게 있음을 확인합니다.</span></label></div>
         <p class="df-hint" id="df-nar-soon" hidden>내 목소리 녹음은 곧 열려요. 지금은 글자나 AI 목소리로 만들 수 있어요.</p>
       </div>
