@@ -336,6 +336,10 @@ h4 b{color:var(--amber);margin-left:2px}
   .banner{flex-wrap:wrap}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+.fitrow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:10px 0;font-size:13px}
+.fitrow .step{display:inline-flex;align-items:center;gap:8px}
+.fitrow .step button{width:30px;height:30px;border-radius:50%;border:1px solid var(--line,#d9cdb8);background:transparent;font-size:16px;cursor:pointer;color:inherit}
+.fitrow b{min-width:130px;text-align:center;font-weight:600}
 </style>
 
 <div class="shell" id="shell">
@@ -457,6 +461,7 @@ h4 b{color:var(--amber);margin-left:2px}
   <div class="d-b">
     <div class="note">어떻게 바꿀지 골라 주세요. 여러 개 골라도 돼요.</div>
     <div class="chips" id="chips"></div>
+    <div class="fitrow" id="rwfit" hidden><span>길이 맞추기</span><span class="step"><button type="button" id="rwfm" aria-label="목표 길이 줄이기">−</button><b id="rwfv"></b><button type="button" id="rwfp" aria-label="목표 길이 늘리기">＋</button></span></div>
     <textarea class="field" id="rwreq" rows="3" placeholder="직접 적어도 돼요. 예: 주인공이 호랑이를 처음 만나는 장면을 더 길게"></textarea>
     <div class="costline" id="rwcost"></div>
     <div id="rwres" hidden>
@@ -1266,19 +1271,59 @@ $('origx').onclick=closeAll;
 var CHIPS=['더 길게','더 짧게','더 긴장감 있게','더 따뜻하게','대사를 늘려서','설명을 줄여서','쉬운 말로','옛날 말투로'];
 $('chips').innerHTML=CHIPS.map(function(c){return '<button class="chip" aria-pressed="false">'+c+'</button>'}).join('');
 $('chips').onclick=function(e){var b=e.target.closest('.chip');if(b)b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')!=='true')};
-function costLine(){var pr=REWRITE[cfg.type];$('rwcost').innerHTML='이번 다시 쓰기에 <b>'+P(pr)+'</b> 사용돼요 · 보유 '+P(balance)+' → '+P(balance-pr);$('rwrun').disabled=balance<pr;if(balance<pr)$('rwcost').innerHTML+='<br>포인트가 부족해요. 충전한 뒤 다시 시도해 주세요.'}
+var rwTar=0,rwCur=0;
+function rwFitShow(){var c=ch[idx(rwTarget)];rwCur=Math.round(chars(c.text)/PACE*10)/10;if(!rwTar)rwTar=Math.max(0.5,Math.min(6,rwCur||0.5));
+  var ch2=Math.abs(rwTar-rwCur)>0.05;$('rwfv').textContent='지금 '+rwCur+'분'+(ch2?' → '+rwTar+'분':'');$('rwfit').hidden=false}
+function costLine(){
+  if(inFrame){var a=aiCtx();
+    if(!a){$('rwcost').innerHTML='로그인한 뒤 쓸 수 있어요.';$('rwrun').disabled=true;$('rwfit').hidden=true;return}
+    var have=a.balance?a.balance():null;rwFitShow();
+    $('rwcost').innerHTML='이번 다시 쓰기에 <b>1P</b> 사용돼요'+(have!==null?' · 보유 '+have+'P':'')+'<br><small>실패하면 차감되지 않아요</small>';
+    var c=ch[idx(rwTarget)],big=chars(c.text)/PACE>6;
+    if(big)$('rwcost').innerHTML+='<br>6분이 넘는 챕터는 나눈 뒤에 다시 써 주세요.';
+    if(have!==null&&have<1)$('rwcost').innerHTML+='<br>포인트가 부족해요.';
+    $('rwrun').disabled=big||(have!==null&&have<1);return}
+  var pr=REWRITE[cfg.type];$('rwcost').innerHTML='이번 다시 쓰기에 <b>'+P(pr)+'</b> 사용돼요 · 보유 '+P(balance)+' → '+P(balance-pr);$('rwrun').disabled=balance<pr;if(balance<pr)$('rwcost').innerHTML+='<br>포인트가 부족해요. 충전한 뒤 다시 시도해 주세요.'}
 function openRw(id){
   if(cfg.blank||!total()){toast('먼저 대본을 붙여넣거나 써 주세요');return}
   rwTarget=cfg.type==='short'?ch[0].id:id;rwPending=null;var c=ch[idx(rwTarget)];
   $('rwTitle').textContent=cfg.type==='short'?'대본 전체 다시 쓰기':(idx(rwTarget)+1)+'. '+c.title+' 다시 쓰기';
-  $('rwres').hidden=true;$('rwrevert').hidden=true;$('rwapply').hidden=true;$('rwrun').hidden=false;$('rwreq').value='';
+  $('rwres').hidden=true;$('rwrevert').hidden=true;$('rwapply').hidden=true;$('rwrun').hidden=false;$('rwreq').value='';rwTar=0;$('rwfit').hidden=true;
   document.querySelectorAll('.chip').forEach(function(x){x.setAttribute('aria-pressed','false')});
   $('lp').classList.remove('show');costLine();$('rw').classList.add('show');$('scrim').classList.add('show');
 }
 function closeAll(){['rw','orig'].forEach(function(i){$(i).classList.remove('show')});['ok','pbar','intro'].forEach(function(i){$(i).classList.remove('show')});$('lp').classList.remove('show');$('scrim').classList.remove('show');$('fmenu').classList.remove('show')}
 $('rwx').onclick=closeAll;$('scrim').onclick=closeAll;
 $('bRw').onclick=function(){openRw(sel)};$('mrw').onclick=function(){openRw(sel)};
+$('rwfm').onclick=function(){rwTar=Math.max(0.5,Math.round((rwTar-0.5)*10)/10);rwFitShow()};
+$('rwfp').onclick=function(){rwTar=Math.min(6,Math.round((rwTar+0.5)*10)/10);rwFitShow()};
+async function rwAiRun(a){
+  var c=ch[idx(rwTarget)],i=idx(rwTarget),picks=[].map.call(document.querySelectorAll('.chip[aria-pressed=true]'),function(x){return x.textContent}),req=$('rwreq').value.trim();
+  var fit=Math.abs(rwTar-rwCur)>0.05;
+  if(!picks.length&&!req&&!fit){toast('바꾸고 싶은 방향이나 길이를 정해 주세요');return}
+  var btn=$('rwrun');btn.disabled=true;btn.textContent='쓰는 중…';
+  var tgt=fit?rwTar:rwCur,tchars=Math.round(tgt*PACE);
+  var prev=i>0?ch[i-1].text.slice(-300):'',next=ch[i+1]?ch[i+1].text.slice(0,300):'';
+  var p='아래 [원문]을 다시 쓰세요. 이야기의 사건·인물·순서는 바꾸지 말고, 성우가 그대로 읽는 문장으로만 쓰세요.\n\n규칙:\n- 출력은 다시 쓴 본문만이에요. 제목, 막 표시, 설명, 따옴표 머리말, 별표·이모지·목록 기호는 쓰지 마세요.\n- 문단은 빈 줄로 나누세요.\n'+
+    (picks.length?'- 바꿀 방향: '+picks.join(', ')+'\n':'')+(req?'- 추가 요청: '+req+'\n':'')+
+    (fit||picks.indexOf('더 길게')>-1||picks.indexOf('더 짧게')>-1?'- 분량: 공백을 뺀 약 '+tchars+'자(약 '+tgt+'분)에 맞추세요. 원문은 약 '+chars(c.text)+'자예요.\n':'- 분량은 원문과 비슷하게 유지하세요.\n')+
+    (prev?'\n[앞 장의 끝부분 - 이어지는 흐름 참고용, 출력하지 마세요]\n'+prev+'\n':'')+(next?'\n[다음 장의 앞부분 - 참고용, 출력하지 마세요]\n'+next+'\n':'')+'\n[원문]\n'+c.text;
+  try{
+    var r=await fetch(a.url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({idToken:a.token(),planMode:a.mode(),kind:'rewrite',prompt:p,minutes:Math.min(6,Math.max(0.5,tgt)),partIndex:0,partTotal:1})});
+    var d=await r.json().catch(function(){return null});
+    if(!r.ok||!d||!d.ok)throw new Error((d&&d.message)||'AI가 응답하지 못했어요. 잠시 뒤 다시 시도해 주세요.');
+    var nt=String(d.text).replace(/^\s*\[[^\]\n]{1,20}\]\s*\n/,'').trim();
+    rwPending=nt;spentRewrite+=d.charged||1;
+    $('rwold').innerHTML=esc(c.text).replace(/\n/g,'<br>');$('rwnew').innerHTML=esc(nt).replace(/\n/g,'<br>');
+    $('rwres').hidden=false;$('rwapply').hidden=false;$('rwrevert').hidden=false;btn.hidden=true;
+    $('rwcost').innerHTML=(d.charged||1)+'P가 사용됐어요 · 새 글 약 '+(Math.round(chars(nt)/PACE*10)/10)+'분';
+    $('rwnote').textContent='새 내용을 확인하고 적용하거나, 지금 내용을 그대로 두세요. 다시 쓰면 또 사용돼요.';
+    if(a.refresh)a.refresh()
+  }catch(e){toast((e&&e.message)||'다시 쓰지 못했어요')}
+  btn.disabled=false;btn.textContent='다시 쓰기'
+}
 $('rwrun').onclick=function(){
+  if(inFrame){var a=aiCtx();if(a)rwAiRun(a);return}
   var pr=REWRITE[cfg.type];if(balance<pr)return;
   var c=ch[idx(rwTarget)],picks=[].map.call(document.querySelectorAll('.chip[aria-pressed=true]'),function(x){return x.textContent});
   if(!picks.length&&!$('rwreq').value.trim()){toast('바꾸고 싶은 방향을 하나 골라 주세요');return}
