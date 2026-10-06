@@ -976,6 +976,8 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   const GOOGLE_CLIENT_ID = '188637268860-9hj2af4bt8esn506bf5bqs72qnbu0qjs.apps.googleusercontent.com';
 
   let googleIdToken = null;
+  // 스튜디오(iframe)의 'AI로 쓰기'가 로그인 정보·모드·포인트를 읽는 통로
+  window.__rwAI = { url: 'https://bald-buffalo.pikapod.net/webhook/script-write', token: () => googleIdToken, mode: () => planMode, balance: () => (planMode === 'paid' ? myPoints : myTrial), refresh: () => { if (googleIdToken) loadPoints(googleIdToken); } };
   let pastProjects = [];
   const params = new URLSearchParams(location.search);
   // [수정] 체험/정식 선택을 브라우저에 기억해서, 새로고침하거나 다른 화면에 다녀와도 체험으로 되돌아가지 않게 한다.
