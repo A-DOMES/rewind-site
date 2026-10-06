@@ -924,6 +924,55 @@
   .chat-column.is-fresh .suggest-row .label { text-align: center; }
   .cat-chip i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); flex-shrink: 0; }
   @media (max-width: 560px) { .suggest-row { margin-left: 0; } }
+
+  /* ===== 직접 설정하기 · 글씨/아이콘 3단계 (대 1.3rem · 중 1.15rem · 소 1rem · 보조 .88rem) ===== */
+  .direct-form-wrap { counter-reset: dfs; }
+  .df-sec { counter-increment: dfs; padding: 22px 22px 10px; border-radius: 18px; margin-bottom: 18px; }
+  .df-sec-head { gap: 14px; margin-bottom: 18px; }
+  .df-sec-ico { width: 40px; height: 40px; border-radius: 12px; }
+  .df-sec-ico svg { width: 22px; height: 22px; }
+  .df-sec-head h3 { font-size: 1.15rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+  .df-sec-head h3::before { content: counter(dfs); flex: none; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: var(--amber); color: var(--on-amber); font-size: .8rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .df-sec-head p { font-size: .9rem; margin-top: 3px; line-height: 1.5; }
+  .df-sec .df-field label, .df-field label { font-size: 1rem; font-weight: 700; color: var(--ink); }
+  .df-field .opt, .df-h-opt { font-size: .85rem; }
+  .df-h { font-size: 1.05rem; }
+  .df-hint { font-size: .88rem; }
+  .df-use p { font-size: .92rem; }
+  .df-guide { font-size: .88rem; }
+  .df-field input, .df-field select, .df-field textarea { font-size: 1rem; }
+  .df-field input::placeholder, .df-field textarea::placeholder { font-size: .94rem; }
+  .df-field .req { font-size: .8rem; background: var(--amber-wash); padding: 1px 8px; border-radius: 999px; font-weight: 700; }
+  .df-types { grid-template-columns: minmax(0,1fr); gap: 10px; }
+  .df-types .tcard { display: flex; align-items: center; gap: 14px; text-align: left; padding: 16px 18px; border-radius: 16px; }
+  .df-types .tcard .ti { flex: none; width: 44px; height: 44px; border-radius: 13px; display: grid; place-items: center; font-style: normal; color: var(--amber); background: color-mix(in srgb, var(--amber) 14%, var(--bg)); }
+  .df-types .tcard .ti svg { width: 23px; height: 23px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .df-types .tcard .tt { min-width: 0; }
+  .df-types .tcard b { font-size: 1.3rem; font-weight: 700; }
+  .df-types .tcard small { font-size: .9rem; margin-top: 3px; }
+  .df-types input:checked + .tcard .ti { background: var(--amber); color: var(--on-amber); }
+  .df-chipset .tcard { padding: 14px 10px; }
+  .df-chipset .tcard b { font-size: 1rem; font-weight: 700; }
+  .df-chipset .tcard small { font-size: .84rem; }
+  .df-comp .ccard b { font-size: 1.02rem; }
+  .df-comp .ccard small { font-size: .84rem; }
+  .df-comp .ccard .ci { width: 34px; height: 34px; } .df-comp .ccard .ci svg { width: 20px; height: 20px; }
+  .len-chip { font-size: .92rem; padding: 9px 15px; }
+  /* ===== 왼쪽 메뉴 · 주제 찾기 칩 크기 ===== */
+  .sidebar .side-item { font-size: 1rem; padding: 10px 12px; gap: 12px; }
+  .sidebar .side-item .ico { width: 32px; height: 32px; border-radius: 10px; }
+  .sidebar .side-item .ico svg { width: 19px; height: 19px; }
+  .sidebar .side-item.active { font-weight: 700; }
+  .suggest-chip { font-size: 1rem; padding: 12px 18px; border-radius: 14px; font-weight: 600; }
+  .cat-chip i { width: 10px; height: 10px; }
+  .suggest-row .label { font-size: 1rem; font-weight: 700; color: var(--ink); }
+  .choice-chip { min-width: 150px; } .choice-chip b { font-size: 1rem; } .choice-chip small { font-size: .86rem; }
+  .pt-badge { font-size: .92rem; } .pt-badge b { font-size: 1.1rem; }
+  .pt-badge .pt-charge { font-size: .9rem; padding: 9px 10px; font-weight: 600; }
+  .df-field textarea { min-height: 88px; line-height: 1.5; }
+  .df-head h2 { font-size: 1.7rem; letter-spacing: -.02em; } .df-head p { font-size: .95rem; }
+  .df-tab { font-size: 1rem; font-weight: 700; min-height: 48px; }
+  @media (max-width: 640px) { .df-sec { padding: 18px 16px 8px; } .df-types .tcard b { font-size: 1.2rem; } }
 </style>
 <script>
 /* 테마 전환: 기존 기능 코드와 분리된 독립 스크립트 */
@@ -2318,9 +2367,9 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   function typeSectionHtml() {
     return `<section class="df-sec" style="--c:#74b6ff"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z"/></svg></span><div><h3>어떤 영상인가요</h3><p>쇼츠·일반 영상, 길게 틀어두는 분위기 영상, 이야기를 들려주는 야담</p></div></div>
       <div class="df-types" id="df-types">
-        <label><input type="radio" name="df-type" value="일반" checked><span class="tcard"><b>일반 영상</b><small>쇼츠 · 롱폼</small></span></label>
-        <label><input type="radio" name="df-type" value="수면음악"><span class="tcard"><b>${kindName('수면음악')}</b><small>수면 · 힐링 · 축하 · 추억</small></span></label>
-        <label><input type="radio" name="df-type" value="야담"><span class="tcard"><b>야담</b><small>옛이야기 · 이야기 영상</small></span></label>
+        <label><input type="radio" name="df-type" value="일반" checked><span class="tcard"><i class="ti"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18h2"/></svg></i><span class="tt"><b>일반 영상</b><small>쇼츠 · 롱폼</small></span></span></label>
+        <label><input type="radio" name="df-type" value="수면음악"><span class="tcard"><i class="ti"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></i><span class="tt"><b>${kindName('수면음악')}</b><small>수면 · 힐링 · 축하 · 추억</small></span></span></label>
+        <label><input type="radio" name="df-type" value="야담"><span class="tcard"><i class="ti"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h6a2 2 0 0 1 2 2v12a2 2 0 0 0-2-2H4z"/><path d="M20 5h-6a2 2 0 0 0-2 2v12a2 2 0 0 1 2-2h6z"/></svg></i><span class="tt"><b>야담</b><small>옛이야기 · 이야기 영상</small></span></span></label>
       </div></section>`;
   }
   function sleepSectionHtml() {
