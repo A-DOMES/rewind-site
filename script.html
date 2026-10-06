@@ -99,7 +99,7 @@ h4 b{color:var(--amber);margin-left:2px}
 .ra button{width:24px;height:24px;border-radius:6px;color:var(--faint);font-size:12px}
 .ra button:hover{background:var(--bg);color:var(--amber)}
 .ra .del:hover{color:var(--err)}
-.intro-btn{display:none!important}.lite .intro-btn{display:block!important}
+.intro-btn{display:none!important}.lite .intro-btn{display:block!important}.short .intro-btn{display:none!important}
 .add{display:block;width:calc(100% - 4px);margin:4px 2px 8px;padding:8px;border:1px dashed var(--line2);border-radius:999px;color:var(--dim);font-size:.84rem}
 .add:hover{border-color:var(--amber);color:var(--amber)}
 .tip{margin:8px;padding:10px 12px;border-radius:12px;background:var(--raised);border:1px solid var(--line);font-size:.8rem;color:var(--dim)}
@@ -123,6 +123,24 @@ h4 b{color:var(--amber);margin-left:2px}
 .aisoon{display:none;margin:0 0 12px;padding:14px;border:1px dashed var(--line);border-radius:12px;font-size:.88rem;color:var(--dim);line-height:1.6}
 .lite .dz[data-path=ai] .aisoon{display:block}
 .lite .dz[data-path=ai] #pasteBox,.lite .dz[data-path=ai] .btns{display:none}
+.brief{text-align:left;margin:12px 0 4px;display:grid;gap:12px}
+.brief .f label{display:block;font-size:.8rem;color:var(--dim);margin-bottom:5px}
+.brief .f label small{color:var(--faint);margin-left:4px}
+.brief .f input[type=text],.brief .f textarea{width:100%;border:1px solid var(--line2);border-radius:12px;background:var(--bg);color:var(--ink);padding:10px 12px;font:inherit;font-size:.92rem;margin:0;height:auto;box-sizing:border-box}
+.brief .f textarea{height:70px;resize:none}
+.brief .f input:focus,.brief .f textarea:focus{outline:none;border-color:var(--amber)}
+.brief .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.brief .chips{display:flex;flex-wrap:wrap;gap:6px}
+.askai .brief .chips button{margin:0;padding:6px 13px}
+.askai .brief .chips button.on{border-color:var(--amber);color:var(--amber);font-weight:600}
+.brief .stp{display:flex;align-items:center;gap:8px}
+.askai .brief .stp button{margin:0;padding:3px 13px;font-size:1rem}
+.brief .stp b{min-width:3.6em;text-align:center;font-variant-numeric:tabular-nums}
+.brief .stp small{color:var(--faint);font-size:.78rem}
+.askai .reqs{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;justify-content:center}
+.askai .reqs button{margin:0;padding:9px 18px;font-size:.92rem}
+.askai .reqs button.main{border-color:var(--amber);color:var(--amber);font-weight:600}
+.mood #copyAskFull{display:none}
 .askai .steps{margin:8px 0 0;font-size:.84rem;color:var(--dim);line-height:1.7}
 .chap-h.ih{background:var(--wash);border-radius:12px;padding:8px 12px;flex-wrap:wrap;margin-bottom:6px}
 .chap-h.ih h2{flex:none}
@@ -397,11 +415,11 @@ h4 b{color:var(--amber);margin-left:2px}
         <div class="sheet" id="sheet"></div>
         <div class="empty" id="empty">
           <div class="dz" id="dz" data-path="paste">
-            <h3>대본을 붙여넣거나 파일을 끌어다 놓으세요</h3>
-            <p>다른 AI로 쓴 글, 시나리오, 자막 파일도 괜찮아요.<br>대본 형식은 자동으로 맞춰 드려요.</p>
+            <h3 id="dzH">대본을 붙여넣거나 파일을 끌어다 놓으세요</h3>
+            <p id="dzP">다른 AI로 쓴 글, 시나리오, 자막 파일도 괜찮아요.<br>대본 형식은 자동으로 맞춰 드려요.</p>
             <div class="paths" role="tablist"><button type="button" data-p="paste" class="on">붙여넣기·파일</button><button type="button" data-p="ai">AI로 쓰기<small>곧</small></button><button type="button" data-p="other">다른 AI로 쓰기</button></div>
-            <div class="aisoon"><b>AI로 쓰기는 곧 열려요.</b><br>주제만 말하면 대본을 써 주고, 대본에 어울리는 인트로도 자동으로 붙여 드려요. 그때까지는 <b>다른 AI로 쓰기</b>나 <b>붙여넣기·파일</b>을 이용해 주세요.</div>
-            <div class="askai">요청문을 복사해서 쓰시는 AI에 보내세요.<br><button type="button" id="copyAsk" style="margin-left:0">대본 요청문 (대본만)</button><button type="button" id="copyAskFull">대본+인트로 요청문</button><div class="steps"><b>1</b> 요청문을 복사해 AI에 붙여넣고 끝에 길이를 적어요. 예: “3분짜리” 또는 “3분짜리, 인트로 10초”<br><b>2</b> AI가 써 준 글을 아래 칸에 붙여넣어요.<br><b>3</b> 인트로가 같이 왔다면 맨 앞에 [인트로] 장으로 자동 정리돼요.</div></div>
+            <div class="aisoon" id="aiSoon"></div>
+            <div class="askai"><div id="briefHead"></div><div class="brief" id="brief"></div><div class="reqs"><button type="button" id="copyAsk" class="main">대본 요청문 복사 (대본만)</button><button type="button" id="copyAskFull" class="main">대본+인트로 요청문 복사</button></div><div class="steps" id="askSteps"></div></div>
             <textarea id="pasteBox" placeholder="여기에 붙여넣기 (Ctrl+V)" aria-label="대본 붙여넣기"></textarea>
             <div class="btns"><button class="btn gold" id="pasteGo">이 글로 시작</button><button class="btn" id="pickFile">파일 선택</button><button class="btn" id="startTyping">직접 쓰기</button></div>
             <div class="ex2" id="ex2"></div>
@@ -828,7 +846,8 @@ EX.plain=(function(){var p='박 서방은 새벽 일찍 길을 나섰습니다. 
 
 /* ---------- 초기화 ---------- */
 function init(o){
-  cfg.type=o.type==='short'?'short':'long';
+  cfg.kind=o.kind==='mood'?'mood':'yadam';
+  cfg.type=(o.type==='short'||cfg.kind==='mood')?'short':'long';
   cfg.src=o.src==='mine'?'mine':'ai';
   cfg.mode=o.mode==='review'?'review':'pre';
   cfg.lite=!!o.lite&&o.lite!=='0';document.documentElement.classList.toggle('lite',cfg.lite); /* lite: 내 대본만 쓰는 실사용판 — AI 기능·포인트 표시 숨김 */
@@ -842,7 +861,8 @@ function init(o){
   else{ch=LONG_AI.map(function(a,i){return C(a[0],a[1])});title='호랑이 고개의 약속'}
   sel=ch[0].id;
   $('ttl').value=title;
-  document.body.classList.toggle('short',cfg.type==='short');
+  document.body.classList.toggle('short',cfg.type==='short');document.body.classList.toggle('mood',cfg.kind==='mood');
+  setupKind();
   $('studio').classList.toggle('blank',cfg.blank);
   $('studio').classList.remove('reading','focus');
   $('tRead').setAttribute('aria-pressed','false');
@@ -1293,7 +1313,66 @@ function copyText(txt,b){
   function fb(){var t=document.createElement('textarea');t.value=txt;t.style.cssText='position:fixed;opacity:0';document.body.appendChild(t);t.select();try{document.execCommand('copy');ok()}catch(e){toast('복사하지 못했어요. 직접 선택해서 복사해 주세요')}document.body.removeChild(t)}
   try{navigator.clipboard.writeText(txt).then(ok,fb)}catch(e){fb()}
 }
-[['copyAsk',ASK_TEXT],['copyAskFull',ASK_FULL],['copyIntro',INTRO_TEXT]].forEach(function(p){$(p[0]).onclick=function(){copyText(p[1],this)}});
+/* ---------- 만들 영상 종류별 입력 + 요청문 ---------- */
+var B={};
+var MOODS=['무서운','따뜻한','반전 있는','슬픈','해학·웃음'],OCCS=['생일','감사','응원','위로','기념일','그리움'];
+function resetBrief(){B={topic:'',mood:'',min:10,intro:10,to:'',from:'',occ:'',msg:'',sec:60}}
+function stp(k,val,unit,note){return '<div class="stp"><button type="button" data-st="'+k+':-1" aria-label="줄이기">−</button><b>'+val+unit+'</b><button type="button" data-st="'+k+':1" aria-label="늘리기">＋</button>'+(note?'<small>'+note+'</small>':'')+'</div>'}
+function chips(list,k,cur){return '<div class="chips">'+list.map(function(x){return '<button type="button" data-ch="'+k+':'+x+'" class="'+(cur===x?'on':'')+'" aria-pressed="'+(cur===x)+'">'+x+'</button>'}).join('')+'</div>'}
+function renderBrief(){
+  var h;
+  if(cfg.kind==='mood'){
+    h='<div class="g2"><div class="f"><label for="brTo">받는 사람 <small>예: 어머니</small></label><input type="text" id="brTo" data-b="to" value="'+esc(B.to)+'" maxlength="30" placeholder="누구에게 보내나요?"></div>'+
+      '<div class="f"><label for="brFrom">보내는 사람 <small>예: 딸 민지</small></label><input type="text" id="brFrom" data-b="from" value="'+esc(B.from)+'" maxlength="30" placeholder="나는 누구인가요?"></div></div>'+
+      '<div class="f"><label>어떤 날인가요? <small>고르지 않으면 AI가 알아서</small></label>'+chips(OCCS,'occ',B.occ)+'</div>'+
+      '<div class="f"><label for="brMsg">전하고 싶은 말 <small>비워도 돼요</small></label><textarea id="brMsg" data-b="msg" maxlength="600" placeholder="예: 항상 고맙다고, 올해는 꼭 같이 여행 가자고">'+esc(B.msg)+'</textarea></div>'+
+      '<div class="f"><label>길이</label>'+stp('sec',B.sec,'초','약 '+Math.round(B.sec*6)+'자')+'</div>';
+    $('briefHead').innerHTML='칸을 채우고(몰라도 돼요) 요청문을 복사해 쓰시는 AI에 보내세요.';
+    $('askSteps').innerHTML='<b>1</b> 요청문을 복사해 AI에 붙여넣어요. 길이는 따로 적지 않아도 돼요.<br><b>2</b> AI가 써 준 글을 <b>붙여넣기·파일</b> 탭의 칸에 붙여넣어요.<br><b>3</b> 읽기 좋게 자동으로 정리되고, 확정하면 보관함에 저장돼요.';
+    $('copyAsk').textContent='영상 편지 요청문 복사';
+  }else{
+    h='<div class="f"><label for="brTopic">주제 <small>비우면 AI가 골라요</small></label><input type="text" id="brTopic" data-b="topic" value="'+esc(B.topic)+'" maxlength="120" placeholder="예: 효심 깊은 나무꾼과 호랑이"></div>'+
+      '<div class="f"><label>분위기 <small>고르지 않으면 AI가 알아서</small></label>'+chips(MOODS,'mood',B.mood)+'</div>'+
+      '<div class="g2"><div class="f"><label>길이</label>'+stp('min',B.min,'분','약 '+(B.min*350).toLocaleString('ko-KR')+'자')+'</div>'+
+      '<div class="f"><label>인트로 <small>대본+인트로 요청문에만</small></label>'+stp('intro',B.intro,'초','')+'</div></div>';
+    $('briefHead').innerHTML='칸을 채우고(몰라도 돼요) 요청문을 복사해 쓰시는 AI에 보내세요.';
+    $('askSteps').innerHTML='<b>1</b> 요청문을 복사해 AI에 붙여넣어요. 길이와 주제는 이미 들어 있어요.<br><b>2</b> AI가 써 준 글을 <b>붙여넣기·파일</b> 탭의 칸에 붙여넣어요.<br><b>3</b> 인트로가 같이 왔다면 맨 앞에 [인트로] 장으로 자동 정리돼요.';
+    $('copyAsk').textContent='대본 요청문 복사 (대본만)';
+  }
+  $('brief').innerHTML=h
+}
+function setupKind(){
+  resetBrief();
+  var mood=cfg.kind==='mood';
+  $('dzH').textContent=mood?'영상 편지 글을 붙여넣거나 파일을 끌어다 놓으세요':'대본을 붙여넣거나 파일을 끌어다 놓으세요';
+  $('dzP').innerHTML=mood?'직접 쓴 글도, 다른 AI가 써 준 글도 괜찮아요.<br>읽기 좋게 자동으로 정리해 드려요.':'다른 AI로 쓴 글, 시나리오, 자막 파일도 괜찮아요.<br>대본 형식은 자동으로 맞춰 드려요.';
+  $('aiSoon').innerHTML=mood?'<b>AI로 쓰기는 곧 열려요.</b><br>받는 사람과 하고 싶은 말만 적으면 영상 편지 글을 대신 써 드려요. 그때까지는 <b>다른 AI로 쓰기</b>나 <b>붙여넣기·파일</b>을 이용해 주세요.':'<b>AI로 쓰기는 곧 열려요.</b><br>주제만 말하면 대본을 써 주고, 대본에 어울리는 인트로도 자동으로 붙여 드려요. 그때까지는 <b>다른 AI로 쓰기</b>나 <b>붙여넣기·파일</b>을 이용해 주세요.';
+  $('shortTip').textContent=mood?'영상 편지는 한 편으로 이어져요. 문단은 빈 줄로 나눠요.':'숏폼은 한 편으로 이어져요. 문단은 빈 줄로 나눠요.';
+  $('dz').dataset.path='paste';
+  document.querySelectorAll('.paths button').forEach(function(x){x.classList.toggle('on',x.dataset.p==='paste')});
+  renderBrief()
+}
+function buildAsk(full){
+  if(cfg.kind==='mood'){
+    return '영상 편지에 쓸 낭독 대본을 써 주세요. 받는 분이 영상을 보며 목소리로 듣게 될 글이에요.\n\n이번 요청:\n- 받는 사람: '+(B.to.trim()||'받는 분(이름을 모르니 "당신" 같은 호칭으로)')+'\n- 보내는 사람: '+(B.from.trim()||'보내는 사람(이름을 쓰지 말고 "저"로)')+'\n- 어떤 날: '+(B.occ||'어울리는 상황을 AI가 알아서 정해 주세요')+'\n- 전하고 싶은 말: '+(B.msg.trim()||'따로 없어요. 진심이 느껴지게 자연스럽게 써 주세요')+'\n- 길이: '+B.sec+'초 (1초는 공백을 뺀 약 6자예요. 30초는 약 180자, 60초는 약 360자, 90초는 약 540자예요)\n\n규칙:\n- 글 외의 말은 쓰지 마세요. 인사, 설명, "원하시면 ~" 같은 후속 제안 없이 대본만 출력하세요.\n- 첫 줄에 제목 한 줄만 쓰고, 한 줄을 띄운 뒤 본문을 시작하세요.\n- 보내는 사람이 직접 말하는 1인칭으로, 받는 사람을 부르며 시작하세요.\n- 짧고 따뜻한 문장으로, 소리 내어 읽기 좋게 쓰세요. 지문, 효과음 설명, 괄호 설명, 화자 표시는 쓰지 마세요.\n- 굵은 글씨, 별표, 구분선(---), 이모지, 목록 기호는 쓰지 마세요.\n- 제가 말하지 않은 구체적인 사실(날짜, 사건, 이름)은 지어내지 마세요.'
+  }
+  var base=(full?ASK_FULL:ASK_TEXT).replace(/\n\n마지막에 제가[\s\S]*$/,'');
+  return base+'\n\n이번 요청:\n- 주제: '+(B.topic.trim()||'따로 없어요. 직접 골라 주세요')+'\n- 분위기: '+(B.mood||'AI가 알아서 정해 주세요')+'\n- 길이: '+B.min+'분'+(full?'\n- 인트로: '+B.intro+'초':'')
+}
+$('brief').addEventListener('input',function(e){var k=e.target.dataset.b;if(k)B[k]=e.target.value});
+$('brief').addEventListener('click',function(e){
+  var b=e.target.closest('button');if(!b)return;
+  if(b.dataset.ch){var p=b.dataset.ch.split(':'),k=p[0],v=p.slice(1).join(':');B[k]=B[k]===v?'':v;renderBrief()}
+  if(b.dataset.st){var q=b.dataset.st.split(':'),d=+q[1];
+    if(q[0]==='min'){var L=[1,2,3,5,10,15,20,30,45,60,90,120,180],i=L.indexOf(B.min);B.min=L[Math.min(L.length-1,Math.max(0,i+d))]}
+    if(q[0]==='intro')B.intro=Math.min(60,Math.max(5,B.intro+5*d));
+    if(q[0]==='sec')B.sec=Math.min(180,Math.max(15,B.sec+15*d));
+    renderBrief()}
+});
+$('copyAsk').onclick=function(){copyText(buildAsk(false),this)};
+$('copyAskFull').onclick=function(){copyText(buildAsk(true),this)};
+$('copyIntro').onclick=function(){copyText(INTRO_TEXT,this)};
+resetBrief();
 document.querySelectorAll('.paths button').forEach(function(b){b.onclick=function(){document.querySelectorAll('.paths button').forEach(function(x){x.classList.toggle('on',x===b)});$('dz').dataset.path=b.dataset.p}});
 function addIntro(raw){
   var res=RWNormalize.normalize(raw,{type:'long'});
@@ -1315,7 +1394,7 @@ $('okrights').onchange=function(){$('okyes').disabled=!this.checked};
 $('okno').onclick=closeAll;
 $('okyes').onclick=function(){
   var s=stats();closeAll();
-  tell({type:cfg.mode==='review'?'rw-studio-approve':'rw-script-confirm',scriptId:'S-'+Date.now().toString(36),title:title,type2:cfg.type,src:cfg.src,imported:imported,chapters:ch.filter(function(c){return !c.off}).map(function(c){return{title:c.title,text:c.text}}),chars:s.n,minutes:Math.round(s.m*10)/10,prod:s.prod});
+  tell({type:cfg.mode==='review'?'rw-studio-approve':'rw-script-confirm',scriptId:'S-'+Date.now().toString(36),title:title,kind:cfg.kind,type2:cfg.type,src:cfg.src,imported:imported,chapters:ch.filter(function(c){return !c.off}).map(function(c){return{title:c.title,text:c.text}}),chars:s.n,minutes:Math.round(s.m*10)/10,prod:s.prod});
   toast(inFrame?'대본을 확정했어요':'시안 화면이라 실제로 확정되지는 않아요');
 };
 
@@ -1337,7 +1416,7 @@ document.addEventListener('keydown',function(e){
 /* ---------- 시작 ---------- */
 (function(){
   var u={};try{new URLSearchParams(location.search).forEach(function(v,k){u[k]=v})}catch(e){}
-  init({type:u.type||'long',src:u.src||'ai',mode:u.mode||'pre',lite:u.lite,target:u.target?+u.target:0});
+  init({type:u.type||'long',kind:u.kind,src:u.src||'ai',mode:u.mode||'pre',lite:u.lite,target:u.target?+u.target:0});
   applyRail();syncRwBtn();
 })();
 var _stats=stats;stats=function(){var r=_stats();syncRwBtn();return r};

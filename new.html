@@ -321,6 +321,22 @@
   .sh-steps li{counter-increment:st;display:flex;gap:10px;align-items:flex-start;font-size:.9rem;color:var(--ink)}
   .sh-steps li::before{content:counter(st);flex:none;width:22px;height:22px;border-radius:50%;background:var(--amber-wash);color:var(--amber);font-size:.78rem;font-weight:700;display:grid;place-items:center}
   .sh-item .sh-use{border-color:var(--amber);color:var(--amber)}
+  .sh-item button[disabled]{opacity:.5;cursor:default}
+  .kd-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .kd{display:flex;flex-direction:column;gap:6px;align-items:flex-start;text-align:left;border:1px solid var(--line);background:var(--bg-raised);color:var(--ink);border-radius:16px;padding:18px 18px 16px;font:inherit;cursor:pointer;transition:border-color .15s,transform .15s}
+  .kd:hover{border-color:var(--amber)}
+  .kd b{font-size:1.15rem;letter-spacing:-.02em}
+  .kd .kd-t{font-size:.86rem;color:var(--amber);font-weight:600}
+  .kd .kd-d{font-size:.84rem;color:var(--ink-dim);line-height:1.45}
+  .kd.off{background:transparent;border-style:dashed}
+  .kd.off:hover{border-color:var(--line)}
+  .kd.off b,.kd.off .kd-d{opacity:.65}
+  .kd.off .kd-t{color:var(--ink-faint)}
+  .kd-note{margin:0;padding:11px 14px;border-radius:12px;background:var(--amber-wash);font-size:.88rem;color:var(--ink);line-height:1.5}
+  .kd-note[hidden]{display:none}
+  .kd-tag{font-style:normal;font-size:.72rem;border:1px solid var(--amber-dim,var(--line));color:var(--amber);border-radius:999px;padding:1px 8px;margin-right:7px}
+  .kd-tag.mood{border-color:var(--line);color:var(--ink-dim)}
+  @media (max-width:560px){.kd-grid{grid-template-columns:1fr}}
   .sc-pop{position:fixed;inset:0;z-index:300;display:grid;place-items:center;background:rgba(0,0,0,.45);padding:16px}
   .sc-pop[hidden]{display:none}
   .sc-pop-box{width:min(420px,100%);background:var(--bg);border:1px solid var(--line);border-radius:16px;padding:22px 20px 18px;display:flex;flex-direction:column;gap:12px}
@@ -2581,23 +2597,25 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
   function esc(t){return String(t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
   function crumb(t){if(back)back.hidden=false;if(sep)sep.hidden=false;if(here){here.hidden=false;here.textContent=t}if(root)root.classList.remove('is-here')}
   function active(on){document.querySelectorAll('.side-item').forEach(function(b){b.classList.toggle('active',on&&b===btn)})}
-  function openFrame(type,src,from,load){
-    ret=from||null;
-    fr.setAttribute('src','./script.html?type=long&src=mine&mode=pre&lite=1&t='+Date.now());
-    if(load)fr.addEventListener('load',function once(){fr.removeEventListener('load',once);try{fr.contentWindow.postMessage({type:'rw-script-init',cfg:{type:'long',src:'mine',mode:'pre',lite:'1',load:load}},'*')}catch(e){}});
+  function openFrame(type,src,from,load,kind){
+    ret=from||null;kind=kind==='mood'?'mood':'yadam';
+    fr.setAttribute('src','./script.html?type=long&src=mine&mode=pre&lite=1&kind='+kind+'&t='+Date.now());
+    if(load)fr.addEventListener('load',function once(){fr.removeEventListener('load',once);try{fr.contentWindow.postMessage({type:'rw-script-init',cfg:{type:'long',kind:kind,src:'mine',mode:'pre',lite:'1',load:load}},'*')}catch(e){}});
     document.body.classList.add('studio-open');document.body.classList.remove('hub-open');
-    crumb(from==='direct'?'직접 설정하기 › 대본 만들기':'대본 만들기');
+    crumb(from==='direct'?'직접 설정하기 › 대본 만들기':(kind==='mood'?'대본 만들기 › 영상 편지':'대본 만들기 › 야담'));
     if(from!=='direct')active(true);
   }
   function renderHub(){
     var L=lib();
-    hub.innerHTML='<div class="sh-in"><div><h2>내 대본으로 야담 만들기</h2><p class="sub">직접 쓴 이야기를 붙여넣거나 파일로 가져와 다듬을 수 있어요. 대본은 이 브라우저의 보관함에만 저장되고, 영상 제작을 시작할 때만 서버로 전달돼요. 제작이 끝나면 서버의 대본은 지워져요. 브라우저 데이터를 지우면 보관함이 사라지니 중요한 대본은 파일로도 저장해 두세요.</p></div>'+
-    '<button class="sh-go" id="sh-go">작업실 열기</button>'+
-    '<div><div class="sh-lab">보관함</div><div class="sh-lib">'+(L.length?L.map(function(x,i){return'<div class="sh-item"><span>'+esc(x.title)+' <small>약 '+x.minutes+'분</small></span><span><button class="sh-use" data-mk="'+i+'">야담 만들기</button> <button data-open="'+i+'">열기</button> <button data-del="'+i+'">삭제</button></span></div>'}).join(''):'<div class="sh-empty">아직 보관된 대본이 없어요. 확정한 대본이 여기에 모여요.</div>')+'</div></div>'+
-    '<div><div class="sh-lab">이 대본으로 영상 만드는 법</div><ol class="sh-steps"><li><span>대본을 쓰고 <b>확정</b>하면 보관함에 저장돼요.</span></li><li><span>왼쪽 <b>직접 설정하기</b>를 누르고 <b>야담</b>을 골라요.</span></li><li><span><b>내 대본</b> 카드에서 저장한 대본을 눌러요.</span></li></ol></div></div>';
-    hub.querySelector('#sh-go').onclick=function(){openFrame('long','mine',null)};
+    var kinds=[['yadam','야담','이야기 낭독 영상','인트로 + 긴 이야기를 AI 목소리로 읽어요',1],['mood','분위기 영상','영상 편지 · 메시지','생일·감사·응원 글을 소리와 함께 전해요',1],['short','쇼츠','준비 중','주제만 적으면 AI가 대본까지 써 드려요',0],['long','롱폼','준비 중','주제만 적으면 AI가 대본까지 써 드려요',0]];
+    hub.innerHTML='<div class="sh-in"><div><h2>어떤 영상의 대본인가요?</h2><p class="sub">고르면 그 영상에 맞는 입력 칸이 열려요. 대본은 이 브라우저의 보관함에만 저장되고, 영상 제작을 시작할 때만 서버로 전달돼요. 제작이 끝나면 서버의 대본은 지워져요. 브라우저 데이터를 지우면 보관함이 사라지니 필요한 대본은 파일로 내려받아 두세요.</p></div>'+
+    '<div class="kd-grid">'+kinds.map(function(k){return'<button type="button" class="kd'+(k[4]?'':' off')+'" data-kd="'+k[0]+'" aria-disabled="'+(!k[4])+'"><b>'+k[1]+'</b><span class="kd-t">'+k[2]+'</span><span class="kd-d">'+k[3]+'</span></button>'}).join('')+'</div><p class="kd-note" id="kd-note" hidden>쇼츠·롱폼은 <b>직접 설정하기</b>에서 주제만 적으면 AI가 대본까지 알아서 써 드려요. 내 대본으로 만드는 기능은 곧 열려요.</p>'+
+    '<div><div class="sh-lab">보관함</div><div class="sh-lib">'+(L.length?L.map(function(x,i){var m=x.kind==='mood';return'<div class="sh-item"><span><i class="kd-tag'+(m?' mood':'')+'">'+(m?'분위기':'야담')+'</i>'+esc(x.title)+' <small>'+(m?'약 '+Math.round((x.minutes||0)*60)+'초':'약 '+x.minutes+'분')+'</small></span><span>'+(m?(window.__rwGoMood?'<button class="sh-use" data-mm="'+i+'">영상 만들기</button> ':'<button disabled title="곧 열려요">영상 만들기 · 곧</button> '):'<button class="sh-use" data-mk="'+i+'">야담 만들기</button> ')+'<button data-open="'+i+'">열기</button> <button data-del="'+i+'">삭제</button></span></div>'}).join(''):'<div class="sh-empty">아직 보관된 대본이 없어요. 위에서 영상 종류를 골라 시작해 보세요.</div>')+'</div></div>'+
+    '<div><div class="sh-lab">이 대본으로 영상 만드는 법</div><ol class="sh-steps"><li><span>대본을 쓰고 <b>확정</b>하면 보관함에 저장돼요.</span></li><li><span>왼쪽 <b>직접 설정하기</b>를 누르고 같은 종류의 영상을 골라요.</span></li><li><span><b>내 대본</b> 카드에서 저장한 대본을 눌러요.</span></li></ol></div></div>';
+    hub.querySelectorAll('[data-kd]').forEach(function(b){b.onclick=function(){var k=b.dataset.kd;if(k==='yadam'||k==='mood')openFrame('long','mine',null,null,k);else{var n=hub.querySelector('#kd-note');n.hidden=false}}});
     hub.querySelectorAll('[data-mk]').forEach(function(b){b.onclick=function(){var x=lib()[+b.dataset.mk];window.__rwScript={id:x.id,title:x.title,type:'long',src:'ready',imported:x.imported,minutes:x.minutes};close();if(window.__rwGoYadam)window.__rwGoYadam()}});
-    hub.querySelectorAll('[data-open]').forEach(function(b){b.onclick=function(){var x=lib()[+b.dataset.open];openFrame('long','mine',null,{title:x.title,chapters:x.chapters})}});
+    hub.querySelectorAll('[data-mm]').forEach(function(b){b.onclick=function(){var x=lib()[+b.dataset.mm];window.__rwMoodScript={id:x.id,title:x.title,kind:'mood',minutes:x.minutes};close();if(window.__rwGoMood)window.__rwGoMood()}});
+    hub.querySelectorAll('[data-open]').forEach(function(b){b.onclick=function(){var x=lib()[+b.dataset.open];openFrame('long','mine',null,{title:x.title,chapters:x.chapters},x.kind)}});
     hub.querySelectorAll('[data-del]').forEach(function(b){b.onclick=function(){var x=lib()[+b.dataset.del];saveLib(cache.filter(function(y){return y!==x}));if(window.__rwScript&&x&&window.__rwScript.id===x.id)window.__rwScript=null;renderHub()}});
   }
   function openHub(){loadLib(renderHub);renderHub();document.body.classList.add('studio-open','hub-open');crumb('대본 만들기');active(true)}
@@ -2618,27 +2636,30 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
     if(d.type==='rw-studio-focus')document.body.classList.toggle('studio-focus',!!d.on);
     if(d.type==='rw-studio-approve')close();
     if(d.type==='rw-script-confirm'){
-      var a=lib();a.unshift({id:d.scriptId,title:d.title,type:'long',src:'mine',imported:!!d.imported,chapters:d.chapters,chars:d.chars,minutes:d.minutes,prod:d.prod,at:Date.now()});saveLib(a);
-      window.__rwScript={id:d.scriptId,title:d.title,type:'long',src:'ready',imported:!!d.imported,minutes:d.minutes};
+      var kd=d.kind==='mood'?'mood':'yadam';var a=lib();a.unshift({id:d.scriptId,title:d.title,type:'long',kind:kd,src:'mine',imported:!!d.imported,chapters:d.chapters,chars:d.chars,minutes:d.minutes,prod:d.prod,at:Date.now()});saveLib(a);
+      if(kd==='mood')window.__rwMoodScript={id:d.scriptId,title:d.title,kind:'mood',minutes:d.minutes};else window.__rwScript={id:d.scriptId,title:d.title,type:'long',src:'ready',imported:!!d.imported,minutes:d.minutes};
       var from=ret;close();
       if(window.__rwRefreshScriptCard)window.__rwRefreshScriptCard();if(window.__rwFormRedraw)window.__rwFormRedraw();
-      if(from!=='direct')savedPop(d.title)
+      if(from!=='direct')savedPop(d.title,kd)
     }
   });
   /* 대본을 확정해 보관함에 저장했을 때: 다음에 무엇을 하면 되는지 알려 준다 */
-  function savedPop(title){
+  function savedPop(title,kd){
     var o=document.getElementById('sc-pop');
     if(!o){o=document.createElement('div');o.id='sc-pop';o.className='sc-pop';o.hidden=true;o.setAttribute('role','dialog');o.setAttribute('aria-modal','true');document.body.appendChild(o);o.addEventListener('click',function(e){if(e.target===o)o.hidden=true})}
-    o.innerHTML='<div class="sc-pop-box"><h3>대본이 저장됐어요</h3><p><b>'+esc(title||'내 대본')+'</b>을 보관함에 넣어 두었어요. 이제 야담 영상으로 만들 수 있어요. <b>직접 설정하기 › 야담</b>의 <b>내 대본</b> 카드에서 이 대본을 쓸 수 있어요.</p><div class="sc-pop-btns"><button class="go" id="sc-pop-go">이 대본으로 야담 만들기</button><button id="sc-pop-later">나중에 할게요</button></div></div>';
+    var mood=kd==='mood';
+    o.innerHTML='<div class="sc-pop-box"><h3>대본이 저장됐어요</h3><p><b>'+esc(title||'내 대본')+'</b> 대본을 보관함에 넣어 두었어요. '+(mood?'이 글은 분위기 영상(영상 편지)으로 만들 수 있어요.'+(window.__rwGoMood?' <b>직접 설정하기 › 분위기 영상</b>의 <b>내 대본</b> 카드에서 쓸 수 있어요.':' 영상으로 만드는 기능은 곧 열려요. 그때까지 보관함에 안전하게 있어요.'):'이제 야담 영상으로 만들 수 있어요. <b>직접 설정하기 › 야담</b>의 <b>내 대본</b> 카드에서 이 대본을 쓸 수 있어요.')+'</p><div class="sc-pop-btns">'+(mood&&!window.__rwGoMood?'':'<button class="go" id="sc-pop-go">'+(mood?'이 대본으로 분위기 영상 만들기':'이 대본으로 야담 만들기')+'</button>')+'<button id="sc-pop-later">'+(mood&&!window.__rwGoMood?'확인':'나중에 할게요')+'</button></div></div>';
     o.hidden=false;
-    o.querySelector('#sc-pop-go').onclick=function(){o.hidden=true;if(window.__rwGoYadam)window.__rwGoYadam()};
+    var go=o.querySelector('#sc-pop-go');
+    if(go)go.onclick=function(){o.hidden=true;if(mood){if(window.__rwGoMood)window.__rwGoMood()}else if(window.__rwGoYadam)window.__rwGoYadam()};
     o.querySelector('#sc-pop-later').onclick=function(){o.hidden=true};
-    o.querySelector('#sc-pop-go').focus()
+    (go||o.querySelector('#sc-pop-later')).focus()
   }
   /* 직접 설정하기의 '대본' 카드에서 호출 */
   window.__rwOpenStudio=function(type,src,load){openFrame(type,src,'direct',load);active(false)};
   window.__rwLoadLib=loadLib;
-  window.__rwScriptLib=lib;
+  window.__rwScriptLib=function(){return lib().filter(function(x){return x.kind!=='mood'})};
+  window.__rwMoodLib=function(){return lib().filter(function(x){return x.kind==='mood'})};
   function sendTheme(){try{fr.contentWindow.postMessage({type:'rw-theme',theme:document.documentElement.getAttribute('data-theme')||'system'},'*')}catch(e){}}
   new MutationObserver(sendTheme).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
   fr.addEventListener('load',sendTheme);
