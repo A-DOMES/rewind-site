@@ -96,6 +96,27 @@
   .df-tab.active { border-color: var(--gold); color: var(--gold); background: color-mix(in srgb, var(--gold) 10%, var(--bg-raised)); }
   .df-field { margin-bottom: 16px; }
   .df-hide { display: none !important; }
+  /* 분위기 영상 설정: 항목 제목(아이콘 + 굵은 글씨)과 영상 구성 카드 */
+  .df-blk { padding: 22px 0 6px; border-top: 1px solid var(--line); margin-bottom: 0; }
+  .df-blk:first-of-type { border-top: 0; }
+  .df-h { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; font-size: 1.12rem; font-weight: 700; letter-spacing: -0.015em; color: var(--ink); line-height: 1.3; }
+  .df-h .hi { flex: none; width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; color: var(--amber); background: color-mix(in srgb, var(--amber) 15%, var(--bg)); }
+  .df-h .hi svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .df-sec .df-field .df-h { display: flex; }
+  .df-h small { font-size: 0.8rem; font-weight: 400; color: var(--ink-faint); letter-spacing: 0; }
+  .df-h-opt { display: block; margin: -8px 0 12px 42px; font-size: 0.78rem; color: var(--ink-faint); }
+  .df-comp { display: grid; grid-template-columns: repeat(auto-fill, minmax(138px, 1fr)); gap: 10px; margin-bottom: 14px; }
+  .df-sec .df-field .df-comp label { margin: 0; display: block; width: 100%; position: relative; font-size: inherit; }
+  .df-comp input { position: absolute; opacity: 0; pointer-events: none; }
+  .df-comp .ccard { box-sizing: border-box; height: 100%; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; border: 1px solid var(--line); border-radius: 14px; padding: 14px 12px 12px; cursor: pointer; background: var(--bg); transition: border-color .15s, background .15s; }
+  .df-comp .ccard .ci { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; color: var(--ink-dim); background: color-mix(in srgb, var(--ink) 7%, var(--bg)); margin-bottom: 4px; }
+  .df-comp .ccard .ci svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .df-comp .ccard b { font-size: 0.95rem; color: var(--ink); font-weight: 650; line-height: 1.3; }
+  .df-comp .ccard small { font-size: 0.76rem; color: var(--ink-faint); line-height: 1.4; font-weight: 400; }
+  .df-comp input:checked + .ccard { border-color: var(--amber); background: color-mix(in srgb, var(--amber) 12%, var(--bg)); box-shadow: 0 0 0 1px var(--amber) inset; }
+  .df-comp input:checked + .ccard .ci { color: var(--amber); background: color-mix(in srgb, var(--amber) 18%, var(--bg)); }
+  .df-comp input:focus-visible + .ccard { outline: 2px solid var(--amber); outline-offset: 2px; }
+  .df-subfield { margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--line); }
   .df-types { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 14px; }
   .df-types label, .df-chipset label { margin: 0; position: relative; }
   .df-types input, .df-chipset input { position: absolute; opacity: 0; pointer-events: none; }
@@ -105,6 +126,7 @@
   .df-ykind { grid-template-columns: 1fr 1fr !important; }
   @media (max-width:480px) { .df-ykind { grid-template-columns: 1fr !important; } }
   .df-types input:checked + .tcard, .df-chipset input:checked + .tcard { border-color: var(--amber); background: color-mix(in srgb, var(--amber) 12%, var(--bg)); box-shadow: 0 0 0 1px var(--amber) inset; }
+  #df-pc-chips { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; }
   .df-types input:disabled + .tcard { opacity: .5; cursor: not-allowed; }
   .df-chipset { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
   .df-hint { font-size: 0.78rem; color: var(--ink-faint); margin: 6px 0 0; line-height: 1.5; }
@@ -278,6 +300,24 @@
     .chat-price .price-table th small { display: none; } .price-modal .price-table { font-size: 0.78rem; } .price-modal .price-table th small { display: none; } }
   .price-modal .note { font-size: 0.76rem; color: var(--ink-faint); margin-top: 14px; line-height: 1.5; }
   .price-modal .close-row { text-align: right; margin-top: 18px; }
+  #charge-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; align-items: center; justify-content: center; }
+  #charge-modal-overlay.show { display: flex; }
+  .charge-modal { background: var(--bg-raised); border: 1px solid var(--line); border-radius: 16px; padding: 26px 28px; max-width: 760px; width: 92%; max-height: 86vh; overflow-y: auto; }
+  .charge-modal h2 { font-family: 'Fraunces', serif; font-size: 1.15rem; margin: 0 0 4px; }
+  .charge-modal .sub { color: var(--ink-faint); font-size: 0.82rem; margin: 0 0 18px; line-height: 1.5; }
+  .charge-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .charge-card { display: flex; flex-direction: column; gap: 8px; padding: 18px 16px; border: 1px solid var(--line); border-radius: 14px; background: transparent; }
+  .charge-card.rec { border-color: var(--gold); }
+  .charge-card .usd { font-size: 1.5rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .charge-card .pts { font-size: 1.05rem; font-weight: 600; color: var(--gold); font-variant-numeric: tabular-nums; }
+  .charge-card .bonus { font-size: .8rem; color: var(--ink-faint); }
+  .charge-card ul { list-style: none; margin: 4px 0 8px; padding: 0; font-size: .8rem; color: var(--ink-faint); display: flex; flex-direction: column; gap: 4px; }
+  .charge-card .tag { align-self: flex-start; font-size: .7rem; padding: 2px 8px; border-radius: 99px; background: var(--gold); color: var(--on-gold); }
+  .charge-card button { margin-top: auto; flex: none; }
+  .charge-modal .note { font-size: 0.76rem; color: var(--ink-faint); margin-top: 14px; line-height: 1.5; }
+  .charge-modal .close-row { text-align: right; margin-top: 18px; }
+  @media (max-width: 640px) { .charge-grid { grid-template-columns: 1fr; } }
+  .pt-badge .pt-charge { margin-top: 6px; width: 100%; padding: 7px 10px; border-radius: 10px; border: 1px solid var(--line); background: transparent; color: var(--ink); font-size: .8rem; cursor: pointer; }
   #soon-toast {
     position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%) translateY(20px);
     background: var(--bg-raised); border: 1px solid var(--line); border-radius: 8px;
@@ -866,7 +906,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
         <button class="side-item soon-btn"><span class="ico" style="--c:#ff8cc0"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="18" r="2"/><path d="M8 6h5a3 3 0 0 1 3 3v7"/></svg></span><span class="soon-text"><b>시리즈 자동 제작</b><small>정해둔 주기마다 영상 만들고 올리기</small></span></button>
       </details>
       <div class="sidebar-footer">
-        <div class="pt-badge" id="pt-badge" hidden><div class="pt-row"><span>체험 포인트</span><b id="pt-trial">–</b></div><div class="pt-row"><span>충전 포인트</span><b id="pt-val">–</b></div></div>
+        <div class="pt-badge" id="pt-badge" hidden><div class="pt-row"><span>체험 포인트</span><b id="pt-trial">–</b></div><div class="pt-row"><span>충전 포인트</span><b id="pt-val">–</b></div><button type="button" class="pt-charge" id="pt-charge">포인트 충전</button></div>
         <button class="mode-badge" id="mode-badge" title="눌러서 체험/정식 전환"><span class="dot"></span> <span id="mode-label">체험 모드 · 체험 포인트</span></button>
         <div class="account-wrap">
           <div class="account-menu-pop" id="account-pop" role="menu" hidden>
@@ -963,6 +1003,16 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   </div>
 </div>
 
+<div id="charge-modal-overlay">
+  <div class="charge-modal" role="dialog" aria-labelledby="charge-title">
+    <h2 id="charge-title">포인트 충전</h2>
+    <p class="sub" id="charge-sub"></p>
+    <div class="charge-grid" id="charge-grid"></div>
+    <p class="note" id="charge-note"></p>
+    <div class="close-row"><button class="btn-gold-sm" id="charge-modal-close">닫기</button></div>
+  </div>
+</div>
+
 <script>
 (() => {
   const WEBHOOK_URL = 'https://bald-buffalo.pikapod.net/webhook/web-request';
@@ -998,7 +1048,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     driveLink: '드라이브 링크', mediaNote: '분위기 메모',
     sceneCount: '장면 수', videoLength: '영상 길이', estimatedPrice: '필요 포인트', scriptTitle: '내 대본', yadamKind: '야담 방식', narration: '말', voiceUrl: '내 목소리 녹음', voiceTone: '목소리 기분', voiceSpeed: '읽는 속도', introSeconds: '인트로 영상', hookText: '화면 상단 문구',
     layout: '화면 구성', captionPos: '자막 위치', motion: '움직임 방식',
-    videoType: '영상 종류', tier: '품질 등급', screenMode: '화면 움직임', soundRequest: '소리 요청', sceneSeconds: '그림 바뀌는 간격(초)', soundMode: '소리', musicFolderUrl: '내 음악 폴더'
+    videoType: '영상 종류', tier: '품질 등급', screenMode: '화면 움직임', imageSource: '그림 방식', photoCount: '사진 장수', subtitles: '자막', soundRequest: '소리 요청', sceneSeconds: '그림 바뀌는 간격(초)', soundMode: '소리', musicFolderUrl: '내 음악 폴더'
   };
 
   function decodeJwt(token) {
@@ -1095,7 +1145,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       const 등급 = 현재등급();
       if (planMode !== 'paid') {
         const 체험가 = trialPriceOf(종류, 등급, 분, 인트로초(), 낭독중());
-        priceBox.innerHTML = `<div class="amt" id="df-price-amt">체험 ${pt(체험가)}</div><p>체험판은 3분 길이까지 만들어요 · 체험 포인트로 결제돼요</p>${pointLine(체험가)}`;
+        const 부족 = pointLine(체험가); priceBox.innerHTML = `<div class="amt" id="df-price-amt">예상 금액 ${pt(체험가)}</div><p>3분 길이의 영상으로 만들어져요</p>${/short/.test(부족) ? 부족 : ''}`;
         return;
       }
       const 초 = 인트로초();
@@ -1103,13 +1153,13 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       const 값 = longPrice(종류, 등급, 분, 초, 낭);
       const 최고 = longPrice(종류, '고급형', 분, 초, 낭);
       const 막대 = '<div class="mb-chart">' + LONG_TIERS.map(t => { const v = longPrice(종류, t, 분, 초, 낭); return `<div class="mb-row${t === 등급 ? ' on' : ''}"><span>${t}</span><span class="mb-bar"><span class="mb-fill" style="width:${Math.round(v / 최고 * 100)}%;display:block;background:${t === 등급 ? 'var(--amber)' : 'var(--line)'}"></span></span><span class="v">${pt(v)}</span></div>`; }).join('') + '</div>';
-      priceBox.innerHTML = `<div class="amt" id="df-price-amt">약 ${pt(값)}</div><p>${kindName(종류)} ${종류 === '수면음악' && 분 < 30 ? lenLabel(분) : hourLabel(분)}${낭 ? ' · AI 목소리 낭독 +' + Math.max(NAR_MIN, Math.round(NAR_PER_MIN * 분)) + 'P' : ''} · ${등급} · ${종류 === '야담' ? '목소리: ' + ((document.getElementById('df-yvoice') || {}).value || '남성') : '소리: ' + 소리이름[현재소리()]}</p>${pointLine(값)}${막대}`;
+      priceBox.innerHTML = `<div class="amt" id="df-price-amt">예상 금액 ${pt(값)}</div><p>${kindName(종류)} ${종류 === '수면음악' && 분 < 30 ? lenLabel(분) : hourLabel(분)}${낭 ? ' · AI 목소리 낭독 +' + Math.max(NAR_MIN, Math.round(NAR_PER_MIN * 분)) + 'P' : ''} · ${등급} · ${종류 === '야담' ? '목소리: ' + ((document.getElementById('df-yvoice') || {}).value || '남성') : '소리: ' + 소리이름[현재소리()]}</p>${pointLine(값)}${막대}`;
       return;
     }
     if (planMode !== 'paid') {
       const 체험길이 = (() => { const li = document.getElementById('df-videoLength'), f = document.getElementById('df-form'); const v = li && parseFloat(li.value) > 0 ? parseFloat(li.value) : defaultLen(f && f.value === '롱폼' ? '롱폼' : '쇼츠'); return v; })();
       const 체험가 = trialPriceShort(체험길이);
-      priceBox.innerHTML = `<div class="amt" id="df-price-amt">체험 ${pt(체험가)}</div><p>체험판은 이미지 중심으로 3분 길이까지 만들어요 · 체험 포인트로 결제돼요</p>${pointLine(체험가)}`;
+      const 부족2 = pointLine(체험가); priceBox.innerHTML = `<div class="amt" id="df-price-amt">예상 금액 ${pt(체험가)}</div><p>이미지 중심의 3분 길이 영상으로 만들어져요</p>${/short/.test(부족2) ? 부족2 : ''}`;
       return;
     }
     const form = document.getElementById('df-form');
@@ -1562,6 +1612,9 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       payload.videoType = answers.videoType;
       payload.tier = answers.tier || '표준형';
       if (answers.screenMode) payload.screenMode = answers.screenMode;
+      if (answers.imageSource) payload.imageSource = answers.imageSource;
+      if (answers.subtitles) payload.subtitles = answers.subtitles;
+      if (answers.photoCount) payload.photoCount = parseInt(answers.photoCount, 10) || 0;
       if (answers.soundRequest) payload.soundRequest = answers.soundRequest;
       if (answers.sceneSeconds) payload.sceneSeconds = answers.sceneSeconds;
       if (answers.soundMode) payload.soundMode = answers.soundMode;
@@ -1814,6 +1867,38 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('show'); });
   })();
 
+  /* ===================== 포인트 충전 모달 ===================== */
+  // [충전 상품] 달러로 표시하고 포인트로 받는다. 환산·상품·보너스 값은 여기 한 곳에서만 바꾼다. (1달러 = 14P ≈ 1P 100원)
+  // 결제 서비스를 붙이면 PAY_READY를 true로 하고 startCheckout(상품)만 채우면 된다. 포인트 지급은 결제 완료 서버가 한다.
+  const PAY_READY = false;
+  const P_PER_USD = 14;
+  // 첫 충전 보너스는 상품별 비율(bonus). 처음 한 번만 준다. 값을 올릴 때는 n8n '비용결제_충전 접수'의 보너스표도 같이 고친다.
+  const CHARGE_PRODUCTS = [{ usd: 30, bonus: 0.05 }, { usd: 50, bonus: 0.08, rec: true }, { usd: 100, bonus: 0.10 }];
+  function chargeInfo(p) {
+    const base = p.usd * P_PER_USD, bonus = Math.round(base * p.bonus);
+    return { base, bonus, shorts: Math.floor(base / computePrice(1, '혼합')), mood: Math.floor(base / longPrice('수면음악', '표준형', 60, 0, false)) };
+  }
+  function startCheckout(p) { /* 결제 서비스 연결 자리 */ }
+  (function setupChargeModal() {
+    const overlay = document.getElementById('charge-modal-overlay');
+    document.getElementById('charge-sub').innerHTML = '필요한 만큼 충전해서 쓰세요. 충전한 포인트는 <b>유효기간 없이</b> 다 쓸 때까지 남아요. 체험 포인트와는 따로 쌓여요.';
+    document.getElementById('charge-grid').innerHTML = CHARGE_PRODUCTS.map((p, i) => {
+      const c = chargeInfo(p);
+      return `<div class="charge-card${p.rec ? ' rec' : ''}">${p.rec ? '<span class="tag">가장 많이 선택해요</span>' : ''}
+        <div class="usd">$${p.usd}</div><div class="pts">${pt(c.base)}</div>
+        <div class="bonus">첫 충전이면 +${pt(c.bonus)} 보너스</div>
+        <ul><li>쇼츠 1분(혼합) 약 ${c.shorts.toLocaleString('ko-KR')}편</li><li>${kindName('수면음악')} 1시간(표준형) 약 ${c.mood.toLocaleString('ko-KR')}편</li></ul>
+        <button type="button" class="btn-gold-sm" data-i="${i}"${PAY_READY ? '' : ' disabled'}>${PAY_READY ? '충전하기' : '곧 열려요'}</button></div>`;
+    }).join('');
+    document.getElementById('charge-note').textContent = '첫 충전 보너스는 처음 한 번만 드려요(충전액의 5% · 8% · 10%). 위 편수는 예시예요. 정확한 포인트는 신청 화면에서 길이를 넣으면 바로 나와요.';
+    const open = () => overlay.classList.add('show');
+    window.__rwOpenCharge = open;
+    document.getElementById('pt-charge').addEventListener('click', open);
+    document.getElementById('charge-grid').addEventListener('click', (e) => { const b = e.target.closest('button[data-i]'); if (b && PAY_READY) startCheckout(CHARGE_PRODUCTS[+b.dataset.i]); });
+    document.getElementById('charge-modal-close').addEventListener('click', () => overlay.classList.remove('show'));
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('show'); });
+  })();
+
   // 채팅 안에 요금표 카드 - "얼마예요?", "2분 모두 영상이면 가격은?" 같은 질문에 서버를 거치지 않고 바로 정확한 표로 답한다
   function parseLenFromText(t) {
     const m = String(t).match(/(\d+(?:\.\d+)?)\s*분(?:\s*(\d+)\s*초)?/) ;
@@ -2034,6 +2119,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   function 현재소리() { return document.querySelector('input[name="df-sound"]:checked')?.value || '자동'; }
   const 소리이름 = { '자동': 'AI가 만든 소리', '내음악': '내 음악', '없음': '소리 없음' };
   // 말(나레이션): 없음 / 글자(화면에 글자로) / 목소리(AI 목소리로 읽기) / 내목소리(내 녹음 파일)
+  function 현재구성() { return document.querySelector('input[name="df-comp"]:checked')?.value || '그림+음악'; }
   function 현재말() { return document.querySelector('input[name="df-nar"]:checked')?.value || '없음'; }
   function 무드대본() { const m = window.__rwMoodScript; return m && (window.__rwMoodLib ? window.__rwMoodLib() : []).some(x => x.id === m.id) ? m : null; }
   function 대본이끄는길이() { const 말 = 현재종류() === '수면음악' ? 현재말() : '없음'; return 말 === '글자' || 말 === '목소리'; }
@@ -2066,6 +2152,22 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     return Number.isFinite(v) ? Math.min(Math.max(v, YL_INTRO_MIN), YL_INTRO_MAX) : 10;
   }
   function 야담최대분() { return 야담형식() === 'long' ? YL_MAX_MIN : 120; }
+  // [무료 사진] 장수: 기본은 길이에 맞춰 자동(정지·숨쉬기 약 60초에 한 장, 전환은 장면 간격마다 한 장, 3~300장). 자동보다 많이 고르면 구간에 따라 소액이 더해진다. 서버(롱폼_수면음악 v1.10)와 같은 식.
+  const PHOTO_EXTRA = [[100, 0], [200, 1], [300, 2]];   // [장수 상한, 추가 P]
+  let 사진선택 = '자동';
+  function 사진자동장수(분) {
+    const 모드 = document.querySelector('input[name="df-smode"]:checked')?.value || '숨쉬기';
+    const 간격 = Math.max(8, parseFloat(document.getElementById('df-sceneSeconds')?.value) || 12);
+    return Math.max(3, Math.min(300, Math.round(분 * 60 / (모드 === '전환' ? 간격 : 60))));
+  }
+  function 사진구간P(n) { for (const [u, p] of PHOTO_EXTRA) if (n <= u) return p; return PHOTO_EXTRA[PHOTO_EXTRA.length - 1][1]; }
+  function 사진고른장수() {
+    if (현재종류() !== '수면음악' || planMode !== 'paid') return 0;
+    if (document.querySelector('input[name="df-img"]:checked')?.value !== '무료사진') return 0;
+    const n = parseInt(사진선택, 10);
+    return n > 사진자동장수(롱폼길이분()) ? n : 0;
+  }
+  function 사진추가P() { const n = 사진고른장수(); return n ? Math.max(0, 사진구간P(n) - 사진구간P(사진자동장수(롱폼길이분()))) : 0; }
   function 현재등급() { return document.querySelector(현재종류() === '야담' ? 'input[name="df-ytier"]:checked' : 'input[name="df-tier"]:checked')?.value || '표준형'; }
   function 롱폼길이분() {
     if (현재종류() === '야담') {
@@ -2090,15 +2192,17 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   function sleepSectionHtml() {
     const tier = (t, sub) => `<label><input type="radio" name="df-tier" value="${t}"${t === '표준형' ? ' checked' : ''}><span class="tcard"><b>${t}</b><small>${sub}<br>1시간 ${longPrice('수면음악', t, 60).toLocaleString('ko-KR')}P</small></span></label>`;
     const mode = (v, sub) => `<label><input type="radio" name="df-smode" value="${v}"${v === '숨쉬기' ? ' checked' : ''}><span class="tcard"><b>${v}${v === '숨쉬기' ? ' · 추천' : ''}</b><small>${sub}</small></span></label>`;
-    return `<section class="df-sec df-sleep df-hide" style="--c:#8fa9ff"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg></span><div><h3>${kindName('수면음악')} 설정</h3><p>말·길이·소리를 정해주세요. 요금은 아래에서 바로 계산돼요</p></div></div>
+    return `<section class="df-sec df-sleep df-hide" style="--c:#8fa9ff"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg></span><div><h3>${kindName('수면음악')} 설정</h3><p>영상 구성부터 차례로 골라 주세요. 고른 것에 맞춰 필요한 칸만 보여요</p></div></div>
       <div class="df-use"><p>수면, 공부·집중, 힐링, 명상, 카페처럼 <b>길게 틀어두는 영상</b>이에요. 눌러서 예시로 시작해 보세요.</p><div class="len-chips" id="df-ex-chips">${[['수면 · 비 오는 밤 빗소리','비 오는 밤 작은 오두막의 빗소리'],['집중 · 도서관 BGM','도서관 같은 조용한 공부 집중 BGM'],['힐링 · 숲속 시냇물','숲속 시냇물 소리 힐링 자연음'],['카페 · 재즈','비 오는 날 재즈 카페 분위기']].map(([l, t]) => `<button type="button" class="len-chip" data-topic="${t}">${l}</button>`).join('')}</div></div>
-      <div class="df-field" id="df-nar-field"><label>말을 넣을까요 <span class="opt">영상 편지·메시지에 좋아요</span></label>
-        <div class="df-sound" role="radiogroup" aria-label="말 넣기">
-          <label><input type="radio" name="df-nar" value="없음" checked><span class="scard"><span class="dot"></span><span><b>말 없이 소리와 그림만</b><small>수면·집중·힐링 영상처럼 만들어요</small></span></span></label>
-          <label><input type="radio" name="df-nar" value="글자"><span class="scard"><span class="dot"></span><span><b>대본을 글자로 보여줘요</b><small>소리는 그대로 두고, 글이 화면에 천천히 나와요</small></span></span></label>
-          <label><input type="radio" name="df-nar" value="목소리"><span class="scard"><span class="dot"></span><span><b>대본을 AI 목소리로 읽어요</b><small>대본을 읽어 주고 배경 소리는 작게 깔려요 · 분당 ${NAR_PER_MIN}P 추가</small></span></span></label>
-          <label><input type="radio" name="df-nar" value="내목소리"><span class="scard"><span class="dot"></span><span><b>내 목소리 녹음을 넣어요</b><small>부모님께 드리는 편지처럼 직접 말한 녹음을 써요 · 추가 요금 없음</small></span></span></label>
-        </div>
+      <div class="df-field df-blk" id="df-comp-field"><div class="df-h"><span class="hi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></svg></span><span>영상 구성</span></div>
+        <div class="df-comp" role="radiogroup" aria-label="영상 구성"><label><input type="radio" name="df-comp" value="그림만"><span class="ccard"><span class="ci"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="M21 16l-5-5-9 9"/></svg></span><b>그림만</b><small>소리·글 없이 화면만</small></span></label><label><input type="radio" name="df-comp" value="그림+음악" checked><span class="ccard"><span class="ci"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V6l10-2v12"/><circle cx="7" cy="18" r="2.5"/><circle cx="17" cy="16" r="2.5"/></svg></span><b>그림 + 음악</b><small>수면·집중·힐링 영상</small></span></label><label><input type="radio" name="df-comp" value="그림+자막"><span class="ccard"><span class="ci"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 10h10M7 14h6"/></svg></span><b>그림 + 자막</b><small>대본이 글자로 나와요</small></span></label><label><input type="radio" name="df-comp" value="그림+음성"><span class="ccard"><span class="ci"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></span><b>그림 + 음성</b><small>AI가 대본을 읽어줘요</small></span></label><label><input type="radio" name="df-comp" value="그림+음성+자막"><span class="ccard"><span class="ci"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4M8 7v10M12 4v16M16 8v8M20 11v2"/></svg></span><b>음성 + 자막</b><small>읽어 주면서 글도 보여줘요</small></span></label><label><input type="radio" name="df-comp" value="내목소리파일"><span class="ccard"><span class="ci"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 14h6M9 17h4"/></svg></span><b>내 목소리 파일</b><small>내가 녹음한 목소리를 넣어요</small></span></label></div></div>
+      <div class="df-field df-blk df-hide" id="df-nar-field"><div class="df-h"><span class="hi"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></span><span>대본과 목소리</span></div>
+        <div class="df-hide"><div class="df-sound" role="radiogroup" aria-label="말 넣기">
+          <label><input type="radio" name="df-nar" value="없음" checked><span></span></label>
+          <label><input type="radio" name="df-nar" value="글자"><span></span></label>
+          <label><input type="radio" name="df-nar" value="목소리"><span></span></label>
+          <label><input type="radio" name="df-nar" value="내목소리"><span></span></label>
+        </div></div>
         <div class="df-soundpanel df-hide" id="df-np-script"><div id="df-mood-script"></div>
           <div id="df-mvoice-wrap" class="df-hide" style="margin-top:12px">
             <label style="font-weight:400">읽어 줄 목소리</label>
@@ -2114,7 +2218,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
           <label class="df-musicbox" style="margin-top:10px;display:flex;gap:8px;align-items:flex-start"><input type="checkbox" id="df-voiceRights"><span style="font-weight:400;font-size:0.82rem;color:var(--ink-dim)">제공하는 녹음의 사용 권리가 저에게 있음을 확인합니다.</span></label></div>
         <p class="df-hint" id="df-nar-soon" hidden>내 목소리 녹음은 곧 열려요. 지금은 글자나 AI 목소리로 만들 수 있어요.</p>
       </div>
-      <div class="df-field" id="df-lt-field"><label>영상 길이 <span class="opt" id="df-lt-opt">30분 ~ 8시간</span></label>
+      <div class="df-field df-blk" id="df-lt-field"><div class="df-h"><span class="hi"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span>영상 길이</span></div><span class="df-h-opt" id="df-lt-opt">30분 ~ 8시간</span>
         <input type="hidden" id="df-lt-hours" value="1">
         <div class="len-pick">
           <div class="len-box"><button type="button" data-step="h:-1" aria-label="시간 줄이기">−</button><input type="number" id="df-lt-h" inputmode="numeric" min="0" max="8" step="1" value="1" aria-label="시간"><button type="button" data-step="h:1" aria-label="시간 늘리기">＋</button></div><span class="len-unit">시간</span>
@@ -2122,13 +2226,11 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
         </div>
         <div class="len-read" id="df-lt-read"></div>
         <div class="len-chips" id="df-lt-chips"></div><p class="df-hint" id="df-lt-note"></p></div>
-      <div class="df-field"><label>품질 등급</label><div class="df-chipset" role="radiogroup" aria-label="품질 등급">${tier('경제형', '기본 그림·소리')}${tier('표준형', '추천 · 균형')}${tier('고급형', '그림·소리 더 풍성')}</div></div>
-      <div class="df-field"><label>화면 움직임</label><div class="df-chipset" role="radiogroup" aria-label="화면 움직임">${mode('정지', '그림이 고정')}${mode('숨쉬기', '아주 천천히 움직임')}${mode('전환', '그림이 바뀜')}</div></div>
-      <div class="df-field"><label>소리는 어떻게 할까요 <em class="req">*</em></label>
-        <div class="df-sound" role="radiogroup" aria-label="소리 선택">
-          <label><input type="radio" name="df-sound" value="자동" checked><span class="scard"><span class="dot"></span><span><b>AI가 소리를 만들어요</b><small>빗소리·파도·피아노처럼 듣고 싶은 소리를 알려주세요</small></span></span></label>
-          <label><input type="radio" name="df-sound" value="내음악"><span class="scard"><span class="dot"></span><span><b>내 음악을 쓸게요</b><small>구글 드라이브 폴더에 넣은 음악만 사용해요</small></span></span></label>
-          <label><input type="radio" name="df-sound" value="없음"><span class="scard"><span class="dot"></span><span><b>소리 없이 만들어요</b><small>영상만 필요해요. 음악은 나중에 직접 넣을 수 있어요</small></span></span></label>
+      <div class="df-field df-blk" id="df-snd-field"><div class="df-h"><span class="hi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V6l10-2v12"/><circle cx="7" cy="18" r="2.5"/><circle cx="17" cy="16" r="2.5"/></svg></span><span>소리 설정</span></div>
+        <div class="df-sound" role="radiogroup" aria-label="소리 선택" id="df-sound-group">
+          <label data-snd="자동"><input type="radio" name="df-sound" value="자동" checked><span class="scard"><span class="dot"></span><span><b>AI가 소리를 만들어요</b><small>빗소리·파도·피아노처럼 듣고 싶은 소리를 알려주세요</small></span></span></label>
+          <label data-snd="내음악"><input type="radio" name="df-sound" value="내음악"><span class="scard"><span class="dot"></span><span><b>내 음악을 쓸게요</b><small>구글 드라이브 폴더에 넣은 음악만 사용해요</small></span></span></label>
+          <label data-snd="없음"><input type="radio" name="df-sound" value="없음"><span class="scard"><span class="dot"></span><span><b>소리 없이 만들어요</b><small>영상만 필요해요. 음악은 나중에 직접 넣을 수 있어요</small></span></span></label>
         </div>
         <div class="df-soundpanel" id="df-sp-자동"><label style="font-weight:400">듣고 싶은 소리 <span class="opt">선택 · 300자</span></label><textarea id="df-soundRequest" maxlength="300" placeholder="비워두면 주제에 맞게 AI가 정해요 · 예: 양철지붕 빗소리, 은은한 피아노"></textarea></div>
         <div class="df-soundpanel df-hide" id="df-sp-내음악"><label style="font-weight:400">내 음악 폴더 링크 <em class="req">*</em></label><input type="url" id="df-musicFolder" placeholder="https://drive.google.com/drive/folders/…">
@@ -2141,8 +2243,18 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
             <div style="margin-top:6px">폴더 안의 음악은 이름순으로 이어서 반복 재생돼요. 이 음악만 사용하고 AI 소리는 만들지 않아요. 영상이 완성된 뒤에는 공유를 꺼도 돼요.</div></div>
           <label class="df-musicbox" style="margin-top:10px;display:flex;gap:8px;align-items:flex-start"><input type="checkbox" id="df-musicRights"><span style="font-weight:400;font-size:0.82rem;color:var(--ink-dim)">제공하는 음악의 사용 권리가 저에게 있음을 확인합니다.</span></label></div>
         <div class="df-soundpanel df-hide" id="df-sp-없음"><p class="df-hint" style="margin:0">소리가 없는 영상이 만들어져요. 유튜브에 올리기 전에 편집기에서 음악을 넣으셔도 돼요.</p></div>
+        <p class="df-hint" id="df-snd-note" hidden></p>
       </div>
-      <div class="df-field"><label>그림 바뀌는 간격(초) <span class="opt">선택 · 5~600 · 비워두면 12초</span></label><input type="number" id="df-sceneSeconds" min="5" max="600" step="1" placeholder="12"></div>
+      <div class="df-field df-blk"><div class="df-h"><span class="hi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.5 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z"/></svg></span><span>품질 등급</span></div><div class="df-chipset" role="radiogroup" aria-label="품질 등급">${tier('경제형', '기본 그림·소리')}${tier('표준형', '추천 · 균형')}${tier('고급형', '그림·소리 더 풍성')}</div></div>
+      <div class="df-field df-blk"><div class="df-h"><span class="hi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12c3-6 6-6 9 0s6 6 9 0"/></svg></span><span>화면 움직임</span></div><div class="df-chipset" role="radiogroup" aria-label="화면 움직임">${mode('정지', '그림이 고정')}${mode('숨쉬기', '아주 천천히 움직임')}${mode('전환', '그림이 바뀜')}</div>
+        <div id="df-int-field" class="df-subfield" hidden><label>그림 바뀌는 간격(초) <span class="opt">5~600 · 비워두면 12초</span></label><input type="number" id="df-sceneSeconds" min="5" max="600" step="1" placeholder="12"></div></div>
+      <div class="df-field df-blk"><div class="df-h"><span class="hi"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="M21 16l-5-5-9 9"/></svg></span><span>그림 방식</span></div>
+        <div class="df-sound" role="radiogroup" aria-label="그림 방식">
+          <label><input type="radio" name="df-img" value="무료사진" checked><span class="scard"><span class="dot"></span><span><b>실제 사진을 찾아서 써요 · 추천</b><small>우주·자연·도시 풍경처럼 실제 사진이 어울리는 영상에 좋고, 사진이 많이 바뀌어도 부담이 없어요</small></span></span></label>
+          <label><input type="radio" name="df-img" value="AI"><span class="scard"><span class="dot"></span><span><b>AI가 장면을 새로 그려요</b><small>"비 오는 밤 작은 오두막"처럼 구체적인 장면을 원할 때 좋아요</small></span></span></label>
+        </div>
+        <div class="df-subfield" id="df-pc-field" hidden><label>사진은 몇 장 쓸까요 <span class="opt">자동이 가장 좋아요</span></label>
+          <div class="df-chipset" id="df-pc-chips" role="radiogroup" aria-label="사진 장수"></div><p class="df-hint" id="df-pc-note"></p></div></div>
     </section>`;
   }
   function yadamSectionHtml() {
@@ -2207,10 +2319,22 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       hours.dispatchEvent(new Event('input', { bubbles: true }));
       draw(m);
     }
+    function drawPhotoCount(m) {
+      const box = document.getElementById('df-pc-field'); if (!box) return;
+      const 보임 = planMode === 'paid' && 현재종류() === '수면음악' && document.querySelector('input[name="df-img"]:checked')?.value === '무료사진';
+      box.hidden = !보임; if (!보임) return;
+      const 자동 = 사진자동장수(m), 최대 = Math.floor(m * 60 / 4);
+      const 후보 = [10, 20, 30, 50, 100, 150, 200, 300].filter(n => n > 자동 && n <= 최대);
+      if (!후보.map(String).includes(사진선택)) 사진선택 = '자동';
+      const 칩 = (v, 큰, 작) => `<label><input type="radio" name="df-pc" value="${v}"${사진선택 === String(v) ? ' checked' : ''}><span class="tcard"><b>${큰}</b><small>${작}</small></span></label>`;
+      document.getElementById('df-pc-chips').innerHTML = 칩('자동', '자동 · 추천', `약 ${자동}장<br>추가 없음`) + 후보.map(n => { const p = Math.max(0, 사진구간P(n) - 사진구간P(자동)); return 칩(n, n + '장', p ? `+${p}P` : '추가 없음'); }).join('');
+      document.getElementById('df-pc-note').textContent = 후보.length ? '길이에 맞춰 알아서 정해요. 사진이 더 자주 바뀌길 원하면 골라 주세요. 검색에서 찾은 사진이 모자라면 가능한 만큼만 써요.' : `이 길이는 자동으로 약 ${자동}장을 써요.`;
+    }
     function draw(m) {
       const tier = 현재등급();
       const 요금 = longPrice('수면음악', tier, m, 0, 낭독중());
-      read.innerHTML = `총 <b>${분표시(m)}</b> · 약 <b>${요금.toLocaleString('ko-KR')}P</b>` + (planMode !== 'paid' ? ' <span class="len-sub">(체험판은 3분 영상이 체험 포인트로 만들어져요)</span>' : '') + (안내 ? `<span class="len-warn"> ${안내}</span>` : '');
+      drawPhotoCount(m);
+      read.innerHTML = `총 <b>${분표시(m)}</b> · 약 <b>${(요금 + 사진추가P()).toLocaleString('ko-KR')}P</b>` + (planMode !== 'paid' ? ' <span class="len-sub">(체험판은 3분 영상이 체험 포인트로 만들어져요)</span>' : '') + (안내 ? `<span class="len-warn"> ${안내}</span>` : '');
       chips.innerHTML = [30, 60, 180, 480].map(v => `<button type="button" class="len-chip${v === m ? ' on' : ''}" data-m="${v}">${v < 60 ? '30분' : (v / 60) + '시간'}</button>`).join('');
     }
     const 현재분 = () => (parseInt(hIn.value, 10) || 0) * 60 + (parseInt(mIn.value, 10) || 0);
@@ -2221,9 +2345,12 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       setTotal(현재분() + (k === 'h' ? step * 60 : step), true);
     }));
     [hIn, mIn].forEach(el => el.addEventListener('change', () => setTotal(현재분(), true)));
-    document.querySelectorAll('input[name="df-tier"]').forEach(r => r.addEventListener('change', () => draw(현재분() || 60)));
+    document.querySelectorAll('input[name="df-tier"], input[name="df-smode"], input[name="df-img"]').forEach(r => r.addEventListener('change', () => draw(현재분() || 60)));
+    document.getElementById('df-sceneSeconds')?.addEventListener('input', () => draw(현재분() || 60));
+    document.getElementById('df-pc-chips')?.addEventListener('change', e => { if (e.target && e.target.name === 'df-pc') { 사진선택 = e.target.value; draw(현재분() || 60); } });
     setTotal(60, false);
     types.addEventListener('change', applyType);
+    types.addEventListener('change', () => draw(현재분() || 60));
     // 말 넣기: 선택에 따라 대본 고르기·내 녹음 칸을 보여 주고, 영상 길이 칸을 바꾼다
     function drawMoodScript() {
       const host = document.getElementById('df-mood-script'); if (!host) return;
@@ -2258,11 +2385,38 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     window.__rwRefreshMoodCard = () => { if (현재말() === '글자' || 현재말() === '목소리') drawMoodScript(); applyNar(); };
     document.querySelectorAll('input[name="df-nar"]').forEach(r => r.addEventListener('change', applyNar));
     document.querySelectorAll('input[name="df-mtone"]').forEach(r => r.addEventListener('change', () => { toneTouched = true; applyToneDefault(); }));
-    if (dfPreNar) { const r = document.querySelector(`input[name="df-nar"][value="${dfPreNar}"]`); if (r) { r.checked = true; applyNar(); } dfPreNar = null; }
-    document.querySelectorAll('input[name="df-sound"]').forEach(r => r.addEventListener('change', () => {
-      ['자동', '내음악', '없음'].forEach(k => { const el = document.getElementById('df-sp-' + k); if (el) el.classList.toggle('df-hide', k !== 현재소리()); });
-      updatePrice();
-    }));
+    if (dfPreNar) { const r = document.querySelector('input[name="df-comp"][value="그림+음성+자막"]'); if (r) r.checked = true; dfPreNar = null; }
+    function 소리칸갱신() { ['자동', '내음악', '없음'].forEach(k => { const el = document.getElementById('df-sp-' + k); if (el) el.classList.toggle('df-hide', k !== 현재소리()); }); }
+    document.querySelectorAll('input[name="df-sound"]').forEach(r => r.addEventListener('change', () => { 소리칸갱신(); updatePrice(); }));
+    // 영상 구성: 고른 구성에 맞춰 말(대본)·소리 칸을 보이거나 숨긴다. 아래쪽 값(df-nar, df-sound)은 기존 로직이 그대로 읽는다.
+    const COMP = {
+      '그림만': { nar: '없음', snd: [] },
+      '그림+음악': { nar: '없음', snd: ['자동', '내음악'] },
+      '그림+자막': { nar: '글자', snd: [] },
+      '그림+음성': { nar: '목소리', snd: ['자동', '없음'], note: '배경 소리를 넣으면 목소리 아래에 작게 깔려요.' },
+      '그림+음성+자막': { nar: '목소리', snd: ['자동', '없음'], note: '배경 소리를 넣으면 목소리 아래에 작게 깔려요.' },
+      '내목소리파일': { nar: '내목소리', snd: ['자동', '없음'], note: '배경 소리를 넣으면 내 목소리 아래에 작게 깔려요.' },
+    };
+    let 이전구성 = '그림+음악';
+    function applyComp() {
+      const c = COMP[현재구성()] || COMP['그림+음악'];
+      const nar = document.querySelector(`input[name="df-nar"][value="${c.nar}"]`); if (nar) nar.checked = true;
+      document.getElementById('df-nar-field').classList.toggle('df-hide', c.nar === '없음');
+      document.getElementById('df-snd-field').classList.toggle('df-hide', !c.snd.length);
+      document.querySelectorAll('#df-sound-group label').forEach(l => l.classList.toggle('df-hide', !c.snd.includes(l.dataset.snd)));
+      const 이전 = COMP[이전구성] || { snd: [] };
+      const want = !c.snd.length ? '없음' : (이전.snd.length && c.snd.includes(현재소리()) ? 현재소리() : '자동');
+      이전구성 = 현재구성();
+      const r = document.querySelector(`input[name="df-sound"][value="${want}"]`); if (r) r.checked = true;
+      소리칸갱신();
+      const nt = document.getElementById('df-snd-note'); if (nt) { nt.textContent = c.note || ''; nt.hidden = !c.note; }
+      applyNar();
+    }
+    document.querySelectorAll('input[name="df-comp"]').forEach(r => r.addEventListener('change', applyComp));
+    function applyInterval() { const f = document.getElementById('df-int-field'); if (f) f.hidden = (document.querySelector('input[name="df-smode"]:checked')?.value || '숨쉬기') !== '전환'; }
+    document.querySelectorAll('input[name="df-smode"]').forEach(r => r.addEventListener('change', applyInterval));
+    applyInterval();
+    applyComp();
     // 야담: 방식(인트로 + 긴 이야기 / 기존)·길이·인트로 초·등급·소재 예시
     const ydIn = document.getElementById('df-yd-min'), ydRead = document.getElementById('df-yd-read'), ydChips = document.getElementById('df-yd-chips');
     const ylH = document.getElementById('df-yl-h'), ylM = document.getElementById('df-yl-m'), ylI = document.getElementById('df-yl-intro');
@@ -2436,13 +2590,16 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
         const 분 = planMode === 'paid' ? 롱폼길이분() : 3;
         answers = { topic: val('df-topic') || (대본 ? 대본.title : ''), form: '롱폼', videoType: '수면음악', tier: 현재등급(), videoLength: String(Math.round(분 * 100) / 100) };
         answers.screenMode = document.querySelector('input[name="df-smode"]:checked')?.value || '숨쉬기';
+        answers.imageSource = document.querySelector('input[name="df-img"]:checked')?.value || '무료사진';
         if (val('df-style')) answers.style = val('df-style');
         answers.soundMode = 소리;
         if (말 !== '없음') { answers.narration = 말; if (말 === '목소리') { const v = 목소리값(); answers.voiceGender = v.성별; answers.voiceTone = v.기분; answers.voiceSpeed = v.속도; } if (대본) { answers.scriptId = 대본.id; answers.scriptTitle = 대본.title; } if (말 === '내목소리') { answers.voiceUrl = val('df-voiceUrl'); answers.voiceRights = true; } }
         if (소리 === '자동' && val('df-soundRequest')) answers.soundRequest = val('df-soundRequest');
-        if (val('df-sceneSeconds')) answers.sceneSeconds = val('df-sceneSeconds');
+        if (val('df-sceneSeconds') && answers.screenMode === '전환') answers.sceneSeconds = val('df-sceneSeconds');
+        if (현재구성() === '그림+음성') answers.subtitles = '끄기';
         if (소리 === '내음악') { answers.musicFolderUrl = 폴더; answers.musicRights = true; }
-        answers.estimatedPrice = longPrice('수면음악', answers.tier, 분, 0, 말 === '목소리');
+        answers.estimatedPrice = longPrice('수면음악', answers.tier, 분, 0, 말 === '목소리') + 사진추가P();
+        if (사진고른장수()) answers.photoCount = 사진고른장수() + '장';
         mode = 'topic';
         showChatFromDirectForm();
         addMsg('user', '직접 설정하기로 분위기 영상을 설정했어요.');
