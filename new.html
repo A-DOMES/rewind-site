@@ -522,6 +522,39 @@
   .btn-line-sm { border-color: #4a4038; color: var(--ink); }
   .price-modal { border-radius: 22px; padding: 30px 32px; }
   .price-modal h2 { font-family: 'IBM Plex Sans KR', sans-serif; font-weight: 700; font-size: 1.35rem; }
+  .price-modal { width: min(920px, 94%); max-width: none; height: min(88vh, 860px); max-height: none; padding: 0; overflow: hidden; display: flex; flex-direction: column; }
+  .price-modal .pm-head { display: flex; align-items: center; justify-content: space-between; padding: 24px 32px 6px; flex: none; }
+  .price-modal h2 { font-size: 1.7rem; margin: 0; }
+  .pm-x { width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--line); background: transparent; color: var(--ink); display: grid; place-items: center; cursor: pointer; flex: none; }
+  .pm-x svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+  .pm-x:hover { background: color-mix(in srgb, var(--amber) 12%, transparent); border-color: var(--amber); }
+  .pm-tabs { display: flex; gap: 8px; padding: 12px 32px 14px; border-bottom: 1px solid var(--line); flex: none; }
+  .pm-tabs button { flex: 1; max-width: 200px; border: 1px solid var(--line); background: transparent; color: var(--ink-dim); border-radius: 999px; padding: 11px 20px; font: inherit; font-size: 1.05rem; font-weight: 700; cursor: pointer; }
+  .pm-tabs button[aria-selected=true] { background: var(--amber); border-color: var(--amber); color: var(--on-amber); }
+  .price-modal .pm-body { flex: 1; min-height: 0; overflow-y: auto; padding: 20px 32px 28px; }
+  .price-modal .sub { font-size: 0.95rem; margin: 0 0 16px; line-height: 1.55; }
+  .pm-h { font-size: 1.15rem; font-weight: 700; margin: 30px 0 4px; }
+  #pm-long .pm-h:first-child { margin-top: 4px; }
+  .price-modal .price-table { font-size: 0.97rem; }
+  .price-modal .price-table th, .price-modal .price-table td { padding: 11px 10px; }
+  .price-modal .price-table th { font-size: 0.88rem; }
+  .price-modal .note { font-size: 0.88rem; line-height: 1.6; margin-top: 16px; }
+  .price-modal .motion-legend { gap: 14px; margin-bottom: 22px; }
+  .price-modal .ml-item { padding: 18px 18px 16px; gap: 10px; border-radius: 16px; position: relative; }
+  .price-modal .ml-item svg { width: 40px; height: 71px; }
+  .price-modal .ml-item > div { gap: 6px; }
+  .price-modal .ml-item b { font-size: 1.3rem; }
+  .price-modal .ml-item span { font-size: 0.92rem; line-height: 1.5; }
+  .price-modal .ml-item em { font-size: 1.15rem; font-weight: 800; margin-top: 4px; }
+  .price-modal .ml-item.rec { border-width: 2px; }
+  @media (max-width: 640px) {
+    .price-modal { width: 100%; height: 100%; max-height: none; border-radius: 0; }
+    .price-modal .pm-head { padding: 18px 18px 4px; } .price-modal h2 { font-size: 1.45rem; }
+    .pm-tabs { padding: 10px 18px 12px; } .pm-tabs button { max-width: none; }
+    .price-modal .pm-body { padding: 16px 18px 28px; }
+    .price-modal .price-table { font-size: 0.88rem; } .price-modal .price-table th, .price-modal .price-table td { padding: 10px 6px; }
+    .price-modal .ml-item { flex-direction: row; align-items: center; }
+  }
   #soon-toast { border-radius: 999px; padding: 12px 22px; }
   #gate h1 { font-size: 1.8rem; }
 
@@ -1054,13 +1087,39 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
 <div id="soon-toast">이 기능은 아직 준비 중이에요.</div>
 
 <div id="price-modal-overlay">
-  <div class="price-modal">
-    <h2>요금 안내</h2>
-    <p class="sub">영상 길이와 <b>움직임 방식</b>으로 정해져요. 장면 수와 상관없이 같은 요금이에요.</p>
-    <div class="motion-legend" id="motion-legend"></div>
-    <table class="price-table" id="price-table-body"></table>
-    <p class="note" id="price-modal-note"></p>
-    <div class="close-row"><button class="btn-gold-sm" id="price-modal-close">닫기</button></div>
+  <div class="price-modal" role="dialog" aria-modal="true" aria-labelledby="pm-title">
+    <div class="pm-head">
+      <h2 id="pm-title">요금 안내</h2>
+      <button type="button" class="pm-x" id="price-modal-x" aria-label="닫기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="pm-tabs" role="tablist">
+      <button type="button" role="tab" data-pt="short" aria-selected="true">쇼츠</button>
+      <button type="button" role="tab" data-pt="long" aria-selected="false">롱폼</button>
+    </div>
+    <div class="pm-body">
+      <section id="pm-short">
+        <p class="sub">영상 길이와 <b>움직임 방식</b>으로 정해져요. 장면 수와 상관없이 같은 요금이에요.</p>
+        <div class="motion-legend" id="motion-legend"></div>
+        <table class="price-table" id="price-table-body"></table>
+        <p class="note" id="price-modal-note"></p>
+      </section>
+      <section id="pm-long" hidden>
+        <h3 class="pm-h">분위기 영상</h3>
+        <p class="sub">길이와 등급으로 정해져요. 말 넣기(AI 목소리)는 분당 3P가 더해져요.</p>
+        <table class="price-table" id="pm-mood"></table>
+        <h3 class="pm-h">야담</h3>
+        <p class="sub">길이와 등급으로 정해져요. 인트로 영상 + 긴 이야기 방식은 아래 표를 보세요.</p>
+        <table class="price-table" id="pm-yadam"></table>
+        <h3 class="pm-h">야담 · 인트로 영상 + 긴 이야기</h3>
+        <p class="sub">기본 + 시간당 요금에 인트로(1초당 1P)가 더해져요. 인트로 없이 계산한 금액이에요.</p>
+        <table class="price-table" id="pm-yl"></table>
+        <h3 class="pm-h">영상 중심 롱폼 (3~10분)</h3>
+        <p class="sub">쇼츠와 같은 움직임 방식 요금이에요.</p>
+        <table class="price-table" id="pm-motion-long"></table>
+        <p class="note">정확한 금액은 직접 설정하기에서 길이를 넣으면 바로 계산돼요.</p>
+      </section>
+      <div class="close-row"><button class="btn-gold-sm" id="price-modal-close">닫기</button></div>
+    </div>
   </div>
 </div>
 
@@ -1900,32 +1959,46 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   const PRICE_ROWS = [
     ['쇼츠', 0.5], ['쇼츠', 0.75], ['쇼츠', 1], ['쇼츠', 2], ['롱폼', 3], ['롱폼', 5], ['롱폼', 10]
   ];
-  function priceTableHtml(hit) {
-    const head = '<tr><th>형태 · 길이</th>' + MOTION_LIST.map(m => `<th class="num ${MOTION_CLS[m]}">${m}<small>분당 ${MOTION_RATE[m].toLocaleString()}P</small></th>`).join('') + '</tr>';
-    const rows = PRICE_ROWS.map(([f, len]) => '<tr><td>' + f + ' · ' + lenLabel(len) + '</td>' + MOTION_LIST.map(m => {
+  function priceTableHtml(hit, rowsIn, noSub) {
+    const head = '<tr><th>형태 · 길이</th>' + MOTION_LIST.map(m => `<th class="num ${MOTION_CLS[m]}">${m}${noSub ? '' : `<small>분당 ${MOTION_RATE[m].toLocaleString()}P</small>`}</th>`).join('') + '</tr>';
+    const rows = (rowsIn || PRICE_ROWS).map(([f, len]) => '<tr><td>' + f + ' · ' + lenLabel(len) + '</td>' + MOTION_LIST.map(m => {
       const on = hit && Math.abs(hit.len - len) < 1e-9 && hit.motion === m;
       return `<td class="num ${MOTION_CLS[m]}${on ? ' hit' : ''}">${pt(computePrice(len, m))}</td>`;
     }).join('') + '</tr>').join('');
     return head + rows;
   }
   function motionLegendHtml() {
-    return MOTION_LIST.map(m => `<div class="ml-item ${MOTION_CLS[m]}">${motionSvg(m)}<div><b>${m}${m === '혼합' ? ' · 추천' : ''}</b><span>${MOTION_DESC[m]}</span><em>분당 ${MOTION_RATE[m].toLocaleString()}P</em></div></div>`).join('');
+    return MOTION_LIST.map(m => `<div class="ml-item ${MOTION_CLS[m]}${m === '혼합' ? ' rec' : ''}">${motionSvg(m)}<div><b>${m}${m === '혼합' ? ' · 추천' : ''}</b><span>${MOTION_DESC[m]}</span><em>분당 ${MOTION_RATE[m].toLocaleString()}P</em></div></div>`).join('');
   }
   const PRICE_NOTE = '기본 30P + 영상 길이(분) × 움직임 방식별 분당 포인트예요. 장면 수는 요금에 영향이 없고, 1P 단위로 반올림해요. 60분이 넘으면 20% 추가돼요. 체험판은 체험 포인트로 이용하고(정식 이미지 중심 가격의 25%) 이미지 중심으로 만들어져요.';
 
   /* ===================== 요금 안내 모달 ===================== */
   (function setupPriceModal() {
     const overlay = document.getElementById('price-modal-overlay');
-    document.getElementById('motion-legend').innerHTML = motionLegendHtml();
-    document.getElementById('price-table-body').innerHTML = priceTableHtml(null);
-    document.getElementById('price-modal-note').textContent = PRICE_NOTE;
-    const 롱폼안내 = document.createElement('p');
-    롱폼안내.className = 'note';
-    롱폼안내.textContent = `${kindName('수면음악')}은 길이와 등급으로 요금이 정해져요(30분·1시간·3시간·8시간 기준 — ` + LONG_TIERS.map(t => `${t} ${[30, 60, 180, 480].map(m => longPrice('수면음악', t, m).toLocaleString('ko-KR')).join(' / ')}P`).join(' · ') + '). ' + `야담은 길이와 등급으로 정해져요(10분·30분·1시간·2시간 기준 — ` + LONG_TIERS.map(t => `${t} ${[10, 30, 60, 120].map(m => longPrice('야담', t, m).toLocaleString('ko-KR')).join(' / ')}P`).join(' · ') + '). 정확한 금액은 직접 설정하기에서 길이를 넣으면 바로 계산돼요.';
-    document.getElementById('price-modal-note').after(롱폼안내);
-    document.getElementById('to-price-table').addEventListener('click', () => overlay.classList.add('show'));
-    document.getElementById('price-modal-close').addEventListener('click', () => overlay.classList.remove('show'));
-    overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('show'); });
+    const $ = id => document.getElementById(id);
+    const tierTable = (kind, mins) => '<tr><th>길이</th>' + LONG_TIERS.map(t => `<th class="num">${t}</th>`).join('') + '</tr>' +
+      mins.map(m => `<tr><td>${hourLabel(m)}</td>` + LONG_TIERS.map(t => `<td class="num">${longPrice(kind, t, m).toLocaleString('ko-KR')}P</td>`).join('') + '</tr>').join('');
+    $('motion-legend').innerHTML = motionLegendHtml();
+    $('price-table-body').innerHTML = priceTableHtml(null, PRICE_ROWS.filter(r => r[0] === '쇼츠'), true);
+    $('price-modal-note').textContent = PRICE_NOTE;
+    $('pm-mood').innerHTML = tierTable('수면음악', [30, 60, 180, 480]);
+    $('pm-yadam').innerHTML = tierTable('야담', [10, 30, 60, 120]);
+    $('pm-yl').innerHTML = '<tr><th>길이</th>' + LONG_TIERS.map(t => `<th class="num">${t}</th>`).join('') + '</tr>' +
+      [60, 180, 480].map(m => `<tr><td>${hourLabel(m)}</td>` + LONG_TIERS.map(t => `<td class="num">${ylPrice(t, m, 0).toLocaleString('ko-KR')}P</td>`).join('') + '</tr>').join('');
+    $('pm-motion-long').innerHTML = priceTableHtml(null, PRICE_ROWS.filter(r => r[0] === '롱폼'), true);
+    const tabs = overlay.querySelectorAll('.pm-tabs button');
+    function show(which) {
+      tabs.forEach(b => b.setAttribute('aria-selected', String(b.dataset.pt === which)));
+      $('pm-short').hidden = which !== 'short'; $('pm-long').hidden = which !== 'long';
+      overlay.querySelector('.pm-body').scrollTop = 0;
+    }
+    tabs.forEach(b => b.addEventListener('click', () => show(b.dataset.pt)));
+    const close = () => overlay.classList.remove('show');
+    $('to-price-table').addEventListener('click', () => { show('short'); overlay.classList.add('show'); $('price-modal-x').focus(); });
+    $('price-modal-close').addEventListener('click', close);
+    $('price-modal-x').addEventListener('click', close);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && overlay.classList.contains('show')) close(); });
   })();
 
   /* ===================== 포인트 충전 모달 ===================== */
