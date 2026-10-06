@@ -142,6 +142,19 @@
   .cinema h3 { font-size: 1.15rem; margin-bottom: 6px; }
   .cinema p { color: var(--ink-faint); font-size: 0.9rem; margin: 0; }
   #empty .btn-primary { margin-top: 4px; }
+  /* 샘플 영상: 빈 화면에서 "이런 영상이 만들어져요"를 보여준다 */
+  .sample { max-width: 640px; margin: 36px auto 0; }
+  .sample-h { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin: 0 0 12px; }
+  .sample-h h3 { margin: 0; font-size: 1.05rem; }
+  .sample-h span { color: var(--ink-faint); font-size: 0.82rem; }
+  .sample-box { position: relative; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: #000; aspect-ratio: 16 / 9; }
+  .sample-box video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+  .sample-cta:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .sample-cap { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+  .sample-cap p { margin: 0; color: var(--ink-dim); font-size: 0.86rem; line-height: 1.5; min-width: 0; flex: 1 1 260px; }
+  .sample-cap small { display: block; color: var(--ink-faint); font-size: 0.74rem; margin-top: 2px; }
+  .sample-cta { flex: none; color: var(--amber); font-weight: 600; font-size: 0.9rem; text-decoration: none; border: 1px solid var(--amber-dim); border-radius: 999px; padding: 8px 16px; }
+  .sample-cta:hover { background: color-mix(in srgb, var(--amber) 12%, transparent); }
 
   /* ---- project list — "film canister" rows, not generic cards ---- */
   #project-list { display: none; }
@@ -495,6 +508,18 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       <div style="text-align:center;">
         <a class="btn-primary" href="./new.html">+ 새 영상 만들기</a>
       </div>
+      <section class="sample" aria-label="샘플 영상">
+        <div class="sample-h"><h3>이런 영상이 만들어져요</h3><span>우주 사진 분위기 영상</span></div>
+        <div class="sample-box">
+          <video id="sample-video" muted loop playsinline preload="metadata" poster="./assets/sample-nasa.jpg" aria-label="우주 사진이 천천히 바뀌는 분위기 영상 샘플">
+            <source src="./assets/sample-nasa.webm" type="video/webm"><source src="./assets/sample-nasa.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="sample-cap">
+          <p>주제 한 줄만 적으면 어울리는 사진을 찾아 천천히 바뀌는 영상으로 엮어드려요. 3분 체험으로 먼저 만들어볼 수 있어요.<small>사진: NASA · Pexels 무료 사진</small></p>
+          <a class="sample-cta" href="./new.html">이렇게 만들어보기</a>
+        </div>
+      </section>
     </div>
 
     <div id="session-expired" style="display:none; text-align:center; padding:60px 20px;">
@@ -731,6 +756,14 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   slide.addEventListener('animationstart', function (e) { if (맞나(e)) 재생(); });
   slide.addEventListener('animationiteration', function (e) { if (맞나(e)) 재생(); });
 })();
+
+  // 샘플 영상: 화면에 보일 때만 재생(음소거·반복). 움직임 줄이기 설정이면 자동 재생 대신 재생 버튼을 보여준다.
+  (function () {
+    const v = document.getElementById('sample-video'); if (!v) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { v.controls = true; return; }
+    if (!('IntersectionObserver' in window)) { v.controls = true; return; }
+    new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) v.play().catch(() => { v.controls = true; }); else v.pause(); }), { threshold: 0.4 }).observe(v);
+  })();
 </script>
 </body>
 </html>
