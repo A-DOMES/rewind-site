@@ -1315,17 +1315,24 @@ function copyText(txt,b){
 }
 /* ---------- 만들 영상 종류별 입력 + 요청문 ---------- */
 var B={};
-var MOODS=['무서운','따뜻한','반전 있는','슬픈','해학·웃음'],OCCS=['생일','감사','응원','위로','기념일','그리움'];
-function resetBrief(){B={topic:'',mood:'',min:10,intro:10,to:'',from:'',occ:'',msg:'',sec:60}}
+var MOODS=['무서운','따뜻한','반전 있는','슬픈','해학·웃음'],OCCS=['생일','감사','응원','위로','기념일','그리움','승진','출산','결혼','졸업','부고·추모'];
+var OCC_TONE={'생일':'기쁘고 밝게','감사':'따뜻하게','응원':'힘차고 활기차게','위로':'차분하고 다정하게','기념일':'따뜻하고 기쁘게','그리움':'차분하고 그리움이 묻어나게','승진':'기쁘고 자랑스럽게','출산':'기쁘고 설레는 마음으로','결혼':'기쁘고 축복하는 마음으로','졸업':'뿌듯하고 기쁘게','부고·추모':'정중하고 절제된 말투로, 슬픔을 과장하지 않고 차분하게'};
+function occName(){return B.occ==='직접'?(B.occCustom||'').trim():B.occ}
+function resetBrief(){B={topic:'',mood:'',min:10,intro:10,to:'',from:'',occ:'',occCustom:'',rel:'',info:'',msg:'',sec:60}}
 function stp(k,val,unit,note){return '<div class="stp"><button type="button" data-st="'+k+':-1" aria-label="줄이기">−</button><b>'+val+unit+'</b><button type="button" data-st="'+k+':1" aria-label="늘리기">＋</button>'+(note?'<small>'+note+'</small>':'')+'</div>'}
 function chips(list,k,cur){return '<div class="chips">'+list.map(function(x){return '<button type="button" data-ch="'+k+':'+x+'" class="'+(cur===x?'on':'')+'" aria-pressed="'+(cur===x)+'">'+x+'</button>'}).join('')+'</div>'}
 function renderBrief(){
   var h;
   if(cfg.kind==='mood'){
-    h='<div class="g2"><div class="f"><label for="brTo">받는 사람 <small>예: 어머니</small></label><input type="text" id="brTo" data-b="to" value="'+esc(B.to)+'" maxlength="30" placeholder="누구에게 보내나요?"></div>'+
-      '<div class="f"><label for="brFrom">보내는 사람 <small>예: 딸 민지</small></label><input type="text" id="brFrom" data-b="from" value="'+esc(B.from)+'" maxlength="30" placeholder="나는 누구인가요?"></div></div>'+
-      '<div class="f"><label>어떤 날인가요? <small>고르지 않으면 AI가 알아서</small></label>'+chips(OCCS,'occ',B.occ)+'</div>'+
-      '<div class="f"><label for="brMsg">전하고 싶은 말 <small>비워도 돼요</small></label><textarea id="brMsg" data-b="msg" maxlength="600" placeholder="예: 항상 고맙다고, 올해는 꼭 같이 여행 가자고">'+esc(B.msg)+'</textarea></div>'+
+    var memo=B.occ==='부고·추모';
+    h='<div class="f"><label>어떤 날인가요? <small>고르지 않으면 AI가 알아서</small></label>'+chips(OCCS.concat(['직접']),'occ',B.occ)+(B.occ==='직접'?'<input type="text" id="brOccC" data-b="occCustom" value="'+esc(B.occCustom)+'" maxlength="30" placeholder="예: 환갑, 퇴임, 입대" style="margin-top:8px">':'')+'</div>'+
+      (memo?'<div class="g2"><div class="f"><label for="brTo">고인 성함 <small>예: 홍길동</small></label><input type="text" id="brTo" data-b="to" value="'+esc(B.to)+'" maxlength="30" placeholder="돌아가신 분"></div>'+
+      '<div class="f"><label for="brRel">나와의 관계 <small>예: 아버지</small></label><input type="text" id="brRel" data-b="rel" value="'+esc(B.rel)+'" maxlength="20" placeholder="누구인가요?"></div></div>'+
+      '<div class="f"><label for="brFrom">보내는 사람 <small>예: 큰아들 민구</small></label><input type="text" id="brFrom" data-b="from" value="'+esc(B.from)+'" maxlength="30" placeholder="나는 누구인가요?"></div>'+
+      '<div class="f"><label for="brInfo">알릴 내용 <small>빈소·발인 일시와 장소, 비워도 돼요</small></label><textarea id="brInfo" data-b="info" maxlength="400" placeholder="적어 주신 그대로만 영상에 넣어요. 이름·날짜·장소는 꼭 다시 확인해 주세요.">'+esc(B.info)+'</textarea></div>'
+      :'<div class="g2"><div class="f"><label for="brTo">받는 사람 <small>예: 어머니</small></label><input type="text" id="brTo" data-b="to" value="'+esc(B.to)+'" maxlength="30" placeholder="누구에게 보내나요?"></div>'+
+      '<div class="f"><label for="brFrom">보내는 사람 <small>예: 딸 민지</small></label><input type="text" id="brFrom" data-b="from" value="'+esc(B.from)+'" maxlength="30" placeholder="나는 누구인가요?"></div></div>')+
+      '<div class="f"><label for="brMsg">전하고 싶은 말 <small>비워도 돼요</small></label><textarea id="brMsg" data-b="msg" maxlength="600" placeholder="'+(memo?'예: 늘 자식 걱정만 하셨던 아버지께 마지막으로 하고 싶은 말':'예: 항상 고맙다고, 올해는 꼭 같이 여행 가자고')+'">'+esc(B.msg)+'</textarea></div>'+
       '<div class="f"><label>길이</label>'+stp('sec',B.sec,'초','약 '+Math.round(B.sec*6)+'자')+'</div>';
     $('briefHead').innerHTML='칸을 채우고(몰라도 돼요) 요청문을 복사해 쓰시는 AI에 보내세요.';
     $('askSteps').innerHTML='<b>1</b> 요청문을 복사해 AI에 붙여넣어요. 길이는 따로 적지 않아도 돼요.<br><b>2</b> AI가 써 준 글을 <b>붙여넣기·파일</b> 탭의 칸에 붙여넣어요.<br><b>3</b> 읽기 좋게 자동으로 정리되고, 확정하면 보관함에 저장돼요.';
@@ -1354,7 +1361,9 @@ function setupKind(){
 }
 function buildAsk(full){
   if(cfg.kind==='mood'){
-    return '영상 편지에 쓸 낭독 대본을 써 주세요. 받는 분이 영상을 보며 목소리로 듣게 될 글이에요.\n\n이번 요청:\n- 받는 사람: '+(B.to.trim()||'받는 분(이름을 모르니 "당신" 같은 호칭으로)')+'\n- 보내는 사람: '+(B.from.trim()||'보내는 사람(이름을 쓰지 말고 "저"로)')+'\n- 어떤 날: '+(B.occ||'어울리는 상황을 AI가 알아서 정해 주세요')+'\n- 전하고 싶은 말: '+(B.msg.trim()||'따로 없어요. 진심이 느껴지게 자연스럽게 써 주세요')+'\n- 길이: '+B.sec+'초 (1초는 공백을 뺀 약 6자예요. 30초는 약 180자, 60초는 약 360자, 90초는 약 540자예요)\n\n규칙:\n- 글 외의 말은 쓰지 마세요. 인사, 설명, "원하시면 ~" 같은 후속 제안 없이 대본만 출력하세요.\n- 첫 줄에 제목 한 줄만 쓰고, 한 줄을 띄운 뒤 본문을 시작하세요.\n- 보내는 사람이 직접 말하는 1인칭으로, 받는 사람을 부르며 시작하세요.\n- 짧고 따뜻한 문장으로, 소리 내어 읽기 좋게 쓰세요. 지문, 효과음 설명, 괄호 설명, 화자 표시는 쓰지 마세요.\n- 굵은 글씨, 별표, 구분선(---), 이모지, 목록 기호는 쓰지 마세요.\n- 제가 말하지 않은 구체적인 사실(날짜, 사건, 이름)은 지어내지 마세요.'
+    var oc=occName(),memo=B.occ==='부고·추모',tone=memo?OCC_TONE['부고·추모']:(OCC_TONE[oc]||'상황에 어울리는 말투로');
+    var who=memo?'- 고인: '+(B.to.trim()||'고인(성함을 쓰지 말고 "고인"으로)')+(B.rel.trim()?' (보내는 사람의 '+B.rel.trim()+')':''):'- 받는 사람: '+(B.to.trim()||'받는 분(이름을 모르니 "당신" 같은 호칭으로)');
+    return (memo?'부고 안내 또는 추모 영상에 쓸 낭독 대본을 써 주세요. 가족과 지인이 영상을 보며 목소리로 듣게 될 글이에요.':'영상 편지에 쓸 낭독 대본을 써 주세요. 받는 분이 영상을 보며 목소리로 듣게 될 글이에요.')+'\n\n이번 요청:\n'+who+'\n- 보내는 사람: '+(B.from.trim()||'보내는 사람(이름을 쓰지 말고 "저"로)')+'\n- 어떤 날: '+(oc||'어울리는 상황을 AI가 알아서 정해 주세요')+'\n- 말투: '+tone+(memo&&B.info.trim()?'\n- 알릴 내용(그대로만 쓰세요): '+B.info.trim():'')+'\n- 전하고 싶은 말: '+(B.msg.trim()||'따로 없어요. 진심이 느껴지게 자연스럽게 써 주세요')+'\n- 길이: '+B.sec+'초 (1초는 공백을 뺀 약 6자예요. 30초는 약 180자, 60초는 약 360자, 90초는 약 540자예요)\n\n규칙:\n- 글 외의 말은 쓰지 마세요. 인사, 설명, "원하시면 ~" 같은 후속 제안 없이 대본만 출력하세요.\n- 첫 줄에 제목 한 줄만 쓰고, 한 줄을 띄운 뒤 본문을 시작하세요.\n- '+(memo?'보내는 사람이 직접 전하는 1인칭으로, 정중하고 절제된 문장으로 쓰세요. 과장된 슬픔이나 화려한 표현은 쓰지 마세요.':'보내는 사람이 직접 말하는 1인칭으로, 받는 사람을 부르며 시작하세요.')+'\n- 짧은 문장으로, 소리 내어 읽기 좋게 쓰세요. 지문, 효과음 설명, 괄호 설명, 화자 표시는 쓰지 마세요.\n- 굵은 글씨, 별표, 구분선(---), 이모지, 목록 기호는 쓰지 마세요.\n- 제가 말하지 않은 구체적인 사실(날짜, 장소, 사건, 이름)은 지어내지 마세요.'+(memo?'\n- 일시·장소는 위 "알릴 내용"에 적힌 것만 정확히 그대로 쓰고, 없으면 쓰지 마세요.':'')
   }
   var base=(full?ASK_FULL:ASK_TEXT).replace(/\n\n마지막에 제가[\s\S]*$/,'');
   return base+'\n\n이번 요청:\n- 주제: '+(B.topic.trim()||'따로 없어요. 직접 골라 주세요')+'\n- 분위기: '+(B.mood||'AI가 알아서 정해 주세요')+'\n- 길이: '+B.min+'분'+(full?'\n- 인트로: '+B.intro+'초':'')
@@ -1394,7 +1403,7 @@ $('okrights').onchange=function(){$('okyes').disabled=!this.checked};
 $('okno').onclick=closeAll;
 $('okyes').onclick=function(){
   var s=stats();closeAll();
-  tell({type:cfg.mode==='review'?'rw-studio-approve':'rw-script-confirm',scriptId:'S-'+Date.now().toString(36),title:title,kind:cfg.kind,type2:cfg.type,src:cfg.src,imported:imported,chapters:ch.filter(function(c){return !c.off}).map(function(c){return{title:c.title,text:c.text}}),chars:s.n,minutes:Math.round(s.m*10)/10,prod:s.prod});
+  tell({type:cfg.mode==='review'?'rw-studio-approve':'rw-script-confirm',scriptId:'S-'+Date.now().toString(36),title:title,kind:cfg.kind,occ:cfg.kind==='mood'?occName():'',type2:cfg.type,src:cfg.src,imported:imported,chapters:ch.filter(function(c){return !c.off}).map(function(c){return{title:c.title,text:c.text}}),chars:s.n,minutes:Math.round(s.m*10)/10,prod:s.prod});
   toast(inFrame?'대본을 확정했어요':'시안 화면이라 실제로 확정되지는 않아요');
 };
 

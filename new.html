@@ -109,15 +109,16 @@
   .df-chipset { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
   .df-hint { font-size: 0.78rem; color: var(--ink-faint); margin: 6px 0 0; line-height: 1.5; }
   .df-musicbox { margin: 0 0 14px; }
-  .df-sound { display: grid; gap: 8px; margin-bottom: 12px; }
-  .df-sound label { margin: 0; position: relative; display: block; }
+  .df-sound { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; margin-bottom: 12px; }
+  .df-sound label { margin: 0; position: relative; display: block; width: 100%; }
   .df-sound input { position: absolute; opacity: 0; pointer-events: none; }
-  .df-sound .scard { display: flex; gap: 12px; align-items: center; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; cursor: pointer; background: var(--bg); }
+  .df-sound .scard { box-sizing: border-box; width: 100%; display: flex; gap: 12px; align-items: center; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; cursor: pointer; background: var(--bg); }
   .df-sound .scard .dot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--line); flex-shrink: 0; }
   .df-sound .scard b { display: block; font-size: 0.94rem; color: var(--ink); font-weight: 600; }
   .df-sound .scard small { display: block; margin-top: 2px; font-size: 0.78rem; color: var(--ink-faint); font-weight: 400; line-height: 1.4; }
   .df-sound input:checked + .scard { border-color: var(--amber); background: color-mix(in srgb, var(--amber) 12%, var(--bg)); box-shadow: 0 0 0 1px var(--amber) inset; }
   .df-sound input:checked + .scard .dot { border-color: var(--amber); background: radial-gradient(circle, var(--amber) 0 45%, transparent 50%); }
+  .df-soon { font-style: normal; font-size: 0.7rem; margin-left: 6px; padding: 1px 7px; border-radius: 999px; border: 1px solid var(--line); color: var(--ink-faint); }
   .df-soundpanel { border-left: 3px solid var(--amber); padding: 4px 0 2px 12px; margin: 0 0 14px; }
   .df-guide { font-size: 0.8rem; color: var(--ink-dim); line-height: 1.65; background: var(--bg); border: 1px dashed var(--line); border-radius: 10px; padding: 10px 12px; margin-top: 8px; }
   .df-guide ol { margin: 4px 0 0; padding-left: 18px; }
@@ -993,7 +994,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     topic: '주제', productLink: '제품 링크', productImageUrl: '제품 이미지', target: '타겟', form: '영상 형태', tempo: '말하기 속도',
     voiceGender: '목소리', voiceAge: '목소리 연령대', directorNote: '연출 메모', style: '연출 스타일', characterUse: '캐릭터 통일',
     driveLink: '드라이브 링크', mediaNote: '분위기 메모',
-    sceneCount: '장면 수', videoLength: '영상 길이', estimatedPrice: '필요 포인트', scriptTitle: '내 대본', yadamKind: '야담 방식', introSeconds: '인트로 영상', hookText: '화면 상단 문구',
+    sceneCount: '장면 수', videoLength: '영상 길이', estimatedPrice: '필요 포인트', scriptTitle: '내 대본', yadamKind: '야담 방식', narration: '말', voiceUrl: '내 목소리 녹음', voiceTone: '목소리 기분', voiceSpeed: '읽는 속도', introSeconds: '인트로 영상', hookText: '화면 상단 문구',
     layout: '화면 구성', captionPos: '자막 위치', motion: '움직임 방식',
     videoType: '영상 종류', tier: '품질 등급', screenMode: '화면 움직임', soundRequest: '소리 요청', sceneSeconds: '그림 바뀌는 간격(초)', soundMode: '소리', musicFolderUrl: '내 음악 폴더'
   };
@@ -1091,15 +1092,16 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       const 분 = 롱폼길이분();
       const 등급 = 현재등급();
       if (planMode !== 'paid') {
-        const 체험가 = trialPriceOf(종류, 등급, 분, 인트로초());
+        const 체험가 = trialPriceOf(종류, 등급, 분, 인트로초(), 낭독중());
         priceBox.innerHTML = `<div class="amt" id="df-price-amt">체험 ${pt(체험가)}</div><p>체험판은 3분 길이까지 만들어요 · 체험 포인트로 결제돼요</p>${pointLine(체험가)}`;
         return;
       }
       const 초 = 인트로초();
-      const 값 = longPrice(종류, 등급, 분, 초);
-      const 최고 = longPrice(종류, '고급형', 분, 초);
-      const 막대 = '<div class="mb-chart">' + LONG_TIERS.map(t => { const v = longPrice(종류, t, 분, 초); return `<div class="mb-row${t === 등급 ? ' on' : ''}"><span>${t}</span><span class="mb-bar"><span class="mb-fill" style="width:${Math.round(v / 최고 * 100)}%;display:block;background:${t === 등급 ? 'var(--amber)' : 'var(--line)'}"></span></span><span class="v">${pt(v)}</span></div>`; }).join('') + '</div>';
-      priceBox.innerHTML = `<div class="amt" id="df-price-amt">약 ${pt(값)}</div><p>${kindName(종류)} ${hourLabel(분)} · ${등급} · ${종류 === '야담' ? '목소리: ' + ((document.getElementById('df-yvoice') || {}).value || '남성') : '소리: ' + 소리이름[현재소리()]}</p>${pointLine(값)}${막대}`;
+      const 낭 = 낭독중();
+      const 값 = longPrice(종류, 등급, 분, 초, 낭);
+      const 최고 = longPrice(종류, '고급형', 분, 초, 낭);
+      const 막대 = '<div class="mb-chart">' + LONG_TIERS.map(t => { const v = longPrice(종류, t, 분, 초, 낭); return `<div class="mb-row${t === 등급 ? ' on' : ''}"><span>${t}</span><span class="mb-bar"><span class="mb-fill" style="width:${Math.round(v / 최고 * 100)}%;display:block;background:${t === 등급 ? 'var(--amber)' : 'var(--line)'}"></span></span><span class="v">${pt(v)}</span></div>`; }).join('') + '</div>';
+      priceBox.innerHTML = `<div class="amt" id="df-price-amt">약 ${pt(값)}</div><p>${kindName(종류)} ${종류 === '수면음악' && 분 < 30 ? lenLabel(분) : hourLabel(분)}${낭 ? ' · AI 목소리 낭독 +' + Math.max(NAR_MIN, Math.round(NAR_PER_MIN * 분)) + 'P' : ''} · ${등급} · ${종류 === '야담' ? '목소리: ' + ((document.getElementById('df-yvoice') || {}).value || '남성') : '소리: ' + 소리이름[현재소리()]}</p>${pointLine(값)}${막대}`;
       return;
     }
     if (planMode !== 'paid') {
@@ -1468,7 +1470,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     if (answers.videoType) {
       // 롱폼 유형(수면음악): 움직임 방식 없음. 요금은 유형·등급·길이로 계산
       delete answers.motion;
-      answers.estimatedPrice = longPrice(answers.videoType, answers.tier, answers.videoLength, Number(answers.introSeconds) || 0);
+      answers.estimatedPrice = longPrice(answers.videoType, answers.tier, answers.videoLength, Number(answers.introSeconds) || 0, answers.narration === '목소리');
     } else if (planMode === 'paid' && mode !== 'media') {
       answers.motion = motionOf(answers.motion);
       answers.estimatedPrice = computePrice(answers.videoLength ? parseFloat(answers.videoLength) : defaultLen(answers.form), answers.motion);
@@ -1478,7 +1480,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     const rows = Object.keys(answers)
       .filter(k => answers[k] && k !== 'thumbnail' && k !== 'musicRights' && k !== 'scriptId' && !(k === 'estimatedPrice' && planMode !== 'paid'))
       .filter(k => !((k === 'productLink' || k === 'productImageUrl') && !/^https?:\/\//i.test(String(answers[k]))))
-      .map(k => `<div class="summary-row"><span class="k">${FIELD_LABEL[k] || k}</span><span class="v">${k === 'characterUse' ? (answers[k] ? '예' : '아니오') : k === 'estimatedPrice' && !isNaN(Number(answers[k])) ? Number(answers[k]).toLocaleString('ko-KR') + 'P' : k === 'videoLength' && answers.videoType ? hourLabel(parseFloat(answers[k])) : k === 'videoType' ? kindName(answers[k]) : k === 'yadamKind' ? (answers[k] === 'long' ? '인트로 영상 + 긴 이야기' : '그림이 자주 바뀌는 야담') : k === 'introSeconds' ? (answers[k] + '초') : k === 'soundMode' ? (소리이름[answers[k]] || answers[k]) : escapeHtml(String(answers[k])).slice(0, 60)}</span></div>`)
+      .map(k => `<div class="summary-row"><span class="k">${FIELD_LABEL[k] || k}</span><span class="v">${k === 'characterUse' ? (answers[k] ? '예' : '아니오') : k === 'estimatedPrice' && !isNaN(Number(answers[k])) ? Number(answers[k]).toLocaleString('ko-KR') + 'P' : k === 'videoLength' && answers.videoType ? (parseFloat(answers[k]) < 30 && answers.videoType === '수면음악' ? lenLabel(parseFloat(answers[k])) : hourLabel(parseFloat(answers[k]))) : k === 'videoType' ? kindName(answers[k]) : k === 'yadamKind' ? (answers[k] === 'long' ? '인트로 영상 + 긴 이야기' : '그림이 자주 바뀌는 야담') : k === 'introSeconds' ? (answers[k] + '초') : k === 'soundMode' ? (소리이름[answers[k]] || answers[k]) : escapeHtml(String(answers[k])).slice(0, 60)}</span></div>`)
       .join('');
     const 방식행 = `<div class="summary-row summary-mode ${planMode === 'paid' ? 'is-paid' : 'is-trial'}"><span class="k">제작 방식</span><span class="v">${planMode === 'paid' ? '정식 제작 (결제 안내 메일 발송)' : answers.videoType ? `체험 (3분 미리보기 · 체험 ${pt(신청체험가())})` : `체험 (워터마크 미리보기 · 체험 ${pt(신청체험가())})`}</span></div>`;
     const 썸네일원함 = /^(true|예|네|응|yes|y|1|원해요|만들어)/i.test(String(answers.thumbnail ?? '').trim());
@@ -1561,6 +1563,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       if (answers.soundRequest) payload.soundRequest = answers.soundRequest;
       if (answers.sceneSeconds) payload.sceneSeconds = answers.sceneSeconds;
       if (answers.soundMode) payload.soundMode = answers.soundMode;
+      if (answers.narration) { payload.narration = answers.narration; if (answers.voiceGender) payload.voiceGender = answers.voiceGender; if (answers.voiceTone) payload.voiceTone = answers.voiceTone; if (answers.voiceSpeed) payload.voiceSpeed = answers.voiceSpeed; if (answers.voiceUrl) { payload.voiceUrl = answers.voiceUrl; payload.voiceRights = answers.voiceRights === true; } }
       if (answers.musicFolderUrl) { payload.musicFolderUrl = answers.musicFolderUrl; payload.musicRights = answers.musicRights === true; }
       delete payload.motion;
     }
@@ -1742,18 +1745,22 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     const m = Math.min(Math.max(0.25, Number(min) || 60), YL_MAX_MIN);
     return Math.max(9, Math.round(b + (m / 60) * r + Math.round(인트로초 || 0) * INTRO_PER_SEC));
   }
-  function longPrice(kind, tier, min, 인트로초) {
+  // [분위기 영상 말 넣기] AI 목소리로 읽어 주면 낭독 요금(분당 NAR_PER_MIN P, 최소 NAR_MIN P)이 더해진다. 글자로 보여주기·내 목소리 녹음은 추가 요금이 없다. (접수 서버도 같은 값)
+  const NAR_PER_MIN = 3, NAR_MIN = 3;
+  const NARRATION_READY = false;   // 말 넣기 제작 연결(서버·워크플로)이 끝나면 true 로 바꾼다. false 인 동안은 화면을 미리 볼 수만 있고 접수는 막는다.
+  function longPrice(kind, tier, min, 인트로초, 낭독) {
     if (kind === '야담' && 인트로초 > 0) return ylPrice(tier, min, 인트로초);
     const [base, rate] = (LONG_RATE[tier] || LONG_RATE['표준형'])[kind];
     const m = Math.min(Math.max(0.25, Number(min) || 60), LONG_MAX_MIN[kind]);
     const raw = base + (kind === '수면음악' ? (m / 60) * rate : m * rate);
-    return Math.max(9, Math.round(raw));
+    const 낭독비 = kind === '수면음악' && 낭독 ? Math.max(NAR_MIN, Math.round(NAR_PER_MIN * m)) : 0;
+    return Math.max(9, Math.round(raw)) + 낭독비;
   }
   // [체험 포인트] 체험 가격 = 정식 이미지 중심(길이 3분까지) 가격의 25%, 최소 5P. 서버(접수 v3.11)와 같은 식이다.
-  function trialPriceOf(kind, tier, min, 인트로초) { return Math.max(5, Math.round(longPrice(kind, tier, Math.min(Number(min) || 60, 3), 인트로초) * 0.25)); }
+  function trialPriceOf(kind, tier, min, 인트로초, 낭독) { return Math.max(5, Math.round(longPrice(kind, tier, Math.min(Number(min) || 60, 3), 인트로초, 낭독) * 0.25)); }
   function trialPriceShort(len) { return Math.max(5, Math.round(computePrice(Math.min(len, 3), '이미지 중심') * 0.25)); }
   function 신청체험가() {
-    if (answers.videoType) return trialPriceOf(answers.videoType, answers.tier || '표준형', parseFloat(answers.videoLength) || 60, Number(answers.introSeconds) || 0);
+    if (answers.videoType) return trialPriceOf(answers.videoType, answers.tier || '표준형', parseFloat(answers.videoLength) || 60, Number(answers.introSeconds) || 0, answers.narration === '목소리');
     return trialPriceShort(answers.videoLength ? parseFloat(answers.videoLength) : defaultLen(answers.form));
   }
   function longPerHour(kind, tier) { const r = LONG_RATE[tier][kind][1]; return kind === '수면음악' ? r : r * 60; }
@@ -2017,10 +2024,30 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
 
   // ===== 영상 종류(일반 / 수면음악 / 야담) 선택 - 직접 설정하기 =====
   window.__rwGoYadam = function () { dfPreType = '야담'; showDirectForm(); };
+  let dfPreNar = null;
   let dfPreType = null; // 챗봇에서 "수면음악 만들고 싶어요" 하면 직접 설정하기를 이 종류로 열어준다
   function 현재종류() { return document.querySelector('input[name="df-type"]:checked')?.value || '일반'; }
   function 현재소리() { return document.querySelector('input[name="df-sound"]:checked')?.value || '자동'; }
   const 소리이름 = { '자동': 'AI가 만든 소리', '내음악': '내 음악', '없음': '소리 없음' };
+  // 말(나레이션): 없음 / 글자(화면에 글자로) / 목소리(AI 목소리로 읽기) / 내목소리(내 녹음 파일)
+  function 현재말() { return document.querySelector('input[name="df-nar"]:checked')?.value || '없음'; }
+  function 무드대본() { const m = window.__rwMoodScript; return m && (window.__rwMoodLib ? window.__rwMoodLib() : []).some(x => x.id === m.id) ? m : null; }
+  function 대본이끄는길이() { const 말 = 현재종류() === '수면음악' ? 현재말() : '없음'; return 말 === '글자' || 말 === '목소리'; }
+  const TONE_BY_OCC = { '생일': '기쁘게', '기념일': '기쁘게', '승진': '기쁘게', '출산': '기쁘게', '결혼': '기쁘게', '졸업': '기쁘게', '감사': '따뜻하게', '응원': '활기차게', '위로': '차분하게', '그리움': '차분하게', '부고·추모': '차분하게' };
+  let toneTouched = false;
+  function 목소리값() {
+    const g = n => document.querySelector(`input[name="${n}"]:checked`)?.value;
+    return { 성별: g('df-mgender') || '여성', 기분: g('df-mtone') || '따뜻하게', 속도: g('df-mspeed') || '보통' };
+  }
+  function applyToneDefault() {   // 대본의 '어떤 날'에 맞춰 기분을 미리 골라 둔다 (사용자가 직접 바꾸면 그대로 둔다)
+    const oc = (무드대본() || {}).occ || '', 권장 = TONE_BY_OCC[oc];
+    const auto = document.getElementById('df-tone-auto'), note = document.getElementById('df-tone-note');
+    if (권장 && !toneTouched) { const r = document.querySelector(`input[name="df-mtone"][value="${권장}"]`); if (r) r.checked = true; }
+    if (auto) auto.textContent = 권장 ? `${oc}에는 ${권장}가 어울려요` : '';
+    const 지금 = 목소리값().기분;
+    if (note) { const 어색 = oc === '부고·추모' && (지금 === '기쁘게' || 지금 === '활기차게'); note.hidden = !어색; if (어색) note.textContent = '부고·추모 영상에는 어울리지 않을 수 있어요. 차분하게나 감동을 권해요.'; }
+  }
+  function 낭독중() { return 현재종류() === '수면음악' && 현재말() === '목소리'; }
   function 야담형식() { return document.querySelector('input[name="df-ykind"]:checked')?.value === 'classic' ? 'classic' : 'long'; }
   function 내대본인트로초() {   // 보관함에서 고른 대본의 [인트로] 장 분량(초). 없으면 0
     const sr = window.__rwScript; if (!sr || sr.src !== 'ready') return 0;
@@ -2043,6 +2070,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       const y = parseFloat(document.getElementById('df-yd-min')?.value);
       return y > 0 ? Math.min(Math.max(y, 5), 야담최대분()) : 10; // 비워두면 10분
     }
+    if (현재종류() === '수면음악' && 대본이끄는길이()) { const m = 무드대본(); return m && m.minutes > 0 ? Math.max(0.25, Math.round(m.minutes * 100) / 100) : 1; }   // 말을 넣는 영상은 대본 길이로
     const el = document.getElementById('df-lt-hours');
     const h = el ? parseFloat(el.value) : NaN;
     return h > 0 ? Math.min(h * 60, 480) : 60; // 비워두면 1시간
@@ -2058,9 +2086,31 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   function sleepSectionHtml() {
     const tier = (t, sub) => `<label><input type="radio" name="df-tier" value="${t}"${t === '표준형' ? ' checked' : ''}><span class="tcard"><b>${t}</b><small>${sub}<br>1시간 ${longPrice('수면음악', t, 60).toLocaleString('ko-KR')}P</small></span></label>`;
     const mode = (v, sub) => `<label><input type="radio" name="df-smode" value="${v}"${v === '숨쉬기' ? ' checked' : ''}><span class="tcard"><b>${v}${v === '숨쉬기' ? ' · 추천' : ''}</b><small>${sub}</small></span></label>`;
-    return `<section class="df-sec df-sleep df-hide" style="--c:#8fa9ff"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg></span><div><h3>${kindName('수면음악')} 설정</h3><p>길이와 소리를 정해주세요. 요금은 아래에서 바로 계산돼요</p></div></div>
+    return `<section class="df-sec df-sleep df-hide" style="--c:#8fa9ff"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg></span><div><h3>${kindName('수면음악')} 설정</h3><p>말·길이·소리를 정해주세요. 요금은 아래에서 바로 계산돼요</p></div></div>
       <div class="df-use"><p>수면, 공부·집중, 힐링, 명상, 카페처럼 <b>길게 틀어두는 영상</b>이에요. 눌러서 예시로 시작해 보세요.</p><div class="len-chips" id="df-ex-chips">${[['수면 · 비 오는 밤 빗소리','비 오는 밤 작은 오두막의 빗소리'],['집중 · 도서관 BGM','도서관 같은 조용한 공부 집중 BGM'],['힐링 · 숲속 시냇물','숲속 시냇물 소리 힐링 자연음'],['카페 · 재즈','비 오는 날 재즈 카페 분위기']].map(([l, t]) => `<button type="button" class="len-chip" data-topic="${t}">${l}</button>`).join('')}</div></div>
-      <div class="df-field"><label>영상 길이 <span class="opt">30분 ~ 8시간</span></label>
+      <div class="df-field" id="df-nar-field"><label>말을 넣을까요 <span class="opt">영상 편지·메시지에 좋아요</span></label>
+        <div class="df-sound" role="radiogroup" aria-label="말 넣기">
+          <label><input type="radio" name="df-nar" value="없음" checked><span class="scard"><span class="dot"></span><span><b>말 없이 소리와 그림만</b><small>수면·집중·힐링 영상처럼 만들어요</small></span></span></label>
+          <label><input type="radio" name="df-nar" value="글자"><span class="scard"><span class="dot"></span><span><b>대본을 글자로 보여줘요</b><small>소리는 그대로 두고, 글이 화면에 천천히 나와요<i class="df-soon">곧</i></small></span></span></label>
+          <label><input type="radio" name="df-nar" value="목소리"><span class="scard"><span class="dot"></span><span><b>대본을 AI 목소리로 읽어요</b><small>대본을 읽어 주고 배경 소리는 작게 깔려요 · 분당 ${NAR_PER_MIN}P 추가<i class="df-soon">곧</i></small></span></span></label>
+          <label><input type="radio" name="df-nar" value="내목소리"><span class="scard"><span class="dot"></span><span><b>내 목소리 녹음을 넣어요</b><small>부모님께 드리는 편지처럼 직접 말한 녹음을 써요 · 추가 요금 없음<i class="df-soon">곧</i></small></span></span></label>
+        </div>
+        <div class="df-soundpanel df-hide" id="df-np-script"><div id="df-mood-script"></div>
+          <div id="df-mvoice-wrap" class="df-hide" style="margin-top:12px">
+            <label style="font-weight:400">읽어 줄 목소리</label>
+            <div class="df-chipset" role="radiogroup" aria-label="목소리 성별" style="grid-template-columns:repeat(2,1fr)"><label><input type="radio" name="df-mgender" value="여성" checked><span class="tcard"><b>여성</b></span></label><label><input type="radio" name="df-mgender" value="남성"><span class="tcard"><b>남성</b></span></label></div>
+            <label style="font-weight:400;margin-top:12px;display:block">기분 <span class="opt" id="df-tone-auto"></span></label>
+            <div class="df-chipset" role="radiogroup" aria-label="목소리 기분" style="grid-template-columns:repeat(3,1fr)">${['기쁘게', '따뜻하게', '차분하게', '감동', '활기차게'].map((t, i) => `<label><input type="radio" name="df-mtone" value="${t}"${i === 1 ? ' checked' : ''}><span class="tcard"><b>${t}</b></span></label>`).join('')}</div>
+            <p class="df-hint" id="df-tone-note" style="margin-top:6px" hidden></p>
+            <label style="font-weight:400;margin-top:12px;display:block">읽는 속도</label>
+            <div class="df-chipset" role="radiogroup" aria-label="읽는 속도" style="grid-template-columns:repeat(3,1fr)">${['느리게', '보통', '빠르게'].map((t, i) => `<label><input type="radio" name="df-mspeed" value="${t}"${i === 1 ? ' checked' : ''}><span class="tcard"><b>${t}</b></span></label>`).join('')}</div></div></div>
+        <div class="df-soundpanel df-hide" id="df-np-own"><label style="font-weight:400">내 목소리 녹음 링크 <em class="req">*</em></label><input type="url" id="df-voiceUrl" placeholder="https://drive.google.com/file/d/… 또는 폴더 링크">
+          <div class="df-guide"><b>녹음 파일 공유 방법</b><ol><li>휴대폰 녹음기로 녹음한 파일(mp3, m4a, wav)을 구글 드라이브에 올려요.</li><li>파일에서 마우스 오른쪽 버튼 → <b>공유</b> → <b>링크가 있는 모든 사용자(뷰어)</b>로 바꿔요.</li><li><b>링크 복사</b>를 눌러 위 칸에 붙여넣어요.</li></ol>
+            <div style="margin-top:6px">녹음 길이가 곧 영상 길이예요. 아래 <b>영상 길이</b>에 대략의 길이를 입력해 주세요.</div></div>
+          <label class="df-musicbox" style="margin-top:10px;display:flex;gap:8px;align-items:flex-start"><input type="checkbox" id="df-voiceRights"><span style="font-weight:400;font-size:0.82rem;color:var(--ink-dim)">제공하는 녹음의 사용 권리가 저에게 있음을 확인합니다.</span></label></div>
+        <p class="df-hint" id="df-nar-soon" hidden>말 넣기는 곧 열려요. 지금은 화면과 요금을 미리 볼 수 있어요.</p>
+      </div>
+      <div class="df-field" id="df-lt-field"><label>영상 길이 <span class="opt" id="df-lt-opt">30분 ~ 8시간</span></label>
         <input type="hidden" id="df-lt-hours" value="1">
         <div class="len-pick">
           <div class="len-box"><button type="button" data-step="h:-1" aria-label="시간 줄이기">−</button><input type="number" id="df-lt-h" inputmode="numeric" min="0" max="8" step="1" value="1" aria-label="시간"><button type="button" data-step="h:1" aria-label="시간 늘리기">＋</button></div><span class="len-unit">시간</span>
@@ -2131,7 +2181,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     updatePrice();
   }
   let drawYadam = null;
-  window.__rwFormRedraw = function () { try { if (typeof drawYadam === 'function') drawYadam(); updatePrice(); } catch (e) {} };
+  window.__rwFormRedraw = function () { try { if (typeof drawYadam === 'function') drawYadam(); if (window.__rwRefreshMoodCard) window.__rwRefreshMoodCard(); updatePrice(); } catch (e) {} };
   function setupLongform() {
     const types = document.getElementById('df-types');
     if (!types) return;
@@ -2140,7 +2190,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     const hours = document.getElementById('df-lt-hours');   // 숨은 값(시간, 소수) - 요금 계산·접수는 이 값을 그대로 쓴다
     const hIn = document.getElementById('df-lt-h'), mIn = document.getElementById('df-lt-m');
     const read = document.getElementById('df-lt-read');
-    const MIN = 30, MAX = 480;
+    let MIN = 30; const MAX = 480;
     let 안내 = '';
     function 분표시(m) { const h = Math.floor(m / 60), r = m % 60; return h ? (r ? `${h}시간 ${r}분` : `${h}시간`) : `${r}분`; }
     function setTotal(total, fromUser) {
@@ -2155,7 +2205,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     }
     function draw(m) {
       const tier = 현재등급();
-      const 요금 = longPrice('수면음악', tier, m);
+      const 요금 = longPrice('수면음악', tier, m, 0, 낭독중());
       read.innerHTML = `총 <b>${분표시(m)}</b> · 약 <b>${요금.toLocaleString('ko-KR')}P</b>` + (planMode !== 'paid' ? ' <span class="len-sub">(체험판은 3분 영상이 체험 포인트로 만들어져요)</span>' : '') + (안내 ? `<span class="len-warn"> ${안내}</span>` : '');
       chips.innerHTML = [30, 60, 180, 480].map(v => `<button type="button" class="len-chip${v === m ? ' on' : ''}" data-m="${v}">${v < 60 ? '30분' : (v / 60) + '시간'}</button>`).join('');
     }
@@ -2170,6 +2220,42 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     document.querySelectorAll('input[name="df-tier"]').forEach(r => r.addEventListener('change', () => draw(현재분() || 60)));
     setTotal(60, false);
     types.addEventListener('change', applyType);
+    // 말 넣기: 선택에 따라 대본 고르기·내 녹음 칸을 보여 주고, 영상 길이 칸을 바꾼다
+    function drawMoodScript() {
+      const host = document.getElementById('df-mood-script'); if (!host) return;
+      const 말 = 현재말(), r = 무드대본(), L = window.__rwMoodLib ? window.__rwMoodLib() : [];
+      const esc2 = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+      if (r) {
+        host.className = 'sc-card ready';
+        host.innerHTML = `<h4>이 글을 ${말 === '글자' ? '화면에 글자로 보여줘요' : 'AI 목소리로 읽어요'}</h4><p class="sc-note">${esc2(r.title)} · 약 ${Math.round(r.minutes * 60)}초. 영상 길이는 이 글의 길이에 맞춰져요. 제작을 시작하면 대본이 서버로 전달되고, 끝나면 지워져요.</p><div class="sc-opts"><button type="button" id="mc-edit">다시 열기</button><button type="button" id="mc-clear">대본 빼기</button></div>`;
+        host.querySelector('#mc-edit').onclick = () => { const x = L.find(y => y.id === r.id); window.__rwOpenStudio('long', 'mine', x ? { title: x.title, chapters: x.chapters } : null, 'mood'); };
+        host.querySelector('#mc-clear').onclick = () => { window.__rwMoodScript = null; drawMoodScript(); applyNar(); };
+      } else {
+        host.className = 'sc-card';
+        host.innerHTML = `<h4>읽을 대본</h4><p class="sc-note">받는 사람에게 전할 글이에요. 대본 만들기에서 쉽게 쓸 수 있어요.</p><button type="button" class="sc-act" id="mc-new">영상 편지 대본 만들기</button>` + (L.length ? `<div class="sh-lib" style="margin-top:10px">${L.slice(0, 5).map((x, i) => `<div class="sh-item"><span>${esc2(x.title)} <small>약 ${Math.round(x.minutes * 60)}초</small></span><button type="button" data-mu="${i}">이 대본 쓰기</button></div>`).join('')}</div>` : '');
+        host.querySelector('#mc-new').onclick = () => window.__rwOpenStudio('long', 'mine', null, 'mood');
+        host.querySelectorAll('[data-mu]').forEach(b => { b.onclick = () => { const x = L[+b.dataset.mu]; window.__rwMoodScript = { id: x.id, title: x.title, kind: 'mood', minutes: x.minutes, occ: x.occ || '' }; toneTouched = false; drawMoodScript(); applyNar(); }; });
+      }
+    }
+    function applyNar() {
+      const 말 = 현재말(), 끄는 = 말 === '글자' || 말 === '목소리';
+      document.getElementById('df-np-script').classList.toggle('df-hide', !끄는);
+      document.getElementById('df-np-own').classList.toggle('df-hide', 말 !== '내목소리');
+      document.getElementById('df-mvoice-wrap').classList.toggle('df-hide', 말 !== '목소리');
+      document.getElementById('df-lt-field').style.display = 끄는 ? 'none' : '';
+      MIN = 말 === '내목소리' ? 1 : 30;
+      document.getElementById('df-lt-opt').textContent = 말 === '내목소리' ? '1분 ~ 8시간 · 녹음 길이로 입력' : '30분 ~ 8시간';
+      document.getElementById('df-nar-soon').hidden = NARRATION_READY || 말 === '없음';
+      if (끄는) drawMoodScript();
+      if (말 === '목소리') applyToneDefault();
+      if (!끄는) setTotal(현재분(), false);
+      updatePrice();
+    }
+    window.__rwRefreshMoodCard = () => { if (현재말() === '글자' || 현재말() === '목소리') drawMoodScript(); applyNar(); };
+    document.querySelectorAll('input[name="df-nar"]').forEach(r => r.addEventListener('change', applyNar));
+    document.querySelectorAll('input[name="df-mtone"]').forEach(r => r.addEventListener('change', () => { toneTouched = true; applyToneDefault(); }));
+    if (NARRATION_READY) window.__rwGoMood = () => { dfPreType = '수면음악'; dfPreNar = '목소리'; showDirectForm(); };
+    if (dfPreNar) { const r = document.querySelector(`input[name="df-nar"][value="${dfPreNar}"]`); if (r) { r.checked = true; applyNar(); } dfPreNar = null; }
     document.querySelectorAll('input[name="df-sound"]').forEach(r => r.addEventListener('change', () => {
       ['자동', '내음악', '없음'].forEach(k => { const el = document.getElementById('df-sp-' + k); if (el) el.classList.toggle('df-hide', k !== 현재소리()); });
       updatePrice();
@@ -2336,15 +2422,24 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
           if (!/drive\.google\.com\/(drive\/(u\/\d+\/)?folders\/|open\?id=)[A-Za-z0-9_-]{10,}/.test(폴더)) { alert('구글 드라이브 폴더 링크를 붙여넣어주세요. (https://drive.google.com/drive/folders/… 모양이에요)'); return; }
           if (!document.getElementById('df-musicRights').checked) { alert('내 음악을 쓰시려면 사용 권리 확인에 체크해주세요.'); return; }
         }
+        const 말 = 현재말(), 대본 = 무드대본();
+        if (말 !== '없음' && !NARRATION_READY) { alert('말 넣기(글자·목소리)는 곧 열려요. 지금은 "말 없이"로 만들어 주세요.'); return; }
+        if ((말 === '글자' || 말 === '목소리') && !대본) { alert('읽을 대본을 먼저 골라 주세요. "영상 편지 대본 만들기"를 누르면 쉽게 만들 수 있어요.'); return; }
+        if (말 === '내목소리') {
+          if (!/drive\.google\.com\/(drive\/(u\/\d+\/)?folders\/|file\/d\/|open\?id=)[A-Za-z0-9_-]{10,}/.test(val('df-voiceUrl'))) { alert('내 목소리 녹음이 있는 구글 드라이브 링크를 붙여넣어 주세요.'); return; }
+          if (!document.getElementById('df-voiceRights').checked) { alert('녹음 사용 권리 확인에 체크해 주세요.'); return; }
+        }
+        if (말 !== '없음' && 대본 && 대본.occ === '부고·추모' && !confirm('부고·추모 영상이에요.\n성함, 일시, 장소가 정확한지 한 번 더 확인하셨나요?')) return;
         const 분 = planMode === 'paid' ? 롱폼길이분() : 3;
         answers = { topic: val('df-topic'), form: '롱폼', videoType: '수면음악', tier: 현재등급(), videoLength: String(Math.round(분 * 100) / 100) };
         answers.screenMode = document.querySelector('input[name="df-smode"]:checked')?.value || '숨쉬기';
         if (val('df-style')) answers.style = val('df-style');
         answers.soundMode = 소리;
+        if (말 !== '없음') { answers.narration = 말; if (말 === '목소리') { const v = 목소리값(); answers.voiceGender = v.성별; answers.voiceTone = v.기분; answers.voiceSpeed = v.속도; } if (대본) { answers.scriptId = 대본.id; answers.scriptTitle = 대본.title; } if (말 === '내목소리') { answers.voiceUrl = val('df-voiceUrl'); answers.voiceRights = true; } }
         if (소리 === '자동' && val('df-soundRequest')) answers.soundRequest = val('df-soundRequest');
         if (val('df-sceneSeconds')) answers.sceneSeconds = val('df-sceneSeconds');
         if (소리 === '내음악') { answers.musicFolderUrl = 폴더; answers.musicRights = true; }
-        answers.estimatedPrice = longPrice('수면음악', answers.tier, 분);
+        answers.estimatedPrice = longPrice('수면음악', answers.tier, 분, 0, 말 === '목소리');
         mode = 'topic';
         showChatFromDirectForm();
         addMsg('user', '직접 설정하기로 분위기 영상을 설정했어요.');
@@ -2614,7 +2709,7 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
     '<div><div class="sh-lab">이 대본으로 영상 만드는 법</div><ol class="sh-steps"><li><span>대본을 쓰고 <b>확정</b>하면 보관함에 저장돼요.</span></li><li><span>왼쪽 <b>직접 설정하기</b>를 누르고 같은 종류의 영상을 골라요.</span></li><li><span><b>내 대본</b> 카드에서 저장한 대본을 눌러요.</span></li></ol></div></div>';
     hub.querySelectorAll('[data-kd]').forEach(function(b){b.onclick=function(){var k=b.dataset.kd;if(k==='yadam'||k==='mood')openFrame('long','mine',null,null,k);else{var n=hub.querySelector('#kd-note');n.hidden=false}}});
     hub.querySelectorAll('[data-mk]').forEach(function(b){b.onclick=function(){var x=lib()[+b.dataset.mk];window.__rwScript={id:x.id,title:x.title,type:'long',src:'ready',imported:x.imported,minutes:x.minutes};close();if(window.__rwGoYadam)window.__rwGoYadam()}});
-    hub.querySelectorAll('[data-mm]').forEach(function(b){b.onclick=function(){var x=lib()[+b.dataset.mm];window.__rwMoodScript={id:x.id,title:x.title,kind:'mood',minutes:x.minutes};close();if(window.__rwGoMood)window.__rwGoMood()}});
+    hub.querySelectorAll('[data-mm]').forEach(function(b){b.onclick=function(){var x=lib()[+b.dataset.mm];window.__rwMoodScript={id:x.id,title:x.title,kind:'mood',minutes:x.minutes,occ:x.occ||''};close();if(window.__rwGoMood)window.__rwGoMood()}});
     hub.querySelectorAll('[data-open]').forEach(function(b){b.onclick=function(){var x=lib()[+b.dataset.open];openFrame('long','mine',null,{title:x.title,chapters:x.chapters},x.kind)}});
     hub.querySelectorAll('[data-del]').forEach(function(b){b.onclick=function(){var x=lib()[+b.dataset.del];saveLib(cache.filter(function(y){return y!==x}));if(window.__rwScript&&x&&window.__rwScript.id===x.id)window.__rwScript=null;renderHub()}});
   }
@@ -2636,8 +2731,8 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
     if(d.type==='rw-studio-focus')document.body.classList.toggle('studio-focus',!!d.on);
     if(d.type==='rw-studio-approve')close();
     if(d.type==='rw-script-confirm'){
-      var kd=d.kind==='mood'?'mood':'yadam';var a=lib();a.unshift({id:d.scriptId,title:d.title,type:'long',kind:kd,src:'mine',imported:!!d.imported,chapters:d.chapters,chars:d.chars,minutes:d.minutes,prod:d.prod,at:Date.now()});saveLib(a);
-      if(kd==='mood')window.__rwMoodScript={id:d.scriptId,title:d.title,kind:'mood',minutes:d.minutes};else window.__rwScript={id:d.scriptId,title:d.title,type:'long',src:'ready',imported:!!d.imported,minutes:d.minutes};
+      var kd=d.kind==='mood'?'mood':'yadam';var a=lib();a.unshift({id:d.scriptId,title:d.title,type:'long',kind:kd,occ:d.occ||'',src:'mine',imported:!!d.imported,chapters:d.chapters,chars:d.chars,minutes:d.minutes,prod:d.prod,at:Date.now()});saveLib(a);
+      if(kd==='mood')window.__rwMoodScript={id:d.scriptId,title:d.title,kind:'mood',minutes:d.minutes,occ:d.occ||''};else window.__rwScript={id:d.scriptId,title:d.title,type:'long',src:'ready',imported:!!d.imported,minutes:d.minutes};
       var from=ret;close();
       if(window.__rwRefreshScriptCard)window.__rwRefreshScriptCard();if(window.__rwFormRedraw)window.__rwFormRedraw();
       if(from!=='direct')savedPop(d.title,kd)
@@ -2656,7 +2751,7 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
     (go||o.querySelector('#sc-pop-later')).focus()
   }
   /* 직접 설정하기의 '대본' 카드에서 호출 */
-  window.__rwOpenStudio=function(type,src,load){openFrame(type,src,'direct',load);active(false)};
+  window.__rwOpenStudio=function(type,src,load,kind){openFrame(type,src,'direct',load,kind);active(false)};
   window.__rwLoadLib=loadLib;
   window.__rwScriptLib=function(){return lib().filter(function(x){return x.kind!=='mood'})};
   window.__rwMoodLib=function(){return lib().filter(function(x){return x.kind==='mood'})};
