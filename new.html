@@ -380,6 +380,53 @@
   .kd-tag{font-style:normal;font-size:.72rem;border:1px solid var(--amber-dim,var(--line));color:var(--amber);border-radius:999px;padding:1px 8px;margin-right:7px}
   .kd-tag.mood{border-color:var(--line);color:var(--ink-dim)}
   @media (max-width:560px){.kd-grid{grid-template-columns:1fr}}
+
+  /* 대본 만들기 첫 화면: 큰 제목 + 아이콘 + 카드 */
+  .sh-in{max-width:820px;gap:30px}
+  .sh-in h2{font-size:1.7rem;font-weight:700;letter-spacing:-.025em}
+  .sh-in p.sub{margin:6px 0 0;font-size:1rem;color:var(--ink-dim)}
+  .sh-priv{display:flex;gap:12px;align-items:flex-start;margin-top:16px;padding:14px 16px;border:1px solid var(--line);border-radius:14px;background:var(--bg-raised)}
+  .sh-priv p{margin:0;font-size:.88rem;line-height:1.65;color:var(--ink-dim)}
+  .sh-priv p b{color:var(--ink)}
+  .sh-in .pi,.sh-ic,.kd-ic,.st-i{display:grid;place-items:center;flex:none;color:var(--amber);background:var(--amber-wash)}
+  .sh-in .pi{width:34px;height:34px;border-radius:10px}
+  .sh-in svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+  .sh-h{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .sh-h .hi{display:grid;place-items:center;width:32px;height:32px;border-radius:10px;background:var(--amber-wash);color:var(--amber)}
+  .sh-h h3{margin:0;font-size:1.15rem;font-weight:700;letter-spacing:-.02em}
+  .sh-cnt{font-size:.82rem;font-weight:700;color:var(--amber);background:var(--amber-wash);border-radius:999px;padding:1px 10px}
+  .kd{position:relative;gap:4px;padding:20px 20px 18px;border-radius:18px}
+  .kd-ic{width:44px;height:44px;border-radius:13px;margin-bottom:10px}
+  .kd-ic svg{width:23px;height:23px}
+  .kd b{font-size:1.3rem}
+  .kd .kd-t{font-size:.95rem}
+  .kd .kd-d{font-size:.9rem}
+  .kd.off{background:var(--bg-raised);border-style:solid}
+  .kd.off .kd-ic{color:var(--ink-faint);background:var(--bg-input,var(--line))}
+  .kd-badge{position:absolute;top:16px;right:16px;font-style:normal;font-size:.76rem;font-weight:600;color:var(--ink-faint);border:1px solid var(--line);border-radius:999px;padding:2px 10px}
+  .sh-item{gap:14px;padding:14px 16px;border-radius:14px;flex-wrap:wrap}
+  .sh-ic{width:42px;height:42px;border-radius:12px}
+  .sh-ic.mood{color:var(--ink-dim);background:var(--bg-input,var(--line))}
+  .sh-tx{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1 1 200px}
+  .sh-tx b{font-size:1.02rem;font-weight:700;overflow-wrap:anywhere}
+  .sh-tx small{font-size:.86rem;color:var(--ink-faint);display:flex;align-items:center;gap:8px}
+  .sh-item .kd-tag{font-size:.76rem;padding:2px 10px;margin:0}
+  .sh-act{display:flex;gap:8px;flex-wrap:wrap}
+  .sh-item button{padding:9px 16px;font-size:.9rem;font-weight:600}
+  .sh-item .sh-use{background:var(--amber);border-color:var(--amber);color:var(--on-amber,#fff)}
+  .sh-item .sh-del{color:var(--ink-faint);font-weight:500}
+  .sh-empty{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:20px;border:1px dashed var(--line);border-radius:14px;color:var(--ink-dim)}
+  .sh-empty .pi{margin-bottom:8px}
+  .sh-empty b{font-size:1.02rem;color:var(--ink)}
+  .sh-empty small{font-size:.9rem;color:var(--ink-faint)}
+  .sh-steps{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+  .sh-steps li{flex-direction:column;gap:12px;padding:16px;border:1px solid var(--line);border-radius:14px;background:var(--bg-raised);font-size:.95rem;line-height:1.55}
+  .sh-steps li::before{width:26px;height:26px;font-size:.84rem;order:-2}
+  .st-i{width:38px;height:38px;border-radius:11px;order:-1}
+  .sh-steps li{position:relative}
+  .sh-steps li::before{position:absolute;top:14px;right:14px}
+  @media (max-width:640px){.sh-in{padding:28px 16px 60px;gap:26px}.sh-in h2{font-size:1.45rem}.sh-steps{grid-template-columns:1fr}.sh-steps li{flex-direction:row;align-items:center}.sh-steps li::before{position:static;order:3;margin-left:auto}.st-i{order:0}.sh-item .sh-act{width:100%}}
+
   .sc-pop{position:fixed;inset:0;z-index:300;display:grid;place-items:center;background:rgba(0,0,0,.45);padding:16px}
   .sc-pop[hidden]{display:none}
   .sc-pop-box{width:min(420px,100%);background:var(--bg);border:1px solid var(--line);border-radius:16px;padding:22px 20px 18px;display:flex;flex-direction:column;gap:12px}
@@ -388,7 +435,16 @@
   .sc-pop-box .sc-pop-btns{display:flex;flex-direction:column;gap:8px;margin-top:4px}
   .sc-pop-box .sc-pop-btns button{border-radius:999px;padding:12px 18px;font:inherit;font-weight:700;cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--ink)}
   .sc-pop-box .sc-pop-btns .go{border:0;background:var(--amber);color:var(--on-amber)}
-  .sc-card .sc-note{font-size:.82rem;color:var(--ink-dim);margin:0}
+  .sc-card .sc-note{font-size:.88rem;color:var(--ink-dim);margin:0}
+  .sc-card{padding:18px 20px;border-radius:16px;gap:12px}
+  .sc-card h4{font-size:1.05rem;font-weight:700}
+  .sc-card .sc-opts button{font-size:.92rem;padding:9px 16px}
+  .sc-card .sc-act{font-size:.95rem;padding:10px 20px}
+  .sc-card .sc-hint{font-size:.92rem;padding:10px 16px}
+  .sc-pop-box{width:min(460px,100%);padding:26px 24px 22px;border-radius:18px;gap:14px}
+  .sc-pop-box h3{font-size:1.3rem}
+  .sc-pop-box p{font-size:.97rem}
+  .sc-pop-box .sc-pop-btns button{font-size:1rem;padding:14px 18px}
 
 
   /* ===== 디자인 v2 (필름 스튜디오) — 기존 규칙 위에 덮어쓰는 층. 아래만 지우면 이전 디자인으로 돌아감 ===== */
@@ -2866,11 +2922,27 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
   }
   function renderHub(){
     var L=lib();
+    var I=function(d){return '<svg viewBox="0 0 24 24" aria-hidden="true">'+d+'</svg>'};
+    var IC={
+      yadam:I('<path d="M4 5.5C4 4.7 4.7 4 5.5 4H11v15H5.5C4.7 19 4 18.3 4 17.5zM20 5.5c0-.8-.7-1.5-1.5-1.5H13v15h5.5c.8 0 1.5-.7 1.5-1.5z"/>'),
+      mood:I('<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>'),
+      short:I('<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/>'),
+      long:I('<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M10 9.5l4.5 2.5-4.5 2.5z"/>'),
+      lock:I('<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>'),
+      grid:I('<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>'),
+      box:I('<path d="M3 8h18v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1zM3 8l2-4h14l2 4M10 12h4"/>'),
+      steps:I('<path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/>'),
+      write:I('<path d="M4 20h4L19 9l-4-4L4 16z"/>'),
+      click:I('<rect x="4" y="5" width="16" height="14" rx="2"/><path d="M8 10h8M8 14h5"/>'),
+      card:I('<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h6M9 17h6"/>')
+    };
     var kinds=[['yadam','야담','이야기 낭독 영상','인트로 + 긴 이야기를 AI 목소리로 읽어요',1],['mood','분위기 영상','영상 편지 · 메시지','생일·감사·응원 글을 소리와 함께 전해요',1],['short','쇼츠','준비 중','주제만 적으면 AI가 대본까지 써 드려요',0],['long','롱폼','준비 중','주제만 적으면 AI가 대본까지 써 드려요',0]];
-    hub.innerHTML='<div class="sh-in"><div><h2>어떤 영상의 대본인가요?</h2><p class="sub">고르면 그 영상에 맞는 입력 칸이 열려요. 대본은 이 브라우저의 보관함에만 저장되고, 영상 제작을 시작할 때만 서버로 전달돼요. 제작이 끝나면 서버의 대본은 지워져요. 브라우저 데이터를 지우면 보관함이 사라지니 필요한 대본은 파일로 내려받아 두세요.</p></div>'+
-    '<div class="kd-grid">'+kinds.map(function(k){return'<button type="button" class="kd'+(k[4]?'':' off')+'" data-kd="'+k[0]+'" aria-disabled="'+(!k[4])+'"><b>'+k[1]+'</b><span class="kd-t">'+k[2]+'</span><span class="kd-d">'+k[3]+'</span></button>'}).join('')+'</div><p class="kd-note" id="kd-note" hidden>쇼츠·롱폼은 <b>직접 설정하기</b>에서 주제만 적으면 AI가 대본까지 알아서 써 드려요. 내 대본으로 만드는 기능은 곧 열려요.</p>'+
-    '<div><div class="sh-lab">보관함</div><div class="sh-lib">'+(L.length?L.map(function(x,i){var m=x.kind==='mood';return'<div class="sh-item"><span><i class="kd-tag'+(m?' mood':'')+'">'+(m?'분위기':'야담')+'</i>'+esc(x.title)+' <small>'+(m?'약 '+Math.round((x.minutes||0)*60)+'초':'약 '+x.minutes+'분')+'</small></span><span>'+(m?(window.__rwGoMood?'<button class="sh-use" data-mm="'+i+'">영상 만들기</button> ':'<button disabled title="곧 열려요">영상 만들기 · 곧</button> '):'<button class="sh-use" data-mk="'+i+'">야담 만들기</button> ')+'<button data-open="'+i+'">열기</button> <button data-del="'+i+'">삭제</button></span></div>'}).join(''):'<div class="sh-empty">아직 보관된 대본이 없어요. 위에서 영상 종류를 골라 시작해 보세요.</div>')+'</div></div>'+
-    '<div><div class="sh-lab">이 대본으로 영상 만드는 법</div><ol class="sh-steps"><li><span>대본을 쓰고 <b>확정</b>하면 보관함에 저장돼요.</span></li><li><span>왼쪽 <b>직접 설정하기</b>를 누르고 같은 종류의 영상을 골라요.</span></li><li><span><b>내 대본</b> 카드에서 저장한 대본을 눌러요.</span></li></ol></div></div>';
+    var hd=function(ic,t,extra){return '<div class="sh-h"><span class="hi">'+ic+'</span><h3>'+t+'</h3>'+(extra||'')+'</div>'};
+    hub.innerHTML='<div class="sh-in"><div class="sh-top"><h2>어떤 영상의 대본인가요?</h2><p class="sub">고르면 그 영상에 맞는 입력 칸이 열려요.</p>'+
+    '<div class="sh-priv"><span class="pi">'+IC.lock+'</span><p>대본은 <b>이 브라우저의 보관함</b>에만 저장돼요. 영상 제작을 시작할 때만 서버로 전달되고, 제작이 끝나면 서버의 대본은 지워져요. 브라우저 데이터를 지우면 보관함이 사라지니 필요한 대본은 파일로 내려받아 두세요.</p></div></div>'+
+    '<div>'+hd(IC.grid,'영상 종류')+'<div class="kd-grid">'+kinds.map(function(k){return'<button type="button" class="kd'+(k[4]?'':' off')+'" data-kd="'+k[0]+'" aria-disabled="'+(!k[4])+'"><span class="kd-ic">'+IC[k[0]]+'</span>'+(k[4]?'':'<em class="kd-badge">준비 중</em>')+'<b>'+k[1]+'</b><span class="kd-t">'+(k[4]?k[2]:'곧 열려요')+'</span><span class="kd-d">'+k[3]+'</span></button>'}).join('')+'</div><p class="kd-note" id="kd-note" hidden>쇼츠·롱폼은 <b>직접 설정하기</b>에서 주제만 적으면 AI가 대본까지 알아서 써 드려요. 내 대본으로 만드는 기능은 곧 열려요.</p></div>'+
+    '<div>'+hd(IC.box,'보관함',L.length?'<span class="sh-cnt">'+L.length+'</span>':'')+'<div class="sh-lib">'+(L.length?L.map(function(x,i){var m=x.kind==='mood';return'<div class="sh-item"><span class="sh-ic'+(m?' mood':'')+'">'+(m?IC.mood:IC.yadam)+'</span><span class="sh-tx"><b>'+esc(x.title)+'</b><small><i class="kd-tag'+(m?' mood':'')+'">'+(m?'분위기 영상':'야담')+'</i>'+(m?'약 '+Math.round((x.minutes||0)*60)+'초':'약 '+x.minutes+'분')+'</small></span><span class="sh-act">'+(m?(window.__rwGoMood?'<button class="sh-use" data-mm="'+i+'">영상 만들기</button>':'<button disabled title="곧 열려요">영상 만들기 · 곧</button>'):'<button class="sh-use" data-mk="'+i+'">야담 만들기</button>')+'<button data-open="'+i+'">열기</button><button class="sh-del" data-del="'+i+'">삭제</button></span></div>'}).join(''):'<div class="sh-empty"><span class="pi">'+IC.box+'</span><b>아직 보관된 대본이 없어요</b><small>위에서 영상 종류를 골라 대본을 쓰고 확정하면 여기에 저장돼요.</small></div>')+'</div></div>'+
+    '<div>'+hd(IC.steps,'이 대본으로 영상 만드는 법')+'<ol class="sh-steps"><li><span class="st-i">'+IC.write+'</span><span>대본을 쓰고 <b>확정</b>하면 보관함에 저장돼요.</span></li><li><span class="st-i">'+IC.click+'</span><span>왼쪽 <b>직접 설정하기</b>를 누르고 같은 종류의 영상을 골라요.</span></li><li><span class="st-i">'+IC.card+'</span><span><b>내 대본</b> 카드에서 저장한 대본을 눌러요.</span></li></ol></div></div>';
     hub.querySelectorAll('[data-kd]').forEach(function(b){b.onclick=function(){var k=b.dataset.kd;if(k==='yadam'||k==='mood')openFrame('long','mine',null,null,k);else{var n=hub.querySelector('#kd-note');n.hidden=false}}});
     hub.querySelectorAll('[data-mk]').forEach(function(b){b.onclick=function(){var x=lib()[+b.dataset.mk];window.__rwScript={id:x.id,title:x.title,type:'long',src:'ready',imported:x.imported,minutes:x.minutes};close();if(window.__rwGoYadam)window.__rwGoYadam()}});
     hub.querySelectorAll('[data-mm]').forEach(function(b){b.onclick=function(){var x=lib()[+b.dataset.mm];window.__rwMoodScript={id:x.id,title:x.title,kind:'mood',minutes:x.minutes,occ:x.occ||''};close();if(window.__rwGoMood)window.__rwGoMood()}});

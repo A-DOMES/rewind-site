@@ -365,6 +365,62 @@ h4 b{color:var(--amber);margin-left:2px}
 .fitrow .step{display:inline-flex;align-items:center;gap:8px}
 .fitrow .step button{width:30px;height:30px;border-radius:50%;border:1px solid var(--line,#d9cdb8);background:transparent;font-size:16px;cursor:pointer;color:inherit}
 .fitrow b{min-width:130px;text-align:center;font-weight:600}
+
+/* ===== 대본 작업실: 글씨·아이콘 3단계 (대분류 1.3~1.7rem / 중분류 1.15rem·32px / 소분류 1rem·28px) ===== */
+.hi{display:inline-grid;place-items:center;flex:none;width:28px;height:28px;border-radius:9px;background:var(--wash);color:var(--amber)}
+.hi svg,.sbox .ic svg,.tbtn b svg{fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.hi svg{width:16px;height:16px}
+.lp-head{padding:18px 16px 8px}
+.ttl-lb{display:flex;align-items:center;gap:8px;font:700 1rem var(--sans);color:var(--ink);margin:0 0 8px;letter-spacing:-.01em}
+.ttl{font:700 1.35rem var(--sans);letter-spacing:-.025em;padding:4px 6px;margin-left:-6px}
+.sub{font-size:.86rem;margin-top:2px}
+.sbox{padding:4px 8px 4px 14px}
+.sbox .ic{display:grid;place-items:center}
+.sbox .ic svg{width:17px;height:17px}
+.sbox input{font-size:.95rem}
+.sbox .qc{font-size:.82rem}.sbox button.tg{font-size:.86rem}
+.trow{gap:6px;padding:8px 12px 10px}
+.tbtn{gap:5px;padding:9px 2px 8px;font-size:.82rem;font-weight:600}
+.tbtn b{display:grid;place-items:center;width:30px;height:30px;font-size:0}
+.tbtn b svg{width:19px;height:19px}
+.menu button{font-size:.95rem;padding:11px 12px}.menu small{font-size:.8rem;font-weight:700}.menu button em{font-size:.8rem}
+h4{display:flex;align-items:center;gap:10px;margin:14px 8px 8px;font-size:1.15rem;font-weight:700;color:var(--ink);letter-spacing:-.02em}
+h4 .hi{width:32px;height:32px;border-radius:10px}h4 .hi svg{width:19px;height:19px}
+h4 b{color:var(--amber);font-size:1rem;margin-left:0}
+.row{gap:12px;padding:10px 12px;min-height:46px;border-radius:12px}
+.num{font-size:.95rem;width:22px}
+.rt{font-size:1rem}
+.rm{font-size:.84rem}.hit{font-size:.78rem}
+.add{padding:11px;font-size:.92rem;font-weight:600}
+.tip{font-size:.88rem}
+.lp-sum{padding:14px 16px 8px}
+.lrow{font-size:.95rem;font-weight:600;color:var(--ink);align-items:center}
+.lrow>span{display:flex;align-items:center;gap:8px}
+.lrow b{font-size:1rem}
+.verdict{font-size:.88rem}
+.pts{font-size:.92rem}
+.lp-foot{padding:10px 16px 18px}
+.approve{padding:15px 16px;font-size:1.02rem}
+.rbar{padding:10px 22px;min-height:58px}
+.rbar .cur{font-size:1rem}
+.rbar .cur b{font-size:1.05rem}
+.pill{padding:9px 16px;font-size:.92rem;font-weight:600}
+.banner{margin:14px 22px 0;padding:14px 16px;font-size:.97rem;line-height:1.55;border-radius:16px}
+.banner .msg small{font-size:.86rem}
+.banner .acts button{padding:7px 14px;font-size:.88rem;font-weight:600}
+.sheet{padding:28px 56px 160px}
+.chap-h{align-items:center;gap:12px;padding:8px 0}
+.chap-h .n{display:grid;place-items:center;width:32px;height:32px;border-radius:10px;background:var(--wash);font-size:.98rem}
+.chap-h h2{font:700 1.5rem var(--sans);letter-spacing:-.025em}
+.chap-h button{font-size:.86rem;padding:6px 14px}
+.chap-h.ih{padding:12px 16px;border-radius:16px}
+.chap-h.ih button{font-size:.9rem;padding:6px 14px}
+.chap-h.ih .step b{font-size:1.05rem}
+.chap-h.ih .inote{font-size:.86rem}
+.introbar{padding:16px 18px;font-size:.97rem;border-radius:16px}
+.introbar button{padding:8px 16px;font-size:.9rem;font-weight:600}
+.chips-m{font-size:.95rem}
+@media (max-width:760px){.sheet{padding:20px 16px 160px}.ttl{font-size:1.25rem}.chap-h h2{font-size:1.3rem}.banner{margin:12px 14px 0;font-size:.95rem}.banner .msg{flex:1 1 100%}.banner .acts{justify-content:flex-start}.rbar{padding:8px 14px}.mobtools button{font-size:.92rem;padding:9px 14px}}
 </style>
 
 <div class="shell" id="shell">
@@ -390,13 +446,13 @@ h4 b{color:var(--amber);margin-left:2px}
     <aside class="lp" id="lp">
       <div class="lp-in">
         <div class="lp-head">
-          <label class="ttl-lb" for="ttl">제목</label>
+          <label class="ttl-lb" for="ttl"><span class="hi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12l-8 8-9-9V4h7z"/><circle cx="8" cy="8" r="1.2"/></svg></span>제목</label>
           <input class="ttl" id="ttl" aria-label="대본 제목" placeholder="제목을 입력하세요" value="">
           <div class="sub"><span class="save" id="save"><i class="dot"></i><span id="saveTxt">자동 저장됨</span></span><span id="subinfo"></span></div>
         </div>
         <div class="srch">
           <div class="sbox">
-            <span class="ic">⌕</span>
+            <span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg></span>
             <input id="q" placeholder="대본에서 찾기" aria-label="대본에서 찾기">
             <span class="qc" id="qc"></span>
             <button id="qp" aria-label="이전 결과">‹</button><button id="qn" aria-label="다음 결과">›</button>
@@ -405,11 +461,11 @@ h4 b{color:var(--amber);margin-left:2px}
           <div class="rbox" id="rbox" hidden><input id="rq" placeholder="바꿀 말" aria-label="바꿀 말"><button id="r1">바꾸기</button><button id="rall">모두</button></div>
         </div>
         <div class="trow">
-          <button class="tbtn" id="tUndo" disabled><b>↶</b>되돌리기</button>
-          <button class="tbtn" id="tRedo" disabled><b>↷</b>다시하기</button>
-          <button class="tbtn" id="tRead" aria-pressed="false"><b>≡</b>읽기</button>
-          <button class="tbtn" id="tFocus"><b>◻</b>집중</button>
-          <button class="tbtn" id="tFile" aria-haspopup="true"><b>⤓</b>파일 ▾</button>
+          <button class="tbtn" id="tUndo" disabled><b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg></b>되돌리기</button>
+          <button class="tbtn" id="tRedo" disabled><b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 14l5-5-5-5"/><path d="M20 9H10a6 6 0 0 0 0 12h3"/></svg></b>다시하기</button>
+          <button class="tbtn" id="tRead" aria-pressed="false"><b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg></b>읽기</button>
+          <button class="tbtn" id="tFocus"><b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></b>집중</button>
+          <button class="tbtn" id="tFile" aria-haspopup="true"><b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg></b>파일</button>
           <div class="menu" id="fmenu">
             <small>내보내기</small>
             <button data-f="copy-all">전체 대본 복사</button>
@@ -427,14 +483,14 @@ h4 b{color:var(--amber);margin-left:2px}
         </div>
         <div class="mobtools" id="mobtools"><button id="mSplit">여기서 나누기</button><button id="mMerge">위와 합치기</button></div>
         <div class="lp-scroll" id="lpscroll">
-          <h4 id="listH">챕터 <b id="cnt"></b></h4>
+          <h4 id="listH"><span class="hi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h12M4 12h12M4 18h12M19 6h.01M19 12h.01M19 18h.01"/></svg></span>챕터 <b id="cnt"></b></h4>
           <div id="list"></div>
           <button class="add" id="add">+ 챕터 추가</button>
           <button class="add intro-btn" id="addIntro">+ 인트로 붙이기</button>
           <div class="tip" id="shortTip" hidden>숏폼은 한 편으로 이어져요. 문단은 빈 줄로 나눠요.</div>
         </div>
         <div class="lp-sum">
-          <div class="lrow"><span id="lenLbl">예상 길이</span><b id="len"></b></div>
+          <div class="lrow"><span id="lenLbl"><span class="hi"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg></span>예상 길이</span><b id="len"></b></div>
           <div class="gauge" id="gauge"><div class="g-track"><div class="g-band" id="band"></div><div class="g-pin" id="pin"></div></div></div>
           <div class="verdict" id="verdict"></div>
           <div class="pts"><span id="ptsLbl">제작 포인트</span><span><b id="pts"></b> <button class="eye" id="eye" aria-label="포인트 보기/숨기기" title="포인트 보기/숨기기">👁</button></span></div>
