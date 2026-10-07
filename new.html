@@ -1183,13 +1183,13 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       </section>
       <section id="pm-long" hidden>
         <div class="pm-sec"><h3 class="pm-h"><span class="hi"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></span>분위기 영상</h3>
-        <p class="sub">길이와 등급으로 정해져요. 말 넣기(AI 목소리)는 분당 3P가 더해져요.</p>
+        <p class="sub">길이와 등급으로 정해져요. 말 넣기(AI 목소리)는 분당 <span data-nar-per-min>3</span>P가 더해져요.</p>
         <table class="price-table" id="pm-mood"></table></div>
         <div class="pm-sec"><h3 class="pm-h"><span class="hi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5C4 4.7 4.7 4 5.5 4H11v15H5.5C4.7 19 4 18.3 4 17.5zM20 5.5c0-.8-.7-1.5-1.5-1.5H13v15h5.5c.8 0 1.5-.7 1.5-1.5z"/></svg></span>야담</h3>
         <p class="sub">길이와 등급으로 정해져요. 인트로 영상 + 긴 이야기 방식은 아래 표를 보세요.</p>
         <table class="price-table" id="pm-yadam"></table></div>
         <div class="pm-sec"><h3 class="pm-h"><span class="hi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5C4 4.7 4.7 4 5.5 4H11v15H5.5C4.7 19 4 18.3 4 17.5zM20 5.5c0-.8-.7-1.5-1.5-1.5H13v15h5.5c.8 0 1.5-.7 1.5-1.5z"/></svg></span>야담 · 인트로 영상 + 긴 이야기</h3>
-        <p class="sub">기본 + 시간당 요금에 인트로(1초당 1P)가 더해져요. 인트로 없이 계산한 금액이에요.</p>
+        <p class="sub">기본 + 시간당 요금에 인트로(1초당 <span data-intro-per-sec>1</span>P)가 더해져요. 인트로 없이 계산한 금액이에요.</p>
         <table class="price-table" id="pm-yl"></table></div>
         <div class="pm-sec"><h3 class="pm-h"><span class="hi"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M10 9.5l4.5 2.5-4.5 2.5z"/></svg></span>영상 중심 롱폼 (3~10분)</h3>
         <p class="sub">쇼츠와 같은 움직임 방식 요금이에요.</p>
@@ -1999,14 +1999,15 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   // [야담 두 가지 방식] 기존 야담은 분당 요금(최대 2시간). '인트로 영상 + 긴 이야기'는 분위기 영상처럼 기본 + 시간당 + 인트로(초당 1P), 최대 8시간.
   // 인트로 초(인트로초)가 0보다 크면 긴 이야기 방식으로 계산한다. (접수 서버·야담 워크플로도 같은 값)
   const YL_RATE = { '경제형': [50, 120], '표준형': [60, 140], '고급형': [80, 170] };   // [기본, 시간당]
-  const YL_MAX_MIN = 480, YL_INTRO_MIN = 5, YL_INTRO_MAX = 60, INTRO_PER_SEC = 1;
+  const YL_MAX_MIN = 480, YL_INTRO_MIN = 5, YL_INTRO_MAX = 60;
+  let INTRO_PER_SEC = 1, LONG_MIN_PRICE = 9;   // 위 요금과 함께 시트 '설정' 탭 값으로 덮어쓴다(applySiteLong)
   function ylPrice(tier, min, 인트로초) {
     const [b, r] = YL_RATE[tier] || YL_RATE['표준형'];
     const m = Math.min(Math.max(0.25, Number(min) || 60), YL_MAX_MIN);
-    return Math.max(9, Math.round(b + (m / 60) * r + Math.round(인트로초 || 0) * INTRO_PER_SEC));
+    return Math.max(LONG_MIN_PRICE, Math.round(b + (m / 60) * r + Math.round(인트로초 || 0) * INTRO_PER_SEC));
   }
   // [분위기 영상 말 넣기] AI 목소리로 읽어 주면 낭독 요금(분당 NAR_PER_MIN P, 최소 NAR_MIN P)이 더해진다. 글자로 보여주기·내 목소리 녹음은 추가 요금이 없다. (접수 서버도 같은 값)
-  const NAR_PER_MIN = 3, NAR_MIN = 3;
+  let NAR_PER_MIN = 3, NAR_MIN = 3;
   const NARRATION_READY = true;    // 글자·AI 목소리 넣기 제작 연결 완료(접수 v3.17 + 롱폼_수면음악 v1.6)
   const NARRATION_OWN_READY = true;    // 내 목소리 녹음 제작 연결 완료(접수 v3.18 + 롱폼_수면음악 v1.7 + 렌더 서버)
   function longPrice(kind, tier, min, 인트로초, 낭독) {
@@ -2015,7 +2016,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     const m = Math.min(Math.max(0.25, Number(min) || 60), LONG_MAX_MIN[kind]);
     const raw = base + (kind === '수면음악' ? (m / 60) * rate : m * rate);
     const 낭독비 = kind === '수면음악' && 낭독 ? Math.max(NAR_MIN, Math.round(NAR_PER_MIN * m)) : 0;
-    return Math.max(9, Math.round(raw)) + 낭독비;
+    return Math.max(LONG_MIN_PRICE, Math.round(raw)) + 낭독비;
   }
   // [체험 포인트] 체험 가격 = 정식 이미지 중심(길이 3분까지) 가격의 25%, 최소 5P. 서버(접수 v3.11)와 같은 식이다.
   function trialPriceOf(kind, tier, min, 인트로초, 낭독) { return Math.max(TRIAL_MIN, Math.round(longPrice(kind, tier, Math.min(Number(min) || 60, 3), 인트로초, 낭독) * TRIAL_PCT / 100)); }
@@ -2142,7 +2143,30 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     if (!valid) return false;
     const changed = base !== PRICE_BASE || lp !== PRICE_LONG_PCT || tp !== TRIAL_PCT || tm !== TRIAL_MIN || MOTION_LIST.some(m => r[m] !== MOTION_RATE[m]);
     PRICE_BASE = base; PRICE_LONG_PCT = lp; TRIAL_PCT = tp; TRIAL_MIN = tm; MOTION_LIST.forEach(m => { MOTION_RATE[m] = r[m]; });
-    if (changed) { refreshDirectFormIfOpen(); if (window.__rwRenderPriceModal) window.__rwRenderPriceModal(); if (window.__rwRenderCharge) window.__rwRenderCharge(); }
+    if (changed) afterPriceChange();
+    return changed;
+  }
+  function afterPriceChange() {
+    document.querySelectorAll('[data-nar-per-min]').forEach(el => { el.textContent = String(NAR_PER_MIN); });
+    document.querySelectorAll('[data-intro-per-sec]').forEach(el => { el.textContent = String(INTRO_PER_SEC); });
+    refreshDirectFormIfOpen(); if (window.__rwRenderPriceModal) window.__rwRenderPriceModal(); if (window.__rwRenderCharge) window.__rwRenderCharge();
+  }
+  // 분위기 영상·야담·긴 이야기 야담 요금: 사이트 설정(long)이 올바를 때만 덮어쓴다(아니면 기본값 유지). 바뀌었으면 true.
+  function applySiteLong(l) {
+    if (!l || typeof l !== 'object') return false;
+    const ok = (v, lo, hi) => Number.isFinite(v) && v >= lo && v <= hi;
+    const pair = (o, t, hi) => { const a = o && o[t]; if (!Array.isArray(a)) return null; const b = Number(a[0]), r = Number(a[1]); return ok(b, 0, 1000) && ok(r, 0, hi) ? [b, r] : null; };
+    const mood = {}, yad = {}, yl = {}; let valid = true;
+    LONG_TIERS.forEach(t => { mood[t] = pair(l.mood, t, 3000); yad[t] = pair(l.yadam, t, 300); yl[t] = pair(l.yl, t, 3000); if (!mood[t] || !yad[t] || !yl[t]) valid = false; });
+    const ip = Number(l.introPerSec), nm = Number(l.narPerMin), nn = Number(l.narMin), mp = Number(l.minPrice);
+    if (!valid || !ok(ip, 0, 20) || !ok(nm, 0, 50) || !ok(nn, 0, 100) || !ok(mp, 0, 200)) return false;
+    let changed = ip !== INTRO_PER_SEC || nm !== NAR_PER_MIN || nn !== NAR_MIN || mp !== LONG_MIN_PRICE;
+    LONG_TIERS.forEach(t => {
+      if (LONG_RATE[t]['수면음악'].join() !== mood[t].join() || LONG_RATE[t]['야담'].join() !== yad[t].join() || YL_RATE[t].join() !== yl[t].join()) changed = true;
+      LONG_RATE[t]['수면음악'] = mood[t]; LONG_RATE[t]['야담'] = yad[t]; YL_RATE[t] = yl[t];
+    });
+    INTRO_PER_SEC = ip; NAR_PER_MIN = nm; NAR_MIN = nn; LONG_MIN_PRICE = mp;
+    if (changed) afterPriceChange();
     return changed;
   }
   // 접수 직전에 최신 설정을 한 번 더 받아 온다(브라우저 보관을 쓰지 않음). 받지 못하면 지금 값 그대로 진행한다. 실제 차감은 서버가 같은 공식으로 다시 계산한다.
@@ -2151,7 +2175,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), 3000);
       const r = await fetch(SITE_CONFIG_URL + '?t=' + Date.now(), { cache: 'no-store', signal: ctl.signal }); clearTimeout(to);
       const cfg = r.ok ? await r.json() : null;
-      if (cfg && cfg.ok === true) { try { sessionStorage.setItem('rw_site_cfg_v1', JSON.stringify({ at: Date.now(), cfg })); } catch (e) {} return applySitePrice(cfg.price); }
+      if (cfg && cfg.ok === true) { try { sessionStorage.setItem('rw_site_cfg_v1', JSON.stringify({ at: Date.now(), cfg })); } catch (e) {} const a = applySitePrice(cfg.price), b = applySiteLong(cfg.long); return a || b; }
     } catch (e) {}
     return false;
   }
@@ -2174,7 +2198,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     function apply(c) {
       if (!c || c.ok !== true) return;
       showNotice(c.notice);
-      applySitePrice(c.price);
+      applySitePrice(c.price); applySiteLong(c.long);
       const g = Number(c.signupGrant);
       if (Number.isFinite(g) && g >= 0) document.querySelectorAll('[data-grant]').forEach(el => { el.textContent = String(Math.round(g)); });
       let changed = false;

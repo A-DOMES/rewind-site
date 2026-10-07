@@ -592,10 +592,13 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   };
   // [롱폼 요금표(포인트)] 접수 워크플로(v3.9)의 요금 공식과 같은 값 - 기본 + 길이 × 등급별 포인트, 1P 단위 반올림, 최소 9P
   const LONG = { '경제형': { 수면음악: [40, 15], 야담: [50, 6] }, '표준형': { 수면음악: [60, 20], 야담: [60, 9] }, '고급형': { 수면음악: [90, 35], 야담: [80, 13] } };
-  const lp = (tier, kind, min) => { const [b, r] = LONG[tier][kind]; return Math.max(9, Math.round(b + (kind === '수면음악' ? (min / 60) * r : min * r))); };
+  let LONG_MIN = 9;   // 최소 요금. 위 값과 함께 시트 '설정' 탭 값으로 덮어쓴다(window.__rwApplyLong)
+  const lp = (tier, kind, min) => { const [b, r] = LONG[tier][kind]; return Math.max(LONG_MIN, Math.round(b + (kind === '수면음악' ? (min / 60) * r : min * r))); };
   const fmt = n => n.toLocaleString('ko-KR') + 'P';
   const tiers = Object.keys(LONG);
   const lt = document.getElementById('rate-table-long');
+  const ex = document.getElementById('rate-long-example');
+  function renderLong() {
   if (lt) {
     const row = (label, f) => `<tr><td>${label}</td>` + tiers.map(k => `<td>${f(k)}</td>`).join('') + '</tr>';
     const lab = { 수면음악: '분위기 영상' };
@@ -604,8 +607,22 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     lt.innerHTML = '<tr><th><b>유형 · 길이</b></th>' + tiers.map(k => `<th><b>${k}</b></th>`).join('') + '</tr>' +
       cases.map(([kind, m]) => row((lab[kind] || kind) + ' ' + hl(m), k => '약 ' + fmt(lp(k, kind, m)))).join('');
   }
-  const ex = document.getElementById('rate-long-example');
   if (ex) ex.textContent = `예) 표준형 야담 1시간 30분 약 ${fmt(lp('표준형', '야담', 90))} · 표준형 분위기 영상 2시간 30분 약 ${fmt(lp('표준형', '수면음악', 150))}`;
+  }
+  renderLong();
+  window.__rwApplyLong = function (l) {
+    if (!l || typeof l !== 'object') return false;
+    const ok = (v, lo, hi) => isFinite(v) && v >= lo && v <= hi;
+    const mood = {}, yad = {};
+    for (let i = 0; i < tiers.length; i++) {
+      const t = tiers[i], m = l.mood && l.mood[t], y = l.yadam && l.yadam[t];
+      if (!Array.isArray(m) || !Array.isArray(y) || !ok(Number(m[0]), 0, 1000) || !ok(Number(m[1]), 0, 3000) || !ok(Number(y[0]), 0, 1000) || !ok(Number(y[1]), 0, 300)) return false;
+      mood[t] = [Number(m[0]), Number(m[1])]; yad[t] = [Number(y[0]), Number(y[1])];
+    }
+    const mp = Number(l.minPrice); if (!ok(mp, 0, 200)) return false;
+    tiers.forEach(function (t) { LONG[t].수면음악 = mood[t]; LONG[t].야담 = yad[t]; });
+    LONG_MIN = mp; renderLong(); return true;
+  };
 })();
 </script>
 
@@ -762,6 +779,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   function apply(c) {
     if (!c || c.ok !== true) return;
     showNotice(c.notice);
+    if (typeof window.__rwApplyLong === 'function') window.__rwApplyLong(c.long);
     if (typeof window.__rwApplyPrice === 'function') { var tp = window.__rwApplyPrice(c.price); if (tp !== null && tp > 0) TRIAL_SHORT_PRICE = tp; }
     var g = Number(c.signupGrant);
     if (!isFinite(g) || g < 0) return;
