@@ -333,7 +333,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     <h1>주제 하나로 완성되는<br><span class="soft">세로형 영상</span></h1>
     <p class="lede">대본, 목소리, 장면 구성까지 AI가 만드는 숏폼 영상 서비스예요. 촬영도 편집도 필요 없고, 중요한 순간마다 직접 확인하고 승인하시면 됩니다.</p>
     <div class="ctas">
-      <a class="btn btn-amber" href="./new.html?mode=trial">가입하고 체험 포인트 50P 받기
+      <a class="btn btn-amber" href="./new.html?mode=trial">가입하고 체험 포인트 <span data-grant>50</span>P 받기
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
       <a class="btn btn-line" href="#how">만드는 과정 보기</a>
     </div>
@@ -517,10 +517,10 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     </div>
     <div class="choice-grid">
       <div class="choice">
-        <div class="head"><h3>체험</h3><span class="kick">가입 시 50P</span></div>
-        <div class="big">50P<small>가입하면 체험 포인트</small></div>
+        <div class="head"><h3>체험</h3><span class="kick">가입 시 <span data-grant>50</span>P</span></div>
+        <div class="big"><span data-grant>50</span>P<small>가입하면 체험 포인트</small></div>
         <ul>
-          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>결제 없이 체험 포인트로 쇼츠 1분 체험을 2번까지</li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>결제 없이 체험 포인트로 쇼츠 1분 체험을 <span data-trial-count>2</span>번까지</li>
           <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>완성된 영상을 그대로 확인</li>
           <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>마음에 들면 그때 정식으로 전환</li>
           <li class="no"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>체험판에서는 썸네일을 제공하지 않아요</li>
@@ -722,6 +722,29 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   if ('IntersectionObserver' in window) {
     new IntersectionObserver(es => es.forEach(e => e.isIntersecting ? play() : v.pause()), { threshold: 0.3 }).observe(v);
   } else play();
+})();
+</script>
+<script>
+/* 가입 지급 포인트는 관리자가 시트 '설정' 탭에서 바꾸므로, 받아 와서 화면에 반영한다. 받지 못하면 적어 둔 기본값 그대로 보인다. */
+(function () {
+  var URL_ = 'https://bald-buffalo.pikapod.net/webhook/site-config', KEY = 'rw_site_cfg_v1', TTL = 5 * 60 * 1000;
+  var TRIAL_SHORT_PRICE = 25; // 체험 쇼츠 1분(이미지 중심)의 체험 포인트. 가격 설정 정리 단계에서 설정 탭으로 옮긴다.
+  function apply(c) {
+    if (!c || c.ok !== true) return;
+    var g = Number(c.signupGrant);
+    if (!isFinite(g) || g < 0) return;
+    g = Math.round(g);
+    [].forEach.call(document.querySelectorAll('[data-grant]'), function (el) { el.textContent = String(g); });
+    [].forEach.call(document.querySelectorAll('[data-trial-count]'), function (el) { el.textContent = String(Math.floor(g / TRIAL_SHORT_PRICE)); });
+  }
+  var cached = null;
+  try { cached = JSON.parse(sessionStorage.getItem(KEY) || 'null'); } catch (e) {}
+  if (cached && cached.at && Date.now() - cached.at < TTL) { apply(cached.cfg); return; }
+  fetch(URL_).then(function (r) { return r.ok ? r.json() : null; }).then(function (cfg) {
+    if (!cfg || cfg.ok !== true) return;
+    try { sessionStorage.setItem(KEY, JSON.stringify({ at: Date.now(), cfg: cfg })); } catch (e) {}
+    apply(cfg);
+  }).catch(function () {});
 })();
 </script>
 </body>

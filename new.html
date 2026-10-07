@@ -1045,7 +1045,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       <p class="gate-lede">구글 계정으로 30초면 시작할 수 있어요. 신청 확인과 완성 알림도 이 계정으로 보내드려요.</p>
       <div id="gsi-area"></div>
       <ul class="gate-perks">
-        <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>가입하면 체험 포인트 50P를 드려요</li>
+        <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>가입하면 체험 포인트 <span data-grant>50</span>P를 드려요</li>
         <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>대본과 최종 장면은 직접 확인하고 승인</li>
         <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>완성되면 이 계정 이메일로 알려드려요</li>
       </ul>
@@ -2091,15 +2091,19 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   (function setupChargeModal() {
     const overlay = document.getElementById('charge-modal-overlay');
     document.getElementById('charge-sub').innerHTML = '필요한 만큼 충전해서 쓰세요. 충전한 포인트는 <b>유효기간 없이</b> 다 쓸 때까지 남아요. 체험 포인트와는 따로 쌓여요.';
-    document.getElementById('charge-grid').innerHTML = CHARGE_PRODUCTS.map((p, i) => {
-      const c = chargeInfo(p);
-      return `<div class="charge-card${p.rec ? ' rec' : ''}">${p.rec ? '<span class="tag">가장 많이 선택해요</span>' : ''}
-        <div class="usd">$${p.usd}</div><div class="pts">${pt(c.base)}</div>
-        <div class="bonus">첫 충전이면 +${pt(c.bonus)} 보너스</div>
-        <ul><li>쇼츠 1분(혼합) 약 ${c.shorts.toLocaleString('ko-KR')}편</li><li>${kindName('수면음악')} 1시간(표준형) 약 ${c.mood.toLocaleString('ko-KR')}편</li></ul>
-        <button type="button" class="btn-gold-sm" data-i="${i}"${PAY_READY ? '' : ' disabled'}>${PAY_READY ? '충전하기' : '곧 열려요'}</button></div>`;
-    }).join('');
-    document.getElementById('charge-note').textContent = '첫 충전 보너스는 처음 한 번만 드려요(충전액의 5% · 8% · 10%). 위 편수는 예시예요. 정확한 포인트는 신청 화면에서 길이를 넣으면 바로 나와요.';
+    function renderCharge() {
+      document.getElementById('charge-grid').innerHTML = CHARGE_PRODUCTS.map((p, i) => {
+        const c = chargeInfo(p);
+        return `<div class="charge-card${p.rec ? ' rec' : ''}">${p.rec ? '<span class="tag">가장 많이 선택해요</span>' : ''}
+          <div class="usd">$${p.usd}</div><div class="pts">${pt(c.base)}</div>
+          <div class="bonus">첫 충전이면 +${pt(c.bonus)} 보너스</div>
+          <ul><li>쇼츠 1분(혼합) 약 ${c.shorts.toLocaleString('ko-KR')}편</li><li>${kindName('수면음악')} 1시간(표준형) 약 ${c.mood.toLocaleString('ko-KR')}편</li></ul>
+          <button type="button" class="btn-gold-sm" data-i="${i}"${PAY_READY ? '' : ' disabled'}>${PAY_READY ? '충전하기' : '곧 열려요'}</button></div>`;
+      }).join('');
+      document.getElementById('charge-note').textContent = '첫 충전 보너스는 처음 한 번만 드려요(충전액의 ' + CHARGE_PRODUCTS.map(p => (Math.round(p.bonus * 1000) / 10) + '%').join(' · ') + '). 위 편수는 예시예요. 정확한 포인트는 신청 화면에서 길이를 넣으면 바로 나와요.';
+    }
+    window.__rwRenderCharge = renderCharge;
+    renderCharge();
     const open = () => overlay.classList.add('show');
     window.__rwOpenCharge = open;
     document.getElementById('pt-charge').addEventListener('click', open);
@@ -2108,6 +2112,33 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     document.getElementById('charge-modal-x').addEventListener('click', () => overlay.classList.remove('show'));
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && overlay.classList.contains('show')) overlay.classList.remove('show'); });
     overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('show'); });
+  })();
+
+  /* ===================== 사이트 설정 (관리자가 시트 '설정' 탭에서 바꾸는 값) ===================== */
+  // 가입 지급 포인트와 첫 충전 보너스 비율은 코드에 고정하지 않고 n8n '사이트설정_조회'에서 받아 적용한다.
+  // 받지 못하면(네트워크·서버 문제) 위에 적어 둔 기본값 그대로 보여 주고, 화면은 멈추지 않는다. 5분간 브라우저에 저장해 둔다.
+  const SITE_CONFIG_URL = 'https://bald-buffalo.pikapod.net/webhook/site-config';
+  (function loadSiteConfig() {
+    const KEY = 'rw_site_cfg_v1', TTL = 5 * 60 * 1000;
+    function apply(c) {
+      if (!c || c.ok !== true) return;
+      const g = Number(c.signupGrant);
+      if (Number.isFinite(g) && g >= 0) document.querySelectorAll('[data-grant]').forEach(el => { el.textContent = String(Math.round(g)); });
+      let changed = false;
+      CHARGE_PRODUCTS.forEach(p => {
+        const v = Number(c.bonusPct && c.bonusPct[p.usd]);
+        if (Number.isFinite(v) && v >= 0 && v <= 100 && Math.abs(p.bonus - v / 100) > 1e-9) { p.bonus = v / 100; changed = true; }
+      });
+      if (changed && window.__rwRenderCharge) window.__rwRenderCharge();
+    }
+    let cached = null;
+    try { cached = JSON.parse(sessionStorage.getItem(KEY) || 'null'); } catch (e) {}
+    if (cached && cached.at && Date.now() - cached.at < TTL) { apply(cached.cfg); return; }
+    fetch(SITE_CONFIG_URL).then(r => r.ok ? r.json() : null).then(cfg => {
+      if (!cfg || cfg.ok !== true) return;
+      try { sessionStorage.setItem(KEY, JSON.stringify({ at: Date.now(), cfg })); } catch (e) {}
+      apply(cfg);
+    }).catch(() => {});
   })();
 
   // 채팅 안에 요금표 카드 - "얼마예요?", "2분 모두 영상이면 가격은?" 같은 질문에 서버를 거치지 않고 바로 정확한 표로 답한다
