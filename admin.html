@@ -169,7 +169,7 @@
 
 <main class="wrap">
   <h1 class="page-title">관리자 설정</h1>
-  <p class="page-sub">위쪽 서류철 탭을 눌러 칸을 고르고, 항목마다 [적용]을 눌러요. 바꾼 내용은 시트에 기록돼요.</p>
+  <p class="page-sub" id="page-sub">위쪽 서류철 탭을 눌러 칸을 고르고, 항목마다 [적용]을 눌러요. 바꾼 내용은 시트에 기록돼요.</p>
 
   <section id="gate" class="state" hidden>
     <h2>관리자 로그인</h2>
@@ -266,7 +266,7 @@
       if (status === 403) { $('forbidden-msg').textContent = '이 화면은 관리자만 볼 수 있어요. 다른 구글 계정으로 로그인해 보세요.'; show('forbidden'); return; }
       if (status !== 200 || !data || data.ok !== true || !Array.isArray(data.items)) { show('failed'); return; }
       $('who-email').textContent = data.email || ''; $('who').hidden = false;
-      items = data.items; history = Array.isArray(data.history) ? data.history : []; draft = {};
+      items = data.items.map(fixGroup); history = Array.isArray(data.history) ? data.history : []; draft = {};
       renderTabs(); renderList(); show('panel');
     } catch (e) { show('failed'); }
   }
@@ -290,11 +290,25 @@
 
   let history = [], activeTab = '', saving = false, pendingKey = null;
   const PLANNED = ['가격·포인트', '공지', '문구', '이미지·영상', '운영 한도'];   // 서류철 칸 (항목이 아직 없으면 '준비 중')
+  const KEY_GROUP = { '가입지급포인트': '가격·포인트', '하루지급인원': '가격·포인트', '충전보너스_30달러': '가격·포인트', '충전보너스_50달러': '가격·포인트', '충전보너스_100달러': '가격·포인트', '공지사용': '공지', '공지문구': '공지' };
+  const TAB_DESC = {
+    '가격·포인트': '가입 포인트, 하루 지급 인원, 충전 보너스를 정해요. 이미 지급된 포인트는 바뀌지 않아요.',
+    '공지': '모든 고객 화면 맨 위에 띠로 보이는 공지를 켜고 끄고, 문구를 바꿔요.',
+    '문구': '고객 화면의 안내 문구를 바꾸는 칸이에요. 준비 중이에요.',
+    '이미지·영상': '첫 화면의 이미지와 영상을 바꾸는 칸이에요. 준비 중이에요.',
+    '운영 한도': '무료 체험 횟수, 동시에 만드는 영상 수 같은 운영 한도를 정하는 칸이에요. 준비 중이에요.',
+    '기타': '어느 칸에도 속하지 않은 항목이에요.',
+    '변경 이력': '누가 언제 무엇을 바꿨는지 기록이에요. 최근 100건까지 보여요.'
+  };
+  const DEFAULT_SUB = '위쪽 서류철 탭을 눌러 칸을 고르고, 항목마다 [적용]을 눌러요. 바꾼 내용은 시트에 기록돼요.';
+  function cleanGroup(v) { return String(v == null ? '' : v).normalize('NFC').replace(/[\u200B-\u200D\u2060\uFEFF]/g, '').replace(/[\u00A0\u3000]/g, ' ').replace(/[・•∙‧⋅･]/g, '·').replace(/\s*·\s*/g, '·').replace(/\s+/g, ' ').trim(); }
+  function fixGroup(it) { const g = cleanGroup(it.group); it.group = PLANNED.includes(g) ? g : (KEY_GROUP[it.key] || g || '기타'); return it; }
   const groups = () => { const have = []; items.forEach((it) => { if (!have.includes(it.group)) have.push(it.group); }); const g = PLANNED.slice(); have.forEach((n) => { if (!g.includes(n)) g.push(n); }); g.push('변경 이력'); return g; };
 
   function renderTabs() {
     const tabs = $('tabs'); tabs.innerHTML = '';
     const g = groups(); if (!g.includes(activeTab)) activeTab = g[0];
+    $('page-sub').textContent = TAB_DESC[activeTab] || DEFAULT_SUB;
     g.forEach((name) => {
       const b = document.createElement('button'); b.type = 'button'; b.className = 'tab'; b.setAttribute('role', 'tab');
       b.setAttribute('aria-selected', name === activeTab ? 'true' : 'false'); b.textContent = name;
