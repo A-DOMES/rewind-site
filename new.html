@@ -40,7 +40,11 @@
   #gate .back-link:hover { color: var(--ink-dim); }
 
   #app { display: none; height: 100vh; height: 100dvh; }
-  .shell { display: flex; height: 100%; }
+  .shell { display: flex; height: calc(100% - var(--nb, 0px)); }
+  .rw-notice { z-index: 400; display: flex; align-items: center; justify-content: center; gap: 12px; padding: 9px 44px 9px 16px; background: #c68a12; color: #14100a; font-size: .92rem; font-weight: 500; text-align: center; position: relative; line-height: 1.45; word-break: keep-all; }
+  .rw-notice button { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: transparent; border: 0; color: inherit; font-size: 1.2rem; line-height: 1; cursor: pointer; padding: 6px 10px; border-radius: 8px; }
+  .rw-notice button:hover { background: rgba(0,0,0,.12); }
+
 
   .sidebar { width: 230px; flex-shrink: 0; border-right: 1px solid var(--line); padding: 18px 14px; display: flex; flex-direction: column; }
   .sidebar .logo { display: flex; align-items: center; gap: 9px; font-family: 'Fraunces', serif; font-weight: 600; font-size: 0.98rem; padding: 6px 6px 20px; }
@@ -1045,7 +1049,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       <p class="gate-lede">구글 계정으로 30초면 시작할 수 있어요. 신청 확인과 완성 알림도 이 계정으로 보내드려요.</p>
       <div id="gsi-area"></div>
       <ul class="gate-perks">
-        <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>가입하면 체험 포인트 <span data-grant>50</span>P를 드려요</li>
+        <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg><span>가입하면 체험 포인트 <span data-grant>50</span>P를 드려요</span></li>
         <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>대본과 최종 장면은 직접 확인하고 승인</li>
         <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>완성되면 이 계정 이메일로 알려드려요</li>
       </ul>
@@ -2120,8 +2124,22 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   const SITE_CONFIG_URL = 'https://bald-buffalo.pikapod.net/webhook/site-config';
   (function loadSiteConfig() {
     const KEY = 'rw_site_cfg_v1', TTL = 5 * 60 * 1000;
+    // 공지 띠: 관리자가 켜 둔 경우에만 맨 위에 보여 준다. 글자만 넣고(HTML 아님), 닫으면 이번 방문 동안 다시 안 보인다.
+    function showNotice(n) {
+      const old = document.getElementById('rw-notice'); if (old) old.remove();
+      let dismissed = ''; try { dismissed = sessionStorage.getItem('rw_notice_closed') || ''; } catch (e) {}
+      if (!n || !n.on || !n.text || dismissed === n.text) { document.documentElement.style.setProperty('--nb', '0px'); return; }
+      const bar = document.createElement('div'); bar.id = 'rw-notice'; bar.className = 'rw-notice'; bar.setAttribute('role', 'status');
+      const t = document.createElement('span'); t.textContent = n.text;
+      const x = document.createElement('button'); x.type = 'button'; x.setAttribute('aria-label', '공지 닫기'); x.textContent = '×';
+      x.addEventListener('click', () => { try { sessionStorage.setItem('rw_notice_closed', n.text); } catch (e) {} bar.remove(); document.documentElement.style.setProperty('--nb', '0px'); });
+      bar.append(t, x); document.body.insertBefore(bar, document.body.firstChild);
+      document.documentElement.style.setProperty('--nb', bar.offsetHeight + 'px');
+      window.addEventListener('resize', () => { const b = document.getElementById('rw-notice'); if (b) document.documentElement.style.setProperty('--nb', b.offsetHeight + 'px'); });
+    }
     function apply(c) {
       if (!c || c.ok !== true) return;
+      showNotice(c.notice);
       const g = Number(c.signupGrant);
       if (Number.isFinite(g) && g >= 0) document.querySelectorAll('[data-grant]').forEach(el => { el.textContent = String(Math.round(g)); });
       let changed = false;

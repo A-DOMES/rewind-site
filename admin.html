@@ -94,6 +94,28 @@
   .field .unit { color: var(--ink-dim); min-width: 1.4em; }
   .row .was { grid-column: 1 / -1; display: none; font-size: .82rem; color: var(--olive); }
   .row.changed .was { display: flex; align-items: center; gap: 10px; }
+  .row .ctl { display: flex; align-items: center; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+  .row .apply { padding: 9px 16px; font-size: .92rem; border-radius: 10px; }
+  .row.text { grid-template-columns: 1fr; }
+  .row.text .ctl { justify-content: stretch; }
+  .row.text .field { flex: 1; }
+  .row.text .field input { width: 100%; text-align: left; font-size: 1rem; }
+  .counter { font-size: .78rem; color: var(--ink-faint); min-width: 4.5em; text-align: right; }
+  .switch { position: relative; width: 52px; height: 30px; border-radius: 99px; border: 1px solid var(--line); background: var(--bg-input); cursor: pointer; padding: 0; transition: background .15s; }
+  .switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: var(--ink-faint); transition: transform .15s, background .15s; }
+  .switch[aria-checked="true"] { background: var(--amber-dim); border-color: var(--amber); }
+  .switch[aria-checked="true"]::after { transform: translateX(22px); background: var(--amber); }
+  .switch-label { min-width: 2.6em; color: var(--ink-dim); }
+  .tabs { display: flex; gap: 4px; overflow-x: auto; border-bottom: 1px solid var(--line); margin-bottom: 18px; padding-bottom: 0; scrollbar-width: thin; }
+  .tab { flex: 0 0 auto; background: transparent; border: 1px solid transparent; border-bottom: 0; color: var(--ink-dim); padding: 10px 18px; border-radius: 12px 12px 0 0; cursor: pointer; font-size: .98rem; position: relative; top: 1px; }
+  .tab:hover { color: var(--ink); }
+  .tab[aria-selected="true"] { background: var(--bg-raised); color: var(--ink); border-color: var(--line); font-weight: 600; box-shadow: inset 0 3px 0 var(--amber); }
+  .tab .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--amber); margin-left: 7px; vertical-align: middle; }
+  .hist { width: 100%; border-collapse: collapse; font-size: .9rem; }
+  .hist th, .hist td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .hist th { color: var(--ink-dim); font-weight: 500; font-size: .82rem; }
+  .hist td.num { font-variant-numeric: tabular-nums; }
+  .hist-wrap { overflow-x: auto; background: var(--bg-raised); border: 1px solid var(--line); border-radius: 14px; }
   .row .msg { grid-column: 1 / -1; color: var(--err); font-size: .85rem; display: none; }
   .row.bad .msg { display: block; }
   .mini { background: none; border: 0; color: var(--ink-dim); text-decoration: underline; cursor: pointer; font-size: .82rem; padding: 0; }
@@ -139,8 +161,8 @@
 </header>
 
 <main class="wrap">
-  <h1 class="page-title">가격과 포인트 설정</h1>
-  <p class="page-sub">값을 고치고 저장하면 시트에 기록되고 사이트에 반영돼요.</p>
+  <h1 class="page-title">관리자 설정</h1>
+  <p class="page-sub">분류 탭을 골라 값을 고치고, 항목마다 적용해요. 바꾼 내용은 시트에 기록돼요.</p>
 
   <section id="gate" class="state" hidden>
     <h2>관리자 로그인</h2>
@@ -169,29 +191,20 @@
   <section id="loading" class="state" hidden><p style="margin:0">불러오는 중이에요…</p></section>
 
   <section id="panel" hidden>
-    <div class="notice">저장한 값은 고객 사이트에 <b>최대 5분 뒤</b>에 반영돼요. 이미 지급된 포인트와 접수된 주문은 바뀌지 않고, 저장한 뒤부터 새로 생기는 건에만 적용돼요.</div>
+    <div class="notice">항목마다 <b>[적용]</b>을 눌러야 그 항목만 저장돼요. 고객 사이트에는 <b>최대 5분 뒤</b>에 반영되고, 이미 지급된 포인트와 접수된 주문은 바뀌지 않아요.</div>
+    <div class="tabs" id="tabs" role="tablist" aria-label="설정 분류"></div>
     <div class="list" id="list"></div>
   </section>
 </main>
 
-<div class="savebar" id="savebar" role="region" aria-label="저장">
-  <div class="wrap">
-    <div><b id="count">0</b>개 항목이 바뀌었어요</div>
-    <div style="display:flex;gap:8px">
-      <button class="btn ghost" id="reset" type="button">되돌리기</button>
-      <button class="btn" id="save" type="button">저장하기</button>
-    </div>
-  </div>
-</div>
-
 <div class="overlay" id="confirm" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
   <div class="dialog">
-    <h2 id="confirm-title">이렇게 바꿀까요?</h2>
+    <h2 id="confirm-title">이 항목을 바꿀까요?</h2>
     <p>저장하면 시트에 기록되고, 변경 이력이 남아요.</p>
     <ul class="diff" id="diff"></ul>
     <div class="actions">
       <button class="btn ghost" id="confirm-no" type="button">취소</button>
-      <button class="btn" id="confirm-yes" type="button">저장</button>
+      <button class="btn" id="confirm-yes" type="button">적용</button>
     </div>
   </div>
 </div>
@@ -212,7 +225,6 @@
 
   function show(name) {
     sections.forEach((s) => { $(s).hidden = s !== name; });
-    if (name !== 'panel') $('savebar').classList.remove('show');
   }
   function toast(msg, isErr) {
     const t = $('toast');
@@ -247,8 +259,8 @@
       if (status === 403) { $('forbidden-msg').textContent = '이 화면은 관리자만 볼 수 있어요. 다른 구글 계정으로 로그인해 보세요.'; show('forbidden'); return; }
       if (status !== 200 || !data || data.ok !== true || !Array.isArray(data.items)) { show('failed'); return; }
       $('who-email').textContent = data.email || ''; $('who').hidden = false;
-      items = data.items; draft = {};
-      renderList(); show('panel'); refreshBar();
+      items = data.items; history = Array.isArray(data.history) ? data.history : []; draft = {};
+      renderTabs(); renderList(); show('panel');
     } catch (e) { show('failed'); }
   }
 
@@ -269,104 +281,174 @@
     load();
   };
 
-  function renderList() {
-    const list = $('list'); list.innerHTML = '';
-    if (!items.length) { list.innerHTML = '<div class="state"><p style="margin:0">설정 탭에 항목이 없어요.</p></div>'; return; }
-    items.forEach((it) => {
-      const row = document.createElement('div'); row.className = 'row'; row.dataset.key = it.key;
-      const hint = (it.min != null || it.max != null) ? `${it.min != null ? it.min : ''} ~ ${it.max != null ? it.max : ''}${unitOf(it.key)} 사이에서 정해요` : '';
-      row.innerHTML = `
-        <div><div class="name"></div><div class="desc"></div>${hint ? '<div class="range"></div>' : ''}</div>
-        <label class="field"><span class="sr" style="position:absolute;left:-9999px"></span><input type="text" inputmode="decimal" autocomplete="off" value=""><span class="unit"></span></label>
-        <div class="was"><span class="was-t"></span><button type="button" class="mini">원래대로</button></div>
-        <div class="msg" role="alert"></div>`;
-      row.querySelector('.name').textContent = labelOf(it.key);
-      row.querySelector('.desc').textContent = it.desc || '';
-      if (hint) row.querySelector('.range').textContent = hint;
-      row.querySelector('.sr').textContent = labelOf(it.key);
-      const input = row.querySelector('input'); input.value = fmt(it.value);
-      row.querySelector('.unit').textContent = unitOf(it.key);
-      input.addEventListener('input', () => { draft[it.key] = input.value; paintRow(row, it); refreshBar(); });
-      row.querySelector('.mini').addEventListener('click', () => { delete draft[it.key]; input.value = fmt(it.value); paintRow(row, it); refreshBar(); });
-      list.appendChild(row);
+  let history = [], activeTab = '', saving = false, pendingKey = null;
+  const groups = () => { const g = []; items.forEach((it) => { if (!g.includes(it.group)) g.push(it.group); }); g.push('변경 이력'); return g; };
+
+  function renderTabs() {
+    const tabs = $('tabs'); tabs.innerHTML = '';
+    const g = groups(); if (!g.includes(activeTab)) activeTab = g[0];
+    g.forEach((name) => {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'tab'; b.setAttribute('role', 'tab');
+      b.setAttribute('aria-selected', name === activeTab ? 'true' : 'false'); b.textContent = name;
+      if (name !== '변경 이력' && items.some((it) => it.group === name && isChanged(it))) { const d = document.createElement('span'); d.className = 'dot'; d.title = '적용하지 않은 변경이 있어요'; b.appendChild(d); }
+      b.addEventListener('click', () => { activeTab = name; renderTabs(); renderList(); });
+      tabs.appendChild(b);
     });
   }
 
-  // 한 줄의 상태(바뀜/잘못됨)를 그린다. 문제가 없으면 null, 있으면 메시지를 돌려준다.
-  function check(it, raw) {
-    const n = num(raw);
-    if (n === null) return '숫자를 입력해 주세요.';
-    const v = r1(n);
-    if (it.min != null && v < it.min) return `${it.min} 이상이어야 해요.`;
-    if (it.max != null && v > it.max) return `${it.max} 이하여야 해요.`;
-    return null;
+  function renderHistory(list) {
+    if (!history.length) { list.innerHTML = '<div class="state"><p style="margin:0">아직 바꾼 기록이 없어요.</p></div>'; return; }
+    const wrap = document.createElement('div'); wrap.className = 'hist-wrap';
+    const t = document.createElement('table'); t.className = 'hist';
+    t.innerHTML = '<thead><tr><th>시간</th><th>관리자</th><th>항목</th><th>바뀐 값</th></tr></thead><tbody></tbody>';
+    history.forEach((h) => {
+      const tr = document.createElement('tr');
+      [h.time, h.admin, labelOf(h.key), (h.from === '' ? '(빈 값)' : h.from) + ' → ' + (h.to === '' ? '(빈 값)' : h.to)].forEach((v, i) => { const td = document.createElement('td'); if (i === 0) td.className = 'num'; td.textContent = v; tr.appendChild(td); });
+      t.querySelector('tbody').appendChild(tr);
+    });
+    wrap.appendChild(t); list.appendChild(wrap);
+  }
+
+  function renderList() {
+    const list = $('list'); list.innerHTML = '';
+    if (activeTab === '변경 이력') { renderHistory(list); return; }
+    const mine = items.filter((it) => it.group === activeTab);
+    if (!mine.length) { list.innerHTML = '<div class="state"><p style="margin:0">이 분류에는 항목이 없어요.</p></div>'; return; }
+    mine.forEach((it) => list.appendChild(buildRow(it)));
+  }
+
+  function buildRow(it) {
+    const row = document.createElement('div'); row.className = 'row' + (it.type === '글자' ? ' text' : ''); row.dataset.key = it.key;
+    const hint = it.type === '숫자' && (it.min != null || it.max != null) ? `${it.min != null ? it.min : ''} ~ ${it.max != null ? it.max : ''}${unitOf(it.key)} 사이에서 정해요` : (it.type === '글자' && it.max ? `${it.max}자까지 쓸 수 있어요` : '');
+    row.innerHTML = `
+      <div><div class="name"></div><div class="desc"></div>${hint ? '<div class="range"></div>' : ''}</div>
+      <div class="ctl"></div>
+      <div class="was"><span class="was-t"></span><button type="button" class="mini">원래대로</button></div>
+      <div class="msg" role="alert"></div>`;
+    row.querySelector('.name').textContent = labelOf(it.key);
+    row.querySelector('.desc').textContent = it.desc || '';
+    if (hint) row.querySelector('.range').textContent = hint;
+    const ctl = row.querySelector('.ctl');
+    const apply = document.createElement('button'); apply.type = 'button'; apply.className = 'btn apply'; apply.textContent = '적용'; apply.disabled = true;
+    let setInput;
+    if (it.type === '켜짐꺼짐') {
+      const lab = document.createElement('span'); lab.className = 'switch-label';
+      const sw = document.createElement('button'); sw.type = 'button'; sw.className = 'switch'; sw.setAttribute('role', 'switch'); sw.setAttribute('aria-label', labelOf(it.key));
+      const paint = (v) => { sw.setAttribute('aria-checked', v === '켜짐' ? 'true' : 'false'); lab.textContent = v === '켜짐' ? '켜짐' : '꺼짐'; };
+      const cur = () => (it.key in draft ? draft[it.key] : it.value);
+      paint(cur());
+      sw.addEventListener('click', () => { const nv = cur() === '켜짐' ? '꺼짐' : '켜짐'; draft[it.key] = nv; paint(nv); afterEdit(row, it, apply); });
+      setInput = (v) => paint(v);
+      ctl.append(lab, sw, apply);
+    } else {
+      const field = document.createElement('label'); field.className = 'field';
+      const input = document.createElement('input'); input.type = 'text'; input.autocomplete = 'off';
+      input.setAttribute('aria-label', labelOf(it.key));
+      if (it.type === '숫자') input.inputMode = 'decimal'; else if (it.max) input.maxLength = it.max;
+      input.value = it.type === '숫자' ? fmt(it.value) : (it.value || '');
+      field.appendChild(input);
+      if (it.type === '숫자') { const u = document.createElement('span'); u.className = 'unit'; u.textContent = unitOf(it.key); field.appendChild(u); }
+      else { const c = document.createElement('span'); c.className = 'counter'; const upd = () => { c.textContent = it.max ? `${input.value.length}/${it.max}` : ''; }; upd(); input.addEventListener('input', upd); field.appendChild(c); }
+      if (it.key in draft) input.value = draft[it.key];
+      input.addEventListener('input', () => { draft[it.key] = input.value; afterEdit(row, it, apply); });
+      input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !apply.disabled) apply.click(); });
+      setInput = (v) => { input.value = v; input.dispatchEvent(new Event('input')); };
+      ctl.append(field, apply);
+    }
+    row.querySelector('.mini').addEventListener('click', () => { delete draft[it.key]; setInput(it.type === '숫자' ? fmt(it.value) : (it.value || '')); delete draft[it.key]; afterEdit(row, it, apply); });
+    apply.addEventListener('click', () => askApply(it));
+    afterEdit(row, it, apply);
+    return row;
+  }
+
+  function normalized(it) { // 입력 중인 값을 저장할 값으로 바꾼다
+    const raw = draft[it.key];
+    if (it.type === '숫자') { const n = num(raw); return n === null ? null : r1(n); }
+    if (it.type === '글자') return String(raw == null ? '' : raw).replace(/[\r\n]+/g, ' ').trim();
+    return raw;
   }
   function isChanged(it) {
     if (!(it.key in draft)) return false;
-    const n = num(draft[it.key]);
-    return n === null || r1(n) !== it.value;
+    if (it.type === '숫자') { const n = normalized(it); return n === null || n !== it.value; }
+    if (it.type === '글자') return normalized(it) !== (it.value || '');
+    return draft[it.key] !== it.value;
   }
-  function paintRow(row, it) {
-    const changed = isChanged(it);
-    const err = changed ? check(it, draft[it.key]) : null;
-    row.classList.toggle('changed', changed && !err);
-    row.classList.toggle('bad', !!err);
+  function check(it) { // 문제가 없으면 null, 있으면 안내 문구
+    if (it.type === '숫자') {
+      const v = normalized(it);
+      if (v === null) return '숫자를 입력해 주세요.';
+      if (it.min != null && v < it.min) return `${it.min} 이상이어야 해요.`;
+      if (it.max != null && v > it.max) return `${it.max} 이하여야 해요.`;
+      return null;
+    }
+    if (it.type === '글자') {
+      const v = normalized(it);
+      if (/[<>]/.test(v)) return '< > 글자는 쓸 수 없어요.';
+      if (/^[=+@]/.test(v)) return '첫 글자로 = + @ 는 쓸 수 없어요.';
+      if (it.max && v.length > it.max) return `${it.max}자 이하로 써 주세요.`;
+    }
+    return null;
+  }
+  function afterEdit(row, it, apply) {
+    const changed = isChanged(it), err = changed ? check(it) : null;
+    row.classList.toggle('changed', changed && !err); row.classList.toggle('bad', !!err);
     row.querySelector('.msg').textContent = err || '';
-    row.querySelector('.was-t').textContent = `원래 값 ${fmt(it.value)}${unitOf(it.key)}`;
+    row.querySelector('.was-t').textContent = `원래 값 ${it.type === '글자' ? (it.value ? '"' + it.value + '"' : '(빈 값)') : fmt(it.value) + unitOf(it.key)}`;
     row.querySelector('.was').style.display = changed ? 'flex' : 'none';
+    apply.disabled = !changed || !!err || saving;
+    renderTabsDots();
   }
-  function pending() {
-    return items.filter(isChanged).map((it) => ({ it, err: check(it, draft[it.key]) }));
-  }
-  function refreshBar() {
-    const p = pending();
-    $('count').textContent = String(p.length);
-    $('savebar').classList.toggle('show', p.length > 0);
-    $('save').disabled = busy || p.length === 0 || p.some((x) => x.err);
-  }
-
-  $('reset').addEventListener('click', () => { draft = {}; renderList(); refreshBar(); });
-  $('save').addEventListener('click', () => {
-    const p = pending(); if (!p.length || p.some((x) => x.err)) return;
-    $('diff').innerHTML = '';
-    p.forEach(({ it }) => {
-      const li = document.createElement('li');
-      const a = document.createElement('span'); a.textContent = labelOf(it.key);
-      const b = document.createElement('span'); b.className = 'arrow';
-      b.textContent = `${fmt(it.value)}${unitOf(it.key)} → ${fmt(r1(num(draft[it.key])))}${unitOf(it.key)}`;
-      li.append(a, b); $('diff').appendChild(li);
+  function renderTabsDots() {
+    document.querySelectorAll('#tabs .tab').forEach((b) => {
+      const name = b.firstChild ? b.firstChild.textContent : ''; const has = items.some((it) => it.group === name && isChanged(it));
+      const d = b.querySelector('.dot');
+      if (has && !d) { const x = document.createElement('span'); x.className = 'dot'; x.title = '적용하지 않은 변경이 있어요'; b.appendChild(x); } else if (!has && d) d.remove();
     });
+  }
+  const showVal = (it, v) => it.type === '숫자' ? `${fmt(v)}${unitOf(it.key)}` : (v === '' || v == null ? '(빈 값)' : v);
+
+  function askApply(it) {
+    if (saving || isChanged(it) === false || check(it)) return;
+    pendingKey = it.key;
+    $('diff').innerHTML = '';
+    const li = document.createElement('li');
+    const a = document.createElement('span'); a.textContent = labelOf(it.key);
+    const b = document.createElement('span'); b.className = 'arrow'; b.textContent = `${showVal(it, it.value)} → ${showVal(it, normalized(it))}`;
+    li.append(a, b); $('diff').appendChild(li);
     $('confirm').classList.add('show'); $('confirm-yes').focus();
-  });
-  const closeConfirm = () => $('confirm').classList.remove('show');
+  }
+  const closeConfirm = () => { $('confirm').classList.remove('show'); pendingKey = null; };
   $('confirm-no').addEventListener('click', closeConfirm);
   $('confirm').addEventListener('click', (e) => { if (e.target === $('confirm')) closeConfirm(); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeConfirm(); });
 
   $('confirm-yes').addEventListener('click', async () => {
-    if (busy) return;
-    const p = pending(); if (!p.length) { closeConfirm(); return; }
-    busy = true; $('confirm-yes').disabled = true; $('confirm-yes').textContent = '저장 중…'; refreshBar();
+    if (saving) return;
+    const it = items.find((x) => x.key === pendingKey); if (!it) { closeConfirm(); return; }
+    const value = normalized(it);
+    saving = true; $('confirm-yes').disabled = true; $('confirm-yes').textContent = '저장 중…';
     try {
-      const { status, data } = await post(SAVE_URL, { idToken: token(), changes: p.map(({ it }) => ({ key: it.key, value: r1(num(draft[it.key])) })) });
+      const { status, data } = await post(SAVE_URL, { idToken: token(), changes: [{ key: it.key, value }] });
       closeConfirm();
       if (status === 401) { clearToken(); toast('로그인이 만료됐어요. 다시 로그인해 주세요.', true); renderLogin('expired'); return; }
       if (status === 403) { toast('관리자 권한이 없어요.', true); show('forbidden'); return; }
       if (status === 400 && data && Array.isArray(data.errors)) { toast(data.errors.join(' / '), true); return; }
       if (status !== 200 || !data || data.ok !== true) { toast('저장하지 못했어요. 잠시 뒤에 다시 시도해 주세요.', true); return; }
+      const from = it.value; it.value = value; delete draft[it.key];
+      history.unshift({ time: new Date().toLocaleString('sv-SE'), admin: $('who-email').textContent, key: it.key, from: String(from == null ? '' : from), to: String(value) });
       toast(data.note || '저장했어요.');
-      await load();
+      renderTabs(); renderList();
     } catch (e) {
       closeConfirm(); toast('저장하지 못했어요. 네트워크를 확인하고 다시 시도해 주세요.', true);
     } finally {
-      busy = false; $('confirm-yes').disabled = false; $('confirm-yes').textContent = '저장'; refreshBar();
+      saving = false; $('confirm-yes').disabled = false; $('confirm-yes').textContent = '적용';
     }
   });
 
-  $('logout').addEventListener('click', () => { clearToken(); try { google.accounts.id.disableAutoSelect(); } catch (e) {} items = []; draft = {}; renderLogin('gate'); });
+  $('logout').addEventListener('click', () => { clearToken(); try { google.accounts.id.disableAutoSelect(); } catch (e) {} items = []; draft = {}; history = []; renderLogin('gate'); });
   $('switch').addEventListener('click', () => { clearToken(); try { google.accounts.id.disableAutoSelect(); } catch (e) {} renderLogin('gate'); });
   $('retry').addEventListener('click', load);
-  window.addEventListener('beforeunload', (e) => { if (pending().length) { e.preventDefault(); e.returnValue = ''; } });
+  window.addEventListener('beforeunload', (e) => { if (items.some(isChanged)) { e.preventDefault(); e.returnValue = ''; } });
 
   load();
 })();
