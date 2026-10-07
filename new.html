@@ -982,6 +982,21 @@
   .price-modal .price-table th small { display: block; font-size: .72rem; font-weight: 600; color: var(--amber); }
   .charge-modal .cm-head { display: flex; align-items: center; justify-content: space-between; padding: 0 0 6px; }
   .charge-modal h2 { font-size: 1.5rem; }
+  /* ===== 포인트 충전 창: 글씨 3단계 ===== */
+  .charge-modal { max-width: 860px; padding: 28px 30px; border-radius: 22px; }
+  .charge-modal .sub { font-size: .95rem; margin-bottom: 20px; }
+  .charge-grid { gap: 16px; }
+  .charge-card { padding: 22px 20px; gap: 10px; border-radius: 18px; }
+  .charge-card.rec { border-width: 2px; background: color-mix(in srgb, var(--gold) 7%, transparent); }
+  .charge-card .usd { font-size: 1.9rem; }
+  .charge-card .pts { font-size: 1.3rem; font-weight: 700; }
+  .charge-card .bonus { font-size: .9rem; color: var(--ink-dim); }
+  .charge-card ul { font-size: .88rem; color: var(--ink-dim); gap: 6px; }
+  .charge-card .tag { font-size: .8rem; padding: 3px 10px; font-weight: 700; }
+  .charge-card button { min-height: 48px; font-size: 1rem; }
+  .charge-modal .note { font-size: .88rem; line-height: 1.6; }
+  @media (max-width: 640px) { .charge-modal { width: 100%; max-height: 100%; border-radius: 0; padding: 20px 18px; } .charge-card .usd { font-size: 1.6rem; } }
+  .charge-modal .close-row .btn-gold-sm, .price-modal .close-row .btn-gold-sm { width: auto; min-width: 96px; padding: 0 26px; min-height: 46px; }
   @media (max-width: 640px) { .df-sec { padding: 18px 16px 8px; } .df-types .tcard b { font-size: .92rem; } }
 </style>
 <script>

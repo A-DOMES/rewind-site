@@ -387,6 +387,21 @@
   .reel-meta .err { color: var(--status-error); font-weight: 400; }
   .status-chip { font-size: 0.9rem; font-weight: 500; }
 
+  /* ===== 내 프로젝트 · 글씨 3단계 (제목 1.12rem · 보조 .9rem · 상태 1rem) + 모바일 카드 정리 ===== */
+  .page-head h1 { letter-spacing: -.02em; }
+  .reel-title { font-size: 1.12rem; font-weight: 600; }
+  .reel-meta { font-size: .9rem; }
+  .status-chip { font-size: 1rem; font-weight: 600; }
+  .reel-arrow { font-size: 1.5rem; }
+  .reel-del { width: 38px; height: 38px; } .reel-del svg { width: 20px; height: 20px; }
+  @media (max-width: 640px) {
+    .reel-row { grid-template-columns: 52px minmax(0, 1fr) auto; grid-template-areas: "icon body arrow" "icon chip arrow"; min-height: 0; align-items: center; }
+    .reel-icon { grid-area: icon; } .reel-body { grid-area: body; padding: 14px 8px 2px 14px; } .reel-arrow { grid-area: arrow; padding: 0 14px 0 4px; }
+    .reel-row .status-chip { grid-area: chip; display: flex !important; justify-self: stretch; justify-content: flex-start; margin: 0; border-left: 0; min-width: 0; padding: 0 8px 14px 14px; font-size: .95rem; }
+    .reel-title { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+    .reel-del { top: 6px; right: 34px; }
+  }
+
   /* 로그인 만료 알림 */
   #login-expired-bar { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 400; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; justify-content: center; max-width: calc(100% - 32px); padding: 12px 14px 12px 20px; border-radius: 999px; background: var(--bg-raised); border: 1px solid var(--amber); color: var(--ink); font-size: 0.92rem; box-shadow: 0 16px 40px rgba(0,0,0,.35); }
   #login-expired-bar button { min-height: 40px; padding: 0 18px; border: 0; border-radius: 999px; background: var(--amber); color: var(--on-amber); font-family: inherit; font-weight: 600; cursor: pointer; }
@@ -529,6 +544,15 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
         <p>세션이 끊겨서 목록을 못 가져왔어요. 다시 로그인해주세요.</p>
       </div>
       <button class="btn-primary" id="relogin-btn">다시 로그인하기</button>
+    </div>
+
+    <div id="load-failed" style="display:none; text-align:center; padding:60px 20px;">
+      <div class="cinema" style="max-width:340px; margin:0 auto 20px;">
+        <div class="play-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 21v-5h5"/></svg></div>
+        <h3>목록을 불러오지 못했어요</h3>
+        <p>서버가 잠깐 바쁘거나 연결이 끊겼어요. 로그인은 그대로예요. 잠시 후 다시 시도해 주세요.</p>
+      </div>
+      <button class="btn-primary" id="retry-btn">다시 시도</button>
     </div>
 
     <div id="project-list"></div>
@@ -676,6 +700,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     document.getElementById('loading').style.display = 'block';
     document.getElementById('empty').style.display = 'none';
     document.getElementById('session-expired').style.display = 'none';
+    document.getElementById('load-failed').style.display = 'none';
     document.getElementById('project-list').style.display = 'none';
     try {
       const res = await fetch(PROJECTS_WEBHOOK_URL, {
@@ -684,18 +709,27 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
         body: JSON.stringify({ idToken })
       });
       const data = await res.json().catch(() => null);
-      if (!res.ok || (data && data.error)) {
+      if (res.status === 401) {   /* 서버가 로그인 확인에 실패했을 때만 '로그인 만료' */
         document.getElementById('loading').style.display = 'none';
         document.getElementById('session-expired').style.display = 'block';
+        return;
+      }
+      if (!res.ok || !data || (data && data.error)) {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('load-failed').style.display = 'block';
         return;
       }
       renderProjects(data && data.projects ? data.projects : []);
       startDashPolling(idToken);
     } catch (e) {
       document.getElementById('loading').style.display = 'none';
-      document.getElementById('session-expired').style.display = 'block';
+      document.getElementById('load-failed').style.display = 'block';
     }
   }
+  document.getElementById('retry-btn').addEventListener('click', () => {
+    const t = sessionStorage.getItem('rw_id_token');
+    if (t) loadProjects(t); else location.reload();
+  });
 
   document.getElementById('relogin-btn').addEventListener('click', () => {
     sessionStorage.removeItem('rw_id_token');
