@@ -300,9 +300,18 @@
     :root[data-theme="system"] .way .poster .tc { color: #54473a !important; }
     :root[data-theme="system"] .way .poster svg { stroke: color-mix(in srgb, var(--c) 70%, #000); }
   }
-  .rw-notice { z-index: 400; display: flex; align-items: center; justify-content: center; gap: 12px; padding: 9px 44px 9px 16px; background: #c68a12; color: #14100a; font-size: .92rem; font-weight: 500; text-align: center; position: relative; line-height: 1.45; word-break: keep-all; }
-  .rw-notice button { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: transparent; border: 0; color: inherit; font-size: 1.2rem; line-height: 1; cursor: pointer; padding: 6px 10px; border-radius: 8px; }
-  .rw-notice button:hover { background: rgba(0,0,0,.12); }
+  /* 공지 띠: 테마별 색(나중에 테마가 늘면 아래 토큰만 더하면 된다). 글자는 오른쪽에서 왼쪽으로 흐른다. */
+  :root { --nt-bg: #1b2a4a; --nt-fg: #ffffff; }
+  :root[data-theme="light"] { --nt-bg: #9a600a; --nt-fg: #ffffff; }
+  @media (prefers-color-scheme: light) { :root[data-theme="system"] { --nt-bg: #9a600a; --nt-fg: #ffffff; } }
+  .rw-notice { z-index: 400; position: relative; overflow: hidden; background: var(--nt-bg); color: var(--nt-fg); padding: 10px 52px 10px 0; font-size: 1rem; font-weight: 600; line-height: 1.5; }
+  .rw-notice .nt-track { display: flex; width: max-content; animation: nt-run var(--nt-dur, 24s) linear infinite; will-change: transform; }
+  .rw-notice .nt-item { flex: none; white-space: nowrap; padding-right: 4rem; }
+  .rw-notice:hover .nt-track, .rw-notice:active .nt-track { animation-play-state: paused; }
+  @keyframes nt-run { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  .rw-notice button { position: absolute; right: 0; top: 0; bottom: 0; width: 48px; background: var(--nt-bg); box-shadow: -14px 0 12px var(--nt-bg); border: 0; color: inherit; font-size: 1.3rem; line-height: 1; cursor: pointer; padding: 0; }
+  .rw-notice button:hover { opacity: .75; }
+  @media (prefers-reduced-motion: reduce) { .rw-notice { padding-left: 16px; } .rw-notice .nt-track { animation: none; width: auto; justify-content: center; text-align: center; } .rw-notice .nt-item { white-space: normal; padding-right: 0; word-break: keep-all; } .rw-notice .nt-item[aria-hidden] { display: none; } }
 </style>
 <script>
 /* 테마 전환: 기존 기능 코드와 분리된 독립 스크립트 */
@@ -766,15 +775,26 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
 (function () {
   var URL_ = 'https://bald-buffalo.pikapod.net/webhook/site-config', KEY = 'rw_site_cfg_v1', TTL = 5 * 60 * 1000;
   var TRIAL_SHORT_PRICE = 25; // 체험 쇼츠 1분(이미지 중심)의 체험 포인트 기본값. 사이트 설정(price)을 받으면 거기서 계산한 값으로 바뀐다.
+  function noticeLayout(bar, text) {
+    var track = bar.querySelector('.nt-track'); if (!track) return;
+    track.innerHTML = '';
+    var probe = document.createElement('span'); probe.className = 'nt-item'; probe.textContent = text; track.appendChild(probe);
+    var iw = probe.getBoundingClientRect().width || 1, w = bar.clientWidth || 360;
+    var per = Math.max(1, Math.ceil(w / iw));
+    for (var i = 1; i < per * 2; i++) { var c = document.createElement('span'); c.className = 'nt-item'; c.textContent = text; c.setAttribute('aria-hidden', 'true'); track.appendChild(c); }
+    bar.style.setProperty('--nt-dur', Math.max(8, Math.round(per * iw / 55)) + 's');
+  }
   function showNotice(n) {
     var old = document.getElementById('rw-notice'); if (old) old.parentNode.removeChild(old);
     var dismissed = ''; try { dismissed = sessionStorage.getItem('rw_notice_closed') || ''; } catch (e) {}
     if (!n || !n.on || !n.text || dismissed === n.text) return;
     var bar = document.createElement('div'); bar.id = 'rw-notice'; bar.className = 'rw-notice'; bar.setAttribute('role', 'status');
-    var tx = document.createElement('span'); tx.textContent = n.text;
+    var track = document.createElement('div'); track.className = 'nt-track';
     var x = document.createElement('button'); x.type = 'button'; x.setAttribute('aria-label', '공지 닫기'); x.textContent = '\u00d7';
     x.addEventListener('click', function () { try { sessionStorage.setItem('rw_notice_closed', n.text); } catch (e) {} if (bar.parentNode) bar.parentNode.removeChild(bar); });
-    bar.appendChild(tx); bar.appendChild(x); document.body.insertBefore(bar, document.body.firstChild);
+    bar.appendChild(track); bar.appendChild(x); document.body.insertBefore(bar, document.body.firstChild);
+    noticeLayout(bar, n.text);
+    var rt; window.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(function () { var b = document.getElementById('rw-notice'); if (b) noticeLayout(b, n.text); }, 150); });
   }
   function apply(c) {
     if (!c || c.ok !== true) return;

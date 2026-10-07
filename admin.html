@@ -109,6 +109,24 @@
   .switch[aria-checked="true"] { background: var(--amber-dim); border-color: var(--amber); }
   .switch[aria-checked="true"]::after { transform: translateX(22px); background: var(--amber); }
   .switch-label { min-width: 2.6em; color: var(--ink-dim); }
+  /* 공지 카드: 글 입력칸 하나와 버튼 하나(공지하기 / 해제) */
+  .nc { background: var(--bg-raised); border: 1px solid var(--line); border-radius: 14px; padding: 18px 18px 20px; display: grid; gap: 14px; box-shadow: var(--shadow, none); }
+  .nc-state { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: .95rem; }
+  .nc-state i { width: 10px; height: 10px; border-radius: 50%; background: var(--ink-faint); display: inline-block; }
+  .nc-state.on i { background: #3fae5a; box-shadow: 0 0 0 4px rgba(63,174,90,.2); }
+  .nc-input { width: 100%; background: var(--bg-input); color: var(--ink); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; font: inherit; font-size: 1.05rem; }
+  .nc-input:focus { border-color: var(--amber); outline: none; box-shadow: 0 0 0 3px rgba(198,138,18,.25); }
+  .nc-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .nc-btns { display: flex; gap: 8px; margin-left: auto; }
+  .nc-btn { min-width: 128px; padding: 13px 24px; font-size: 1.05rem; }
+  .nc-btn.off { background: var(--bg-input); color: var(--ink-dim); border: 1px solid var(--line); }
+  .nc-btn[disabled] { opacity: .45; cursor: not-allowed; }
+  .nc-msg { color: #e0614d; font-size: .86rem; min-height: 1.1em; }
+  .nc-pv { display: grid; gap: 6px; }
+  .nc-pv-t { font-size: .8rem; color: var(--ink-faint); }
+  .nc-pv-bar { overflow: hidden; white-space: nowrap; border-radius: 8px; padding: 9px 14px; font-weight: 600; font-size: .95rem; text-overflow: ellipsis; color: #fff; }
+  .nc-pv-bar.l { background: #9a600a; }
+  .nc-pv-bar.d { background: #1b2a4a; }
   .sec { margin: 0 0 22px; }
   .sec:last-child { margin-bottom: 0; }
   .sec-h { font-size: 1.05rem; font-weight: 600; margin: 0 0 4px; }
@@ -359,6 +377,7 @@
   function renderList() {
     const list = $('list'); list.innerHTML = '';
     if (activeTab === '변경 이력') { renderHistory(list); return; }
+    if (activeTab === '공지' && items.some((x) => x.key === '공지문구') && items.some((x) => x.key === '공지사용')) { renderNotice(list); return; }
     const mine = items.filter((it) => it.group === activeTab);
     if (!mine.length) { list.innerHTML = '<div class="state"><h2>준비 중이에요</h2><p style="margin:0">이 칸에서 고칠 수 있는 항목은 앞으로 추가돼요.</p></div>'; return; }
     const TIER_RE = /^롱폼_(분위기|야담|긴야담)_(경제형|표준형|고급형)_(기본|시간당|분당)$/;
@@ -384,6 +403,48 @@
       rest.forEach((it) => sec.querySelector('.list').appendChild(buildRow(it)));
       list.appendChild(sec);
     }
+  }
+
+  // 공지 카드: 글을 쓰고 버튼 하나로 공지하기 / 해제. 공지사용(켜짐·꺼짐)은 화면에서 숨기고 버튼이 대신 바꾼다.
+  function renderNotice(list) {
+    const useIt = items.find((x) => x.key === '공지사용'), txtIt = items.find((x) => x.key === '공지문구');
+    const MAX = txtIt.max || 120;
+    const isOn = () => String(useIt.value || '').normalize('NFC').trim() === '켜짐';
+    const saved = () => String(txtIt.value || '');
+    const sec = document.createElement('section'); sec.className = 'sec';
+    sec.innerHTML = '<h2 class="sec-h">공지 띠</h2><p class="sec-sub">글을 쓰고 [공지하기]를 누르면 모든 고객 화면 맨 위에 글이 흘러가는 띠로 나와요. 최대 5분 안에 반영돼요.</p><div class="nc"><div class="nc-state"><i></i><span class="nc-st"></span></div><input class="nc-input" type="text" maxlength="' + MAX + '" autocomplete="off" placeholder="예: 10월 15일 새벽 2시~4시 점검이 있어요" aria-label="공지 문구"><div class="nc-bar"><span class="counter"></span><div class="nc-btns"></div></div><div class="nc-msg" role="alert"></div><div class="nc-pv"><div class="nc-pv-t">고객에게 이렇게 보여요</div><div class="nc-pv-bar l"></div><div class="nc-pv-bar d"></div></div></div>';
+    const q = (c) => sec.querySelector(c), input = q('.nc-input'), btns = q('.nc-btns'), msg = q('.nc-msg');
+    input.value = 'nc' in draft ? draft.nc : saved();
+    function bad(t) { if (!t) return '공지 문구를 써 주세요.'; if (t.length > MAX) return MAX + '자 이하로 써 주세요.'; if (/[<>]/.test(t)) return '< > 글자는 쓸 수 없어요.'; if (/^[=+@]/.test(t)) return '첫 글자로 = + @ 는 쓸 수 없어요.'; return ''; }
+    function paint() {
+      const t = input.value.replace(/[\r\n]+/g, ' ').trim(), on = isOn();
+      q('.nc-state').classList.toggle('on', on); q('.nc-st').textContent = on ? '공지 중이에요' : '공지가 꺼져 있어요';
+      q('.counter').textContent = input.value.length + ' / ' + MAX;
+      ['.nc-pv-bar.l', '.nc-pv-bar.d'].forEach((c) => { q(c).textContent = t || '공지 문구가 여기에 보여요'; });
+      const err = t ? bad(t) : ''; msg.textContent = err;
+      btns.innerHTML = '';
+      const mk = (label, cls, fn, dis) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'btn nc-btn ' + cls; b.textContent = label; b.disabled = !!dis || saving; b.addEventListener('click', fn); btns.appendChild(b); };
+      if (!on) mk('공지하기', '', () => go([['공지문구', t], ['공지사용', '켜짐']], '공지했어요. 최대 5분 안에 고객 화면에 나와요.'), !t || !!err);
+      else if (t === saved()) mk('해제', 'off', () => go([['공지사용', '꺼짐']], '공지를 해제했어요. 최대 5분 안에 고객 화면에서 사라져요.'));
+      else { mk('수정 적용', '', () => go([['공지문구', t]], '공지 문구를 바꿨어요.'), !!err || !t); mk('해제', 'off', () => go([['공지사용', '꺼짐']], '공지를 해제했어요. 최대 5분 안에 고객 화면에서 사라져요.')); }
+    }
+    async function go(pairs, doneMsg) {
+      if (saving) return; saving = true; paint();
+      const changes = pairs.filter(([k, v]) => String(items.find((x) => x.key === k).value || '').normalize('NFC').trim() !== v).map(([k, v]) => ({ key: k, value: v }));
+      if (!changes.length) { saving = false; paint(); return; }
+      try {
+        const { status, data } = await post(SAVE_URL, { idToken: token(), changes });
+        if (status === 401) { clearToken(); toast('로그인이 만료됐어요. 다시 로그인해 주세요.', true); renderLogin('expired'); return; }
+        if (status === 403) { toast('관리자 권한이 없어요.', true); show('forbidden'); return; }
+        if (status === 400 && data && Array.isArray(data.errors)) { toast(data.errors.join(' / '), true); return; }
+        if (status !== 200 || !data || data.ok !== true) { toast('저장하지 못했어요. 잠시 뒤에 다시 시도해 주세요.', true); return; }
+        changes.forEach(({ key, value }) => { const it = items.find((x) => x.key === key); const from = it.value; it.value = value; history.unshift({ time: new Date().toLocaleString('sv-SE'), admin: $('who-email').textContent, key, from: String(from == null ? '' : from), to: String(value) }); });
+        delete draft.nc; toast(doneMsg);
+      } catch (e) { toast('저장하지 못했어요. 네트워크를 확인하고 다시 시도해 주세요.', true); }
+      finally { saving = false; paint(); }
+    }
+    input.addEventListener('input', () => { draft.nc = input.value; paint(); });
+    paint(); list.appendChild(sec);
   }
 
   function buildTier(tier, its, color) {   // 등급 카드: 기본·시간당(또는 분당) 두 칸과 [적용] 버튼 하나
