@@ -738,12 +738,7 @@
   .cat-chip i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); flex-shrink: 0; }
   @media (max-width: 560px) { .suggest-row { margin-left: 0; } }
 </style>
-<script>
-/* 테마 전환: 기존 기능 코드와 분리된 독립 스크립트 */
-(function(){var K='rw_theme';function g(){try{return localStorage.getItem(K)||'system'}catch(e){return 'system'}}
-function a(t){document.documentElement.setAttribute('data-theme',t);var bs=document.querySelectorAll('.theme-switch button');for(var i=0;i<bs.length;i++){bs[i].setAttribute('aria-pressed',bs[i].getAttribute('data-t')===t?'true':'false')}}
-a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=document.querySelectorAll('.theme-switch button');for(var i=0;i<bs.length;i++){bs[i].addEventListener('click',function(){var t=this.getAttribute('data-t');try{localStorage.setItem(K,t)}catch(e){}a(t)})}})})();
-</script>
+<script src="./theme.js"></script>
 </head>
 <body>
 

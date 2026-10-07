@@ -234,7 +234,7 @@
   ::selection { background: var(--amber); color: var(--on-amber); }
   .btn-primary, .btn-ghost { border-radius: 999px !important; padding: 12px 24px; font-weight: 600; transition: background-color .15s, border-color .15s, color .15s; }
   .btn-primary:hover { transform: none; box-shadow: none; background: #efb556; }
-  .btn-ghost { border-color: #4a4038; color: var(--ink); }
+  .btn-ghost { border-color: var(--line-strong, #4a4038); color: var(--ink); }
   .btn-ghost:hover { border-color: var(--ink-faint); }
   header.shell { padding-left: clamp(20px, 4vw, 56px); padding-right: clamp(20px, 4vw, 56px); background: color-mix(in srgb, var(--bg) 90%, transparent); border-bottom-color: #2a241f; }
   .breadcrumb a:hover { color: var(--ink); }
@@ -243,7 +243,7 @@
   main { padding-top: 32px; }
   .title-row h1 { font-size: clamp(1.8rem, 4.5vw, 2.6rem); }
   .meta-row { font-size: 0.9rem; color: var(--ink-dim); }
-  .badge { border-radius: 999px; padding: 4px 12px; border-color: #4a4038; }
+  .badge { border-radius: 999px; padding: 4px 12px; border-color: var(--line-strong, #4a4038); }
 
   .stepper, .review-card, .agent-card, .video-card, .upgrade-card { border-radius: 20px; padding: 26px 28px; margin-bottom: 20px; }
   .stepper, .agent-card { background: var(--bg-raised); border-color: var(--line); }
@@ -464,12 +464,7 @@
   .breadcrumb .here { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 40vw; }
   @media (max-width: 520px) { .breadcrumb { flex-wrap: nowrap; } .breadcrumb .crumb-root, .breadcrumb .crumb-root + .sep { display: none; } .breadcrumb .here { max-width: none; min-width: 0; flex: 0 1 auto; } .breadcrumb a, .breadcrumb .sep { flex: none; } }
 </style>
-<script>
-/* 테마 전환: 기존 기능 코드와 분리된 독립 스크립트 */
-(function(){var K='rw_theme';function g(){try{return localStorage.getItem(K)||'system'}catch(e){return 'system'}}
-function a(t){document.documentElement.setAttribute('data-theme',t);var bs=document.querySelectorAll('.theme-switch button');for(var i=0;i<bs.length;i++){bs[i].setAttribute('aria-pressed',bs[i].getAttribute('data-t')===t?'true':'false')}}
-a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=document.querySelectorAll('.theme-switch button');for(var i=0;i<bs.length;i++){bs[i].addEventListener('click',function(){var t=this.getAttribute('data-t');try{localStorage.setItem(K,t)}catch(e){}a(t)})}})})();
-</script>
+<script src="./theme.js"></script>
 </head>
 <body>
 

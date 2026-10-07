@@ -251,7 +251,7 @@
   .footer-col a { display: block; color: var(--ink-faint); font-size: 0.9rem; padding: 4px 0; }
   .footer-col a:hover { color: var(--ink); }
   .footer-bottom { max-width: 1280px; margin: 48px auto 0; padding-top: 22px; border-top: 1px solid #2a241f; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; color: var(--ink-faint); font-size: 0.85rem; }
-  .footer-disclaimer { max-width: 1280px; margin: 16px auto 0; color: #7d7366; font-size: 0.8rem; line-height: 1.7; }
+  .footer-disclaimer { max-width: 1280px; margin: 16px auto 0; color: var(--ink-faint, #7d7366); font-size: 0.8rem; line-height: 1.7; }
   @media (max-width: 860px) { .footer-grid { grid-template-columns: 1fr 1fr; } .footer-brand { grid-column: 1 / -1; } }
 
   /* ===== 테마 전환 (시스템 / 밝게 / 어둡게) ===== */
@@ -313,12 +313,7 @@
   .rw-notice button:hover { opacity: .75; }
   @media (prefers-reduced-motion: reduce) { .rw-notice { padding-left: 16px; } .rw-notice .nt-track { animation: none; width: auto; justify-content: center; text-align: center; } .rw-notice .nt-item { white-space: normal; padding-right: 0; word-break: keep-all; } .rw-notice .nt-item[aria-hidden] { display: none; } }
 </style>
-<script>
-/* 테마 전환: 기존 기능 코드와 분리된 독립 스크립트 */
-(function(){var K='rw_theme';function g(){try{return localStorage.getItem(K)||'system'}catch(e){return 'system'}}
-function a(t){document.documentElement.setAttribute('data-theme',t);var bs=document.querySelectorAll('.theme-switch button');for(var i=0;i<bs.length;i++){bs[i].setAttribute('aria-pressed',bs[i].getAttribute('data-t')===t?'true':'false')}}
-a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=document.querySelectorAll('.theme-switch button');for(var i=0;i<bs.length;i++){bs[i].addEventListener('click',function(){var t=this.getAttribute('data-t');try{localStorage.setItem(K,t)}catch(e){}a(t)})}})})();
-</script>
+<script src="./theme.js"></script>
 </head>
 <body>
 

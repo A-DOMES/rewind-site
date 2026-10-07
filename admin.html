@@ -190,19 +190,21 @@
     .who span { display: none; }
     .who { gap: 4px; font-size: .8rem; }
     .who .link-btn { padding-inline: 4px; white-space: nowrap; }
+    html body header.shell .theme-switch button.theme-cycle { padding: 0 6px 0 6px; }
+    header.shell .theme-switch .tc-name { display: none; }
+    header.shell .brand .tag { display: none; }
+    header.shell .wrap { gap: 6px; }
     .page-title { font-size: 1.4rem; }
   }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
-<script>
-(function(){try{var t=localStorage.getItem('rw_theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t)}catch(e){}})();
-</script>
+<script src="./theme.js"></script>
 </head>
 <body>
 <header class="shell">
   <div class="wrap">
     <a class="brand" href="./index.html"><img src="./리와인드_로고1_512px.png" alt=""> 리와인드 <span class="tag">관리자</span></a>
-    <div class="who" id="who" hidden><a class="link-btn" href="./new.html" style="text-decoration:none">신청 화면으로</a><span id="who-email"></span><button class="link-btn" id="logout" type="button">로그아웃</button></div>
+    <div style="display:flex;align-items:center;gap:10px;min-width:0"><div class="theme-switch" aria-label="화면 색상"></div><div class="who" id="who" hidden><a class="link-btn" href="./new.html" style="text-decoration:none">신청 화면으로</a><span id="who-email"></span><button class="link-btn" id="logout" type="button">로그아웃</button></div></div>
   </div>
 </header>
 

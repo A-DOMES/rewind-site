@@ -236,7 +236,7 @@
   ::selection { background: var(--amber); color: var(--on-amber); }
   .btn-primary, .btn-ghost { border-radius: 999px !important; padding: 12px 24px; font-weight: 600; transition: background-color .15s, border-color .15s, color .15s; }
   .btn-primary:hover { transform: none; box-shadow: none; background: #efb556; }
-  .btn-ghost { border-color: #4a4038; color: var(--ink); }
+  .btn-ghost { border-color: var(--line-strong, #4a4038); color: var(--ink); }
   .btn-ghost:hover { border-color: var(--ink-faint); }
   header.shell { padding-left: clamp(20px, 4vw, 56px); padding-right: clamp(20px, 4vw, 56px); background: color-mix(in srgb, var(--bg) 90%, transparent); border-bottom-color: #2a241f; }
   .breadcrumb a:hover { color: var(--ink); }
@@ -246,7 +246,7 @@
   .page-head { margin-bottom: 36px; }
   .page-head h1 { font-size: clamp(2rem, 4.5vw, 3rem); }
   .page-head p { color: var(--ink-dim); font-size: 1rem; }
-  .avatar { width: 38px; height: 38px; border-color: #4a4038; }
+  .avatar { width: 38px; height: 38px; border-color: var(--line-strong, #4a4038); }
   .account-dropdown { border-radius: 14px; }
 
   .cinema { background: var(--bg-raised); border-radius: 20px; padding: 56px 24px; max-width: 380px; }
@@ -255,7 +255,7 @@
 
   /* 필름 티켓 행: 왼쪽 스프로킷 필름, 가운데 제목, 절취선 뒤 상태 */
   .reel-row { grid-template-columns: 72px minmax(0, 1fr) auto auto; min-height: 100px; border-radius: 16px; margin-bottom: 12px; border-color: var(--line); transition: border-color .15s, background-color .15s; }
-  .reel-row:hover { border-color: #4a4038; background: #1d1916; }
+  .reel-row:hover { border-color: var(--line-strong, #4a4038); background: #1d1916; }
   .reel-edge { display: none; }
   .reel-icon { position: relative; width: 72px; height: auto; align-self: stretch; background: var(--film); color: var(--ink-faint); font-size: 1rem; }
   .reel-icon::before, .reel-icon::after { content: ""; position: absolute; top: 8px; bottom: 8px; width: 7px; background: repeating-linear-gradient(to bottom, #2e2823 0 7px, transparent 7px 15px); }
@@ -415,12 +415,7 @@
   .breadcrumb .here { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 40vw; }
   @media (max-width: 520px) { .breadcrumb { flex-wrap: nowrap; } .breadcrumb .crumb-root, .breadcrumb .crumb-root + .sep { display: none; } .breadcrumb .here { max-width: none; min-width: 0; flex: 0 1 auto; } .breadcrumb a, .breadcrumb .sep { flex: none; } }
 </style>
-<script>
-/* 테마 전환: 기존 기능 코드와 분리된 독립 스크립트 */
-(function(){var K='rw_theme';function g(){try{return localStorage.getItem(K)||'system'}catch(e){return 'system'}}
-function a(t){document.documentElement.setAttribute('data-theme',t);var bs=document.querySelectorAll('.theme-switch button');for(var i=0;i<bs.length;i++){bs[i].setAttribute('aria-pressed',bs[i].getAttribute('data-t')===t?'true':'false')}}
-a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=document.querySelectorAll('.theme-switch button');for(var i=0;i<bs.length;i++){bs[i].addEventListener('click',function(){var t=this.getAttribute('data-t');try{localStorage.setItem(K,t)}catch(e){}a(t)})}})})();
-</script>
+<script src="./theme.js"></script>
 </head>
 <body>
 
