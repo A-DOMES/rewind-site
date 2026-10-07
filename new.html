@@ -1709,14 +1709,8 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     }
   }
 
-  function showSummary() {
-    clampAnswersAndWarn();
-    // [화면 구성] 롱폼(가로)은 전체화면형만 가능 - 챗봇이 다른 값을 받아왔으면 여기서 맞추고 알려준다
-    if (answers.form === '롱폼' && answers.layout && answers.layout !== '전체화면형' && answers.layout !== '자동') {
-      answers.layout = '전체화면형';
-      addMsg('bot', '참고로 롱폼(가로) 영상은 화면을 가득 채우는 전체화면형으로만 만들 수 있어서 그렇게 맞췄어요.');
-    }
-    // [요금] 챗봇이 알려준 값 대신 화면에서 같은 공식으로 다시 계산한다 (서버도 접수할 때 한 번 더 계산)
+  // [요금] 화면의 요금(answers.estimatedPrice)을 같은 공식으로 다시 계산한다 (요약 화면을 열 때, 그리고 접수 직전 최신 가격을 받은 뒤)
+  function 견적다시계산() {
     if (answers.videoType) {
       // 롱폼 유형(수면음악): 움직임 방식 없음. 요금은 유형·등급·길이로 계산
       delete answers.motion;
@@ -1727,6 +1721,17 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     } else if (planMode === 'paid') {
       answers.estimatedPrice = computePrice(answers.videoLength ? parseFloat(answers.videoLength) : defaultLen(answers.form), '이미지 중심');
     } else { delete answers.motion; }
+  }
+
+  function showSummary() {
+    clampAnswersAndWarn();
+    // [화면 구성] 롱폼(가로)은 전체화면형만 가능 - 챗봇이 다른 값을 받아왔으면 여기서 맞추고 알려준다
+    if (answers.form === '롱폼' && answers.layout && answers.layout !== '전체화면형' && answers.layout !== '자동') {
+      answers.layout = '전체화면형';
+      addMsg('bot', '참고로 롱폼(가로) 영상은 화면을 가득 채우는 전체화면형으로만 만들 수 있어서 그렇게 맞췄어요.');
+    }
+    // [요금] 챗봇이 알려준 값 대신 화면에서 같은 공식으로 다시 계산한다 (서버도 접수할 때 한 번 더 계산)
+    견적다시계산();
     const rows = Object.keys(answers)
       .filter(k => answers[k] && k !== 'thumbnail' && k !== 'musicRights' && k !== 'scriptId' && !(k === 'estimatedPrice' && planMode !== 'paid'))
       .filter(k => !((k === 'productLink' || k === 'productImageUrl') && !/^https?:\/\//i.test(String(answers[k]))))
@@ -1823,6 +1828,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     if (answers.hookText) payload.hookText = answers.hookText;
     if (answers.sceneCount) payload.sceneCount = answers.sceneCount;
     if (answers.videoLength) payload.videoLength = answers.videoLength;
+    await 최신가격받기(); 견적다시계산();   // 가격이 막 바뀐 경우를 반영 (차감은 서버가 정확히 다시 계산)
     if (answers.estimatedPrice) payload.estimatedPrice = answers.estimatedPrice;
     if (answers.videoType === '야담') payload.introSeconds = Number(answers.introSeconds) > 0 ? Math.round(Number(answers.introSeconds)) : 0;
     if (answers.videoType === '야담' && answers.yadamKind) payload.yadamKind = answers.yadamKind;
@@ -1957,8 +1963,9 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   /* ===================== 직접 설정하기 (채팅 대신 폼으로) ===================== */
   // ───── 요금 (모든 화면·챗봇·서버가 같은 공식을 쓴다: 전체 상담 Agent v5, 웹 신청 접수 v3.2) ─────
   // [포인트] 모든 요금은 포인트(P)로 정의·계산한다. 1P = 100원은 충전·결제 단계에서만 쓰는 환산값이라 이 화면 계산에는 나오지 않는다.
-  // 기본료 30P + 영상 길이(분) × 움직임 방식별 분당 포인트, 60분 넘으면 20% 추가, 1P 단위 반올림
-  const PRICE_BASE = 30;
+  // 기본료 + 영상 길이(분) × 움직임 방식별 분당 포인트, 60분 넘으면 가산율만큼 추가, 1P 단위 반올림 (값은 시트 '설정' 탭)
+  // 아래 값은 기본값이다. 관리자가 시트 '설정' 탭에서 바꾸면 사이트 설정(site-config)으로 받아 와서 덮어쓴다(applySitePrice).
+  let PRICE_BASE = 30, PRICE_LONG_PCT = 20, TRIAL_PCT = 25, TRIAL_MIN = 5;
   const MOTION_RATE = { '이미지 중심': 70, '혼합': 110, '모두 영상': 170 };
   const MOTION_LIST = ['이미지 중심', '혼합', '모두 영상'];
   const MOTION_DESC = {
@@ -1973,7 +1980,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   function computePrice(lengthMin, motion) {
     const len = Math.max(0.25, Number(lengthMin) || 0.75);
     let price = PRICE_BASE + len * MOTION_RATE[motionOf(motion)];
-    if (len > 60) price *= 1.2;
+    if (len > 60) price *= (100 + PRICE_LONG_PCT) / 100;
     return Math.round(price);
   }
   function pt(n) { return Number(n).toLocaleString('ko-KR') + 'P'; }
@@ -2011,8 +2018,8 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     return Math.max(9, Math.round(raw)) + 낭독비;
   }
   // [체험 포인트] 체험 가격 = 정식 이미지 중심(길이 3분까지) 가격의 25%, 최소 5P. 서버(접수 v3.11)와 같은 식이다.
-  function trialPriceOf(kind, tier, min, 인트로초, 낭독) { return Math.max(5, Math.round(longPrice(kind, tier, Math.min(Number(min) || 60, 3), 인트로초, 낭독) * 0.25)); }
-  function trialPriceShort(len) { return Math.max(5, Math.round(computePrice(Math.min(len, 3), '이미지 중심') * 0.25)); }
+  function trialPriceOf(kind, tier, min, 인트로초, 낭독) { return Math.max(TRIAL_MIN, Math.round(longPrice(kind, tier, Math.min(Number(min) || 60, 3), 인트로초, 낭독) * TRIAL_PCT / 100)); }
+  function trialPriceShort(len) { return Math.max(TRIAL_MIN, Math.round(computePrice(Math.min(len, 3), '이미지 중심') * TRIAL_PCT / 100)); }
   function 신청체험가() {
     if (answers.videoType) return trialPriceOf(answers.videoType, answers.tier || '표준형', parseFloat(answers.videoLength) || 60, Number(answers.introSeconds) || 0, answers.narration === '목소리');
     return trialPriceShort(answers.videoLength ? parseFloat(answers.videoLength) : defaultLen(answers.form));
@@ -2048,7 +2055,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   function motionLegendHtml() {
     return MOTION_LIST.map(m => `<div class="ml-item ${MOTION_CLS[m]}${m === '혼합' ? ' rec' : ''}">${motionSvg(m)}<div><b>${m}${m === '혼합' ? ' · 추천' : ''}</b><span>${MOTION_DESC[m]}</span><em>분당 ${MOTION_RATE[m].toLocaleString()}P</em></div></div>`).join('');
   }
-  const PRICE_NOTE = '기본 30P + 영상 길이(분) × 움직임 방식별 분당 포인트예요. 장면 수는 요금에 영향이 없고, 1P 단위로 반올림해요. 60분이 넘으면 20% 추가돼요. 체험판은 체험 포인트로 이용하고(정식 이미지 중심 가격의 25%) 이미지 중심으로 만들어져요.';
+  const priceNote = () => `기본 ${PRICE_BASE}P + 영상 길이(분) × 움직임 방식별 분당 포인트예요. 장면 수는 요금에 영향이 없고, 1P 단위로 반올림해요. 60분이 넘으면 ${PRICE_LONG_PCT}% 추가돼요. 체험판은 체험 포인트로 이용하고(정식 이미지 중심 가격의 ${TRIAL_PCT}%) 이미지 중심으로 만들어져요.`;
 
   /* ===================== 요금 안내 모달 ===================== */
   (function setupPriceModal() {
@@ -2058,13 +2065,16 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     const tHead = () => '<tr><th>길이</th>' + LONG_TIERS.map(t => `<th class="num mc" style="--mc:${TC[t]}">${t}${t === '표준형' ? '<small>추천</small>' : ''}</th>`).join('') + '</tr>';
     const tCell = v => LONG_TIERS.map(t => `<td class="num mc" style="--mc:${TC[t]}">${v(t).toLocaleString('ko-KR')}P</td>`).join('');
     const tierTable = (kind, mins) => tHead() + mins.map(m => `<tr><td>${hourLabel(m)}</td>${tCell(t => longPrice(kind, t, m))}</tr>`).join('');
-    $('motion-legend').innerHTML = motionLegendHtml();
-    $('price-table-body').innerHTML = priceTableHtml(null, PRICE_ROWS.filter(r => r[0] === '쇼츠'), true);
-    $('price-modal-note').textContent = PRICE_NOTE;
-    $('pm-mood').innerHTML = tierTable('수면음악', [30, 60, 180, 480]);
-    $('pm-yadam').innerHTML = tierTable('야담', [10, 30, 60, 120]);
-    $('pm-yl').innerHTML = tHead() + [60, 180, 480].map(m => `<tr><td>${hourLabel(m)}</td>${tCell(t => ylPrice(t, m, 0))}</tr>`).join('');
-    $('pm-motion-long').innerHTML = priceTableHtml(null, PRICE_ROWS.filter(r => r[0] === '롱폼'), true);
+    function renderTables() {
+      $('motion-legend').innerHTML = motionLegendHtml();
+      $('price-table-body').innerHTML = priceTableHtml(null, PRICE_ROWS.filter(r => r[0] === '쇼츠'), true);
+      $('price-modal-note').textContent = priceNote();
+      $('pm-mood').innerHTML = tierTable('수면음악', [30, 60, 180, 480]);
+      $('pm-yadam').innerHTML = tierTable('야담', [10, 30, 60, 120]);
+      $('pm-yl').innerHTML = tHead() + [60, 180, 480].map(m => `<tr><td>${hourLabel(m)}</td>${tCell(t => ylPrice(t, m, 0))}</tr>`).join('');
+      $('pm-motion-long').innerHTML = priceTableHtml(null, PRICE_ROWS.filter(r => r[0] === '롱폼'), true);
+    }
+    renderTables(); window.__rwRenderPriceModal = renderTables;
     const tabs = overlay.querySelectorAll('.pm-tabs button');
     function show(which) {
       tabs.forEach(b => b.setAttribute('aria-selected', String(b.dataset.pt === which)));
@@ -2122,6 +2132,30 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   // 가입 지급 포인트와 첫 충전 보너스 비율은 코드에 고정하지 않고 n8n '사이트설정_조회'에서 받아 적용한다.
   // 받지 못하면(네트워크·서버 문제) 위에 적어 둔 기본값 그대로 보여 주고, 화면은 멈추지 않는다. 5분간 브라우저에 저장해 둔다.
   const SITE_CONFIG_URL = 'https://bald-buffalo.pikapod.net/webhook/site-config';
+  // 쇼츠·일반 영상 요금과 체험 가격: 사이트 설정에서 받은 값이 올바를 때만 덮어쓴다(아니면 위 기본값 유지). 바뀌었으면 true.
+  function applySitePrice(p) {
+    if (!p || typeof p !== 'object') return false;
+    const ok = (v, lo, hi) => Number.isFinite(v) && v >= lo && v <= hi;
+    const base = Number(p.base), lp = Number(p.longPct), tp = Number(p.trialPct), tm = Number(p.trialMin);
+    const rate = p.rate || {}; const r = {}; let valid = ok(base, 0, 500) && ok(lp, 0, 100) && ok(tp, 5, 100) && ok(tm, 1, 100);
+    MOTION_LIST.forEach(m => { r[m] = Number(rate[m]); if (!ok(r[m], 10, 1000)) valid = false; });
+    if (!valid) return false;
+    const changed = base !== PRICE_BASE || lp !== PRICE_LONG_PCT || tp !== TRIAL_PCT || tm !== TRIAL_MIN || MOTION_LIST.some(m => r[m] !== MOTION_RATE[m]);
+    PRICE_BASE = base; PRICE_LONG_PCT = lp; TRIAL_PCT = tp; TRIAL_MIN = tm; MOTION_LIST.forEach(m => { MOTION_RATE[m] = r[m]; });
+    if (changed) { refreshDirectFormIfOpen(); if (window.__rwRenderPriceModal) window.__rwRenderPriceModal(); if (window.__rwRenderCharge) window.__rwRenderCharge(); }
+    return changed;
+  }
+  // 접수 직전에 최신 설정을 한 번 더 받아 온다(브라우저 보관을 쓰지 않음). 받지 못하면 지금 값 그대로 진행한다. 실제 차감은 서버가 같은 공식으로 다시 계산한다.
+  async function 최신가격받기() {
+    try {
+      const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), 3000);
+      const r = await fetch(SITE_CONFIG_URL + '?t=' + Date.now(), { cache: 'no-store', signal: ctl.signal }); clearTimeout(to);
+      const cfg = r.ok ? await r.json() : null;
+      if (cfg && cfg.ok === true) { try { sessionStorage.setItem('rw_site_cfg_v1', JSON.stringify({ at: Date.now(), cfg })); } catch (e) {} return applySitePrice(cfg.price); }
+    } catch (e) {}
+    return false;
+  }
+
   (function loadSiteConfig() {
     const KEY = 'rw_site_cfg_v1', TTL = 5 * 60 * 1000;
     // 공지 띠: 관리자가 켜 둔 경우에만 맨 위에 보여 준다. 글자만 넣고(HTML 아님), 닫으면 이번 방문 동안 다시 안 보인다.
@@ -2140,6 +2174,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     function apply(c) {
       if (!c || c.ok !== true) return;
       showNotice(c.notice);
+      applySitePrice(c.price);
       const g = Number(c.signupGrant);
       if (Number.isFinite(g) && g >= 0) document.querySelectorAll('[data-grant]').forEach(el => { el.textContent = String(Math.round(g)); });
       let changed = false;
@@ -2190,7 +2225,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     const 잘림 = 입력분 && 입력분 > LONG_MAX_MIN[kind];
     const 줄 = LONG_TIERS.map(t => `<tr><td>${t}</td><td class="num">${pt(longPrice(kind, t, 분))}</td></tr>`).join('');
     const 안내 = `직접 설정하기에서 ${이름}을(를) 고르면 길이를 넣는 즉시 정확한 요금이 계산돼요.`;
-    const 체험안내 = planMode !== 'paid' ? '<p class="cp-note">지금은 체험 모드라 3분 길이까지 체험 포인트로 만들어드려요. 아래는 정식 제작 요금이에요.</p>' : '';
+    const 체험안내 = planMode !== 'paid' ? `<p class="cp-note">지금은 체험 모드라 3분 길이까지 체험 포인트로 만들어드려요. 아래는 정식 제작 요금이에요.</p>` : '';
     const html = `${이름} ${hourLabel(분)} 기준 예상 요금이에요${입력분 ? '' : '(길이를 말씀하시지 않아 1시간으로 계산했어요)'}.${잘림 ? ` ${이름}은 최대 ${hourLabel(LONG_MAX_MIN[kind])}까지라 그 길이로 계산했어요.` : ''}<div class="chat-price"><table class="price-table"><tr><th>등급</th><th class="num">예상 요금</th></tr>${줄}</table></div>${체험안내}<p class="cp-note">${안내} 길이를 바꾸면 요금도 함께 달라져요.</p>`;
     addMsg('bot', html);
     history.push({ role: 'bot', text: `[요금 안내] ${이름} ${hourLabel(분)}: ` + LONG_TIERS.map(t => `${t} ${longPrice(kind, t, 분)}P`).join(', ') });
@@ -2204,10 +2239,10 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     const 기준방식 = motionOf(motion);
     const 추정 = `${answers.form === '롱폼' ? '롱폼' : (기준길이 >= 3 && !answers.form ? '롱폼' : '쇼츠')} ${lenLabel(기준길이)} · ${기준방식}${len == null || !motion ? ' (정하지 않은 부분은 기본값)' : ''}`;
     const 강조 = PRICE_ROWS.some(([, l]) => Math.abs(l - 기준길이) < 1e-9) ? { len: 기준길이, motion: 기준방식 } : null;
-    const 체험안내 = planMode !== 'paid' ? '<p class="cp-note">지금은 체험 모드라 체험 포인트로 만들어드려요(이미지 중심 · 워터마크, 정식 가격의 25%). 아래는 정식 제작 요금이에요.</p>' : '';
-    const html = `요금은 영상 길이와 움직임 방식으로 정해져요. 장면 수는 요금과 상관없어요.<div class="chat-price"><div class="cp-est">${escapeHtml(추정)} → <b>${pt(computePrice(기준길이, 기준방식))}</b></div><table class="price-table">${priceTableHtml(강조)}</table><p class="cp-note">${PRICE_NOTE}</p>${체험안내}</div><p class="cp-ask">${planMode !== 'paid' ? `체험 포인트로는 쇼츠 1분(이미지 중심) ${trialPriceShort(1)}P부터 만들어 볼 수 있어요. ` : ''}어떤 길이와 방식으로 만들어 볼까요?</p>`;
+    const 체험안내 = planMode !== 'paid' ? '<p class="cp-note">지금은 체험 모드라 체험 포인트로 만들어드려요(이미지 중심 · 워터마크, 정식 가격의 ${TRIAL_PCT}%). 아래는 정식 제작 요금이에요.</p>' : '';
+    const html = `요금은 영상 길이와 움직임 방식으로 정해져요. 장면 수는 요금과 상관없어요.<div class="chat-price"><div class="cp-est">${escapeHtml(추정)} → <b>${pt(computePrice(기준길이, 기준방식))}</b></div><table class="price-table">${priceTableHtml(강조)}</table><p class="cp-note">${priceNote()}</p>${체험안내}</div><p class="cp-ask">${planMode !== 'paid' ? `체험 포인트로는 쇼츠 1분(이미지 중심) ${trialPriceShort(1)}P부터 만들어 볼 수 있어요. ` : ''}어떤 길이와 방식으로 만들어 볼까요?</p>`;
     addMsg('bot', html);
-    history.push({ role: 'bot', text: `[요금표 안내] ${추정} = ${computePrice(기준길이, 기준방식)}P. 분당 포인트: 이미지 중심 70P / 혼합 110P / 모두 영상 170P, 기본 30P.` });
+    history.push({ role: 'bot', text: `[요금표 안내] ${추정} = ${computePrice(기준길이, 기준방식)}P. 분당 포인트: ${MOTION_LIST.map(m => m + ' ' + MOTION_RATE[m] + 'P').join(' / ')}, 기본 ${PRICE_BASE}P.` });
     saveChatState();
   }
 

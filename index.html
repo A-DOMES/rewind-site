@@ -547,7 +547,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       <h3 class="rate-title">쇼츠·일반 롱폼 요금 예시</h3>
       <p class="rate-sub">예시예요. 정확한 포인트는 신청 화면에서 길이를 넣으면 바로 나와요. 장면이 자주 바뀌고 움직임이 많아서 길이(분)로 계산돼요.</p>
       <div class="rate-scroll"><table class="rate-table" id="rate-table"></table></div>
-      <p class="rate-note">기본 30P + 영상 길이(분) × 분당 포인트 (이미지 중심 70P · 혼합 110P · 모두 영상 170P), 1P 단위 반올림. 60분 초과 시 20% 추가. 포인트는 충전해서 쓰고, 영상을 만들 때 필요한 만큼 차감돼요.</p>
+      <p class="rate-note" id="rate-note">기본 30P + 영상 길이(분) × 분당 포인트 (이미지 중심 70P · 혼합 110P · 모두 영상 170P), 1P 단위 반올림. 60분 초과 시 20% 추가. 포인트는 충전해서 쓰고, 영상을 만들 때 필요한 만큼 차감돼요.</p>
     </div>
     <div class="rate-wrap">
       <h3 class="rate-title">롱폼 요금 · 분위기 영상 / 야담</h3>
@@ -563,16 +563,33 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
 </main>
 <script>
 (() => {
+  // 기본값. 관리자가 시트 '설정' 탭에서 바꾸면 사이트 설정에서 받아 와 덮어쓴다(window.__rwApplyPrice). 받지 못하면 이 값 그대로 보인다.
+  let BASE = 30, LONG_PCT = 20;
   const RATE = { '이미지 중심': 70, '혼합': 110, '모두 영상': 170 };
   const DESC = { '이미지 중심': '이미지+카메라 움직임', '혼합': '핵심 장면만 영상 · 추천', '모두 영상': '모든 장면 움직임' };
-  const price = (len, m) => Math.round((30 + len * RATE[m]) * (len > 60 ? 1.2 : 1));   // 모든 요금은 포인트(P) 단위
+  const price = (len, m) => Math.round((BASE + len * RATE[m]) * (len > 60 ? (100 + LONG_PCT) / 100 : 1));   // 모든 요금은 포인트(P) 단위
   const rows = [['쇼츠 30초', 0.5], ['쇼츠 45초', 0.75], ['쇼츠 1분', 1], ['쇼츠 2분', 2], ['롱폼 3분', 3], ['롱폼 5분', 5], ['롱폼 10분', 10]];
   const ms = Object.keys(RATE);
   const CLS = { '이미지 중심': 'mc mc-img', '혼합': 'mc mc-mix', '모두 영상': 'mc mc-all' };
   const t = document.getElementById('rate-table');
   if (!t) return;
+  function renderShort() {
   t.innerHTML = '<tr><th class="rh"><b>형태 · 길이</b><span class="d">(예시 비용)</span></th>' + ms.map(m => `<th class="${CLS[m]}"><b>${m}</b><span class="d">${DESC[m]}</span></th>`).join('') + '</tr>' +
     rows.map(([l, len]) => `<tr><td>${l}</td>` + ms.map(m => `<td class="${CLS[m]}">${price(len, m).toLocaleString('ko-KR')}P</td>`).join('') + '</tr>').join('');
+    const note = document.getElementById('rate-note');
+    if (note) note.textContent = `기본 ${BASE}P + 영상 길이(분) × 분당 포인트 (${ms.map(m => m + ' ' + RATE[m] + 'P').join(' · ')}), 1P 단위 반올림. 60분 초과 시 ${LONG_PCT}% 추가. 포인트는 충전해서 쓰고, 영상을 만들 때 필요한 만큼 차감돼요.`;
+  }
+  renderShort();
+  window.__rwApplyPrice = function (p) {
+    if (!p || typeof p !== 'object') return null;
+    const ok = (v, lo, hi) => isFinite(v) && v >= lo && v <= hi;
+    const base = Number(p.base), lp2 = Number(p.longPct), tp = Number(p.trialPct), tm = Number(p.trialMin), r = p.rate || {};
+    if (!(ok(base, 0, 500) && ok(lp2, 0, 100) && ok(tp, 5, 100) && ok(tm, 1, 100))) return null;
+    for (let i = 0; i < ms.length; i++) if (!ok(Number(r[ms[i]]), 10, 1000)) return null;
+    BASE = base; LONG_PCT = lp2; ms.forEach(m => { RATE[m] = Number(r[m]); });
+    renderShort();
+    return Math.max(tm, Math.round(price(1, '이미지 중심') * tp / 100));   // 체험 쇼츠 1분(이미지 중심)의 체험 포인트
+  };
   // [롱폼 요금표(포인트)] 접수 워크플로(v3.9)의 요금 공식과 같은 값 - 기본 + 길이 × 등급별 포인트, 1P 단위 반올림, 최소 9P
   const LONG = { '경제형': { 수면음악: [40, 15], 야담: [50, 6] }, '표준형': { 수면음악: [60, 20], 야담: [60, 9] }, '고급형': { 수면음악: [90, 35], 야담: [80, 13] } };
   const lp = (tier, kind, min) => { const [b, r] = LONG[tier][kind]; return Math.max(9, Math.round(b + (kind === '수면음악' ? (min / 60) * r : min * r))); };
@@ -731,7 +748,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
 /* 가입 지급 포인트는 관리자가 시트 '설정' 탭에서 바꾸므로, 받아 와서 화면에 반영한다. 받지 못하면 적어 둔 기본값 그대로 보인다. */
 (function () {
   var URL_ = 'https://bald-buffalo.pikapod.net/webhook/site-config', KEY = 'rw_site_cfg_v1', TTL = 5 * 60 * 1000;
-  var TRIAL_SHORT_PRICE = 25; // 체험 쇼츠 1분(이미지 중심)의 체험 포인트. 가격 설정 정리 단계에서 설정 탭으로 옮긴다.
+  var TRIAL_SHORT_PRICE = 25; // 체험 쇼츠 1분(이미지 중심)의 체험 포인트 기본값. 사이트 설정(price)을 받으면 거기서 계산한 값으로 바뀐다.
   function showNotice(n) {
     var old = document.getElementById('rw-notice'); if (old) old.parentNode.removeChild(old);
     var dismissed = ''; try { dismissed = sessionStorage.getItem('rw_notice_closed') || ''; } catch (e) {}
@@ -745,6 +762,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   function apply(c) {
     if (!c || c.ok !== true) return;
     showNotice(c.notice);
+    if (typeof window.__rwApplyPrice === 'function') { var tp = window.__rwApplyPrice(c.price); if (tp !== null && tp > 0) TRIAL_SHORT_PRICE = tp; }
     var g = Number(c.signupGrant);
     if (!isFinite(g) || g < 0) return;
     g = Math.round(g);
