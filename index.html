@@ -555,7 +555,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       <p class="use-line"><b>분위기 영상</b>은 이런 영상에 써요 <span class="use-chip">수면</span><span class="use-chip">공부·집중</span><span class="use-chip">힐링·명상</span><span class="use-chip">카페 분위기</span><span class="use-chip">빗소리·자연음</span><span class="use-chip">생일·결혼 축하</span><span class="use-chip">감사·추억 영상</span></p>
       <div class="rate-scroll"><table class="rate-table" id="rate-table-long"></table></div>
       <p class="rate-note" id="rate-long-example"></p>
-      <p class="rate-note">정확한 요금은 신청 화면의 직접 설정하기나 챗봇에서 길이·등급을 넣으면 바로 계산돼요(분위기 영상 최대 8시간, 야담 최대 2시간). 분위기 영상은 수면·휴식·집중·카페 같은 긴 소리 영상이에요. 둘 다 지금 신청할 수 있어요.</p>
+      <p class="rate-note">정확한 요금은 신청 화면의 직접 설정하기나 챗봇에서 길이·등급을 넣으면 바로 계산돼요(분위기 영상 최대 8시간, 야담 최대 <span data-yd-max>6시간</span>). 분위기 영상은 수면·휴식·집중·카페 같은 긴 소리 영상이에요. 둘 다 지금 신청할 수 있어요.</p>
     </div>
     <p class="choice-note">두 경우 모두 구글 계정으로 30초면 신청할 수 있어요.</p>
   </div>
@@ -780,6 +780,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     if (!c || c.ok !== true) return;
     showNotice(c.notice);
     if (typeof window.__rwApplyLong === 'function') window.__rwApplyLong(c.long);
+    try { var lm = c.limits && Number(c.limits.yadam); if (lm >= 30 && lm <= 720) { var tx = Math.floor(lm / 60) ? Math.floor(lm / 60) + '시간' + (lm % 60 ? ' ' + (lm % 60) + '분' : '') : lm + '분'; document.querySelectorAll('[data-yd-max]').forEach(function (e) { e.textContent = tx; }); } } catch (e) {}
     if (typeof window.__rwApplyPrice === 'function') { var tp = window.__rwApplyPrice(c.price); if (tp !== null && tp > 0) TRIAL_SHORT_PRICE = tp; }
     var g = Number(c.signupGrant);
     if (!isFinite(g) || g < 0) return;

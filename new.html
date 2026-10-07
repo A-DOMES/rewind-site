@@ -1992,14 +1992,14 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     '표준형': { '수면음악': [60, 20], '야담': [60, 9] },
     '고급형': { '수면음악': [90, 35], '야담': [80, 13] }
   };
-  const LONG_MAX_MIN = { '수면음악': 480, '야담': 120 };
+  const LONG_MAX_MIN = { '수면음악': 480, '야담': 360 };   // 야담(그림이 자주 바뀌는)·긴 이야기 한도는 시트 '설정'(site-config limits)로 덮어쓴다(applySiteLimits)
   // [표시 이름] 화면·안내 문구에서 보이는 이름은 여기 한 곳에서만 바꾼다. 내부 값('수면음악')은 시트·서버·워크플로와 이어져 있어서 그대로 둔다.
   const LONG_LABEL = { '수면음악': '분위기 영상', '야담': '야담' };
   const kindName = k => LONG_LABEL[k] || k;
-  // [야담 두 가지 방식] 기존 야담은 분당 요금(최대 2시간). '인트로 영상 + 긴 이야기'는 분위기 영상처럼 기본 + 시간당 + 인트로(초당 1P), 최대 8시간.
+  // [야담 두 가지 방식] 기존 야담은 분당 요금(최대 6시간, 설정). '인트로 영상 + 긴 이야기'는 분위기 영상처럼 기본 + 시간당 + 인트로(초당 1P), 최대 8시간.
   // 인트로 초(인트로초)가 0보다 크면 긴 이야기 방식으로 계산한다. (접수 서버·야담 워크플로도 같은 값)
   const YL_RATE = { '경제형': [50, 120], '표준형': [60, 140], '고급형': [80, 170] };   // [기본, 시간당]
-  const YL_MAX_MIN = 480, YL_INTRO_MIN = 5, YL_INTRO_MAX = 60;
+  let YL_MAX_MIN = 480; const YL_INTRO_MIN = 5, YL_INTRO_MAX = 60;
   let INTRO_PER_SEC = 1, LONG_MIN_PRICE = 9;   // 위 요금과 함께 시트 '설정' 탭 값으로 덮어쓴다(applySiteLong)
   function ylPrice(tier, min, 인트로초) {
     const [b, r] = YL_RATE[tier] || YL_RATE['표준형'];
@@ -2071,7 +2071,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       $('price-table-body').innerHTML = priceTableHtml(null, PRICE_ROWS.filter(r => r[0] === '쇼츠'), true);
       $('price-modal-note').textContent = priceNote();
       $('pm-mood').innerHTML = tierTable('수면음악', [30, 60, 180, 480]);
-      $('pm-yadam').innerHTML = tierTable('야담', [10, 30, 60, 120]);
+      $('pm-yadam').innerHTML = tierTable('야담', [10, 30, 60, 120, 180, 360].filter(v => v <= LONG_MAX_MIN['야담']));
       $('pm-yl').innerHTML = tHead() + [60, 180, 480].map(m => `<tr><td>${hourLabel(m)}</td>${tCell(t => ylPrice(t, m, 0))}</tr>`).join('');
       $('pm-motion-long').innerHTML = priceTableHtml(null, PRICE_ROWS.filter(r => r[0] === '롱폼'), true);
     }
@@ -2149,7 +2149,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
   function afterPriceChange() {
     document.querySelectorAll('[data-nar-per-min]').forEach(el => { el.textContent = String(NAR_PER_MIN); });
     document.querySelectorAll('[data-intro-per-sec]').forEach(el => { el.textContent = String(INTRO_PER_SEC); });
-    refreshDirectFormIfOpen(); if (window.__rwRenderPriceModal) window.__rwRenderPriceModal(); if (window.__rwRenderCharge) window.__rwRenderCharge();
+    refreshDirectFormIfOpen(); try { if (window.__rwFormRedraw) window.__rwFormRedraw(); } catch (e) {} if (window.__rwRenderPriceModal) window.__rwRenderPriceModal(); if (window.__rwRenderCharge) window.__rwRenderCharge();
   }
   // 분위기 영상·야담·긴 이야기 야담 요금: 사이트 설정(long)이 올바를 때만 덮어쓴다(아니면 기본값 유지). 바뀌었으면 true.
   function applySiteLong(l) {
@@ -2169,13 +2169,23 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     if (changed) afterPriceChange();
     return changed;
   }
+  // 최대 길이 한도(분): 사이트 설정(limits)이 올바를 때만 덮어쓴다. 바뀌었으면 true.
+  function applySiteLimits(l) {
+    if (!l || typeof l !== 'object') return false;
+    const y = Number(l.yadam), g = Number(l.yl);
+    if (!Number.isFinite(y) || !Number.isFinite(g) || y < 30 || y > 720 || g < 60 || g > 720) return false;
+    const changed = y !== LONG_MAX_MIN['야담'] || g !== YL_MAX_MIN;
+    LONG_MAX_MIN['야담'] = Math.round(y); YL_MAX_MIN = Math.round(g);
+    if (changed) afterPriceChange();
+    return changed;
+  }
   // 접수 직전에 최신 설정을 한 번 더 받아 온다(브라우저 보관을 쓰지 않음). 받지 못하면 지금 값 그대로 진행한다. 실제 차감은 서버가 같은 공식으로 다시 계산한다.
   async function 최신가격받기() {
     try {
       const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), 3000);
       const r = await fetch(SITE_CONFIG_URL + '?t=' + Date.now(), { cache: 'no-store', signal: ctl.signal }); clearTimeout(to);
       const cfg = r.ok ? await r.json() : null;
-      if (cfg && cfg.ok === true) { try { sessionStorage.setItem('rw_site_cfg_v1', JSON.stringify({ at: Date.now(), cfg })); } catch (e) {} const a = applySitePrice(cfg.price), b = applySiteLong(cfg.long); return a || b; }
+      if (cfg && cfg.ok === true) { try { sessionStorage.setItem('rw_site_cfg_v1', JSON.stringify({ at: Date.now(), cfg })); } catch (e) {} const a = applySitePrice(cfg.price), b = applySiteLong(cfg.long), c2 = applySiteLimits(cfg.limits); return a || b || c2; }
     } catch (e) {}
     return false;
   }
@@ -2198,7 +2208,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     function apply(c) {
       if (!c || c.ok !== true) return;
       showNotice(c.notice);
-      applySitePrice(c.price); applySiteLong(c.long);
+      applySitePrice(c.price); applySiteLong(c.long); applySiteLimits(c.limits);
       const g = Number(c.signupGrant);
       if (Number.isFinite(g) && g >= 0) document.querySelectorAll('[data-grant]').forEach(el => { el.textContent = String(Math.round(g)); });
       let changed = false;
@@ -2470,7 +2480,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     const v = Math.round(parseFloat(document.getElementById('df-yl-intro')?.value));
     return Number.isFinite(v) ? Math.min(Math.max(v, YL_INTRO_MIN), YL_INTRO_MAX) : 10;
   }
-  function 야담최대분() { return 야담형식() === 'long' ? YL_MAX_MIN : 120; }
+  function 야담최대분() { return 야담형식() === 'long' ? YL_MAX_MIN : LONG_MAX_MIN['야담']; }
   // [무료 사진] 장수: 기본은 길이에 맞춰 자동(정지·숨쉬기 약 60초에 한 장, 전환은 장면 간격마다 한 장, 3~300장). 자동보다 많이 고르면 구간에 따라 소액이 더해진다. 서버(롱폼_수면음악 v1.10)와 같은 식.
   const PHOTO_EXTRA = [[100, 0], [200, 1], [300, 2]];   // [장수 상한, 추가 P]
   let 사진선택 = '자동';
@@ -2581,8 +2591,8 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     return `<section class="df-sec df-yadam df-hide" style="--c:#e2a23c"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h6a2 2 0 0 1 2 2v12a2 2 0 0 0-2-2H4z"/><path d="M20 5h-6a2 2 0 0 0-2 2v12a2 2 0 0 1 2-2h6z"/></svg></span><div><h3>야담 설정</h3><p>소재와 길이, 목소리를 정해주세요. 이야기는 AI가 지어서 들려줘요</p></div></div>
       <div class="df-use"><p>옛이야기를 이야기꾼의 목소리로 들려주고 장면을 그림으로 보여줘요. 눌러서 소재 예시로 시작해 보세요.</p><div class="len-chips" id="df-yd-ex">${[['도깨비와 욕심 많은 부자','욕심 많은 부자와 도깨비의 내기 이야기'],['효자와 호랑이','산길에서 호랑이를 만난 효자 이야기'],['지혜로운 사또','마을의 억울한 일을 지혜롭게 풀어내는 사또 이야기'],['선녀와 나무꾼','하늘에서 내려온 선녀와 나무꾼 이야기']].map(([l, t]) => `<button type="button" class="len-chip" data-topic="${t}">${l}</button>`).join('')}</div></div>
       <div class="df-field"><label>어떤 방식으로 만들까요</label><div class="df-chipset df-ykind" role="radiogroup" aria-label="야담 방식">
-        <label><input type="radio" name="df-ykind" value="long" checked><span class="tcard"><b>인트로 영상 + 긴 이야기 · 추천</b><small>처음엔 AI 영상으로 시작하고, 그림이 천천히 바뀌어요 · 최대 8시간</small></span></label>
-        <label><input type="radio" name="df-ykind" value="classic"><span class="tcard"><b>그림이 자주 바뀌는 야담</b><small>그림이 30초마다 바뀌어요 · 최대 2시간</small></span></label>
+        <label><input type="radio" name="df-ykind" value="long" checked><span class="tcard"><b>인트로 영상 + 긴 이야기 · 추천</b><small>처음엔 AI 영상으로 시작하고, 그림이 천천히 바뀌어요 · 최대 <span data-yl-max>${hourLabel(YL_MAX_MIN)}</span></small></span></label>
+        <label><input type="radio" name="df-ykind" value="classic"><span class="tcard"><b>그림이 자주 바뀌는 야담</b><small>그림이 30초마다 바뀌어요 · 최대 <span data-yd-max>${hourLabel(LONG_MAX_MIN['야담'])}</span></small></span></label>
       </div></div>
       <div class="df-field"><label>영상 길이 <span class="opt" id="df-yd-range">5분 ~ 8시간</span></label>
         <div class="len-pick" id="df-yd-pick-classic"><div class="len-box"><button type="button" data-ystep="-5" aria-label="5분 줄이기">−</button><input type="number" id="df-yd-min" inputmode="numeric" min="5" max="480" step="1" value="60" aria-label="분"><button type="button" data-ystep="5" aria-label="5분 늘리기">＋</button></div><span class="len-unit">분</span></div>
@@ -2611,7 +2621,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
     const note = document.getElementById('df-lt-note');
     if (note) note.textContent = planMode !== 'paid' ? '체험판은 3분 길이로 만들어요.' : '시간과 분을 따로 넣어요. 30분부터 8시간까지 만들 수 있어요.';
     const yn = document.getElementById('df-yd-note');
-    if (yn) yn.textContent = planMode !== 'paid' ? '체험판은 3분 길이의 짧은 이야기로 만들어요.' : '5분부터 2시간까지 만들 수 있어요.';
+    if (yn) yn.textContent = planMode !== 'paid' ? '체험판은 3분 길이의 짧은 이야기로 만들어요.' : '5분부터 ' + hourLabel(LONG_MAX_MIN['야담']) + '까지 만들 수 있어요.';
     if (typeof drawYadam === 'function') drawYadam();
     updatePrice();
   }
@@ -2754,7 +2764,10 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       document.getElementById('df-yl-intro-field').style.display = 긴 ? '' : 'none';
       document.querySelector('#df-yl-intro-field .len-pick').style.display = 대본 ? 'none' : '';
       document.querySelector('#df-yl-intro-field .opt').textContent = 대본 ? '내 대본의 [인트로]를 따라요' : '5초 ~ 60초';
-      document.getElementById('df-yd-range').textContent = 긴 ? '5분 ~ 8시간' : '5분 ~ 2시간';
+      document.getElementById('df-yd-range').textContent = '5분 ~ ' + hourLabel(최대);
+      ydIn.max = String(최대); ylH.max = String(Math.ceil(최대 / 60));
+      document.querySelectorAll('[data-yd-max]').forEach(el => { el.textContent = hourLabel(LONG_MAX_MIN['야담']); });
+      document.querySelectorAll('[data-yl-max]').forEach(el => { el.textContent = hourLabel(YL_MAX_MIN); });
       // 등급 카드: 방식별 그림 간격과 기준 요금
       const 간격 = 긴 ? { '경제형': '5분마다 그림', '표준형': '3분마다 그림', '고급형': '2분마다 그림' } : { '경제형': '45초마다 그림', '표준형': '30초마다 그림', '고급형': '20초마다 그림' };
       document.querySelectorAll('.yts').forEach(el => { el.textContent = 간격[el.dataset.t]; });
@@ -2768,12 +2781,12 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       ydChips.style.display = 대본 ? 'none' : '';
       const ydNote = document.getElementById('df-yd-note');
       const 대본분 = 대본 ? (Math.round(window.__rwScript.minutes * 10) / 10) : 0;
-      if (ydNote && 대본 && !긴 && 대본분 > 120) ydNote.innerHTML = '<b>이 대본은 ' + hourLabel(대본분) + '이라 기존 야담(최대 2시간)으로는 만들 수 없어요.</b> 위에서 <b>인트로 영상 + 긴 이야기</b>를 골라 주세요.';
+      if (ydNote && 대본 && !긴 && 대본분 > 최대) ydNote.innerHTML = '<b>이 대본은 ' + hourLabel(대본분) + '이라 기존 야담(최대 ' + hourLabel(최대) + ')으로는 만들 수 없어요.</b> 위에서 <b>인트로 영상 + 긴 이야기</b>를 골라 주세요.';
       else if (ydNote && 대본) ydNote.textContent = '내 대본의 분량(약 ' + 대본분 + '분)으로 만들어요. 길이를 바꾸려면 대본을 고쳐 주세요.';
       else if (ydNote && 긴 && m > 120 && planMode === 'paid') ydNote.innerHTML = '2시간이 넘는 이야기는 AI가 한 번에 쓰기 어려워요. <b>직접 쓴 대본</b>(왼쪽 대본 만들기)을 쓰면 훨씬 자연스러워요.';
-      else if (ydNote) ydNote.textContent = planMode !== 'paid' ? '체험판은 3분 길이의 짧은 이야기로 만들어요.' : (긴 ? '5분부터 8시간까지 만들 수 있어요.' : '5분부터 2시간까지 만들 수 있어요.');
+      else if (ydNote) ydNote.textContent = planMode !== 'paid' ? '체험판은 3분 길이의 짧은 이야기로 만들어요.' : '5분부터 ' + hourLabel(최대) + '까지 만들 수 있어요.';
       ydRead.innerHTML = `총 <b>${대본 ? 대본분 + '분' : hourLabel(m)}</b> · 약 <b>${요금.toLocaleString('ko-KR')}P</b>` + (planMode !== 'paid' ? ' <span class="len-sub">(체험판은 3분 영상이 체험 포인트로 만들어져요)</span>' : '') + (ydWarn ? `<span class="len-warn"> ${ydWarn}</span>` : '');
-      ydChips.innerHTML = (긴 ? [30, 60, 120, 180, 480] : [10, 30, 60, 120]).map(v => `<button type="button" class="len-chip${v === 정수 ? ' on' : ''}" data-m="${v}">${v < 60 ? v + '분' : (v / 60) + '시간'}</button>`).join('');
+      ydChips.innerHTML = (긴 ? [30, 60, 120, 180, 480] : [10, 30, 60, 120, 180, 360]).filter(v => v <= 최대).map(v => `<button type="button" class="len-chip${v === 정수 ? ' on' : ''}" data-m="${v}">${v < 60 ? v + '분' : (v / 60) + '시간'}</button>`).join('');
       // 인트로 길이 안내
       if (긴) {
         const n = 대본 ? 내대본인트로초() : 0;
@@ -2788,7 +2801,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
       const 최대 = 야담최대분();
       let m = Math.round(Number.isFinite(v) ? v : 10); ydWarn = '';
       if (m < 5) { m = 5; if (fromUser) ydWarn = '최소 5분으로 맞췄어요.'; }
-      if (m > 최대) { m = 최대; if (fromUser) ydWarn = 최대 === 120 ? '최대 2시간으로 맞췄어요.' : '최대 8시간으로 맞췄어요.'; }
+      if (m > 최대) { m = 최대; if (fromUser) ydWarn = '최대 ' + hourLabel(최대) + '으로 맞췄어요.'; }
       ydIn.value = m;
       ydIn.dispatchEvent(new Event('input', { bubbles: true }));
       drawYadam();
@@ -2874,7 +2887,7 @@ a(g());document.addEventListener('DOMContentLoaded',function(){a(g());var bs=doc
         if (sr && !((window.__rwScriptLib ? window.__rwScriptLib() : []).some(x => x.id === sr.id && x.chapters && x.chapters.length))) { alert('선택한 대본을 이 브라우저 보관함에서 찾지 못했어요. 대본을 다시 불러와 주세요.'); return; }
         if (sr) { const x = (window.__rwScriptLib ? window.__rwScriptLib() : []).find(y => y.id === sr.id); if (x && x.chars < 300) { alert('대본이 너무 짧아요. 300자 이상 이야기로 써 주세요. (지금 ' + x.chars + '자)'); return; } }
         if (!sr && !val('df-topic')) { alert('어떤 이야기를 들려줄지 적어주세요.'); return; }
-        if (sr && 야담형식() === 'classic' && sr.minutes > 120) { alert('이 대본은 2시간이 넘어서 기존 야담으로는 만들 수 없어요. "인트로 영상 + 긴 이야기"를 골라 주세요.'); return; }
+        if (sr && 야담형식() === 'classic' && sr.minutes > LONG_MAX_MIN['야담']) { alert('이 대본은 ' + hourLabel(LONG_MAX_MIN['야담']) + '이 넘어서 기존 야담으로는 만들 수 없어요. "인트로 영상 + 긴 이야기"를 골라 주세요.'); return; }
         const 분 = planMode === 'paid' ? 롱폼길이분() : 3;
         answers = { topic: val('df-topic') || (sr ? sr.title : ''), form: '롱폼', videoType: '야담', tier: 현재등급(), videoLength: String(Math.round(분 * 100) / 100) };
         if (sr) { answers.scriptId = sr.id; answers.scriptTitle = sr.title; }
