@@ -821,6 +821,12 @@
     .mobile-nav button, .mobile-nav a { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 2px; border: 0; background: transparent; color: var(--ink-dim); font: inherit; font-size: 0.68rem; text-decoration: none; cursor: pointer; border-radius: 10px; -webkit-tap-highlight-color: transparent; }
     .mobile-nav svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
     .mobile-nav .is-on { color: var(--amber); font-weight: 600; }
+    .mobile-nav [data-go="home"] svg { --c: #6fb3ff; }
+    .mobile-nav [data-go="direct"] svg { --c: #f08a4b; }
+    .mobile-nav [data-go="topic"] svg { --c: #f2c230; }
+    .mobile-nav a[href="./dashboard.html"] svg { --c: #b99bff; }
+    .mobile-nav [data-go="more"] svg { --c: #5fd08a; }
+    .mobile-nav svg { box-sizing: border-box; width: 30px; height: 30px; padding: 5px; border-radius: 8px; stroke: color-mix(in srgb, var(--c, currentColor) 78%, var(--ink, #000)); background: color-mix(in srgb, var(--c, transparent) 20%, transparent); }
     .mobile-more { position: fixed; right: 10px; bottom: calc(66px + env(safe-area-inset-bottom, 0px)); z-index: 130; flex-direction: column; min-width: 170px; background: var(--bg-raised, var(--bg)); border: 1px solid var(--line); border-radius: 14px; padding: 6px; box-shadow: 0 10px 30px rgba(0,0,0,.2); }
     .mobile-more.open { display: flex; }
     .mobile-more button { text-align: left; padding: 12px 14px; border: 0; background: transparent; color: var(--ink); font: inherit; font-size: 0.95rem; border-radius: 10px; cursor: pointer; }
