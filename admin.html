@@ -60,7 +60,9 @@
   header.shell .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 14px; }
   .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-family: 'Fraunces', serif; font-size: 1.15rem; }
   .brand img { width: 28px; height: 28px; border-radius: 7px; }
-  .brand .tag { font-family: 'IBM Plex Sans KR', sans-serif; font-size: .8rem; color: var(--ink-dim); border: 1px solid var(--line); border-radius: 99px; padding: 1px 10px; }
+  .brandgrp { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .tag { font-family: 'IBM Plex Sans KR', sans-serif; font-size: .8rem; color: var(--ink-dim); border: 1px solid var(--line); border-radius: 99px; padding: 1px 10px; text-decoration: none; white-space: nowrap; }
+  .tag:hover, .tag:focus-visible { color: var(--ink); border-color: var(--ink-faint); }
   .who { display: flex; align-items: center; gap: 10px; font-size: .88rem; color: var(--ink-dim); min-width: 0; }
   .who span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 220px; }
   .link-btn { background: none; border: 1px solid var(--line); color: var(--ink-dim); border-radius: 99px; padding: 5px 14px; font-size: .85rem; cursor: pointer; }
@@ -192,7 +194,7 @@
     .who .link-btn { padding-inline: 4px; white-space: nowrap; }
     html body header.shell .theme-switch button.theme-cycle { padding: 0 6px 0 6px; }
     header.shell .theme-switch .tc-name { display: none; }
-    header.shell .brand .tag { display: none; }
+    .who a.link-btn { display: none; }   /* 폰에서는 '관리자' 표시가 같은 곳(신청 화면)으로 가요 */
     header.shell .wrap { gap: 6px; }
     .page-title { font-size: 1.4rem; }
   }
@@ -203,7 +205,7 @@
 <body>
 <header class="shell">
   <div class="wrap">
-    <a class="brand" href="./index.html"><img src="./리와인드_로고1_512px.png" alt=""> 리와인드 <span class="tag">관리자</span></a>
+    <div class="brandgrp"><a class="brand" href="./index.html"><img src="./리와인드_로고1_512px.png" alt=""> 리와인드</a><a class="tag" href="./new.html" title="신청 화면으로">관리자</a></div>
     <div style="display:flex;align-items:center;gap:10px;min-width:0"><div class="theme-switch" aria-label="화면 색상"></div><div class="who" id="who" hidden><a class="link-btn" href="./new.html" style="text-decoration:none">신청 화면으로</a><span id="who-email"></span><button class="link-btn" id="logout" type="button">로그아웃</button></div></div>
   </div>
 </header>
