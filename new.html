@@ -859,7 +859,10 @@
     .mobile-more small { display: block; margin-top: 2px; font-size: .76rem; color: var(--ink-faint); }
     .mobile-more .mm-link { display: block; padding: 12px 14px; color: var(--ink); font-size: .95rem; text-decoration: none; border-radius: 10px; }
     .mobile-more .mm-link:active { background: var(--bg-input, rgba(0,0,0,.06)); }
+    .mobile-more button, .mobile-more .mm-link { display: grid; grid-template-columns: 30px 1fr; column-gap: 12px; align-items: center; }
     .mobile-more [hidden] { display: none !important; }
+    .mobile-more .mmi { grid-row: 1 / span 2; box-sizing: border-box; width: 30px; height: 30px; padding: 5px; border-radius: 8px; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; stroke: color-mix(in srgb, var(--c) 78%, var(--ink, #000)); background: color-mix(in srgb, var(--c) 20%, transparent); }
+    .mobile-more button > span, .mobile-more .mm-link > span, .mobile-more small { grid-column: 2; }
     /* 주제 찾기: 주제 버튼이 위, 입력창이 아래(메뉴줄 바로 위에 붙음). 길면 위아래로 스크롤 */
     .chat-column.is-fresh:has(.suggest-row) { justify-content: flex-start; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 8px 16px 0; }
     .chat-column.is-fresh:has(.suggest-row) .msg { display: none; }   /* 인사말은 접어 두고 주제가 맨 위에 오게 */
@@ -1224,12 +1227,12 @@
 </nav>
 <div class="mobile-more" id="mobile-more" role="menu">
   <div class="mm-info" id="mm-info" role="presentation"></div>
-  <button type="button" data-go="mode" role="menuitem"><span id="mm-mode-item">체험 모드로 사용 중</span><small id="mm-mode-hint">눌러서 정식 모드로 전환</small></button>
-  <button type="button" data-go="theme" role="menuitem"><span>화면 색상</span><small id="mm-theme-name">눌러서 다음 색으로</small></button>
-  <a class="mm-link" id="mm-admin" role="menuitem" href="./admin.html" hidden>관리자 설정</a>
-  <button type="button" data-go="script" role="menuitem">대본 만들기</button>
-  <button type="button" data-go="price" role="menuitem">요금 안내</button>
-  <button type="button" data-go="logout" role="menuitem">로그아웃</button>
+  <button type="button" data-go="mode" role="menuitem"><svg class="mmi" style="--c:#f08a4b" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h11l-3-3M17 17H6l3 3"/></svg><span id="mm-mode-item">체험 모드로 사용 중</span><small id="mm-mode-hint">눌러서 정식 모드로 전환</small></button>
+  <button type="button" data-go="theme" role="menuitem"><svg class="mmi" style="--c:#f06fa8" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18c1.4 0 2-.9 2-1.8 0-1.2-1-1.5-1-2.7 0-1 .8-1.5 1.8-1.5H17a4 4 0 0 0 4-4C21 6.6 17 3 12 3z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10" cy="7.5" r="1"/><circle cx="14.5" cy="7.5" r="1"/></svg><span>화면 색상</span><small id="mm-theme-name">눌러서 다음 색으로</small></button>
+  <a class="mm-link" id="mm-admin" role="menuitem" href="./admin.html" hidden><svg class="mmi" style="--c:#6fb3ff" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M18.4 5.6l-1.8 1.8M7.4 16.6l-1.8 1.8"/></svg><span>관리자 설정</span></a>
+  <button type="button" data-go="script" role="menuitem"><svg class="mmi" style="--c:#8ad7c4" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg><span>대본 만들기</span></button>
+  <button type="button" data-go="price" role="menuitem"><svg class="mmi" style="--c:#86d980" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M14.5 9.5h-3.5a1.5 1.5 0 0 0 0 3h2a1.5 1.5 0 0 1 0 3H9.5M12 7.5v1.5M12 15.5V17"/></svg><span>요금 안내</span></button>
+  <button type="button" data-go="logout" role="menuitem"><svg class="mmi" style="--c:#ef7a7a" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H5v16h5M15 8l4 4-4 4M19 12H9"/></svg><span>로그아웃</span></button>
 </div>
 
 <div id="soon-toast">이 기능은 아직 준비 중이에요.</div>
