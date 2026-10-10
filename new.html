@@ -1105,23 +1105,74 @@
   .charge-modal .close-row .btn-gold-sm, .price-modal .close-row .btn-gold-sm { width: auto; min-width: 96px; padding: 0 26px; min-height: 46px; }
   @media (max-width: 640px) { .df-sec { padding: 18px 16px 8px; } .df-types .tcard b { font-size: .92rem; } }
 
-  /* ===== [상품쇼츠] PC 단계 안내: 한 번에 한 단계씩 (폰은 지금처럼 한 화면) ===== */
-  .pw-bar { display: flex; align-items: center; gap: 8px; margin: 0 0 18px; }
-  .pw-bar[hidden], .pw-nav[hidden] { display: none; }
-  .pw-st { display: flex; align-items: center; gap: 8px; flex: none; border: 0; background: transparent; padding: 0; font: inherit; font-size: .95rem; color: var(--ink-faint); min-height: 44px; cursor: default; }
-  .pw-st .d { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: .86rem; font-weight: 700; border: 1px solid var(--line-strong, var(--line)); color: var(--ink-faint); background: transparent; font-variant-numeric: tabular-nums; }
-  .pw-st.done { color: var(--ink); cursor: pointer; }
-  .pw-st.done .d { background: var(--amber); border-color: var(--amber); color: var(--on-amber); }
-  .pw-st.cur { color: var(--ink); font-weight: 700; }
-  .pw-st.cur .d { border: 2px solid var(--amber); background: var(--amber-wash, transparent); color: var(--ink); }
-  .pw-st.done:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; border-radius: 8px; }
-  .pw-line { flex: 1; height: 2px; min-width: 12px; background: var(--line); }
-  .pw-line.done { background: var(--amber); }
+  /* ===== [상품쇼츠] 단계 안내: 필름 띠 (한 번에 한 단계씩) ===== */
+  .pw-bar { scroll-margin-top: 64px; margin: 0 0 12px; background: var(--bg-raised); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .pw-bar[hidden], .pw-nav[hidden], .pw-hint[hidden] { display: none; }
+  .pw-holes { height: 8px; margin: 6px 10px; background: repeating-linear-gradient(90deg, var(--bg) 0 10px, transparent 10px 22px); border-radius: 2px; }
+  .pw-frames { list-style: none; margin: 0; padding: 0 10px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+  .pw-fr { min-width: 0; display: flex; }
+  .pw-st { flex: 1; min-width: 0; min-height: 70px; box-sizing: border-box; border-radius: 4px; border: 2px solid var(--line); background: var(--bg-input, transparent); color: var(--ink-dim); font: inherit; padding: 8px 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: default; transition: background .35s, color .35s, border-color .35s; }
+  .pw-st b { font-size: .84rem; font-weight: 600; line-height: 1.25; text-align: center; white-space: nowrap; }
+  .pw-st small { font-size: .76rem; line-height: 1.2; }
+  .pw-st.done { background: var(--amber); border-color: var(--amber); color: var(--on-amber); cursor: pointer; }
+  .pw-st.redo { background: transparent; border-color: var(--err); color: var(--err); cursor: pointer; }
+  .pw-st.cur { background: var(--amber-wash, transparent); border-color: var(--amber); color: var(--ink); }
+  .pw-st.cur b { font-weight: 700; }
+  .pw-st.done:hover, .pw-st.redo:hover { filter: brightness(1.07); }
+  .pw-st:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+  .pw-adv .pw-frames { animation: pw-wind .45s ease-out; }
+  @keyframes pw-wind { from { transform: translateX(14px); opacity: .6; } to { transform: none; opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .pw-adv .pw-frames { animation: none; } .pw-st { transition: none; } }
+  .pw-hint { margin: 0 0 16px; font-size: .95rem; color: var(--ink-dim); line-height: 1.55; }
+  .pw-hint b { color: var(--ink); }
+  .pw-hint .pw-left, .pw-nav .pw-err { color: color-mix(in srgb, var(--err) 78%, var(--ink)); }
+  .pw-hint .pw-fine { color: var(--ink-dim); }
+  .pd-lenread { display: block; min-height: 1.2em; margin-top: 6px; color: var(--ink-dim); font-size: .85rem; }
+  #df-fields.pw-on .df-sec-head h3[data-n=""]::before { display: none; }
+  @media (max-width: 640px) {
+    .pw-frames { display: flex; gap: 5px; padding: 0 8px; }
+    .pw-fr { flex: 1 1 44px; min-width: 44px; }
+    .pw-fr.cur { flex: 2.6 1 0; min-width: 76px; }
+    .pw-holes { margin: 5px 8px; height: 6px; }
+    .pw-st { min-height: 58px; padding: 6px 2px; }
+    .pw-fr:not(.cur) .pw-st b, .pw-fr:not(.cur) .pw-st small { display: none; }
+    .pw-fr.cur .pw-st small { font-size: .7rem; }
+  }
+  .pw-nav .pw-next.is-blocked, #df-confirm.is-blocked { background: var(--line); color: var(--ink-dim); border: 1px solid var(--line-strong, var(--line)); }
+  /* ===== 값 조절 모양: 막대 / 다이얼 ===== */
+  .rwctl-wrap { margin-top: 12px; display: flex; flex-direction: column; gap: 10px; }
+  .rwctl-switch { align-self: flex-end; display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .rwctl-switch button { min-height: 36px; padding: 0 14px; border: 0; background: transparent; color: var(--ink-dim); font: inherit; font-size: .85rem; cursor: pointer; }
+  .rwctl-switch button[aria-pressed="true"] { background: var(--amber); color: var(--on-amber); font-weight: 700; }
+  .rwctl { padding: 4px 2px; }
+  .rwctl-top { display: flex; justify-content: space-between; align-items: baseline; font-size: .9rem; color: var(--ink-dim); }
+  .rwctl-top output { font-size: 1.4rem; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .rwctl input[type=range] { width: 100%; margin: 10px 0 2px; height: 32px; background: transparent; -webkit-appearance: none; appearance: none; --f: 0%; }
+  .rwctl input[type=range]::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: linear-gradient(90deg, var(--amber) var(--f), var(--line) var(--f)); }
+  .rwctl input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 26px; border-radius: 50%; background: var(--amber); border: 3px solid var(--bg); box-shadow: 0 0 0 2px var(--amber); margin-top: -10px; }
+  .rwctl input[type=range]::-moz-range-track { height: 6px; border-radius: 3px; background: var(--line); }
+  .rwctl input[type=range]::-moz-range-progress { height: 6px; border-radius: 3px; background: var(--amber); }
+  .rwctl input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 50%; background: var(--amber); border: 3px solid var(--bg); box-shadow: 0 0 0 2px var(--amber); }
+  .rwctl input[type=range]:focus-visible { outline: 2px solid var(--amber); outline-offset: 4px; border-radius: 4px; }
+  .rwctl-ticks { display: flex; justify-content: space-between; font-size: .76rem; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+  .rwctl-dialform { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+  .rwctl-dial { width: 150px; height: 150px; touch-action: none; cursor: pointer; flex: none; border-radius: 50%; }
+  .rwctl-dial:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+  .rwctl-dial .tr, .rwctl-dial .vl { fill: none; stroke-width: 8; stroke-linecap: round; }
+  .rwctl-dial .tr { stroke: var(--line); }
+  .rwctl-dial .vl { stroke: var(--amber); transition: stroke-dasharray .15s; }
+  .rwctl-dial .kn { fill: var(--amber); stroke: var(--bg); stroke-width: 3; }
+  .rwctl-dial .tx { font-size: 17px; font-weight: 700; fill: var(--ink); font-family: inherit; }
+  .rwctl-btns { display: flex; gap: 10px; }
+  .rwctl-btns button { width: 52px; height: 52px; border-radius: 50%; border: 1px solid var(--line); background: var(--bg-input, transparent); color: var(--ink); font-size: 1.4rem; cursor: pointer; }
+  .rwctl-btns button:hover, .rwctl-btns button:focus-visible { border-color: var(--amber); }
+  .rwctl-side small { display: block; margin-top: 8px; color: var(--ink-dim); font-size: .8rem; line-height: 1.5; max-width: 24ch; }
+  @media (prefers-reduced-motion: reduce) { .rwctl-dial .vl { transition: none; } }
   #df-fields.pw-on > .df-sec { display: none; }
   #df-fields.pw-on > .df-sec.pw-cur { display: block; }
   #df-fields.pw-on .df-sec-head h3::before { content: attr(data-n); }
   .pw-nav { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 4px 0 18px; flex-wrap: wrap; }
-  .pw-nav .pw-err { flex: 1 1 100%; order: -1; margin: 0; font-size: .9rem; color: var(--err, #d4663f); min-height: 1.2em; }
+  .pw-nav .pw-err { flex: 1 1 100%; order: -1; margin: 0; font-size: .9rem; min-height: 1.2em; }
   .pw-nav .pw-sp { flex: 1; }
   .pw-review .pw-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }
   .pw-review .pw-row:last-of-type { border-bottom: 0; }
@@ -2866,21 +2917,13 @@
   function pimgCardHtml() {
     return `<div class="pimg-card" data-type="image"><span class="pimg-th">${PIMG_ICO}</span><div class="pimg-body"><div class="pimg-top"><b>사진·영상 1</b><span class="pm-type" role="group" aria-label="종류"><button type="button" data-t="image" aria-pressed="true">사진</button><button type="button" data-t="video" aria-pressed="false">영상</button></span><button type="button" class="pimg-del" aria-label="이 사진·영상 지우기">×</button></div><input type="url" class="pimg-url" inputmode="url" autocomplete="off" placeholder="https://..." aria-label="사진·영상 주소"><div class="pm-range" hidden><span>쓸 구간</span><input type="number" class="pm-s" min="0" step="0.5" value="0" aria-label="시작 초"><span>초 ~</span><input type="number" class="pm-e" min="0.5" step="0.5" value="10" aria-label="끝 초"><span>초 <small>(한 컷 최대 60초)</small></span></div><p class="pimg-state"></p></div></div>`;
   }
+  // 상품쇼츠 입력 화면은 세 구역으로 나뉜다(단계 안내가 한 단계씩 보여 준다): 내용(2단계) / 사진·영상·길이(3단계) / 꼭 확인(5단계). 칸 id는 예전과 같다.
+  const PROD_ICO = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>';
   function productSectionHtml() {
     const seller = (v, t, s) => `<label><input type="radio" name="df-seller" value="${v}"><span class="tcard"><b>${t}</b><small>${s}</small></span></label>`;
-    return `<section class="df-sec df-prod df-hide" style="--c:#ff8f6b"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg></span><div><h3>사진·영상</h3><p>제품 사진과 영상을 넣으면 순서대로 장면이 돼요</p></div></div>
+    const head = (t, p) => `<div class="df-sec-head"><span class="df-sec-ico">${PROD_ICO}</span><div><h3>${t}</h3><p>${p}</p></div></div>`;
+    return `<section class="df-sec df-prod pd-content df-hide" style="--c:#ff8f6b">${head('어떤 제품인가요?', '제품 이름과 내용을 알려 주세요')}
       <div class="df-field"><label>제품 이름 <em class="req">*</em> <span class="opt">100자</span></label><input type="text" id="df-prodName" maxlength="100" placeholder="예: 보온 텀블러 500ml"></div>
-      <div class="df-field"><label>영상 길이 <span class="opt">30초~3분 · 요금이 달라져요</span></label>
-        <div class="len-chips" id="df-prodLen-chips"></div>
-        <div class="pd-len"><input type="number" id="df-prodLen" min="30" max="180" step="15" inputmode="numeric" aria-label="영상 길이(초)" value="60"><span>초</span><small id="df-prodLen-read"></small></div></div>
-      <div class="df-field"><label>사진·영상 <em class="req">*</em> <span class="opt">최대 ${PRODUCT_IMG_MAX}개</span></label>
-        <p class="df-hint">인터넷에 올라 있는 사진·영상 파일의 주소, 또는 구글 드라이브 파일 링크를 붙여넣어요. 올린 순서대로 장면이 나뉘어요. 유튜브·인스타그램·쇼핑몰 상품 페이지 주소는 쓸 수 없어요.</p>
-        <details class="pd-how"><summary>구글 드라이브로 올리는 방법</summary><ol><li>구글 드라이브에 사진·영상을 올려요.</li><li>파일을 오른쪽 클릭하고 <b>공유</b>를 눌러요.</li><li>일반 액세스를 <b>링크가 있는 모든 사용자</b>(뷰어)로 바꿔요.</li><li><b>링크 복사</b>를 눌러요.</li><li>여기에 붙여넣어요. 폴더가 아니라 파일마다 하나씩 넣어요.</li></ol></details>
-        <div class="pimg-list" id="df-pimgs"></div></div>
-      <div class="df-field df-check"><label><input type="checkbox" id="df-prodRights"><span>이 사진·영상은 내가 만들었거나 사용을 허락받았어요 <em class="req">*</em></span></label></div>
-      <div class="df-field"><label>사진·영상에 사람이 나오나요? <em class="req">*</em></label>
-        <div class="df-chipset pd-two" role="radiogroup" aria-label="사람이 나오나요"><label><input type="radio" name="df-people" value="no"><span class="tcard"><b>아니요</b></span></label><label><input type="radio" name="df-people" value="yes"><span class="tcard"><b>네</b></span></label></div></div>
-      <div class="df-field df-check df-hide" id="df-prodConsent-wrap"><label><input type="checkbox" id="df-prodConsent"><span>나온 분(미성년자는 보호자)에게 영상 제작·게시 동의를 받았어요 <em class="req">*</em></span></label></div>
       <div class="df-field"><label>제품 내용 <em class="req">*</em> <span class="opt">대본에 쓸 자료예요 · 하나를 골라 주세요</span></label>
         <div class="df-chipset pd-seller pd-src" role="radiogroup" aria-label="제품 내용 넣는 방법">
           <label><input type="radio" name="df-src" value="write"><span class="tcard"><b>직접 쓰기</b><small>설명·후기 붙여넣기 · 가장 정확</small></span></label>
@@ -2895,55 +2938,90 @@
       <div class="df-field df-hide" id="df-seller-wrap"><label>판매 유형 <em class="req">*</em></label>
         <div class="df-chipset pd-seller" role="radiogroup" aria-label="판매 유형">${seller('own', '내 제품', '내가 만들었거나 직접 파는 제품')}${seller('affiliate', '제휴 링크', '구매되면 수수료를 받아요 · 설명란에 광고 안내가 들어가요')}${seller('none', '소개만', '수수료 없이 링크만 알려요')}</div>
         <p class="df-hint" id="df-seller-note"></p></div>
+    </section>
+    <section class="df-sec df-prod pd-media df-hide" style="--c:#ff8f6b">${head('사진·영상과 길이', '제품 사진과 영상을 넣으면 순서대로 장면이 돼요')}
+      <div class="df-field"><label>사진·영상 <em class="req">*</em> <span class="opt">최대 ${PRODUCT_IMG_MAX}개</span></label>
+        <p class="df-hint">인터넷에 올라 있는 사진·영상 파일의 주소, 또는 구글 드라이브 파일 링크를 붙여넣어요. 올린 순서대로 장면이 나뉘어요. 유튜브·인스타그램·쇼핑몰 상품 페이지 주소는 쓸 수 없어요.</p>
+        <details class="pd-how"><summary>구글 드라이브로 올리는 방법</summary><ol><li>구글 드라이브에 사진·영상을 올려요.</li><li>파일을 오른쪽 클릭하고 <b>공유</b>를 눌러요.</li><li>일반 액세스를 <b>링크가 있는 모든 사용자</b>(뷰어)로 바꿔요.</li><li><b>링크 복사</b>를 눌러요.</li><li>여기에 붙여넣어요. 폴더가 아니라 파일마다 하나씩 넣어요.</li></ol></details>
+        <div class="pimg-list" id="df-pimgs"></div></div>
+      <div class="df-field"><label>영상 길이 <span class="opt">30초~3분 · 요금이 달라져요</span></label>
+        <div class="len-chips" id="df-prodLen-chips"></div>
+        <small class="pd-lenread" id="df-prodLen-read" aria-live="polite"></small>
+        <div class="rwctl-wrap"><div class="rwctl-switch" role="group" aria-label="값 조절 모양"><button type="button" data-k="bar" aria-pressed="true">막대</button><button type="button" data-k="dial" aria-pressed="false">다이얼</button></div><div class="rwctl" id="df-prodLen-ctl"></div></div>
+        <details class="pd-how"><summary>초 단위로 직접 입력</summary><div class="pd-len"><input type="number" id="df-prodLen" min="30" max="180" step="15" inputmode="numeric" aria-label="영상 길이(초)" value="60"><span>초</span></div></details></div>
+    </section>
+    <section class="df-sec df-prod pd-agree df-hide" style="--c:#7bc58a">${head('꼭 확인해 주세요', '사진·영상 사용 권리와 사람 등장 여부를 확인해요')}
+      <div class="df-field df-check"><label><input type="checkbox" id="df-prodRights"><span>이 사진·영상은 내가 만들었거나 사용을 허락받았어요 <em class="req">*</em></span></label></div>
+      <div class="df-field"><label>사진·영상에 사람이 나오나요? <em class="req">*</em></label>
+        <div class="df-chipset pd-two" role="radiogroup" aria-label="사람이 나오나요"><label><input type="radio" name="df-people" value="no"><span class="tcard"><b>아니요</b></span></label><label><input type="radio" name="df-people" value="yes"><span class="tcard"><b>네</b></span></label></div></div>
+      <div class="df-field df-check df-hide" id="df-prodConsent-wrap"><label><input type="checkbox" id="df-prodConsent"><span>나온 분(미성년자는 보호자)에게 영상 제작·게시 동의를 받았어요 <em class="req">*</em></span></label></div>
     </section>`;
   }
   // 입력 화면의 값을 읽어 접수 서버와 같은 규칙으로 검사한다. { err, el } 또는 { data } 를 돌려준다.
-  function readProduct() {
+  // opt.partial: 마지막 확인(권리·사람·동의) 칸이 비어 있어도 값을 돌려준다(확인 요약용). opt.mutate===false: 칸의 글을 고쳐 쓰지 않는다(입력 중 남은 항목 세기용).
+  // 돌려주는 probs 는 모든 문제의 목록이고, 각 항목의 part 는 어느 단계의 문제인지(content 내용 / media 사진·영상 / agree 확인)를 말한다.
+  function readProduct(opt) {
+    opt = opt || {};
+    const mutate = opt.mutate !== false;
     const g = id => document.getElementById(id);
     const v = id => (g(id) ? g(id).value.trim() : '');
-    const bad = (err, el) => ({ err, el });
+    const probs = [];
+    const add = (part, label, msg, el) => probs.push({ part, label, msg, el });
+    // --- 내용 (2단계) ---
     const name = v('df-prodName');
-    if (!name) return bad('제품 이름을 적어 주세요.', g('df-prodName'));
+    if (!name) add('content', '제품 이름', '제품 이름을 적어 주세요.', g('df-prodName'));
+    const srcSel = document.querySelector('input[name="df-src"]:checked');
+    const src = srcSel ? srcSel.value : '';
+    if (!srcSel) add('content', '제품 내용', '제품 내용을 어떻게 넣을지 골라 주세요. (직접 쓰기 / 링크로 읽기 / 이름만으로)', document.querySelector('input[name="df-src"]'));
+    else if (src === 'write' && v('df-prodInfo').length < 10) add('content', '제품 내용', '설명이나 후기를 적어 주세요. 없으면 "링크로 읽기"나 "이름만으로"를 골라 주세요.', g('df-prodInfo'));
+    const link = pdCleanUrl(v('df-prodLink')); if (mutate && link && g('df-prodLink').value.trim() !== link) g('df-prodLink').value = link;
+    let seller = '';
+    if (src === 'link' && !link) add('content', '제품 링크', '"링크로 읽기"를 고르셨어요. 제품 링크를 넣어 주세요.', g('df-prodLink'));
+    if (link) {
+      const p = pdUrlProblem(link, 'link');
+      if (p) add('content', '제품 링크', '제품 링크: ' + p, g('df-prodLink'));
+      else {
+        const sel = document.querySelector('input[name="df-seller"]:checked');
+        if (!sel) add('content', '판매 유형', '판매 유형(내 제품 / 제휴 링크 / 소개만)을 골라 주세요.', document.querySelector('input[name="df-seller"]'));
+        else {
+          seller = sel.value;
+          if (seller === 'own' && pdLooksAffiliate(link)) add('content', '판매 유형', '제휴(수수료) 링크로 보여요. 내 제품이라면 내 사이트·판매 페이지 주소를 넣어 주세요. 다른 회사 제품이면 "제휴 링크"를 골라 주세요.', document.querySelector('input[name="df-seller"]'));
+        }
+      }
+    }
+    // --- 사진·영상 (3단계) ---
     const cards = [...document.querySelectorAll('#df-pimgs .pimg-card')];
     const media = [], seen = new Set();
-    for (let i = 0; i < cards.length; i++) {
-      const c = cards[i], inp = c.querySelector('.pimg-url'), url = pdCleanUrl(inp.value); if (url && url !== inp.value.trim()) inp.value = url;
+    let mediaBad = false;
+    for (let i = 0; i < cards.length && !mediaBad; i++) {
+      const c = cards[i], inp = c.querySelector('.pimg-url'), url = pdCleanUrl(inp.value); if (mutate && url && url !== inp.value.trim()) inp.value = url;
       if (!url) continue;
-      const n = media.length + 1, label = (i + 1) + '번째 ';
-      const p = pdUrlProblem(url, 'media'); if (p) return bad(label + p, inp);
+      const label = (i + 1) + '번째 ';
+      const p = pdUrlProblem(url, 'media'); if (p) { add('media', '사진·영상', label + p, inp); mediaBad = true; break; }
       const type = c.dataset.type === 'video' ? 'video' : 'image';
       if (type === 'image') { const k = 'i|' + url; if (!seen.has(k)) { seen.add(k); media.push({ type, url }); } continue; }
       const s = c.querySelector('.pm-s'), e = c.querySelector('.pm-e');
       const start = s.value === '' ? 0 : Number(s.value), end = e.value === '' ? start + 10 : Number(e.value);
-      if (!Number.isFinite(start) || start < 0 || start > 36000) return bad(label + '영상의 시작 시간이 올바르지 않아요.', s);
-      if (!Number.isFinite(end) || end > 36000 || end <= start) return bad(label + '영상은 끝 시간이 시작 시간보다 커야 해요.', e);
-      if (end - start > 60) return bad(label + '영상은 한 번에 최대 60초까지 쓸 수 있어요. 구간을 줄여 주세요.', e);
-      if (end - start < 0.5) return bad(label + '영상은 구간이 너무 짧아요 (0.5초 이상).', e);
+      let m = '', at = e;
+      if (!Number.isFinite(start) || start < 0 || start > 36000) { m = '영상의 시작 시간이 올바르지 않아요.'; at = s; }
+      else if (!Number.isFinite(end) || end > 36000 || end <= start) m = '영상은 끝 시간이 시작 시간보다 커야 해요.';
+      else if (end - start > 60) m = '영상은 한 번에 최대 60초까지 쓸 수 있어요. 구간을 줄여 주세요.';
+      else if (end - start < 0.5) m = '영상은 구간이 너무 짧아요 (0.5초 이상).';
+      if (m) { add('media', '사진·영상', label + m, at); mediaBad = true; break; }
       const k = 'v|' + url + '|' + start + '|' + end; if (!seen.has(k)) { seen.add(k); media.push({ type, url, start: Math.round(start * 10) / 10, end: Math.round(end * 10) / 10 }); }
     }
-    if (!media.length) return bad('사진이나 영상 주소를 하나 이상 넣어 주세요.', cards[0] ? cards[0].querySelector('.pimg-url') : g('df-prodName'));
-    if (media.length > PRODUCT_IMG_MAX) return bad('사진·영상은 최대 ' + PRODUCT_IMG_MAX + '개까지 넣을 수 있어요.', cards[0].querySelector('.pimg-url'));
-    if (!g('df-prodRights').checked) return bad('사진·영상 사용 권리 확인에 체크해 주세요.', g('df-prodRights'));
+    if (!mediaBad && !media.length) add('media', '사진·영상', '사진이나 영상 주소를 하나 이상 넣어 주세요.', cards[0] ? cards[0].querySelector('.pimg-url') : g('df-prodName'));
+    if (!mediaBad && media.length > PRODUCT_IMG_MAX) add('media', '사진·영상', '사진·영상은 최대 ' + PRODUCT_IMG_MAX + '개까지 넣을 수 있어요.', cards[0].querySelector('.pimg-url'));
+    // --- 꼭 확인 (5단계) ---
+    if (!g('df-prodRights').checked) add('agree', '사진·영상 사용 권리 확인', '사진·영상 사용 권리 확인에 체크해 주세요.', g('df-prodRights'));
     const pe = document.querySelector('input[name="df-people"]:checked');
-    if (!pe) return bad('사진·영상에 사람이 나오는지 골라 주세요.', document.querySelector('input[name="df-people"]'));
-    const people = pe.value === 'yes';
-    if (people && !g('df-prodConsent').checked) return bad('나온 분의 동의 확인에 체크해 주세요.', g('df-prodConsent'));
-    const srcSel = document.querySelector('input[name="df-src"]:checked');
-    if (!srcSel) return bad('제품 내용을 어떻게 넣을지 골라 주세요. (직접 쓰기 / 링크로 읽기 / 이름만으로)', document.querySelector('input[name="df-src"]'));
-    const src = srcSel.value;
-    if (src === 'write' && v('df-prodInfo').length < 10) return bad('설명이나 후기를 적어 주세요. 없으면 "링크로 읽기"나 "이름만으로"를 골라 주세요.', g('df-prodInfo'));
-    const link = pdCleanUrl(v('df-prodLink')); if (link && g('df-prodLink').value.trim() !== link) g('df-prodLink').value = link;
-    if (src === 'link' && !link) return bad('"링크로 읽기"를 고르셨어요. 제품 링크를 넣어 주세요.', g('df-prodLink'));
-    let seller = '';
-    if (link) {
-      const p = pdUrlProblem(link, 'link'); if (p) { return bad('제품 링크: ' + p, g('df-prodLink')); }
-      const sel = document.querySelector('input[name="df-seller"]:checked');
-      if (!sel) { return bad('판매 유형(내 제품 / 제휴 링크 / 소개만)을 골라 주세요.', document.querySelector('input[name="df-seller"]')); }
-      seller = sel.value;
-      if (seller === 'own' && pdLooksAffiliate(link)) { return bad('제휴(수수료) 링크로 보여요. 내 제품이라면 내 사이트·판매 페이지 주소를 넣어 주세요. 다른 회사 제품이면 "제휴 링크"를 골라 주세요.', document.querySelector('input[name="df-seller"]')); }
-    }
+    if (!pe) add('agree', '사람이 나오는지', '사진·영상에 사람이 나오는지 골라 주세요.', document.querySelector('input[name="df-people"]'));
+    const people = !!pe && pe.value === 'yes';
+    if (people && !g('df-prodConsent').checked) add('agree', '나온 분의 동의 확인', '나온 분의 동의 확인에 체크해 주세요.', g('df-prodConsent'));
+    const list = opt.partial ? probs.filter(x => x.part !== 'agree') : probs;
+    if (list.length) return { err: list[0].msg, el: list[0].el, part: list[0].part, probs };
     const sec = pdSnapLen(v('df-prodLen'));
-    return { data: { name, sec, media, src, info: src === 'write' ? v('df-prodInfo').slice(0, 3000) : '', link, seller, rights: true, people, consent: people } };
+    return { data: { name, sec, media, src, info: src === 'write' ? v('df-prodInfo').slice(0, 3000) : '', link, seller, rights: true, people, consent: people }, probs };
   }
   // 오류 문구는 문제가 있는 칸 바로 아래에 붙인다 (폰에서 화면 밖으로 밀리지 않게)
   function pdShowErr(msg, el) {
@@ -2968,6 +3046,63 @@
   function pdMediaSummary(d) {
     const im = d.media.filter(m => m.type === 'image').length, vi = d.media.length - im;
     return [im ? '사진 ' + im + '장' : '', vi ? '영상 ' + vi + '개' : ''].filter(Boolean).join(' · ');
+  }
+  // ===== 값 조절 모양: 막대 / 다이얼 (고른 모양은 이 기기에 저장) =====
+  // 영상 길이 칸(df-prodLen)이 진짜 값이고, 여기서는 그 칸을 바꾸는 겉모양만 다르게 보여 준다. 그래서 신청 내용은 모양과 상관없이 같다.
+  function setupLenCtl(lenIn) {
+    const box = document.getElementById('df-prodLen-ctl'); if (!box) return;
+    const sw = box.parentNode.querySelector('.rwctl-switch');
+    const MIN = PD_LEN_MIN, MAX = PD_LEN_MAX, STEP = PD_LEN_STEP;
+    let kind = 'bar'; try { const k = localStorage.getItem('rw-ctl'); if (k === 'dial' || k === 'bar') kind = k; } catch (e) {}
+    const cur = () => pdSnapLen(lenIn.value);
+    const set = sec => { const v = pdSnapLen(sec); if (v === cur() && String(lenIn.value) === String(v)) return; lenIn.value = v; lenIn.dispatchEvent(new Event('input', { bubbles: true })); };
+    const ARC = 'M28.9 91.1A44 44 0 1 1 91.1 91.1';
+    const pt = a => { const r = a * Math.PI / 180; return [60 + 44 * Math.cos(r), 60 + 44 * Math.sin(r)]; };
+    let nodes = {};
+    function build() {
+      if (kind === 'bar') {
+        box.className = 'rwctl rwctl-barform';
+        box.innerHTML = '<div class="rwctl-top"><span>영상 길이</span><output aria-hidden="true"></output></div><input type="range" min="' + MIN + '" max="' + MAX + '" step="' + STEP + '" aria-label="영상 길이(초)"><div class="rwctl-ticks" aria-hidden="true"><span>30초</span><span>1분</span><span>1분 30초</span><span>2분</span><span>2분 30초</span><span>3분</span></div>';
+        nodes = { out: box.querySelector('output'), rng: box.querySelector('input') };
+        nodes.rng.addEventListener('input', () => set(nodes.rng.value));
+      } else {
+        box.className = 'rwctl rwctl-dialform';
+        box.innerHTML = '<svg viewBox="0 0 120 120" class="rwctl-dial" tabindex="0" role="slider" aria-label="영상 길이" aria-valuemin="' + MIN + '" aria-valuemax="' + MAX + '"><path d="' + ARC + '" class="tr" pathLength="100"/><path d="' + ARC + '" class="vl" pathLength="100"/><circle class="kn" r="9"/><text x="60" y="66" text-anchor="middle" class="tx"></text></svg>' +
+          '<div class="rwctl-side"><div class="rwctl-btns"><button type="button" data-d="-1" aria-label="길이 15초 줄이기">−</button><button type="button" data-d="1" aria-label="길이 15초 늘리기">＋</button></div><small>눌러서 바꾸거나 둥근 눈금을 돌려요 · 30초~3분</small></div>';
+        const svg = box.querySelector('svg');
+        nodes = { svg, vl: svg.querySelector('.vl'), kn: svg.querySelector('.kn'), tx: svg.querySelector('.tx') };
+        box.querySelectorAll('.rwctl-btns button').forEach(b => b.addEventListener('click', () => set(cur() + Number(b.dataset.d) * STEP)));
+        svg.addEventListener('keydown', e => {
+          const d = { ArrowRight: 1, ArrowUp: 1, PageUp: 2, ArrowLeft: -1, ArrowDown: -1, PageDown: -2 }[e.key];
+          if (d) { e.preventDefault(); set(cur() + d * STEP); }
+          else if (e.key === 'Home') { e.preventDefault(); set(MIN); } else if (e.key === 'End') { e.preventDefault(); set(MAX); }
+        });
+        const fromPointer = e => {
+          const r = svg.getBoundingClientRect(), dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
+          let a = Math.atan2(dy, dx) * 180 / Math.PI; if (a < 0) a += 360; if (a < 135) a += 360;
+          if (a > 405) a = cur() >= (MIN + MAX) / 2 ? 405 : 135;   // 아래 빈 곳에서는 지금 값이 있는 쪽 끝에 붙인다 (3분에서 30초로 튀지 않게)
+          set(MIN + (a - 135) / 270 * (MAX - MIN));
+        };
+        let down = false;
+        svg.addEventListener('pointerdown', e => { down = true; try { svg.setPointerCapture(e.pointerId); } catch (x) {} fromPointer(e); });
+        svg.addEventListener('pointermove', e => { if (down) fromPointer(e); });
+        const up = () => { down = false; };
+        svg.addEventListener('pointerup', up); svg.addEventListener('pointercancel', up);
+      }
+    }
+    function draw() {
+      const s = cur(), f = (s - MIN) / (MAX - MIN), label = pdLenLabel(s);
+      if (kind === 'bar') { nodes.rng.value = s; nodes.out.textContent = label; nodes.rng.setAttribute('aria-valuetext', label); nodes.rng.style.setProperty('--f', (f * 100) + '%'); }
+      else {
+        nodes.vl.style.strokeDasharray = (f * 100) + ' 100';
+        const [x, y] = pt(135 + 270 * f); nodes.kn.setAttribute('cx', x.toFixed(1)); nodes.kn.setAttribute('cy', y.toFixed(1));
+        nodes.tx.textContent = label; nodes.svg.setAttribute('aria-valuenow', s); nodes.svg.setAttribute('aria-valuetext', label);
+      }
+      sw.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.k === kind ? 'true' : 'false'));
+    }
+    sw.addEventListener('click', e => { const b = e.target.closest('button'); if (!b || b.dataset.k === kind) return; kind = b.dataset.k; try { localStorage.setItem('rw-ctl', kind); } catch (x) {} build(); draw(); });
+    window.__rwCtlDraw = draw;
+    build(); draw();
   }
   function setupProduct() {
     const list = document.getElementById('df-pimgs'); if (!list) return;
@@ -3032,6 +3167,7 @@
       const s = pdSnapLen(lenIn.value);
       lenChips.innerHTML = [30, 60, 90].map(x => `<button type="button" class="len-chip${s === x ? ' on' : ''}" data-sec="${x}">${pdLenLabel(x)}${x === 60 ? ' · 추천' : ''}</button>`).join('');
       lenRead.textContent = note || (s === 60 ? '' : '= ' + pdLenLabel(s));
+      if (window.__rwCtlDraw) window.__rwCtlDraw(s);
     }
     function syncLen() {
       const li = document.getElementById('df-videoLength'); if (!li) return;
@@ -3045,11 +3181,13 @@
       const raw = Number(lenIn.value), s = pdSnapLen(lenIn.value);
       lenIn.value = s; drawLen(raw > PD_LEN_MAX ? '쇼츠는 최대 3분이에요. 3분으로 맞췄어요' : (raw < PD_LEN_MIN ? '최소 30초로 맞췄어요' : (raw !== s ? '15초 단위로 맞췄어요' : ''))); syncLen();
     });
-    drawLen();   // 숨은 길이 칸은 상품쇼츠를 고를 때 맞춘다 (일반 쇼츠의 길이 칸을 건드리지 않게)
-    const sec = document.querySelector('.df-prod');
-    sec.addEventListener('input', () => pdShowErr(''));
+    drawLen();
+    setupLenCtl(lenIn);   // 막대/다이얼 모양의 길이 조절
+    // 숨은 길이 칸은 상품쇼츠를 고를 때 맞춘다 (일반 쇼츠의 길이 칸을 건드리지 않게)
+    const secs = document.querySelectorAll('.df-prod');
+    secs.forEach(sec => sec.addEventListener('input', () => pdShowErr('')));
     // 사람이 나오면 동의 확인 칸이 나타난다
-    sec.addEventListener('change', e => {
+    secs.forEach(sec => sec.addEventListener('change', e => {
       if (e.target.name === 'df-src') {
         const s = e.target.value, q = id => document.getElementById(id);
         q('df-src-write').classList.toggle('df-hide', s !== 'write');
@@ -3062,7 +3200,7 @@
       }
       if (e.target.name === 'df-seller') { const w = document.getElementById('df-seller-wrap'); if (w) { w.dataset.auto = ''; } }
       if (e.target.name === 'df-people') document.getElementById('df-prodConsent-wrap').classList.toggle('df-hide', e.target.value !== 'yes');
-    });
+    }));
     // 링크를 넣으면 판매 유형을 묻는다. 제휴 주소로 보이면 '제휴 링크'를 미리 골라 둔다
     const link = document.getElementById('df-prodLink'), wrap = document.getElementById('df-seller-wrap'), note = document.getElementById('df-seller-note');
     link.addEventListener('change', () => { const c = pdCleanUrl(link.value); if (c && c !== link.value.trim()) { link.value = c; link.dispatchEvent(new Event('input', { bubbles: true })); } });
@@ -3075,93 +3213,146 @@
       if (aff && a && !wrap.querySelector('input:checked')) { a.checked = true; wrap.dataset.auto = '1'; note.textContent = '제휴 주소로 보여서 골라 뒀어요. 맞는지 확인해 주세요.'; }
     });
   }
-  // ===== [상품쇼츠] PC 단계 안내 =====
-  // 상품쇼츠를 고른 PC 화면(너비 761px 이상)에서만 켜진다: 종류 → 사진·영상 → 목소리·자막 → 확인. 폰·다른 영상은 지금처럼 한 화면이다.
-  // 값이 비면 "다음"이 막히고 이유가 바로 위에 나온다. 이전 단계로 돌아가도 입력한 값은 그대로 남는다(화면을 지우지 않고 숨기기만 한다).
+  // ===== [상품쇼츠] 단계 안내 (필름 띠) =====
+  // 상품쇼츠를 고르면 PC·폰 모두 5단계로 한 단계씩 보여 준다: 종류 → 내용 → 화면·길이 → 소리 → 확인. 다른 영상은 지금처럼 한 화면이다.
+  // 필수 칸이 비면 "다음"이 막히고(눌러 보면 무엇이 비었는지 알려 준다), 마친 단계는 눌러서 돌아갈 수 있다. 입력한 값은 돌아가도 그대로 남는다(지우지 않고 숨기기만 한다).
+  // 앞 단계 값을 고쳐서 뒤 단계가 맞지 않게 되면 그 단계는 '다시 확인'으로 바뀌고, 고칠 때까지 뒤 단계로 갈 수 없다.
+  const PW_NAMES = ['종류', '내용', '화면·길이', '소리', '확인'];
+  const PW_TODO = ['어떤 영상을 만들지 골라 주세요', '제품 이름과 내용을 적어 주세요', '사진·영상과 길이를 정해 주세요', '목소리와 자막을 정해 주세요', '내용을 확인하고 신청해 주세요'];
+  const PW_ICON = ['M4 5h12v10H4z M7 5v10 M13 5v10 M4 8h3 M4 12h3 M13 8h3 M13 12h3', 'M4 16l1-4 8-8 3 3-8 8z M12 5l3 3', 'M3 4h14v12H3z M3 14l4-4 3 3 3-3 4 4 M13 7.5h.01', 'M4 8v4h3l4 3V5L7 8z M14 7a4 4 0 010 6', 'M4 10.5l4 4 8-9'];
+  const PW_OK = 'M4 10.5l4 4 8-9', PW_LOCK = 'M5 9h10v7H5z M7 9V7a3 3 0 016 0v2';
   function setupWizard(wrap, isMedia) {
     window.__pwRefresh = null; window.__pwGo = null;
     if (window.__pwResize) { window.removeEventListener('resize', window.__pwResize); window.__pwResize = null; }
     if (isMedia) return;
     const fields = document.getElementById('df-fields');
     if (!fields || !fields.parentNode) return;
-    const NAMES = ['종류', '사진·영상', '목소리·자막', '확인'];
     const bar = document.createElement('nav'); bar.className = 'pw-bar'; bar.setAttribute('aria-label', '진행 단계'); bar.hidden = true;
     fields.parentNode.insertBefore(bar, fields);
+    const hint = document.createElement('p'); hint.className = 'pw-hint'; hint.id = 'pw-hint'; hint.setAttribute('aria-live', 'polite'); hint.hidden = true;
+    fields.parentNode.insertBefore(hint, fields);
     const nav = document.createElement('div'); nav.className = 'pw-nav'; nav.hidden = true;
-    nav.innerHTML = '<p class="pw-err" role="alert"></p><button type="button" class="btn-line-sm pw-prev">이전</button><span class="pw-sp"></span><button type="button" class="btn-gold-sm pw-next"></button>';
+    nav.innerHTML = '<p class="pw-err" id="pw-err" role="alert"></p><button type="button" class="btn-line-sm pw-prev">이전</button><span class="pw-sp"></span><button type="button" class="btn-gold-sm pw-next" aria-describedby="pw-hint pw-err"></button>';
     const price = wrap.querySelector('.df-price');
     price.parentNode.insertBefore(nav, price);
     const review = document.createElement('section'); review.className = 'df-sec pw-review df-hide'; review.style.setProperty('--c', '#7bc58a');
     fields.appendChild(review);
-    const mq = window.matchMedia('(min-width: 761px)');
-    let step = 0;
-    const on = () => 현재종류() === '상품쇼츠' && mq.matches;
+    const agree0 = fields.querySelector('.pd-agree'); if (agree0) fields.appendChild(agree0);   // 요약 아래에 동의 칸이 오게 맨 뒤로 옮긴다
+    let step = 0, maxReached = 0;
+    const on = () => 현재종류() === '상품쇼츠';
     const typeSec = () => { const t = document.getElementById('df-types'); return t ? t.closest('.df-sec') : null; };
     const q = sel => fields.querySelector(sel);
-    const secs = () => [[typeSec()], [q('.df-prod'), q('.df-extra')], [q('.df-voicesec'), q('.df-gender')], [review]];   // 한 단계에 섹션이 둘 이상일 수 있다 (기존 옵션을 숨기지 않으려고)
-    const val = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
-    const showErr = (m, focusEl) => { nav.querySelector('.pw-err').textContent = m || ''; if (m && focusEl) focusEl.focus(); };
-
-    function checkProduct() { const r = readProduct(); return r.err ? [r.err, r.el] : ['', null]; }
+    const secs = () => [[typeSec()], [q('.pd-content'), q('.df-extra')], [q('.pd-media')], [q('.df-voicesec'), q('.df-gender')], [review, q('.pd-agree')]];   // 한 단계에 섹션이 둘 이상일 수 있다 (기존 옵션을 숨기지 않으려고)
+    const PARTS = { 1: 'content', 2: 'media', 4: 'agree' };
+    const showErr = (m, focusEl) => {
+      const box = nav.querySelector('.pw-err');
+      box.textContent = '';
+      if (m) setTimeout(() => { box.textContent = m; }, 30);   // 같은 문구를 다시 눌러도 스크린리더가 다시 읽도록 한 번 비운다
+      if (m && focusEl) pdShowErr(m, focusEl);   // 문제가 있는 칸 바로 아래에도 같은 설명을 보인다 (폰에서 화면 밖으로 밀리지 않게)
+      else pdShowErr('');
+    };
+    const probsOf = i => { const part = PARTS[i]; if (!part) return []; return readProduct({ mutate: false }).probs.filter(x => x.part === part); };
+    const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    // 이 단계로 갈 수 있나: 앞 단계가 모두 맞아야 하고, 한 번이라도 가 본 단계까지만
+    const stateOf = i => {
+      if (i === step) return 'cur';
+      if (i < step) return probsOf(i).length ? 'redo' : 'done';
+      if (i > maxReached) return 'todo';
+      for (let j = 0; j < i; j++) if (probsOf(j).length) return 'todo';
+      return probsOf(i).length ? 'redo' : 'done';
+    };
     function buildReview() {
-      const r = readProduct(); if (r.err) { review.innerHTML = '<p class="pw-note">' + r.err + '</p>'; return; }
+      const r = readProduct({ partial: true, mutate: false}); if (r.err) { review.innerHTML = '<p class="pw-note">' + esc(r.err) + '</p>'; return; }
       const d = r.data;
       const cap = window.RWVoice ? (RWVoice.captionPos() ? { '하단': '아래', '가운데': '가운데', '상단': '위' }[RWVoice.captionPos()] : '꺼짐') : '';
-      const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
       const row = (k, v, go) => `<div class="pw-row"><span class="pw-k">${k}</span><span class="pw-v">${esc(v)}</span><button type="button" class="pw-fix" data-go="${go}">고치기</button></div>`;
       const 설명 = pdSrcLabel(d);
       const 링크 = d.link ? (PD_SELLER_LABEL[d.seller] + ' · ' + d.link.slice(0, 50)) : '없음';
-      const 확인 = '사용 권리 확인함 · ' + (d.people ? '사람이 나오고 동의받음' : '사람은 안 나와요');
       const 광고 = (d.seller === 'affiliate' || (d.link && pdLooksAffiliate(d.link))) ? ' 제휴 링크라서 설명란 맨 앞과 고정 댓글에 광고 안내 문구가 들어가요. 유튜브에 올릴 때 "유료 프로모션 포함"도 체크해 주세요.' : (d.link ? ' 링크는 설명란과 고정 댓글에 들어가요.' : '');
-      review.innerHTML = `<div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg></span><div><h3 data-n="4">이대로 만들까요?</h3><p>고칠 곳이 있으면 "고치기"를 눌러 돌아가세요. 고른 내용은 그대로 남아 있어요</p></div></div>` +
-        row('제품', d.name, 1) + row('영상 길이', pdLenLabel(d.sec), 1) + row('사진·영상', pdMediaSummary(d), 1) + row('제품 내용', 설명, 1) + row('링크·판매', 링크, 1) + row('확인', 확인, 1) + (window.RWVoice ? row('목소리', RWVoice.summary(), 2) + row('자막 위치', cap, 2) : '') +
+      review.innerHTML = `<div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg></span><div><h3 data-n="5">이대로 만들까요?</h3><p>고칠 곳이 있으면 "고치기"를 눌러 돌아가세요. 고른 내용은 그대로 남아 있어요</p></div></div>` +
+        row('제품', d.name, 1) + row('제품 내용', 설명, 1) + row('링크·판매', 링크, 1) + row('사진·영상', pdMediaSummary(d), 2) + row('영상 길이', pdLenLabel(d.sec), 2) + (window.RWVoice ? row('목소리', RWVoice.summary(), 3) + row('자막 위치', cap, 3) : '') +
         `<p class="pw-note">AI 목소리가 들어간 영상은 유튜브에 올릴 때 "변경된 콘텐츠" 표시를 확인해 주세요.${esc(광고)}</p>`;
+    }
+    const filmIcon = d => `<svg viewBox="0 0 20 20" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg>`;
+    const TAG = { done: '마침', cur: '지금', todo: '잠김', redo: '다시 확인' };
+    // 띠는 한 번만 만들고, 이후에는 같은 버튼의 글자·모양만 바꾼다 (다시 만들면 누르는 중인 버튼이 사라져 첫 클릭이 씹힌다)
+    function drawBar() {
+      if (!bar.querySelector('.pw-frames')) {
+        const holes = '<div class="pw-holes" aria-hidden="true"></div>';
+        bar.innerHTML = holes + '<ol class="pw-frames">' + PW_NAMES.map((n, i) => `<li class="pw-fr"><button type="button" class="pw-st" data-go="${i}">${filmIcon('')}<b>${n}</b><small></small></button></li>`).join('') + '</ol>' + holes;
+      }
+      bar.querySelectorAll('.pw-fr').forEach((li, i) => {
+        const st = stateOf(i), btn = li.firstChild;
+        const ic = st === 'todo' ? PW_LOCK : st === 'done' ? PW_OK : PW_ICON[i];
+        const go = st === 'done' || st === 'redo';
+        const cls = 'pw-st ' + st; if (btn.className !== cls) { btn.className = cls; li.className = 'pw-fr ' + st; }
+        if (go || st === 'cur') { btn.removeAttribute('tabindex'); btn.removeAttribute('aria-disabled'); } else { btn.tabIndex = -1; btn.setAttribute('aria-disabled', 'true'); }
+        if (st === 'cur') btn.setAttribute('aria-current', 'step'); else btn.removeAttribute('aria-current');
+        const label = (i + 1) + '단계 ' + PW_NAMES[i] + ', ' + TAG[st]; if (btn.getAttribute('aria-label') !== label) btn.setAttribute('aria-label', label);
+        const path = btn.querySelector('path'); if (path.getAttribute('d') !== ic) path.setAttribute('d', ic);
+        const sm = btn.querySelector('small'); if (sm.textContent !== TAG[st]) sm.textContent = TAG[st];
+      });
+    }
+    // 남은 필수 항목을 세어 "다음" 버튼 위에 보여 준다. 칸에 입력할 때마다 갱신한다.
+    function drawHint() {
+      const pr = probsOf(step), labels = [...new Set(pr.map(x => x.label))];
+      const left = pr.length ? ` · <span class="pw-left">남은 필수 항목 ${labels.length}개: ${esc(labels.join(', '))}</span>` : (step > 0 && step < 4 ? ' · <span class="pw-fine">이 단계를 마쳤어요</span>' : '');
+      const html = `<b>${step + 1}단계</b> · ${PW_TODO[step]}${left}`;
+      if (hint.dataset.h !== html) { hint.dataset.h = html; hint.innerHTML = html; }
+      const next = nav.querySelector('.pw-next'), confirmBtn = document.getElementById('df-confirm');
+      const blocked = pr.length > 0;
+      next.setAttribute('aria-disabled', blocked ? 'true' : 'false'); next.classList.toggle('is-blocked', blocked);
+      if (confirmBtn) { if (step === 4) { confirmBtn.setAttribute('aria-disabled', blocked ? 'true' : 'false'); confirmBtn.classList.toggle('is-blocked', blocked); } else { confirmBtn.removeAttribute('aria-disabled'); confirmBtn.classList.remove('is-blocked'); } }
+      drawBar();
     }
     let wasActive = null;
     function render() {
       const active = on();
-      if (!active) step = 0;   // 종류를 바꿨다가 돌아오면 처음부터 (필수 항목 검사를 건너뛰지 않게)
-      if (active === wasActive && render.fromResize) return;   // 폭만 바뀌고 켜짐 상태가 같으면 다시 그리지 않는다
+      if (!active) { step = 0; maxReached = 0; }   // 종류를 바꿨다가 돌아오면 처음부터 (필수 항목 검사를 건너뛰지 않게)
       wasActive = active;
       fields.classList.toggle('pw-on', active);
-      bar.hidden = nav.hidden = !active;
+      bar.hidden = nav.hidden = hint.hidden = !active;
       review.classList.toggle('df-hide', !active);
       const confirmBtn = document.getElementById('df-confirm');
-      if (!active) { fields.querySelectorAll('.pw-cur').forEach(e => e.classList.remove('pw-cur')); if (confirmBtn) confirmBtn.style.display = ''; return; }
-      step = Math.max(0, Math.min(3, step));
+      if (!active) { fields.querySelectorAll('.pw-cur').forEach(e => e.classList.remove('pw-cur')); if (confirmBtn) { confirmBtn.style.display = ''; confirmBtn.removeAttribute('aria-disabled'); confirmBtn.classList.remove('is-blocked'); } return; }
+      step = Math.max(0, Math.min(4, step));
+      maxReached = Math.max(maxReached, step);
       const list = secs();
       list.forEach((grp, i) => grp.forEach((el, k) => { if (!el) return; el.classList.toggle('pw-cur', i === step); const h = el.querySelector('h3'); if (h) h.dataset.n = k === 0 ? String(i + 1) : ''; }));
-      if (step === 3) buildReview();
-      bar.innerHTML = NAMES.map((n, i) => {
-        const st = i < step ? 'done' : i === step ? 'cur' : 'todo';
-        const d = i < step ? '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg>' : String(i + 1);
-        return `<button type="button" class="pw-st ${st}" data-go="${i}" ${st === 'done' ? '' : 'tabindex="-1" aria-disabled="true"'} ${st === 'cur' ? 'aria-current="step"' : ''}><span class="d">${d}</span><span>${n}</span></button>` + (i < 3 ? `<span class="pw-line ${i < step ? 'done' : ''}"></span>` : '');
-      }).join('');
+      if (step === 4) buildReview();
       nav.querySelector('.pw-prev').style.visibility = step === 0 ? 'hidden' : '';
       const next = nav.querySelector('.pw-next');
-      next.style.display = step === 3 ? 'none' : '';
-      next.textContent = '다음: ' + NAMES[Math.min(step + 1, 3)];
-      if (confirmBtn) confirmBtn.style.display = step === 3 ? '' : 'none';
+      next.style.display = step === 4 ? 'none' : '';
+      next.textContent = '다음: ' + PW_NAMES[Math.min(step + 1, 4)];
+      if (confirmBtn) confirmBtn.style.display = step === 4 ? '' : 'none';
       showErr('');
+      drawHint();
     }
     function go(n, focus) {
-      step = n; render();
+      const from = step; step = n; render();
       const cur = secs()[step][0], h = cur && cur.querySelector('h3');
       if (focus && h) { h.tabIndex = -1; h.focus({ preventScroll: true }); }
       bar.scrollIntoView({ block: 'start' });
+      if (n > from) { bar.classList.remove('pw-adv'); void bar.offsetWidth; bar.classList.add('pw-adv'); setTimeout(() => bar.classList.remove('pw-adv'), 600); }   // 필름이 한 칸 감기는 움직임(움직임 줄이기 설정이면 CSS가 끈다)
     }
     nav.querySelector('.pw-next').addEventListener('click', () => {
-      if (step === 1) { const [m, el] = checkProduct(); if (m) { showErr(m, el); return; } }
+      const pr = probsOf(step);
+      if (pr.length) { showErr(pr[0].msg, pr[0].el); return; }
       go(step + 1, true);
     });
     nav.querySelector('.pw-prev').addEventListener('click', () => go(step - 1, true));
-    bar.addEventListener('click', e => { const b = e.target.closest('.pw-st.done'); if (b) go(parseInt(b.dataset.go, 10), true); });
+    bar.addEventListener('click', e => {
+      const b = e.target.closest('.pw-st'); if (!b) return;
+      if (b.classList.contains('done') || b.classList.contains('redo')) { go(parseInt(b.dataset.go, 10), true); return; }
+      if (b.classList.contains('todo')) showErr('앞 단계를 먼저 마쳐 주세요.');
+    });
     review.addEventListener('click', e => { const b = e.target.closest('.pw-fix'); if (b) go(parseInt(b.dataset.go, 10), true); });
-    fields.addEventListener('input', () => showErr(''));
+    let raf = 0;
+    const soon = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { if (!on()) return; showErr(''); drawHint(); if (step === 4) buildReview(); }); };
+    fields.addEventListener('input', soon);
+    fields.addEventListener('change', soon);
     window.__pwRefresh = render;
     window.__pwGo = go;
-    window.__pwResize = () => { render.fromResize = true; try { render(); } finally { render.fromResize = false; } };
-    window.addEventListener('resize', window.__pwResize);
     render();
   }
   function applyType() {
@@ -3512,7 +3703,7 @@
         const 상품 = 현재종류() === '상품쇼츠';
         if (상품) {
           const r = readProduct();
-          if (r.err) { if (window.__pwGo) window.__pwGo(1); pdShowErr(r.err, r.el); return; }
+          if (r.err) { if (window.__pwGo) window.__pwGo(r.part === 'content' ? 1 : r.part === 'media' ? 2 : 4); pdShowErr(r.err, r.el); return; }
           if (!PRODUCT_READY()) { alert('상품쇼츠는 곧 열려요. 지금은 준비하고 있어요.'); return; }
           const d = r.data;
           productExtra = d;   // 긴 글·주소는 상담 챗봇에 보내지 않고 따로 들고 있다가 접수 때 합친다
