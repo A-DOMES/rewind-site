@@ -161,6 +161,8 @@
   .pd-how { margin-top: 6px; font-size: .82rem; color: var(--ink-dim); }
   .pd-how summary { cursor: pointer; min-height: 32px; display: flex; align-items: center; color: var(--ink-dim); }
   .pd-how ol { margin: 4px 0 8px; padding-left: 20px; line-height: 1.7; }
+  .pd-srcbox { margin-top: 10px; }
+  .pd-src small { line-height: 1.4; }
   .pd-more { margin-top: 16px; border-top: 1px solid var(--line); padding-top: 4px; }
   .pd-more > summary { cursor: pointer; min-height: 48px; display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--ink); list-style: none; }
   .pd-more > summary::-webkit-details-marker { display: none; }
@@ -1371,7 +1373,7 @@
   savePlanMode();
 
   const FIELD_LABEL = {
-    topic: '주제', productLink: '제품 링크', productImageUrl: '제품 이미지', productImageCount: '제품 이미지', productMediaCount: '사진·영상', productSeller: '판매 유형', productInfoLen: '설명·후기', target: '타겟', form: '영상 형태', tempo: '말하기 속도',
+    topic: '주제', productLink: '제품 링크', productImageUrl: '제품 이미지', productImageCount: '제품 이미지', productMediaCount: '사진·영상', productSeller: '판매 유형', productInfoLen: '제품 내용', target: '타겟', form: '영상 형태', tempo: '말하기 속도',
     voiceGender: '목소리', voiceAge: '목소리 연령대', directorNote: '연출 메모', style: '연출 스타일', characterUse: '캐릭터 통일',
     driveLink: '드라이브 링크', mediaNote: '분위기 메모', voiceSummary: '목소리·자막',
     sceneCount: '장면 수', videoLength: '영상 길이', estimatedPrice: '필요 포인트', scriptTitle: '내 대본', yadamKind: '야담 방식', narration: '말', voiceUrl: '내 목소리 녹음', voiceTone: '목소리 기분', voiceSpeed: '읽는 속도', introSeconds: '인트로 영상', hookText: '화면 상단 문구',
@@ -2879,14 +2881,20 @@
       <div class="df-field"><label>사진·영상에 사람이 나오나요? <em class="req">*</em></label>
         <div class="df-chipset pd-two" role="radiogroup" aria-label="사람이 나오나요"><label><input type="radio" name="df-people" value="no"><span class="tcard"><b>아니요</b></span></label><label><input type="radio" name="df-people" value="yes"><span class="tcard"><b>네</b></span></label></div></div>
       <div class="df-field df-check df-hide" id="df-prodConsent-wrap"><label><input type="checkbox" id="df-prodConsent"><span>나온 분(미성년자는 보호자)에게 영상 제작·게시 동의를 받았어요 <em class="req">*</em></span></label></div>
-      <details class="pd-more" id="df-prodMore"><summary>더 정확하게 만들기 <span class="opt">선택</span></summary>
-        <div class="df-field"><label>상품 설명·후기 <span class="opt">선택 · 3000자</span></label><textarea id="df-prodInfo" maxlength="3000" placeholder="상품 설명이나 실제 후기를 붙여넣어 주세요"></textarea>
-          <div class="pd-note"><b>후기를 붙여넣으면 좋은 이유</b><br>· 실제 사용한 사람의 이야기가 들어가 영상이 더 믿음직해져요<br>· 광고 같지 않고 "나도 그래" 하는 공감이 생겨요<br>· 후기는 그대로 옮기지 않고 요지만 풀어서 써요<br><br>후기가 없어도 괜찮아요. 링크가 있으면 상품 페이지를 읽고, 없으면 제품의 특징이 일상에서 어떤 이점이 되는지 중심으로 써요. 실제 후기만 붙여넣어 주세요. 붙여넣은 글에 없는 후기·수치·가격은 영상에 넣지 않아요.</div></div>
-        <div class="df-field"><label>제품 링크 <span class="opt">선택</span></label><input type="url" id="df-prodLink" placeholder="https://..."><p class="df-hint">영상 설명란과 고정 댓글에 들어가요. 쇼츠 화면에는 누르는 버튼이 없어요.</p></div>
-        <div class="df-field df-hide" id="df-seller-wrap"><label>판매 유형 <em class="req">*</em></label>
-          <div class="df-chipset pd-seller" role="radiogroup" aria-label="판매 유형">${seller('own', '내 제품', '내가 만들었거나 직접 파는 제품')}${seller('affiliate', '제휴 링크', '구매되면 수수료를 받아요 · 설명란에 광고 안내가 들어가요')}${seller('none', '소개만', '수수료 없이 링크만 알려요')}</div>
-          <p class="df-hint" id="df-seller-note"></p></div>
-      </details>
+      <div class="df-field"><label>제품 내용 <em class="req">*</em> <span class="opt">대본에 쓸 자료예요 · 하나를 골라 주세요</span></label>
+        <div class="df-chipset pd-seller pd-src" role="radiogroup" aria-label="제품 내용 넣는 방법">
+          <label><input type="radio" name="df-src" value="write"><span class="tcard"><b>직접 쓰기</b><small>설명·후기 붙여넣기 · 가장 정확</small></span></label>
+          <label><input type="radio" name="df-src" value="link"><span class="tcard"><b>링크로 읽기</b><small>상품 페이지를 읽어요</small></span></label>
+          <label><input type="radio" name="df-src" value="name"><span class="tcard"><b>이름만으로</b><small>인터넷 검색 · 정확도 낮음</small></span></label>
+        </div>
+        <div class="pd-srcbox df-hide" id="df-src-write"><textarea id="df-prodInfo" maxlength="3000" placeholder="상품 설명이나 실제 후기를 붙여넣어 주세요 (3000자까지)"></textarea>
+          <div class="pd-note"><b>후기를 붙여넣으면 좋은 이유</b><br>· 실제 사용한 사람의 이야기가 들어가 영상이 더 믿음직해져요<br>· 광고 같지 않고 "나도 그래" 하는 공감이 생겨요<br>· 후기는 그대로 옮기지 않고 요지만 풀어서 써요<br><br>후기가 없으면 제품 설명만 넣어도 돼요. 실제 후기만 붙여넣어 주세요. 붙여넣은 글에 없는 후기·수치·가격은 영상에 넣지 않아요.</div></div>
+        <p class="df-hint df-hide" id="df-src-link-note">아래 제품 링크를 꼭 넣어 주세요. 상품 페이지에 있는 설명을 읽어서 써요.</p>
+        <p class="df-hint df-hide" id="df-src-name-note">제품 이름으로 인터넷을 검색해 자료를 모아요. 이름이 흔하지 않으면 다른 제품 정보가 섞일 수 있어서, 가능하면 "직접 쓰기"나 "링크로 읽기"를 권해요.</p></div>
+      <div class="df-field"><label>제품 링크 <em class="req df-hide" id="df-prodLink-req">*</em> <span class="opt" id="df-prodLink-opt">선택 · 영상 설명란과 고정 댓글에 들어가요</span></label><input type="url" id="df-prodLink" placeholder="https://..."><p class="df-hint">쇼츠 화면에는 누르는 버튼이 없어요.</p></div>
+      <div class="df-field df-hide" id="df-seller-wrap"><label>판매 유형 <em class="req">*</em></label>
+        <div class="df-chipset pd-seller" role="radiogroup" aria-label="판매 유형">${seller('own', '내 제품', '내가 만들었거나 직접 파는 제품')}${seller('affiliate', '제휴 링크', '구매되면 수수료를 받아요 · 설명란에 광고 안내가 들어가요')}${seller('none', '소개만', '수수료 없이 링크만 알려요')}</div>
+        <p class="df-hint" id="df-seller-note"></p></div>
     </section>`;
   }
   // 입력 화면의 값을 읽어 접수 서버와 같은 규칙으로 검사한다. { err, el } 또는 { data } 를 돌려준다.
@@ -2920,17 +2928,22 @@
     if (!pe) return bad('사진·영상에 사람이 나오는지 골라 주세요.', document.querySelector('input[name="df-people"]'));
     const people = pe.value === 'yes';
     if (people && !g('df-prodConsent').checked) return bad('나온 분의 동의 확인에 체크해 주세요.', g('df-prodConsent'));
+    const srcSel = document.querySelector('input[name="df-src"]:checked');
+    if (!srcSel) return bad('제품 내용을 어떻게 넣을지 골라 주세요. (직접 쓰기 / 링크로 읽기 / 이름만으로)', document.querySelector('input[name="df-src"]'));
+    const src = srcSel.value;
+    if (src === 'write' && v('df-prodInfo').length < 10) return bad('설명이나 후기를 적어 주세요. 없으면 "링크로 읽기"나 "이름만으로"를 골라 주세요.', g('df-prodInfo'));
     const link = pdCleanUrl(v('df-prodLink')); if (link && g('df-prodLink').value.trim() !== link) g('df-prodLink').value = link;
+    if (src === 'link' && !link) return bad('"링크로 읽기"를 고르셨어요. 제품 링크를 넣어 주세요.', g('df-prodLink'));
     let seller = '';
     if (link) {
-      const p = pdUrlProblem(link, 'link'); if (p) { g('df-prodMore').open = true; return bad('제품 링크: ' + p, g('df-prodLink')); }
+      const p = pdUrlProblem(link, 'link'); if (p) { return bad('제품 링크: ' + p, g('df-prodLink')); }
       const sel = document.querySelector('input[name="df-seller"]:checked');
-      if (!sel) { g('df-prodMore').open = true; return bad('판매 유형(내 제품 / 제휴 링크 / 소개만)을 골라 주세요.', document.querySelector('input[name="df-seller"]')); }
+      if (!sel) { return bad('판매 유형(내 제품 / 제휴 링크 / 소개만)을 골라 주세요.', document.querySelector('input[name="df-seller"]')); }
       seller = sel.value;
-      if (seller === 'own' && pdLooksAffiliate(link)) { g('df-prodMore').open = true; return bad('제휴(수수료) 링크로 보여요. 내 제품이라면 내 사이트·판매 페이지 주소를 넣어 주세요. 다른 회사 제품이면 "제휴 링크"를 골라 주세요.', document.querySelector('input[name="df-seller"]')); }
+      if (seller === 'own' && pdLooksAffiliate(link)) { return bad('제휴(수수료) 링크로 보여요. 내 제품이라면 내 사이트·판매 페이지 주소를 넣어 주세요. 다른 회사 제품이면 "제휴 링크"를 골라 주세요.', document.querySelector('input[name="df-seller"]')); }
     }
     const sec = pdSnapLen(v('df-prodLen'));
-    return { data: { name, sec, media, info: v('df-prodInfo').slice(0, 3000), link, seller, rights: true, people, consent: people } };
+    return { data: { name, sec, media, src, info: src === 'write' ? v('df-prodInfo').slice(0, 3000) : '', link, seller, rights: true, people, consent: people } };
   }
   // 오류 문구는 문제가 있는 칸 바로 아래에 붙인다 (폰에서 화면 밖으로 밀리지 않게)
   function pdShowErr(msg, el) {
@@ -2950,6 +2963,7 @@
     answers.videoLength = String(Math.round(d.sec / 60 * 1000) / 1000);   // 챗봇이 길이를 바꿔 돌려줘도 고른 길이로 고정
     delete answers.videoType; delete answers.tier; answers.thumbnail = 'FALSE';
   }
+  function pdSrcLabel(d) { return d.src === 'write' ? '직접 씀 (' + d.info.length + '자)' : d.src === 'link' ? '링크의 상품 페이지를 읽어요' : '이름만으로 검색 (정확도가 낮을 수 있어요)'; }
   function pdLenLabel(sec) { return sec < 60 ? sec + '초' : (sec % 60 ? Math.floor(sec / 60) + '분 ' + (sec % 60) + '초' : (sec / 60) + '분'); }
   function pdMediaSummary(d) {
     const im = d.media.filter(m => m.type === 'image').length, vi = d.media.length - im;
@@ -3036,6 +3050,16 @@
     sec.addEventListener('input', () => pdShowErr(''));
     // 사람이 나오면 동의 확인 칸이 나타난다
     sec.addEventListener('change', e => {
+      if (e.target.name === 'df-src') {
+        const s = e.target.value, q = id => document.getElementById(id);
+        q('df-src-write').classList.toggle('df-hide', s !== 'write');
+        q('df-src-link-note').classList.toggle('df-hide', s !== 'link');
+        q('df-src-name-note').classList.toggle('df-hide', s !== 'name');
+        q('df-prodLink-req').classList.toggle('df-hide', s !== 'link');
+        q('df-prodLink-opt').textContent = s === 'link' ? '필수 · 영상 설명란과 고정 댓글에도 들어가요' : '선택 · 영상 설명란과 고정 댓글에 들어가요';
+        if (s === 'write') q('df-prodInfo').focus();
+        if (s === 'link') q('df-prodLink').focus();
+      }
       if (e.target.name === 'df-seller') { const w = document.getElementById('df-seller-wrap'); if (w) { w.dataset.auto = ''; } }
       if (e.target.name === 'df-people') document.getElementById('df-prodConsent-wrap').classList.toggle('df-hide', e.target.value !== 'yes');
     });
@@ -3085,12 +3109,12 @@
       const cap = window.RWVoice ? (RWVoice.captionPos() ? { '하단': '아래', '가운데': '가운데', '상단': '위' }[RWVoice.captionPos()] : '꺼짐') : '';
       const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
       const row = (k, v, go) => `<div class="pw-row"><span class="pw-k">${k}</span><span class="pw-v">${esc(v)}</span><button type="button" class="pw-fix" data-go="${go}">고치기</button></div>`;
-      const 설명 = d.info ? '붙여넣음 (' + d.info.length + '자)' : (d.link ? '없음 · 링크의 상품 페이지를 읽어요' : '없음 · 제품의 특징 중심으로 써요');
+      const 설명 = pdSrcLabel(d);
       const 링크 = d.link ? (PD_SELLER_LABEL[d.seller] + ' · ' + d.link.slice(0, 50)) : '없음';
       const 확인 = '사용 권리 확인함 · ' + (d.people ? '사람이 나오고 동의받음' : '사람은 안 나와요');
       const 광고 = (d.seller === 'affiliate' || (d.link && pdLooksAffiliate(d.link))) ? ' 제휴 링크라서 설명란 맨 앞과 고정 댓글에 광고 안내 문구가 들어가요. 유튜브에 올릴 때 "유료 프로모션 포함"도 체크해 주세요.' : (d.link ? ' 링크는 설명란과 고정 댓글에 들어가요.' : '');
       review.innerHTML = `<div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg></span><div><h3 data-n="4">이대로 만들까요?</h3><p>고칠 곳이 있으면 "고치기"를 눌러 돌아가세요. 고른 내용은 그대로 남아 있어요</p></div></div>` +
-        row('제품', d.name, 1) + row('영상 길이', pdLenLabel(d.sec), 1) + row('사진·영상', pdMediaSummary(d), 1) + row('설명·후기', 설명, 1) + row('링크·판매', 링크, 1) + row('확인', 확인, 1) + (window.RWVoice ? row('목소리', RWVoice.summary(), 2) + row('자막 위치', cap, 2) : '') +
+        row('제품', d.name, 1) + row('영상 길이', pdLenLabel(d.sec), 1) + row('사진·영상', pdMediaSummary(d), 1) + row('제품 내용', 설명, 1) + row('링크·판매', 링크, 1) + row('확인', 확인, 1) + (window.RWVoice ? row('목소리', RWVoice.summary(), 2) + row('자막 위치', cap, 2) : '') +
         `<p class="pw-note">AI 목소리가 들어간 영상은 유튜브에 올릴 때 "변경된 콘텐츠" 표시를 확인해 주세요.${esc(광고)}</p>`;
     }
     let wasActive = null;
@@ -3494,7 +3518,7 @@
           productExtra = d;   // 긴 글·주소는 상담 챗봇에 보내지 않고 따로 들고 있다가 접수 때 합친다
           answers = { topic: d.name, form: '쇼츠', productShort: true, productMediaCount: pdMediaSummary(d), productImageUrl: d.media[0].url, productLink: d.link || '없음' };
           if (d.link) answers.productSeller = PD_SELLER_LABEL[d.seller];
-          answers.productInfoLen = d.info ? '붙여넣음 (' + d.info.length + '자)' : '없음';
+          answers.productInfoLen = pdSrcLabel(d);
           answers.videoLength = String(Math.round(d.sec / 60 * 1000) / 1000);   // 분 (15초 단위)
           if (window.RWVoice && RWVoice.value()) { answers.voice = RWVoice.value(); answers.voiceSummary = RWVoice.summary(); }   // 목소리·자막 카드 값 (접수 v3.26 body.voice)
         } else {
