@@ -2851,6 +2851,14 @@
   function pdLooksAffiliate(raw) {
     try { const u = new URL(String(raw || '').trim()); const h = u.hostname.toLowerCase().replace(/\.+$/, ''); return PD_AFF_HOST.test(h) || PD_AFF_QUERY.some(k => [...u.searchParams.keys()].some(x => x.toLowerCase() === k)); } catch (e) { return false; }
   }
+  // 공유 문구처럼 글이 섞여 붙여넣어져도 그 안의 https 주소만 쓴다. https:// 가 빠진 주소는 붙여 준다
+  function pdCleanUrl(raw) {
+    const t = String(raw || '').trim(); if (!t) return '';
+    const m = t.match(/https?:\/\/[^\s<>"'\u201c\u201d\u2018\u2019]+/i);
+    if (m) return m[0].replace(/[)\].,;!?]+$/, '');
+    if (!/\s/.test(t) && /^[\w.-]+\.[a-z]{2,}(\/|$)/i.test(t)) return 'https://' + t;
+    return t;
+  }
   const pdIsDrive = v => /^https:\/\/(drive|docs)\.google\.com\//i.test(v);
   const pdGuessType = v => /\.(mp4|mov|webm|m4v)(\?|#|$)/i.test(v) ? 'video' : /\.(jpe?g|png|webp|gif|avif)(\?|#|$)/i.test(v) ? 'image' : '';
   function pimgCardHtml() {
@@ -2891,7 +2899,7 @@
     const cards = [...document.querySelectorAll('#df-pimgs .pimg-card')];
     const media = [], seen = new Set();
     for (let i = 0; i < cards.length; i++) {
-      const c = cards[i], inp = c.querySelector('.pimg-url'), url = inp.value.trim();
+      const c = cards[i], inp = c.querySelector('.pimg-url'), url = pdCleanUrl(inp.value); if (url && url !== inp.value.trim()) inp.value = url;
       if (!url) continue;
       const n = media.length + 1, label = (i + 1) + '번째 ';
       const p = pdUrlProblem(url, 'media'); if (p) return bad(label + p, inp);
@@ -2912,7 +2920,7 @@
     if (!pe) return bad('사진·영상에 사람이 나오는지 골라 주세요.', document.querySelector('input[name="df-people"]'));
     const people = pe.value === 'yes';
     if (people && !g('df-prodConsent').checked) return bad('나온 분의 동의 확인에 체크해 주세요.', g('df-prodConsent'));
-    const link = v('df-prodLink');
+    const link = pdCleanUrl(v('df-prodLink')); if (link && g('df-prodLink').value.trim() !== link) g('df-prodLink').value = link;
     let seller = '';
     if (link) {
       const p = pdUrlProblem(link, 'link'); if (p) { g('df-prodMore').open = true; return bad('제품 링크: ' + p, g('df-prodLink')); }
@@ -2993,6 +3001,10 @@
       const g = pdGuessType(inp.value.trim()); if (g && g !== card.dataset.type && !card.dataset.manual) setType(card, g);
       timers.set(card, setTimeout(() => preview(card), 400));
     });
+    list.addEventListener('change', e => {
+      const inp = e.target.closest('.pimg-url'); if (!inp) return;
+      const c = pdCleanUrl(inp.value); if (c && c !== inp.value.trim()) { inp.value = c; inp.dispatchEvent(new Event('input', { bubbles: true })); }
+    });
     list.addEventListener('click', e => {
       const tb = e.target.closest('.pm-type button'); if (tb) { const c = tb.closest('.pimg-card'); c.dataset.manual = '1'; setType(c, tb.dataset.t); return; }
       const del = e.target.closest('.pimg-del');
@@ -3029,8 +3041,9 @@
     });
     // 링크를 넣으면 판매 유형을 묻는다. 제휴 주소로 보이면 '제휴 링크'를 미리 골라 둔다
     const link = document.getElementById('df-prodLink'), wrap = document.getElementById('df-seller-wrap'), note = document.getElementById('df-seller-note');
+    link.addEventListener('change', () => { const c = pdCleanUrl(link.value); if (c && c !== link.value.trim()) { link.value = c; link.dispatchEvent(new Event('input', { bubbles: true })); } });
     link.addEventListener('input', () => {
-      const t = link.value.trim(), ok = /^https:\/\//i.test(t);
+      const t = pdCleanUrl(link.value), ok = /^https:\/\//i.test(t);
       wrap.classList.toggle('df-hide', !ok);
       note.textContent = '';
       const aff = ok && pdLooksAffiliate(t), a = wrap.querySelector('input[value="affiliate"]');
