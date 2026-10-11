@@ -1309,6 +1309,8 @@ document.addEventListener('click',function(e){var b=e.target.closest('[data-ex]'
 document.addEventListener('paste',function(e){
   var t=e.target;var txt=(e.clipboardData||window.clipboardData).getData('text');if(!txt)return;
   if(t.id==='pasteBox'||t.id==='q'||t.id==='rq'||t.id==='ttl'||t.id==='rwreq')return;
+  if(t&&t.closest&&t.closest('#brief'))return;   /* 요청문 칸(주제·말투 등)에 붙여넣은 글은 대본으로 가져오지 않는다 */
+  if(cfg.blank&&t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.tagName==='SELECT'||t.isContentEditable))return;
   if(cfg.blank){e.preventDefault();importText(txt,'replace');return}
   if(t.tagName==='TEXTAREA'&&txt.length>=600){e.preventDefault();pendingPaste=txt;$('pbnote').textContent='긴 글('+txt.replace(/\s/g,'').length.toLocaleString('ko-KR')+'자)이 붙여넣어졌어요. 형식은 자동으로 맞춰서 넣을게요.';$('pbar').classList.add('show');$('scrim').classList.add('show')}
 });
