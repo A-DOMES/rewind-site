@@ -867,6 +867,7 @@ h4 b{color:var(--amber);font-size:1rem;margin-left:0}
 (function(){
 var $=function(i){return document.getElementById(i)};
 var PACE=350;
+var GEN_MAX={'쇼츠':1080,'롱폼':3600},GEN_MIN=50;   /* [일반 영상 대본] 접수 서버(v3.36)의 한도와 같은 값: 쇼츠 3분 · 롱폼 10분 */
 var RATE={long:{base:6000,per:900},short:{base:3000,per:7000}};
 var REWRITE={long:200,short:100};
 var BALANCE0=100000, balance=BALANCE0;
@@ -886,8 +887,10 @@ function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;
 function P(n){return Math.round(n).toLocaleString('ko-KR')+'P'}
 function sgn(n){return (n>0?'+':n<0?'−':'')+Math.abs(Math.round(n)).toLocaleString('ko-KR')+'P'}
 function mask(txt){return showPts?txt:'••••P'}
-function chars(t){return t.replace(/\s/g,'').length}
-function total(){return ch.reduce(function(a,c){return a+(c.off?0:chars(c.text))},0)}
+function chars(t){return cfg.kind==='gen'?t.replace(/\r/g,'').trim().length:t.replace(/\s/g,'').length}
+/* 일반 영상 대본의 총 글자 수 = 접수 서버가 세는 방식(장 사이 빈 줄 포함) */
+function genCount(){var a=ch.filter(function(c){return !c.off}).map(function(c){return String(c.text||'').replace(/\r/g,'').replace(/\n{3,}/g,'\n\n').trim()}).filter(Boolean);return a.join('\n\n').length}
+function total(){if(cfg.kind==='gen')return genCount();return ch.reduce(function(a,c){return a+(c.off?0:chars(c.text))},0)}
 function minutes(){return total()/PACE}
 /* [인트로] 장은 분이 아니라 초로 보여 준다 (1초 약 PACE/60자) */
 function isIntro(c){return /^\s*\[?\s*인트로\s*\]?\s*$/.test(c.title||'')}
@@ -948,8 +951,10 @@ EX.plain=(function(){var p='박 서방은 새벽 일찍 길을 나섰습니다. 
 
 /* ---------- 초기화 ---------- */
 function init(o){
-  cfg.kind=o.kind==='mood'?'mood':'yadam';
-  cfg.type=(o.type==='short'||cfg.kind==='mood')?'short':'long';
+  cfg.kind=o.kind==='mood'?'mood':(o.kind==='gen'?'gen':'yadam');
+  cfg.form=o.form==='롱폼'?'롱폼':'쇼츠';   /* 일반 영상(gen)의 형태 */
+  PACE=cfg.kind==='gen'?360:350;
+  cfg.type=cfg.kind==='gen'?(cfg.form==='쇼츠'?'short':'long'):((o.type==='short'||cfg.kind==='mood')?'short':'long');
   cfg.src=o.src==='mine'?'mine':'ai';
   cfg.mode=o.mode==='review'?'review':'pre';
   cfg.lite=!!o.lite&&o.lite!=='0';document.documentElement.classList.toggle('lite',cfg.lite); /* lite: 내 대본만 쓰는 실사용판 — AI 기능·포인트 표시 숨김 */
@@ -977,7 +982,7 @@ function init(o){
   $('fcopych').style.display=short?'none':'';
   $('bRw').textContent=short?'전체 다시 쓰기':'이 챕터 다시 쓰기';
   $('approve').textContent=cfg.mode==='review'?'이 대본으로 승인하고 제작':'이 대본으로 확정';
-  $('subinfo').textContent=(short?'숏폼':'롱폼(야담)')+' · '+(cfg.src==='ai'?'AI가 쓴 대본':'내 대본');
+  $('subinfo').textContent=(cfg.kind==='gen'?cfg.form:(short?'숏폼':'롱폼(야담)'))+' · '+(cfg.src==='ai'?'AI가 쓴 대본':'내 대본');
   $('fpick').style.display=window.showSaveFilePicker?'':'none';
   renderAll();upUR();
   document.querySelectorAll('.dv').forEach(function(b){b.classList.toggle('on',b.dataset.d===cfg.type+'-'+cfg.src)});
@@ -1074,6 +1079,11 @@ function stats(){
   $('mLen').textContent=n?'약 '+fmtLen(m):'비어 있어요';
   $('mPt').textContent=hasT&&n&&!ok?(m<cfg.target?'목표보다 짧아요':'목표보다 길어요'):(n?mask(P(prod)):'');
   $('approve').disabled=!n;
+  if(cfg.kind==='gen'){
+    var gmax=GEN_MAX[cfg.form],gover=n>gmax,gshort=n>0&&n<GEN_MIN;
+    $('ptsLbl').textContent='영상 제작 요금';$('pts').textContent='신청할 때 안내';$('mPt').textContent='';
+    if(gover||gshort){v.className='verdict bad';v.textContent=gover?cfg.form+' 대본은 약 '+Math.round(gmax/360*10)/10+'분('+gmax.toLocaleString('ko-KR')+'자)까지예요. '+(n-gmax).toLocaleString('ko-KR')+'자 줄여 주세요.':'대본이 너무 짧아요 ('+GEN_MIN+'자 이상 필요해요).';$('approve').disabled=true}
+  }
   return {n:n,m:m,ok:ok,prod:prod,base:base,hasT:hasT};
 }
 $('eye').onclick=function(){showPts=!showPts;try{localStorage.setItem('ls_pts',showPts?'1':'0')}catch(e){}stats();syncRwBtn();toast(showPts?'포인트를 보여드릴게요':'포인트를 숨겼어요. 승인과 다시 쓰기 전에는 항상 보여드려요')};
@@ -1466,10 +1476,11 @@ function copyText(txt,b){
 }
 /* ---------- 만들 영상 종류별 입력 + 요청문 ---------- */
 var B={};
+var TONES=['정보를 쉽게 전달','친근하게 설명','감성적으로','유쾌하게','진지하게','박진감 있게'];
 var MOODS=['무서운','따뜻한','반전 있는','슬픈','해학·웃음'],OCCS=['생일','감사','응원','위로','기념일','그리움','승진','출산','결혼','졸업','부고·추모'];
 var OCC_TONE={'생일':'기쁘고 밝게','감사':'따뜻하게','응원':'힘차고 활기차게','위로':'차분하고 다정하게','기념일':'따뜻하고 기쁘게','그리움':'차분하고 그리움이 묻어나게','승진':'기쁘고 자랑스럽게','출산':'기쁘고 설레는 마음으로','결혼':'기쁘고 축복하는 마음으로','졸업':'뿌듯하고 기쁘게','부고·추모':'정중하고 절제된 말투로, 슬픔을 과장하지 않고 차분하게'};
 function occName(){return B.occ==='직접'?(B.occCustom||'').trim():B.occ}
-function resetBrief(){B={topic:'',mood:'',min:10,intro:10,to:'',from:'',occ:'',occCustom:'',rel:'',info:'',msg:'',sec:60}}
+function resetBrief(){B={topic:'',mood:'',tone:'',min:(cfg.kind==='gen'?(cfg.form==='롱폼'?5:10):10),intro:10,to:'',from:'',occ:'',occCustom:'',rel:'',info:'',msg:'',sec:60}}
 function stp(k,val,unit,note){return '<div class="stp"><button type="button" data-st="'+k+':-1" aria-label="줄이기">−</button><b>'+val+unit+'</b><button type="button" data-st="'+k+':1" aria-label="늘리기">＋</button>'+(note?'<small>'+note+'</small>':'')+'</div>'}
 function chips(list,k,cur){return '<div class="chips">'+list.map(function(x){return '<button type="button" data-ch="'+k+':'+x+'" class="'+(cur===x?'on':'')+'" aria-pressed="'+(cur===x)+'">'+x+'</button>'}).join('')+'</div>'}
 var LAB_ICO={
@@ -1502,6 +1513,14 @@ function renderBrief(){
     $('briefHead').innerHTML='<span class="bh-o">칸을 채우고(몰라도 돼요) 요청문을 복사해 쓰시는 AI에 보내세요.</span><span class="bh-a">칸을 채우면(몰라도 돼요) 그대로 영상 편지 글을 써 드려요. 비워 두면 AI가 알아서 골라요.</span>';
     $('askSteps').innerHTML='<b>1</b> 요청문을 복사해 AI에 붙여넣어요. 길이는 따로 적지 않아도 돼요.<br><b>2</b> AI가 써 준 글을 <b>붙여넣기·파일</b> 탭의 칸에 붙여넣어요.<br><b>3</b> 읽기 좋게 자동으로 정리되고, 확정하면 보관함에 저장돼요.';
     $('copyAsk').textContent='영상 편지 요청문 복사';
+  }else if(cfg.kind==='gen'){
+    var lg=cfg.form==='롱폼';
+    h='<div class="f"><label for="brTopic">주제 <small>예: 통돌이 세탁기 고르는 법</small></label><input type="text" id="brTopic" data-b="topic" value="'+esc(B.topic)+'" maxlength="120" placeholder="무엇에 대한 영상인가요?"></div>'+
+      '<div class="f"><label>말투 <small>고르지 않으면 AI가 알아서</small></label>'+chips(TONES,'tone',B.tone)+'</div>'+
+      '<div class="f"><label>길이</label>'+(lg?stp('min',B.min,'분','약 '+Math.round(B.min*360).toLocaleString('ko-KR')+'자'):stp('sec',B.sec,'초','약 '+Math.round(B.sec*6)+'자'))+'</div>';
+    $('briefHead').innerHTML='<span class="bh-o">칸을 채우고(몰라도 돼요) 요청문을 복사해 쓰시는 AI에 보내세요.</span><span class="bh-a">칸을 채우면 그대로 '+cfg.form+' 대본을 써 드려요. 한 줄 주제만 있어도 돼요.</span>';
+    $('askSteps').innerHTML='<b>1</b> 요청문을 복사해 AI에 붙여넣어요. 길이와 주제는 이미 들어 있어요.<br><b>2</b> AI가 써 준 글을 <b>붙여넣기·파일</b> 탭의 칸에 붙여넣어요.<br><b>3</b> 읽기 좋게 자동으로 정리해 드려요. 고쳐서 확정하세요.';
+    $('copyAsk').textContent=cfg.form+' 대본 요청문 복사';
   }else{
     h='<div class="f"><label for="brTopic">주제 <small>비우면 AI가 골라요</small></label><input type="text" id="brTopic" data-b="topic" value="'+esc(B.topic)+'" maxlength="120" placeholder="예: 효심 깊은 나무꾼과 호랑이"></div>'+
       '<div class="f"><label>분위기 <small>고르지 않으면 AI가 알아서</small></label>'+chips(MOODS,'mood',B.mood)+'</div>'+
@@ -1534,6 +1553,8 @@ function buildAsk(full){
     var who=memo?'- 고인: '+(B.to.trim()||'고인(성함을 쓰지 말고 "고인"으로)')+(B.rel.trim()?' (보내는 사람의 '+B.rel.trim()+')':''):'- 받는 사람: '+(B.to.trim()||'받는 분(이름을 모르니 "당신" 같은 호칭으로)');
     return (memo?'부고 안내 또는 추모 영상에 쓸 낭독 대본을 써 주세요. 가족과 지인이 영상을 보며 목소리로 듣게 될 글이에요.':'영상 편지에 쓸 낭독 대본을 써 주세요. 받는 분이 영상을 보며 목소리로 듣게 될 글이에요.')+'\n\n이번 요청:\n'+who+'\n- 보내는 사람: '+(B.from.trim()||'보내는 사람(이름을 쓰지 말고 "저"로)')+'\n- 어떤 날: '+(oc||'어울리는 상황을 AI가 알아서 정해 주세요')+'\n- 말투: '+tone+(memo&&B.info.trim()?'\n- 알릴 내용(그대로만 쓰세요): '+B.info.trim():'')+'\n- 전하고 싶은 말: '+(B.msg.trim()||'따로 없어요. 진심이 느껴지게 자연스럽게 써 주세요')+'\n- 길이: '+B.sec+'초 (1초는 공백을 뺀 약 6자예요. 30초는 약 180자, 60초는 약 360자, 90초는 약 540자예요)\n\n규칙:\n- 글 외의 말은 쓰지 마세요. 인사, 설명, "원하시면 ~" 같은 후속 제안 없이 대본만 출력하세요.\n- 첫 줄에 제목 한 줄만 쓰고, 한 줄을 띄운 뒤 본문을 시작하세요.\n- '+(memo?'보내는 사람이 직접 전하는 1인칭으로, 정중하고 절제된 문장으로 쓰세요. 과장된 슬픔이나 화려한 표현은 쓰지 마세요.':'보내는 사람이 직접 말하는 1인칭으로, 받는 사람을 부르며 시작하세요.')+'\n- 짧은 문장으로, 소리 내어 읽기 좋게 쓰세요. 지문, 효과음 설명, 괄호 설명, 화자 표시는 쓰지 마세요.\n- 굵은 글씨, 별표, 구분선(---), 이모지, 목록 기호는 쓰지 마세요.\n- 제가 말하지 않은 구체적인 사실(날짜, 장소, 사건, 이름)은 지어내지 마세요.'+(memo?'\n- 일시·장소는 위 "알릴 내용"에 적힌 것만 정확히 그대로 쓰고, 없으면 쓰지 마세요.':'')
   }
+  if(cfg.kind==='gen'){var 분=cfg.form==='롱폼'?B.min:Math.round(B.sec/60*100)/100,자=Math.round(분*360);
+    return (cfg.form==='롱폼'?'롱폼':'쇼츠')+' 영상의 나레이션 대본을 써 주세요.\n\n규칙:\n- 영상에서 목소리로 읽을 글만 써요. 장면 설명, 괄호 지시문, 이모지, 해시태그, 제목, 번호는 쓰지 않아요.\n- 첫 문장은 시청자가 계속 보고 싶어지는 한 줄로 시작해요. "안녕하세요 여러분" 같은 인사로 시작하지 않아요.\n- 문장은 짧게, 한 문장에 한 가지 내용만 담아요.\n- 사실이 확실하지 않은 수치·후기·"1위"·"최저가"·"완치" 같은 과장·가격·의료 표현은 쓰지 않아요.\n- 문단은 빈 줄로 나눠요.\n- 길이는 공백 포함 약 '+자+'자(약 '+(분<1?Math.round(분*60)+'초':(Math.round(분*10)/10)+'분')+')로 맞춰요.\n\n이번 요청:\n- 주제: '+(B.topic.trim()||'따로 없어요. 직접 골라 주세요')+'\n- 말투: '+(B.tone||'AI가 알아서 정해 주세요')}
   var base=(full?ASK_FULL:ASK_TEXT).replace(/\n\n마지막에 제가[\s\S]*$/,'');
   return base+'\n\n이번 요청:\n- 주제: '+(B.topic.trim()||'따로 없어요. 직접 골라 주세요')+'\n- 분위기: '+(B.mood||'AI가 알아서 정해 주세요')+'\n- 길이: '+B.min+'분'+(full?'\n- 인트로: '+B.intro+'초':'')
 }
@@ -1542,9 +1563,9 @@ $('brief').addEventListener('click',function(e){
   var b=e.target.closest('button');if(!b)return;
   if(b.dataset.ch){var p=b.dataset.ch.split(':'),k=p[0],v=p.slice(1).join(':');B[k]=B[k]===v?'':v;renderBrief()}
   if(b.dataset.st){var q=b.dataset.st.split(':'),d=+q[1];
-    if(q[0]==='min'){var L=[1,2,3,5,10,15,20,30,45,60,90,120,180],i=L.indexOf(B.min);B.min=L[Math.min(L.length-1,Math.max(0,i+d))]}
+    if(q[0]==='min'){var L=cfg.kind==='gen'?[2,3,5,7,10]:[1,2,3,5,10,15,20,30,45,60,90,120,180],i=L.indexOf(B.min);B.min=L[Math.min(L.length-1,Math.max(0,i+d))]}
     if(q[0]==='intro')B.intro=Math.min(60,Math.max(5,B.intro+5*d));
-    if(q[0]==='sec')B.sec=Math.min(180,Math.max(15,B.sec+15*d));
+    if(q[0]==='sec')B.sec=Math.min(180,Math.max(15,B.sec+15*d));   /* 쇼츠 대본은 최대 3분(180초) */
     renderBrief()}
 });
 $('copyAsk').onclick=function(){copyText(buildAsk(false),this)};
@@ -1554,17 +1575,18 @@ $('copyIntro').onclick=function(){copyText(INTRO_TEXT,this)};
 /* ---------- AI로 쓰기 (로그인한 직접 설정하기 화면 안에서만 열린다) ---------- */
 var AI_PM=0.3,AI_MIN_P=3,AI_PART=5,AI_MAX_MIN=30,AI_TRIAL_MIN=3;
 function aiCtx(){var a=null;try{a=window.parent&&window.parent!==window?window.parent.__rwAI:null}catch(e){}return inFrame&&a&&typeof a.token==='function'&&a.token()?a:null}
-function aiMinutes(){return cfg.kind==='mood'?Math.max(0.25,Math.round(B.sec/60*100)/100):B.min}
+function aiMinutes(){return cfg.kind==='mood'||(cfg.kind==='gen'&&cfg.form==='쇼츠')?Math.max(0.25,Math.round(B.sec/60*100)/100):B.min}
 function aiParts(M){if(M<=6)return[M];var n=Math.ceil(M/AI_PART),m=Math.round(M/n*10)/10,a=[];for(var i=0;i<n-1;i++)a.push(m);a.push(Math.round((M-m*(n-1))*10)/10);return a}
 function aiPrice(parts){var t=0;parts.forEach(function(m,i){var p=Math.round(m*AI_PM*10)/10;t+=i===0?Math.max(AI_MIN_P,p):p});return Math.round(t*10)/10}
 function aiRefresh(){
   var a=aiCtx(),tab=$('aiTab');
   $('dz').classList.toggle('noai',!a);
   var note=$('aiTabNote');if(note)note.hidden=!!a;
-  $('aiIntroWrap').style.display=cfg.kind==='mood'?'none':'inline-flex';
+  $('aiIntroWrap').style.display=(cfg.kind==='mood'||cfg.kind==='gen')?'none':'inline-flex';
   if(!a)return;
   var M=aiMinutes(),parts=aiParts(M),price=aiPrice(parts),paid=a.mode()==='paid',have=a.balance?a.balance():null,bad='';
   if(!paid&&M>AI_TRIAL_MIN)bad='체험은 '+AI_TRIAL_MIN+'분까지 쓸 수 있어요. 길이를 줄이거나 정식 모드로 바꿔 주세요.';
+  else if(cfg.kind==='gen'&&M>6)bad='AI로 쓰기는 6분까지예요. 더 긴 대본은 직접 쓰거나 붙여넣어 주세요.';
   else if(M>AI_MAX_MIN)bad='AI로 쓰기는 '+AI_MAX_MIN+'분까지 쓸 수 있어요. 더 긴 대본은 다른 AI로 쓰기를 이용해 주세요.';
   else if(have!==null&&have<price)bad=(paid?'충전':'체험')+' 포인트가 부족해요. 필요 '+price+'P / 보유 '+have+'P';
   $('aiEst').innerHTML='<span class="lab">예상 지출 포인트 :</span><b class="val">'+price+'P</b><span class="meta">'+(paid?'충전 포인트':'체험 포인트')+'에서 써요'+(have!==null?' (보유 '+have+'P)':'')+' · 분당 '+AI_PM+'P, 최소 '+AI_MIN_P+'P · '+(parts.length>1?'실패한 조각은 차감되지 않아요':'쓰기에 실패하면 차감되지 않아요')+'</span>'+(parts.length>1?'<span class="meta">길어서 '+parts.length+'번에 나눠 써요. 한 번에 30초쯤 걸려요.</span>':'')+(bad?'<span class="meta warn">'+bad+'</span>':'');
@@ -1573,7 +1595,7 @@ function aiRefresh(){
 var aiBusy=false,aiStop=false;
 function aiAsk(i,parts,withIntro,plot,tail){
   var M=B.min,m=parts[i],n=parts.length,save=B.min,p;
-  if(cfg.kind==='mood'||n===1){return buildAsk(cfg.kind==='yadam'&&withIntro)}
+  if(cfg.kind==='mood'||cfg.kind==='gen'||n===1){return buildAsk(cfg.kind==='yadam'&&withIntro)}
   B.min=m;
   try{
     if(i===0){p=buildAsk(withIntro)+'\n\n[여러 번에 나눠 쓰기] 이 대본은 모두 '+M+'분짜리인데, 지금은 첫 부분 '+m+'분만 쓰세요. 끝맺지 말고 이야기가 한창 이어지는 곳에서 멈추세요. 본문은 [1막] 줄로 시작하세요(인트로가 있으면 인트로 다음에). 맨 마지막 줄에 "###줄거리: "로 시작해 결말까지의 전체 줄거리를 3~4문장으로 적으세요. 이 줄은 화면에 나오지 않아요.'}
@@ -1662,7 +1684,7 @@ $('okrights').onchange=function(){$('okyes').disabled=!this.checked};
 $('okno').onclick=closeAll;
 $('okyes').onclick=function(){
   var s=stats();closeAll();
-  tell({type:cfg.mode==='review'?'rw-studio-approve':'rw-script-confirm',scriptId:'S-'+Date.now().toString(36),title:title,kind:cfg.kind,occ:cfg.kind==='mood'?occName():'',type2:cfg.type,src:cfg.src,imported:imported,chapters:ch.filter(function(c){return !c.off}).map(function(c){return{title:c.title,text:c.text}}),chars:s.n,minutes:Math.round(s.m*10)/10,prod:s.prod});
+  tell({type:cfg.mode==='review'?'rw-studio-approve':'rw-script-confirm',scriptId:'S-'+Date.now().toString(36),title:title,kind:cfg.kind,form:cfg.kind==='gen'?cfg.form:'',occ:cfg.kind==='mood'?occName():'',type2:cfg.type,src:cfg.src,imported:imported,chapters:ch.filter(function(c){return !c.off}).map(function(c){return{title:c.title,text:c.text}}),chars:s.n,minutes:Math.round(s.m*10)/10,prod:s.prod});
   toast(inFrame?'대본을 확정했어요':'시안 화면이라 실제로 확정되지는 않아요');
 };
 
@@ -1684,7 +1706,7 @@ document.addEventListener('keydown',function(e){
 /* ---------- 시작 ---------- */
 (function(){
   var u={};try{new URLSearchParams(location.search).forEach(function(v,k){u[k]=v})}catch(e){}
-  init({type:u.type||'long',kind:u.kind,src:u.src||'ai',mode:u.mode||'pre',lite:u.lite,target:u.target?+u.target:0});
+  init({type:u.type||'long',kind:u.kind,form:u.form,src:u.src||'ai',mode:u.mode||'pre',lite:u.lite,target:u.target?+u.target:0});
   applyRail();syncRwBtn();
 })();
 var _stats=stats;stats=function(){var r=_stats();syncRwBtn();return r};

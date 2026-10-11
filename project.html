@@ -962,7 +962,7 @@
       // 최종 관문(Queue처리) - 대본+장면 다 보여주되, 읽기 전용(수정 저장 없음)
       card.innerHTML = `
         <h3>최종 확인이에요</h3>
-        <p class="sub">대본과 장면 구성이 이렇게 확정돼요. 승인하시면 정식 영상 제작(가장 비용이 큰 단계)이 시작돼요. 마음에 안 드시면 처음부터 다시 만들 수 있어요.</p>
+        <p class="sub">대본과 장면 구성이 이렇게 확정돼요. 승인하시면 정식 영상 제작(가장 비용이 큰 단계)이 시작돼요. 마음에 안 드시면 ${p.ownScript ? '같은 대본으로 장면을 다시 만들 수 있어요. (대본은 그대로예요)' : '처음부터 다시 만들 수 있어요.'}</p>
         <div class="review-field">
           <label>제목</label>
           <div class="review-scenes">${reviewEscapeHtml(p.title)}</div>
@@ -977,7 +977,7 @@
           <div class="review-scenes">${reviewEscapeHtml(p.scenesPreview)}</div>
         </div>` : ''}
         <div class="review-actions">
-          ${재작성가능 ? '<button class="rv-retry" id="rv-retry">↻ 처음부터 다시 만들어줘</button>' : ''}
+          ${재작성가능 ? `<button class="rv-retry" id="rv-retry">${p.ownScript ? '↻ 같은 대본으로 장면 다시 만들기' : '↻ 처음부터 다시 만들어줘'}</button>` : ''}
           <button class="rv-approve" id="rv-approve">✓ 이대로 정식 제작 시작</button>
         </div>
         ${재작성가능 ? '' : '<p class="review-status" style="color:var(--ink-faint);">이미 한 번 다시 만들어보셨어요 - 이번엔 이대로 승인해주세요.</p>'}
@@ -1001,7 +1001,7 @@
     document.getElementById('rv-approve').addEventListener('click', () => submitReview('approve'));
     document.getElementById('rv-save')?.addEventListener('click', () => submitReview('edit_save'));
     document.getElementById('rv-retry')?.addEventListener('click', () => {
-      if (confirm('지금 내용을 버리고 처음부터 다시 만들까요? 이번 프로젝트에서 딱 한 번만 가능하고, 되돌릴 수 없어요.')) submitReview('retry_script');
+      if (confirm(p.ownScript ? '쓰신 대본은 그대로 두고 장면 구성만 처음부터 다시 만들까요? 이번 프로젝트에서 딱 한 번만 가능하고, 되돌릴 수 없어요.' : '지금 내용을 버리고 처음부터 다시 만들까요? 이번 프로젝트에서 딱 한 번만 가능하고, 되돌릴 수 없어요.')) submitReview('retry_script');
     });
   }
 
@@ -1063,7 +1063,7 @@
       submitReview('approve');
     });
     document.getElementById('rv-retry')?.addEventListener('click', () => {
-      if (confirm('지금 내용을 버리고 처음부터 다시 만들까요? 이번 프로젝트에서 딱 한 번만 가능하고, 되돌릴 수 없어요.')) submitReview('retry_script');
+      if (confirm(p.ownScript ? '쓰신 대본은 그대로 두고 장면 구성만 처음부터 다시 만들까요? 이번 프로젝트에서 딱 한 번만 가능하고, 되돌릴 수 없어요.' : '지금 내용을 버리고 처음부터 다시 만들까요? 이번 프로젝트에서 딱 한 번만 가능하고, 되돌릴 수 없어요.')) submitReview('retry_script');
     });
     document.getElementById('sv-use')?.addEventListener('click', () => chooseAltScript());
     document.getElementById('rv-alt')?.addEventListener('click', () => openAltBox(남은));
@@ -1203,7 +1203,7 @@
       status.className = 'review-status ok';
       if (action === 'edit_save') { 대본고치는중 = false; 대본화면서명 = ''; }
       if (action === 'retry_script') {
-        addAgentMsg('bot', '대본을 처음부터 다시 만들고 있어요! 5분 정도 기다려주시면, 새 대본이 뜰 거예요. 이 프로젝트에서는 재작성을 한 번만 쓸 수 있어서, 이번이 마지막 기회였어요 - 다음엔 이대로 승인하시거나 직접 수정해주셔야 해요.');
+        addAgentMsg('bot', (currentProject && currentProject.ownScript) ? '쓰신 대본 그대로 장면 구성을 다시 만들고 있어요! 5분 정도 기다려주시면, 새 장면 구성이 뜰 거예요. 이 프로젝트에서는 다시 만들기를 한 번만 쓸 수 있어서, 이번이 마지막 기회였어요 - 다음엔 이대로 승인해주셔야 해요.' : '대본을 처음부터 다시 만들고 있어요! 5분 정도 기다려주시면, 새 대본이 뜰 거예요. 이 프로젝트에서는 재작성을 한 번만 쓸 수 있어서, 이번이 마지막 기회였어요 - 다음엔 이대로 승인하시거나 직접 수정해주셔야 해요.');
       }
       setTimeout(() => loadProject(currentIdToken), 1200); // 최신 상태로 새로고침
     } catch (e) {

@@ -421,6 +421,8 @@
   .sc-card .sc-opts button[aria-pressed=true]{border-color:var(--amber);color:var(--amber);background:var(--amber-wash)}
   .sc-card .sc-act{align-self:flex-start;border:1px solid var(--amber);background:transparent;color:var(--amber);border-radius:999px;padding:8px 18px;font:inherit;font-weight:600;cursor:pointer}
   .sc-card.ready{border-color:var(--amber)}
+  #df-len-chips.gn-lk{pointer-events:none;opacity:.45}
+  #df-videoLength.gn-lk{opacity:.6;cursor:not-allowed}
   .sc-card .sc-hint{align-self:flex-start;border:0;background:var(--amber-wash);color:var(--amber);border-radius:10px;padding:9px 14px;font:inherit;font-size:.86rem;font-weight:600;cursor:pointer;text-align:left}
   .sh-steps{margin:0;padding:0;list-style:none;display:grid;gap:8px;counter-reset:st}
   .sh-steps li{counter-increment:st;display:flex;gap:10px;align-items:flex-start;font-size:.9rem;color:var(--ink)}
@@ -1625,7 +1627,7 @@
     if (planMode !== 'paid') {
       const 체험길이 = (() => { const li = document.getElementById('df-videoLength'), f = document.getElementById('df-form'); const v = li && parseFloat(li.value) > 0 ? parseFloat(li.value) : defaultLen(f && f.value === '롱폼' ? '롱폼' : '쇼츠'); return v; })();
       const 체험가 = trialPriceShort(체험길이);
-      const 부족2 = pointLine(체험가); priceBox.innerHTML = `<div class="amt" id="df-price-amt"><span class="lab">예상 지출 포인트 :</span> <b class="val">${pt(체험가)}</b></div><p>이미지 중심의 3분 길이 영상으로 만들어져요</p>${/short/.test(부족2) ? 부족2 : ''}`;
+      const 부족2 = pointLine(체험가); priceBox.innerHTML = `<div class="amt" id="df-price-amt"><span class="lab">예상 지출 포인트 :</span> <b class="val">${pt(체험가)}</b></div><p>이미지 중심의 ${window.__rwGenScript ? lenLabel(Math.min(체험길이, 3)) : '3분'} 길이 영상으로 만들어져요</p>${/short/.test(부족2) ? 부족2 : ''}`;
       return;
     }
     const form = document.getElementById('df-form');
@@ -1825,6 +1827,7 @@
       if (data.mode) mode = data.mode;
       if (data.collected) Object.assign(answers, data.collected);
       if (answers.productShort && productExtra) pinProduct();   // 상품쇼츠는 챗봇이 돌려준 값이 아니라 입력 화면의 값을 따른다
+      if (answers.genScriptId) pinGen();   // 내 대본으로 만든 일반 영상은 챗봇이 돌려준 형태·길이·제목이 아니라 대본의 값을 따른다
       // [신규] 정식 모드는 영상 길이·영상 제작 방식까지 골라야 필수 항목이 채워진 것 (선택 버튼이 떠 있는 동안 '진행하기' 버튼을 띄우지 않음)
       const 선택대기 = Array.isArray(data.choices) && data.choices.length > 0;
       const 필수충족 = !선택대기 && (mode === 'media' ? !!(answers.driveLink && answers.form)
@@ -2007,7 +2010,7 @@
     // [요금] 챗봇이 알려준 값 대신 화면에서 같은 공식으로 다시 계산한다 (서버도 접수할 때 한 번 더 계산)
     견적다시계산();
     const rows = Object.keys(answers)
-      .filter(k => answers[k] && k !== 'thumbnail' && k !== 'musicRights' && k !== 'scriptId' && !(k === 'estimatedPrice' && planMode !== 'paid'))
+      .filter(k => answers[k] && k !== 'thumbnail' && k !== 'musicRights' && k !== 'scriptId' && k !== 'genScriptId' && !(k === 'estimatedPrice' && planMode !== 'paid'))
       .filter(k => !((k === 'productLink' || k === 'productImageUrl') && !/^https?:\/\//i.test(String(answers[k]))))
       .filter(k => !['productImages', 'productShort', 'imageRights', 'affiliateNotice', 'disclosureCaption', 'voice'].includes(k) && !(k === 'productImageUrl' && answers.productShort))
       .map(k => `<div class="summary-row"><span class="k">${FIELD_LABEL[k] || k}</span><span class="v">${k === 'characterUse' ? (answers[k] ? '예' : '아니오') : k === 'videoLength' && answers.productShort ? lenLabel(parseFloat(answers[k])) : k === 'estimatedPrice' && !isNaN(Number(answers[k])) ? Number(answers[k]).toLocaleString('ko-KR') + 'P' : k === 'videoLength' && answers.videoType ? (parseFloat(answers[k]) < 30 && answers.videoType === '수면음악' ? lenLabel(parseFloat(answers[k])) : hourLabel(parseFloat(answers[k]))) : k === 'videoType' ? kindName(answers[k]) : k === 'yadamKind' ? (answers[k] === 'long' ? '인트로 영상 + 긴 이야기' : '그림이 자주 바뀌는 야담') : k === 'introSeconds' ? (answers[k] + '초') : k === 'soundMode' ? (소리이름[answers[k]] || answers[k]) : escapeHtml(String(answers[k])).slice(0, 60)}</span></div>`)
@@ -2068,6 +2071,10 @@
     if (확인버튼) 확인버튼.textContent = '접수하고 있어요…';
     const status = document.getElementById('form-status');
     status.textContent = ''; status.className = 'form-status';
+    if (answers.genScriptId && !answers.videoType && !answers.productShort) {   // 새로고침 직후에도 대본을 보관함에서 읽은 뒤, 형태·길이를 대본에 맞춰 둔다
+      await new Promise(r => { if (window.__rwLoadLib) window.__rwLoadLib(r); else r(); });
+      pinGen();
+    }
     const profile = decodeJwt(googleIdToken);
     const payload = { name: (profile && profile.name) || '', contact: (profile && profile.email) || '', idToken: googleIdToken, termsConsent: true, mode: mode || 'topic', planMode };
 
@@ -2154,6 +2161,17 @@
       }
       payload.script = { title: 보관.title || answers.scriptTitle || '', chapters: 보관.chapters.map(c => ({ title: String(c.title || ''), text: String(c.text || '') })) };
     }
+    // [내 대본·일반 영상] 쇼츠·롱폼 대본도 제작을 시작하는 이때만 서버로 보낸다
+    if (answers.genScriptId && !answers.videoType && !answers.productShort) {
+      await new Promise(r => { if (window.__rwLoadLib) window.__rwLoadLib(r); else r(); });   // 새로고침 뒤에도 보관함에서 다시 찾는다
+      const 보관 = (window.__rwGenLib ? window.__rwGenLib() : []).find(x => x.id === answers.genScriptId);
+      if (!보관 || !보관.chapters || !보관.chapters.length) {
+        status.textContent = '선택한 대본을 보관함에서 찾지 못했어요. 대본을 다시 불러와 주세요.'; status.className = 'form-status err';
+        접수중 = false; 버튼들.forEach(b => { b.disabled = false; }); if (확인버튼) 확인버튼.textContent = 원래문구;
+        return;
+      }
+      payload.script = { title: 보관.title || answers.scriptTitle || '', chapters: 보관.chapters.map(c => ({ title: String(c.title || ''), text: String(c.text || '') })) };
+    }
     if (planMode !== 'paid') payload.trialPrice = 신청체험가();
 
     const 필요P = planMode === 'paid' ? Number(answers.estimatedPrice) : 신청체험가();
@@ -2170,6 +2188,7 @@
       const data = await res.json().catch(() => null);
       if (!res.ok || (data && data.ok === false)) throw new Error((data && data.message) || '요청이 거부됐어요.');
       clearChatState();
+      window.__rwGenScript = null;
       window.__rwScript = null; // 보낸 대본은 서버에서 제작 뒤 지워진다. 화면에 선택 상태는 남기지 않음
       addMsg('bot', '접수됐어요! 지금 만들어지는 과정을 바로 보여드릴게요.');
       composer.innerHTML = '';
@@ -2610,7 +2629,7 @@
   // 챗봇으로 만든 일반 영상 신청은 칸이 없으니 answers 의 값을 새 단계 화면의 칸에 채워서 연다 (신청 데이터는 칸에서 다시 읽어 만든다)
   let dfRender = 0, answersFormRender = -1, answersFormSig = '', stampPending = false;
   // 신청 내용이 단계 화면 칸에서 나왔음을 기록한다(검증을 통과해 answers 가 새로 만들어진 뒤에만). 그 뒤 챗봇이 값을 바꾸면 서명이 달라져 칸을 다시 채운다
-  const SIG_KEYS = ['topic','form','style','directorNote','hookText','characterUse','productLink','productImageUrl','target','voiceGender','voiceAge','tempo','videoLength','sceneCount','motion','thumbnail','layout','captionPos','videoType'];
+  const SIG_KEYS = ['topic','form','style','directorNote','hookText','characterUse','productLink','productImageUrl','target','voiceGender','voiceAge','tempo','videoLength','sceneCount','motion','thumbnail','layout','captionPos','videoType','genScriptId'];
   const sigOf = a => JSON.stringify(SIG_KEYS.map(k => a[k] === undefined ? null : a[k]));
   function stampForm() { answersFormRender = dfRender; answersFormSig = sigOf(answers); }
   function fillGeneralForm(a) {
@@ -2633,6 +2652,7 @@
     if (a.sceneCount) setVal('df-sceneCount', a.sceneCount);
     if (planMode === 'paid') { radio('df-motion', a.motion); const th = g('df-thumbnail'); if (th && !th.disabled) { th.checked = /^(true|예|네|응|yes|y|1|원해요|만들어)/i.test(String(a.thumbnail ?? '').trim()); fire(th, 'change'); } }
     radio('df-layout', a.layout); radio('df-captionPos', a.captionPos);
+    if (a.genScriptId && window.__rwPickGen) window.__rwPickGen(a.genScriptId);   // 내 대본으로 만든 신청이면 대본 카드도 되살리고 길이를 대본에 맞춘다
     updatePrice(); if (window.__pwRefresh) window.__pwRefresh();
   }
   window.__rwFillFromAnswers = fillGeneralForm;
@@ -2807,6 +2827,8 @@
 
   // ===== 영상 종류(일반 / 수면음악 / 야담) 선택 - 직접 설정하기 =====
   window.__rwGoYadam = function () { dfPreType = '야담'; showDirectForm(); };
+  window.__rwGoGen = function (form) { dfPreType = '일반'; dfPreForm = form === '롱폼' ? '롱폼' : '쇼츠'; showDirectForm(); setTimeout(() => { if (window.__pwGo && window.__pwOn && window.__pwOn()) window.__pwGo(1, true); }, 80); };   // 쇼츠·롱폼 대본으로 바로 만들기 (내용 단계로)
+  let dfPreForm = null;
   if (NARRATION_READY) window.__rwGoMood = function () { dfPreType = '수면음악'; dfPreNar = '목소리'; showDirectForm(); };   // 분위기 영상 대본으로 바로 만들기 (직접 설정하기가 아직 안 열려 있어도 동작)
   let dfPreNar = null;
   let dfPreType = null; // 챗봇에서 "수면음악 만들고 싶어요" 하면 직접 설정하기를 이 종류로 열어준다
@@ -3216,7 +3238,19 @@
     const add = (part, label, msg, el) => probs.push({ part, label, msg, el });
     const http = s => /^https?:\/\/\S+$/i.test(s);
     const topic = v('df-topic');
-    if (!topic) add('content', '주제', '어떤 영상인지 주제를 적어 주세요.', g('df-topic'));
+    const form = (g('df-form') && g('df-form').value) || '쇼츠';
+    // 내 대본(대본 만들기에서 쓴 쇼츠·롱폼 대본): 보관함에서 다시 찾아 검사한다. 있으면 주제는 비워도 된다
+    const gsel = window.__rwGenScript || null;
+    const script = gsel ? (window.__rwGenLib ? window.__rwGenLib() : []).find(x => x.id === gsel.id && x.chapters && x.chapters.length) || null : null;
+    if (gsel && !script) add('content', '내 대본', '선택한 대본을 이 브라우저 보관함에서 찾지 못했어요. 대본을 다시 불러와 주세요.', g('df-gen-script-card'));
+    else if (script && script.form !== form) add('content', '내 대본', '이 대본은 ' + script.form + '용이에요. 영상 형태를 ' + script.form + '로 바꾸거나 대본을 빼 주세요.', g('df-gen-script-card'));
+    else if (script) {
+      const n = (window.__rwGenChars ? window.__rwGenChars(script) : Number(script.chars)) || 0, lim = planMode === 'paid' ? (form === '롱폼' ? 3600 : 1080) : 1080;
+      if (planMode !== 'paid' && n > 1080) add('content', '내 대본', '체험판은 대본 약 3분(1,080자)까지 만들 수 있어요. 지금 ' + n.toLocaleString('ko-KR') + '자예요. 대본을 줄이거나 정식 모드로 신청해 주세요.', g('df-gen-script-card'));
+      else if (n > lim) add('content', '내 대본', form + ' 대본은 ' + lim.toLocaleString('ko-KR') + '자까지예요. 지금 ' + n.toLocaleString('ko-KR') + '자예요.', g('df-gen-script-card'));
+      else if (planMode === 'paid' && motionOf(현재움직임() === '자동' ? '혼합' : 현재움직임()) === '모두 영상' && n > 1500) add('screen', '영상 제작 방식', '"모두 영상"은 지금 대본 약 4분(1,500자)까지 만들 수 있어요. 이 대본은 ' + n.toLocaleString('ko-KR') + '자예요. "혼합"이나 "이미지 중심"을 고르거나 대본을 줄여 주세요. 더 긴 모두 영상은 곧 지원해요.', g('df-motion'));
+    }
+    if (!topic && !script && !gsel) add('content', '주제', '어떤 영상인지 주제를 적어 주세요.', g('df-topic'));
     const link = v('df-productLink');
     if (link && !http(link)) add('content', '제품 링크', '제품 링크는 http:// 또는 https:// 로 시작해야 해요. 주소창의 주소를 그대로 붙여 넣어 주세요.', g('df-productLink'));
     const img = v('df-productImageUrl');
@@ -3225,9 +3259,8 @@
     if (len && !(parseFloat(len) > 0)) add('screen', '영상 길이', '영상 길이는 0보다 큰 숫자(분)로 넣어 주세요. 비워 두면 기본 길이로 만들어요.', g('df-videoLength'));
     const sc = v('df-sceneCount');
     if (sc && !(parseInt(sc, 10) >= 1)) add('screen', '장면 수', '장면 수는 1 이상의 숫자로 넣어 주세요. 비워 두면 AI가 정해요.', g('df-sceneCount'));
-    const form = (g('df-form') && g('df-form').value) || '쇼츠';
     const first = probs[0];
-    return { probs, err: first ? first.msg : '', el: first ? first.el : null, part: first ? first.part : '', data: { form, topic, link, img, len, sc } };
+    return { probs, err: first ? first.msg : '', el: first ? first.el : null, part: first ? first.part : '', data: { form, topic, link, img, len, sc, script } };
   }
   function readProduct(opt) {
     opt = opt || {};
@@ -3315,6 +3348,15 @@
     answers.topic = d.name; answers.form = '쇼츠'; answers.productLink = d.link || '없음';
     answers.videoLength = String(Math.round(d.sec / 60 * 1000) / 1000);   // 챗봇이 길이를 바꿔 돌려줘도 고른 길이로 고정
     delete answers.videoType; delete answers.tier; answers.thumbnail = 'FALSE';
+  }
+  let genPin = null;   // 입력 화면에서 고른 주제·제작 방식 (챗봇이 바꿔 돌려줘도 이 값을 따른다)
+  function pinGen() {
+    const x = (window.__rwGenLib ? window.__rwGenLib() : []).find(y => y.id === answers.genScriptId); if (!x) return;
+    answers.form = x.form === '롱폼' ? '롱폼' : '쇼츠'; answers.scriptTitle = x.title;
+    answers.topic = (genPin && genPin.topic) || x.title;
+    if (genPin && genPin.motion && planMode === 'paid') answers.motion = genPin.motion;
+    if (window.__rwGenMin) answers.videoLength = String(window.__rwGenMin(x));
+    delete answers.videoType; delete answers.tier;
   }
   function pdSrcLabel(d) { return d.src === 'write' ? '직접 씀 (' + d.info.length + '자)' : d.src === 'link' ? '링크의 상품 페이지를 읽어요' : '이름만으로 검색 (정확도가 낮을 수 있어요)'; }
   function pdLenLabel(sec) { return sec < 60 ? sec + '초' : (sec % 60 ? Math.floor(sec / 60) + '분 ' + (sec % 60) + '초' : (sec / 60) + '분'); }
@@ -3588,7 +3630,7 @@
     const typeSec = () => { const t = document.getElementById('df-types'); return t ? t.closest('.df-sec') : null; };
     const q = sel => fields.querySelector(sel);
     const secsGn = () => [[typeSec(), gnForm()], [q('.gn-content'), q('.gn-link'), q('.gn-img'), q('.df-extra')], [q('.gn-screen')], [q('.df-voicesec'), q('.df-gender')], [q('.gn-style'), q('.gn-thumb')], [review]];
-    const secsLong = () => [[typeSec()], [q('.sc-card'), q('.gn-content'), q(MO() ? '.df-sleep' : '.df-yadam')], [q(MO() ? '.df-sleep' : '.df-yadam')], [q(MO() ? '.df-sleep' : '.df-yadam'), q('.df-voicesec')], [review]];   // 같은 카드(.df-sleep/.df-yadam)가 2·3·4단계에 모두 들어가고, 안의 블록은 data-pw 로 단계별로 나뉜다
+    const secsLong = () => [[typeSec()], [q('.sc-card:not(.gn-script)'), q('.gn-content'), q(MO() ? '.df-sleep' : '.df-yadam')], [q(MO() ? '.df-sleep' : '.df-yadam')], [q(MO() ? '.df-sleep' : '.df-yadam'), q('.df-voicesec')], [review]];   // 같은 카드(.df-sleep/.df-yadam)가 2·3·4단계에 모두 들어가고, 안의 블록은 data-pw 로 단계별로 나뉜다
     const secs = () => LONGK() ? secsLong() : GN() ? secsGn() : [[typeSec()], [q('.pd-content'), q('.df-extra')], [q('.pd-media')], [q('.df-voicesec'), q('.df-gender')], [q('.pd-style')], [review, q('.pd-agree')]];   // 한 단계에 섹션이 둘 이상일 수 있다 (기존 옵션을 숨기지 않으려고)
     const PARTS_PD = { 1: 'content', 2: 'media', 4: 'style', 5: 'agree' }, PARTS_GN = { 1: 'content', 2: 'screen', 4: 'style' }, PARTS_MO = { 1: 'content', 3: 'sound' }, PARTS_YD = { 1: 'content', 2: 'screen' };
     const partsOf = () => MO() ? PARTS_MO : YD() ? PARTS_YD : GN() ? PARTS_GN : PARTS_PD;
@@ -3648,7 +3690,7 @@
       const 썸네일 = paid ? (document.getElementById('df-thumbnail')?.checked ? 'AI 썸네일 3장 함께 만들기' : '만들지 않음') : '체험판은 제공하지 않아요';
       const 광고 = d.link && pdLooksAffiliate(d.link) ? ' 제휴 링크라서 설명란 맨 앞에 광고 안내 문구가 들어가요. 유튜브에 올릴 때 "유료 프로모션 포함"도 체크해 주세요.' : '';
       review.innerHTML = `<div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg></span><div><h3 data-n="${LAST + 1}">이대로 만들까요?</h3><p>고칠 곳이 있으면 "고치기"를 눌러 그 단계로 돌아가세요</p></div></div>` +
-        row('영상 형태', 롱폼 ? '롱폼 · 가로 16:9' : '쇼츠 · 세로 9:16', 0) + row('주제', d.topic || '아직 비어 있어요', 1) +
+        row('영상 형태', 롱폼 ? '롱폼 · 가로 16:9' : '쇼츠 · 세로 9:16', 0) + (d.script ? row('내 대본', d.script.title + ' · ' + ((window.__rwGenChars ? window.__rwGenChars(d.script) : Number(d.script.chars)) || 0).toLocaleString('ko-KR') + '자', 1) : '') + row('주제', d.topic || (d.script ? '대본 제목을 써요' : '아직 비어 있어요'), 1) +
         (gv('df-style') ? row('만드는 방향', gv('df-style'), 1) : '') + (document.getElementById('df-characterUse')?.checked ? row('캐릭터', '영상 내내 같은 캐릭터', 1) : '') +
         (gv('df-directorNote') ? row('꼭 넣을 연출', gv('df-directorNote'), 1) : '') + row('제품 정보', 제품, 1) +
         row('영상 길이', lenLabel(분) + (parseFloat(d.len) > 0 ? '' : ' (기본)'), 2) + row('영상 제작 방식', 움직임 + (paid ? '' : ' (체험판)'), 2) +
@@ -3850,6 +3892,7 @@
     const types = document.getElementById('df-types');
     if (!types) return;
     if (dfPreType) { const r = document.querySelector(`input[name="df-type"][value="${dfPreType}"]`); if (r && !r.disabled) r.checked = true; dfPreType = null; }
+    if (dfPreForm) { const sel = document.getElementById('df-form'); if (sel && sel.value !== dfPreForm) { sel.value = dfPreForm; sel.dispatchEvent(new Event('change', { bubbles: true })); } dfPreForm = null; if (window.__rwRefreshGenCard) window.__rwRefreshGenCard(); }
     const chips = document.getElementById('df-lt-chips');
     const hours = document.getElementById('df-lt-hours');   // 숨은 값(시간, 소수) - 요금 계산·접수는 이 값을 그대로 쓴다
     const hIn = document.getElementById('df-lt-h'), mIn = document.getElementById('df-lt-m');
@@ -4094,6 +4137,7 @@
     wrap.addEventListener('change', updatePrice);
     updatePrice();
     if (window.__rwInjectScriptCard) window.__rwInjectScriptCard();
+    if (window.__rwInjectGenCard) window.__rwInjectGenCard();
 
     document.getElementById('df-tab-topic').addEventListener('click', () => { dfMode = 'topic'; renderDirectForm(); });
     document.getElementById('df-tab-media').addEventListener('click', () => { dfMode = 'media'; renderDirectForm(); });
@@ -4182,8 +4226,11 @@
         } else {
         productExtra = null;
         if (window.__pwOn && window.__pwOn()) { const gr = readGeneral(); if (gr.err) { window.__pwGo(gr.part === 'content' ? 1 : gr.part === 'screen' ? 2 : 4); pdShowErr(gr.err, gr.el); return; } }   // 단계 화면에서는 막힌 칸이 있는 단계로 돌아가 알려 준다
-        if (!val('df-topic')) { alert('주제를 입력해주세요.'); return; }
-        answers = { topic: val('df-topic'), form: document.getElementById('df-form').value || '쇼츠' }; stampPending = true;
+        const gsr = (window.__rwGenScript && window.__rwGenLib) ? window.__rwGenLib().find(x => x.id === window.__rwGenScript.id && x.chapters && x.chapters.length) : null;
+        if (window.__rwGenScript && !gsr) { alert('선택한 대본을 이 브라우저 보관함에서 찾지 못했어요. 대본을 다시 불러와 주세요.'); return; }
+        if (!val('df-topic') && !gsr) { alert('주제를 입력해주세요.'); return; }
+        answers = { topic: val('df-topic') || (gsr ? gsr.title : ''), form: document.getElementById('df-form').value || '쇼츠' }; stampPending = true;
+        if (gsr) { answers.genScriptId = gsr.id; answers.scriptTitle = gsr.title; genPin = { topic: answers.topic, motion: planMode === 'paid' ? motionOf(현재움직임() === '자동' ? '혼합' : 현재움직임()) : '' }; }
         // [수정] 제품 링크를 비워두면 '없음'으로 확정해서 보낸다 - 그래야 상담 Agent가 "판매 페이지 링크 있으세요?"를 다시 묻지 않고
         // 바로 요약 카드로 넘어간다 (예전엔 이 질문 때문에 요약이 자동으로 안 뜨고 '지금 내용으로 진행하기' 버튼이 대신 나왔음)
         answers.productLink = val('df-productLink') || '없음';
@@ -4197,6 +4244,7 @@
         if (!answers.productShort && val('df-tempo')) answers.tempo = val('df-tempo');
         if (!answers.productShort && val('df-hookText')) answers.hookText = val('df-hookText');
         if (!answers.productShort && val('df-videoLength')) answers.videoLength = val('df-videoLength');
+        if (answers.genScriptId && window.__rwGenMin) { const gx = window.__rwGenLib().find(x => x.id === answers.genScriptId); if (gx) answers.videoLength = String(window.__rwGenMin(gx)); }   // 길이는 대본 글자 수에 맞춘다
         if (!answers.productShort && val('df-sceneCount')) answers.sceneCount = val('df-sceneCount');
         if (val('df-directorNote')) answers.directorNote = val('df-directorNote');
         if (planMode === 'paid') answers.thumbnail = (!answers.productShort && document.getElementById('df-thumbnail')?.checked) ? 'TRUE' : 'FALSE';   // 끈 것도 분명히 보내서 챗봇이 다시 묻지 않게 한다
@@ -4463,12 +4511,12 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
   function esc(t){return String(t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
   function crumb(t,link,act){if(back)back.hidden=false;if(sep)sep.hidden=false;if(here){here.hidden=false;if(link)here.innerHTML='<button type="button" class="cb-link" data-cb="'+act+'" title="'+link+'(으)로 돌아가기">'+link+'</button>'+t.slice(link.length);else here.textContent=t}if(root)root.classList.remove('is-here')}
   function active(on){document.querySelectorAll('.side-item').forEach(function(b){b.classList.toggle('active',on&&b===btn)})}
-  function openFrame(type,src,from,load,kind){
-    ret=from||null;kind=kind==='mood'?'mood':'yadam';
-    fr.setAttribute('src','./script.html?type=long&src=mine&mode=pre&lite=1&kind='+kind+'&t='+Date.now());
-    if(load)fr.addEventListener('load',function once(){fr.removeEventListener('load',once);try{fr.contentWindow.postMessage({type:'rw-script-init',cfg:{type:'long',kind:kind,src:'mine',mode:'pre',lite:'1',load:load}},'*')}catch(e){}});
+  function openFrame(type,src,from,load,kind,form){
+    ret=from||null;kind=kind==='mood'?'mood':kind==='gen'?'gen':'yadam';form=form==='롱폼'?'롱폼':'쇼츠';
+    fr.setAttribute('src','./script.html?type=long&src=mine&mode=pre&lite=1&kind='+kind+(kind==='gen'?'&form='+encodeURIComponent(form):'')+'&t='+Date.now());
+    if(load)fr.addEventListener('load',function once(){fr.removeEventListener('load',once);try{fr.contentWindow.postMessage({type:'rw-script-init',cfg:{type:'long',kind:kind,form:kind==='gen'?form:'',src:'mine',mode:'pre',lite:'1',load:load}},'*')}catch(e){}});
     document.body.classList.add('studio-open');document.body.classList.remove('hub-open');
-    if(from==='direct')crumb('직접 설정하기 › 대본 만들기','직접 설정하기','direct');else crumb(kind==='mood'?'대본 만들기 › 영상 편지':'대본 만들기 › 야담','대본 만들기','hub');
+    if(from==='direct')crumb('직접 설정하기 › 대본 만들기','직접 설정하기','direct');else crumb(kind==='mood'?'대본 만들기 › 영상 편지':kind==='gen'?'대본 만들기 › '+form:'대본 만들기 › 야담','대본 만들기','hub');
     if(from!=='direct')active(true);
   }
   function renderHub(){
@@ -4487,18 +4535,19 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
       click:I('<rect x="4" y="5" width="16" height="14" rx="2"/><path d="M8 10h8M8 14h5"/>'),
       card:I('<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h6M9 17h6"/>')
     };
-    var kinds=[['yadam','야담','이야기 낭독 영상','인트로 + 긴 이야기를 AI 목소리로 읽어요',1],['mood','분위기 영상','영상 편지 · 메시지','생일·감사·응원 글을 소리와 함께 전해요',1],['short','쇼츠','준비 중','주제만 적으면 AI가 대본까지 써 드려요',0],['long','롱폼','준비 중','주제만 적으면 AI가 대본까지 써 드려요',0]];
+    var kinds=[['yadam','야담','이야기 낭독 영상','인트로 + 긴 이야기를 AI 목소리로 읽어요',1],['mood','분위기 영상','영상 편지 · 메시지','생일·감사·응원 글을 소리와 함께 전해요',1],['short','쇼츠','세로 9:16 · 짧은 영상','나레이션 대본을 쓰고 고친 뒤 영상으로 만들어요',1],['long','롱폼','가로 16:9 · 긴 영상','나레이션 대본을 쓰고 고친 뒤 영상으로 만들어요',1]];
     var hd=function(ic,t,extra){return '<div class="sh-h"><span class="hi">'+ic+'</span><h3>'+t+'</h3>'+(extra||'')+'</div>'};
     hub.innerHTML='<div class="sh-in"><div class="sh-top"><h2>어떤 영상의 대본인가요?</h2><p class="sub">고르면 그 영상에 맞는 입력 칸이 열려요.</p>'+
-    '<div class="sh-priv"><span class="pi">'+IC.lock+'</span><p>대본은 <b>이 브라우저의 보관함</b>에만 저장돼요. 영상 제작을 시작할 때만 서버로 전달되고, 제작이 끝나면 서버의 대본은 지워져요. 브라우저 데이터를 지우면 보관함이 사라지니 필요한 대본은 파일로 내려받아 두세요.</p></div></div>'+
-    '<div>'+hd(IC.grid,'영상 종류')+'<div class="kd-grid">'+kinds.map(function(k){return'<button type="button" class="kd'+(k[4]?'':' off')+'" data-kd="'+k[0]+'" aria-disabled="'+(!k[4])+'"><span class="kd-ic">'+IC[k[0]]+'</span>'+(k[4]?'':'<em class="kd-badge">준비 중</em>')+'<b>'+k[1]+'</b><span class="kd-t">'+(k[4]?k[2]:'곧 열려요')+'</span><span class="kd-d">'+k[3]+'</span></button>'}).join('')+'</div><p class="kd-note" id="kd-note" hidden>쇼츠·롱폼은 <b>직접 설정하기</b>에서 주제만 적으면 AI가 대본까지 알아서 써 드려요. 내 대본으로 만드는 기능은 곧 열려요.</p></div>'+
-    '<div>'+hd(IC.box,'보관함',L.length?'<span class="sh-cnt">'+L.length+'</span>':'')+'<div class="sh-lib">'+(L.length?L.map(function(x,i){var m=x.kind==='mood';return'<div class="sh-item"><span class="sh-ic'+(m?' mood':'')+'">'+(m?IC.mood:IC.yadam)+'</span><span class="sh-tx"><b>'+esc(x.title)+'</b><small><i class="kd-tag'+(m?' mood':'')+'">'+(m?'분위기 영상':'야담')+'</i>'+(m?'약 '+Math.round((x.minutes||0)*60)+'초':'약 '+x.minutes+'분')+'</small></span><span class="sh-act">'+(m?(window.__rwGoMood?'<button class="sh-use" data-mm="'+i+'">영상 만들기</button>':'<button disabled title="곧 열려요">영상 만들기 · 곧</button>'):'<button class="sh-use" data-mk="'+i+'">야담 만들기</button>')+'<button data-open="'+i+'">열기</button><button class="sh-del" data-del="'+i+'">삭제</button></span></div>'}).join(''):'<div class="sh-empty"><span class="pi">'+IC.box+'</span><span class="sh-et"><b>아직 보관된 대본이 없어요</b><small>위에서 영상 종류를 골라 대본을 쓰고 확정하면 여기에 저장돼요.</small></span></div>')+'</div></div>'+
+    '<div class="sh-priv"><span class="pi">'+IC.lock+'</span><p>대본은 <b>이 브라우저의 보관함</b>에만 저장돼요. 영상 제작을 시작할 때만 서버로 전달돼요. 야담·분위기 영상은 제작이 끝나면 서버의 대본이 지워지고, 쇼츠·롱폼 대본은 프로젝트와 함께 보관돼요. 브라우저 데이터를 지우면 보관함이 사라지니 필요한 대본은 파일로 내려받아 두세요.</p></div></div>'+
+    '<div>'+hd(IC.grid,'영상 종류')+'<div class="kd-grid">'+kinds.map(function(k){return'<button type="button" class="kd'+(k[4]?'':' off')+'" data-kd="'+k[0]+'" aria-disabled="'+(!k[4])+'"><span class="kd-ic">'+IC[k[0]]+'</span>'+(k[4]?'':'<em class="kd-badge">준비 중</em>')+'<b>'+k[1]+'</b><span class="kd-t">'+(k[4]?k[2]:'곧 열려요')+'</span><span class="kd-d">'+k[3]+'</span></button>'}).join('')+'</div></div>'+
+    '<div>'+hd(IC.box,'보관함',L.length?'<span class="sh-cnt">'+L.length+'</span>':'')+'<div class="sh-lib">'+(L.length?L.map(function(x,i){var m=x.kind==='mood',g=x.kind==='gen';return'<div class="sh-item"><span class="sh-ic'+(m?' mood':'')+'">'+(m?IC.mood:g?(x.form==='롱폼'?IC.long:IC.short):IC.yadam)+'</span><span class="sh-tx"><b>'+esc(x.title)+'</b><small><i class="kd-tag'+(m?' mood':'')+'">'+(m?'분위기 영상':g?esc(x.form||'쇼츠'):'야담')+'</i>'+(m?'약 '+Math.round((x.minutes||0)*60)+'초':g?(x.form==='롱폼'?'약 '+(Math.round((x.chars||0)/360*10)/10)+'분':(function(){var sec=Math.round(Math.max(0.25,Math.round((x.chars||0)/360*10)/10)*60);return '약 '+(sec<60?sec+'초':(sec%60?Math.floor(sec/60)+'분 '+(sec%60)+'초':(sec/60)+'분'))})()):'약 '+x.minutes+'분')+'</small></span><span class="sh-act">'+(m?(window.__rwGoMood?'<button class="sh-use" data-mm="'+i+'">영상 만들기</button>':'<button disabled title="곧 열려요">영상 만들기 · 곧</button>'):g?'<button class="sh-use" data-mg="'+i+'">영상 만들기</button>':'<button class="sh-use" data-mk="'+i+'">야담 만들기</button>')+'<button data-open="'+i+'">열기</button><button class="sh-del" data-del="'+i+'">삭제</button></span></div>'}).join(''):'<div class="sh-empty"><span class="pi">'+IC.box+'</span><span class="sh-et"><b>아직 보관된 대본이 없어요</b><small>위에서 영상 종류를 골라 대본을 쓰고 확정하면 여기에 저장돼요.</small></span></div>')+'</div></div>'+
     '<div>'+hd(IC.steps,'이 대본으로 영상 만드는 법')+'<ol class="sh-steps"><li><span class="st-i">'+IC.write+'</span><span>대본을 쓰고 <b>확정</b>하면 보관함에 저장돼요.</span></li><li><span class="st-i">'+IC.click+'</span><span>왼쪽 <b>직접 설정하기</b>를 누르고 같은 종류의 영상을 골라요.</span></li><li><span class="st-i">'+IC.card+'</span><span><b>내 대본</b> 카드에서 저장한 대본을 눌러요.</span></li></ol></div></div>';
-    hub.querySelectorAll('[data-kd]').forEach(function(b){b.onclick=function(){var k=b.dataset.kd;if(k==='yadam'||k==='mood')openFrame('long','mine',null,null,k);else{var n=hub.querySelector('#kd-note');n.hidden=false}}});
+    hub.querySelectorAll('[data-kd]').forEach(function(b){b.onclick=function(){var k=b.dataset.kd;if(k==='yadam'||k==='mood')openFrame('long','mine',null,null,k);else openFrame('long','mine',null,null,'gen',k==='long'?'롱폼':'쇼츠')}});
     hub.querySelectorAll('[data-mk]').forEach(function(b){b.onclick=function(){var x=lib()[+b.dataset.mk];window.__rwScript={id:x.id,title:x.title,type:'long',src:'ready',imported:x.imported,minutes:x.minutes};close();if(window.__rwGoYadam)window.__rwGoYadam()}});
+    hub.querySelectorAll('[data-mg]').forEach(function(b){b.onclick=function(){var x=lib()[+b.dataset.mg];window.__rwGenScript={id:x.id,title:x.title,form:x.form==='롱폼'?'롱폼':'쇼츠',chars:x.chars,minutes:x.minutes};close();if(window.__rwGoGen)window.__rwGoGen(x.form)}});
     hub.querySelectorAll('[data-mm]').forEach(function(b){b.onclick=function(){var x=lib()[+b.dataset.mm];window.__rwMoodScript={id:x.id,title:x.title,kind:'mood',minutes:x.minutes,occ:x.occ||''};close();if(window.__rwGoMood)window.__rwGoMood()}});
-    hub.querySelectorAll('[data-open]').forEach(function(b){b.onclick=function(){var x=lib()[+b.dataset.open];openFrame('long','mine',null,{title:x.title,chapters:x.chapters},x.kind)}});
-    hub.querySelectorAll('[data-del]').forEach(function(b){b.onclick=function(){var x=lib()[+b.dataset.del];saveLib(cache.filter(function(y){return y!==x}));if(window.__rwScript&&x&&window.__rwScript.id===x.id)window.__rwScript=null;renderHub()}});
+    hub.querySelectorAll('[data-open]').forEach(function(b){b.onclick=function(){var x=lib()[+b.dataset.open];openFrame('long','mine',null,{title:x.title,chapters:x.chapters},x.kind,x.form)}});
+    hub.querySelectorAll('[data-del]').forEach(function(b){b.onclick=function(){var x=lib()[+b.dataset.del];saveLib(cache.filter(function(y){return y!==x}));if(window.__rwScript&&x&&window.__rwScript.id===x.id)window.__rwScript=null;if(window.__rwGenScript&&x&&window.__rwGenScript.id===x.id)window.__rwGenScript=null;renderHub()}});
   }
   function openHub(){loadLib(renderHub);renderHub();document.body.classList.remove('studio-focus');document.body.classList.add('studio-open','hub-open');crumb('대본 만들기');active(true)}
   function close(){
@@ -4524,29 +4573,30 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
     if(d.type==='rw-studio-focus')document.body.classList.toggle('studio-focus',!!d.on);
     if(d.type==='rw-studio-approve')close();
     if(d.type==='rw-script-confirm'){
-      var kd=d.kind==='mood'?'mood':'yadam';var a=lib();a.unshift({id:d.scriptId,title:d.title,type:'long',kind:kd,occ:d.occ||'',src:'mine',imported:!!d.imported,chapters:d.chapters,chars:d.chars,minutes:d.minutes,prod:d.prod,at:Date.now()});saveLib(a);
-      if(kd==='mood')window.__rwMoodScript={id:d.scriptId,title:d.title,kind:'mood',minutes:d.minutes,occ:d.occ||''};else window.__rwScript={id:d.scriptId,title:d.title,type:'long',src:'ready',imported:!!d.imported,minutes:d.minutes};
+      var kd=d.kind==='mood'?'mood':d.kind==='gen'?'gen':'yadam';var gf=d.form==='롱폼'?'롱폼':'쇼츠';var a=lib();a.unshift({id:d.scriptId,title:d.title,type:'long',kind:kd,form:kd==='gen'?gf:'',occ:d.occ||'',src:'mine',imported:!!d.imported,chapters:d.chapters,chars:d.chars,minutes:d.minutes,prod:d.prod,at:Date.now()});saveLib(a);
+      if(kd==='gen')window.__rwGenScript={id:d.scriptId,title:d.title,form:gf,chars:d.chars,minutes:d.minutes};else if(kd==='mood')window.__rwMoodScript={id:d.scriptId,title:d.title,kind:'mood',minutes:d.minutes,occ:d.occ||''};else window.__rwScript={id:d.scriptId,title:d.title,type:'long',src:'ready',imported:!!d.imported,minutes:d.minutes};
       var from=ret;close();
-      if(window.__rwRefreshScriptCard)window.__rwRefreshScriptCard();if(window.__rwFormRedraw)window.__rwFormRedraw();
-      if(from!=='direct')savedPop(d.title,kd)
+      if(window.__rwRefreshScriptCard)window.__rwRefreshScriptCard();if(window.__rwRefreshGenCard)window.__rwRefreshGenCard();if(window.__rwFormRedraw)window.__rwFormRedraw();
+      if(from!=='direct')savedPop(d.title,kd,gf)
     }
   });
   /* 대본을 확정해 보관함에 저장했을 때: 다음에 무엇을 하면 되는지 알려 준다 */
-  function savedPop(title,kd){
+  function savedPop(title,kd,gf){
     var o=document.getElementById('sc-pop');
     if(!o){o=document.createElement('div');o.id='sc-pop';o.className='sc-pop';o.hidden=true;o.setAttribute('role','dialog');o.setAttribute('aria-modal','true');document.body.appendChild(o);o.addEventListener('click',function(e){if(e.target===o)o.hidden=true})}
-    var mood=kd==='mood';
-    o.innerHTML='<div class="sc-pop-box"><h3>대본이 저장됐어요</h3><p><b>'+esc(title||'내 대본')+'</b> 대본을 보관함에 넣어 두었어요. '+(mood?'이 글은 분위기 영상(영상 편지)으로 만들 수 있어요.'+(window.__rwGoMood?' <b>직접 설정하기 › 분위기 영상</b>의 <b>내 대본</b> 카드에서 쓸 수 있어요.':' 영상으로 만드는 기능은 곧 열려요. 그때까지 보관함에 안전하게 있어요.'):'이제 야담 영상으로 만들 수 있어요. <b>직접 설정하기 › 야담</b>의 <b>내 대본</b> 카드에서 이 대본을 쓸 수 있어요.')+'</p><div class="sc-pop-btns">'+(mood&&!window.__rwGoMood?'':'<button class="go" id="sc-pop-go">'+(mood?'이 대본으로 분위기 영상 만들기':'이 대본으로 야담 만들기')+'</button>')+'<button id="sc-pop-later">'+(mood&&!window.__rwGoMood?'확인':'나중에 할게요')+'</button></div></div>';
+    var mood=kd==='mood',gen=kd==='gen';
+    o.innerHTML='<div class="sc-pop-box"><h3>대본이 저장됐어요</h3><p><b>'+esc(title||'내 대본')+'</b> 대본을 보관함에 넣어 두었어요. '+(gen?'이제 '+gf+' 영상으로 만들 수 있어요. <b>직접 설정하기 › 일반 영상</b>의 <b>내 대본</b> 카드에서 이 대본을 쓸 수 있어요.':mood?'이 글은 분위기 영상(영상 편지)으로 만들 수 있어요.'+(window.__rwGoMood?' <b>직접 설정하기 › 분위기 영상</b>의 <b>내 대본</b> 카드에서 쓸 수 있어요.':' 영상으로 만드는 기능은 곧 열려요. 그때까지 보관함에 안전하게 있어요.'):'이제 야담 영상으로 만들 수 있어요. <b>직접 설정하기 › 야담</b>의 <b>내 대본</b> 카드에서 이 대본을 쓸 수 있어요.')+'</p><div class="sc-pop-btns">'+(mood&&!window.__rwGoMood?'':'<button class="go" id="sc-pop-go">'+(gen?'이 대본으로 '+gf+' 만들기':mood?'이 대본으로 분위기 영상 만들기':'이 대본으로 야담 만들기')+'</button>')+'<button id="sc-pop-later">'+(mood&&!window.__rwGoMood?'확인':'나중에 할게요')+'</button></div></div>';
     o.hidden=false;
     var go=o.querySelector('#sc-pop-go');
-    if(go)go.onclick=function(){o.hidden=true;if(mood){if(window.__rwGoMood)window.__rwGoMood()}else if(window.__rwGoYadam)window.__rwGoYadam()};
+    if(go)go.onclick=function(){o.hidden=true;if(gen){if(window.__rwGoGen)window.__rwGoGen(gf)}else if(mood){if(window.__rwGoMood)window.__rwGoMood()}else if(window.__rwGoYadam)window.__rwGoYadam()};
     o.querySelector('#sc-pop-later').onclick=function(){o.hidden=true};
     (go||o.querySelector('#sc-pop-later')).focus()
   }
   /* 직접 설정하기의 '대본' 카드에서 호출 */
-  window.__rwOpenStudio=function(type,src,load,kind){openFrame(type,src,'direct',load,kind);active(false)};
+  window.__rwOpenStudio=function(type,src,load,kind,form){openFrame(type,src,'direct',load,kind,form);active(false)};
   window.__rwLoadLib=loadLib;
-  window.__rwScriptLib=function(){return lib().filter(function(x){return x.kind!=='mood'})};
+  window.__rwScriptLib=function(){return lib().filter(function(x){return x.kind!=='mood'&&x.kind!=='gen'})};
+  window.__rwGenLib=function(){return lib().filter(function(x){return x.kind==='gen'})};
   window.__rwMoodLib=function(){return lib().filter(function(x){return x.kind==='mood'})};
   function sendTheme(){try{fr.contentWindow.postMessage({type:'rw-theme',theme:document.documentElement.getAttribute('data-theme')||'system'},'*')}catch(e){}}
   new MutationObserver(sendTheme).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
@@ -4586,6 +4636,69 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
     var first=f.querySelector('.df-sec');(first&&first.nextSibling?f.insertBefore(d,first.nextSibling):f.appendChild(d));
     render();if(window.__rwLoadLib)window.__rwLoadLib(function(){render();redraw()});
     var w=document.getElementById('direct-form-wrap');if(w&&!w.__sc){w.__sc=1;w.addEventListener('change',function(e){if(e.target&&(e.target.name==='df-type'))render()})}
+  };
+})();
+
+/* 직접 설정하기(일반 영상) '내 대본' 카드: 주제만 적어 AI가 쓰게 하거나 / 대본 만들기에서 쓴 쇼츠·롱폼 대본을 불러온다.
+   대본을 고르면 영상 길이는 대본 글자 수에 맞춰 정해진다(서버와 같은 식: 분 = max(0.25, 반올림(글자수/360, 0.1))) */
+(function(){
+  var mode='skip',note='';
+  function esc(t){return String(t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  function redraw(){if(window.__rwFormRedraw)window.__rwFormRedraw()}
+  /* 서버와 같은 방식으로 본문에서 다시 센다: \r 제거, 빈 줄 3개 이상→2개, 장별 앞뒤 공백 제거, 빈 장 제외, 장 사이 빈 줄 하나 */
+  function charsOf(x){if(!x||!x.chapters||!x.chapters.length)return x&&x.chars||0;return x.chapters.map(function(c){return String(c.text||'').replace(/\r/g,'').replace(/\n{3,}/g,'\n\n').trim()}).filter(Boolean).join('\n\n').length}
+  window.__rwGenChars=charsOf;
+  function minOf(x){return Math.max(0.25,Math.round(charsOf(x)/360*10)/10)}
+  function lenText(x){if(x.form==='롱폼')return '약 '+(Math.round((x.chars||0)/360*10)/10)+'분';var sec=Math.round(minOf(x)*60);return '약 '+(sec<60?sec+'초':(sec%60?Math.floor(sec/60)+'분 '+(sec%60)+'초':(sec/60)+'분'))}
+  function curForm(){var f=document.getElementById('df-form');return f&&f.value==='롱폼'?'롱폼':'쇼츠'}
+  function isGen(){return (document.querySelector('input[name="df-type"]:checked')||{}).value==='일반'}
+  window.__rwGenMin=minOf;
+  function lock(on){
+    var li=document.getElementById('df-videoLength'),ch=document.getElementById('df-len-chips');
+    if(on){var g=window.__rwGenScript;if(li&&g){var v=String(minOf(g));if(li.value!==v){li.value=v;li.dispatchEvent(new Event('input',{bubbles:true}))}li.readOnly=true;li.classList.add('gn-lk')}if(ch){ch.classList.add('gn-lk');ch.setAttribute('inert','')}}
+    else{if(li){li.readOnly=false;li.classList.remove('gn-lk')}if(ch){ch.classList.remove('gn-lk');ch.removeAttribute('inert')}}
+  }
+  function drop(){window.__rwGenScript=null;lock(false);var li=document.getElementById('df-videoLength');if(li&&li.value){li.value='';li.dispatchEvent(new Event('input',{bubbles:true}))}}
+  function render(){
+    var host=document.getElementById('df-gen-script-card');if(!host)return;
+    var gn=isGen();host.style.display=gn?'':'none';
+    if(!gn){lock(false);return}
+    var f=curForm(),g=window.__rwGenScript;
+    if(g&&g.form!==f){drop();note='영상 형태가 바뀌어서 '+g.form+' 대본을 뺐어요.';g=null}
+    var L=(window.__rwGenLib?window.__rwGenLib():[]).filter(function(x){return x.form===f&&x.chapters&&x.chapters.length});
+    if(g){
+      var x=(window.__rwGenLib?window.__rwGenLib():[]).filter(function(y){return y.id===g.id})[0]||g;
+      host.className='sc-card gn-script ready';
+      host.innerHTML='<h4>내 대본으로 만들어요</h4><p class="sc-note">'+esc(g.title)+' · '+f+' · '+lenText(x)+' ('+charsOf(x).toLocaleString('ko-KR')+'자). 영상 길이는 대본에 맞춰 정해져요. 제작을 시작하면 이 대본이 서버로 전달되고, 프로젝트와 함께 보관돼요.</p><div class="sc-opts"><button type="button" id="gs-edit">다시 열기</button><button type="button" id="gs-clear">대본 빼기</button></div>';
+      host.querySelector('#gs-edit').onclick=function(){var y=(window.__rwGenLib?window.__rwGenLib():[]).filter(function(z){return z.id===g.id})[0];window.__rwOpenStudio('long','mine',y?{title:y.title,chapters:y.chapters}:null,'gen',f)};
+      host.querySelector('#gs-clear').onclick=function(){drop();note='';render();redraw()};
+      lock(true);return;
+    }
+    lock(false);
+    host.className='sc-card gn-script';
+    var nt=note;note='';
+    host.innerHTML='<h4>대본</h4><div class="sc-opts"><button type="button" data-m="skip" aria-pressed="'+(mode==='skip')+'">주제만 적으면 AI가 써 줘요</button><button type="button" data-m="mine" aria-pressed="'+(mode==='mine')+'">내 대본</button>'+(L.length?'<button type="button" data-m="lib" aria-pressed="'+(mode==='lib')+'">보관함에서 불러오기</button>':'')+'</div>'+
+    '<p class="sc-note">'+({skip:'아래 주제를 바탕으로 AI가 '+f+' 대본을 써서 영상으로 만들어요. 만들기 전에 대본을 먼저 보고 고치고 싶다면 "내 대본"을 골라 주세요.',mine:'왼쪽 <b>대본 만들기</b>와 같은 작업실에서 '+f+' 대본을 쓰고 고쳐요. 대본은 이 브라우저에 보관돼요.',lib:'확정해 둔 '+f+' 대본을 골라요.'})[mode]+(nt?' <b>'+esc(nt)+'</b>':'')+'</p>'+
+    (L.length&&mode==='skip'?'<button type="button" class="sc-hint" data-m="lib">저장해 둔 '+f+' 대본이 '+L.length+'개 있어요 · 눌러서 불러오기</button>':'')+
+    (mode==='skip'?'':mode==='lib'?'<div class="sh-lib">'+L.slice(0,5).map(function(y,i){return'<div class="sh-item"><span>'+esc(y.title)+' <small>'+lenText(y)+'</small></span><button type="button" data-use="'+i+'">이 대본 쓰기</button></div>'}).join('')+'</div>':'<button type="button" class="sc-act" id="gs-open">'+f+' 대본 만들기</button>');
+    host.querySelectorAll('[data-m]').forEach(function(b){b.onclick=function(){mode=b.dataset.m;render()}});
+    var o=host.querySelector('#gs-open');if(o)o.onclick=function(){window.__rwOpenStudio('long','mine',null,'gen',f)};
+    host.querySelectorAll('[data-use]').forEach(function(b){b.onclick=function(){var y=L[+b.dataset.use];window.__rwGenScript={id:y.id,title:y.title,form:f,chars:y.chars,minutes:y.minutes};render();redraw()}});
+  }
+  window.__rwRefreshGenCard=render;
+  window.__rwPickGen=function(id){
+    function find(){return (window.__rwGenLib?window.__rwGenLib():[]).filter(function(z){return z.id===id})[0]}
+    function set(y){window.__rwGenScript={id:y.id,title:y.title,form:y.form,chars:y.chars,minutes:y.minutes};render();redraw()}
+    var y=find();if(y){if(y.form!==curForm())return false;set(y);return true}
+    if(window.__rwLoadLib)window.__rwLoadLib(function(){var z=find();if(z&&z.form===curForm())set(z)});   /* 새로고침 뒤에는 보관함을 읽는 중일 수 있어 다 읽은 뒤에 다시 시도 */
+    return false};
+  window.__rwInjectGenCard=function(){
+    if(document.getElementById('df-gen-script-card'))return;
+    var f=document.getElementById('df-fields');if(!f||!document.getElementById('df-form')||document.getElementById('df-tab-media').classList.contains('active'))return;
+    var d=document.createElement('div');d.id='df-gen-script-card';d.className='sc-card gn-script';
+    var first=f.querySelector('.df-sec');(first&&first.nextSibling?f.insertBefore(d,first.nextSibling):f.appendChild(d));
+    render();if(window.__rwLoadLib)window.__rwLoadLib(function(){render();redraw()});
+    var w=document.getElementById('direct-form-wrap');if(w&&!w.__gs){w.__gs=1;w.addEventListener('change',function(e){if(e.target&&(e.target.name==='df-type'||e.target.id==='df-form'))render()})}
   };
 })();
 </script>
