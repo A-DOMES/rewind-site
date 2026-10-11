@@ -1180,6 +1180,13 @@
   .gn-swap { display: none; margin: 14px 0 0; font-size: .88rem; color: var(--ink-dim); }
   .gn-swapbtn { margin-left: 6px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line-strong, var(--line)); background: transparent; color: var(--amber); font: inherit; font-size: .86rem; cursor: pointer; }
   .gn-swapbtn:hover, .gn-swapbtn:focus-visible { border-color: var(--amber); }
+  /* 분위기·야담 단계 화면: 한 카드 안의 블록을 단계별로 보이게 한다 (data-pw = 보이는 단계 번호). 단계 화면이 꺼져 있으면 아래 규칙은 적용되지 않아 예전 화면 그대로다 */
+  #df-fields.pw-on .df-sleep > [data-pw], #df-fields.pw-on .df-yadam > [data-pw] { display: none; }
+  #df-fields.pw-on[data-pwstep="2"] .df-sleep > [data-pw="2"], #df-fields.pw-on[data-pwstep="2"] .df-yadam > [data-pw="2"],
+  #df-fields.pw-on[data-pwstep="3"] .df-sleep > [data-pw="3"], #df-fields.pw-on[data-pwstep="3"] .df-yadam > [data-pw="3"],
+  #df-fields.pw-on[data-pwstep="4"] .df-sleep > [data-pw="4"], #df-fields.pw-on[data-pwstep="4"] .df-yadam > [data-pw="4"] { display: block; }
+  #df-fields.pw-on > .sc-card { display: none; }
+  #df-fields.pw-on[data-pwstep="2"] > .sc-card { display: flex; }
   #df-fields.pw-on > .df-sec { display: none; }
   #df-fields.pw-on > .df-sec.pw-cur { display: block; }
   #df-fields.pw-on .df-sec-head h3::before { content: attr(data-n); }
@@ -2840,10 +2847,10 @@
     const tier = (t, sub) => `<label><input type="radio" name="df-tier" value="${t}"${t === '표준형' ? ' checked' : ''}><span class="tcard"><b>${t}</b><small>${sub}<br>1시간 ${longPrice('수면음악', t, 60).toLocaleString('ko-KR')}P</small></span></label>`;
     const mode = (v, sub) => `<label><input type="radio" name="df-smode" value="${v}"${v === '숨쉬기' ? ' checked' : ''}><span class="tcard"><b>${v}${v === '숨쉬기' ? ' · 추천' : ''}</b><small>${sub}</small></span></label>`;
     return `<section class="df-sec df-sleep df-hide" style="--c:#8fa9ff"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg></span><div><h3>${kindName('수면음악')} 설정</h3><p>영상 구성부터 차례로 골라 주세요. 고른 것에 맞춰 필요한 칸만 보여요</p></div></div>
-      <div class="df-use"><p>수면·집중·힐링 영상부터 <b>생일·결혼 축하, 감사, 추억 영상</b>까지, 사진과 소리로 분위기를 담는 영상이에요. 눌러서 예시로 시작해 보세요.</p><div class="len-chips" id="df-ex-chips">${[['수면 · 비 오는 밤 빗소리','비 오는 밤 작은 오두막의 빗소리'],['집중 · 도서관 BGM','도서관 같은 조용한 공부 집중 BGM'],['힐링 · 숲속 시냇물','숲속 시냇물 소리 힐링 자연음'],['카페 · 재즈','비 오는 날 재즈 카페 분위기'],['축하 · 생일','사랑하는 사람의 생일을 축하하는 따뜻한 영상'],['추억 · 가족 여행','가족과 함께한 여행의 추억을 담은 영상']].map(([l, t]) => `<button type="button" class="len-chip" data-topic="${t}">${l}</button>`).join('')}</div></div>
-      <div class="df-field df-blk" id="df-comp-field"><div class="df-h"><span class="hi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></svg></span><span>영상 구성</span></div>
+      <div class="df-use" data-pw="2"><p>수면·집중·힐링 영상부터 <b>생일·결혼 축하, 감사, 추억 영상</b>까지, 사진과 소리로 분위기를 담는 영상이에요. 눌러서 예시로 시작해 보세요.</p><div class="len-chips" id="df-ex-chips">${[['수면 · 비 오는 밤 빗소리','비 오는 밤 작은 오두막의 빗소리'],['집중 · 도서관 BGM','도서관 같은 조용한 공부 집중 BGM'],['힐링 · 숲속 시냇물','숲속 시냇물 소리 힐링 자연음'],['카페 · 재즈','비 오는 날 재즈 카페 분위기'],['축하 · 생일','사랑하는 사람의 생일을 축하하는 따뜻한 영상'],['추억 · 가족 여행','가족과 함께한 여행의 추억을 담은 영상']].map(([l, t]) => `<button type="button" class="len-chip" data-topic="${t}">${l}</button>`).join('')}</div></div>
+      <div class="df-field df-blk" id="df-comp-field" data-pw="2"><div class="df-h"><span class="hi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></svg></span><span>영상 구성</span></div>
         <div class="df-comp" role="radiogroup" aria-label="영상 구성"><label><input type="radio" name="df-comp" value="그림만"><span class="ccard"><span class="ci"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="M21 16l-5-5-9 9"/></svg></span><b>그림만</b><small>소리·글 없이 화면만</small></span></label><label><input type="radio" name="df-comp" value="그림+음악" checked><span class="ccard"><span class="ci"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V6l10-2v12"/><circle cx="7" cy="18" r="2.5"/><circle cx="17" cy="16" r="2.5"/></svg></span><b>그림 + 음악</b><small>수면·집중·힐링 영상</small></span></label><label><input type="radio" name="df-comp" value="그림+자막"><span class="ccard"><span class="ci"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 10h10M7 14h6"/></svg></span><b>그림 + 자막</b><small>대본이 글자로 나와요</small></span></label><label><input type="radio" name="df-comp" value="그림+음성"><span class="ccard"><span class="ci"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></span><b>그림 + 음성</b><small>AI가 대본을 읽어줘요</small></span></label><label><input type="radio" name="df-comp" value="그림+음성+자막"><span class="ccard"><span class="ci"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4M8 7v10M12 4v16M16 8v8M20 11v2"/></svg></span><b>음성 + 자막</b><small>읽어 주면서 글도 보여줘요</small></span></label><label><input type="radio" name="df-comp" value="내목소리파일"><span class="ccard"><span class="ci"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 14h6M9 17h4"/></svg></span><b>내 목소리 파일</b><small>내가 녹음한 목소리를 넣어요</small></span></label></div></div>
-      <div class="df-field df-blk df-hide" id="df-nar-field"><div class="df-h"><span class="hi"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></span><span>대본과 목소리</span></div>
+      <div class="df-field df-blk df-hide" id="df-nar-field" data-pw="2"><div class="df-h"><span class="hi"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></span><span>대본과 목소리</span></div>
         <div class="df-hide"><div class="df-sound" role="radiogroup" aria-label="말 넣기">
           <label><input type="radio" name="df-nar" value="없음" checked><span></span></label>
           <label><input type="radio" name="df-nar" value="글자"><span></span></label>
@@ -2865,7 +2872,7 @@
           <label class="df-musicbox" style="margin-top:10px;display:flex;gap:8px;align-items:flex-start"><input type="checkbox" id="df-voiceRights"><span style="font-weight:400;font-size:0.82rem;color:var(--ink-dim)">제공하는 녹음의 사용 권리가 저에게 있음을 확인합니다.</span></label></div>
         <p class="df-hint" id="df-nar-soon" hidden>내 목소리 녹음은 곧 열려요. 지금은 글자나 AI 목소리로 만들 수 있어요.</p>
       </div>
-      <div class="df-field df-blk" id="df-lt-field"><div class="df-h"><span class="hi"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span>영상 길이</span></div><span class="df-h-opt" id="df-lt-opt">30분 ~ 8시간</span>
+      <div class="df-field df-blk" id="df-lt-field" data-pw="3"><div class="df-h"><span class="hi"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span>영상 길이</span></div><span class="df-h-opt" id="df-lt-opt">30분 ~ 8시간</span>
         <input type="hidden" id="df-lt-hours" value="1">
         <div class="len-pick">
           <div class="len-box"><button type="button" data-step="h:-1" aria-label="시간 줄이기">−</button><input type="number" id="df-lt-h" inputmode="numeric" min="0" max="8" step="1" value="1" aria-label="시간"><button type="button" data-step="h:1" aria-label="시간 늘리기">＋</button></div><span class="len-unit">시간</span>
@@ -2873,7 +2880,7 @@
         </div>
         <div class="len-read" id="df-lt-read"></div>
         <div class="len-chips" id="df-lt-chips"></div><p class="df-hint" id="df-lt-note"></p></div>
-      <div class="df-field df-blk" id="df-snd-field"><div class="df-h"><span class="hi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V6l10-2v12"/><circle cx="7" cy="18" r="2.5"/><circle cx="17" cy="16" r="2.5"/></svg></span><span>소리 설정</span></div>
+      <div class="df-field df-blk" id="df-snd-field" data-pw="4"><div class="df-h"><span class="hi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V6l10-2v12"/><circle cx="7" cy="18" r="2.5"/><circle cx="17" cy="16" r="2.5"/></svg></span><span>소리 설정</span></div>
         <div class="df-sound" role="radiogroup" aria-label="소리 선택" id="df-sound-group">
           <label data-snd="자동"><input type="radio" name="df-sound" value="자동" checked><span class="scard"><span class="dot"></span><span><b>AI가 소리를 만들어요</b><small>빗소리·파도·피아노처럼 듣고 싶은 소리를 알려주세요</small></span></span></label>
           <label data-snd="내음악"><input type="radio" name="df-sound" value="내음악"><span class="scard"><span class="dot"></span><span><b>내 음악을 쓸게요</b><small>구글 드라이브 폴더에 넣은 음악만 사용해요</small></span></span></label>
@@ -2892,27 +2899,27 @@
         <div class="df-soundpanel df-hide" id="df-sp-없음"><p class="df-hint" style="margin:0">소리가 없는 영상이 만들어져요. 유튜브에 올리기 전에 편집기에서 음악을 넣으셔도 돼요.</p></div>
         <p class="df-hint" id="df-snd-note" hidden></p>
       </div>
-      <div class="df-field df-blk"><div class="df-h"><span class="hi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.5 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z"/></svg></span><span>품질 등급</span></div><div class="df-chipset" role="radiogroup" aria-label="품질 등급">${tier('경제형', '기본 그림·소리')}${tier('표준형', '추천 · 균형')}${tier('고급형', '그림·소리 더 풍성')}</div></div>
-      <div class="df-field df-blk"><div class="df-h"><span class="hi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12c3-6 6-6 9 0s6 6 9 0"/></svg></span><span>화면 움직임</span></div><div class="df-chipset" role="radiogroup" aria-label="화면 움직임">${mode('정지', '그림이 고정')}${mode('숨쉬기', '아주 천천히 움직임')}${mode('전환', '그림이 바뀜')}</div>
+      <div class="df-field df-blk" data-pw="3"><div class="df-h"><span class="hi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.5 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z"/></svg></span><span>품질 등급</span></div><div class="df-chipset" role="radiogroup" aria-label="품질 등급">${tier('경제형', '기본 그림·소리')}${tier('표준형', '추천 · 균형')}${tier('고급형', '그림·소리 더 풍성')}</div></div>
+      <div class="df-field df-blk" data-pw="3"><div class="df-h"><span class="hi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12c3-6 6-6 9 0s6 6 9 0"/></svg></span><span>화면 움직임</span></div><div class="df-chipset" role="radiogroup" aria-label="화면 움직임">${mode('정지', '그림이 고정')}${mode('숨쉬기', '아주 천천히 움직임')}${mode('전환', '그림이 바뀜')}</div>
         <div id="df-int-field" class="df-subfield" hidden><label>그림 바뀌는 간격(초) <span class="opt">5~600 · 비워두면 12초</span></label><input type="number" id="df-sceneSeconds" min="5" max="600" step="1" placeholder="12"></div></div>
-      <div class="df-field df-blk"><div class="df-h"><span class="hi"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="M21 16l-5-5-9 9"/></svg></span><span>그림 방식</span></div>
+      <div class="df-field df-blk" data-pw="3"><div class="df-h"><span class="hi"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="M21 16l-5-5-9 9"/></svg></span><span>그림 방식</span></div>
         <div class="df-sound" role="radiogroup" aria-label="그림 방식">
           <label><input type="radio" name="df-img" value="무료사진" checked><span class="scard"><span class="dot"></span><span><b>실제 사진을 찾아서 써요 · 추천</b><small>우주·자연·도시 풍경처럼 실제 사진이 어울리는 영상에 좋고, 사진이 많이 바뀌어도 부담이 없어요</small></span></span></label>
           <label><input type="radio" name="df-img" value="AI"><span class="scard"><span class="dot"></span><span><b>AI가 장면을 새로 그려요</b><small>"비 오는 밤 작은 오두막"처럼 구체적인 장면을 원할 때 좋아요</small></span></span></label>
         </div>
         <div class="df-subfield" id="df-pc-field" hidden><label>사진은 몇 장 쓸까요 <span class="opt">자동이 가장 좋아요</span></label>
           <div class="df-chipset" id="df-pc-chips" role="radiogroup" aria-label="사진 장수"></div><p class="df-hint" id="df-pc-note"></p></div></div>
-    </section>`;
+    <p class="df-hint df-hide" id="mo-nosound" data-pw="4">이 영상 구성은 소리를 따로 정하지 않아요. 다음 단계로 넘어가 주세요.</p></section>`;
   }
   function yadamSectionHtml() {
     const tier = t => `<label><input type="radio" name="df-ytier" value="${t}"${t === '표준형' ? ' checked' : ''}><span class="tcard"><b>${t}${t === '표준형' ? ' · 추천' : ''}</b><small><span class="yts" data-t="${t}"></span><br><span class="ytp" data-t="${t}"></span></small></span></label>`;
     return `<section class="df-sec df-yadam df-hide" style="--c:#e2a23c"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h6a2 2 0 0 1 2 2v12a2 2 0 0 0-2-2H4z"/><path d="M20 5h-6a2 2 0 0 0-2 2v12a2 2 0 0 1 2-2h6z"/></svg></span><div><h3>야담 설정</h3><p>소재와 길이, 목소리를 정해주세요. 이야기는 AI가 지어서 들려줘요</p></div></div>
-      <div class="df-use"><p>옛이야기를 이야기꾼의 목소리로 들려주고 장면을 그림으로 보여줘요. 눌러서 소재 예시로 시작해 보세요.</p><div class="len-chips" id="df-yd-ex">${[['도깨비와 욕심 많은 부자','욕심 많은 부자와 도깨비의 내기 이야기'],['효자와 호랑이','산길에서 호랑이를 만난 효자 이야기'],['지혜로운 사또','마을의 억울한 일을 지혜롭게 풀어내는 사또 이야기'],['선녀와 나무꾼','하늘에서 내려온 선녀와 나무꾼 이야기']].map(([l, t]) => `<button type="button" class="len-chip" data-topic="${t}">${l}</button>`).join('')}</div></div>
-      <div class="df-field"><label>어떤 방식으로 만들까요</label><div class="df-chipset df-ykind" role="radiogroup" aria-label="야담 방식">
+      <div class="df-use" data-pw="2"><p>옛이야기를 이야기꾼의 목소리로 들려주고 장면을 그림으로 보여줘요. 눌러서 소재 예시로 시작해 보세요.</p><div class="len-chips" id="df-yd-ex">${[['도깨비와 욕심 많은 부자','욕심 많은 부자와 도깨비의 내기 이야기'],['효자와 호랑이','산길에서 호랑이를 만난 효자 이야기'],['지혜로운 사또','마을의 억울한 일을 지혜롭게 풀어내는 사또 이야기'],['선녀와 나무꾼','하늘에서 내려온 선녀와 나무꾼 이야기']].map(([l, t]) => `<button type="button" class="len-chip" data-topic="${t}">${l}</button>`).join('')}</div></div>
+      <div class="df-field" data-pw="3"><label>어떤 방식으로 만들까요</label><div class="df-chipset df-ykind" role="radiogroup" aria-label="야담 방식">
         <label><input type="radio" name="df-ykind" value="long" checked><span class="tcard"><b>인트로 영상 + 긴 이야기 · 추천</b><small>처음엔 AI 영상으로 시작하고, 그림이 천천히 바뀌어요 · 최대 <span data-yl-max>${hourLabel(YL_MAX_MIN)}</span></small></span></label>
         <label><input type="radio" name="df-ykind" value="classic"><span class="tcard"><b>그림이 자주 바뀌는 야담</b><small>그림이 30초마다 바뀌어요 · 최대 <span data-yd-max>${hourLabel(LONG_MAX_MIN['야담'])}</span></small></span></label>
       </div></div>
-      <div class="df-field"><label>영상 길이 <span class="opt" id="df-yd-range">5분 ~ 8시간</span></label>
+      <div class="df-field" data-pw="3"><label>영상 길이 <span class="opt" id="df-yd-range">5분 ~ 8시간</span></label>
         <div class="len-pick" id="df-yd-pick-classic"><div class="len-box"><button type="button" data-ystep="-5" aria-label="5분 줄이기">−</button><input type="number" id="df-yd-min" inputmode="numeric" min="5" max="480" step="1" value="60" aria-label="분"><button type="button" data-ystep="5" aria-label="5분 늘리기">＋</button></div><span class="len-unit">분</span></div>
         <div class="len-pick" id="df-yd-pick-long">
           <div class="len-box"><button type="button" data-ylstep="h:-1" aria-label="시간 줄이기">−</button><input type="number" id="df-yl-h" inputmode="numeric" min="0" max="8" step="1" value="1" aria-label="시간"><button type="button" data-ylstep="h:1" aria-label="시간 늘리기">＋</button></div><span class="len-unit">시간</span>
@@ -2920,12 +2927,12 @@
         </div>
         <div class="len-read" id="df-yd-read"></div>
         <div class="len-chips" id="df-yd-chips"></div><p class="df-hint" id="df-yd-note"></p></div>
-      <div class="df-field" id="df-yl-intro-field"><label>인트로 영상 길이 <span class="opt">5초 ~ 60초</span></label>
+      <div class="df-field" id="df-yl-intro-field" data-pw="3"><label>인트로 영상 길이 <span class="opt">5초 ~ 60초</span></label>
         <div class="len-pick"><div class="len-box"><button type="button" data-istep="-5" aria-label="5초 줄이기">−</button><input type="number" id="df-yl-intro" inputmode="numeric" min="5" max="60" step="1" value="10" aria-label="초"><button type="button" data-istep="5" aria-label="5초 늘리기">＋</button></div><span class="len-unit">초</span></div>
         <div class="len-read" id="df-yl-intro-read"></div><p class="df-hint" id="df-yl-intro-note"></p></div>
-      <div class="df-field"><label>품질 등급</label><div class="df-chipset" role="radiogroup" aria-label="품질 등급">${tier('경제형')}${tier('표준형')}${tier('고급형')}</div></div>
-      <div class="df-field"><label>이야기꾼 목소리</label><select id="df-yvoice"><option value="남성">남성 · 차분한 이야기꾼</option><option value="여성">여성 · 부드러운 이야기꾼</option></select></div>
-      <p class="df-hint">이야기는 조선 배경의 창작 이야기나 널리 알려진 민담으로 만들어요. 실존 인물·실제 사건은 넣지 않아요. 자막이 함께 들어가고, 분위기 있는 국악풍 배경음악이 작게 깔려요.</p>
+      <div class="df-field" data-pw="3"><label>품질 등급</label><div class="df-chipset" role="radiogroup" aria-label="품질 등급">${tier('경제형')}${tier('표준형')}${tier('고급형')}</div></div>
+      <div class="df-field" data-pw="4"><label>이야기꾼 목소리</label><select id="df-yvoice"><option value="남성">남성 · 차분한 이야기꾼</option><option value="여성">여성 · 부드러운 이야기꾼</option></select></div>
+      <p class="df-hint" data-pw="2">이야기는 조선 배경의 창작 이야기나 널리 알려진 민담으로 만들어요. 실존 인물·실제 사건은 넣지 않아요. 자막이 함께 들어가고, 분위기 있는 국악풍 배경음악이 작게 깔려요.</p>
     </section>`;
   }
   // ===== 상품쇼츠: 고객이 올린 사진·영상으로 만드는 제품 소개 세로 쇼츠 =====
@@ -3113,6 +3120,38 @@
   // 입력 화면의 값을 읽어 접수 서버와 같은 규칙으로 검사한다. { err, el } 또는 { data } 를 돌려준다.
   // opt.partial: 마지막 확인(권리·사람·동의) 칸이 비어 있어도 값을 돌려준다(확인 요약용). opt.mutate===false: 칸의 글을 고쳐 쓰지 않는다(입력 중 남은 항목 세기용).
   // 돌려주는 probs 는 모든 문제의 목록이고, 각 항목의 part 는 어느 단계의 문제인지(content 내용 / media 사진·영상 / style 꾸미기 / agree 확인)를 말한다.
+  // ===== [분위기 영상·야담] 단계 화면의 막힘 검사. 조건과 문구는 확인 단계의 기존 alert 규칙과 같다(그쪽은 안전망으로 남겨 둔다). 신청 데이터는 만들지 않는다 =====
+  function readMood() {
+    const g = id => document.getElementById(id), v = id => (g(id) ? g(id).value.trim() : '');
+    const probs = [], add = (part, label, msg, el) => probs.push({ part, label, msg, el });
+    const 말 = 현재말(), 대본 = 무드대본(), 소리 = 현재소리();
+    if (!v('df-topic') && !((말 === '글자' || 말 === '목소리') && 대본)) add('content', '이야기·분위기', '어떤 분위기의 영상인지 적어 주세요.', g('df-topic'));
+    if (말 === '내목소리' && !NARRATION_OWN_READY) add('content', '내 목소리', '내 목소리 녹음은 곧 열려요. 지금은 글자나 AI 목소리로 만들어 주세요.', document.querySelector('input[name="df-nar"]'));
+    if ((말 === '글자' || 말 === '목소리') && !대본) add('content', '읽을 대본', '읽을 대본을 먼저 골라 주세요. "영상 편지 대본 만들기"를 누르면 쉽게 만들 수 있어요.', g('df-mood-script') || document.querySelector('input[name="df-nar"]'));
+    if (말 === '내목소리') {
+      if (!/drive\.google\.com\/(drive\/(u\/\d+\/)?folders\/|file\/d\/|open\?id=)[A-Za-z0-9_-]{10,}/.test(v('df-voiceUrl'))) add('content', '내 목소리 녹음 링크', '내 목소리 녹음이 있는 구글 드라이브 링크를 붙여넣어 주세요.', g('df-voiceUrl'));
+      if (!(g('df-voiceRights') && g('df-voiceRights').checked)) add('content', '녹음 사용 권리 확인', '녹음 사용 권리 확인에 체크해 주세요.', g('df-voiceRights'));
+    }
+    if (소리 === '내음악') {
+      if (!/drive\.google\.com\/(drive\/(u\/\d+\/)?folders\/|open\?id=)[A-Za-z0-9_-]{10,}/.test(v('df-musicFolder'))) add('sound', '내 음악 폴더 링크', '구글 드라이브 폴더 링크를 붙여넣어 주세요. (https://drive.google.com/drive/folders/… 모양이에요)', g('df-musicFolder'));
+      if (!(g('df-musicRights') && g('df-musicRights').checked)) add('sound', '음악 사용 권리 확인', '내 음악을 쓰시려면 사용 권리 확인에 체크해 주세요.', g('df-musicRights'));
+    }
+    const first = probs[0];
+    return { probs, err: first ? first.msg : '', el: first ? first.el : null, part: first ? first.part : '' };
+  }
+  function readYadam() {
+    const g = id => document.getElementById(id), v = id => (g(id) ? g(id).value.trim() : '');
+    const probs = [], add = (part, label, msg, el) => probs.push({ part, label, msg, el });
+    const sr = (window.__rwScript && window.__rwScript.src === 'ready') ? window.__rwScript : null;
+    const lib = window.__rwScriptLib ? window.__rwScriptLib() : [];
+    const card = g('df-script-card');
+    if (sr && !lib.some(x => x.id === sr.id && x.chapters && x.chapters.length)) add('content', '내 대본', '선택한 대본을 이 브라우저 보관함에서 찾지 못했어요. 대본을 다시 불러와 주세요.', card);
+    else if (sr) { const x = lib.find(y => y.id === sr.id); if (x && x.chars < 300) add('content', '내 대본', '대본이 너무 짧아요. 300자 이상 이야기로 써 주세요. (지금 ' + x.chars + '자)', card); }
+    if (!sr && !v('df-topic')) add('content', '이야기 소재', '어떤 이야기를 들려줄지 적어 주세요.', g('df-topic'));
+    if (sr && 야담형식() === 'classic' && sr.minutes > LONG_MAX_MIN['야담']) add('screen', '방식', '이 대본은 ' + hourLabel(LONG_MAX_MIN['야담']) + '이 넘어서 기존 야담으로는 만들 수 없어요. "인트로 영상 + 긴 이야기"를 고르거나, 2단계에서 대본을 바꿔 주세요.', document.querySelector('input[name="df-ykind"]'));
+    const first = probs[0];
+    return { probs, err: first ? first.msg : '', el: first ? first.el : null, part: first ? first.part : '' };
+  }
   // ===== [일반 영상] 단계 화면에서 쓰는 값 읽기·검사. 신청 데이터(payload)는 만들지 않는다 - 신청은 예전과 같은 확인 흐름(df-confirm)이 만든다 =====
   function readGeneral() {
     const g = id => document.getElementById(id), v = id => (g(id) ? g(id).value.trim() : '');
@@ -3455,6 +3494,12 @@
   const PW_NAMES = ['종류', '내용', '화면·길이', '소리', '꾸미기', '확인'];
   const PW_TODO = ['어떤 영상을 만들지 골라 주세요', '제품 이름과 내용을 적어 주세요', '사진·영상, 길이, 영상 제작 방식을 정해 주세요', '목소리를 정해 주세요', '화면 모양과 자막을 확인해 주세요 (그대로 두어도 돼요)', '내용을 확인하고 신청해 주세요'];
   const PW_TODO_GN = ['쇼츠와 롱폼 중에서 골라 주세요', '무엇에 대한 영상인지 적어 주세요', '영상 길이와 영상 제작 방식을 정해 주세요', '목소리를 정해 주세요 (그대로 두어도 돼요)', '상단 문구, 화면 구성, 자막 위치를 정해 주세요 (그대로 두어도 돼요)', '내용을 확인하고 신청해 주세요'];
+  const PW_NAMES_LONG = ['종류', '내용', '화면·길이', '소리', '확인'];   // 분위기 영상·야담: 꾸미기 단계가 없다
+  const PW_TODO_MO = ['어떤 영상인지 골라 주세요', '이야기·분위기와 영상 구성을 정해 주세요', '영상 길이와 그림 방식을 정해 주세요', '소리를 정해 주세요 (그대로 두어도 돼요)', '내용을 확인하고 신청해 주세요'];
+  const PW_TODO_YD = ['어떤 영상인지 골라 주세요', '이야기 소재나 내 대본을 정해 주세요', '방식과 길이, 품질을 정해 주세요', '이야기꾼 목소리를 정해 주세요', '내용을 확인하고 신청해 주세요'];
+  const PW_TITLES = {   // 한 카드를 단계마다 다른 제목으로 보여 준다 (카드 하나에 여러 단계 내용이 들어 있어서)
+    '수면음악': { 2: ['영상 구성', '무엇을 담을지 골라 주세요. 고른 것에 맞춰 필요한 칸만 보여요'], 3: ['길이와 그림', '길이, 품질, 그림이 보이는 방식을 정해 주세요'], 4: ['소리', '소리와 목소리를 정해 주세요'] },
+    '야담': { 2: ['이야기 소재', '소재 예시로 시작해 볼 수 있어요'], 3: ['방식과 길이', '방식, 길이, 품질을 정해 주세요'], 4: ['이야기꾼 목소리', '목소리를 골라 주세요'] } };
   const PW_ICON = ['M4 5h12v10H4z M7 5v10 M13 5v10 M4 8h3 M4 12h3 M13 8h3 M13 12h3', 'M4 16l1-4 8-8 3 3-8 8z M12 5l3 3', 'M3 4h14v12H3z M3 14l4-4 3 3 3-3 4 4 M13 7.5h.01', 'M4 8v4h3l4 3V5L7 8z M14 7a4 4 0 010 6', 'M10 3l1.8 4.2L16 9l-4.2 1.8L10 15l-1.8-4.2L4 9l4.2-1.8z', 'M4 10.5l4 4 8-9'];
   const PW_OK = 'M4 10.5l4 4 8-9', PW_LOCK = 'M5 9h10v7H5z M7 9V7a3 3 0 016 0v2';
   function setupWizard(wrap, isMedia) {
@@ -3475,16 +3520,22 @@
     fields.appendChild(review);
     const agree0 = fields.querySelector('.pd-agree'); if (agree0) fields.appendChild(agree0);   // 요약 아래에 동의 칸이 오게 맨 뒤로 옮긴다
     let step = 0, maxReached = 0;
-    const LAST = PW_NAMES.length - 1;   // 마지막(확인) 단계 번호
+    let LAST = PW_NAMES.length - 1;   // 마지막(확인) 단계 번호 (분위기·야담은 5단계라 render 에서 맞춘다)
     const GN = () => 현재종류() === '일반';
-    const on = () => 현재종류() === '상품쇼츠' || (GN() && PRODUCT_READY());   // 일반 영상도 같은 단계 화면 (상품쇼츠와 같은 열쇠 ?prod=1 뒤에서만)
+    const MO = () => 현재종류() === '수면음악', YD = () => 현재종류() === '야담', LONGK = () => MO() || YD();
+    const namesOf = () => LONGK() ? PW_NAMES_LONG : PW_NAMES;
+    const iconOf = i => PW_ICON[PW_NAMES.indexOf(namesOf()[i])];
+    const on = () => 현재종류() === '상품쇼츠' || ((GN() || LONGK()) && PRODUCT_READY());   // 일반 영상도 같은 단계 화면 (상품쇼츠와 같은 열쇠 ?prod=1 뒤에서만)
     const gnForm = () => fields.querySelector('.gn-formsec');
-    const todoOf = i => (GN() ? PW_TODO_GN : PW_TODO)[i];
+    const todoOf = i => (GN() ? PW_TODO_GN : MO() ? PW_TODO_MO : YD() ? PW_TODO_YD : PW_TODO)[i];
     const typeSec = () => { const t = document.getElementById('df-types'); return t ? t.closest('.df-sec') : null; };
     const q = sel => fields.querySelector(sel);
     const secsGn = () => [[typeSec(), gnForm()], [q('.gn-content'), q('.gn-link'), q('.gn-img'), q('.df-extra')], [q('.gn-screen')], [q('.df-voicesec'), q('.df-gender')], [q('.gn-style'), q('.gn-thumb')], [review]];
-    const secs = () => GN() ? secsGn() : [[typeSec()], [q('.pd-content'), q('.df-extra')], [q('.pd-media')], [q('.df-voicesec'), q('.df-gender')], [q('.pd-style')], [review, q('.pd-agree')]];   // 한 단계에 섹션이 둘 이상일 수 있다 (기존 옵션을 숨기지 않으려고)
-    const PARTS_PD = { 1: 'content', 2: 'media', 4: 'style', 5: 'agree' }, PARTS_GN = { 1: 'content', 2: 'screen', 4: 'style' };
+    const secsLong = () => [[typeSec()], [q('.sc-card'), q('.gn-content'), q(MO() ? '.df-sleep' : '.df-yadam')], [q(MO() ? '.df-sleep' : '.df-yadam')], [q(MO() ? '.df-sleep' : '.df-yadam'), q('.df-voicesec')], [review]];   // 같은 카드(.df-sleep/.df-yadam)가 2·3·4단계에 모두 들어가고, 안의 블록은 data-pw 로 단계별로 나뉜다
+    const secs = () => LONGK() ? secsLong() : GN() ? secsGn() : [[typeSec()], [q('.pd-content'), q('.df-extra')], [q('.pd-media')], [q('.df-voicesec'), q('.df-gender')], [q('.pd-style')], [review, q('.pd-agree')]];   // 한 단계에 섹션이 둘 이상일 수 있다 (기존 옵션을 숨기지 않으려고)
+    const PARTS_PD = { 1: 'content', 2: 'media', 4: 'style', 5: 'agree' }, PARTS_GN = { 1: 'content', 2: 'screen', 4: 'style' }, PARTS_MO = { 1: 'content', 3: 'sound' }, PARTS_YD = { 1: 'content', 2: 'screen' };
+    const partsOf = () => MO() ? PARTS_MO : YD() ? PARTS_YD : GN() ? PARTS_GN : PARTS_PD;
+    const readerOf = () => MO() ? readMood() : YD() ? readYadam() : GN() ? readGeneral() : readProduct({ mutate: false });
     const showErr = (m, focusEl) => {
       const box = nav.querySelector('.pw-err');
       box.textContent = '';
@@ -3492,7 +3543,7 @@
       if (m && focusEl) pdShowErr(m, focusEl);   // 문제가 있는 칸 바로 아래에도 같은 설명을 보인다 (폰에서 화면 밖으로 밀리지 않게)
       else pdShowErr('');
     };
-    const probsOf = i => { const part = (GN() ? PARTS_GN : PARTS_PD)[i]; if (!part) return []; return (GN() ? readGeneral() : readProduct({ mutate: false })).probs.filter(x => x.part === part); };
+    const probsOf = i => { const part = partsOf()[i]; if (!part) return []; return readerOf().probs.filter(x => x.part === part); };
     const esc = pdEsc;
     // 이 단계로 갈 수 있나: 앞 단계가 모두 맞아야 하고, 한 번이라도 가 본 단계까지만
     const stateOf = i => {
@@ -3502,6 +3553,29 @@
       for (let j = 0; j < i; j++) if (probsOf(j).length) return 'todo';
       return probsOf(i).length ? 'redo' : 'done';
     };
+    // 분위기 영상·야담 요약
+    function buildReviewLong() {
+      const gv = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+      const lab = name => { const r = document.querySelector(`input[name="${name}"]:checked`); const b = r && r.closest('label') && r.closest('label').querySelector('b'); return b ? b.textContent.replace(/\s*·\s*추천/, '').trim() : (r ? r.value : ''); };
+      const row = (k, v, go) => `<div class="pw-row"><span class="pw-k">${k}</span><span class="pw-v">${esc(v)}</span><button type="button" class="pw-fix" data-go="${go}">고치기</button></div>`;
+      const 분표시 = m => { m = Math.round(m); const h = Math.floor(m / 60), r = m % 60; return h ? (r ? `${h}시간 ${r}분` : `${h}시간`) : `${r}분`; };
+      const head = `<div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg></span><div><h3 data-n="${LAST + 1}">이대로 만들까요?</h3><p>고칠 곳이 있으면 "고치기"를 눌러 그 단계로 돌아가세요</p></div></div>`;
+      if (MO()) {
+        const 말 = 현재말(), 대본 = 무드대본(), 읽기 = 말 === '글자' || 말 === '목소리';
+        const 길이 = planMode !== 'paid' ? '3분 (체험판)' : 읽기 ? '대본 길이에 맞춰요' + (대본 && 대본.minutes ? ' (약 ' + 분표시(대본.minutes) + ')' : '') : 분표시(롱폼길이분());
+        const 소리칸 = !document.getElementById('df-snd-field').classList.contains('df-hide');
+        review.innerHTML = head + row('영상 구성', lab('df-comp'), 1) + row('이야기·분위기', gv('df-topic') || (대본 ? 대본.title : '아직 비어 있어요'), 1) +
+          (읽기 && 대본 ? row('읽을 대본', 대본.title, 1) : '') + (말 === '내목소리' ? row('내 목소리 녹음', gv('df-voiceUrl').slice(0, 60) || '아직 비어 있어요', 1) : '') + row('영상 길이', 길이, 2) + row('품질 등급', lab('df-tier'), 2) + row('화면 움직임', lab('df-smode'), 2) + row('그림 방식', lab('df-img'), 2) +
+          (소리칸 ? row('소리', 소리이름[현재소리()] || 현재소리(), 3) : '') + (말 === '목소리' && window.RWVoice ? row('목소리', RWVoice.summary() || '기본', 3) : '') +
+          `<p class="pw-note">${planMode === 'paid' ? '' : '체험판은 3분 길이로 만들어요. '}AI 목소리나 AI 그림이 들어간 영상은 유튜브에 올릴 때 "변경된 콘텐츠" 표시를 확인해 주세요.${대본 && 대본.occ === '부고·추모' && 읽기 ? esc(' 부고·추모 영상이라 신청 직전에 성함·일시·장소를 한 번 더 확인해요.') : ''}</p>`;
+      } else {
+        const sr = (window.__rwScript && window.__rwScript.src === 'ready') ? window.__rwScript : null, long = 야담형식() === 'long';
+        const 분 = planMode === 'paid' ? 롱폼길이분() : 3;
+        review.innerHTML = head + row('만드는 방식', long ? '인트로 영상 + 긴 이야기' : '그림이 자주 바뀌는 야담', 2) + row('이야기', sr ? sr.title + ' (내 대본)' : (gv('df-topic') || '아직 비어 있어요'), 1) +
+          row('영상 길이', planMode !== 'paid' ? '3분 (체험판)' : sr ? '대본 길이에 맞춰요 (약 ' + 분표시(sr.minutes) + ')' : 분표시(분), 2) + (long ? row('인트로 길이', 인트로초() > 0 ? 인트로초() + '초' : '없음', 2) : '') + row('품질 등급', lab('df-ytier'), 2) + row('이야기꾼 목소리', gv('df-yvoice'), 3) +
+          `<p class="pw-note">AI 목소리와 AI 그림${long ? '·AI 영상 인트로' : ''}이 들어간 영상이에요. 유튜브에 올릴 때 "변경된 콘텐츠"(합성 콘텐츠) 표시를 확인해 주세요. 이야기는 창작이며 실존 인물·실제 사건은 넣지 않아요.</p>`;
+      }
+    }
     // 일반 영상 요약: 고른 것을 한눈에 보고, 고칠 곳은 "고치기"로 그 단계에 돌아간다
     function buildReviewGn() {
       const r = readGeneral(), d = r.data, paid = planMode === 'paid';
@@ -3525,6 +3599,7 @@
         `<p class="pw-note">AI 목소리가 들어간 영상은 유튜브에 올릴 때 "변경된 콘텐츠" 표시를 확인해 주세요.${움직임 !== '이미지 중심' ? esc(' AI 영상 장면이 있어서 "합성된 콘텐츠"로도 표시해야 하고, 완성된 영상에서 제품 모양·글자가 실제와 같은지 꼭 확인해 주세요.') : ''}${esc(광고)}</p>`;
     }
     function buildReview() {
+      if (LONGK()) { buildReviewLong(); return; }
       if (GN()) { buildReviewGn(); return; }
       const r = readProduct({ partial: true, mutate: false}); if (r.err) { review.innerHTML = '<p class="pw-note">' + esc(r.err) + '</p>'; return; }
       const d = r.data;
@@ -3545,18 +3620,20 @@
     const TAG = { done: '마침', cur: '지금', todo: '잠김', redo: '다시 확인' };
     // 띠는 한 번만 만들고, 이후에는 같은 버튼의 글자·모양만 바꾼다 (다시 만들면 누르는 중인 버튼이 사라져 첫 클릭이 씹힌다)
     function drawBar() {
+      const key = namesOf().join('|');
+      if (bar.dataset.key !== key) { bar.innerHTML = ''; bar.dataset.key = key; }   // 종류가 바뀌어 단계 수가 달라지면 다시 만든다
       if (!bar.querySelector('.pw-frames')) {
         const holes = '<div class="pw-holes" aria-hidden="true"></div>';
-        bar.innerHTML = holes + '<ol class="pw-frames">' + PW_NAMES.map((n, i) => `<li class="pw-fr"><button type="button" class="pw-st" data-go="${i}">${filmIcon('')}<b>${n}</b><small></small></button></li>`).join('') + '</ol>' + holes;
+        bar.innerHTML = holes + '<ol class="pw-frames">' + namesOf().map((n, i) => `<li class="pw-fr"><button type="button" class="pw-st" data-go="${i}">${filmIcon('')}<b>${n}</b><small></small></button></li>`).join('') + '</ol>' + holes;
       }
       bar.querySelectorAll('.pw-fr').forEach((li, i) => {
         const st = stateOf(i), btn = li.firstChild;
-        const ic = st === 'todo' ? PW_LOCK : st === 'done' ? PW_OK : PW_ICON[i];
+        const ic = st === 'todo' ? PW_LOCK : st === 'done' ? PW_OK : iconOf(i);
         const go = st === 'done' || st === 'redo';
         const cls = 'pw-st ' + st; if (btn.className !== cls) { btn.className = cls; li.className = 'pw-fr ' + st; }
         if (go || st === 'cur') { btn.removeAttribute('tabindex'); btn.removeAttribute('aria-disabled'); } else { btn.tabIndex = -1; btn.setAttribute('aria-disabled', 'true'); }
         if (st === 'cur') btn.setAttribute('aria-current', 'step'); else btn.removeAttribute('aria-current');
-        const label = (i + 1) + '단계 ' + PW_NAMES[i] + ', ' + TAG[st]; if (btn.getAttribute('aria-label') !== label) btn.setAttribute('aria-label', label);
+        const label = (i + 1) + '단계 ' + namesOf()[i] + ', ' + TAG[st]; if (btn.getAttribute('aria-label') !== label) btn.setAttribute('aria-label', label);
         const path = btn.querySelector('path'); if (path.getAttribute('d') !== ic) path.setAttribute('d', ic);
         const sm = btn.querySelector('small'); if (sm.textContent !== TAG[st]) sm.textContent = TAG[st];
       });
@@ -3611,9 +3688,17 @@
       });
     }
     let wasActive = null;
+    function drawNoSound() {   // 소리를 정할 게 없는 영상 구성(그림만·그림+자막 등)이면 4단계에 안내를 보인다
+      const ns = document.getElementById('mo-nosound'); if (!ns) return;
+      const sndHidden = document.getElementById('df-snd-field').classList.contains('df-hide'), vs = q('.df-voicesec'), vsHidden = !vs || vs.classList.contains('df-hide');
+      ns.classList.toggle('df-hide', !(MO() && sndHidden && vsHidden));
+    }
+    let lastKind = null;
     function render() {
       const active = on();
-      if (!active) { step = 0; maxReached = 0; }   // 종류를 바꿨다가 돌아오면 처음부터 (필수 항목 검사를 건너뛰지 않게)
+      LAST = namesOf().length - 1;
+      if (!active || (lastKind !== null && lastKind !== 현재종류())) { step = 0; maxReached = 0; }   // 종류를 바꾸면 처음부터 (단계 수·필수 항목이 달라서)
+      lastKind = 현재종류();   // 종류를 바꿨다가 돌아오면 처음부터 (필수 항목 검사를 건너뛰지 않게)
       { const dt = fields.querySelector('.gn-more'); if (dt) { if (!active) dt.open = true; else if (!wasActive) dt.open = false; } }   // 단계 화면에서는 '더 세밀하게'를 접어 두고, 예전 화면에서는 늘 펼쳐 둔다
       wasActive = active;
       fields.classList.toggle('pw-on', active);
@@ -3621,23 +3706,32 @@
       review.classList.toggle('df-hide', !active);
       { const gf = gnForm(); if (gf) { gf.classList.toggle('df-hide', !(active && GN())); const sel = document.getElementById('df-form'), want = sel && sel.value === '롱폼' ? '롱폼' : '쇼츠'; const rd = gf.querySelector(`input[name="gn-form"][value="${want}"]`); if (rd) rd.checked = true; } }
       const confirmBtn = document.getElementById('df-confirm');
-      if (!active) { fields.querySelectorAll('.pw-cur').forEach(e => e.classList.remove('pw-cur')); if (confirmBtn) { confirmBtn.style.display = ''; confirmBtn.removeAttribute('aria-disabled'); confirmBtn.classList.remove('is-blocked'); } return; }
+      if (!active) { fields.removeAttribute('data-pwstep'); fields.querySelectorAll('[data-pw-t]').forEach(h => { h.textContent = h.dataset.pwT; }); fields.querySelectorAll('.pw-cur').forEach(e => e.classList.remove('pw-cur')); if (confirmBtn) { confirmBtn.style.display = ''; confirmBtn.removeAttribute('aria-disabled'); confirmBtn.classList.remove('is-blocked'); } return; }
       step = Math.max(0, Math.min(LAST, step));
       maxReached = Math.max(maxReached, step);
       const list = secs();
-      list.forEach((grp, i) => grp.forEach((el, k) => { if (!el) return; el.classList.toggle('pw-cur', i === step); const h = el.querySelector('h3'); if (h) h.dataset.n = k === 0 ? String(i + 1) : ''; }));
+      fields.dataset.pwstep = String(step + 1);
+      { const curEls = new Set(), allEls = new Set();   // 같은 카드가 여러 단계에 들어갈 수 있어서 '지금 단계에 들어 있는지'로 정한다
+        list.forEach((grp, i) => grp.forEach(el => { if (!el) return; allEls.add(el); if (i === step) curEls.add(el); }));
+        fields.querySelectorAll('.pw-cur').forEach(el => { if (!allEls.has(el)) el.classList.remove('pw-cur'); });   // 다른 종류에서 남은 표시를 지운다
+        allEls.forEach(el => el.classList.toggle('pw-cur', curEls.has(el)));
+        { let numbered = false; list[step].filter(Boolean).forEach(el => { const h = el.querySelector('h3'); if (!h) return; if (!numbered && el.offsetParent !== null) { h.dataset.n = String(step + 1); numbered = true; } else h.dataset.n = ''; }); }   // 번호는 이 단계에서 눈에 보이는 첫 카드에만
+        const T = PW_TITLES[현재종류()];   // 분위기·야담: 카드 제목과 설명을 단계에 맞춰 바꾼다 (처음 글자는 보관해 두었다가 단계 화면이 꺼지면 되돌린다)
+        if (T) [q(MO() ? '.df-sleep' : '.df-yadam')].filter(Boolean).forEach(sec => { const h = sec.querySelector('.df-sec-head h3'), pp = sec.querySelector('.df-sec-head p'), tt = T[step + 1]; if (!tt || !h || !pp) return; if (h.dataset.pwT === undefined) { h.dataset.pwT = h.textContent; pp.dataset.pwT = pp.textContent; } h.textContent = tt[0]; pp.textContent = tt[1]; });
+        drawNoSound();
+      }
       if (step === LAST) buildReview();
       nav.querySelector('.pw-prev').style.visibility = step === 0 ? 'hidden' : '';
       const next = nav.querySelector('.pw-next');
       next.style.display = step === LAST ? 'none' : '';
-      next.textContent = '다음: ' + PW_NAMES[Math.min(step + 1, LAST)];
+      next.textContent = '다음: ' + namesOf()[Math.min(step + 1, LAST)];
       if (confirmBtn) confirmBtn.style.display = step === LAST ? '' : 'none';
       showErr('');
       drawHint();
     }
     function go(n, focus) {
       const from = step; step = n; render();
-      const cur = secs()[step][0], h = cur && cur.querySelector('h3');
+      const cur = secs()[step].filter(Boolean).find(e => e.offsetParent !== null && e.querySelector('h3')), h = cur && cur.querySelector('h3');
       if (focus && h) { h.tabIndex = -1; h.focus({ preventScroll: true }); }
       bar.scrollIntoView({ block: 'start' });
       if (n > from) { bar.classList.remove('pw-adv'); void bar.offsetWidth; bar.classList.add('pw-adv'); setTimeout(() => bar.classList.remove('pw-adv'), 600); }   // 필름이 한 칸 감기는 움직임(움직임 줄이기 설정이면 CSS가 끈다)
@@ -3656,7 +3750,7 @@
     review.addEventListener('click', e => { const b = e.target.closest('.pw-fix'); if (b) go(parseInt(b.dataset.go, 10), true); });
     let raf = 0;
     // 입력하면 막힘 안내를 지우고 남은 항목을 다시 센다. 칸을 벗어날 때(change)는 안내를 지우지 않는다 ("다음"을 누르는 순간과 겹쳐 안내가 사라지는 일을 막는다)
-    const soon = clear => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { if (!on()) return; if (clear) showErr(''); drawHint(); if (step === LAST) buildReview(); }); };
+    const soon = clear => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { if (!on()) return; if (clear) showErr(''); drawNoSound(); drawHint(); if (step === LAST) buildReview(); }); };
     fields.addEventListener('input', () => soon(true));
     fields.addEventListener('change', () => soon(false));
     window.__pwRefresh = render;
@@ -3692,7 +3786,7 @@
     if (window.__pwRefresh) window.__pwRefresh();
   }
   let drawYadam = null;
-  window.__rwFormRedraw = function () { try { if (typeof drawYadam === 'function') drawYadam(); if (window.__rwRefreshMoodCard) window.__rwRefreshMoodCard(); updatePrice(); } catch (e) {} };
+  window.__rwFormRedraw = function () { try { if (typeof drawYadam === 'function') drawYadam(); if (window.__rwRefreshMoodCard) window.__rwRefreshMoodCard(); updatePrice(); if (window.__pwRefresh) window.__pwRefresh(); } catch (e) {} };
   function setupLongform() {
     const types = document.getElementById('df-types');
     if (!types) return;
@@ -3755,12 +3849,12 @@
         host.className = 'sc-card ready';
         host.innerHTML = `<h4>이 글을 ${말 === '글자' ? '화면에 글자로 보여줘요' : 'AI 목소리로 읽어요'}</h4><p class="sc-note">${esc2(r.title)} · 약 ${Math.round(r.minutes * 60)}초. 영상 길이는 이 글의 길이에 맞춰져요. 제작을 시작하면 대본이 서버로 전달되고, 끝나면 지워져요.</p><div class="sc-opts"><button type="button" id="mc-edit">다시 열기</button><button type="button" id="mc-clear">대본 빼기</button></div>`;
         host.querySelector('#mc-edit').onclick = () => { const x = L.find(y => y.id === r.id); window.__rwOpenStudio('long', 'mine', x ? { title: x.title, chapters: x.chapters } : null, 'mood'); };
-        host.querySelector('#mc-clear').onclick = () => { window.__rwMoodScript = null; drawMoodScript(); applyNar(); };
+        host.querySelector('#mc-clear').onclick = () => { window.__rwMoodScript = null; drawMoodScript(); applyNar(); if (window.__pwRefresh) window.__pwRefresh(); };
       } else {
         host.className = 'sc-card';
         host.innerHTML = `<h4>읽을 대본</h4><p class="sc-note">받는 사람에게 전할 글이에요. 대본 만들기에서 쉽게 쓸 수 있어요.</p><button type="button" class="sc-act" id="mc-new">영상 편지 대본 만들기</button>` + (L.length ? `<div class="sh-lib" style="margin-top:10px">${L.slice(0, 5).map((x, i) => `<div class="sh-item"><span>${esc2(x.title)} <small>약 ${Math.round(x.minutes * 60)}초</small></span><button type="button" data-mu="${i}">이 대본 쓰기</button></div>`).join('')}</div>` : '');
         host.querySelector('#mc-new').onclick = () => window.__rwOpenStudio('long', 'mine', null, 'mood');
-        host.querySelectorAll('[data-mu]').forEach(b => { b.onclick = () => { const x = L[+b.dataset.mu]; window.__rwMoodScript = { id: x.id, title: x.title, kind: 'mood', minutes: x.minutes, occ: x.occ || '' }; toneTouched = false; drawMoodScript(); applyNar(); }; });
+        host.querySelectorAll('[data-mu]').forEach(b => { b.onclick = () => { const x = L[+b.dataset.mu]; window.__rwMoodScript = { id: x.id, title: x.title, kind: 'mood', minutes: x.minutes, occ: x.occ || '' }; toneTouched = false; drawMoodScript(); applyNar(); if (window.__pwRefresh) window.__pwRefresh(); }; });
       }
     }
     function applyNar() {
@@ -3951,6 +4045,7 @@
         answers = { driveLink: val('df-driveLink') };
         if (val('df-mediaNote')) answers.mediaNote = val('df-mediaNote');
       } else if (현재종류() === '야담') {
+        if (window.__pwOn && window.__pwOn()) { const yr = readYadam(); if (yr.err) { window.__pwGo(yr.part === 'content' ? 1 : 2); pdShowErr(yr.err, yr.el); return; } }   // 단계 화면에서는 막힌 칸이 있는 단계로 돌아가 알려 준다
         const sr = (window.__rwScript && window.__rwScript.src === 'ready') ? window.__rwScript : null;
         if (sr && !((window.__rwScriptLib ? window.__rwScriptLib() : []).some(x => x.id === sr.id && x.chapters && x.chapters.length))) { alert('선택한 대본을 이 브라우저 보관함에서 찾지 못했어요. 대본을 다시 불러와 주세요.'); return; }
         if (sr) { const x = (window.__rwScriptLib ? window.__rwScriptLib() : []).find(y => y.id === sr.id); if (x && x.chars < 300) { alert('대본이 너무 짧아요. 300자 이상 이야기로 써 주세요. (지금 ' + x.chars + '자)'); return; } }
@@ -3973,6 +4068,7 @@
         showSummary();
         return;
       } else if (현재종류() === '수면음악') {
+        if (window.__pwOn && window.__pwOn()) { const mr = readMood(); if (mr.err) { window.__pwGo(mr.part === 'content' ? 1 : 3); pdShowErr(mr.err, mr.el); return; } }
         if (!val('df-topic') && !((현재말() === '글자' || 현재말() === '목소리') && 무드대본())) { alert('어떤 분위기의 영상인지 적어주세요.'); return; }   // 대본을 읽는 영상은 주제를 비워도 대본 제목을 쓴다
         const 소리 = 현재소리();
         const 폴더 = val('df-musicFolder');
