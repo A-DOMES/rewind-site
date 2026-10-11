@@ -87,7 +87,7 @@
     '.vp-add:hover,.vp-add:focus-visible{border-color:var(--amber);color:var(--ink)}.vp-add[hidden]{display:none}' +
     '.vp-add svg{width:16px;height:16px;fill:none;stroke:var(--amber);stroke-width:2;stroke-linecap:round}' +
     '.vp-ai{margin:0 0 14px;font-size:.82rem;line-height:1.55;color:var(--ink-dim)}' +
-    '[data-vp][hidden],.vp-more[hidden]{display:none!important}' +
+    '[data-vp][hidden],.vp-more[hidden],.vp-more.vp-moved{display:none!important}' +
     '.vp-pitch-l{display:flex;justify-content:space-between;font-size:.76rem;color:var(--ink-dim);margin:-4px 8px 0}';
 
   function injectCss() {
@@ -193,7 +193,7 @@
     $('vp-speed-hint').textContent = Math.abs(pct) < 2 ? '보통 속도예요' : (pct > 0 ? '보통보다 약 ' + pct + '% 빠르게 말해요. ' + (kindCur === '야담' ? '영상 길이는 그대로 맞춰 써요' : '같은 대본이면 영상이 그만큼 짧아져요') : '보통보다 약 ' + (-pct) + '% 느리게 말해요. ' + (kindCur === '야담' ? '영상 길이는 그대로 맞춰 써요' : '같은 대본이면 영상이 그만큼 길어져요'));
     document.querySelectorAll('.vp-ticks span').forEach(function (s) { s.classList.toggle('on', t.v === parseFloat(s.dataset.v) && Math.abs(v - t.v) < 0.06); });
     var p = pitchValue(); $('vp-pitch-now').textContent = p === 0 ? '기본' : (p > 0 ? '+' + p : String(p));
-    $('vp-sum').textContent = summary();
+    if ($('vp-sum')) $('vp-sum').textContent = summary();
     var off = vis('subOn') && checked('vp-subOn') === '끄기';
     ['vp-subPos', 'vp-subSize', 'vp-subBreak'].forEach(function (n) { document.querySelectorAll('input[name="' + n + '"]').forEach(function (i) { i.disabled = off; }); var g = document.getElementById(n + '-l'); if (g && g.parentNode) g.parentNode.style.opacity = off ? '.45' : ''; });
     if (typeof opts.onChange === 'function') opts.onChange(value());
@@ -279,9 +279,44 @@
     refresh();
   }
 
+
+  /* 상품쇼츠 '꾸미기' 단계: 접어 둔 "자세히" 묶음(음높이·쉼·자막·발음 사전)을 다른 단계 화면으로 옮겨 펼쳐 보여 준다.
+   *  같은 칸을 그대로 옮기므로 값·전송 규칙은 그대로다. 상품쇼츠가 아닐 때는 원래 자리(접힌 자세히)로 되돌린다.
+   *  posIcon(값)이 있으면 자막 위치 카드의 작은 그림을 그 그림으로 바꿔 쓴다(그림은 되돌릴 때 원래 아이콘으로 복원) */
+  var POS_TEXT = { '하단': ['아래쪽', '앱 버튼 위 · 기본'], '가운데': ['가운데', '화면 한가운데'], '상단': ['위쪽', '화면 위쪽'] };
+  function detach(slot, posIcon) {
+    var more = $('vp-more'), body = more && more.querySelector('.vp-body');
+    if (!slot || !body) return;
+    slot.appendChild(body);
+    more.classList.add('vp-moved');
+    document.querySelectorAll('input[name="vp-subPos"]').forEach(function (i) {
+      var ci = i.parentNode.querySelector('.ci'); if (!ci) return;
+      if (ci.dataset.orig === undefined) ci.dataset.orig = ci.innerHTML;
+      ci.innerHTML = posIcon ? posIcon(i.value) : ci.dataset.orig;
+      var b = i.parentNode.querySelector('b'), sm = i.parentNode.querySelector('small'), t = POS_TEXT[i.value];
+      if (b && sm && t) { if (b.dataset.orig === undefined) { b.dataset.orig = b.textContent; sm.dataset.orig = sm.textContent; } b.textContent = posIcon ? t[0] : b.dataset.orig; sm.textContent = posIcon ? t[1] : sm.dataset.orig; }   // 그림 카드에서는 쇼츠 앱 기준 이름을 쓴다
+      i.parentNode.classList.toggle('vp-poslp', !!posIcon);
+    });
+    if (slot.classList) slot.classList.add('vp-detached');
+    var h = document.querySelector('.df-voice .df-sec-head h3'); if (h) { if (h.dataset.orig === undefined) h.dataset.orig = h.textContent; h.textContent = '목소리'; }   // 자막은 꾸미기 단계로 옮겨 갔다
+  }
+  function attach() {
+    var more = $('vp-more'); if (!more) return;
+    var body = document.querySelector('.vp-detached > .vp-body');
+    if (body) { var slot = body.parentNode; more.appendChild(body); slot.classList.remove('vp-detached'); }
+    more.classList.remove('vp-moved');
+    var h = document.querySelector('.df-voice .df-sec-head h3'); if (h && h.dataset.orig !== undefined) { h.textContent = h.dataset.orig; delete h.dataset.orig; }
+    document.querySelectorAll('input[name="vp-subPos"]').forEach(function (i) {
+      var ci = i.parentNode.querySelector('.ci'); if (ci && ci.dataset.orig !== undefined) { ci.innerHTML = ci.dataset.orig; delete ci.dataset.orig; }
+      i.parentNode.classList.remove('vp-poslp');
+      var b = i.parentNode.querySelector('b'), sm = i.parentNode.querySelector('small');
+      if (b && sm && b.dataset.orig !== undefined) { b.textContent = b.dataset.orig; sm.textContent = sm.dataset.orig; delete b.dataset.orig; delete sm.dataset.orig; }
+    });
+  }
+
   window.RWVoice = {
     setKind: setKind,
-    sectionHtml: sectionHtml, init: init, value: value, summary: summary, captionPos: captionPos,
+    sectionHtml: sectionHtml, init: init, detach: detach, attach: attach, value: value, summary: summary, captionPos: captionPos,
     defaults: def, previewReady: false
   };
 })();

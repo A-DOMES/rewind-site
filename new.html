@@ -1109,7 +1109,7 @@
   .pw-bar { scroll-margin-top: 64px; margin: 0 0 12px; background: var(--bg-raised); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
   .pw-bar[hidden], .pw-nav[hidden], .pw-hint[hidden] { display: none; }
   .pw-holes { height: 8px; margin: 6px 10px; background: repeating-linear-gradient(90deg, var(--bg) 0 10px, transparent 10px 22px); border-radius: 2px; }
-  .pw-frames { list-style: none; margin: 0; padding: 0 10px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+  .pw-frames { list-style: none; margin: 0; padding: 0 10px; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
   .pw-fr { min-width: 0; display: flex; }
   .pw-st { flex: 1; min-width: 0; min-height: 70px; box-sizing: border-box; border-radius: 4px; border: 2px solid var(--line); background: var(--bg-input, transparent); color: var(--ink-dim); font: inherit; padding: 8px 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: default; transition: background .35s, color .35s, border-color .35s; }
   .pw-st b { font-size: .84rem; font-weight: 600; line-height: 1.25; text-align: center; white-space: nowrap; }
@@ -1131,7 +1131,7 @@
   #df-fields.pw-on .df-sec-head h3[data-n=""]::before { display: none; }
   @media (max-width: 640px) {
     .pw-frames { display: flex; gap: 5px; padding: 0 8px; }
-    .pw-fr { flex: 1 1 44px; min-width: 44px; }
+    .pw-fr { flex: 1 1 38px; min-width: 38px; }
     .pw-fr.cur { flex: 2.6 1 0; min-width: 76px; }
     .pw-holes { margin: 5px 8px; height: 6px; }
     .pw-st { min-height: 58px; padding: 6px 2px; }
@@ -1181,6 +1181,48 @@
   .pw-review .pw-fix { flex: none; min-height: 36px; padding: 0 14px; border-radius: 18px; border: 1px solid var(--line); background: transparent; color: var(--ink); font: inherit; font-size: .84rem; cursor: pointer; }
   .pw-review .pw-fix:hover, .pw-review .pw-fix:focus-visible { border-color: var(--amber); }
   .pw-review .pw-note { margin: 8px 0 12px; font-size: .84rem; line-height: 1.55; color: var(--ink-dim); }
+  /* ===== [상품쇼츠] 영상 제작 방식 · 꾸미기 단계 ===== */
+  .pd-motion { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .pd-motion .lp-card svg { width: 34px; height: 60px; }
+  .pd-motion .lp-card em { font-style: normal; font-size: .74rem; color: var(--ink-dim); font-variant-numeric: tabular-nums; }
+  .pd-motion .lp-opt.is-off .lp-card, .pd-layout .lp-opt.is-off .lp-card { opacity: .55; }
+  .pd-soon { display: inline-block; margin-top: 1px; padding: 1px 8px; border-radius: 10px; border: 1px dashed var(--line-strong, var(--line)); color: var(--ink-dim); font-style: normal; font-size: .7rem; line-height: 1.5; }
+  .pd-lenin { display: flex; align-items: center; gap: 8px; margin-top: 12px; color: var(--ink-dim); font-size: .9rem; flex-wrap: wrap; }
+  .pd-lenin label { margin: 0; font-weight: 600; color: var(--ink); }
+  .pd-lenin input { width: 92px; min-height: 44px; text-align: right; font-variant-numeric: tabular-nums; }
+  .pd-lenin small { color: var(--ink-faint); }
+  .pd-stylegrid { display: flex; flex-direction: column; gap: 14px; }
+  .pd-pv { order: -1; align-self: center; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .pd-hookshow label.is-off .tcard { opacity: .5; cursor: default; }
+  .pw-pv { display: flex; flex-direction: column; align-items: center; gap: 4px; margin: 4px 0 12px; }
+  .pw-pv svg { display: block; width: 118px; height: auto; }
+  .pw-pv small { font-size: .78rem; color: var(--ink-dim); }
+  .pd-pvbtn { display: block; width: 132px; padding: 0; border: 1px solid var(--line); border-radius: 14px; background: var(--bg); cursor: zoom-in; }
+  .pd-pvbtn:hover, .pd-pvbtn:focus-visible { border-color: var(--amber); }
+  .pd-pvbtn:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+  .pd-pvbtn svg { display: block; width: 100%; height: auto; }
+  .pd-pv small { font-size: .78rem; color: var(--ink-dim); text-align: center; line-height: 1.4; }
+  .pd-sub { margin: 22px 0 0; padding-top: 14px; border-top: 1px solid var(--line); font-size: .86rem; font-weight: 700; color: var(--ink); }
+  .pd-vpslot .vp-body { display: flex; flex-direction: column; padding: 0; border: 0; }
+  .pd-vpslot [data-vp="subOn"] { order: 1; } .pd-vpslot [data-vp="subPos"] { order: 2; } .pd-vpslot [data-vp="subSize"] { order: 3; } .pd-vpslot [data-vp="subBreak"] { order: 4; }
+  .pd-vpslot [data-vp="pitch"] { order: 6; } .pd-vpslot [data-vp="style"] { order: 7; } .pd-vpslot [data-vp="pause"] { order: 8; } .pd-vpslot [data-vp="dict"] { order: 9; }
+  .pd-vpslot [data-vp="subOn"]::before, .pd-vpslot [data-vp="pitch"]::before { display: block; margin: 0 0 12px; padding-top: 14px; border-top: 1px solid var(--line); font-size: .86rem; font-weight: 700; color: var(--ink); }
+  .pd-vpslot [data-vp="subOn"]::before { content: "자막 설정"; }
+  .pd-vpslot [data-vp="pitch"]::before { content: "목소리 세부 설정 (음높이 · 쉼 · 발음 사전)"; }
+  .pd-vpslot [data-vp="pitch"] { margin-top: 22px; }
+  .pd-vpslot .vp-body .df-field { margin-top: 12px; }
+  .pd-vpslot .vp-poslp .ccard { align-items: center; text-align: center; padding: 10px 6px 9px; }
+  .pd-vpslot .vp-poslp .ccard .ci { width: auto; height: auto; background: none; margin: 0; }
+  .pd-vpslot .vp-poslp .ccard .ci svg { width: 40px; height: 71px; fill: none; stroke: none; stroke-width: 0; }
+  .pd-vpslot [data-vp="subPos"] .df-comp { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .pd-dlg { border: 1px solid var(--line); border-radius: 16px; padding: 0; background: var(--bg); color: var(--ink); width: min(92vw, 420px); max-height: 92vh; }
+  .pd-dlg::backdrop { background: rgba(0, 0, 0, .6); }
+  .pd-dlg-in { position: relative; padding: 18px 18px 16px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .pd-dlg h4 { margin: 0; font-size: 1rem; align-self: flex-start; padding-right: 40px; }
+  .pd-dlg-x { position: absolute; top: 8px; right: 8px; width: 44px; height: 44px; border: 0; border-radius: 22px; background: transparent; color: var(--ink); font-size: 1.6rem; cursor: pointer; }
+  .pd-dlg-x:hover, .pd-dlg-x:focus-visible { background: color-mix(in srgb, var(--amber) 14%, var(--bg)); }
+  .pd-dlg-svg svg { display: block; height: min(64vh, 560px); width: auto; max-width: 100%; }
+  .pd-dlg ul { margin: 0; padding-left: 18px; font-size: .84rem; line-height: 1.6; color: var(--ink-dim); align-self: stretch; }
 </style>
 <script src="./theme.js"></script>
 <script src="./assets/voice-panel.js"></script>
@@ -1535,6 +1577,7 @@
     renderPoints(); refreshDirectFormIfOpen();
   }
   function updatePrice() {
+    document.querySelectorAll('#pd-motion [data-rate]').forEach(e => { e.textContent = '분당 ' + (MOTION_RATE[e.dataset.rate] || 0) + 'P'; });   // 시트 설정으로 요금이 바뀌면 카드의 분당 요금도 따라간다
     applyMotionPlan();
     applyThumbPlan();
     const priceBox = document.querySelector('.df-price');
@@ -1567,13 +1610,13 @@
     const isLongform = form && form.value === '롱폼';
     const len = lenInput && parseFloat(lenInput.value) > 0 ? parseFloat(lenInput.value) : defaultLen(isLongform ? '롱폼' : '쇼츠');
     const 상품 = 종류 === '상품쇼츠';
-    const 고른 = (dfMode === 'media' || 상품) ? '이미지 중심' : motionOf(현재움직임() === '자동' ? '혼합' : 현재움직임());
+    const 고른 = dfMode === 'media' ? '이미지 중심' : 상품 ? pdMotion() : motionOf(현재움직임() === '자동' ? '혼합' : 현재움직임());
     const 최고 = computePrice(len, '모두 영상');
     const 막대 = (dfMode === 'media' || 상품) ? '' : '<div class="mb-chart">' + MOTION_LIST.map(m => {
       const v = computePrice(len, m);
       return `<div class="mb-row ${MOTION_CLS[m]}${m === 고른 ? ' on' : ''}"><span>${m}</span><span class="mb-bar"><span class="mb-fill" style="width:${Math.round(v / 최고 * 100)}%;display:block"></span></span><span class="v">${pt(v)}</span></div>`;
     }).join('') + '</div>';
-    priceBox.innerHTML = `<div class="amt" id="df-price-amt">약 ${pt(computePrice(len, 고른))}</div><p>${lenLabel(len)}${lenInput && lenInput.value ? '' : '(기본)'} · ${상품 ? '상품쇼츠 · 이미지 중심' : 고른} 기준 필요 포인트 · 장면 수는 요금과 무관</p>${pointLine(computePrice(len, 고른))}${막대}`;
+    priceBox.innerHTML = `<div class="amt" id="df-price-amt">약 ${pt(computePrice(len, 고른))}</div><p>${lenLabel(len)}${lenInput && lenInput.value ? '' : '(기본)'} · ${상품 ? '상품쇼츠 · ' + 고른 : 고른} 기준 필요 포인트 · 장면 수는 요금과 무관</p>${pointLine(computePrice(len, 고른))}${막대}`;
   }
   function refreshDirectFormIfOpen() {
     updatePrice(); // 폼이 안 열려있으면 updatePrice 안에서 조용히 무시됨
@@ -2036,6 +2079,15 @@
       if (answers.layout && answers.layout !== '자동') payload.layout = answers.layout;
       if (answers.captionPos && answers.captionPos !== '자동') payload.captionPos = answers.captionPos;
       if (planMode === 'paid' && MOTION_RATE[answers.motion]) payload.motion = answers.motion;
+      if (answers.productShort && productExtra) {   // 상품쇼츠는 입력 화면에서 읽어 둔 값이 기준이다 (챗봇이 돌려준 값으로 바뀌지 않게)
+        const pe = productExtra;
+        delete payload.layout; delete payload.captionPos; delete payload.motion; delete payload.hookText;
+        if (pe.layout && pe.layout !== '자동') payload.layout = pe.layout;
+        if (pe.captionPos) payload.captionPos = pe.captionPos;
+        if (planMode === 'paid' && MOTION_RATE[pe.motion]) payload.motion = pe.motion;
+        if (pe.hook) payload.hookText = pe.hook;
+        if (pe.hookShow === '3s') payload.hookShow = '3초';   // 기본(계속 보이기)은 보내지 않는다
+      }
     }
     if (answers.videoType && mode !== 'media') {
       payload.form = '롱폼';
@@ -2052,7 +2104,7 @@
       if (answers.musicFolderUrl) { payload.musicFolderUrl = answers.musicFolderUrl; payload.musicRights = answers.musicRights === true; }
       delete payload.motion;
     }
-    if (answers.hookText) payload.hookText = answers.hookText;
+    if (answers.hookText && !(answers.productShort && productExtra)) payload.hookText = answers.hookText;
     if (answers.sceneCount) payload.sceneCount = answers.sceneCount;
     if (answers.videoLength) payload.videoLength = answers.videoLength;
     await 최신가격받기(); 견적다시계산();   // 가격이 막 바뀐 경우를 반영 (차감은 서버가 정확히 다시 계산)
@@ -2874,8 +2926,10 @@
   const PD_AFF_HOST = /^link\.coupang\.com$|^coupa\.ng$|^partners\.coupang\.com$|^(ad|click)\.linkprice\.com$|^amzn\.to$|^s\.click\.aliexpress\.com$/i;
   const PD_AFF_QUERY = ['tag', 'lptag', 'subid', 'sub_id', 'af_id', 'aff_id', 'partner', 'partner_id', 'ref_id', 'affiliate', 'src_id'];
   const PD_LEN_MIN = 30, PD_LEN_MAX = 180, PD_LEN_STEP = 15, PD_LEN_DEFAULT = 60;
-  // 입력값(초)을 30~180초, 15초 단위로 맞춘다 (접수 서버와 같은 규칙)
-  function pdSnapLen(v) { const n = Number(v); if (!Number.isFinite(n) || n <= 0) return PD_LEN_DEFAULT; return Math.min(PD_LEN_MAX, Math.max(PD_LEN_MIN, Math.round(n / PD_LEN_STEP) * PD_LEN_STEP)); }
+  // 입력값(초)을 30~180초의 정수 초로 맞춘다 (접수 서버와 같은 규칙). 직접 입력은 1초 단위, 막대·다이얼·버튼은 15초 눈금에 붙는다.
+  function pdSnapLen(v) { const n = Number(v); if (!Number.isFinite(n) || n <= 0) return PD_LEN_DEFAULT; return Math.min(PD_LEN_MAX, Math.max(PD_LEN_MIN, Math.round(n))); }
+  function pdTickLen(v) { const s = pdSnapLen(v), t = Math.round(s / PD_LEN_STEP) * PD_LEN_STEP; return Math.abs(s - t) <= 2 ? t : s; }   // 눈금 가까이에서는 눈금 값으로 붙는다
+  const pdEsc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const PD_SELLER_LABEL = { own: '내 제품', affiliate: '제휴 링크', none: '소개만' };
   // 주소 한 개를 접수 서버와 같은 규칙으로 미리 검사한다. 문제가 있으면 고객에게 보일 문장을, 괜찮으면 ''를 돌려준다.
   function pdUrlProblem(raw, kind) {   // kind: 'media' | 'link'
@@ -2917,7 +2971,80 @@
   function pimgCardHtml() {
     return `<div class="pimg-card" data-type="image"><span class="pimg-th">${PIMG_ICO}</span><div class="pimg-body"><div class="pimg-top"><b>사진·영상 1</b><span class="pm-type" role="group" aria-label="종류"><button type="button" data-t="image" aria-pressed="true">사진</button><button type="button" data-t="video" aria-pressed="false">영상</button></span><button type="button" class="pimg-del" aria-label="이 사진·영상 지우기">×</button></div><input type="url" class="pimg-url" inputmode="url" autocomplete="off" placeholder="https://..." aria-label="사진·영상 주소"><div class="pm-range" hidden><span>쓸 구간</span><input type="number" class="pm-s" min="0" step="0.5" value="0" aria-label="시작 초"><span>초 ~</span><input type="number" class="pm-e" min="0.5" step="0.5" value="10" aria-label="끝 초"><span>초 <small>(한 컷 최대 60초)</small></span></div><p class="pimg-state"></p></div></div>`;
   }
-  // 상품쇼츠 입력 화면은 세 구역으로 나뉜다(단계 안내가 한 단계씩 보여 준다): 내용(2단계) / 사진·영상·길이(3단계) / 꼭 확인(5단계). 칸 id는 예전과 같다.
+  // ===== [상품쇼츠] 영상 제작 방식 · 화면 구성 (꾸미기) =====
+  // 서버·렌더 서버가 지금 실제로 만들 수 있는 것만 고를 수 있다. 나머지는 "준비 중"으로 잠가 두고, 준비되면 아래 표에서 열어 준다.
+  const PD_MOTION_READY = { '이미지 중심': true };
+  const PD_MOTION_DESC = {
+    '이미지 중심': '올려 주신 사진에 카메라 움직임(줌·이동)을 줘요. 영상은 그대로 써요.',
+    '혼합': '핵심 장면의 사진은 AI 영상으로 움직이고, 나머지는 사진 그대로 써요.',
+    '모두 영상': '모든 사진을 AI 영상으로 움직여요. 요즘 쇼츠 느낌 그대로예요.'
+  };
+  const PD_LAYOUTS = [['자동', '기본 · 전체화면형'], ['제목고정형', '제목이 위에 고정'], ['전체화면형', '장면을 가득'], ['자막바형', '아래 띠에 큰 자막']];
+  const PD_LAYOUT_READY = { '자동': true, '전체화면형': true, '제목고정형': true, '자막바형': true };
+  const PD_LAYOUT_DESC = { '자동': '고르지 않으면 장면을 화면 가득 보여 주는 전체화면형으로 만들어요.', '전체화면형': '장면을 화면 가득 보여 줘요.', '제목고정형': '위에 어두운 띠를 깔고 그 안에 위쪽 문구를 넣어요.', '자막바형': '자막 뒤에 주황 띠가 깔려요. 띠 위치는 고른 자막 위치를 따라가요.' };
+  const PD_POS_LABEL = { '상단': '위쪽', '가운데': '가운데', '하단': '아래쪽' };
+  const pdMotion = () => (document.querySelector('input[name="pd-motion"]:checked') || {}).value || '이미지 중심';
+  function pdMotionHtml() {
+    return '<div class="pd-motion" id="pd-motion" role="radiogroup" aria-labelledby="pd-motion-l">' + MOTION_LIST.map(m => {
+      const ok = !!PD_MOTION_READY[m];
+      return `<label class="lp-opt ${MOTION_CLS[m]}${ok ? '' : ' is-off'}"><input type="radio" name="pd-motion" value="${m}"${m === '이미지 중심' ? ' checked' : ''}${ok ? '' : ' disabled'}><span class="lp-card">${motionSvg(m)}<b>${m}</b><em data-rate="${m}">분당 ${MOTION_RATE[m]}P</em>${ok ? '' : '<i class="pd-soon">준비 중</i>'}</span></label>`;
+    }).join('') + '</div>';
+  }
+  function pdLayoutHtml(pos) {
+    const cur = (document.querySelector('input[name="pd-layout"]:checked') || {}).value || '자동';
+    return PD_LAYOUTS.map(([v, sub]) => {
+      const ok = !!PD_LAYOUT_READY[v];
+      return `<label class="lp-opt${ok ? '' : ' is-off'}"><input type="radio" name="pd-layout" value="${v}"${v === cur ? ' checked' : ''}${ok ? '' : ' disabled'}><span class="lp-card">${phoneSvg(v === '자동' ? '전체화면형' : v, pos, v === '자동', false)}<b>${v}</b><small>${sub}</small>${ok ? '' : '<i class="pd-soon">준비 중</i>'}</span></label>`;
+    }).join('');
+  }
+  // 꾸미기 미리보기: 고른 구성·위쪽 문구·자막 위치/크기/끊기를 9:16 휴대폰 그림으로 그린다. 아래 22%는 쇼츠 앱의 제목·버튼이 덮는 자리라 자막이 피한다(렌더 서버의 자막 안전영역과 같은 값).
+  function pdPvSvg(st) {
+    // 렌더 서버(render.js 문구배치·ass만들기)와 같은 규칙·같은 크기: 문구는 위 6.5%에서 시작(제목고정형은 위 18.4% 띠 안 가운데), 위쪽 자막은 문구 아래 2.5% 지점부터,
+    // 자막은 흰 글씨+검은 테두리(자막바형은 가로 전체 주황 띠+어두운 글씨), 아래 22%는 쇼츠 앱 자리.
+    // ASS 의 글자 크기(Fontsize)는 줄 높이라서 한글 한 자 폭은 그 0.65배다 → 그림의 글자 크기 = 줄 높이 × 0.65
+    const lay = st.layout === '자동' ? '전체화면형' : st.layout;
+    const X = 4, Y = 4, W = 82, H = 152, band = lay === '제목고정형' ? Math.round(H * 0.184) : 0, safeB = Y + H - H * 0.22, hook = String(st.hook || '').trim();
+    const cw = c => /[가-힣ㄱ-ㅎㅏ-ㅣ]/.test(c) ? 0.66 : /[A-Z]/.test(c) ? 0.46 : /[a-z]/.test(c) ? 0.38 : /\d/.test(c) ? 0.42 : c === ' ' ? 0.22 : 0.26;
+    const lw = t => Array.from(t).reduce((a, c) => a + cw(c), 0) * 1.06;
+    const split2 = t => { const ch = Array.from(t); let best = -1, d = 1e9; ch.forEach((c, i) => { if (c === ' ' && Math.abs(i - (ch.length - i - 1)) < d) { d = Math.abs(i - (ch.length - i - 1)); best = i; } }); const m = best > 0 ? best : Math.ceil(ch.length / 2); return [ch.slice(0, m).join('').trim(), ch.slice(best > 0 ? m + 1 : m).join('').trim()]; };
+    const hookLines = (() => { const t = Array.from(hook || '가나다라마바사아자 차카타파하가나').join(''); if (Array.from(t).length <= 10) return [t]; const ch = Array.from(t); let best = -1, d = 1e9; ch.forEach((c, i) => { const r = ch.length - i - 1; if (c === ' ' && i >= 1 && r >= 1 && i <= 10 && r <= 10 && Math.abs(i - r) < d) { d = Math.abs(i - r); best = i; } }); if (best > 0) return [ch.slice(0, best).join(''), ch.slice(best + 1).join('')]; const m = Math.ceil(ch.length / 2); return [ch.slice(0, m).join('').trim(), ch.slice(m).join('').trim()]; })();
+    const hPitch = Math.min(W * 0.115, W * 0.84 / Math.max(...hookLines.map(lw)));
+    const hTop = band ? Y + (band - hookLines.length * hPitch) / 2 : Y + H * 0.065, hBottom = band ? Y + band : hTop + hookLines.length * hPitch + hPitch * 0.07;
+    let g = `<rect x="0.5" y="0.5" width="89" height="159" rx="10" fill="#3a3129" stroke="#5a4e42"/><rect x="${X}" y="${Y + band}" width="${W}" height="${H - band}" rx="6" fill="#4d4238"/>`;
+    g += `<path d="M9 ${Y + band + (H - band) * 0.66} l22-22 16 14 14-10 24 18" fill="none" stroke="#6b5d4f" stroke-width="3" stroke-linejoin="round"/>`;
+    g += `<rect x="${X}" y="${safeB}" width="${W}" height="${Y + H - safeB}" fill="#000" opacity=".34"/><line x1="${X}" x2="${X + W}" y1="${safeB}" y2="${safeB}" stroke="#e8dfd0" stroke-opacity=".5" stroke-dasharray="2 2" stroke-width=".6"/>`;
+    g += `<text x="${X + 4}" y="${safeB + 8}" font-size="3.6" fill="#e8dfd0" fill-opacity=".8" font-family="inherit">앱 제목·버튼 자리</text>` + [78, 91, 104].map(y => `<circle cx="79" cy="${y}" r="3.2" fill="#e8dfd0" fill-opacity=".4"/>`).join('');
+    if (band) g += `<rect x="${X}" y="${Y}" width="${W}" height="${band}" rx="6" fill="#15110e"/>`;
+    if (hook) hookLines.forEach((l, i) => { g += `<text x="45" y="${hTop + hPitch * (i + 0.8)}" text-anchor="middle" font-size="${hPitch * 0.65}" font-weight="800" fill="#FFF200" stroke="#000" stroke-width="${hPitch * 0.14}" paint-order="stroke" font-family="inherit">${pdEsc(l)}</text>`; });
+    else g += `<text x="45" y="${hTop + hPitch * 0.8}" text-anchor="middle" font-size="3.8" fill="#e8dfd0" fill-opacity=".75" font-family="inherit">위쪽 문구 · 비우면 AI가 만들어요</text>`;
+    if (!st.off) {
+      const cPitch = W * ({ '작게': 0.048, '보통': 0.058, '크게': 0.072 }[st.size] || 0.072), sample = st.brk === '문장' ? '자막은 이렇게 한 문장씩 이어서 나와요 정말요' : '자막은 이렇게 나와요';
+      const lines = lw(sample) * cPitch > W * 0.76 ? split2(sample) : [sample];
+      const bar = lay === '자막바형', pad = bar ? cPitch * 0.45 : 0, bh = lines.length * cPitch + 2 * pad;
+      const limit = hBottom + H * 0.025;
+      let y = st.pos === '상단' ? Math.max(Y + H * 0.12, limit) : st.pos === '가운데' ? Y + H / 2 - bh / 2 : safeB - (bar ? 1.8 : 0.5) - bh;
+      y = Math.max(y, limit);
+      if (bar) g += `<rect x="${X}" y="${y}" width="${W}" height="${bh}" fill="#e2a23c"/>`;
+      lines.forEach((l, i) => { g += `<text x="45" y="${y + pad + cPitch * (i + 0.8)}" text-anchor="middle" font-size="${cPitch * 0.65}" font-weight="700" fill="${bar ? '#1a1410' : '#fff'}"${bar ? '' : ` stroke="#000" stroke-width="${cPitch * 0.18}" paint-order="stroke"`} font-family="inherit">${pdEsc(l)}</text>`; });
+    }
+    return `<svg viewBox="0 0 90 160" aria-hidden="true">${g}</svg>`;
+  }
+  // 위쪽 문구 검사 (접수 서버·대본 검사와 같은 금지 표현). 문제가 있으면 고객에게 보일 문장을, 없으면 ''를 돌려준다.
+  const PD_HOOK_BAN = /(최저가|최저 ?가격|가장 ?저렴|제일 ?싼|특가|할인|세일|공짜|무료 ?(증정|배송)|1위|일등|1등|넘버 ?원|최고|유일|독보적|압도적|역대급|완벽|100\s?%|백\s?퍼센트|100\s?프로|백\s?프로|무조건|보장|치료|완치|특효|기적|부작용 ?(걱정 ?)?없|의사 ?(가 )?(추천|권)|의사들|전문가 ?추천|임상|통증이 ?사라|탈모에 ?좋|살이 ?빠|오늘만|지금 ?안 ?사면|한정 ?수량|마감 ?임박|서두르|일위|NO\.? ?1|넘버 ?1|최강|최상급|최초|세계적으로|반값|가성비 ?갑|지금이 ?기회|놓치지|재고|절대|평생 ?보증|영구적|AS ?걱정|식약처|검증|살균|바이러스|알레르기|아토피|피부 ?질환|난리|대박|누구나|모든 ?사람|경쟁 ?제품|다른 ?(브랜드|제품)|타사|절반|반으로|두 ?배|세 ?배|#\s?1|만\s?원|무료 ?체험|베스트|\bbest\b)/i;
+  const PD_HOOK_BAN2 = /(최저가|최저가격|가장저렴|제일싼|무료증정|무료배송|넘버원|독보적|압도적|역대급|100%|무조건|보장|완치|특효|기적|오늘만|한정수량|마감임박|가성비갑|반값|평생보증|식약처|1위|일위|1등|일등|no1|#1|만원|베스트|best)/i;
+  function pdHookProblem(raw) {
+    const t = String(raw || '').trim(); if (!t) return '';
+    if (t.length > 18) return '위쪽 문구는 18자까지예요.';
+    const n = t.normalize('NFKC').replace(/[\p{Cf}]/gu, ''), compact = n.replace(/[\s·.\-_*~!?,'"“”‘’()\[\]{}<>|\/\\:;]+/g, '');
+    if (n.length > 18) return '위쪽 문구는 18자까지예요.';
+    if (/(https?:|www\.|\.com|\.kr|\.net|@)/i.test(n)) return '위쪽 문구에는 주소나 아이디를 넣을 수 없어요.';
+    if (/0\d{1,2}[-\s.]?\d{3,4}[-\s.]?\d{4}/.test(n) || /\d{7,}/.test(compact)) return '위쪽 문구에는 전화번호를 넣을 수 없어요.';
+    if (/\d\s*(%|원|퍼센트|프로)/.test(n) || /\d\s*(%|원)/.test(compact)) return '위쪽 문구에는 가격·할인율 같은 숫자를 쓸 수 없어요.';
+    const m = n.match(PD_HOOK_BAN) || compact.match(PD_HOOK_BAN2);
+    if (m) return `위쪽 문구에 "${m[0].trim()}" 같은 표현은 쓸 수 없어요. 과장·가격 표현은 표시·광고 규정 때문에 막고 있어요.`;
+    return '';
+  }
+  // 상품쇼츠 입력 화면은 구역으로 나뉜다(단계 안내가 한 단계씩 보여 준다): 내용(2단계) / 사진·영상·길이(3단계) / 꼭 확인(5단계). 칸 id는 예전과 같다.
   const PROD_ICO = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>';
   function productSectionHtml() {
     const seller = (v, t, s) => `<label><input type="radio" name="df-seller" value="${v}"><span class="tcard"><b>${t}</b><small>${s}</small></span></label>`;
@@ -2934,7 +3061,7 @@
           <div class="pd-note"><b>후기를 붙여넣으면 좋은 이유</b><br>· 실제 사용한 사람의 이야기가 들어가 영상이 더 믿음직해져요<br>· 광고 같지 않고 "나도 그래" 하는 공감이 생겨요<br>· 후기는 그대로 옮기지 않고 요지만 풀어서 써요<br><br>후기가 없으면 제품 설명만 넣어도 돼요. 실제 후기만 붙여넣어 주세요. 붙여넣은 글에 없는 후기·수치·가격은 영상에 넣지 않아요.</div></div>
         <p class="df-hint df-hide" id="df-src-link-note">아래 제품 링크를 꼭 넣어 주세요. 상품 페이지에 있는 설명을 읽어서 써요.</p>
         <p class="df-hint df-hide" id="df-src-name-note">제품 이름으로 인터넷을 검색해 자료를 모아요. 이름이 흔하지 않으면 다른 제품 정보가 섞일 수 있어서, 가능하면 "직접 쓰기"나 "링크로 읽기"를 권해요.</p></div>
-      <div class="df-field"><label>제품 링크 <em class="req df-hide" id="df-prodLink-req">*</em> <span class="opt" id="df-prodLink-opt">선택 · 영상 설명란과 고정 댓글에 들어가요</span></label><input type="url" id="df-prodLink" placeholder="https://..."><p class="df-hint">쇼츠 화면에는 누르는 버튼이 없어요.</p></div>
+      <div class="df-field"><label>제품 링크 <em class="req df-hide" id="df-prodLink-req">*</em> <span class="opt" id="df-prodLink-opt">선택 · 영상 설명란과 고정 댓글에 들어가요</span></label><input type="url" id="df-prodLink" placeholder="https://..."></div>
       <div class="df-field df-hide" id="df-seller-wrap"><label>판매 유형 <em class="req">*</em></label>
         <div class="df-chipset pd-seller" role="radiogroup" aria-label="판매 유형">${seller('own', '내 제품', '내가 만들었거나 직접 파는 제품')}${seller('affiliate', '제휴 링크', '구매되면 수수료를 받아요 · 설명란에 광고 안내가 들어가요')}${seller('none', '소개만', '수수료 없이 링크만 알려요')}</div>
         <p class="df-hint" id="df-seller-note"></p></div>
@@ -2946,9 +3073,23 @@
         <div class="pimg-list" id="df-pimgs"></div></div>
       <div class="df-field"><label>영상 길이 <span class="opt">30초~3분 · 요금이 달라져요</span></label>
         <div class="len-chips" id="df-prodLen-chips"></div>
-        <small class="pd-lenread" id="df-prodLen-read" aria-live="polite"></small>
         <div class="rwctl-wrap"><div class="rwctl-switch" role="group" aria-label="값 조절 모양"><button type="button" data-k="bar" aria-pressed="true">막대</button><button type="button" data-k="dial" aria-pressed="false">다이얼</button></div><div class="rwctl" id="df-prodLen-ctl"></div></div>
-        <details class="pd-how"><summary>초 단위로 직접 입력</summary><div class="pd-len"><input type="number" id="df-prodLen" min="30" max="180" step="15" inputmode="numeric" aria-label="영상 길이(초)" value="60"><span>초</span></div></details></div>
+        <div class="pd-lenin"><label for="df-prodLen">직접 입력</label><input type="number" id="df-prodLen" min="30" max="180" step="1" inputmode="numeric" aria-label="영상 길이(초)" value="60"><span>초</span><small>30~180초 · 1초 단위</small></div>
+        <small class="pd-lenread" id="df-prodLen-read" aria-live="polite"></small></div>
+      <div class="df-field"><label id="pd-motion-l">영상 제작 방식 <span class="opt">요금이 달라져요</span></label>
+        ${pdMotionHtml()}
+        <p class="df-hint" id="pd-motion-note" aria-live="polite"></p></div>
+    </section>
+    <section class="df-sec df-prod pd-style df-hide" style="--c:#c9a0ff">${head('화면을 꾸며 보세요', '그대로 두어도 괜찮아요. 고른 모습이 미리보기에 바로 보여요')}
+      <div class="pd-stylegrid">
+        <div class="pd-ctl">
+          <div class="df-field"><label id="pd-layout-l">화면 구성</label><div class="lp-grid pd-layout" id="pd-layout" role="radiogroup" aria-labelledby="pd-layout-l">${pdLayoutHtml('하단')}</div><p class="df-hint" id="pd-layout-note" aria-live="polite"></p></div>
+          <div class="df-field"><label for="pd-hook">위쪽 문구 <span class="opt">선택 · 18자까지</span></label><input type="text" id="pd-hook" maxlength="18" autocomplete="off" placeholder="예: 세탁 코스 고민 끝!"><p class="df-hint"><span id="pd-hook-n">0</span>/18자 · 영상 맨 위에 나오는 한 줄이에요. 비워 두면 AI가 만들어요. 가격·할인·"최고"·"1위" 같은 표현은 쓸 수 없어요.</p></div>
+          <div class="df-field"><label id="pd-hookshow-l">문구가 보이는 시간</label><div class="df-chipset pd-two pd-hookshow" id="pd-hookshow" role="radiogroup" aria-labelledby="pd-hookshow-l"><label><input type="radio" name="pd-hookshow" value="all" checked><span class="tcard"><b>계속 보이기</b><small>영상 내내 위에 떠 있어요</small></span></label><label><input type="radio" name="pd-hookshow" value="3s"><span class="tcard"><b>처음 3초만</b><small>시작에 보였다 사라져요</small></span></label></div><p class="df-hint" id="pd-hookshow-note" aria-live="polite"></p></div>
+          <div class="pd-vpslot" id="pd-vp-slot"></div>
+        </div>
+        <aside class="pd-pv" aria-label="영상 미리보기"><button type="button" class="pd-pvbtn" id="pd-pv" aria-label="미리보기 크게 보기"></button><small>눌러서 크게 보기</small></aside>
+      </div>
     </section>
     <section class="df-sec df-prod pd-agree df-hide" style="--c:#7bc58a">${head('꼭 확인해 주세요', '사진·영상 사용 권리와 사람 등장 여부를 확인해요')}
       <div class="df-field df-check"><label><input type="checkbox" id="df-prodRights"><span>이 사진·영상은 내가 만들었거나 사용을 허락받았어요 <em class="req">*</em></span></label></div>
@@ -2959,7 +3100,7 @@
   }
   // 입력 화면의 값을 읽어 접수 서버와 같은 규칙으로 검사한다. { err, el } 또는 { data } 를 돌려준다.
   // opt.partial: 마지막 확인(권리·사람·동의) 칸이 비어 있어도 값을 돌려준다(확인 요약용). opt.mutate===false: 칸의 글을 고쳐 쓰지 않는다(입력 중 남은 항목 세기용).
-  // 돌려주는 probs 는 모든 문제의 목록이고, 각 항목의 part 는 어느 단계의 문제인지(content 내용 / media 사진·영상 / agree 확인)를 말한다.
+  // 돌려주는 probs 는 모든 문제의 목록이고, 각 항목의 part 는 어느 단계의 문제인지(content 내용 / media 사진·영상 / style 꾸미기 / agree 확인)를 말한다.
   function readProduct(opt) {
     opt = opt || {};
     const mutate = opt.mutate !== false;
@@ -3012,7 +3153,9 @@
     }
     if (!mediaBad && !media.length) add('media', '사진·영상', '사진이나 영상 주소를 하나 이상 넣어 주세요.', cards[0] ? cards[0].querySelector('.pimg-url') : g('df-prodName'));
     if (!mediaBad && media.length > PRODUCT_IMG_MAX) add('media', '사진·영상', '사진·영상은 최대 ' + PRODUCT_IMG_MAX + '개까지 넣을 수 있어요.', cards[0].querySelector('.pimg-url'));
-    // --- 꼭 확인 (5단계) ---
+    // --- 꾸미기 (5단계) ---
+    const hookP = pdHookProblem(v('pd-hook')); if (hookP) add('style', '위쪽 문구', hookP, g('pd-hook'));
+    // --- 꼭 확인 (마지막 6단계) ---
     if (!g('df-prodRights').checked) add('agree', '사진·영상 사용 권리 확인', '사진·영상 사용 권리 확인에 체크해 주세요.', g('df-prodRights'));
     const pe = document.querySelector('input[name="df-people"]:checked');
     if (!pe) add('agree', '사람이 나오는지', '사진·영상에 사람이 나오는지 골라 주세요.', document.querySelector('input[name="df-people"]'));
@@ -3021,7 +3164,9 @@
     const list = opt.partial ? probs.filter(x => x.part !== 'agree') : probs;
     if (list.length) return { err: list[0].msg, el: list[0].el, part: list[0].part, probs };
     const sec = pdSnapLen(v('df-prodLen'));
-    return { data: { name, sec, media, src, info: src === 'write' ? v('df-prodInfo').slice(0, 3000) : '', link, seller, rights: true, people, consent: people }, probs };
+    const layoutSel = document.querySelector('input[name="pd-layout"]:checked');
+    return { data: { name, sec, media, src, info: src === 'write' ? v('df-prodInfo').slice(0, 3000) : '', link, seller, rights: true, people, consent: people,
+      motion: pdMotion(), layout: layoutSel ? layoutSel.value : '자동', hook: v('pd-hook').slice(0, 18), hookShow: (layoutSel && layoutSel.value === '제목고정형') ? 'all' : ((document.querySelector('input[name="pd-hookshow"]:checked') || {}).value || 'all'), captionPos: window.RWVoice ? RWVoice.captionPos() : '' }, probs };
   }
   // 오류 문구는 문제가 있는 칸 바로 아래에 붙인다 (폰에서 화면 밖으로 밀리지 않게)
   function pdShowErr(msg, el) {
@@ -3056,32 +3201,34 @@
     let kind = 'bar'; try { const k = localStorage.getItem('rw-ctl'); if (k === 'dial' || k === 'bar') kind = k; } catch (e) {}
     const cur = () => pdSnapLen(lenIn.value);
     const set = sec => { const v = pdSnapLen(sec); if (v === cur() && String(lenIn.value) === String(v)) return; lenIn.value = v; lenIn.dispatchEvent(new Event('input', { bubbles: true })); };
+    const nudge = d => { const c = cur(), base = d > 0 ? Math.floor(c / STEP + 1e-9) : Math.ceil(c / STEP - 1e-9); set(base * STEP + d * STEP); };   // 버튼·키보드: 다음 15초 눈금으로
     const ARC = 'M28.9 91.1A44 44 0 1 1 91.1 91.1';
     const pt = a => { const r = a * Math.PI / 180; return [60 + 44 * Math.cos(r), 60 + 44 * Math.sin(r)]; };
     let nodes = {};
     function build() {
       if (kind === 'bar') {
         box.className = 'rwctl rwctl-barform';
-        box.innerHTML = '<div class="rwctl-top"><span>영상 길이</span><output aria-hidden="true"></output></div><input type="range" min="' + MIN + '" max="' + MAX + '" step="' + STEP + '" aria-label="영상 길이(초)"><div class="rwctl-ticks" aria-hidden="true"><span>30초</span><span>1분</span><span>1분 30초</span><span>2분</span><span>2분 30초</span><span>3분</span></div>';
+        box.innerHTML = '<div class="rwctl-top"><span>영상 길이</span><output aria-hidden="true"></output></div><input type="range" min="' + MIN + '" max="' + MAX + '" step="1" aria-label="영상 길이(초)"><div class="rwctl-ticks" aria-hidden="true"><span>30초</span><span>1분</span><span>1분 30초</span><span>2분</span><span>2분 30초</span><span>3분</span></div>';
         nodes = { out: box.querySelector('output'), rng: box.querySelector('input') };
-        nodes.rng.addEventListener('input', () => set(nodes.rng.value));
+        let drag = false; nodes.rng.addEventListener('pointerdown', () => { drag = true; }); ['pointerup', 'pointercancel', 'blur'].forEach(ev => nodes.rng.addEventListener(ev, () => { drag = false; }));
+        nodes.rng.addEventListener('input', () => { set(drag ? pdTickLen(nodes.rng.value) : nodes.rng.value); nodes.rng.value = cur(); });   // 손으로 끌 때만 15초 눈금에 붙는다 (키보드는 1초씩)
       } else {
         box.className = 'rwctl rwctl-dialform';
         box.innerHTML = '<svg viewBox="0 0 120 120" class="rwctl-dial" tabindex="0" role="slider" aria-label="영상 길이" aria-valuemin="' + MIN + '" aria-valuemax="' + MAX + '"><path d="' + ARC + '" class="tr" pathLength="100"/><path d="' + ARC + '" class="vl" pathLength="100"/><circle class="kn" r="9"/><text x="60" y="66" text-anchor="middle" class="tx"></text></svg>' +
-          '<div class="rwctl-side"><div class="rwctl-btns"><button type="button" data-d="-1" aria-label="길이 15초 줄이기">−</button><button type="button" data-d="1" aria-label="길이 15초 늘리기">＋</button></div><small>눌러서 바꾸거나 둥근 눈금을 돌려요 · 30초~3분</small></div>';
+          '<div class="rwctl-side"><div class="rwctl-btns"><button type="button" data-d="-1" aria-label="길이 15초 줄이기">−</button><button type="button" data-d="1" aria-label="길이 15초 늘리기">＋</button></div><small>눌러서 바꾸거나 둥근 눈금을 돌려요 · 15초씩 · 30초~3분</small></div>';
         const svg = box.querySelector('svg');
         nodes = { svg, vl: svg.querySelector('.vl'), kn: svg.querySelector('.kn'), tx: svg.querySelector('.tx') };
-        box.querySelectorAll('.rwctl-btns button').forEach(b => b.addEventListener('click', () => set(cur() + Number(b.dataset.d) * STEP)));
+        box.querySelectorAll('.rwctl-btns button').forEach(b => b.addEventListener('click', () => nudge(Number(b.dataset.d))));
         svg.addEventListener('keydown', e => {
           const d = { ArrowRight: 1, ArrowUp: 1, PageUp: 2, ArrowLeft: -1, ArrowDown: -1, PageDown: -2 }[e.key];
-          if (d) { e.preventDefault(); set(cur() + d * STEP); }
+          if (d) { e.preventDefault(); nudge(d); }
           else if (e.key === 'Home') { e.preventDefault(); set(MIN); } else if (e.key === 'End') { e.preventDefault(); set(MAX); }
         });
         const fromPointer = e => {
           const r = svg.getBoundingClientRect(), dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
           let a = Math.atan2(dy, dx) * 180 / Math.PI; if (a < 0) a += 360; if (a < 135) a += 360;
           if (a > 405) a = cur() >= (MIN + MAX) / 2 ? 405 : 135;   // 아래 빈 곳에서는 지금 값이 있는 쪽 끝에 붙인다 (3분에서 30초로 튀지 않게)
-          set(MIN + (a - 135) / 270 * (MAX - MIN));
+          set(Math.round((MIN + (a - 135) / 270 * (MAX - MIN)) / STEP) * STEP);
         };
         let down = false;
         svg.addEventListener('pointerdown', e => { down = true; try { svg.setPointerCapture(e.pointerId); } catch (x) {} fromPointer(e); });
@@ -3103,6 +3250,42 @@
     sw.addEventListener('click', e => { const b = e.target.closest('button'); if (!b || b.dataset.k === kind) return; kind = b.dataset.k; try { localStorage.setItem('rw-ctl', kind); } catch (x) {} build(); draw(); });
     window.__rwCtlDraw = draw;
     build(); draw();
+  }
+  // ===== [상품쇼츠] 꾸미기: 미리보기 · 화면 구성 · 위쪽 문구 =====
+  function setupStyle() {
+    const pv = document.getElementById('pd-pv'), hook = document.getElementById('pd-hook'), hookN = document.getElementById('pd-hook-n'), lay = document.getElementById('pd-layout'), note = document.getElementById('pd-layout-note'), hookNote = document.getElementById('pd-hookshow-note');
+    if (!pv || !hook) return;
+    const val = n => (document.querySelector(`input[name="${n}"]:checked`) || {}).value || '';
+    const state = () => ({ layout: val('pd-layout') || '자동', hook: hook.value, hookShow: val('pd-hookshow') || 'all', pos: val('vp-subPos') || '하단', size: val('vp-subSize') || '크게', brk: val('vp-subBreak') || '짧게', off: val('vp-subOn') === '끄기' });
+    let lastPos = '하단';
+    function draw() {
+      const st = state();
+      pv.innerHTML = pdPvSvg(st);
+      hookN.textContent = String(hook.value.length);
+      note.textContent = PD_LAYOUT_DESC[st.layout] || '';
+      const 띠 = st.layout === '제목고정형', three = document.querySelector('input[name="pd-hookshow"][value="3s"]');   // 제목고정형은 띠가 계속 있어서 문구도 계속 보인다
+      if (three) { three.disabled = 띠; three.closest('label').classList.toggle('is-off', 띠); if (띠 && three.checked) document.querySelector('input[name="pd-hookshow"][value="all"]').checked = true; }
+      const 선택 = val('pd-hookshow');
+      hookNote.textContent = 띠 ? '제목고정형은 위 띠가 계속 있어서 문구도 계속 보여요.' : (선택 === '3s' ? '영상이 시작하고 3초 동안 보이다 서서히 사라져요. 미리보기에는 보이는 모습을 그려요.' : '');
+      pv.setAttribute('aria-label', '미리보기 크게 보기. ' + (st.off ? '자막 꺼짐' : PD_POS_LABEL[st.pos] + ' 자막') + ', ' + (st.layout === '자동' ? '전체화면형' : st.layout) + ', 위쪽 문구 ' + (st.hook.trim() ? st.hook.trim() : '없음'));
+      if (st.pos !== lastPos) { lastPos = st.pos; lay.innerHTML = pdLayoutHtml(st.pos); }   // 구성 그림의 자막 줄도 같이 옮긴다
+    }
+    const fields = document.getElementById('df-fields');
+    fields.addEventListener('input', e => { if (e.target === hook || (e.target.name && /^vp-/.test(e.target.name))) draw(); });
+    fields.addEventListener('change', e => { if (e.target.name === 'pd-layout' || e.target.name === 'pd-hookshow' || /^vp-/.test(e.target.name || '')) draw(); });
+    let dlg = null;
+    pv.addEventListener('click', () => {
+      if (!dlg) {
+        dlg = document.createElement('dialog'); dlg.className = 'pd-dlg'; dlg.setAttribute('aria-labelledby', 'pd-dlg-t');
+        dlg.innerHTML = '<div class="pd-dlg-in"><button type="button" class="pd-dlg-x" aria-label="닫기">×</button><h4 id="pd-dlg-t">영상에서 이렇게 보여요</h4><div class="pd-dlg-svg"></div><ul><li>어둡게 보이는 아래 부분은 유튜브 앱의 제목·버튼이 덮는 자리예요. 자막은 그 위에 놓아서 가려지지 않아요.</li><li>오른쪽 동그라미는 좋아요·댓글 버튼 자리예요.</li></ul></div>';
+        document.body.appendChild(dlg);
+        dlg.addEventListener('click', e => { if (e.target === dlg || e.target.closest('.pd-dlg-x')) dlg.close(); });
+      }
+      dlg.querySelector('.pd-dlg-svg').innerHTML = pdPvSvg(state());
+      if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', '');
+    });
+    window.__pdStyleDraw = draw;
+    draw();
   }
   function setupProduct() {
     const list = document.getElementById('df-pimgs'); if (!list) return;
@@ -3166,7 +3349,7 @@
     function drawLen(note) {
       const s = pdSnapLen(lenIn.value);
       lenChips.innerHTML = [30, 60, 90].map(x => `<button type="button" class="len-chip${s === x ? ' on' : ''}" data-sec="${x}">${pdLenLabel(x)}${x === 60 ? ' · 추천' : ''}</button>`).join('');
-      lenRead.textContent = note || (s === 60 ? '' : '= ' + pdLenLabel(s));
+      lenRead.textContent = note || ('약 ' + pdLenLabel(s) + ' · 말하는 속도에 따라 몇 초 달라질 수 있어요');
       if (window.__rwCtlDraw) window.__rwCtlDraw(s);
     }
     function syncLen() {
@@ -3179,10 +3362,16 @@
     lenIn.addEventListener('input', () => { if (lenIn.value !== '') { drawLen(); syncLen(); } });
     lenIn.addEventListener('change', () => {
       const raw = Number(lenIn.value), s = pdSnapLen(lenIn.value);
-      lenIn.value = s; drawLen(raw > PD_LEN_MAX ? '쇼츠는 최대 3분이에요. 3분으로 맞췄어요' : (raw < PD_LEN_MIN ? '최소 30초로 맞췄어요' : (raw !== s ? '15초 단위로 맞췄어요' : ''))); syncLen();
+      lenIn.value = s; drawLen(raw > PD_LEN_MAX ? '쇼츠는 최대 3분이에요. 3분으로 맞췄어요' : (raw < PD_LEN_MIN ? '최소 30초로 맞췄어요' : '')); syncLen();
     });
     drawLen();
     setupLenCtl(lenIn);   // 막대/다이얼 모양의 길이 조절
+    // 영상 제작 방식: 고른 카드의 설명을 보여 주고, 요금에 바로 반영한다
+    const mBox = document.getElementById('pd-motion'), mNote = document.getElementById('pd-motion-note');
+    function drawMotionNote() { const m = pdMotion(); mNote.textContent = PD_MOTION_DESC[m] + (MOTION_LIST.some(x => !PD_MOTION_READY[x]) ? ' 혼합·모두 영상은 AI 영상 연결이 끝나면 열려요.' : ''); }
+    mBox.addEventListener('change', () => { drawMotionNote(); updatePrice(); });
+    drawMotionNote();
+    setupStyle();
     // 숨은 길이 칸은 상품쇼츠를 고를 때 맞춘다 (일반 쇼츠의 길이 칸을 건드리지 않게)
     const secs = document.querySelectorAll('.df-prod');
     secs.forEach(sec => sec.addEventListener('input', () => pdShowErr('')));
@@ -3214,12 +3403,12 @@
     });
   }
   // ===== [상품쇼츠] 단계 안내 (필름 띠) =====
-  // 상품쇼츠를 고르면 PC·폰 모두 5단계로 한 단계씩 보여 준다: 종류 → 내용 → 화면·길이 → 소리 → 확인. 다른 영상은 지금처럼 한 화면이다.
+  // 상품쇼츠를 고르면 PC·폰 모두 6단계로 한 단계씩 보여 준다: 종류 → 내용 → 화면·길이 → 소리 → 꾸미기 → 확인. 다른 영상은 지금처럼 한 화면이다.
   // 필수 칸이 비면 "다음"이 막히고(눌러 보면 무엇이 비었는지 알려 준다), 마친 단계는 눌러서 돌아갈 수 있다. 입력한 값은 돌아가도 그대로 남는다(지우지 않고 숨기기만 한다).
   // 앞 단계 값을 고쳐서 뒤 단계가 맞지 않게 되면 그 단계는 '다시 확인'으로 바뀌고, 고칠 때까지 뒤 단계로 갈 수 없다.
-  const PW_NAMES = ['종류', '내용', '화면·길이', '소리', '확인'];
-  const PW_TODO = ['어떤 영상을 만들지 골라 주세요', '제품 이름과 내용을 적어 주세요', '사진·영상과 길이를 정해 주세요', '목소리와 자막을 정해 주세요', '내용을 확인하고 신청해 주세요'];
-  const PW_ICON = ['M4 5h12v10H4z M7 5v10 M13 5v10 M4 8h3 M4 12h3 M13 8h3 M13 12h3', 'M4 16l1-4 8-8 3 3-8 8z M12 5l3 3', 'M3 4h14v12H3z M3 14l4-4 3 3 3-3 4 4 M13 7.5h.01', 'M4 8v4h3l4 3V5L7 8z M14 7a4 4 0 010 6', 'M4 10.5l4 4 8-9'];
+  const PW_NAMES = ['종류', '내용', '화면·길이', '소리', '꾸미기', '확인'];
+  const PW_TODO = ['어떤 영상을 만들지 골라 주세요', '제품 이름과 내용을 적어 주세요', '사진·영상, 길이, 제작 방식을 정해 주세요', '목소리를 정해 주세요', '화면 모양과 자막을 확인해 주세요 (그대로 두어도 돼요)', '내용을 확인하고 신청해 주세요'];
+  const PW_ICON = ['M4 5h12v10H4z M7 5v10 M13 5v10 M4 8h3 M4 12h3 M13 8h3 M13 12h3', 'M4 16l1-4 8-8 3 3-8 8z M12 5l3 3', 'M3 4h14v12H3z M3 14l4-4 3 3 3-3 4 4 M13 7.5h.01', 'M4 8v4h3l4 3V5L7 8z M14 7a4 4 0 010 6', 'M10 3l1.8 4.2L16 9l-4.2 1.8L10 15l-1.8-4.2L4 9l4.2-1.8z', 'M4 10.5l4 4 8-9'];
   const PW_OK = 'M4 10.5l4 4 8-9', PW_LOCK = 'M5 9h10v7H5z M7 9V7a3 3 0 016 0v2';
   function setupWizard(wrap, isMedia) {
     window.__pwRefresh = null; window.__pwGo = null;
@@ -3239,11 +3428,12 @@
     fields.appendChild(review);
     const agree0 = fields.querySelector('.pd-agree'); if (agree0) fields.appendChild(agree0);   // 요약 아래에 동의 칸이 오게 맨 뒤로 옮긴다
     let step = 0, maxReached = 0;
+    const LAST = PW_NAMES.length - 1;   // 마지막(확인) 단계 번호
     const on = () => 현재종류() === '상품쇼츠';
     const typeSec = () => { const t = document.getElementById('df-types'); return t ? t.closest('.df-sec') : null; };
     const q = sel => fields.querySelector(sel);
-    const secs = () => [[typeSec()], [q('.pd-content'), q('.df-extra')], [q('.pd-media')], [q('.df-voicesec'), q('.df-gender')], [review, q('.pd-agree')]];   // 한 단계에 섹션이 둘 이상일 수 있다 (기존 옵션을 숨기지 않으려고)
-    const PARTS = { 1: 'content', 2: 'media', 4: 'agree' };
+    const secs = () => [[typeSec()], [q('.pd-content'), q('.df-extra')], [q('.pd-media')], [q('.df-voicesec'), q('.df-gender')], [q('.pd-style')], [review, q('.pd-agree')]];   // 한 단계에 섹션이 둘 이상일 수 있다 (기존 옵션을 숨기지 않으려고)
+    const PARTS = { 1: 'content', 2: 'media', 4: 'style', 5: 'agree' };
     const showErr = (m, focusEl) => {
       const box = nav.querySelector('.pw-err');
       box.textContent = '';
@@ -3252,7 +3442,7 @@
       else pdShowErr('');
     };
     const probsOf = i => { const part = PARTS[i]; if (!part) return []; return readProduct({ mutate: false }).probs.filter(x => x.part === part); };
-    const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const esc = pdEsc;
     // 이 단계로 갈 수 있나: 앞 단계가 모두 맞아야 하고, 한 번이라도 가 본 단계까지만
     const stateOf = i => {
       if (i === step) return 'cur';
@@ -3264,13 +3454,17 @@
     function buildReview() {
       const r = readProduct({ partial: true, mutate: false}); if (r.err) { review.innerHTML = '<p class="pw-note">' + esc(r.err) + '</p>'; return; }
       const d = r.data;
-      const cap = window.RWVoice ? (RWVoice.captionPos() ? { '하단': '아래', '가운데': '가운데', '상단': '위' }[RWVoice.captionPos()] : '꺼짐') : '';
+      const vv = (window.RWVoice && RWVoice.value()) || {};
+      const 자막 = vv.subtitleOff ? '자막 꺼짐' : [(PD_POS_LABEL[d.captionPos] || '아래쪽') + ' 자막', vv.subtitleSize && '크기 ' + vv.subtitleSize, vv.subtitleBreak && (vv.subtitleBreak === '문장' ? '문장 단위' : '짧게 끊기')].filter(Boolean).join(' · ');
+      const 세부 = [vv.pitch ? '음높이 ' + (vv.pitch > 0 ? '+' : '') + vv.pitch : '', vv.pause ? '쉼 ' + vv.pause : '', vv.pronounce && vv.pronounce.length ? '발음 사전 ' + vv.pronounce.length + '개' : ''].filter(Boolean).join(' · ') || '기본';
       const row = (k, v, go) => `<div class="pw-row"><span class="pw-k">${k}</span><span class="pw-v">${esc(v)}</span><button type="button" class="pw-fix" data-go="${go}">고치기</button></div>`;
       const 설명 = pdSrcLabel(d);
       const 링크 = d.link ? (PD_SELLER_LABEL[d.seller] + ' · ' + d.link.slice(0, 50)) : '없음';
       const 광고 = (d.seller === 'affiliate' || (d.link && pdLooksAffiliate(d.link))) ? ' 제휴 링크라서 설명란 맨 앞과 고정 댓글에 광고 안내 문구가 들어가요. 유튜브에 올릴 때 "유료 프로모션 포함"도 체크해 주세요.' : (d.link ? ' 링크는 설명란과 고정 댓글에 들어가요.' : '');
-      review.innerHTML = `<div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg></span><div><h3 data-n="5">이대로 만들까요?</h3><p>고칠 곳이 있으면 "고치기"를 눌러 돌아가세요. 고른 내용은 그대로 남아 있어요</p></div></div>` +
-        row('제품', d.name, 1) + row('제품 내용', 설명, 1) + row('링크·판매', 링크, 1) + row('사진·영상', pdMediaSummary(d), 2) + row('영상 길이', pdLenLabel(d.sec), 2) + (window.RWVoice ? row('목소리', RWVoice.summary(), 3) + row('자막 위치', cap, 3) : '') +
+      const 미리 = pdPvSvg({ layout: d.layout, hook: d.hook, hookShow: d.hookShow, pos: d.captionPos || '하단', size: vv.subtitleSize || '크게', brk: vv.subtitleBreak || '짧게', off: !!vv.subtitleOff });
+      review.innerHTML = `<div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg></span><div><h3 data-n="${LAST + 1}">이대로 만들까요?</h3><p>고칠 곳이 있으면 "고치기"를 눌러 돌아가세요. 고른 내용은 그대로 남아 있어요</p></div></div>` +
+        `<div class="pw-pv" role="img" aria-label="고른 화면 모양 미리보기">${미리}<small>고른 화면 모양이에요</small></div>` +
+        row('제품', d.name, 1) + row('제품 내용', 설명, 1) + row('링크·판매', 링크, 1) + row('사진·영상', pdMediaSummary(d), 2) + row('영상 길이', pdLenLabel(d.sec), 2) + row('제작 방식', d.motion, 2) + (window.RWVoice ? row('목소리', RWVoice.summary(), 3) : '') + row('화면 구성', d.layout === '자동' ? '자동 (전체화면형)' : d.layout, 4) + row('위쪽 문구', (d.hook || 'AI가 만들어요') + (d.hookShow === '3s' ? ' · 처음 3초만' : ' · 계속 보이기'), 4) + (window.RWVoice ? row('자막', 자막, 4) + row('목소리 세부', 세부, 4) : '') +
         `<p class="pw-note">AI 목소리가 들어간 영상은 유튜브에 올릴 때 "변경된 콘텐츠" 표시를 확인해 주세요.${esc(광고)}</p>`;
     }
     const filmIcon = d => `<svg viewBox="0 0 20 20" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg>`;
@@ -3296,13 +3490,13 @@
     // 남은 필수 항목을 세어 "다음" 버튼 위에 보여 준다. 칸에 입력할 때마다 갱신한다.
     function drawHint() {
       const pr = probsOf(step), labels = [...new Set(pr.map(x => x.label))];
-      const left = pr.length ? ` · <span class="pw-left">남은 필수 항목 ${labels.length}개: ${esc(labels.join(', '))}</span>` : (step > 0 && step < 4 ? ' · <span class="pw-fine">이 단계를 마쳤어요</span>' : '');
+      const left = pr.length ? ` · <span class="pw-left">남은 필수 항목 ${labels.length}개: ${esc(labels.join(', '))}</span>` : (step > 0 && step < LAST ? ' · <span class="pw-fine">이 단계를 마쳤어요</span>' : '');
       const html = `<b>${step + 1}단계</b> · ${PW_TODO[step]}${left}`;
       if (hint.dataset.h !== html) { hint.dataset.h = html; hint.innerHTML = html; }
       const next = nav.querySelector('.pw-next'), confirmBtn = document.getElementById('df-confirm');
       const blocked = pr.length > 0;
       next.setAttribute('aria-disabled', blocked ? 'true' : 'false'); next.classList.toggle('is-blocked', blocked);
-      if (confirmBtn) { if (step === 4) { confirmBtn.setAttribute('aria-disabled', blocked ? 'true' : 'false'); confirmBtn.classList.toggle('is-blocked', blocked); } else { confirmBtn.removeAttribute('aria-disabled'); confirmBtn.classList.remove('is-blocked'); } }
+      if (confirmBtn) { if (step === LAST) { confirmBtn.setAttribute('aria-disabled', blocked ? 'true' : 'false'); confirmBtn.classList.toggle('is-blocked', blocked); } else { confirmBtn.removeAttribute('aria-disabled'); confirmBtn.classList.remove('is-blocked'); } }
       drawBar();
     }
     let wasActive = null;
@@ -3315,16 +3509,16 @@
       review.classList.toggle('df-hide', !active);
       const confirmBtn = document.getElementById('df-confirm');
       if (!active) { fields.querySelectorAll('.pw-cur').forEach(e => e.classList.remove('pw-cur')); if (confirmBtn) { confirmBtn.style.display = ''; confirmBtn.removeAttribute('aria-disabled'); confirmBtn.classList.remove('is-blocked'); } return; }
-      step = Math.max(0, Math.min(4, step));
+      step = Math.max(0, Math.min(LAST, step));
       maxReached = Math.max(maxReached, step);
       const list = secs();
       list.forEach((grp, i) => grp.forEach((el, k) => { if (!el) return; el.classList.toggle('pw-cur', i === step); const h = el.querySelector('h3'); if (h) h.dataset.n = k === 0 ? String(i + 1) : ''; }));
-      if (step === 4) buildReview();
+      if (step === LAST) buildReview();
       nav.querySelector('.pw-prev').style.visibility = step === 0 ? 'hidden' : '';
       const next = nav.querySelector('.pw-next');
-      next.style.display = step === 4 ? 'none' : '';
-      next.textContent = '다음: ' + PW_NAMES[Math.min(step + 1, 4)];
-      if (confirmBtn) confirmBtn.style.display = step === 4 ? '' : 'none';
+      next.style.display = step === LAST ? 'none' : '';
+      next.textContent = '다음: ' + PW_NAMES[Math.min(step + 1, LAST)];
+      if (confirmBtn) confirmBtn.style.display = step === LAST ? '' : 'none';
       showErr('');
       drawHint();
     }
@@ -3348,9 +3542,10 @@
     });
     review.addEventListener('click', e => { const b = e.target.closest('.pw-fix'); if (b) go(parseInt(b.dataset.go, 10), true); });
     let raf = 0;
-    const soon = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { if (!on()) return; showErr(''); drawHint(); if (step === 4) buildReview(); }); };
-    fields.addEventListener('input', soon);
-    fields.addEventListener('change', soon);
+    // 입력하면 막힘 안내를 지우고 남은 항목을 다시 센다. 칸을 벗어날 때(change)는 안내를 지우지 않는다 ("다음"을 누르는 순간과 겹쳐 안내가 사라지는 일을 막는다)
+    const soon = clear => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { if (!on()) return; if (clear) showErr(''); drawHint(); if (step === LAST) buildReview(); }); };
+    fields.addEventListener('input', () => soon(true));
+    fields.addEventListener('change', () => soon(false));
     window.__pwRefresh = render;
     window.__pwGo = go;
     render();
@@ -3368,6 +3563,7 @@
       else if (!상품 && window.__wasProd && li) { li.value = window.__prevLen || ''; li.dispatchEvent(new Event('input', { bubbles: true })); }
       window.__wasProd = 상품; }
     목소리카드보이기();
+    if (window.RWVoice) { if (상품) RWVoice.detach(document.getElementById('pd-vp-slot'), v => phoneSvg('전체화면형', v, false, false)); else RWVoice.attach(); }   // 상품쇼츠는 접힌 "자세히"를 꾸미기 단계로 옮겨 펼쳐 보인다
    // [목소리·자막] 지금은 상품쇼츠에만 붙인다 (다른 영상은 서버 연결 후)
     document.querySelectorAll('#df-fields .df-sleep').forEach(el => el.classList.toggle('df-hide', 종류 !== '수면음악'));
     document.querySelectorAll('#df-fields .df-yadam').forEach(el => el.classList.toggle('df-hide', 종류 !== '야담'));
@@ -3624,7 +3820,7 @@
         <section class="df-sec df-notprod" style="--c:#e2a23c"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13 7l4 4"/></svg></span><div><h3>무엇을 만들까요</h3><p>주제만 적어도 나머지는 AI가 채워요</p></div></div><div class="df-field"><label>주제 <em class="req">*</em> <span class="opt">300자</span></label><textarea id="df-topic" maxlength="300" placeholder="예: LG 통돌이 17kg DD모터 인공지능 세탁기 (T17DX3) 소개"></textarea></div><div class="df-field"><label>영상 이렇게 만들어주세요 <span class="opt">선택 · 300자</span></label><textarea id="df-style" maxlength="300" placeholder="비워두면 내용에 맞게 자동 · 예: 밝고 경쾌한 분위기로, 가족이 함께 쓰는 느낌으로"></textarea></div><div class="df-field df-check df-std"><label><input type="checkbox" id="df-characterUse"><span>영상 내내 같은 캐릭터(인물)가 나오게 하기</span></label></div></section>${sleepSectionHtml()}${yadamSectionHtml()}${productSectionHtml()}<section class="df-sec df-std df-nopro" style="--c:#ff8f6b"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg></span><div><h3>제품 정보</h3><p>상품 소개 영상일 때만 넣어주세요</p></div></div><div class="df-field"><label>제품 링크 <span class="opt">선택</span></label><input type="url" id="df-productLink" placeholder="https://..."></div><div class="df-field"><label>제품 이미지 URL <span class="opt">선택</span></label><input type="url" id="df-productImageUrl" placeholder="https://..."></div></section><section class="df-sec df-std df-nopro" style="--c:#b99bff"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 5v14M17 5v14M3 9h4M3 15h4M17 9h4M17 15h4"/></svg></span><div><h3>영상 형식</h3><p>형태, 길이, 움직임, 화면 구성</p></div></div><div class="df-grid2"><div class="df-field"><label>영상 형태 <em class="req">*</em></label><select id="df-form"><option value="쇼츠">쇼츠 · 세로 9:16 (짧게)</option><option value="롱폼">롱폼 · 가로 16:9 (길게)</option></select></div><div class="df-field"><label>타겟 연령대</label><select id="df-target">${ageOptions()}</select></div><div class="df-field"><label>영상 길이(분) <span class="opt">선택</span></label><input type="number" id="df-videoLength" min="0" step="0.1" placeholder="비워두면 1분"></div><div class="df-field"><label>장면 수 <span class="opt">선택</span></label><input type="number" id="df-sceneCount" min="1" step="1" placeholder="비워두면 자동"></div></div><div class="df-field"><label>영상 길이 빠르게 고르기 <span class="opt">요금이 달라져요</span></label><div class="len-chips" id="df-len-chips"></div></div><div class="df-field"><label>움직임 방식 <span class="opt">요금이 달라져요</span></label><div class="lp-grid" id="df-motion" role="radiogroup" aria-label="움직임 방식"></div><p class="lp-note" id="df-motion-note"></p></div><div class="df-field"><label>화면 상단 문구 <span class="opt">선택 · 18자</span></label><input type="text" id="df-hookText" maxlength="18" placeholder="비워두면 자동 · 예: 아직도 빨래 코스 고민하세요?"></div><div class="df-field"><label>화면 구성 <span class="opt">선택</span></label><div class="lp-grid" id="df-layout" role="radiogroup" aria-label="화면 구성"></div><p class="lp-note" id="df-layout-note"></p></div><div class="df-field"><label>자막 위치 <span class="opt">선택</span></label><div class="lp-grid" id="df-captionPos" role="radiogroup" aria-label="자막 위치"></div></div></section><section class="df-sec df-std df-gender" style="--c:#4fd6bd"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></span><div><h3>목소리</h3><p>비워두면 내용에 맞게 골라드려요</p></div></div><div class="df-grid2"><div class="df-field"><label>말하기 속도</label><select id="df-tempo"><option value="">자동</option><option value="차분">차분하게</option><option value="중간">보통</option><option value="빠름">빠르고 경쾌하게</option></select></div><div class="df-field"><label>목소리</label><select id="df-voiceGender"><option value="">자동</option><option value="여성">여성</option><option value="남성">남성</option></select></div><div class="df-field"><label>목소리 연령대</label><select id="df-voiceAge">${ageOptions()}</select></div></div></section><section class="df-sec df-std df-extra" style="--c:#ff8cc0"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 17l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg></span><div><h3>연출과 추가 옵션</h3><p>꼭 원하는 장면이 있다면 적어주세요</p></div></div><div class="df-field"><label>꼭 넣고 싶은 연출 <span class="opt">선택 · 500자</span></label><textarea id="df-directorNote" maxlength="500"></textarea></div><div class="df-field df-notprod"><label class="thumb-opt" id="df-thumb-opt"><input type="checkbox" id="df-thumbnail"><span class="to-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 15h10M9 11h6"/></svg></span><span class="to-txt"><b id="df-thumb-title">AI 썸네일 3장 함께 만들기</b><small id="df-thumb-sub">원할 때만 켜세요 · 켜지 않아도 완성된 영상에서 원하는 장면을 골라 직접 만들 수 있어요</small></span><span class="to-switch" aria-hidden="true"></span></label></div></section>`;
     }
 
-    if (!isMedia) { fieldsEl.insertAdjacentHTML('beforeend', window.RWVoice ? RWVoice.sectionHtml({ kind: '상품쇼츠', cls: 'df-voicesec df-hide' }) : ''); setupLayoutPicker(); setupMotionPicker(); setupLengthChips(); setupProduct(); setupLongform(); if (window.RWVoice) RWVoice.init(fieldsEl); }
+    if (!isMedia) { fieldsEl.insertAdjacentHTML('beforeend', window.RWVoice ? RWVoice.sectionHtml({ kind: '상품쇼츠', cls: 'df-voicesec df-hide' }) : ''); setupLayoutPicker(); setupMotionPicker(); setupLengthChips(); setupProduct(); setupLongform(); if (window.RWVoice) { RWVoice.init(fieldsEl); const vs = fieldsEl.querySelector('.df-voicesec'); if (vs) vs.insertAdjacentHTML('beforeend', '<p class="df-hint df-prod pd-sndnote df-hide">음높이 · 쉼 · 발음 사전은 다음 단계(꾸미기)에서 정할 수 있어요.</p>'); } }
     setupWizard(wrap, isMedia);
     wrap.addEventListener('input', updatePrice);
     wrap.addEventListener('change', updatePrice);
@@ -3703,7 +3899,7 @@
         const 상품 = 현재종류() === '상품쇼츠';
         if (상품) {
           const r = readProduct();
-          if (r.err) { if (window.__pwGo) window.__pwGo(r.part === 'content' ? 1 : r.part === 'media' ? 2 : 4); pdShowErr(r.err, r.el); return; }
+          if (r.err) { if (window.__pwGo) window.__pwGo(r.part === 'content' ? 1 : r.part === 'media' ? 2 : r.part === 'style' ? 4 : 5); pdShowErr(r.err, r.el); return; }
           if (!PRODUCT_READY()) { alert('상품쇼츠는 곧 열려요. 지금은 준비하고 있어요.'); return; }
           const d = r.data;
           productExtra = d;   // 긴 글·주소는 상담 챗봇에 보내지 않고 따로 들고 있다가 접수 때 합친다
@@ -3742,7 +3938,7 @@
       if (val('df-voiceGender')) answers.voiceGender = val('df-voiceGender');
       if (val('df-voiceAge')) answers.voiceAge = val('df-voiceAge');
       // [움직임 방식] 정식 모드에서만 보낸다(체험판은 서버가 항상 이미지 중심으로 만든다). '자동'은 혼합으로 확정해서 보여준다.
-      if (!isMedia && planMode === 'paid') answers.motion = answers.productShort ? '이미지 중심' : motionOf(현재움직임() === '자동' ? '혼합' : 현재움직임());
+      if (!isMedia && planMode === 'paid') answers.motion = answers.productShort ? pdMotion() : motionOf(현재움직임() === '자동' ? '혼합' : 현재움직임());
       // 폼에서 길이를 비워뒀으면 화면에 보여준 기본 길이로 확정해서 보낸다 (챗봇이 길이를 다시 묻지 않게, 요금과 대본 길이도 같아짐)
       if (!isMedia && planMode === 'paid' && !answers.videoLength) answers.videoLength = String(defaultLen(answers.form));
       answers.estimatedPrice = computePrice(answers.videoLength ? parseFloat(answers.videoLength) : defaultLen(answers.form), isMedia ? '이미지 중심' : answers.motion);
