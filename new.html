@@ -1814,6 +1814,7 @@
     addMsg('user', escapeHtml(text));
     history.push({ role: 'user', text });
     composer.innerHTML = '<div class="thinking">생각하고 있어요 <span class="dots"><span></span><span></span><span></span></span></div>';
+    if (stampPending) { stampPending = false; stampForm(); }   // 단계 화면에서 막 신청한 내용이면, 서버가 값을 바꾸기 전에 출처를 기록한다(바뀐 값은 칸에 다시 채워지게)
     try {
       const res = await fetch(CONSULT_WEBHOOK_URL, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
