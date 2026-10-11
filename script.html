@@ -172,6 +172,7 @@ h4 b{color:var(--amber);margin-left:2px}
 .brief .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 @media (max-width:520px){.lite .dz{padding:22px 16px}.brief .g2{grid-template-columns:minmax(0,1fr)}}
 .brief .chips{display:flex;flex-wrap:wrap;gap:6px}
+.brief .nrnote{display:block;margin-top:8px;font-size:.84rem;color:var(--dim);line-height:1.5}
 .askai .brief .chips button{margin:0;padding:8px 15px;font-size:.9rem}
 .askai .brief .chips button.on{border-color:var(--amber);color:var(--amber);font-weight:600}
 .brief .stp{display:flex;align-items:center;gap:8px}
@@ -1482,7 +1483,7 @@ var TONES=['정보를 쉽게 전달','친근하게 설명','감성적으로','�
 var MOODS=['무서운','따뜻한','반전 있는','슬픈','해학·웃음'],OCCS=['생일','감사','응원','위로','기념일','그리움','승진','출산','결혼','졸업','부고·추모'];
 var OCC_TONE={'생일':'기쁘고 밝게','감사':'따뜻하게','응원':'힘차고 활기차게','위로':'차분하고 다정하게','기념일':'따뜻하고 기쁘게','그리움':'차분하고 그리움이 묻어나게','승진':'기쁘고 자랑스럽게','출산':'기쁘고 설레는 마음으로','결혼':'기쁘고 축복하는 마음으로','졸업':'뿌듯하고 기쁘게','부고·추모':'정중하고 절제된 말투로, 슬픔을 과장하지 않고 차분하게'};
 function occName(){return B.occ==='직접'?(B.occCustom||'').trim():B.occ}
-function resetBrief(){B={topic:'',mood:'',tone:'',min:(cfg.kind==='gen'?(cfg.form==='롱폼'?5:10):10),intro:10,to:'',from:'',occ:'',occCustom:'',rel:'',info:'',msg:'',sec:60}}
+function resetBrief(){B={vf:'',topic:'',mood:'',tone:'',min:(cfg.kind==='gen'?(cfg.form==='롱폼'?5:10):10),intro:10,to:'',from:'',occ:'',occCustom:'',rel:'',info:'',msg:'',sec:60}}
 function stp(k,val,unit,note){return '<div class="stp"><button type="button" data-st="'+k+':-1" aria-label="줄이기">−</button><b>'+val+unit+'</b><button type="button" data-st="'+k+':1" aria-label="늘리기">＋</button>'+(note?'<small>'+note+'</small>':'')+'</div>'}
 function chips(list,k,cur){return '<div class="chips">'+list.map(function(x){return '<button type="button" data-ch="'+k+':'+x+'" class="'+(cur===x?'on':'')+'" aria-pressed="'+(cur===x)+'">'+x+'</button>'}).join('')+'</div>'}
 var LAB_ICO={
@@ -1517,10 +1518,11 @@ function renderBrief(){
     $('copyAsk').textContent='영상 편지 요청문 복사';
   }else if(cfg.kind==='gen'){
     var lg=cfg.form==='롱폼';
-    h='<div class="f"><label for="brTopic">주제 <small>예: 통돌이 세탁기 고르는 법</small></label><input type="text" id="brTopic" data-b="topic" value="'+esc(B.topic)+'" maxlength="120" placeholder="무엇에 대한 영상인가요?"></div>'+
+    var nr=lg&&B.vf==='낭독형';
+    h=(lg?'<div class="f"><label>영상 형태</label><div class="chips">'+['AI 영상형','낭독형'].map(function(x){var on=(x==='낭독형')===nr;return '<button type="button" data-ch="vf:'+x+'" class="'+(on?'on':'')+'" aria-pressed="'+on+'">'+x+'</button>'}).join('')+'</div>'+(nr?'<small class="nrnote">책이나 해설을 읽어 주는 영상용 글이에요. 소리 내어 읽기 좋게, 그림이 떠오르는 문단으로 써 드려요.</small>':'')+'</div>':'')+'<div class="f"><label for="brTopic">주제 <small>예: 통돌이 세탁기 고르는 법</small></label><input type="text" id="brTopic" data-b="topic" value="'+esc(B.topic)+'" maxlength="120" placeholder="무엇에 대한 영상인가요?"></div>'+
       '<div class="f"><label>말투 <small>고르지 않으면 AI가 알아서</small></label>'+chips(TONES,'tone',B.tone)+'</div>'+
       '<div class="f"><label>길이</label>'+(lg?stp('min',B.min,'분','약 '+Math.round(B.min*360).toLocaleString('ko-KR')+'자'):stp('sec',B.sec,'초','약 '+Math.round(B.sec*6)+'자'))+'</div>';
-    $('briefHead').innerHTML='<span class="bh-o">칸을 채우고(몰라도 돼요) 요청문을 복사해 쓰시는 AI에 보내세요.</span><span class="bh-a">칸을 채우면 그대로 '+cfg.form+' 대본을 써 드려요. 한 줄 주제만 있어도 돼요.'+(lg?' 이야기·해설·에세이처럼 듣는 영상은 신청할 때 "낭독형"을 고르면 길게 만들 수 있어요.':'')+'</span>';
+    $('briefHead').innerHTML='<span class="bh-o">칸을 채우고(몰라도 돼요) 요청문을 복사해 쓰시는 AI에 보내세요.</span><span class="bh-a">칸을 채우면 그대로 '+cfg.form+' 대본을 써 드려요. 한 줄 주제만 있어도 돼요.'+(nr?' 낭독형은 최대 약 125분(45,000자)까지 만들 수 있어요.':(lg?' 이야기·해설·에세이처럼 듣는 긴 영상은 위에서 "낭독형"을 고르세요.':''))+'</span>';
     $('askSteps').innerHTML='<b>1</b> 요청문을 복사해 AI에 붙여넣어요. 길이와 주제는 이미 들어 있어요.<br><b>2</b> AI가 써 준 글을 <b>붙여넣기·파일</b> 탭의 칸에 붙여넣어요.<br><b>3</b> 읽기 좋게 자동으로 정리해 드려요. 고쳐서 확정하세요.';
     $('copyAsk').textContent=cfg.form+' 대본 요청문 복사';
   }else{
@@ -1555,6 +1557,8 @@ function buildAsk(full){
     var who=memo?'- 고인: '+(B.to.trim()||'고인(성함을 쓰지 말고 "고인"으로)')+(B.rel.trim()?' (보내는 사람의 '+B.rel.trim()+')':''):'- 받는 사람: '+(B.to.trim()||'받는 분(이름을 모르니 "당신" 같은 호칭으로)');
     return (memo?'부고 안내 또는 추모 영상에 쓸 낭독 대본을 써 주세요. 가족과 지인이 영상을 보며 목소리로 듣게 될 글이에요.':'영상 편지에 쓸 낭독 대본을 써 주세요. 받는 분이 영상을 보며 목소리로 듣게 될 글이에요.')+'\n\n이번 요청:\n'+who+'\n- 보내는 사람: '+(B.from.trim()||'보내는 사람(이름을 쓰지 말고 "저"로)')+'\n- 어떤 날: '+(oc||'어울리는 상황을 AI가 알아서 정해 주세요')+'\n- 말투: '+tone+(memo&&B.info.trim()?'\n- 알릴 내용(그대로만 쓰세요): '+B.info.trim():'')+'\n- 전하고 싶은 말: '+(B.msg.trim()||'따로 없어요. 진심이 느껴지게 자연스럽게 써 주세요')+'\n- 길이: '+B.sec+'초 (1초는 공백을 뺀 약 6자예요. 30초는 약 180자, 60초는 약 360자, 90초는 약 540자예요)\n\n규칙:\n- 글 외의 말은 쓰지 마세요. 인사, 설명, "원하시면 ~" 같은 후속 제안 없이 대본만 출력하세요.\n- 첫 줄에 제목 한 줄만 쓰고, 한 줄을 띄운 뒤 본문을 시작하세요.\n- '+(memo?'보내는 사람이 직접 전하는 1인칭으로, 정중하고 절제된 문장으로 쓰세요. 과장된 슬픔이나 화려한 표현은 쓰지 마세요.':'보내는 사람이 직접 말하는 1인칭으로, 받는 사람을 부르며 시작하세요.')+'\n- 짧은 문장으로, 소리 내어 읽기 좋게 쓰세요. 지문, 효과음 설명, 괄호 설명, 화자 표시는 쓰지 마세요.\n- 굵은 글씨, 별표, 구분선(---), 이모지, 목록 기호는 쓰지 마세요.\n- 제가 말하지 않은 구체적인 사실(날짜, 장소, 사건, 이름)은 지어내지 마세요.'+(memo?'\n- 일시·장소는 위 "알릴 내용"에 적힌 것만 정확히 그대로 쓰고, 없으면 쓰지 마세요.':'')
   }
+  if(cfg.kind==='gen'&&cfg.form==='롱폼'&&B.vf==='낭독형'){var 자n=Math.round(B.min*360);
+    return '책이나 해설을 읽어 주는 낭독 영상에 쓸 대본을 써 주세요. 시청자가 화면의 그림을 보며 목소리로 듣는 글이에요.\n\n규칙:\n- 소리 내어 읽을 글만 써요. 장면 설명, 괄호 지시문, 효과음 표시, 화자 표시, 이모지, 해시태그, 번호는 쓰지 않아요.\n- 굵은 글씨, 별표, #, 구분선(---), 목록 기호도 쓰지 않아요. 제목도 쓰지 않고 바로 본문으로 시작해요.\n- 글 외의 말은 쓰지 마세요. 인사, 설명, "원하시면 ~" 같은 후속 제안 없이 대본만 출력하세요.\n- 문단은 빈 줄로 나눠요. 한 문단은 한 장면이에요. 3~6문장으로 쓰고, 장면(장소, 때, 분위기)이 바뀔 때 문단을 나눠요.\n- 문단마다 눈에 그려지는 구체적인 묘사(장소, 사물, 사람의 모습, 날씨, 분위기)를 한두 문장 넣어요. 그 문단의 그림이 만들어져요.\n- 소리 내어 읽기 좋은 문장으로 써요. 숫자와 단위는 읽는 그대로 한글로 쓰고(예: 3퍼센트, 이십 킬로미터), 영어 약어와 특수문자는 피해요.\n- 다른 사람이 쓴 책이나 글을 그대로 옮기지 말고, 직접 새로 쓴 글로 써요. 확실하지 않은 사실, 수치, 인용은 지어내지 않아요.\n- 길이는 공백 포함 약 '+자n.toLocaleString('ko-KR')+'자(약 '+B.min+'분)로 맞춰요.\n\n이번 요청:\n- 주제: '+(B.topic.trim()||'따로 없어요. 직접 골라 주세요')+'\n- 말투: '+(B.tone||'AI가 알아서 정해 주세요')}
   if(cfg.kind==='gen'){var 분=cfg.form==='롱폼'?B.min:Math.round(B.sec/60*100)/100,자=Math.round(분*360);
     return (cfg.form==='롱폼'?'롱폼':'쇼츠')+' 영상의 나레이션 대본을 써 주세요.\n\n규칙:\n- 영상에서 목소리로 읽을 글만 써요. 장면 설명, 괄호 지시문, 이모지, 해시태그, 제목, 번호는 쓰지 않아요.\n- 첫 문장은 시청자가 계속 보고 싶어지는 한 줄로 시작해요. "안녕하세요 여러분" 같은 인사로 시작하지 않아요.\n- 문장은 짧게, 한 문장에 한 가지 내용만 담아요.\n- 사실이 확실하지 않은 수치·후기·"1위"·"최저가"·"완치" 같은 과장·가격·의료 표현은 쓰지 않아요.\n- 문단은 빈 줄로 나눠요.\n- 길이는 공백 포함 약 '+자+'자(약 '+(분<1?Math.round(분*60)+'초':(Math.round(분*10)/10)+'분')+')로 맞춰요.\n\n이번 요청:\n- 주제: '+(B.topic.trim()||'따로 없어요. 직접 골라 주세요')+'\n- 말투: '+(B.tone||'AI가 알아서 정해 주세요')}
   var base=(full?ASK_FULL:ASK_TEXT).replace(/\n\n마지막에 제가[\s\S]*$/,'');
@@ -1563,9 +1567,10 @@ function buildAsk(full){
 $('brief').addEventListener('input',function(e){var k=e.target.dataset.b;if(k)B[k]=e.target.value});
 $('brief').addEventListener('click',function(e){
   var b=e.target.closest('button');if(!b)return;
-  if(b.dataset.ch){var p=b.dataset.ch.split(':'),k=p[0],v=p.slice(1).join(':');B[k]=B[k]===v?'':v;renderBrief()}
+  if(b.dataset.ch){var p=b.dataset.ch.split(':'),k=p[0],v=p.slice(1).join(':');
+    if(k==='vf'){B.vf=v==='낭독형'?'낭독형':'';if(!B.vf&&B.min>10)B.min=10}else B[k]=B[k]===v?'':v;renderBrief()}
   if(b.dataset.st){var q=b.dataset.st.split(':'),d=+q[1];
-    if(q[0]==='min'){var L=cfg.kind==='gen'?[2,3,5,7,10]:[1,2,3,5,10,15,20,30,45,60,90,120,180],i=L.indexOf(B.min);B.min=L[Math.min(L.length-1,Math.max(0,i+d))]}
+    if(q[0]==='min'){var L=cfg.kind==='gen'?(B.vf==='낭독형'?[2,3,5,7,10,15,20,30,45,60,90,120]:[2,3,5,7,10]):[1,2,3,5,10,15,20,30,45,60,90,120,180],i=L.indexOf(B.min);B.min=L[Math.min(L.length-1,Math.max(0,i+d))]}
     if(q[0]==='intro')B.intro=Math.min(60,Math.max(5,B.intro+5*d));
     if(q[0]==='sec')B.sec=Math.min(180,Math.max(15,B.sec+15*d));   /* 쇼츠 대본은 최대 3분(180초) */
     renderBrief()}
