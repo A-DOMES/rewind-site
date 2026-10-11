@@ -1025,6 +1025,13 @@ function renderRail(){
   $('mSplit').disabled=false;$('mMerge').disabled=i<=0;
 }
 function fit(t){t.style.height='auto';t.style.height=t.scrollHeight+'px'}
+/* 본문 글꼴(Noto Serif KR)은 한글 조각이 뒤늦게 내려와서, 글이 먼저 다른 글꼴로 그려지면 줄 수가 바뀌어 마지막 줄이 가려져요. 글꼴이 바뀌거나 폭이 달라지면 높이를 다시 맞춘다 */
+function refitAll(){document.querySelectorAll('.box textarea').forEach(fit)}
+(function(){var tm=0;function later(){clearTimeout(tm);tm=setTimeout(refitAll,60)}
+  try{if(document.fonts){document.fonts.addEventListener('loadingdone',later);if(document.fonts.ready)document.fonts.ready.then(later)}}catch(e){}
+  window.addEventListener('resize',later);window.addEventListener('load',later);
+  try{if(window.ResizeObserver){var ro=new ResizeObserver(later);var sh=document.getElementById('sheet');if(sh)ro.observe(sh)}}catch(e){}
+})();
 function mirrorHtml(text){
   var h;
   if(!q){h=esc(text)}
