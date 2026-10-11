@@ -2937,7 +2937,7 @@
   }
   // ===== 상품쇼츠: 고객이 올린 사진·영상으로 만드는 제품 소개 세로 쇼츠 =====
   // 고객 공개 전에는 사장님 시험용: 주소에 ?prod=1 이 있거나 window.__rwProdReady=true 일 때만 열린다. 시험을 통과하면 이 함수를 true 로 바꾼다.
-  function PRODUCT_READY() { return window.__rwProdReady === true || /[?&]prod=1(&|$)/.test(location.search); }
+  function PRODUCT_READY() { return true; }   // 공개됨: 상품쇼츠와 모든 영상의 단계 화면을 누구에게나 보인다 (예전에는 ?prod=1 로만 열렸다)
   const PIMG_ICO = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="M21 16l-5-5-9 9"/></svg>';
   const PVID_ICO = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9.5v5l4.5-2.5z"/></svg>';
   const PD_VIDEO_SITE = /(^|\.)(youtube\.com|youtube-nocookie\.com|youtu\.be|instagram\.com|tiktok\.com|facebook\.com|fb\.com|fb\.watch|x\.com|twitter\.com|vimeo\.com|dailymotion\.com|twitch\.tv|tv\.naver\.com|tv\.kakao\.com)$/i;
