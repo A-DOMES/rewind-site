@@ -325,7 +325,7 @@
   .price-table th small { display: block; font-size: 0.68rem; opacity: .8; font-weight: 400; }
   .price-table td.hit { outline: 2px solid var(--amber); outline-offset: -2px; border-radius: 6px; }
   .motion-legend { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 0 0 16px; }
-  /* [움직임 방식 색상] 이미지 중심=파랑, 혼합=주황, 모두 영상=코랄 - 표·버튼·그래프 어디서나 같은 색 */
+  /* [영상 제작 방식 색상] 이미지 중심=파랑, 혼합=주황, 모두 영상=코랄 - 표·버튼·그래프 어디서나 같은 색 */
   .mc-img { --mc: #4a9be8; } .mc-mix { --mc: #e2a23c; } .mc-all { --mc: #f0694a; }
   .price-table th.mc { background: color-mix(in srgb, var(--mc) 18%, transparent); color: var(--ink); box-shadow: inset 0 3px 0 var(--mc); }
   .price-table td.mc { background: color-mix(in srgb, var(--mc) 7%, transparent); color: var(--ink); }
@@ -1168,6 +1168,18 @@
   .rwctl-btns button:hover, .rwctl-btns button:focus-visible { border-color: var(--amber); }
   .rwctl-side small { display: block; margin-top: 8px; color: var(--ink-dim); font-size: .8rem; line-height: 1.5; max-width: 24ch; }
   @media (prefers-reduced-motion: reduce) { .rwctl-dial .vl { transition: none; } }
+  #df-fields.pw-on .gn-formfield { display: none; }
+  #df-fields.pw-on .gn-swap { display: block; }
+  .df-types.gn-two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .gn-more { margin-top: 6px; } .gn-more > summary { cursor: pointer; padding: 10px 0; color: var(--ink-dim); font-size: .92rem; } .gn-more > summary:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+  .gn-help { margin: 8px 0 0; font-size: .84rem; line-height: 1.5; color: var(--ink-dim); }
+  .gn-help.is-warn { color: var(--amber); }
+  .gn-help.is-ok { color: #7bc58a; }
+  .gn-imgprev { margin-top: 10px; }
+  .gn-imgprev img { display: block; max-width: 160px; max-height: 160px; border-radius: 10px; border: 1px solid var(--line); object-fit: contain; background: var(--bg); }
+  .gn-swap { display: none; margin: 14px 0 0; font-size: .88rem; color: var(--ink-dim); }
+  .gn-swapbtn { margin-left: 6px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line-strong, var(--line)); background: transparent; color: var(--amber); font: inherit; font-size: .86rem; cursor: pointer; }
+  .gn-swapbtn:hover, .gn-swapbtn:focus-visible { border-color: var(--amber); }
   #df-fields.pw-on > .df-sec { display: none; }
   #df-fields.pw-on > .df-sec.pw-cur { display: block; }
   #df-fields.pw-on .df-sec-head h3::before { content: attr(data-n); }
@@ -1400,7 +1412,7 @@
     </div>
     <div class="pm-body">
       <section id="pm-short">
-        <p class="sub">영상 길이와 <b>움직임 방식</b>으로 정해져요. 장면 수와 상관없이 같은 요금이에요.</p>
+        <p class="sub">영상 길이와 <b>영상 제작 방식</b>으로 정해져요. 장면 수와 상관없이 같은 요금이에요.</p>
         <div class="motion-legend" id="motion-legend"></div>
         <table class="price-table" id="price-table-body"></table>
         <p class="note" id="price-modal-note"></p>
@@ -1416,7 +1428,7 @@
         <p class="sub">기본 + 시간당 요금에 인트로(1초당 <span data-intro-per-sec>1</span>P)가 더해져요. 인트로 없이 계산한 금액이에요.</p>
         <table class="price-table" id="pm-yl"></table></div>
         <div class="pm-sec"><h3 class="pm-h"><span class="hi"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M10 9.5l4.5 2.5-4.5 2.5z"/></svg></span>영상 중심 롱폼 (3~10분)</h3>
-        <p class="sub">쇼츠와 같은 움직임 방식 요금이에요.</p>
+        <p class="sub">쇼츠와 같은 영상 제작 방식 요금이에요.</p>
         <table class="price-table" id="pm-motion-long"></table></div>
         <p class="note">정확한 금액은 직접 설정하기에서 길이를 넣으면 바로 계산돼요.</p>
       </section>
@@ -1470,7 +1482,7 @@
     voiceGender: '목소리', voiceAge: '목소리 연령대', directorNote: '연출 메모', style: '연출 스타일', characterUse: '캐릭터 통일',
     driveLink: '드라이브 링크', mediaNote: '분위기 메모', voiceSummary: '목소리·자막',
     sceneCount: '장면 수', videoLength: '영상 길이', estimatedPrice: '필요 포인트', scriptTitle: '내 대본', yadamKind: '야담 방식', narration: '말', voiceUrl: '내 목소리 녹음', voiceTone: '목소리 기분', voiceSpeed: '읽는 속도', introSeconds: '인트로 영상', hookText: '화면 상단 문구',
-    layout: '화면 구성', captionPos: '자막 위치', motion: '움직임 방식',
+    layout: '화면 구성', captionPos: '자막 위치', motion: '영상 제작 방식',
     videoType: '영상 종류', tier: '품질 등급', screenMode: '화면 움직임', imageSource: '그림 방식', photoCount: '사진 장수', subtitles: '자막', soundRequest: '소리 요청', sceneSeconds: '그림 바뀌는 간격(초)', soundMode: '소리', musicFolderUrl: '내 음악 폴더'
   };
 
@@ -1756,7 +1768,7 @@
       renderComposer();
       return;
     }
-    // [수면음악·야담] 이 종류는 직접 설정하기에서 신청한다 - 상담 챗봇이 일반 영상 질문(움직임 방식 등)을 하지 않도록 여기서 안내한다
+    // [수면음악·야담] 이 종류는 직접 설정하기에서 신청한다 - 상담 챗봇이 일반 영상 질문(영상 제작 방식 등)을 하지 않도록 여기서 안내한다
     if (/(수면\s*음악|수면용|잠들|자장가|야담|분위기\s*영상)/.test(text) && !요금패턴.test(text)) {
       exampleRow.style.display = 'none';
       addMsg('user', escapeHtml(text));
@@ -1801,7 +1813,7 @@
       if (data.mode) mode = data.mode;
       if (data.collected) Object.assign(answers, data.collected);
       if (answers.productShort && productExtra) pinProduct();   // 상품쇼츠는 챗봇이 돌려준 값이 아니라 입력 화면의 값을 따른다
-      // [신규] 정식 모드는 영상 길이·움직임 방식까지 골라야 필수 항목이 채워진 것 (선택 버튼이 떠 있는 동안 '진행하기' 버튼을 띄우지 않음)
+      // [신규] 정식 모드는 영상 길이·영상 제작 방식까지 골라야 필수 항목이 채워진 것 (선택 버튼이 떠 있는 동안 '진행하기' 버튼을 띄우지 않음)
       const 선택대기 = Array.isArray(data.choices) && data.choices.length > 0;
       const 필수충족 = !선택대기 && (mode === 'media' ? !!(answers.driveLink && answers.form)
         : !!(answers.topic && answers.form && (planMode !== 'paid' || !('choices' in data) || (answers.videoLength && answers.motion && (!data.thumbnailStep || answers.thumbnail))))); // 'choices'는 상담 Agent v6부터, 'thumbnailStep'(AI 썸네일 질문)은 v7부터 적용 (이전 버전과도 호환)
@@ -1901,7 +1913,7 @@
     row.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }
 
-  // [신규] 챗봇이 영상 길이·움직임 방식을 물을 때 금액이 적힌 선택 버튼을 보여준다. 누르면 그 값이 바로 기록되고 대화가 이어진다
+  // [신규] 챗봇이 영상 길이·영상 제작 방식을 물을 때 금액이 적힌 선택 버튼을 보여준다. 누르면 그 값이 바로 기록되고 대화가 이어진다
   function showChoices(list) {
     document.querySelectorAll('.suggest-row').forEach(r => r.remove());
     const row = document.createElement('div');
@@ -1961,7 +1973,7 @@
   // [요금] 화면의 요금(answers.estimatedPrice)을 같은 공식으로 다시 계산한다 (요약 화면을 열 때, 그리고 접수 직전 최신 가격을 받은 뒤)
   function 견적다시계산() {
     if (answers.videoType) {
-      // 롱폼 유형(수면음악): 움직임 방식 없음. 요금은 유형·등급·길이로 계산
+      // 롱폼 유형(수면음악): 영상 제작 방식 없음. 요금은 유형·등급·길이로 계산
       delete answers.motion;
       answers.estimatedPrice = longPrice(answers.videoType, answers.tier, answers.videoLength, Number(answers.introSeconds) || 0, answers.narration === '목소리');
     } else if (planMode === 'paid' && mode !== 'media') {
@@ -1987,7 +1999,7 @@
       .filter(k => !['productImages', 'productShort', 'imageRights', 'affiliateNotice', 'disclosureCaption', 'voice'].includes(k) && !(k === 'productImageUrl' && answers.productShort))
       .map(k => `<div class="summary-row"><span class="k">${FIELD_LABEL[k] || k}</span><span class="v">${k === 'characterUse' ? (answers[k] ? '예' : '아니오') : k === 'videoLength' && answers.productShort ? lenLabel(parseFloat(answers[k])) : k === 'estimatedPrice' && !isNaN(Number(answers[k])) ? Number(answers[k]).toLocaleString('ko-KR') + 'P' : k === 'videoLength' && answers.videoType ? (parseFloat(answers[k]) < 30 && answers.videoType === '수면음악' ? lenLabel(parseFloat(answers[k])) : hourLabel(parseFloat(answers[k]))) : k === 'videoType' ? kindName(answers[k]) : k === 'yadamKind' ? (answers[k] === 'long' ? '인트로 영상 + 긴 이야기' : '그림이 자주 바뀌는 야담') : k === 'introSeconds' ? (answers[k] + '초') : k === 'soundMode' ? (소리이름[answers[k]] || answers[k]) : escapeHtml(String(answers[k])).slice(0, 60)}</span></div>`)
       .join('');
-    const 방식행 = `<div class="summary-row summary-mode ${planMode === 'paid' ? 'is-paid' : 'is-trial'}"><span class="k">제작 방식</span><span class="v">${planMode === 'paid' ? '정식 제작 (결제 안내 메일 발송)' : answers.videoType ? `체험 (3분 미리보기 · 체험 ${pt(신청체험가())})` : `체험 (워터마크 미리보기 · 체험 ${pt(신청체험가())})`}</span></div>`;
+    const 방식행 = `<div class="summary-row summary-mode ${planMode === 'paid' ? 'is-paid' : 'is-trial'}"><span class="k">신청 종류</span><span class="v">${planMode === 'paid' ? '정식 제작 (결제 안내 메일 발송)' : answers.videoType ? `체험 (3분 미리보기 · 체험 ${pt(신청체험가())})` : `체험 (워터마크 미리보기 · 체험 ${pt(신청체험가())})`}</span></div>`;
     const 썸네일원함 = /^(true|예|네|응|yes|y|1|원해요|만들어)/i.test(String(answers.thumbnail ?? '').trim());
     const 썸네일행 = `<div class="summary-row"><span class="k">썸네일</span><span class="v">${planMode !== 'paid' ? '체험판에서는 제공하지 않아요' : 썸네일원함 ? 'AI 썸네일 3장 함께 만들기' : '만들지 않음 (완성 후 영상 장면으로 직접 만들 수 있어요)'}</span></div>`;
     addMsg('bot', `이렇게 만들어드릴게요.<div class="summary-card">${방식행}${answers.videoType ? '' : 썸네일행}${rows || '<div class="summary-row"><span class="k">확인된 내용이 없어요</span></div>'}</div>`);
@@ -2242,7 +2254,7 @@
   /* ===================== 직접 설정하기 (채팅 대신 폼으로) ===================== */
   // ───── 요금 (모든 화면·챗봇·서버가 같은 공식을 쓴다: 전체 상담 Agent v5, 웹 신청 접수 v3.2) ─────
   // [포인트] 모든 요금은 포인트(P)로 정의·계산한다. 1P = 100원은 충전·결제 단계에서만 쓰는 환산값이라 이 화면 계산에는 나오지 않는다.
-  // 기본료 + 영상 길이(분) × 움직임 방식별 분당 포인트, 60분 넘으면 가산율만큼 추가, 1P 단위 반올림 (값은 시트 '설정' 탭)
+  // 기본료 + 영상 길이(분) × 영상 제작 방식별 분당 포인트, 60분 넘으면 가산율만큼 추가, 1P 단위 반올림 (값은 시트 '설정' 탭)
   // 아래 값은 기본값이다. 관리자가 시트 '설정' 탭에서 바꾸면 사이트 설정(site-config)으로 받아 와서 덮어쓴다(applySitePrice).
   let PRICE_BASE = 30, PRICE_LONG_PCT = 20, TRIAL_PCT = 25, TRIAL_MIN = 5;
   const MOTION_RATE = { '이미지 중심': 70, '혼합': 110, '모두 영상': 170 };
@@ -2308,7 +2320,7 @@
   function longPerHour(kind, tier) { const r = LONG_RATE[tier][kind][1]; return kind === '수면음악' ? r : r * 60; }
   function hourLabel(min) { const m = Math.round(min); const h = Math.floor(m / 60), r = m % 60; return h ? (r ? `${h}시간 ${r}분` : `${h}시간`) : `${r}분`; }
   function lenLabel(min) { const sec = Math.round(min * 60); return sec < 60 ? `${sec}초` : (sec % 60 ? `${Math.floor(sec / 60)}분 ${sec % 60}초` : `${sec / 60}분`); }
-  // 움직임 방식 그림 - 휴대폰 안에 장면 3칸: 정지(산 그림) / 영상(재생 삼각형)
+  // 영상 제작 방식 그림 - 휴대폰 안에 장면 3칸: 정지(산 그림) / 영상(재생 삼각형)
   function motionSvg(kind, auto) {
     const pat = kind === '이미지 중심' ? [0, 0, 0] : kind === '모두 영상' ? [1, 1, 1] : [1, 0, 1];
     let g = `<rect x="0.5" y="0.5" width="44" height="79" rx="7" fill="#3a3129" stroke="#5a4e42"/>`;
@@ -2336,7 +2348,7 @@
   function motionLegendHtml() {
     return MOTION_LIST.map(m => `<div class="ml-item ${MOTION_CLS[m]}${m === '혼합' ? ' rec' : ''}">${motionSvg(m)}<div><b>${m}${m === '혼합' ? ' · 추천' : ''}</b><span>${MOTION_DESC[m]}</span><em>분당 ${MOTION_RATE[m].toLocaleString()}P</em></div></div>`).join('');
   }
-  const priceNote = () => `기본 ${PRICE_BASE}P + 영상 길이(분) × 움직임 방식별 분당 포인트예요. 장면 수는 요금에 영향이 없고, 1P 단위로 반올림해요. 60분이 넘으면 ${PRICE_LONG_PCT}% 추가돼요. 체험판은 체험 포인트로 이용하고(정식 이미지 중심 가격의 ${TRIAL_PCT}%) 이미지 중심으로 만들어져요.`;
+  const priceNote = () => `기본 ${PRICE_BASE}P + 영상 길이(분) × 영상 제작 방식별 분당 포인트예요. 장면 수는 요금에 영향이 없고, 1P 단위로 반올림해요. 60분이 넘으면 ${PRICE_LONG_PCT}% 추가돼요. 체험판은 체험 포인트로 이용하고(정식 이미지 중심 가격의 ${TRIAL_PCT}%) 이미지 중심으로 만들어져요.`;
 
   /* ===================== 요금 안내 모달 ===================== */
   (function setupPriceModal() {
@@ -2564,7 +2576,7 @@
     const 추정 = `${answers.form === '롱폼' ? '롱폼' : (기준길이 >= 3 && !answers.form ? '롱폼' : '쇼츠')} ${lenLabel(기준길이)} · ${기준방식}${len == null || !motion ? ' (정하지 않은 부분은 기본값)' : ''}`;
     const 강조 = PRICE_ROWS.some(([, l]) => Math.abs(l - 기준길이) < 1e-9) ? { len: 기준길이, motion: 기준방식 } : null;
     const 체험안내 = planMode !== 'paid' ? '<p class="cp-note">지금은 체험 모드라 체험 포인트로 만들어드려요(이미지 중심 · 워터마크, 정식 가격의 ${TRIAL_PCT}%). 아래는 정식 제작 요금이에요.</p>' : '';
-    const html = `요금은 영상 길이와 움직임 방식으로 정해져요. 장면 수는 요금과 상관없어요.<div class="chat-price"><div class="cp-est">${escapeHtml(추정)} → <b>${pt(computePrice(기준길이, 기준방식))}</b></div><table class="price-table">${priceTableHtml(강조)}</table><p class="cp-note">${priceNote()}</p>${체험안내}</div><p class="cp-ask">${planMode !== 'paid' ? `체험 포인트로는 쇼츠 1분(이미지 중심) ${trialPriceShort(1)}P부터 만들어 볼 수 있어요. ` : ''}어떤 길이와 방식으로 만들어 볼까요?</p>`;
+    const html = `요금은 영상 길이와 영상 제작 방식으로 정해져요. 장면 수는 요금과 상관없어요.<div class="chat-price"><div class="cp-est">${escapeHtml(추정)} → <b>${pt(computePrice(기준길이, 기준방식))}</b></div><table class="price-table">${priceTableHtml(강조)}</table><p class="cp-note">${priceNote()}</p>${체험안내}</div><p class="cp-ask">${planMode !== 'paid' ? `체험 포인트로는 쇼츠 1분(이미지 중심) ${trialPriceShort(1)}P부터 만들어 볼 수 있어요. ` : ''}어떤 길이와 방식으로 만들어 볼까요?</p>`;
     addMsg('bot', html);
     history.push({ role: 'bot', text: `[요금표 안내] ${추정} = ${computePrice(기준길이, 기준방식)}P. 분당 포인트: ${MOTION_LIST.map(m => m + ' ' + MOTION_RATE[m] + 'P').join(' / ')}, 기본 ${PRICE_BASE}P.` });
     saveChatState();
@@ -3101,6 +3113,26 @@
   // 입력 화면의 값을 읽어 접수 서버와 같은 규칙으로 검사한다. { err, el } 또는 { data } 를 돌려준다.
   // opt.partial: 마지막 확인(권리·사람·동의) 칸이 비어 있어도 값을 돌려준다(확인 요약용). opt.mutate===false: 칸의 글을 고쳐 쓰지 않는다(입력 중 남은 항목 세기용).
   // 돌려주는 probs 는 모든 문제의 목록이고, 각 항목의 part 는 어느 단계의 문제인지(content 내용 / media 사진·영상 / style 꾸미기 / agree 확인)를 말한다.
+  // ===== [일반 영상] 단계 화면에서 쓰는 값 읽기·검사. 신청 데이터(payload)는 만들지 않는다 - 신청은 예전과 같은 확인 흐름(df-confirm)이 만든다 =====
+  function readGeneral() {
+    const g = id => document.getElementById(id), v = id => (g(id) ? g(id).value.trim() : '');
+    const probs = [];
+    const add = (part, label, msg, el) => probs.push({ part, label, msg, el });
+    const http = s => /^https?:\/\/\S+$/i.test(s);
+    const topic = v('df-topic');
+    if (!topic) add('content', '주제', '어떤 영상인지 주제를 적어 주세요.', g('df-topic'));
+    const link = v('df-productLink');
+    if (link && !http(link)) add('content', '제품 링크', '제품 링크는 http:// 또는 https:// 로 시작해야 해요. 주소창의 주소를 그대로 붙여 넣어 주세요.', g('df-productLink'));
+    const img = v('df-productImageUrl');
+    if (img && !http(img)) add('content', '제품 사진 주소', '사진 주소는 http:// 또는 https:// 로 시작해야 해요. 사진을 길게 눌러 "이미지 주소 복사"로 붙여 넣어 주세요.', g('df-productImageUrl'));
+    const len = v('df-videoLength');
+    if (len && !(parseFloat(len) > 0)) add('screen', '영상 길이', '영상 길이는 0보다 큰 숫자(분)로 넣어 주세요. 비워 두면 기본 길이로 만들어요.', g('df-videoLength'));
+    const sc = v('df-sceneCount');
+    if (sc && !(parseInt(sc, 10) >= 1)) add('screen', '장면 수', '장면 수는 1 이상의 숫자로 넣어 주세요. 비워 두면 AI가 정해요.', g('df-sceneCount'));
+    const form = (g('df-form') && g('df-form').value) || '쇼츠';
+    const first = probs[0];
+    return { probs, err: first ? first.msg : '', el: first ? first.el : null, part: first ? first.part : '', data: { form, topic, link, img, len, sc } };
+  }
   function readProduct(opt) {
     opt = opt || {};
     const mutate = opt.mutate !== false;
@@ -3160,7 +3192,7 @@
     const pe = document.querySelector('input[name="df-people"]:checked');
     if (!pe) add('agree', '사람이 나오는지', '사진·영상에 사람이 나오는지 골라 주세요.', document.querySelector('input[name="df-people"]'));
     const people = !!pe && pe.value === 'yes';
-    if (people && pdMotion() !== '이미지 중심') add('media', '제작 방식', '사람이 나오는 사진·영상은 AI 영상(혼합·모두 영상)으로 만들 수 없어요. 제작 방식을 "이미지 중심"으로 골라 주세요.', document.querySelector('input[name="pd-motion"]'));
+    if (people && pdMotion() !== '이미지 중심') add('media', '영상 제작 방식', '사람이 나오는 사진·영상은 AI 영상(혼합·모두 영상)으로 만들 수 없어요. 제작 방식을 "이미지 중심"으로 골라 주세요.', document.querySelector('input[name="pd-motion"]'));
     if (people && !g('df-prodConsent').checked) add('agree', '나온 분의 동의 확인', '나온 분의 동의 확인에 체크해 주세요.', g('df-prodConsent'));
     const list = opt.partial ? probs.filter(x => x.part !== 'agree') : probs;
     if (list.length) return { err: list[0].msg, el: list[0].el, part: list[0].part, probs };
@@ -3171,10 +3203,11 @@
   }
   // 오류 문구는 문제가 있는 칸 바로 아래에 붙인다 (폰에서 화면 밖으로 밀리지 않게)
   function pdShowErr(msg, el) {
-    document.querySelectorAll('.df-prod .pd-err').forEach(e => e.remove());
-    document.querySelectorAll('.df-prod [aria-invalid]').forEach(e => e.removeAttribute('aria-invalid'));
+    document.querySelectorAll('#df-fields .pd-err').forEach(e => e.remove());
+    document.querySelectorAll('#df-fields [aria-invalid]').forEach(e => e.removeAttribute('aria-invalid'));
     if (!msg) return;
-    const host = (el && el.closest('.df-field, .pimg-card')) || document.querySelector('.df-prod');
+    { const dt = el && el.closest && el.closest('details'); if (dt) dt.open = true; }   // 접힌 칸의 오류는 펼쳐서 보여 준다
+    const host = (el && el.closest('.df-field, .pimg-card')) || document.querySelector('#df-fields .pw-cur') || document.querySelector('.df-prod');
     const p = document.createElement('p'); p.className = 'pd-err'; p.id = 'pd-err'; p.setAttribute('role', 'alert'); p.textContent = msg;
     host.appendChild(p);
     if (el) { el.setAttribute('aria-invalid', 'true'); el.setAttribute('aria-describedby', 'pd-err'); try { el.focus({ preventScroll: true }); } catch (e) {} }
@@ -3420,11 +3453,12 @@
   // 필수 칸이 비면 "다음"이 막히고(눌러 보면 무엇이 비었는지 알려 준다), 마친 단계는 눌러서 돌아갈 수 있다. 입력한 값은 돌아가도 그대로 남는다(지우지 않고 숨기기만 한다).
   // 앞 단계 값을 고쳐서 뒤 단계가 맞지 않게 되면 그 단계는 '다시 확인'으로 바뀌고, 고칠 때까지 뒤 단계로 갈 수 없다.
   const PW_NAMES = ['종류', '내용', '화면·길이', '소리', '꾸미기', '확인'];
-  const PW_TODO = ['어떤 영상을 만들지 골라 주세요', '제품 이름과 내용을 적어 주세요', '사진·영상, 길이, 제작 방식을 정해 주세요', '목소리를 정해 주세요', '화면 모양과 자막을 확인해 주세요 (그대로 두어도 돼요)', '내용을 확인하고 신청해 주세요'];
+  const PW_TODO = ['어떤 영상을 만들지 골라 주세요', '제품 이름과 내용을 적어 주세요', '사진·영상, 길이, 영상 제작 방식을 정해 주세요', '목소리를 정해 주세요', '화면 모양과 자막을 확인해 주세요 (그대로 두어도 돼요)', '내용을 확인하고 신청해 주세요'];
+  const PW_TODO_GN = ['쇼츠와 롱폼 중에서 골라 주세요', '무엇에 대한 영상인지 적어 주세요', '영상 길이와 영상 제작 방식을 정해 주세요', '목소리를 정해 주세요 (그대로 두어도 돼요)', '상단 문구, 화면 구성, 자막 위치를 정해 주세요 (그대로 두어도 돼요)', '내용을 확인하고 신청해 주세요'];
   const PW_ICON = ['M4 5h12v10H4z M7 5v10 M13 5v10 M4 8h3 M4 12h3 M13 8h3 M13 12h3', 'M4 16l1-4 8-8 3 3-8 8z M12 5l3 3', 'M3 4h14v12H3z M3 14l4-4 3 3 3-3 4 4 M13 7.5h.01', 'M4 8v4h3l4 3V5L7 8z M14 7a4 4 0 010 6', 'M10 3l1.8 4.2L16 9l-4.2 1.8L10 15l-1.8-4.2L4 9l4.2-1.8z', 'M4 10.5l4 4 8-9'];
   const PW_OK = 'M4 10.5l4 4 8-9', PW_LOCK = 'M5 9h10v7H5z M7 9V7a3 3 0 016 0v2';
   function setupWizard(wrap, isMedia) {
-    window.__pwRefresh = null; window.__pwGo = null;
+    window.__pwRefresh = null; window.__pwGo = null; window.__pwOn = null;
     if (window.__pwResize) { window.removeEventListener('resize', window.__pwResize); window.__pwResize = null; }
     if (isMedia) return;
     const fields = document.getElementById('df-fields');
@@ -3442,11 +3476,15 @@
     const agree0 = fields.querySelector('.pd-agree'); if (agree0) fields.appendChild(agree0);   // 요약 아래에 동의 칸이 오게 맨 뒤로 옮긴다
     let step = 0, maxReached = 0;
     const LAST = PW_NAMES.length - 1;   // 마지막(확인) 단계 번호
-    const on = () => 현재종류() === '상품쇼츠';
+    const GN = () => 현재종류() === '일반';
+    const on = () => 현재종류() === '상품쇼츠' || (GN() && PRODUCT_READY());   // 일반 영상도 같은 단계 화면 (상품쇼츠와 같은 열쇠 ?prod=1 뒤에서만)
+    const gnForm = () => fields.querySelector('.gn-formsec');
+    const todoOf = i => (GN() ? PW_TODO_GN : PW_TODO)[i];
     const typeSec = () => { const t = document.getElementById('df-types'); return t ? t.closest('.df-sec') : null; };
     const q = sel => fields.querySelector(sel);
-    const secs = () => [[typeSec()], [q('.pd-content'), q('.df-extra')], [q('.pd-media')], [q('.df-voicesec'), q('.df-gender')], [q('.pd-style')], [review, q('.pd-agree')]];   // 한 단계에 섹션이 둘 이상일 수 있다 (기존 옵션을 숨기지 않으려고)
-    const PARTS = { 1: 'content', 2: 'media', 4: 'style', 5: 'agree' };
+    const secsGn = () => [[typeSec(), gnForm()], [q('.gn-content'), q('.gn-link'), q('.gn-img'), q('.df-extra')], [q('.gn-screen')], [q('.df-voicesec'), q('.df-gender')], [q('.gn-style'), q('.gn-thumb')], [review]];
+    const secs = () => GN() ? secsGn() : [[typeSec()], [q('.pd-content'), q('.df-extra')], [q('.pd-media')], [q('.df-voicesec'), q('.df-gender')], [q('.pd-style')], [review, q('.pd-agree')]];   // 한 단계에 섹션이 둘 이상일 수 있다 (기존 옵션을 숨기지 않으려고)
+    const PARTS_PD = { 1: 'content', 2: 'media', 4: 'style', 5: 'agree' }, PARTS_GN = { 1: 'content', 2: 'screen', 4: 'style' };
     const showErr = (m, focusEl) => {
       const box = nav.querySelector('.pw-err');
       box.textContent = '';
@@ -3454,7 +3492,7 @@
       if (m && focusEl) pdShowErr(m, focusEl);   // 문제가 있는 칸 바로 아래에도 같은 설명을 보인다 (폰에서 화면 밖으로 밀리지 않게)
       else pdShowErr('');
     };
-    const probsOf = i => { const part = PARTS[i]; if (!part) return []; return readProduct({ mutate: false }).probs.filter(x => x.part === part); };
+    const probsOf = i => { const part = (GN() ? PARTS_GN : PARTS_PD)[i]; if (!part) return []; return (GN() ? readGeneral() : readProduct({ mutate: false })).probs.filter(x => x.part === part); };
     const esc = pdEsc;
     // 이 단계로 갈 수 있나: 앞 단계가 모두 맞아야 하고, 한 번이라도 가 본 단계까지만
     const stateOf = i => {
@@ -3464,7 +3502,30 @@
       for (let j = 0; j < i; j++) if (probsOf(j).length) return 'todo';
       return probsOf(i).length ? 'redo' : 'done';
     };
+    // 일반 영상 요약: 고른 것을 한눈에 보고, 고칠 곳은 "고치기"로 그 단계에 돌아간다
+    function buildReviewGn() {
+      const r = readGeneral(), d = r.data, paid = planMode === 'paid';
+      const vv = (window.RWVoice && RWVoice.value()) || {};
+      const gv = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+      const row = (k, v, go) => `<div class="pw-row"><span class="pw-k">${k}</span><span class="pw-v">${esc(v)}</span><button type="button" class="pw-fix" data-go="${go}">고치기</button></div>`;
+      const 롱폼 = d.form === '롱폼';
+      const 분 = parseFloat(d.len) > 0 ? parseFloat(d.len) : defaultLen(d.form);
+      const 움직임 = paid ? motionOf(현재움직임() === '자동' ? '혼합' : 현재움직임()) : '이미지 중심';
+      const 제품 = [d.link && '링크 ' + d.link.slice(0, 40), d.img && '사진 주소 입력함'].filter(Boolean).join(' · ') || '없음';
+      const 목소리 = (window.RWVoice && RWVoice.summary()) || [gv('df-voiceGender'), gv('df-voiceAge')].filter(Boolean).join(' · ') || '자동';
+      const 꾸밈 = [gv('df-hookText') ? '문구 "' + gv('df-hookText') + '"' : '문구 자동', 롱폼 ? '' : '화면 구성 ' + (document.querySelector('input[name="df-layout"]:checked')?.value || '자동'), '자막 ' + (document.querySelector('input[name="df-captionPos"]:checked')?.value || '자동')].filter(Boolean).join(' · ');
+      const 썸네일 = paid ? (document.getElementById('df-thumbnail')?.checked ? 'AI 썸네일 3장 함께 만들기' : '만들지 않음') : '체험판은 제공하지 않아요';
+      const 광고 = d.link && pdLooksAffiliate(d.link) ? ' 제휴 링크라서 설명란 맨 앞에 광고 안내 문구가 들어가요. 유튜브에 올릴 때 "유료 프로모션 포함"도 체크해 주세요.' : '';
+      review.innerHTML = `<div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg></span><div><h3 data-n="${LAST + 1}">이대로 만들까요?</h3><p>고칠 곳이 있으면 "고치기"를 눌러 그 단계로 돌아가세요</p></div></div>` +
+        row('영상 형태', 롱폼 ? '롱폼 · 가로 16:9' : '쇼츠 · 세로 9:16', 0) + row('주제', d.topic || '아직 비어 있어요', 1) +
+        (gv('df-style') ? row('만드는 방향', gv('df-style'), 1) : '') + (document.getElementById('df-characterUse')?.checked ? row('캐릭터', '영상 내내 같은 캐릭터', 1) : '') +
+        (gv('df-directorNote') ? row('꼭 넣을 연출', gv('df-directorNote'), 1) : '') + row('제품 정보', 제품, 1) +
+        row('영상 길이', lenLabel(분) + (parseFloat(d.len) > 0 ? '' : ' (기본)'), 2) + row('영상 제작 방식', 움직임 + (paid ? '' : ' (체험판)'), 2) +
+        row('목소리', 목소리, 3) + row('화면 꾸미기', 꾸밈, 4) + row('썸네일', 썸네일, 4) +
+        `<p class="pw-note">AI 목소리가 들어간 영상은 유튜브에 올릴 때 "변경된 콘텐츠" 표시를 확인해 주세요.${움직임 !== '이미지 중심' ? esc(' AI 영상 장면이 있어서 "합성된 콘텐츠"로도 표시해야 하고, 완성된 영상에서 제품 모양·글자가 실제와 같은지 꼭 확인해 주세요.') : ''}${esc(광고)}</p>`;
+    }
     function buildReview() {
+      if (GN()) { buildReviewGn(); return; }
       const r = readProduct({ partial: true, mutate: false}); if (r.err) { review.innerHTML = '<p class="pw-note">' + esc(r.err) + '</p>'; return; }
       const d = r.data;
       const vv = (window.RWVoice && RWVoice.value()) || {};
@@ -3477,7 +3538,7 @@
       const 미리 = pdPvSvg({ layout: d.layout, hook: d.hook, hookShow: d.hookShow, pos: d.captionPos || '하단', size: vv.subtitleSize || '크게', brk: vv.subtitleBreak || '짧게', off: !!vv.subtitleOff });
       review.innerHTML = `<div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg></span><div><h3 data-n="${LAST + 1}">이대로 만들까요?</h3><p>고칠 곳이 있으면 "고치기"를 눌러 돌아가세요. 고른 내용은 그대로 남아 있어요</p></div></div>` +
         `<div class="pw-pv" role="img" aria-label="고른 화면 모양 미리보기">${미리}<small>고른 화면 모양이에요</small></div>` +
-        row('제품', d.name, 1) + row('제품 내용', 설명, 1) + row('링크·판매', 링크, 1) + row('사진·영상', pdMediaSummary(d), 2) + row('영상 길이', pdLenLabel(d.sec), 2) + row('제작 방식', d.motion, 2) + (window.RWVoice ? row('목소리', RWVoice.summary(), 3) : '') + row('화면 구성', d.layout === '자동' ? '자동 (전체화면형)' : d.layout, 4) + row('위쪽 문구', (d.hook || 'AI가 만들어요') + (d.hookShow === '3s' ? ' · 처음 3초만' : ' · 계속 보이기'), 4) + (window.RWVoice ? row('자막', 자막, 4) + row('목소리 세부', 세부, 4) : '') +
+        row('제품', d.name, 1) + row('제품 내용', 설명, 1) + row('링크·판매', 링크, 1) + row('사진·영상', pdMediaSummary(d), 2) + row('영상 길이', pdLenLabel(d.sec), 2) + row('영상 제작 방식', d.motion, 2) + (window.RWVoice ? row('목소리', RWVoice.summary(), 3) : '') + row('화면 구성', d.layout === '자동' ? '자동 (전체화면형)' : d.layout, 4) + row('위쪽 문구', (d.hook || 'AI가 만들어요') + (d.hookShow === '3s' ? ' · 처음 3초만' : ' · 계속 보이기'), 4) + (window.RWVoice ? row('자막', 자막, 4) + row('목소리 세부', 세부, 4) : '') +
         `<p class="pw-note">AI 목소리가 들어간 영상은 유튜브에 올릴 때 "변경된 콘텐츠" 표시를 확인해 주세요.${d.motion !== '이미지 중심' ? esc(' AI 영상 장면이 있어서 "합성된 콘텐츠"로도 표시해야 하고, 완성된 영상에서 제품 모양·글자가 실제와 같은지 꼭 확인해 주세요.') : ''}${esc(광고)}</p>`;
     }
     const filmIcon = d => `<svg viewBox="0 0 20 20" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg>`;
@@ -3504,7 +3565,7 @@
     function drawHint() {
       const pr = probsOf(step), labels = [...new Set(pr.map(x => x.label))];
       const left = pr.length ? ` · <span class="pw-left">남은 필수 항목 ${labels.length}개: ${esc(labels.join(', '))}</span>` : (step > 0 && step < LAST ? ' · <span class="pw-fine">이 단계를 마쳤어요</span>' : '');
-      const html = `<b>${step + 1}단계</b> · ${PW_TODO[step]}${left}`;
+      const html = `<b>${step + 1}단계</b> · ${todoOf(step)}${left}`;
       if (hint.dataset.h !== html) { hint.dataset.h = html; hint.innerHTML = html; }
       const next = nav.querySelector('.pw-next'), confirmBtn = document.getElementById('df-confirm');
       const blocked = pr.length > 0;
@@ -3512,14 +3573,53 @@
       if (confirmBtn) { if (step === LAST) { confirmBtn.setAttribute('aria-disabled', blocked ? 'true' : 'false'); confirmBtn.classList.toggle('is-blocked', blocked); } else { confirmBtn.removeAttribute('aria-disabled'); confirmBtn.classList.remove('is-blocked'); } }
       drawBar();
     }
+    // 쇼츠/롱폼 카드: 숨은 형태 칸(df-form)을 바꾸고 알린다 - 길이 칩·요금·기본 길이가 예전과 똑같이 따라간다
+    fields.addEventListener('change', e => {
+      if (!e.target || e.target.name !== 'gn-form') return;
+      const sel = document.getElementById('df-form'); if (!sel || sel.value === e.target.value) return;
+      sel.value = e.target.value; sel.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+    // "상품쇼츠로 바꾸기": 일반 → 상품쇼츠 (입력한 주제는 그대로 남아 있다). 2단계로 가서 제품 이름부터 적게 한다
+    fields.addEventListener('click', e => {
+      if (!e.target.closest || !e.target.closest('#gn-to-prod')) return;
+      const r = document.querySelector('input[name="df-type"][value="상품쇼츠"]'); if (!r || r.disabled) return;
+      r.checked = true; r.dispatchEvent(new Event('change', { bubbles: true }));
+      go(1, true);
+    });
+    // 제품 사진 주소: 형식을 바로 알려 주고, 불러올 수 있으면 작게 보여 준다 (쇼핑몰은 다른 사이트의 미리보기를 막는 경우가 있어서, 안 보여도 만들 때는 괜찮을 수 있다)
+    { const inp = document.getElementById('df-productImageUrl'), help = document.getElementById('gn-img-help'), prev = document.getElementById('gn-imgprev'), lhelp = document.getElementById('gn-link-help'), linp = document.getElementById('df-productLink');
+      const HELP_IMG = help ? help.textContent : '', HELP_LINK = lhelp ? lhelp.textContent : '';
+      let timer = 0;
+      const setHelp = (el, text, cls) => { if (!el) return; el.textContent = text; el.className = 'gn-help' + (cls ? ' ' + cls : ''); };
+      if (inp) inp.addEventListener('input', () => {
+        clearTimeout(timer); prev.hidden = true; prev.innerHTML = '';
+        const u = inp.value.trim();
+        if (!u) { setHelp(help, HELP_IMG); return; }
+        if (!/^https?:\/\/\S+$/i.test(u)) { setHelp(help, '주소가 http:// 또는 https:// 로 시작해야 해요.', 'is-warn'); return; }
+        timer = setTimeout(() => {
+          const im = new Image(); im.alt = '입력한 제품 사진 미리보기';
+          im.onload = () => { if (inp.value.trim() !== u) return; prev.innerHTML = ''; prev.appendChild(im); prev.hidden = false; setHelp(help, '사진을 불러왔어요.', 'is-ok'); };
+          im.onerror = () => { if (inp.value.trim() !== u) return; setHelp(help, '여기서는 미리보기만 안 보여요. 사진 주소가 맞다면 만들 때는 괜찮을 수 있어요.', ''); };
+          im.referrerPolicy = 'no-referrer'; im.src = u;
+        }, 500);
+      });
+      if (linp) linp.addEventListener('input', () => {
+        const u = linp.value.trim();
+        if (u && !/^https?:\/\/\S+$/i.test(u)) setHelp(lhelp, '주소가 http:// 또는 https:// 로 시작해야 해요.', 'is-warn');
+        else if (u && pdLooksAffiliate(u)) setHelp(lhelp, '제휴 링크로 보여요. 광고 안내 문구가 영상 설명 맨 앞에 들어가요.', '');
+        else setHelp(lhelp, HELP_LINK);
+      });
+    }
     let wasActive = null;
     function render() {
       const active = on();
       if (!active) { step = 0; maxReached = 0; }   // 종류를 바꿨다가 돌아오면 처음부터 (필수 항목 검사를 건너뛰지 않게)
+      { const dt = fields.querySelector('.gn-more'); if (dt) { if (!active) dt.open = true; else if (!wasActive) dt.open = false; } }   // 단계 화면에서는 '더 세밀하게'를 접어 두고, 예전 화면에서는 늘 펼쳐 둔다
       wasActive = active;
       fields.classList.toggle('pw-on', active);
       bar.hidden = nav.hidden = hint.hidden = !active;
       review.classList.toggle('df-hide', !active);
+      { const gf = gnForm(); if (gf) { gf.classList.toggle('df-hide', !(active && GN())); const sel = document.getElementById('df-form'), want = sel && sel.value === '롱폼' ? '롱폼' : '쇼츠'; const rd = gf.querySelector(`input[name="gn-form"][value="${want}"]`); if (rd) rd.checked = true; } }
       const confirmBtn = document.getElementById('df-confirm');
       if (!active) { fields.querySelectorAll('.pw-cur').forEach(e => e.classList.remove('pw-cur')); if (confirmBtn) { confirmBtn.style.display = ''; confirmBtn.removeAttribute('aria-disabled'); confirmBtn.classList.remove('is-blocked'); } return; }
       step = Math.max(0, Math.min(LAST, step));
@@ -3560,6 +3660,7 @@
     fields.addEventListener('input', () => soon(true));
     fields.addEventListener('change', () => soon(false));
     window.__pwRefresh = render;
+    window.__pwOn = on;
     window.__pwGo = go;
     render();
   }
@@ -3830,7 +3931,7 @@
         <section class="df-sec" style="--c:#74b6ff"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span><div><h3>내 자료</h3><p>사진·영상이 담긴 구글 드라이브 폴더</p></div></div><div class="df-field"><label>구글 드라이브 폴더 링크 <em class="req">*</em></label><input type="url" id="df-driveLink" placeholder="https://drive.google.com/drive/folders/..."></div><div class="df-field"><label>어떤 이야기·분위기로 만들지 <span class="opt">선택 · 500자</span></label><textarea id="df-mediaNote" maxlength="500"></textarea></div></section><section class="df-sec" style="--c:#4fd6bd"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></span><div><h3>목소리</h3><p>비워두면 내용에 맞게 골라드려요</p></div></div><div class="df-grid2"><div class="df-field"><label>목소리</label><select id="df-voiceGender"><option value="">자동</option><option value="여성">여성</option><option value="남성">남성</option></select></div><div class="df-field"><label>목소리 연령대</label><select id="df-voiceAge">${ageOptions()}</select></div></div></section>`;
     } else {
       fieldsEl.innerHTML = `${typeSectionHtml()}
-        <section class="df-sec df-notprod" style="--c:#e2a23c"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13 7l4 4"/></svg></span><div><h3>무엇을 만들까요</h3><p>주제만 적어도 나머지는 AI가 채워요</p></div></div><div class="df-field"><label>주제 <em class="req">*</em> <span class="opt">300자</span></label><textarea id="df-topic" maxlength="300" placeholder="예: LG 통돌이 17kg DD모터 인공지능 세탁기 (T17DX3) 소개"></textarea></div><div class="df-field"><label>영상 이렇게 만들어주세요 <span class="opt">선택 · 300자</span></label><textarea id="df-style" maxlength="300" placeholder="비워두면 내용에 맞게 자동 · 예: 밝고 경쾌한 분위기로, 가족이 함께 쓰는 느낌으로"></textarea></div><div class="df-field df-check df-std"><label><input type="checkbox" id="df-characterUse"><span>영상 내내 같은 캐릭터(인물)가 나오게 하기</span></label></div></section>${sleepSectionHtml()}${yadamSectionHtml()}${productSectionHtml()}<section class="df-sec df-std df-nopro" style="--c:#ff8f6b"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg></span><div><h3>제품 정보</h3><p>상품 소개 영상일 때만 넣어주세요</p></div></div><div class="df-field"><label>제품 링크 <span class="opt">선택</span></label><input type="url" id="df-productLink" placeholder="https://..."></div><div class="df-field"><label>제품 이미지 URL <span class="opt">선택</span></label><input type="url" id="df-productImageUrl" placeholder="https://..."></div></section><section class="df-sec df-std df-nopro" style="--c:#b99bff"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 5v14M17 5v14M3 9h4M3 15h4M17 9h4M17 15h4"/></svg></span><div><h3>영상 형식</h3><p>형태, 길이, 움직임, 화면 구성</p></div></div><div class="df-grid2"><div class="df-field"><label>영상 형태 <em class="req">*</em></label><select id="df-form"><option value="쇼츠">쇼츠 · 세로 9:16 (짧게)</option><option value="롱폼">롱폼 · 가로 16:9 (길게)</option></select></div><div class="df-field"><label>타겟 연령대</label><select id="df-target">${ageOptions()}</select></div><div class="df-field"><label>영상 길이(분) <span class="opt">선택</span></label><input type="number" id="df-videoLength" min="0" step="0.1" placeholder="비워두면 1분"></div><div class="df-field"><label>장면 수 <span class="opt">선택</span></label><input type="number" id="df-sceneCount" min="1" step="1" placeholder="비워두면 자동"></div></div><div class="df-field"><label>영상 길이 빠르게 고르기 <span class="opt">요금이 달라져요</span></label><div class="len-chips" id="df-len-chips"></div></div><div class="df-field"><label>움직임 방식 <span class="opt">요금이 달라져요</span></label><div class="lp-grid" id="df-motion" role="radiogroup" aria-label="움직임 방식"></div><p class="lp-note" id="df-motion-note"></p></div><div class="df-field"><label>화면 상단 문구 <span class="opt">선택 · 18자</span></label><input type="text" id="df-hookText" maxlength="18" placeholder="비워두면 자동 · 예: 아직도 빨래 코스 고민하세요?"></div><div class="df-field"><label>화면 구성 <span class="opt">선택</span></label><div class="lp-grid" id="df-layout" role="radiogroup" aria-label="화면 구성"></div><p class="lp-note" id="df-layout-note"></p></div><div class="df-field"><label>자막 위치 <span class="opt">선택</span></label><div class="lp-grid" id="df-captionPos" role="radiogroup" aria-label="자막 위치"></div></div></section><section class="df-sec df-std df-gender" style="--c:#4fd6bd"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></span><div><h3>목소리</h3><p>비워두면 내용에 맞게 골라드려요</p></div></div><div class="df-grid2"><div class="df-field"><label>말하기 속도</label><select id="df-tempo"><option value="">자동</option><option value="차분">차분하게</option><option value="중간">보통</option><option value="빠름">빠르고 경쾌하게</option></select></div><div class="df-field"><label>목소리</label><select id="df-voiceGender"><option value="">자동</option><option value="여성">여성</option><option value="남성">남성</option></select></div><div class="df-field"><label>목소리 연령대</label><select id="df-voiceAge">${ageOptions()}</select></div></div></section><section class="df-sec df-std df-extra" style="--c:#ff8cc0"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 17l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg></span><div><h3>연출과 추가 옵션</h3><p>꼭 원하는 장면이 있다면 적어주세요</p></div></div><div class="df-field"><label>꼭 넣고 싶은 연출 <span class="opt">선택 · 500자</span></label><textarea id="df-directorNote" maxlength="500"></textarea></div><div class="df-field df-notprod"><label class="thumb-opt" id="df-thumb-opt"><input type="checkbox" id="df-thumbnail"><span class="to-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 15h10M9 11h6"/></svg></span><span class="to-txt"><b id="df-thumb-title">AI 썸네일 3장 함께 만들기</b><small id="df-thumb-sub">원할 때만 켜세요 · 켜지 않아도 완성된 영상에서 원하는 장면을 골라 직접 만들 수 있어요</small></span><span class="to-switch" aria-hidden="true"></span></label></div></section>`;
+        <section class="df-sec gn-formsec df-hide" style="--c:#74b6ff"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18h2"/></svg></span><div><h3>어떤 모양으로 만들까요</h3><p>쇼츠는 세로로 짧게, 롱폼은 가로로 길게 만들어요</p></div></div><div class="df-types gn-two" id="gn-forms" role="radiogroup" aria-label="영상 형태"><label><input type="radio" name="gn-form" value="쇼츠" checked><span class="tcard"><i class="ti"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18h2"/></svg></i><span class="tt"><b>쇼츠</b><small>세로 9:16 · 짧게 (기본 1분)</small></span></span></label><label><input type="radio" name="gn-form" value="롱폼"><span class="tcard"><i class="ti"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="7" width="19" height="10" rx="2.5"/><path d="M18 11v2"/></svg></i><span class="tt"><b>롱폼</b><small>가로 16:9 · 길게 (기본 3분)</small></span></span></label></div></section><section class="df-sec df-notprod gn-content" style="--c:#e2a23c"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13 7l4 4"/></svg></span><div><h3>무엇을 만들까요</h3><p>주제만 적어도 나머지는 AI가 채워요</p></div></div><div class="df-field"><label>주제 <em class="req">*</em> <span class="opt">300자</span></label><textarea id="df-topic" maxlength="300" placeholder="예: LG 통돌이 17kg DD모터 인공지능 세탁기 (T17DX3) 소개"></textarea></div><div class="df-field"><label>영상 이렇게 만들어주세요 <span class="opt">선택 · 300자</span></label><textarea id="df-style" maxlength="300" placeholder="비워두면 내용에 맞게 자동 · 예: 밝고 경쾌한 분위기로, 가족이 함께 쓰는 느낌으로"></textarea></div><div class="df-field df-check df-std"><label><input type="checkbox" id="df-characterUse"><span>영상 내내 같은 캐릭터(인물)가 나오게 하기</span></label></div></section>${sleepSectionHtml()}${yadamSectionHtml()}${productSectionHtml()}<section class="df-sec df-std df-nopro gn-link" style="--c:#ff8f6b"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg></span><div><h3>제품 링크</h3><p>선택 · 제품을 소개하는 영상이라면 판매 페이지 주소를 넣어 주세요. AI가 제품 정보를 읽어 대본에 써요</p></div></div><div class="df-field"><label for="df-productLink">제품 링크</label><input type="url" id="df-productLink" placeholder="https://..." inputmode="url" autocomplete="off"><p class="gn-help" id="gn-link-help">링크만 넣어도 대표 사진을 자동으로 가져와요. 제휴(쿠팡파트너스 등) 링크면 광고 표기 안내가 영상 설명에 들어가요.</p></div></section><section class="df-sec df-std df-nopro gn-img" style="--c:#ff8f6b"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg></span><div><h3>제품 사진 주소</h3><p>선택 · 모든 장면 그림의 기준이 되는 사진이에요. 비워 두면 링크의 대표 사진을 써요</p></div></div><div class="df-field"><label for="df-productImageUrl">제품 이미지 URL</label><input type="url" id="df-productImageUrl" placeholder="https://.../제품사진.jpg" inputmode="url" autocomplete="off"><p class="gn-help" id="gn-img-help">제품 사진 한 장의 주소를 넣어 주세요. 이 사진을 바탕으로 장면 그림과 썸네일을 만들어요.</p><div class="gn-imgprev" id="gn-imgprev" hidden></div></div><p class="gn-swap">내 사진·영상으로 제품 소개 쇼츠를 만들고 싶다면 <button type="button" class="gn-swapbtn" id="gn-to-prod">상품쇼츠로 바꾸기</button></p></section><section class="df-sec df-std df-nopro gn-screen" style="--c:#b99bff"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 5v14M17 5v14M3 9h4M3 15h4M17 9h4M17 15h4"/></svg></span><div><h3>길이와 영상 제작 방식</h3><p>길이를 정하고, 장면을 어떻게 만들지 골라 주세요</p></div></div><div class="df-field gn-formfield"><label>영상 형태 <em class="req">*</em></label><select id="df-form"><option value="쇼츠">쇼츠 · 세로 9:16 (짧게)</option><option value="롱폼">롱폼 · 가로 16:9 (길게)</option></select></div><div class="df-field"><label>영상 길이 <span class="opt">요금이 달라져요</span></label><div class="len-chips" id="df-len-chips"></div></div><div class="df-field"><label for="df-videoLength">직접 넣기 (분) <span class="opt">선택</span></label><input type="number" id="df-videoLength" min="0" step="0.1" placeholder="비워두면 1분"></div><div class="df-field"><label>영상 제작 방식 <span class="opt">요금이 달라져요</span></label><div class="lp-grid" id="df-motion" role="radiogroup" aria-label="영상 제작 방식"></div><p class="lp-note" id="df-motion-note"></p></div><details class="gn-more" open><summary>더 세밀하게 정하기 <span class="opt">선택</span></summary><div class="df-grid2"><div class="df-field"><label for="df-target">타겟 연령대</label><select id="df-target">${ageOptions()}</select></div><div class="df-field"><label for="df-sceneCount">장면 수</label><input type="number" id="df-sceneCount" min="1" step="1" placeholder="비워두면 자동"></div></div></details></section><section class="df-sec df-std df-nopro gn-style" style="--c:#b99bff"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 5v14M17 5v14M3 9h4M3 15h4M17 9h4M17 15h4"/></svg></span><div><h3>화면 꾸미기</h3><p>상단 문구, 화면 구성, 자막 위치 · 그대로 두어도 괜찮아요</p></div></div><div class="df-field"><label>화면 상단 문구 <span class="opt">선택 · 18자</span></label><input type="text" id="df-hookText" maxlength="18" placeholder="비워두면 자동 · 예: 아직도 빨래 코스 고민하세요?"></div><div class="df-field"><label>화면 구성 <span class="opt">선택</span></label><div class="lp-grid" id="df-layout" role="radiogroup" aria-label="화면 구성"></div><p class="lp-note" id="df-layout-note"></p></div><div class="df-field"><label>자막 위치 <span class="opt">선택</span></label><div class="lp-grid" id="df-captionPos" role="radiogroup" aria-label="자막 위치"></div></div></section><section class="df-sec df-std df-gender" style="--c:#4fd6bd"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></span><div><h3>목소리</h3><p>비워두면 내용에 맞게 골라드려요</p></div></div><div class="df-grid2"><div class="df-field"><label>말하기 속도</label><select id="df-tempo"><option value="">자동</option><option value="차분">차분하게</option><option value="중간">보통</option><option value="빠름">빠르고 경쾌하게</option></select></div><div class="df-field"><label>목소리</label><select id="df-voiceGender"><option value="">자동</option><option value="여성">여성</option><option value="남성">남성</option></select></div><div class="df-field"><label>목소리 연령대</label><select id="df-voiceAge">${ageOptions()}</select></div></div></section><section class="df-sec df-std df-extra" style="--c:#ff8cc0"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 17l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg></span><div><h3>연출</h3><p>선택 · 꼭 원하는 장면이 있다면 적어 주세요</p></div></div><div class="df-field"><label>꼭 넣고 싶은 연출 <span class="opt">선택 · 500자</span></label><textarea id="df-directorNote" maxlength="500"></textarea></div></section><section class="df-sec df-nopro gn-thumb" style="--c:#ff8cc0"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 17l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg></span><div><h3>썸네일</h3><p>선택 · 유튜브에 올릴 때 쓰는 대표 그림이에요</p></div></div><div class="df-field"><label class="thumb-opt" id="df-thumb-opt"><input type="checkbox" id="df-thumbnail"><span class="to-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 15h10M9 11h6"/></svg></span><span class="to-txt"><b id="df-thumb-title">AI 썸네일 3장 함께 만들기</b><small id="df-thumb-sub">원할 때만 켜세요 · 켜지 않아도 완성된 영상에서 원하는 장면을 골라 직접 만들 수 있어요</small></span><span class="to-switch" aria-hidden="true"></span></label></div></section>`;
     }
 
     if (!isMedia) { fieldsEl.insertAdjacentHTML('beforeend', window.RWVoice ? RWVoice.sectionHtml({ kind: '상품쇼츠', cls: 'df-voicesec df-hide' }) : ''); setupLayoutPicker(); setupMotionPicker(); setupLengthChips(); setupProduct(); setupLongform(); if (window.RWVoice) { RWVoice.init(fieldsEl); const vs = fieldsEl.querySelector('.df-voicesec'); if (vs) vs.insertAdjacentHTML('beforeend', '<p class="df-hint df-prod pd-sndnote df-hide">음높이 · 쉼 · 발음 사전은 다음 단계(꾸미기)에서 정할 수 있어요.</p>'); } }
@@ -3906,7 +4007,7 @@
         addMsg('user', '직접 설정하기로 분위기 영상을 설정했어요.');
         history.push({ role: 'user', text: '직접 설정하기로 수면음악 영상을 설정했어요.' });
         saveChatState();
-        showSummary(); // 상담 챗봇을 거치지 않고 바로 확인 단계로 (이 종류는 움직임 방식·썸네일 같은 질문이 없다)
+        showSummary(); // 상담 챗봇을 거치지 않고 바로 확인 단계로 (이 종류는 영상 제작 방식·썸네일 같은 질문이 없다)
         return;
       } else {
         const 상품 = 현재종류() === '상품쇼츠';
@@ -3923,6 +4024,7 @@
           if (window.RWVoice && RWVoice.value()) { answers.voice = RWVoice.value(); answers.voiceSummary = RWVoice.summary(); }   // 목소리·자막 카드 값 (접수 v3.26 body.voice)
         } else {
         productExtra = null;
+        if (window.__pwOn && window.__pwOn()) { const gr = readGeneral(); if (gr.err) { window.__pwGo(gr.part === 'content' ? 1 : gr.part === 'screen' ? 2 : 4); pdShowErr(gr.err, gr.el); return; } }   // 단계 화면에서는 막힌 칸이 있는 단계로 돌아가 알려 준다
         if (!val('df-topic')) { alert('주제를 입력해주세요.'); return; }
         answers = { topic: val('df-topic'), form: document.getElementById('df-form').value || '쇼츠' };
         // [수정] 제품 링크를 비워두면 '없음'으로 확정해서 보낸다 - 그래야 상담 Agent가 "판매 페이지 링크 있으세요?"를 다시 묻지 않고
@@ -3950,7 +4052,7 @@
       }
       if (val('df-voiceGender')) answers.voiceGender = val('df-voiceGender');
       if (val('df-voiceAge')) answers.voiceAge = val('df-voiceAge');
-      // [움직임 방식] 정식 모드에서만 보낸다(체험판은 서버가 항상 이미지 중심으로 만든다). '자동'은 혼합으로 확정해서 보여준다.
+      // [영상 제작 방식] 정식 모드에서만 보낸다(체험판은 서버가 항상 이미지 중심으로 만든다). '자동'은 혼합으로 확정해서 보여준다.
       if (!isMedia && planMode === 'paid') answers.motion = answers.productShort ? pdMotion() : motionOf(현재움직임() === '자동' ? '혼합' : 현재움직임());
       // 폼에서 길이를 비워뒀으면 화면에 보여준 기본 길이로 확정해서 보낸다 (챗봇이 길이를 다시 묻지 않게, 요금과 대본 길이도 같아짐)
       if (!isMedia && planMode === 'paid' && !answers.videoLength) answers.videoLength = String(defaultLen(answers.form));
