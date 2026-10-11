@@ -345,6 +345,16 @@ h4 b{color:var(--amber);margin-left:2px}
 .warnbox{padding:10px 14px;border-radius:12px;background:var(--err-wash);color:var(--err);font-size:.86rem;margin-bottom:10px}
 .chk{display:flex;gap:10px;align-items:flex-start;font-size:.88rem;color:var(--dim);margin:6px 0 4px;cursor:pointer}
 .chk input{margin-top:4px;accent-color:var(--amber)}
+.vfpick{margin:12px 0 4px}
+.vfpick .vfh{display:block;margin-bottom:8px;font-size:.95rem}
+.vfpick .vfc{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.vfpick .vfc button{display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);border-radius:14px;padding:11px 12px 12px;font:inherit;cursor:pointer;min-width:0}
+.vfpick .vfc button[aria-pressed=true]{border-color:var(--amber);background:var(--wash)}
+.vfpick .vfc button b{font-size:.92rem;font-weight:700;line-height:1.35}
+.vfpick .vfc button[aria-pressed=true] b{color:var(--amber)}
+.vfpick .vfc button small{font-size:.78rem;line-height:1.45;color:var(--faint,var(--dim));font-weight:400}
+.vfpick .vfc button:disabled{opacity:.45;cursor:default}
+@media (max-width:420px){.vfpick .vfc{grid-template-columns:1fr}}
 .copynote{margin:8px 0 2px;font-size:.8rem;line-height:1.5;color:var(--faint,var(--dim))}
 .toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 22px;border-radius:999px;z-index:50;opacity:0;pointer-events:none;transition:opacity .2s;font-size:.88rem;max-width:90%;text-align:center}
 .toast.show{opacity:1}
@@ -587,6 +597,7 @@ h4 b{color:var(--amber);font-size:1rem;margin-left:0}
   <h3 id="okTitle">이 대본으로 확정할까요?</h3>
   <div class="note" id="okNote"></div>
   <dl class="sum" id="oksum"></dl>
+  <div class="vfpick" id="okvf" hidden><b class="vfh">영상 형태</b><div class="vfc" role="group" aria-label="영상 형태"></div></div>
   <div class="warnbox" id="okwarn" hidden></div>
   <p class="copynote">다른 사람이 쓴 글을 허락 없이 영상으로 만들면 저작권법과 유튜브 정책 위반이 될 수 있어요. 대본의 책임은 신청하는 분께 있어요.</p>
   <div class="d-f" style="padding:14px 0 0;border:0">
@@ -1467,8 +1478,18 @@ $('rwrevert').onclick=function(){closeAll();toast('지금 내용을 그대로 �
 $('rwapply').onclick=function(){snap();var c=ch[idx(rwTarget)];c.text=rwPending;c.mod=true;renderAll();markDirty();closeAll();select(c.id,true);toast('새 내용을 적용했어요')};
 
 /* ---------- 확정 ---------- */
+var okVf='ai';
+function renderOkVf(){
+  var box=$('okvf');if(!(cfg.kind==='gen'&&cfg.form==='롱폼'&&cfg.mode!=='review')){box.hidden=true;return}
+  box.hidden=false;
+  var d={ai:['AI 영상형','장면마다 AI가 영상을 만들어요 · 대본 최대 3,600자(약 10분)'],read:['낭독형','책·해설을 읽어 주고 그림이 천천히 바뀌어요 · 최대 약 125분']};
+  box.querySelector('.vfc').innerHTML=['ai','read'].map(function(k){return '<button type="button" data-vf="'+k+'" aria-pressed="'+(okVf===k)+'"><b>'+d[k][0]+'</b><small>'+d[k][1]+'</small></button>'}).join('')
+}
+$('okvf').addEventListener('click',function(e){var b=e.target.closest('[data-vf]');if(!b)return;okVf=b.dataset.vf;renderOkVf()});
 $('approve').onclick=function(){
   closeAll();var s=stats();if(!s.n)return;
+  /* 영상 형태 기본값: 대본 만들기에서 낭독형을 골랐거나 3,600자를 넘으면 낭독형 */
+  okVf=(narrOn()||s.n>3600)?'read':'ai';renderOkVf();
   var short=cfg.type==='short',unit=short?'문단':'챕터';
   var paras=ch.reduce(function(a,c){return a+c.text.split(/\n\s*\n/).filter(Boolean).length},0);
   var rows='<dt>'+(short?'문단':'챕터')+'</dt><dd>'+(short?paras:ch.length)+'개</dd><dt>글자 수</dt><dd>'+s.n.toLocaleString('ko-KR')+'자</dd><dt>예상 영상 길이</dt><dd>약 '+fmtLen(s.m)+'</dd>';
@@ -1736,7 +1757,7 @@ $('introYes').onclick=function(){var v=$('introText').value;if(!v.trim()){toast(
 $('okno').onclick=closeAll;
 $('okyes').onclick=function(){
   var s=stats();closeAll();
-  tell({type:cfg.mode==='review'?'rw-studio-approve':'rw-script-confirm',scriptId:'S-'+Date.now().toString(36),title:title,kind:cfg.kind,form:cfg.kind==='gen'?cfg.form:'',occ:cfg.kind==='mood'?occName():'',type2:cfg.type,src:cfg.src,imported:imported,chapters:ch.filter(function(c){return !c.off}).map(function(c){return{title:c.title,text:c.text}}),chars:s.n,minutes:Math.round(s.m*10)/10,prod:s.prod});
+  tell({type:cfg.mode==='review'?'rw-studio-approve':'rw-script-confirm',scriptId:'S-'+Date.now().toString(36),title:title,kind:cfg.kind,form:cfg.kind==='gen'?cfg.form:'',occ:cfg.kind==='mood'?occName():'',type2:cfg.type,src:cfg.src,imported:imported,chapters:ch.filter(function(c){return !c.off}).map(function(c){return{title:c.title,text:c.text}}),chars:s.n,minutes:Math.round(s.m*10)/10,prod:s.prod,narrate:(cfg.kind==='gen'&&cfg.form==='롱폼'&&cfg.mode!=='review')?(okVf==='read'):undefined});
   toast(inFrame?'대본을 확정했어요':'시안 화면이라 실제로 확정되지는 않아요');
 };
 
