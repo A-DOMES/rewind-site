@@ -3276,10 +3276,11 @@
     else if (script && script.form !== form) add('content', '내 대본', '이 대본은 ' + script.form + '용이에요. 영상 형태를 ' + script.form + '로 바꾸거나 대본을 빼 주세요.', g('df-gen-script-card'));
     else if (script) {
       const n = (window.__rwGenChars ? window.__rwGenChars(script) : Number(script.chars)) || 0, 낭독 = !!(window.__rwNarrateOn && window.__rwNarrateOn());
-      const lim = planMode === 'paid' ? (form === '롱폼' ? (낭독 ? 45000 : 3600) : 1080) : 1080;
+      const sp = 낭독 && window.__rwNarSpeed ? window.__rwNarSpeed() : 1;   // 낭독형 한도는 영상 길이 약 125분 기준이라 느린 말속도에서는 줄어든다
+      const lim = planMode === 'paid' ? (form === '롱폼' ? (낭독 ? Math.min(45000, Math.floor(45000 * Math.min(1, sp) + 1e-6)) : 3600) : 1080) : 1080;
       const 낭독안내 = form === '롱폼' && !낭독 ? ' 듣는 영상(이야기·해설 등)이라면 "낭독형"으로 더 길게 만들 수 있어요.' : '';
       if (planMode !== 'paid' && n > 1080) add('content', '내 대본', '체험판은 대본 약 3분(1,080자)까지 만들 수 있어요. 지금 ' + n.toLocaleString('ko-KR') + '자예요. 대본을 줄이거나 정식 모드로 신청해 주세요.', g('df-gen-script-card'));
-      else if (n > lim) add('content', '내 대본', form + (낭독 ? ' 낭독형' : '') + ' 대본은 ' + lim.toLocaleString('ko-KR') + '자까지예요. 지금 ' + n.toLocaleString('ko-KR') + '자예요.' + 낭독안내, g('df-gen-script-card'));
+      else if (n > lim) add('content', '내 대본', (낭독 && sp < 0.995 ? '지금 말속도(×' + sp.toFixed(2) + ')에서는 낭독형 대본을 약 125분(' + lim.toLocaleString('ko-KR') + '자)까지 만들 수 있어요. 지금 ' + n.toLocaleString('ko-KR') + '자예요. 말속도를 올리거나 대본을 줄여 주세요.' : form + (낭독 ? ' 낭독형' : '') + ' 대본은 ' + lim.toLocaleString('ko-KR') + '자까지예요. 지금 ' + n.toLocaleString('ko-KR') + '자예요.' + 낭독안내), g('df-gen-script-card'));
       else if (planMode === 'paid' && !낭독 && motionOf(현재움직임() === '자동' ? '혼합' : 현재움직임()) === '모두 영상' && n > 1500) add('screen', '영상 제작 방식', '"모두 영상"은 지금 대본 약 4분(1,500자)까지 만들 수 있어요. 이 대본은 ' + n.toLocaleString('ko-KR') + '자예요. "혼합"이나 "이미지 중심"을 고르거나 대본을 줄여 주세요. 더 긴 모두 영상은 곧 지원해요.' + 낭독안내, g('df-motion'));
     }
     if (!topic && !script && !gsel) add('content', '주제', '어떤 영상인지 주제를 적어 주세요.', g('df-topic'));
@@ -3388,7 +3389,7 @@
     answers.topic = (genPin && genPin.topic) || x.title;
     if (genPin && genPin.motion && planMode === 'paid') answers.motion = genPin.motion;
     if (genPin && genPin.narrate && answers.form === '롱폼') answers.narrate = true; else delete answers.narrate;   // 낭독형 여부도 입력 화면에서 고른 값을 따른다
-    if (window.__rwGenMin) answers.videoLength = String(window.__rwGenMin(x));
+    if (window.__rwGenMin) answers.videoLength = String(window.__rwGenMin(x, { narrate: answers.narrate === true, paid: planMode === 'paid', speed: answers.voice && answers.voice.speed }));
     delete answers.videoType; delete answers.tier;
   }
   function pdSrcLabel(d) { return d.src === 'write' ? '직접 씀 (' + d.info.length + '자)' : d.src === 'link' ? '링크의 상품 페이지를 읽어요' : '이름만으로 검색 (정확도가 낮을 수 있어요)'; }
@@ -4280,7 +4281,7 @@
         if (!answers.productShort && val('df-tempo')) answers.tempo = val('df-tempo');
         if (!answers.productShort && val('df-hookText')) answers.hookText = val('df-hookText');
         if (!answers.productShort && val('df-videoLength')) answers.videoLength = val('df-videoLength');
-        if (answers.genScriptId && window.__rwGenMin) { const gx = window.__rwGenLib().find(x => x.id === answers.genScriptId); if (gx) answers.videoLength = String(window.__rwGenMin(gx)); }   // 길이는 대본 글자 수에 맞춘다
+        if (answers.genScriptId && window.__rwGenMin) { const gx = window.__rwGenLib().find(x => x.id === answers.genScriptId); if (gx) answers.videoLength = String(window.__rwGenMin(gx, { narrate: answers.narrate === true, paid: planMode === 'paid', speed: answers.voice && answers.voice.speed })); }   // 길이는 대본 글자 수에 맞춘다
         if (!answers.productShort && val('df-sceneCount')) answers.sceneCount = val('df-sceneCount');
         if (val('df-directorNote')) answers.directorNote = val('df-directorNote');
         if (planMode === 'paid') answers.thumbnail = (!answers.productShort && document.getElementById('df-thumbnail')?.checked) ? 'TRUE' : 'FALSE';   // 끈 것도 분명히 보내서 챗봇이 다시 묻지 않게 한다
@@ -4685,14 +4686,22 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
   function charsOf(x){if(!x||!x.chapters||!x.chapters.length)return x&&x.chars||0;return x.chapters.map(function(c){return String(c.text||'').replace(/\r/g,'').replace(/\n{3,}/g,'\n\n').trim()}).filter(Boolean).join('\n\n').length}
   window.__rwGenChars=charsOf;
   function minOf(x){return Math.max(0.25,Math.round(charsOf(x)/360*10)/10)}
+  /* 낭독형은 말속도에 따라 영상 길이가 달라진다 (분 = 글자수/360/말속도). 서버(접수 v3.40)와 같은 식. 말속도를 안 건드렸으면 1.0 */
+  function narSpeed(){if(!(window.__rwAI&&window.__rwAI.mode&&window.__rwAI.mode()==='paid'))return 1;var v=window.RWVoice&&RWVoice.value&&RWVoice.value();var s=v&&v.speed>0?v.speed:1;return Math.min(2,Math.max(0.5,Math.round(s*100)/100))}
+  /* opt 가 있으면(신청 직전·새로고침 뒤) 화면 상태 대신 신청 값(answers)의 낭독 여부·말속도를 쓴다. 서버로 가는 값과 같아야 가격이 어긋나지 않는다 */
+  function useMin(x,opt){
+    if(opt){if(!opt.narrate)return minOf(x);var sp=opt.paid&&opt.speed>0?Math.min(2,Math.max(0.5,Math.round(opt.speed*100)/100)):1;return Math.max(0.25,Math.round(charsOf(x)/360/sp*10)/10)}
+    var g=window.__rwGenScript;if(window.__rwNarrateOn&&window.__rwNarrateOn()&&g&&x&&g.id===x.id)return Math.max(0.25,Math.round(charsOf(x)/360/narSpeed()*10)/10);return minOf(x)}
+  window.__rwNarSpeed=narSpeed;
+  document.addEventListener('input',function(e){if(e.target&&e.target.id==='vp-speed'&&window.__rwNarrateOn&&window.__rwNarrateOn())lock(true)});
   function lenText(x){if(x.form==='롱폼')return '약 '+(Math.round((x.chars||0)/360*10)/10)+'분';var sec=Math.round(minOf(x)*60);return '약 '+(sec<60?sec+'초':(sec%60?Math.floor(sec/60)+'분 '+(sec%60)+'초':(sec/60)+'분'))}
   function curForm(){var f=document.getElementById('df-form');return f&&f.value==='롱폼'?'롱폼':'쇼츠'}
   function isGen(){return (document.querySelector('input[name="df-type"]:checked')||{}).value==='일반'}
-  window.__rwGenMin=minOf;
+  window.__rwGenMin=useMin;
   window.__rwNarrateOn=function(){var g=window.__rwGenScript;return !!(g&&g.mode==='read'&&g.form==='롱폼'&&isGen())};
   function lock(on){
     var li=document.getElementById('df-videoLength'),ch=document.getElementById('df-len-chips');
-    if(on){var g=window.__rwGenScript;if(li&&g){var v=String(minOf(g));if(li.value!==v){li.value=v;li.dispatchEvent(new Event('input',{bubbles:true}))}li.readOnly=true;li.classList.add('gn-lk')}if(ch){ch.classList.add('gn-lk');ch.setAttribute('inert','')}}
+    if(on){var g=window.__rwGenScript;if(li&&g){var v=String(useMin(g));if(li.value!==v){li.value=v;li.dispatchEvent(new Event('input',{bubbles:true}))}li.readOnly=true;li.classList.add('gn-lk')}if(ch){ch.classList.add('gn-lk');ch.setAttribute('inert','')}}
     else{if(li){li.readOnly=false;li.classList.remove('gn-lk')}if(ch){ch.classList.remove('gn-lk');ch.removeAttribute('inert')}}
   }
   function drop(){window.__rwGenScript=null;lock(false);var li=document.getElementById('df-videoLength');if(li&&li.value){li.value='';li.dispatchEvent(new Event('input',{bubbles:true}))}}
@@ -4707,7 +4716,7 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
       var x=(window.__rwGenLib?window.__rwGenLib():[]).filter(function(y){return y.id===g.id})[0]||g;
       var nc=charsOf(x),auto='';
       if(f==='롱폼'){if(g.mode!=='ai'&&g.mode!=='read'){g.mode=nc>3600?'read':'ai';if(nc>3600)auto='대본이 길어서 낭독형으로 골랐어요. 원하시면 바꿀 수 있어요.'}}else g.mode='ai';
-      var how=f==='롱폼'?'<div class="gs-how"><h5>어떤 방식으로 만들까요</h5><div class="sc-opts" role="group" aria-label="만드는 방식"><button type="button" data-how="ai" aria-pressed="'+(g.mode==='ai')+'">AI 영상형</button><button type="button" data-how="read" aria-pressed="'+(g.mode==='read')+'">낭독형</button></div><p class="sc-note">'+(g.mode==='read'?'목소리가 대본을 그대로 읽고, 그림이 천천히 바뀌어요. <b>책이나 해설을 읽어 주는 영상</b>(이야기, 야담, 사연, 역사·상식 해설, 책 요약, 에세이, 수면·작업용 이야기)에 잘 맞아요. 약 125분(45,000자)까지 만들 수 있고 요금은 이미지 중심과 같아요. 제품 소개나 동작 설명처럼 보여 줄 게 많은 영상은 AI 영상형이 더 맞아요.':'장면마다 그림이나 AI 영상으로 보여 줘요. <b>제품 소개·동작 설명·광고</b>처럼 보여 줄 게 많은 영상에 잘 맞아요. 대본은 약 10분(3,600자)까지, 모두 영상은 약 4분(1,500자)까지예요. 더 길거나 듣는 영상은 낭독형이 맞아요.')+(auto?' <b>'+esc(auto)+'</b>':'')+'</p>'+(g.mode==='read'?'<details class="gs-style"><summary>어떤 그림으로 만들어지나요?</summary><ul><li><b>옛이야기·민담</b> 수묵·한지풍</li><li><b>현대 이야기·사연</b> 따뜻한 영화풍 일러스트</li><li><b>역사·과학·상식 해설</b> 깔끔한 에디토리얼 일러스트</li><li><b>감성·에세이·시</b> 수채화</li><li><b>괴담</b> 어둡고 서늘한 일러스트</li></ul><p>대본을 읽고 AI가 알맞은 그림 스타일을 골라요. "영상 이렇게 만들어주세요" 칸에 스타일을 적으면 그게 먼저예요. 실제 사진처럼 보이는 그림은 쓰지 않아요. 실제 사건·인물을 다루는 해설에서 그림이 사실 기록으로 오해되지 않게 하기 위해서예요.</p></details>':'')+'</div>':'';
+      var how=f==='롱폼'?'<div class="gs-how"><h5>어떤 방식으로 만들까요</h5><div class="sc-opts" role="group" aria-label="만드는 방식"><button type="button" data-how="ai" aria-pressed="'+(g.mode==='ai')+'">AI 영상형</button><button type="button" data-how="read" aria-pressed="'+(g.mode==='read')+'">낭독형</button></div><p class="sc-note">'+(g.mode==='read'?'목소리가 대본을 그대로 읽고, 그림이 천천히 바뀌어요. <b>책이나 해설을 읽어 주는 영상</b>(이야기, 야담, 사연, 역사·상식 해설, 책 요약, 에세이, 수면·작업용 이야기)에 잘 맞아요. 약 125분(말속도 보통이면 45,000자)까지 만들 수 있고 요금은 이미지 중심과 같아요. 말속도를 바꾸면 영상 길이와 요금도 그에 맞게 바뀌어요. 제품 소개나 동작 설명처럼 보여 줄 게 많은 영상은 AI 영상형이 더 맞아요.':'장면마다 그림이나 AI 영상으로 보여 줘요. <b>제품 소개·동작 설명·광고</b>처럼 보여 줄 게 많은 영상에 잘 맞아요. 대본은 약 10분(3,600자)까지, 모두 영상은 약 4분(1,500자)까지예요. 더 길거나 듣는 영상은 낭독형이 맞아요.')+(auto?' <b>'+esc(auto)+'</b>':'')+'</p>'+(g.mode==='read'?'<details class="gs-style"><summary>어떤 그림으로 만들어지나요?</summary><ul><li><b>옛이야기·민담</b> 수묵·한지풍</li><li><b>현대 이야기·사연</b> 따뜻한 영화풍 일러스트</li><li><b>역사·과학·상식 해설</b> 깔끔한 에디토리얼 일러스트</li><li><b>감성·에세이·시</b> 수채화</li><li><b>괴담</b> 어둡고 서늘한 일러스트</li></ul><p>대본을 읽고 AI가 알맞은 그림 스타일을 골라요. "영상 이렇게 만들어주세요" 칸에 스타일을 적으면 그게 먼저예요. 실제 사진처럼 보이는 그림은 쓰지 않아요. 실제 사건·인물을 다루는 해설에서 그림이 사실 기록으로 오해되지 않게 하기 위해서예요.</p></details>':'')+'</div>':'';
       host.className='sc-card gn-script ready';
       host.innerHTML='<h4>내 대본으로 만들어요</h4><p class="sc-note">'+esc(g.title)+' · '+f+' · '+lenText(x)+' ('+nc.toLocaleString('ko-KR')+'자). 영상 길이는 대본에 맞춰 정해져요. 제작을 시작하면 이 대본이 서버로 전달되고, 프로젝트와 함께 보관돼요.</p>'+how+'<div class="sc-opts"><button type="button" id="gs-edit">다시 열기</button><button type="button" id="gs-clear">대본 빼기</button></div>';
       host.querySelectorAll('[data-how]').forEach(function(b){b.onclick=function(){g.mode=b.dataset.how;render();redraw()}});
