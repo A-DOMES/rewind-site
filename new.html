@@ -428,6 +428,7 @@
   .sc-card .vf-card[aria-pressed=true] .vf-ic{background:var(--amber);color:var(--on-amber,#fff)}
   .sc-card .vf-card .vf-ic svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
   @media (max-width:480px){.sc-card .vf-cards{grid-template-columns:1fr}}
+  @media (max-width:480px){.sc-card .vf-cards.art-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
   .sc-card .sc-opts button{border:1px solid var(--line);background:transparent;color:var(--ink-dim);border-radius:999px;padding:7px 14px;font:inherit;font-size:.86rem;cursor:pointer}
   .sc-card .sc-opts button[aria-pressed=true]{border-color:var(--amber);color:var(--amber);background:var(--amber-wash)}
   .sc-card .sc-act{align-self:flex-start;border:1px solid var(--amber);background:transparent;color:var(--amber);border-radius:999px;padding:8px 18px;font:inherit;font-weight:600;cursor:pointer}
@@ -440,10 +441,17 @@
   .sh-steps li::before{content:counter(st);flex:none;width:22px;height:22px;border-radius:50%;background:var(--amber-wash);color:var(--amber);font-size:.78rem;font-weight:700;display:grid;place-items:center}
   .sh-item .sh-use{border-color:var(--amber);color:var(--amber)}
   .sh-item button[disabled]{opacity:.5;cursor:default}
-  .gs-style{margin:8px 0 0;font-size:.88rem;color:var(--ink-dim)}
-  .gs-style summary{cursor:pointer;color:var(--amber);font-weight:600;padding:2px 0}
-  .gs-style ul{margin:8px 0 6px;padding-left:18px;display:grid;gap:3px}
-  .gs-style p{margin:4px 0 0;line-height:1.5}
+  .sc-card .gs-h2{margin:18px 0 8px}
+  .sc-card .gs-over{color:var(--amber);font-weight:600}
+  .sc-card .art-sw{display:block;width:100%;height:34px;border-radius:8px;margin-bottom:4px;border:1px solid var(--line)}
+  .sc-card .art-auto{background:repeating-linear-gradient(135deg,var(--bg-raised) 0 8px,transparent 8px 16px)}
+  .sc-card .art-folk{background:linear-gradient(120deg,#e6dcc6,#b9a98a 55%,#4a4338)}
+  .sc-card .art-modern{background:linear-gradient(120deg,#f2c27a,#d9825b 60%,#5a3a3a)}
+  .sc-card .art-explain{background:linear-gradient(120deg,#dfe8f2,#6fa3d6 55%,#2c4a6e)}
+  .sc-card .art-essay{background:linear-gradient(120deg,#f6dce3,#b9d4e8 55%,#cfe3c4)}
+  .sc-card .art-horror{background:linear-gradient(120deg,#3b4048,#1c2026 60%,#0c0e11)}
+  .sc-card .gs-acts{margin-top:14px}
+  .sc-card .vf-card.act:hover{border-color:var(--amber)}
   .kd-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   .kd{display:flex;flex-direction:column;gap:6px;align-items:flex-start;text-align:left;border:1px solid var(--line);background:var(--bg-raised);color:var(--ink);border-radius:16px;padding:18px 18px 16px;font:inherit;cursor:pointer;transition:border-color .15s,transform .15s}
   .kd:hover{border-color:var(--amber)}
@@ -4286,6 +4294,7 @@
         if (!val('df-productLink')) answers.productImageUrl = '없음';
         if (val('df-productImageUrl')) answers.productImageUrl = val('df-productImageUrl');
         if (val('df-style')) answers.style = val('df-style');
+        if (answers.narrate && window.__rwGenScript && window.__rwGenScript.art) { const ART_TXT = { folk: '옛이야기 느낌의 수묵·한지 질감 그림', modern: '따뜻한 영화 같은 일러스트', explain: '깔끔한 잡지 삽화 느낌의 일러스트', essay: '부드러운 수채화', horror: '어둡고 서늘한 분위기의 일러스트' }[window.__rwGenScript.art]; if (ART_TXT) answers.style = [ART_TXT, answers.style].filter(Boolean).join(' / ').slice(0, 300); }
         목소리카드담기();   // 쇼츠: 속도·분위기·음높이·발음사전 (자막 위치는 아래 기존 칸을 쓴다)
         }
         if (!answers.productShort && val('df-target')) answers.target = val('df-target');
@@ -4559,10 +4568,10 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
   function esc(t){return String(t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
   function crumb(t,link,act){if(back)back.hidden=false;if(sep)sep.hidden=false;if(here){here.hidden=false;if(link)here.innerHTML='<button type="button" class="cb-link" data-cb="'+act+'" title="'+link+'(으)로 돌아가기">'+link+'</button>'+t.slice(link.length);else here.textContent=t}if(root)root.classList.remove('is-here')}
   function active(on){document.querySelectorAll('.side-item').forEach(function(b){b.classList.toggle('active',on&&b===btn)})}
-  function openFrame(type,src,from,load,kind,form){
+  function openFrame(type,src,from,load,kind,form,narrate){
     ret=from||null;kind=kind==='mood'?'mood':kind==='gen'?'gen':'yadam';form=form==='롱폼'?'롱폼':'쇼츠';
     fr.setAttribute('src','./script.html?type=long&src=mine&mode=pre&lite=1&kind='+kind+(kind==='gen'?'&form='+encodeURIComponent(form):'')+'&t='+Date.now());
-    if(load)fr.addEventListener('load',function once(){fr.removeEventListener('load',once);try{fr.contentWindow.postMessage({type:'rw-script-init',cfg:{type:'long',kind:kind,form:kind==='gen'?form:'',src:'mine',mode:'pre',lite:'1',load:load}},'*')}catch(e){}});
+    if(load)fr.addEventListener('load',function once(){fr.removeEventListener('load',once);try{fr.contentWindow.postMessage({type:'rw-script-init',cfg:{type:'long',kind:kind,form:kind==='gen'?form:'',src:'mine',mode:'pre',lite:'1',load:load,narrate:(typeof narrate==='boolean'?narrate:undefined)}},'*')}catch(e){}});
     document.body.classList.add('studio-open');document.body.classList.remove('hub-open');
     if(from==='direct')crumb('직접 설정하기 › 대본 만들기','직접 설정하기','direct');else crumb(kind==='mood'?'대본 만들기 › 영상 편지':kind==='gen'?'대본 만들기 › '+form:'대본 만들기 › 야담','대본 만들기','hub');
     if(from!=='direct')active(true);
@@ -4594,7 +4603,7 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
     hub.querySelectorAll('[data-mk]').forEach(function(b){b.onclick=function(){var x=lib()[+b.dataset.mk];window.__rwScript={id:x.id,title:x.title,type:'long',src:'ready',imported:x.imported,minutes:x.minutes};close();if(window.__rwGoYadam)window.__rwGoYadam()}});
     hub.querySelectorAll('[data-mg]').forEach(function(b){b.onclick=function(){var x=lib()[+b.dataset.mg];window.__rwGenScript={id:x.id,title:x.title,form:x.form==='롱폼'?'롱폼':'쇼츠',chars:x.chars,minutes:x.minutes};if(x.form==='롱폼'&&typeof x.narrate==='boolean')window.__rwGenScript.mode=x.narrate?'read':'ai';close();if(window.__rwGoGen)window.__rwGoGen(x.form)}});
     hub.querySelectorAll('[data-mm]').forEach(function(b){b.onclick=function(){var x=lib()[+b.dataset.mm];window.__rwMoodScript={id:x.id,title:x.title,kind:'mood',minutes:x.minutes,occ:x.occ||''};close();if(window.__rwGoMood)window.__rwGoMood()}});
-    hub.querySelectorAll('[data-open]').forEach(function(b){b.onclick=function(){var x=lib()[+b.dataset.open];openFrame('long','mine',null,{title:x.title,chapters:x.chapters},x.kind,x.form)}});
+    hub.querySelectorAll('[data-open]').forEach(function(b){b.onclick=function(){var x=lib()[+b.dataset.open];openFrame('long','mine',null,{title:x.title,chapters:x.chapters},x.kind,x.form,typeof x.narrate==='boolean'?x.narrate:undefined)}});
     hub.querySelectorAll('[data-del]').forEach(function(b){b.onclick=function(){var x=lib()[+b.dataset.del];saveLib(cache.filter(function(y){return y!==x}));if(window.__rwScript&&x&&window.__rwScript.id===x.id)window.__rwScript=null;if(window.__rwGenScript&&x&&window.__rwGenScript.id===x.id)window.__rwGenScript=null;renderHub()}});
   }
   function openHub(){loadLib(renderHub);renderHub();document.body.classList.remove('studio-focus');document.body.classList.add('studio-open','hub-open');crumb('대본 만들기');active(true)}
@@ -4641,7 +4650,7 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
     (go||o.querySelector('#sc-pop-later')).focus()
   }
   /* 직접 설정하기의 '대본' 카드에서 호출 */
-  window.__rwOpenStudio=function(type,src,load,kind,form){openFrame(type,src,'direct',load,kind,form);active(false)};
+  window.__rwOpenStudio=function(type,src,load,kind,form,narrate){openFrame(type,src,'direct',load,kind,form,narrate);active(false)};
   window.__rwLoadLib=loadLib;
   window.__rwScriptLib=function(){return lib().filter(function(x){return x.kind!=='mood'&&x.kind!=='gen'})};
   window.__rwGenLib=function(){return lib().filter(function(x){return x.kind==='gen'})};
@@ -4727,11 +4736,14 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
       var x=(window.__rwGenLib?window.__rwGenLib():[]).filter(function(y){return y.id===g.id})[0]||g;
       var nc=charsOf(x),auto='';
       if(f==='롱폼'){if(g.mode!=='ai'&&g.mode!=='read'){g.mode=nc>3600?'read':'ai';if(nc>3600)auto='대본이 길어서 낭독형으로 골랐어요. 원하시면 바꿀 수 있어요.'}}else g.mode='ai';
-      var how=f==='롱폼'?'<div class="gs-how"><h5>어떤 방식으로 만들까요</h5><div class="vf-cards" role="group" aria-label="만드는 방식"><button type="button" class="vf-card" data-how="ai" aria-pressed="'+(g.mode==='ai')+'"><span class="vf-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M10 9.5v5l4.5-2.5z"/></svg></span><b>AI 영상형</b><small>장면마다 AI가 영상을 만들어요</small></button><button type="button" class="vf-card" data-how="read" aria-pressed="'+(g.mode==='read')+'"><span class="vf-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5C6.5 4.5 9.5 4.5 12 6c2.5-1.5 5.5-1.5 8-.5V18c-2.5-1-5.5-1-8 .5-2.5-1.5-5.5-1.5-8-.5z"/><path d="M12 6v12.5"/></svg></span><b>낭독형</b><small>책·해설을 읽어 주고 그림이 천천히 바뀌어요</small></button></div><p class="sc-note">'+(g.mode==='read'?'목소리가 대본을 그대로 읽고, 그림이 천천히 바뀌어요. <b>책이나 해설을 읽어 주는 영상</b>(이야기, 야담, 사연, 역사·상식 해설, 책 요약, 에세이, 수면·작업용 이야기)에 잘 맞아요. 약 125분(말속도 보통이면 45,000자)까지 만들 수 있고 요금은 이미지 중심과 같아요. 대본은 AI로 쓰면 최대 30분까지이고, 더 긴 글은 직접 쓰거나 다른 AI로 쓴 글을 붙여넣어 주세요. 말속도를 바꾸면 영상 길이와 요금도 그에 맞게 바뀌어요. 제품 소개나 동작 설명처럼 보여 줄 게 많은 영상은 AI 영상형이 더 맞아요.':'장면마다 그림이나 AI 영상으로 보여 줘요. <b>제품 소개·동작 설명·광고</b>처럼 보여 줄 게 많은 영상에 잘 맞아요. 대본은 약 10분(3,600자)까지, 모두 영상은 약 4분(1,500자)까지예요. 더 길거나 듣는 영상은 낭독형이 맞아요.')+(auto?' <b>'+esc(auto)+'</b>':'')+'</p>'+(g.mode==='read'?'<details class="gs-style"><summary>어떤 그림으로 만들어지나요?</summary><ul><li><b>옛이야기·민담</b> 수묵·한지풍</li><li><b>현대 이야기·사연</b> 따뜻한 영화풍 일러스트</li><li><b>역사·과학·상식 해설</b> 깔끔한 에디토리얼 일러스트</li><li><b>감성·에세이·시</b> 수채화</li><li><b>괴담</b> 어둡고 서늘한 일러스트</li></ul><p>대본을 읽고 AI가 알맞은 그림 스타일을 골라요. "영상 이렇게 만들어주세요" 칸에 스타일을 적으면 그게 먼저예요. 실제 사진처럼 보이는 그림은 쓰지 않아요. 실제 사건·인물을 다루는 해설에서 그림이 사실 기록으로 오해되지 않게 하기 위해서예요.</p></details>':'')+'</div>':'';
+      var ART=[['','AI가 알아서','대본을 읽고 어울리게'],['folk','옛이야기·민담','먹과 한지 느낌의 그림'],['modern','현대 이야기·사연','따뜻한 영화 같은 그림'],['explain','해설·상식','깔끔한 잡지 삽화'],['essay','감성·에세이·시','부드러운 수채화'],['horror','괴담','어둡고 서늘한 그림']];
+      var over=(g.mode==='ai'&&nc>3600)?'이 대본은 AI 영상형 한도(약 10분, 3,600자)를 넘어요. 낭독형으로 만들어 주세요.':(g.mode==='read'&&nc>45000?'이 대본은 낭독형 한도(약 125분, 45,000자)를 넘어요. 글을 줄여 주세요.':'');
+      var how=f==='롱폼'?'<div class="gs-how"><h5>어떤 방식으로 만들까요</h5><div class="vf-cards" role="group" aria-label="만드는 방식"><button type="button" class="vf-card" data-how="ai" aria-pressed="'+(g.mode==='ai')+'"><span class="vf-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M10 9.5v5l4.5-2.5z"/></svg></span><b>AI 영상형</b><small>장면마다 그림이나 영상으로 보여줘요. 제품 소개·광고에 잘 맞아요</small></button><button type="button" class="vf-card" data-how="read" aria-pressed="'+(g.mode==='read')+'"><span class="vf-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5C6.5 4.5 9.5 4.5 12 6c2.5-1.5 5.5-1.5 8-.5V18c-2.5-1-5.5-1-8 .5-2.5-1.5-5.5-1.5-8-.5z"/><path d="M12 6v12.5"/></svg></span><b>낭독형</b><small>목소리가 대본을 읽고 그림이 천천히 바뀌어요. 이야기·해설에 잘 맞아요</small></button></div>'+(over?'<p class="sc-note gs-over">'+esc(over)+'</p>':'')+(auto?'<p class="sc-note"><b>'+esc(auto)+'</b></p>':'')+(g.mode==='read'?'<h5 class="gs-h2">어떤 그림으로 만들까요</h5><div class="vf-cards art-cards" role="group" aria-label="그림 스타일">'+ART.map(function(a){return '<button type="button" class="vf-card art" data-art="'+a[0]+'" aria-pressed="'+((g.art||'')===a[0])+'"><span class="art-sw art-'+(a[0]||'auto')+'" aria-hidden="true"></span><b>'+a[1]+'</b><small>'+a[2]+'</small></button>'}).join('')+'</div><p class="sc-note">실제 사진처럼 보이는 그림은 쓰지 않아요. 아래 "영상 이렇게 만들어주세요" 칸에 원하는 느낌을 적으면 그게 더 먼저예요.</p>':'')+'</div>':'';
       host.className='sc-card gn-script ready';
-      host.innerHTML='<h4>내 대본으로 만들어요</h4><p class="sc-note">'+esc(g.title)+' · '+f+' · '+lenText(x)+' ('+nc.toLocaleString('ko-KR')+'자). 영상 길이는 대본에 맞춰 정해져요. 제작을 시작하면 이 대본이 서버로 전달되고, 프로젝트와 함께 보관돼요.</p>'+how+'<div class="sc-opts"><button type="button" id="gs-edit">다시 열기</button><button type="button" id="gs-clear">대본 빼기</button></div>';
-      host.querySelectorAll('[data-how]').forEach(function(b){b.onclick=function(){g.mode=b.dataset.how;render();redraw()}});
-      host.querySelector('#gs-edit').onclick=function(){var y=(window.__rwGenLib?window.__rwGenLib():[]).filter(function(z){return z.id===g.id})[0];window.__rwOpenStudio('long','mine',y?{title:y.title,chapters:y.chapters}:null,'gen',f)};
+      host.innerHTML='<h4>내 대본으로 만들어요</h4><p class="sc-note">'+esc(g.title)+' · '+f+' · '+lenText(x)+' ('+nc.toLocaleString('ko-KR')+'자). 영상 길이는 대본에 맞춰 정해져요. 제작을 시작하면 이 대본이 서버로 전달되고, 프로젝트와 함께 보관돼요.</p>'+how+'<div class="vf-cards gs-acts"><button type="button" class="vf-card act" id="gs-edit"><span class="vf-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9a2.1 2.1 0 0 0-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg></span><b>영상 대본 편집 열기</b><small>대본 작업실에서 고쳐요</small></button><button type="button" class="vf-card act" id="gs-clear"><span class="vf-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></span><b>이 대본 안 쓰기</b><small>이번 신청에서만 빼요. 보관함엔 남아요</small></button></div>';
+      host.querySelectorAll('[data-how]').forEach(function(b){b.onclick=function(){g.mode=b.dataset.how;if(g.mode!=='read')g.art='';render();redraw()}});
+      host.querySelectorAll('[data-art]').forEach(function(b){b.onclick=function(){g.art=b.dataset.art;render();redraw()}});
+      host.querySelector('#gs-edit').onclick=function(){var y=(window.__rwGenLib?window.__rwGenLib():[]).filter(function(z){return z.id===g.id})[0];window.__rwOpenStudio('long','mine',y?{title:y.title,chapters:y.chapters}:null,'gen',f,f==='롱폼'?g.mode==='read':undefined)};
       host.querySelector('#gs-clear').onclick=function(){drop();note='';render();redraw()};
       lock(true);return;
     }

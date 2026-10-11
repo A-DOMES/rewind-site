@@ -988,6 +988,7 @@ function init(o){
   cfg.type=cfg.kind==='gen'?(cfg.form==='쇼츠'?'short':'long'):((o.type==='short'||cfg.kind==='mood')?'short':'long');
   cfg.src=o.src==='mine'?'mine':'ai';
   cfg.mode=o.mode==='review'?'review':'pre';
+  cfg.narrate=(typeof o.narrate==='boolean')?o.narrate:null;   /* 다시 열기로 들어왔을 때: 이 대본이 원래 만들어진 방식 */
   cfg.lite=!!o.lite&&o.lite!=='0';document.documentElement.classList.toggle('lite',cfg.lite); /* lite: 내 대본만 쓰는 실사용판 — AI 기능·포인트 표시 숨김 */
   cfg.target=o.target||(cfg.type==='short'?1:4);
   cfg.blank=cfg.src==='mine';
@@ -1488,8 +1489,8 @@ function renderOkVf(){
 $('okvf').addEventListener('click',function(e){var b=e.target.closest('[data-vf]');if(!b)return;okVf=b.dataset.vf;renderOkVf()});
 $('approve').onclick=function(){
   closeAll();var s=stats();if(!s.n)return;
-  /* 영상 형태 기본값: 대본 만들기에서 낭독형을 골랐거나 3,600자를 넘으면 낭독형 */
-  okVf=(narrOn()||s.n>3600)?'read':'ai';renderOkVf();
+  /* 영상 형태 기본값: 대본 만들기에서 낭독형을 골랐으면 낭독형 → 다시 열기로 들어왔으면 원래 방식 → 그 밖에는 3,600자를 넘으면 낭독형 */
+  okVf=narrOn()?'read':(cfg.narrate===true?'read':(cfg.narrate===false?'ai':(s.n>3600?'read':'ai')));renderOkVf();
   var short=cfg.type==='short',unit=short?'문단':'챕터';
   var paras=ch.reduce(function(a,c){return a+c.text.split(/\n\s*\n/).filter(Boolean).length},0);
   var rows='<dt>'+(short?'문단':'챕터')+'</dt><dd>'+(short?paras:ch.length)+'개</dd><dt>글자 수</dt><dd>'+s.n.toLocaleString('ko-KR')+'자</dd><dt>예상 영상 길이</dt><dd>약 '+fmtLen(s.m)+'</dd>';
