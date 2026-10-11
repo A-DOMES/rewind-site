@@ -1997,6 +1997,7 @@
 
   function showSummary() {
     clampAnswersAndWarn();
+    if (stampPending) { stampPending = false; stampForm(); }   // 단계 화면에서 막 신청한 내용이면, 값이 모두 갖춰진 지금 출처를 기록한다
     // [화면 구성] 롱폼(가로)은 전체화면형만 가능 - 챗봇이 다른 값을 받아왔으면 여기서 맞추고 알려준다
     if (answers.form === '롱폼' && answers.layout && answers.layout !== '전체화면형' && answers.layout !== '자동') {
       answers.layout = '전체화면형';
@@ -2035,7 +2036,7 @@
     editBtn.addEventListener('click', renderComposer);
     actions.appendChild(confirmBtn);
     // 단계 화면에서 눈으로 보며 고치기 (미디어 업로드 신청은 해당 없음. 상품쇼츠·분위기·야담은 그 화면이 아직 남아 있을 때만)
-    if (mode === 'topic' && !answers.driveLink && (!(answers.productShort || answers.videoType) || (answersFormRender === dfRender && document.getElementById('df-fields')))) {
+    if (mode === 'topic' && !answers.driveLink && (!(answers.productShort || answers.videoType) || (answersFormRender === dfRender && answersFormSig === sigOf(answers) && document.getElementById('df-fields')))) {
       const stepBtn = document.createElement('button');
       stepBtn.className = 'btn-line-sm'; stepBtn.textContent = '단계 화면에서 고치기';
       stepBtn.addEventListener('click', editInSteps);
@@ -2606,7 +2607,11 @@
   // ===== 요약 카드 → 단계 화면에서 고치기 =====
   // 단계 화면에서 만든 신청(상품쇼츠·분위기·야담, 일반)은 그 화면의 칸이 그대로 남아 있어서 다시 열기만 하면 된다.
   // 챗봇으로 만든 일반 영상 신청은 칸이 없으니 answers 의 값을 새 단계 화면의 칸에 채워서 연다 (신청 데이터는 칸에서 다시 읽어 만든다)
-  let dfRender = 0, answersFormRender = -1;
+  let dfRender = 0, answersFormRender = -1, answersFormSig = '', stampPending = false;
+  // 신청 내용이 단계 화면 칸에서 나왔음을 기록한다(검증을 통과해 answers 가 새로 만들어진 뒤에만). 그 뒤 챗봇이 값을 바꾸면 서명이 달라져 칸을 다시 채운다
+  const SIG_KEYS = ['topic','form','style','directorNote','hookText','characterUse','productLink','productImageUrl','target','voiceGender','voiceAge','tempo','videoLength','sceneCount','motion','thumbnail','layout','captionPos','videoType'];
+  const sigOf = a => JSON.stringify(SIG_KEYS.map(k => a[k] === undefined ? null : a[k]));
+  function stampForm() { answersFormRender = dfRender; answersFormSig = sigOf(answers); }
   function fillGeneralForm(a) {
     const g = id => document.getElementById(id);
     const fire = (el, ev) => el.dispatchEvent(new Event(ev, { bubbles: true }));
@@ -2621,10 +2626,11 @@
     const http = s => /^https?:\/\/\S+$/i.test(String(s || '').trim());
     if (http(a.productLink)) setVal('df-productLink', a.productLink);
     if (http(a.productImageUrl)) setVal('df-productImageUrl', a.productImageUrl);
-    setSel('df-target', a.target); setSel('df-voiceGender', a.voiceGender); setSel('df-voiceAge', a.voiceAge);
-    if (a.videoLength) setVal('df-videoLength', a.videoLength);
+    setSel('df-target', a.target); setSel('df-voiceGender', a.voiceGender); setSel('df-voiceAge', a.voiceAge); setSel('df-tempo', a.tempo);
+    // 길이: "90초"·"2분" 같은 글도 분 단위 숫자로 바꿔 넣는다
+    { const m = String(a.videoLength || '').match(/(\d+(?:\.\d+)?)\s*(초|분)?/); if (m) { const v = m[2] === '초' ? Number(m[1]) / 60 : Number(m[1]); if (v > 0) setVal('df-videoLength', String(Math.round(v * 100) / 100)); } }
     if (a.sceneCount) setVal('df-sceneCount', a.sceneCount);
-    if (planMode === 'paid') { radio('df-motion', a.motion); const th = g('df-thumbnail'); if (th && !th.disabled) { th.checked = a.thumbnail === 'TRUE' || a.thumbnail === true; fire(th, 'change'); } }
+    if (planMode === 'paid') { radio('df-motion', a.motion); const th = g('df-thumbnail'); if (th && !th.disabled) { th.checked = /^(true|예|네|응|yes|y|1|원해요|만들어)/i.test(String(a.thumbnail ?? '').trim()); fire(th, 'change'); } }
     radio('df-layout', a.layout); radio('df-captionPos', a.captionPos);
     updatePrice(); if (window.__pwRefresh) window.__pwRefresh();
   }
@@ -2632,12 +2638,12 @@
   function editInSteps() {
     const kind = answers.productShort ? '상품쇼츠' : answers.videoType === '수면음악' ? '수면음악' : answers.videoType === '야담' ? '야담' : '일반';
     const last = (kind === '수면음악' || kind === '야담') ? 4 : 5;   // 마지막(확인) 단계 번호
-    const sameForm = answersFormRender === dfRender && !!document.getElementById('df-fields');
+    const sameForm = answersFormRender === dfRender && answersFormSig === sigOf(answers) && !!document.getElementById('df-fields');
     if (sameForm) {
       document.getElementById('split-row').classList.add('split-active'); document.getElementById('direct-form-wrap').style.display = 'flex';
     } else if (kind === '일반') {
       dfMode = 'topic'; showDirectForm(); fillGeneralForm(answers);
-      answersFormRender = dfRender;   // 이 칸들이 지금 신청 내용의 출처
+      stampForm();   // 이 칸들이 지금 신청 내용의 출처
     } else { addMsg('bot', '이 신청은 단계 화면을 새로 열면 입력이 사라져서 고칠 수 없어요. 처음부터 다시 신청해 주세요.'); return; }
     setTimeout(() => { if (window.__pwGo) window.__pwGo(last, true); }, 60);
   }
@@ -4092,7 +4098,7 @@
     document.getElementById('df-tab-media').addEventListener('click', () => { dfMode = 'media'; renderDirectForm(); });
     document.getElementById('df-cancel').addEventListener('click', showChatFromDirectForm);
     document.getElementById('df-confirm').addEventListener('click', () => {
-      answersFormRender = dfRender;   // 이 신청은 지금 열려 있는 단계 화면의 칸에서 나왔다
+      stampPending = false;
       const val = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
       if (isMedia) {
         if (!val('df-driveLink')) { alert('드라이브 링크를 입력해주세요.'); return; }
@@ -4106,7 +4112,7 @@
         if (!sr && !val('df-topic')) { alert('어떤 이야기를 들려줄지 적어주세요.'); return; }
         if (sr && 야담형식() === 'classic' && sr.minutes > LONG_MAX_MIN['야담']) { alert('이 대본은 ' + hourLabel(LONG_MAX_MIN['야담']) + '이 넘어서 기존 야담으로는 만들 수 없어요. "인트로 영상 + 긴 이야기"를 골라 주세요.'); return; }
         const 분 = planMode === 'paid' ? 롱폼길이분() : 3;
-        answers = { topic: val('df-topic') || (sr ? sr.title : ''), form: '롱폼', videoType: '야담', tier: 현재등급(), videoLength: String(Math.round(분 * 100) / 100) };
+        answers = { topic: val('df-topic') || (sr ? sr.title : ''), form: '롱폼', videoType: '야담', tier: 현재등급(), videoLength: String(Math.round(분 * 100) / 100) }; stampPending = true;
         if (sr) { answers.scriptId = sr.id; answers.scriptTitle = sr.title; }
         if (val('df-style')) answers.style = val('df-style');
         answers.voiceGender = val('df-yvoice') || '남성';
@@ -4139,7 +4145,7 @@
         }
         if (말 !== '없음' && 대본 && 대본.occ === '부고·추모' && !confirm('부고·추모 영상이에요.\n성함, 일시, 장소가 정확한지 한 번 더 확인하셨나요?')) return;
         const 분 = planMode === 'paid' ? 롱폼길이분() : 3;
-        answers = { topic: val('df-topic') || (대본 ? 대본.title : ''), form: '롱폼', videoType: '수면음악', tier: 현재등급(), videoLength: String(Math.round(분 * 100) / 100) };
+        answers = { topic: val('df-topic') || (대본 ? 대본.title : ''), form: '롱폼', videoType: '수면음악', tier: 현재등급(), videoLength: String(Math.round(분 * 100) / 100) }; stampPending = true;
         answers.screenMode = document.querySelector('input[name="df-smode"]:checked')?.value || '숨쉬기';
         answers.imageSource = document.querySelector('input[name="df-img"]:checked')?.value || '무료사진';
         if (val('df-style')) answers.style = val('df-style');
@@ -4167,7 +4173,7 @@
           if (!PRODUCT_READY()) { alert('상품쇼츠는 곧 열려요. 지금은 준비하고 있어요.'); return; }
           const d = r.data;
           productExtra = d;   // 긴 글·주소는 상담 챗봇에 보내지 않고 따로 들고 있다가 접수 때 합친다
-          answers = { topic: d.name, form: '쇼츠', productShort: true, productMediaCount: pdMediaSummary(d), productImageUrl: d.media[0].url, productLink: d.link || '없음' };
+          answers = { topic: d.name, form: '쇼츠', productShort: true, productMediaCount: pdMediaSummary(d), productImageUrl: d.media[0].url, productLink: d.link || '없음' }; stampPending = true;
           if (d.link) answers.productSeller = PD_SELLER_LABEL[d.seller];
           answers.productInfoLen = pdSrcLabel(d);
           answers.videoLength = String(Math.round(d.sec / 60 * 1000) / 1000);   // 분 (15초 단위)
@@ -4176,7 +4182,7 @@
         productExtra = null;
         if (window.__pwOn && window.__pwOn()) { const gr = readGeneral(); if (gr.err) { window.__pwGo(gr.part === 'content' ? 1 : gr.part === 'screen' ? 2 : 4); pdShowErr(gr.err, gr.el); return; } }   // 단계 화면에서는 막힌 칸이 있는 단계로 돌아가 알려 준다
         if (!val('df-topic')) { alert('주제를 입력해주세요.'); return; }
-        answers = { topic: val('df-topic'), form: document.getElementById('df-form').value || '쇼츠' };
+        answers = { topic: val('df-topic'), form: document.getElementById('df-form').value || '쇼츠' }; stampPending = true;
         // [수정] 제품 링크를 비워두면 '없음'으로 확정해서 보낸다 - 그래야 상담 Agent가 "판매 페이지 링크 있으세요?"를 다시 묻지 않고
         // 바로 요약 카드로 넘어간다 (예전엔 이 질문 때문에 요약이 자동으로 안 뜨고 '지금 내용으로 진행하기' 버튼이 대신 나왔음)
         answers.productLink = val('df-productLink') || '없음';
