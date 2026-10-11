@@ -867,7 +867,7 @@ h4 b{color:var(--amber);font-size:1rem;margin-left:0}
 (function(){
 var $=function(i){return document.getElementById(i)};
 var PACE=350;
-var GEN_MAX={'쇼츠':1080,'롱폼':3600},GEN_MIN=50;   /* [일반 영상 대본] 접수 서버(v3.36)의 한도와 같은 값: 쇼츠 3분 · 롱폼 10분 */
+var GEN_MAX={'쇼츠':1080,'롱폼':45000},GEN_MIN=50,GEN_AI_LONG=3600;   /* [일반 영상 대본] 접수 서버(v3.37)의 한도와 같은 값: 쇼츠 3분 · 롱폼은 AI 영상형 10분(3,600자) / 낭독형 약 125분(45,000자) */
 var RATE={long:{base:6000,per:900},short:{base:3000,per:7000}};
 var REWRITE={long:200,short:100};
 var BALANCE0=100000, balance=BALANCE0;
@@ -1082,6 +1082,7 @@ function stats(){
   if(cfg.kind==='gen'){
     var gmax=GEN_MAX[cfg.form],gover=n>gmax,gshort=n>0&&n<GEN_MIN;
     $('ptsLbl').textContent='영상 제작 요금';$('pts').textContent='신청할 때 안내';$('mPt').textContent='';
+    if(!gover&&!gshort&&cfg.form==='롱폼'&&n>GEN_AI_LONG){v.className='verdict';v.textContent='3,600자(약 10분)가 넘어서 신청할 때 "낭독형"으로 만들 수 있어요.'}
     if(gover||gshort){v.className='verdict bad';v.textContent=gover?cfg.form+' 대본은 약 '+Math.round(gmax/360*10)/10+'분('+gmax.toLocaleString('ko-KR')+'자)까지예요. '+(n-gmax).toLocaleString('ko-KR')+'자 줄여 주세요.':'대본이 너무 짧아요 ('+GEN_MIN+'자 이상 필요해요).';$('approve').disabled=true}
   }
   return {n:n,m:m,ok:ok,prod:prod,base:base,hasT:hasT};
@@ -1518,7 +1519,7 @@ function renderBrief(){
     h='<div class="f"><label for="brTopic">주제 <small>예: 통돌이 세탁기 고르는 법</small></label><input type="text" id="brTopic" data-b="topic" value="'+esc(B.topic)+'" maxlength="120" placeholder="무엇에 대한 영상인가요?"></div>'+
       '<div class="f"><label>말투 <small>고르지 않으면 AI가 알아서</small></label>'+chips(TONES,'tone',B.tone)+'</div>'+
       '<div class="f"><label>길이</label>'+(lg?stp('min',B.min,'분','약 '+Math.round(B.min*360).toLocaleString('ko-KR')+'자'):stp('sec',B.sec,'초','약 '+Math.round(B.sec*6)+'자'))+'</div>';
-    $('briefHead').innerHTML='<span class="bh-o">칸을 채우고(몰라도 돼요) 요청문을 복사해 쓰시는 AI에 보내세요.</span><span class="bh-a">칸을 채우면 그대로 '+cfg.form+' 대본을 써 드려요. 한 줄 주제만 있어도 돼요.</span>';
+    $('briefHead').innerHTML='<span class="bh-o">칸을 채우고(몰라도 돼요) 요청문을 복사해 쓰시는 AI에 보내세요.</span><span class="bh-a">칸을 채우면 그대로 '+cfg.form+' 대본을 써 드려요. 한 줄 주제만 있어도 돼요.'+(lg?' 이야기·해설·에세이처럼 듣는 영상은 신청할 때 "낭독형"을 고르면 길게 만들 수 있어요.':'')+'</span>';
     $('askSteps').innerHTML='<b>1</b> 요청문을 복사해 AI에 붙여넣어요. 길이와 주제는 이미 들어 있어요.<br><b>2</b> AI가 써 준 글을 <b>붙여넣기·파일</b> 탭의 칸에 붙여넣어요.<br><b>3</b> 읽기 좋게 자동으로 정리해 드려요. 고쳐서 확정하세요.';
     $('copyAsk').textContent=cfg.form+' 대본 요청문 복사';
   }else{

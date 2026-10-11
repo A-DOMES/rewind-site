@@ -1494,7 +1494,7 @@
     topic: '주제', productLink: '제품 링크', productImageUrl: '제품 이미지', productImageCount: '제품 이미지', productMediaCount: '사진·영상', productSeller: '판매 유형', productInfoLen: '제품 내용', target: '타겟', form: '영상 형태', tempo: '말하기 속도',
     voiceGender: '목소리', voiceAge: '목소리 연령대', directorNote: '연출 메모', style: '연출 스타일', characterUse: '캐릭터 통일',
     driveLink: '드라이브 링크', mediaNote: '분위기 메모', voiceSummary: '목소리·자막',
-    sceneCount: '장면 수', videoLength: '영상 길이', estimatedPrice: '필요 포인트', scriptTitle: '내 대본', yadamKind: '야담 방식', narration: '말', voiceUrl: '내 목소리 녹음', voiceTone: '목소리 기분', voiceSpeed: '읽는 속도', introSeconds: '인트로 영상', hookText: '화면 상단 문구',
+    sceneCount: '장면 수', videoLength: '영상 길이', estimatedPrice: '필요 포인트', scriptTitle: '내 대본', narrate: '영상 제작 방식', yadamKind: '야담 방식', narration: '말', voiceUrl: '내 목소리 녹음', voiceTone: '목소리 기분', voiceSpeed: '읽는 속도', introSeconds: '인트로 영상', hookText: '화면 상단 문구',
     layout: '화면 구성', captionPos: '자막 위치', motion: '영상 제작 방식',
     videoType: '영상 종류', tier: '품질 등급', screenMode: '화면 움직임', imageSource: '그림 방식', photoCount: '사진 장수', subtitles: '자막', soundRequest: '소리 요청', sceneSeconds: '그림 바뀌는 간격(초)', soundMode: '소리', musicFolderUrl: '내 음악 폴더'
   };
@@ -1547,7 +1547,8 @@
     const box = document.getElementById('df-motion');
     if (!box) return;
     const note = document.getElementById('df-motion-note');
-    const 체험 = planMode !== 'paid';
+    const 낭독 = !!(window.__rwNarrateOn && window.__rwNarrateOn());   // 낭독형은 정지 그림이 천천히 바뀌는 이미지 중심으로만 만든다
+    const 체험 = planMode !== 'paid' || 낭독;
     box.querySelectorAll('.lp-opt').forEach(l => {
       const input = l.querySelector('input');
       const off = 체험 && input.value !== '이미지 중심';
@@ -1556,7 +1557,7 @@
     if (체험) { box.querySelector('input[value="이미지 중심"]').checked = true; }
     else if (box.dataset.wasTrial === '1') { box.querySelector('input[value="자동"]').checked = true; }
     box.dataset.wasTrial = 체험 ? '1' : '0';
-    if (note) note.textContent = 체험 ? '체험판은 이미지 중심으로 만들어져요. 정식 모드에서는 원하는 방식을 고를 수 있어요.' : (현재움직임() === '모두 영상' ? '모든 장면을 움직이는 영상으로 만들어요. 제작 시간이 조금 더 걸려요.' : '');
+    if (note) note.textContent = 낭독 ? '낭독형은 목소리가 읽고 그림이 천천히 바뀌는 이미지 중심으로 만들어져요.' : 체험 ? '체험판은 이미지 중심으로 만들어져요. 정식 모드에서는 원하는 방식을 고를 수 있어요.' : (현재움직임() === '모두 영상' ? '모든 장면을 움직이는 영상으로 만들어요. 제작 시간이 조금 더 걸려요.' : '');
   }
   // [썸네일] 정식은 고객이 고를 때만 만든다(기본 꺼짐), 체험판은 제공하지 않음
   function applyThumbPlan() {
@@ -1635,7 +1636,7 @@
     const isLongform = form && form.value === '롱폼';
     const len = lenInput && parseFloat(lenInput.value) > 0 ? parseFloat(lenInput.value) : defaultLen(isLongform ? '롱폼' : '쇼츠');
     const 상품 = 종류 === '상품쇼츠';
-    const 고른 = dfMode === 'media' ? '이미지 중심' : 상품 ? pdMotion() : motionOf(현재움직임() === '자동' ? '혼합' : 현재움직임());
+    const 고른 = (dfMode === 'media' || (window.__rwNarrateOn && window.__rwNarrateOn())) ? '이미지 중심' : 상품 ? pdMotion() : motionOf(현재움직임() === '자동' ? '혼합' : 현재움직임());
     const 최고 = computePrice(len, '모두 영상');
     const 막대 = (dfMode === 'media' || 상품) ? '' : '<div class="mb-chart">' + MOTION_LIST.map(m => {
       const v = computePrice(len, m);
@@ -2010,10 +2011,10 @@
     // [요금] 챗봇이 알려준 값 대신 화면에서 같은 공식으로 다시 계산한다 (서버도 접수할 때 한 번 더 계산)
     견적다시계산();
     const rows = Object.keys(answers)
-      .filter(k => answers[k] && k !== 'thumbnail' && k !== 'musicRights' && k !== 'scriptId' && k !== 'genScriptId' && !(k === 'estimatedPrice' && planMode !== 'paid'))
+      .filter(k => answers[k] && k !== 'thumbnail' && k !== 'musicRights' && k !== 'scriptId' && k !== 'genScriptId' && !(k === 'motion' && answers.narrate) && !(k === 'estimatedPrice' && planMode !== 'paid'))
       .filter(k => !((k === 'productLink' || k === 'productImageUrl') && !/^https?:\/\//i.test(String(answers[k]))))
       .filter(k => !['productImages', 'productShort', 'imageRights', 'affiliateNotice', 'disclosureCaption', 'voice'].includes(k) && !(k === 'productImageUrl' && answers.productShort))
-      .map(k => `<div class="summary-row"><span class="k">${FIELD_LABEL[k] || k}</span><span class="v">${k === 'characterUse' ? (answers[k] ? '예' : '아니오') : k === 'videoLength' && answers.productShort ? lenLabel(parseFloat(answers[k])) : k === 'estimatedPrice' && !isNaN(Number(answers[k])) ? Number(answers[k]).toLocaleString('ko-KR') + 'P' : k === 'videoLength' && answers.videoType ? (parseFloat(answers[k]) < 30 && answers.videoType === '수면음악' ? lenLabel(parseFloat(answers[k])) : hourLabel(parseFloat(answers[k]))) : k === 'videoType' ? kindName(answers[k]) : k === 'yadamKind' ? (answers[k] === 'long' ? '인트로 영상 + 긴 이야기' : '그림이 자주 바뀌는 야담') : k === 'introSeconds' ? (answers[k] + '초') : k === 'soundMode' ? (소리이름[answers[k]] || answers[k]) : escapeHtml(String(answers[k])).slice(0, 60)}</span></div>`)
+      .map(k => `<div class="summary-row"><span class="k">${FIELD_LABEL[k] || k}</span><span class="v">${k === 'characterUse' ? (answers[k] ? '예' : '아니오') : k === 'narrate' ? '낭독형 · 목소리가 읽고 그림이 천천히 바뀌어요' : k === 'videoLength' && answers.productShort ? lenLabel(parseFloat(answers[k])) : k === 'estimatedPrice' && !isNaN(Number(answers[k])) ? Number(answers[k]).toLocaleString('ko-KR') + 'P' : k === 'videoLength' && answers.videoType ? (parseFloat(answers[k]) < 30 && answers.videoType === '수면음악' ? lenLabel(parseFloat(answers[k])) : hourLabel(parseFloat(answers[k]))) : k === 'videoType' ? kindName(answers[k]) : k === 'yadamKind' ? (answers[k] === 'long' ? '인트로 영상 + 긴 이야기' : '그림이 자주 바뀌는 야담') : k === 'introSeconds' ? (answers[k] + '초') : k === 'soundMode' ? (소리이름[answers[k]] || answers[k]) : escapeHtml(String(answers[k])).slice(0, 60)}</span></div>`)
       .join('');
     const 방식행 = `<div class="summary-row summary-mode ${planMode === 'paid' ? 'is-paid' : 'is-trial'}"><span class="k">신청 종류</span><span class="v">${planMode === 'paid' ? '정식 제작 (결제 안내 메일 발송)' : answers.videoType ? `체험 (3분 미리보기 · 체험 ${pt(신청체험가())})` : `체험 (워터마크 미리보기 · 체험 ${pt(신청체험가())})`}</span></div>`;
     const 썸네일원함 = /^(true|예|네|응|yes|y|1|원해요|만들어)/i.test(String(answers.thumbnail ?? '').trim());
@@ -2171,6 +2172,7 @@
         return;
       }
       payload.script = { title: 보관.title || answers.scriptTitle || '', chapters: 보관.chapters.map(c => ({ title: String(c.title || ''), text: String(c.text || '') })) };
+      if (answers.narrate === true && answers.form === '롱폼') payload.narrate = true;   // 낭독형: 접수 서버가 영상유형 '낭독'으로 기록한다
     }
     if (planMode !== 'paid') payload.trialPrice = 신청체험가();
 
@@ -2629,7 +2631,7 @@
   // 챗봇으로 만든 일반 영상 신청은 칸이 없으니 answers 의 값을 새 단계 화면의 칸에 채워서 연다 (신청 데이터는 칸에서 다시 읽어 만든다)
   let dfRender = 0, answersFormRender = -1, answersFormSig = '', stampPending = false;
   // 신청 내용이 단계 화면 칸에서 나왔음을 기록한다(검증을 통과해 answers 가 새로 만들어진 뒤에만). 그 뒤 챗봇이 값을 바꾸면 서명이 달라져 칸을 다시 채운다
-  const SIG_KEYS = ['topic','form','style','directorNote','hookText','characterUse','productLink','productImageUrl','target','voiceGender','voiceAge','tempo','videoLength','sceneCount','motion','thumbnail','layout','captionPos','videoType','genScriptId'];
+  const SIG_KEYS = ['topic','form','style','directorNote','hookText','characterUse','productLink','productImageUrl','target','voiceGender','voiceAge','tempo','videoLength','sceneCount','motion','thumbnail','layout','captionPos','videoType','genScriptId','narrate'];
   const sigOf = a => JSON.stringify(SIG_KEYS.map(k => a[k] === undefined ? null : a[k]));
   function stampForm() { answersFormRender = dfRender; answersFormSig = sigOf(answers); }
   function fillGeneralForm(a) {
@@ -2652,7 +2654,7 @@
     if (a.sceneCount) setVal('df-sceneCount', a.sceneCount);
     if (planMode === 'paid') { radio('df-motion', a.motion); const th = g('df-thumbnail'); if (th && !th.disabled) { th.checked = /^(true|예|네|응|yes|y|1|원해요|만들어)/i.test(String(a.thumbnail ?? '').trim()); fire(th, 'change'); } }
     radio('df-layout', a.layout); radio('df-captionPos', a.captionPos);
-    if (a.genScriptId && window.__rwPickGen) window.__rwPickGen(a.genScriptId);   // 내 대본으로 만든 신청이면 대본 카드도 되살리고 길이를 대본에 맞춘다
+    if (a.genScriptId && window.__rwPickGen) window.__rwPickGen(a.genScriptId, !!a.narrate);   // 내 대본으로 만든 신청이면 대본 카드도 되살리고 길이를 대본에 맞춘다
     updatePrice(); if (window.__pwRefresh) window.__pwRefresh();
   }
   window.__rwFillFromAnswers = fillGeneralForm;
@@ -3245,10 +3247,12 @@
     if (gsel && !script) add('content', '내 대본', '선택한 대본을 이 브라우저 보관함에서 찾지 못했어요. 대본을 다시 불러와 주세요.', g('df-gen-script-card'));
     else if (script && script.form !== form) add('content', '내 대본', '이 대본은 ' + script.form + '용이에요. 영상 형태를 ' + script.form + '로 바꾸거나 대본을 빼 주세요.', g('df-gen-script-card'));
     else if (script) {
-      const n = (window.__rwGenChars ? window.__rwGenChars(script) : Number(script.chars)) || 0, lim = planMode === 'paid' ? (form === '롱폼' ? 3600 : 1080) : 1080;
+      const n = (window.__rwGenChars ? window.__rwGenChars(script) : Number(script.chars)) || 0, 낭독 = !!(window.__rwNarrateOn && window.__rwNarrateOn());
+      const lim = planMode === 'paid' ? (form === '롱폼' ? (낭독 ? 45000 : 3600) : 1080) : 1080;
+      const 낭독안내 = form === '롱폼' && !낭독 ? ' 듣는 영상(이야기·해설 등)이라면 "낭독형"으로 더 길게 만들 수 있어요.' : '';
       if (planMode !== 'paid' && n > 1080) add('content', '내 대본', '체험판은 대본 약 3분(1,080자)까지 만들 수 있어요. 지금 ' + n.toLocaleString('ko-KR') + '자예요. 대본을 줄이거나 정식 모드로 신청해 주세요.', g('df-gen-script-card'));
-      else if (n > lim) add('content', '내 대본', form + ' 대본은 ' + lim.toLocaleString('ko-KR') + '자까지예요. 지금 ' + n.toLocaleString('ko-KR') + '자예요.', g('df-gen-script-card'));
-      else if (planMode === 'paid' && motionOf(현재움직임() === '자동' ? '혼합' : 현재움직임()) === '모두 영상' && n > 1500) add('screen', '영상 제작 방식', '"모두 영상"은 지금 대본 약 4분(1,500자)까지 만들 수 있어요. 이 대본은 ' + n.toLocaleString('ko-KR') + '자예요. "혼합"이나 "이미지 중심"을 고르거나 대본을 줄여 주세요. 더 긴 모두 영상은 곧 지원해요.', g('df-motion'));
+      else if (n > lim) add('content', '내 대본', form + (낭독 ? ' 낭독형' : '') + ' 대본은 ' + lim.toLocaleString('ko-KR') + '자까지예요. 지금 ' + n.toLocaleString('ko-KR') + '자예요.' + 낭독안내, g('df-gen-script-card'));
+      else if (planMode === 'paid' && !낭독 && motionOf(현재움직임() === '자동' ? '혼합' : 현재움직임()) === '모두 영상' && n > 1500) add('screen', '영상 제작 방식', '"모두 영상"은 지금 대본 약 4분(1,500자)까지 만들 수 있어요. 이 대본은 ' + n.toLocaleString('ko-KR') + '자예요. "혼합"이나 "이미지 중심"을 고르거나 대본을 줄여 주세요. 더 긴 모두 영상은 곧 지원해요.' + 낭독안내, g('df-motion'));
     }
     if (!topic && !script && !gsel) add('content', '주제', '어떤 영상인지 주제를 적어 주세요.', g('df-topic'));
     const link = v('df-productLink');
@@ -3260,7 +3264,7 @@
     const sc = v('df-sceneCount');
     if (sc && !(parseInt(sc, 10) >= 1)) add('screen', '장면 수', '장면 수는 1 이상의 숫자로 넣어 주세요. 비워 두면 AI가 정해요.', g('df-sceneCount'));
     const first = probs[0];
-    return { probs, err: first ? first.msg : '', el: first ? first.el : null, part: first ? first.part : '', data: { form, topic, link, img, len, sc, script } };
+    return { probs, err: first ? first.msg : '', el: first ? first.el : null, part: first ? first.part : '', data: { form, topic, link, img, len, sc, script, narrate: !!(script && window.__rwNarrateOn && window.__rwNarrateOn()) } };
   }
   function readProduct(opt) {
     opt = opt || {};
@@ -3355,6 +3359,7 @@
     answers.form = x.form === '롱폼' ? '롱폼' : '쇼츠'; answers.scriptTitle = x.title;
     answers.topic = (genPin && genPin.topic) || x.title;
     if (genPin && genPin.motion && planMode === 'paid') answers.motion = genPin.motion;
+    if (genPin && genPin.narrate && answers.form === '롱폼') answers.narrate = true; else delete answers.narrate;   // 낭독형 여부도 입력 화면에서 고른 값을 따른다
     if (window.__rwGenMin) answers.videoLength = String(window.__rwGenMin(x));
     delete answers.videoType; delete answers.tier;
   }
@@ -3683,7 +3688,7 @@
       const row = (k, v, go) => `<div class="pw-row"><span class="pw-k">${k}</span><span class="pw-v">${esc(v)}</span><button type="button" class="pw-fix" data-go="${go}">고치기</button></div>`;
       const 롱폼 = d.form === '롱폼';
       const 분 = parseFloat(d.len) > 0 ? parseFloat(d.len) : defaultLen(d.form);
-      const 움직임 = paid ? motionOf(현재움직임() === '자동' ? '혼합' : 현재움직임()) : '이미지 중심';
+      const 움직임 = d.narrate ? '낭독형 (목소리가 읽고 그림이 천천히 바뀜)' : paid ? motionOf(현재움직임() === '자동' ? '혼합' : 현재움직임()) : '이미지 중심';
       const 제품 = [d.link && '링크 ' + d.link.slice(0, 40), d.img && '사진 주소 입력함'].filter(Boolean).join(' · ') || '없음';
       const 목소리 = (window.RWVoice && RWVoice.summary()) || [gv('df-voiceGender'), gv('df-voiceAge')].filter(Boolean).join(' · ') || '자동';
       const 꾸밈 = [gv('df-hookText') ? '문구 "' + gv('df-hookText') + '"' : '문구 자동', 롱폼 ? '' : '화면 구성 ' + (document.querySelector('input[name="df-layout"]:checked')?.value || '자동'), '자막 ' + (document.querySelector('input[name="df-captionPos"]:checked')?.value || '자동')].filter(Boolean).join(' · ');
@@ -3695,7 +3700,7 @@
         (gv('df-directorNote') ? row('꼭 넣을 연출', gv('df-directorNote'), 1) : '') + row('제품 정보', 제품, 1) +
         row('영상 길이', lenLabel(분) + (parseFloat(d.len) > 0 ? '' : ' (기본)'), 2) + row('영상 제작 방식', 움직임 + (paid ? '' : ' (체험판)'), 2) +
         row('목소리', 목소리, 3) + row('화면 꾸미기', 꾸밈, 4) + row('썸네일', 썸네일, 4) +
-        `<p class="pw-note">AI 목소리가 들어간 영상은 유튜브에 올릴 때 "변경된 콘텐츠" 표시를 확인해 주세요.${움직임 !== '이미지 중심' ? esc(' AI 영상 장면이 있어서 "합성된 콘텐츠"로도 표시해야 하고, 완성된 영상에서 제품 모양·글자가 실제와 같은지 꼭 확인해 주세요.') : ''}${esc(광고)}</p>`;
+        `<p class="pw-note">AI 목소리가 들어간 영상은 유튜브에 올릴 때 "변경된 콘텐츠" 표시를 확인해 주세요.${(!d.narrate && 움직임 !== '이미지 중심') ? esc(' AI 영상 장면이 있어서 "합성된 콘텐츠"로도 표시해야 하고, 완성된 영상에서 제품 모양·글자가 실제와 같은지 꼭 확인해 주세요.') : ''}${esc(광고)}</p>`;
     }
     function buildReview() {
       if (LONGK()) { buildReviewLong(); return; }
@@ -4230,7 +4235,11 @@
         if (window.__rwGenScript && !gsr) { alert('선택한 대본을 이 브라우저 보관함에서 찾지 못했어요. 대본을 다시 불러와 주세요.'); return; }
         if (!val('df-topic') && !gsr) { alert('주제를 입력해주세요.'); return; }
         answers = { topic: val('df-topic') || (gsr ? gsr.title : ''), form: document.getElementById('df-form').value || '쇼츠' }; stampPending = true;
-        if (gsr) { answers.genScriptId = gsr.id; answers.scriptTitle = gsr.title; genPin = { topic: answers.topic, motion: planMode === 'paid' ? motionOf(현재움직임() === '자동' ? '혼합' : 현재움직임()) : '' }; }
+        if (gsr) {
+          const 낭독 = !!(window.__rwNarrateOn && window.__rwNarrateOn()) && answers.form === '롱폼';
+          answers.genScriptId = gsr.id; answers.scriptTitle = gsr.title; if (낭독) answers.narrate = true;
+          genPin = { topic: answers.topic, narrate: 낭독, motion: planMode === 'paid' ? (낭독 ? '이미지 중심' : motionOf(현재움직임() === '자동' ? '혼합' : 현재움직임())) : '' };
+        }
         // [수정] 제품 링크를 비워두면 '없음'으로 확정해서 보낸다 - 그래야 상담 Agent가 "판매 페이지 링크 있으세요?"를 다시 묻지 않고
         // 바로 요약 카드로 넘어간다 (예전엔 이 질문 때문에 요약이 자동으로 안 뜨고 '지금 내용으로 진행하기' 버튼이 대신 나왔음)
         answers.productLink = val('df-productLink') || '없음';
@@ -4258,7 +4267,7 @@
       if (val('df-voiceGender')) answers.voiceGender = val('df-voiceGender');
       if (val('df-voiceAge')) answers.voiceAge = val('df-voiceAge');
       // [영상 제작 방식] 정식 모드에서만 보낸다(체험판은 서버가 항상 이미지 중심으로 만든다). '자동'은 혼합으로 확정해서 보여준다.
-      if (!isMedia && planMode === 'paid') answers.motion = answers.productShort ? pdMotion() : motionOf(현재움직임() === '자동' ? '혼합' : 현재움직임());
+      if (!isMedia && planMode === 'paid') answers.motion = answers.productShort ? pdMotion() : answers.narrate ? '이미지 중심' : motionOf(현재움직임() === '자동' ? '혼합' : 현재움직임());
       // 폼에서 길이를 비워뒀으면 화면에 보여준 기본 길이로 확정해서 보낸다 (챗봇이 길이를 다시 묻지 않게, 요금과 대본 길이도 같아짐)
       if (!isMedia && planMode === 'paid' && !answers.videoLength) answers.videoLength = String(defaultLen(answers.form));
       answers.estimatedPrice = computePrice(answers.videoLength ? parseFloat(answers.videoLength) : defaultLen(answers.form), isMedia ? '이미지 중심' : answers.motion);
@@ -4653,6 +4662,7 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
   function curForm(){var f=document.getElementById('df-form');return f&&f.value==='롱폼'?'롱폼':'쇼츠'}
   function isGen(){return (document.querySelector('input[name="df-type"]:checked')||{}).value==='일반'}
   window.__rwGenMin=minOf;
+  window.__rwNarrateOn=function(){var g=window.__rwGenScript;return !!(g&&g.mode==='read'&&g.form==='롱폼'&&isGen())};
   function lock(on){
     var li=document.getElementById('df-videoLength'),ch=document.getElementById('df-len-chips');
     if(on){var g=window.__rwGenScript;if(li&&g){var v=String(minOf(g));if(li.value!==v){li.value=v;li.dispatchEvent(new Event('input',{bubbles:true}))}li.readOnly=true;li.classList.add('gn-lk')}if(ch){ch.classList.add('gn-lk');ch.setAttribute('inert','')}}
@@ -4668,8 +4678,12 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
     var L=(window.__rwGenLib?window.__rwGenLib():[]).filter(function(x){return x.form===f&&x.chapters&&x.chapters.length});
     if(g){
       var x=(window.__rwGenLib?window.__rwGenLib():[]).filter(function(y){return y.id===g.id})[0]||g;
+      var nc=charsOf(x),auto='';
+      if(f==='롱폼'){if(g.mode!=='ai'&&g.mode!=='read'){g.mode=nc>3600?'read':'ai';if(nc>3600)auto='대본이 길어서 낭독형으로 골랐어요. 원하시면 바꿀 수 있어요.'}}else g.mode='ai';
+      var how=f==='롱폼'?'<div class="gs-how"><h5>어떤 방식으로 만들까요</h5><div class="sc-opts" role="group" aria-label="만드는 방식"><button type="button" data-how="ai" aria-pressed="'+(g.mode==='ai')+'">AI 영상형</button><button type="button" data-how="read" aria-pressed="'+(g.mode==='read')+'">낭독형</button></div><p class="sc-note">'+(g.mode==='read'?'목소리가 대본을 그대로 읽고, 그림이 천천히 바뀌어요. <b>이야기·해설·교양·에세이처럼 듣는 영상</b>(야담, 사연, 역사·상식 해설, 책 요약, 수면·작업용 이야기)에 잘 맞아요. 약 125분(45,000자)까지 만들 수 있고 요금은 이미지 중심과 같아요. 제품 소개나 동작 설명처럼 보여 줄 게 많은 영상은 AI 영상형이 더 맞아요.':'장면마다 그림이나 AI 영상으로 보여 줘요. <b>제품 소개·동작 설명·광고</b>처럼 보여 줄 게 많은 영상에 잘 맞아요. 대본은 약 10분(3,600자)까지, 모두 영상은 약 4분(1,500자)까지예요. 더 길거나 듣는 영상은 낭독형이 맞아요.')+(auto?' <b>'+esc(auto)+'</b>':'')+'</p></div>':'';
       host.className='sc-card gn-script ready';
-      host.innerHTML='<h4>내 대본으로 만들어요</h4><p class="sc-note">'+esc(g.title)+' · '+f+' · '+lenText(x)+' ('+charsOf(x).toLocaleString('ko-KR')+'자). 영상 길이는 대본에 맞춰 정해져요. 제작을 시작하면 이 대본이 서버로 전달되고, 프로젝트와 함께 보관돼요.</p><div class="sc-opts"><button type="button" id="gs-edit">다시 열기</button><button type="button" id="gs-clear">대본 빼기</button></div>';
+      host.innerHTML='<h4>내 대본으로 만들어요</h4><p class="sc-note">'+esc(g.title)+' · '+f+' · '+lenText(x)+' ('+nc.toLocaleString('ko-KR')+'자). 영상 길이는 대본에 맞춰 정해져요. 제작을 시작하면 이 대본이 서버로 전달되고, 프로젝트와 함께 보관돼요.</p>'+how+'<div class="sc-opts"><button type="button" id="gs-edit">다시 열기</button><button type="button" id="gs-clear">대본 빼기</button></div>';
+      host.querySelectorAll('[data-how]').forEach(function(b){b.onclick=function(){g.mode=b.dataset.how;render();redraw()}});
       host.querySelector('#gs-edit').onclick=function(){var y=(window.__rwGenLib?window.__rwGenLib():[]).filter(function(z){return z.id===g.id})[0];window.__rwOpenStudio('long','mine',y?{title:y.title,chapters:y.chapters}:null,'gen',f)};
       host.querySelector('#gs-clear').onclick=function(){drop();note='';render();redraw()};
       lock(true);return;
@@ -4678,7 +4692,7 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
     host.className='sc-card gn-script';
     var nt=note;note='';
     host.innerHTML='<h4>대본</h4><div class="sc-opts"><button type="button" data-m="skip" aria-pressed="'+(mode==='skip')+'">주제만 적으면 AI가 써 줘요</button><button type="button" data-m="mine" aria-pressed="'+(mode==='mine')+'">내 대본</button>'+(L.length?'<button type="button" data-m="lib" aria-pressed="'+(mode==='lib')+'">보관함에서 불러오기</button>':'')+'</div>'+
-    '<p class="sc-note">'+({skip:'아래 주제를 바탕으로 AI가 '+f+' 대본을 써서 영상으로 만들어요. 만들기 전에 대본을 먼저 보고 고치고 싶다면 "내 대본"을 골라 주세요.',mine:'왼쪽 <b>대본 만들기</b>와 같은 작업실에서 '+f+' 대본을 쓰고 고쳐요. 대본은 이 브라우저에 보관돼요.',lib:'확정해 둔 '+f+' 대본을 골라요.'})[mode]+(nt?' <b>'+esc(nt)+'</b>':'')+'</p>'+
+    '<p class="sc-note">'+({skip:'아래 주제를 바탕으로 AI가 '+f+' 대본을 써서 영상으로 만들어요. 만들기 전에 대본을 먼저 보고 고치고 싶다면 "내 대본"을 골라 주세요.',mine:'왼쪽 <b>대본 만들기</b>와 같은 작업실에서 '+f+' 대본을 쓰고 고쳐요. 대본은 이 브라우저에 보관돼요.',lib:'확정해 둔 '+f+' 대본을 골라요.'})[mode]+(mode==='skip'&&f==='롱폼'?' 이야기·해설처럼 길게 듣는 영상은 "내 대본"을 고르면 낭독형으로도 만들 수 있어요.':'')+(nt?' <b>'+esc(nt)+'</b>':'')+'</p>'+
     (L.length&&mode==='skip'?'<button type="button" class="sc-hint" data-m="lib">저장해 둔 '+f+' 대본이 '+L.length+'개 있어요 · 눌러서 불러오기</button>':'')+
     (mode==='skip'?'':mode==='lib'?'<div class="sh-lib">'+L.slice(0,5).map(function(y,i){return'<div class="sh-item"><span>'+esc(y.title)+' <small>'+lenText(y)+'</small></span><button type="button" data-use="'+i+'">이 대본 쓰기</button></div>'}).join('')+'</div>':'<button type="button" class="sc-act" id="gs-open">'+f+' 대본 만들기</button>');
     host.querySelectorAll('[data-m]').forEach(function(b){b.onclick=function(){mode=b.dataset.m;render()}});
@@ -4686,9 +4700,9 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
     host.querySelectorAll('[data-use]').forEach(function(b){b.onclick=function(){var y=L[+b.dataset.use];window.__rwGenScript={id:y.id,title:y.title,form:f,chars:y.chars,minutes:y.minutes};render();redraw()}});
   }
   window.__rwRefreshGenCard=render;
-  window.__rwPickGen=function(id){
+  window.__rwPickGen=function(id,narrate){
     function find(){return (window.__rwGenLib?window.__rwGenLib():[]).filter(function(z){return z.id===id})[0]}
-    function set(y){window.__rwGenScript={id:y.id,title:y.title,form:y.form,chars:y.chars,minutes:y.minutes};render();redraw()}
+    function set(y){window.__rwGenScript={id:y.id,title:y.title,form:y.form,chars:y.chars,minutes:y.minutes,mode:narrate?'read':'ai'};render();redraw()}
     var y=find();if(y){if(y.form!==curForm())return false;set(y);return true}
     if(window.__rwLoadLib)window.__rwLoadLib(function(){var z=find();if(z&&z.form===curForm())set(z)});   /* 새로고침 뒤에는 보관함을 읽는 중일 수 있어 다 읽은 뒤에 다시 시도 */
     return false};
