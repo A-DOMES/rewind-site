@@ -326,6 +326,7 @@ h4 b{color:var(--amber);margin-left:2px}
 .warnbox{padding:10px 14px;border-radius:12px;background:var(--err-wash);color:var(--err);font-size:.86rem;margin-bottom:10px}
 .chk{display:flex;gap:10px;align-items:flex-start;font-size:.88rem;color:var(--dim);margin:6px 0 4px;cursor:pointer}
 .chk input{margin-top:4px;accent-color:var(--amber)}
+.copynote{margin:8px 0 2px;font-size:.8rem;line-height:1.5;color:var(--faint,var(--dim))}
 .toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 22px;border-radius:999px;z-index:50;opacity:0;pointer-events:none;transition:opacity .2s;font-size:.88rem;max-width:90%;text-align:center}
 .toast.show{opacity:1}
 .chips-m,.mbar{display:none}
@@ -568,7 +569,7 @@ h4 b{color:var(--amber);font-size:1rem;margin-left:0}
   <div class="note" id="okNote"></div>
   <dl class="sum" id="oksum"></dl>
   <div class="warnbox" id="okwarn" hidden></div>
-  <label class="chk" id="okchk" hidden><input type="checkbox" id="okrights"><span>내가 쓴 글이거나 사용 권한이 있는 글이에요.</span></label>
+  <p class="copynote">다른 사람이 쓴 글을 허락 없이 영상으로 만들면 저작권법과 유튜브 정책 위반이 될 수 있어요. 대본의 책임은 신청하는 분께 있어요.</p>
   <div class="d-f" style="padding:14px 0 0;border:0">
     <button class="btn" id="okno">더 고칠게요</button>
     <button class="btn gold" id="okyes">확정하기</button>
@@ -1463,7 +1464,7 @@ $('approve').onclick=function(){
   else if(review&&s.hasT&&!s.ok){w.hidden=false;w.textContent='대본 길이가 주문과 달라서 제작 포인트가 '+sgn(prod-prodPrice(cfg.target))+' 바뀌어요. 이대로 진행하면 새 포인트로 제작해요.'}
   else if(!review&&prod>balance){w.hidden=false;w.textContent='제작에는 '+P(prod)+'가 필요해요. 신청 전에 '+P(prod-balance)+'를 더 충전해야 해요.'}
   else w.hidden=true;
-  var needR=imported;$('okchk').hidden=!needR;$('okrights').checked=false;$('okyes').disabled=needR;
+  $('okyes').disabled=false;
   $('ok').classList.add('show');$('scrim').classList.add('show');
 };
 var INTRO_TEXT='아래에 붙여넣는 야담 대본을 읽고, 대본 맨 앞에 붙일 인트로 문구만 써 주세요.\n\n규칙:\n- 출력은 첫 줄 [인트로] 한 줄과 그 아래 인트로 문장뿐이에요. 인사, 설명, 후속 제안은 쓰지 마세요.\n- 대본에서 가장 궁금증을 끄는 장면(긴장되는 순간, 반전의 실마리)을 예고하듯 써 주세요. 결말과 반전의 정답은 밝히지 마세요.\n- 길이는 제가 말하는 초에 맞추세요. 1초는 공백을 뺀 약 6자예요. 10초는 약 60자, 15초는 약 90자, 20초는 약 120자, 30초는 약 180자예요. 말하지 않으면 10초로 쓰세요.\n- 성우가 그대로 읽는 문장으로만 쓰세요. 굵은 글씨, 별표, 이모지, 목록 기호는 쓰지 마세요.\n- 대본 문장을 그대로 베끼지 말고, 인트로용으로 짧게 다시 쓰세요. 실존 인물은 쓰지 마세요.\n\n이 요청문 뒤에 제가 대본을 붙이고 \"인트로 15초\"처럼 말할 거예요.';
@@ -1681,7 +1682,6 @@ function addIntro(raw){
 $('addIntro').onclick=function(){$('introText').value='';$('intro').classList.add('show');$('scrim').classList.add('show');setTimeout(function(){$('introText').focus()},50)};
 $('introNo').onclick=closeAll;
 $('introYes').onclick=function(){var v=$('introText').value;if(!v.trim()){toast('붙여넣을 인트로가 아직 없어요');return}if(addIntro(v))closeAll()};
-$('okrights').onchange=function(){$('okyes').disabled=!this.checked};
 $('okno').onclick=closeAll;
 $('okyes').onclick=function(){
   var s=stats();closeAll();
