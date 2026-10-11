@@ -2029,7 +2029,15 @@
     editBtn.className = 'btn-line-sm';
     editBtn.textContent = '더 이야기할게요';
     editBtn.addEventListener('click', renderComposer);
-    actions.appendChild(confirmBtn); actions.appendChild(editBtn);
+    actions.appendChild(confirmBtn);
+    // 단계 화면에서 눈으로 보며 고치기 (미디어 업로드 신청은 해당 없음. 상품쇼츠·분위기·야담은 그 화면이 아직 남아 있을 때만)
+    if (mode === 'topic' && !answers.driveLink && (!(answers.productShort || answers.videoType) || (answersFormRender === dfRender && document.getElementById('df-fields')))) {
+      const stepBtn = document.createElement('button');
+      stepBtn.className = 'btn-line-sm'; stepBtn.textContent = '단계 화면에서 고치기';
+      stepBtn.addEventListener('click', editInSteps);
+      actions.appendChild(stepBtn);
+    }
+    actions.appendChild(editBtn);
     composer.appendChild(actions);
 
     const consentBox = consentWrap.querySelector('#terms-consent');
@@ -2591,6 +2599,44 @@
 
   let dfMode = 'topic';
 
+  // ===== 요약 카드 → 단계 화면에서 고치기 =====
+  // 단계 화면에서 만든 신청(상품쇼츠·분위기·야담, 일반)은 그 화면의 칸이 그대로 남아 있어서 다시 열기만 하면 된다.
+  // 챗봇으로 만든 일반 영상 신청은 칸이 없으니 answers 의 값을 새 단계 화면의 칸에 채워서 연다 (신청 데이터는 칸에서 다시 읽어 만든다)
+  let dfRender = 0, answersFormRender = -1;
+  function fillGeneralForm(a) {
+    const g = id => document.getElementById(id);
+    const fire = (el, ev) => el.dispatchEvent(new Event(ev, { bubbles: true }));
+    const setVal = (id, v) => { const el = g(id); if (!el || v === undefined || v === null || String(v) === '') return; el.value = String(v); fire(el, 'input'); };
+    const setSel = (id, v) => { const el = g(id); if (!el || !v) return; if ([...el.options].some(o => o.value === String(v))) { el.value = String(v); fire(el, 'change'); } };
+    const radio = (name, v) => { if (!v) return; const r = [...document.querySelectorAll(`input[name="${name}"]`)].find(x => x.value === String(v)); if (r && !r.disabled) { r.checked = true; fire(r, 'change'); } };
+    radio('df-type', '일반');
+    const form = a.form === '롱폼' ? '롱폼' : '쇼츠', sel = g('df-form');
+    if (sel && sel.value !== form) { sel.value = form; fire(sel, 'change'); }   // 형태를 바꾸면 길이 칸이 비워지므로 길이는 그 뒤에 채운다
+    setVal('df-topic', a.topic); setVal('df-style', a.style); setVal('df-directorNote', a.directorNote); setVal('df-hookText', a.hookText);
+    const cu = g('df-characterUse'); if (cu) { cu.checked = !!a.characterUse; fire(cu, 'change'); }
+    const http = s => /^https?:\/\/\S+$/i.test(String(s || '').trim());
+    if (http(a.productLink)) setVal('df-productLink', a.productLink);
+    if (http(a.productImageUrl)) setVal('df-productImageUrl', a.productImageUrl);
+    setSel('df-target', a.target); setSel('df-voiceGender', a.voiceGender); setSel('df-voiceAge', a.voiceAge);
+    if (a.videoLength) setVal('df-videoLength', a.videoLength);
+    if (a.sceneCount) setVal('df-sceneCount', a.sceneCount);
+    if (planMode === 'paid') { radio('df-motion', a.motion); const th = g('df-thumbnail'); if (th && !th.disabled) { th.checked = a.thumbnail === 'TRUE' || a.thumbnail === true; fire(th, 'change'); } }
+    radio('df-layout', a.layout); radio('df-captionPos', a.captionPos);
+    updatePrice(); if (window.__pwRefresh) window.__pwRefresh();
+  }
+  window.__rwFillFromAnswers = fillGeneralForm;
+  function editInSteps() {
+    const kind = answers.productShort ? '상품쇼츠' : answers.videoType === '수면음악' ? '수면음악' : answers.videoType === '야담' ? '야담' : '일반';
+    const last = (kind === '수면음악' || kind === '야담') ? 4 : 5;   // 마지막(확인) 단계 번호
+    const sameForm = answersFormRender === dfRender && !!document.getElementById('df-fields');
+    if (sameForm) {
+      document.getElementById('split-row').classList.add('split-active'); document.getElementById('direct-form-wrap').style.display = 'flex';
+    } else if (kind === '일반') {
+      dfMode = 'topic'; showDirectForm(); fillGeneralForm(answers);
+      answersFormRender = dfRender;   // 이 칸들이 지금 신청 내용의 출처
+    } else { addMsg('bot', '이 신청은 단계 화면을 새로 열면 입력이 사라져서 고칠 수 없어요. 처음부터 다시 신청해 주세요.'); return; }
+    setTimeout(() => { if (window.__pwGo) window.__pwGo(last, true); }, 60);
+  }
   function showDirectForm() {
     document.getElementById('split-row').classList.add('split-active');
     const wrap = document.getElementById('direct-form-wrap');
@@ -3996,6 +4042,7 @@
   }
 
   function renderDirectForm() {
+    dfRender++;
     const wrap = document.getElementById('direct-form-wrap');
     const isMedia = dfMode === 'media';
     wrap.innerHTML = `
@@ -4039,6 +4086,7 @@
     document.getElementById('df-tab-media').addEventListener('click', () => { dfMode = 'media'; renderDirectForm(); });
     document.getElementById('df-cancel').addEventListener('click', showChatFromDirectForm);
     document.getElementById('df-confirm').addEventListener('click', () => {
+      answersFormRender = dfRender;   // 이 신청은 지금 열려 있는 단계 화면의 칸에서 나왔다
       const val = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
       if (isMedia) {
         if (!val('df-driveLink')) { alert('드라이브 링크를 입력해주세요.'); return; }
