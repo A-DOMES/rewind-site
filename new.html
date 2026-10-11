@@ -1114,9 +1114,13 @@
   .pw-st { flex: 1; min-width: 0; min-height: 70px; box-sizing: border-box; border-radius: 4px; border: 2px solid var(--line); background: var(--bg-input, transparent); color: var(--ink-dim); font: inherit; padding: 8px 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: default; transition: background .35s, color .35s, border-color .35s; }
   .pw-st b { font-size: .84rem; font-weight: 600; line-height: 1.25; text-align: center; white-space: nowrap; }
   .pw-st small { font-size: .76rem; line-height: 1.2; }
-  .pw-st.done { background: var(--amber); border-color: var(--amber); color: var(--on-amber); cursor: pointer; }
+  .pw-title { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; padding: 10px 12px 0; font-size: .9rem; color: var(--ink-dim); }
+  .pw-title b { color: var(--ink); font-size: .95rem; }
+  .pw-title .pw-pos { font-variant-numeric: tabular-nums; text-align: right; }
+  .pw-title .pw-pos em { font-style: normal; color: var(--ink); font-weight: 700; }
+  .pw-st.done { background: color-mix(in srgb, var(--amber) 22%, transparent); border-color: color-mix(in srgb, var(--amber) 55%, transparent); color: var(--ink); cursor: pointer; }
   .pw-st.redo { background: transparent; border-color: var(--err); color: var(--err); cursor: pointer; }
-  .pw-st.cur { background: var(--amber-wash, transparent); border-color: var(--amber); color: var(--ink); }
+  .pw-st.cur { background: var(--amber); border-color: var(--amber); color: var(--on-amber); box-shadow: 0 0 0 3px color-mix(in srgb, var(--amber) 30%, transparent); }
   .pw-st.cur b { font-weight: 700; }
   .pw-st.done:hover, .pw-st.redo:hover { filter: brightness(1.07); }
   .pw-st:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
@@ -3670,8 +3674,10 @@
       if (bar.dataset.key !== key) { bar.innerHTML = ''; bar.dataset.key = key; }   // 종류가 바뀌어 단계 수가 달라지면 다시 만든다
       if (!bar.querySelector('.pw-frames')) {
         const holes = '<div class="pw-holes" aria-hidden="true"></div>';
-        bar.innerHTML = holes + '<ol class="pw-frames">' + namesOf().map((n, i) => `<li class="pw-fr"><button type="button" class="pw-st" data-go="${i}">${filmIcon('')}<b>${n}</b><small></small></button></li>`).join('') + '</ol>' + holes;
+        bar.innerHTML = '<div class="pw-title"><b>진행 단계</b><span class="pw-pos" aria-hidden="true"></span></div>' + holes + '<ol class="pw-frames" style="grid-template-columns:repeat(' + namesOf().length + ',minmax(0,1fr))">' + namesOf().map((n, i) => `<li class="pw-fr"><button type="button" class="pw-st" data-go="${i}">${filmIcon('')}<b>${n}</b><small></small></button></li>`).join('') + '</ol>' + holes;
       }
+      const pos = bar.querySelector('.pw-pos'), posHtml = '<em>' + (step + 1) + '</em> / ' + namesOf().length + ' · ' + esc(namesOf()[step] || '');
+      if (pos && pos.dataset.h !== posHtml) { pos.dataset.h = posHtml; pos.innerHTML = posHtml; }
       bar.querySelectorAll('.pw-fr').forEach((li, i) => {
         const st = stateOf(i), btn = li.firstChild;
         const ic = st === 'todo' ? PW_LOCK : st === 'done' ? PW_OK : iconOf(i);
