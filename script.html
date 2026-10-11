@@ -172,7 +172,21 @@ h4 b{color:var(--amber);margin-left:2px}
 .brief .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 @media (max-width:520px){.lite .dz{padding:22px 16px}.brief .g2{grid-template-columns:minmax(0,1fr)}}
 .brief .chips{display:flex;flex-wrap:wrap;gap:6px}
-.brief .nrnote{display:block;margin-top:8px;font-size:.84rem;color:var(--dim);line-height:1.5}
+.askai .brief .cgrid{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(168px,1fr))}
+.askai .brief .cgrid.c2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.askai .brief .cgrid.cs{grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px}
+.askai .brief button.cd{margin:0;display:flex;flex-direction:column;align-items:flex-start;gap:3px;width:100%;min-width:0;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);border-radius:14px;padding:12px 13px 13px;font:inherit;text-align:left;cursor:pointer;transition:border-color .15s,background-color .15s}
+.askai .brief button.cd:hover{border-color:var(--line2)}
+.askai .brief button.cd.on{border-color:var(--amber);background:var(--wash);color:var(--ink);font-weight:inherit}
+.askai .brief button.cd b{font-size:.95rem;font-weight:700;letter-spacing:-.01em;line-height:1.35;overflow-wrap:anywhere}
+.askai .brief button.cd small{font-size:.8rem;line-height:1.45;color:var(--faint);font-weight:400}
+.askai .brief button.cd.on b{color:var(--amber)}
+.askai .brief button.cd .ci{display:grid;place-items:center;width:30px;height:30px;border-radius:9px;background:var(--input);color:var(--dim);margin-bottom:5px}
+.askai .brief button.cd.on .ci{background:var(--amber);color:var(--on-amber)}
+.askai .brief button.cd .ci svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.askai .brief button.cd.cso{padding:10px 12px;align-items:center;text-align:center}
+@media (max-width:760px){.empty::after{content:'';flex:none;height:96px}}
+@media (max-width:520px){.askai .brief .cgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.askai .brief .cgrid.cs{grid-template-columns:repeat(3,minmax(0,1fr))}}
 .askai .brief .chips button{margin:0;padding:8px 15px;font-size:.9rem}
 .askai .brief .chips button.on{border-color:var(--amber);color:var(--amber);font-weight:600}
 .brief .stp{display:flex;align-items:center;gap:8px}
@@ -272,9 +286,9 @@ h4 b{color:var(--amber);margin-left:2px}
 .dots button{width:10px;height:10px;border-radius:50%;background:var(--line2);padding:0;position:relative}
 .dots button.on{background:var(--amber);transform:scale(1.35)}
 .dots button:hover::after{content:attr(data-t);position:absolute;right:16px;top:-6px;white-space:nowrap;background:var(--ink);color:var(--bg);font-size:11px;padding:2px 8px;border-radius:6px}
-.empty{display:none;position:absolute;inset:0;padding:32px;align-items:center;justify-content:center;z-index:4;background:var(--bg)}
+.empty{display:none;flex-direction:column;position:absolute;inset:0;padding:32px;overflow-y:auto;z-index:4;background:var(--bg)}
 .blank .empty{display:flex}
-.dz{width:min(640px,100%);border:2px dashed var(--line2);border-radius:24px;padding:36px 28px;text-align:center;background:var(--raised)}
+.dz{width:min(640px,100%);margin:auto;flex:none;border:2px dashed var(--line2);border-radius:24px;padding:36px 28px;text-align:center;background:var(--raised)}
 .dz.over{border-color:var(--amber);background:var(--wash)}
 .dz h3{margin:0 0 8px;font:700 1.3rem var(--sans);letter-spacing:-.02em}
 .dz p{margin:0 0 18px;color:var(--dim);font-size:.92rem}
@@ -1485,6 +1499,11 @@ var OCC_TONE={'생일':'기쁘고 밝게','감사':'따뜻하게','응원':'힘�
 function occName(){return B.occ==='직접'?(B.occCustom||'').trim():B.occ}
 function resetBrief(){B={vf:'',topic:'',mood:'',tone:'',min:(cfg.kind==='gen'?(cfg.form==='롱폼'?5:10):10),intro:10,to:'',from:'',occ:'',occCustom:'',rel:'',info:'',msg:'',sec:60}}
 function stp(k,val,unit,note){return '<div class="stp"><button type="button" data-st="'+k+':-1" aria-label="줄이기">−</button><b>'+val+unit+'</b><button type="button" data-st="'+k+':1" aria-label="늘리기">＋</button>'+(note?'<small>'+note+'</small>':'')+'</div>'}
+function cards(list,k,cur,desc,cls,ico){return '<div class="cgrid '+(cls||'')+'">'+list.map(function(x){var on=cur===x;return '<button type="button" data-ch="'+k+':'+x+'" class="cd'+(cls==='cs'?' cso':'')+(on?' on':'')+'" aria-pressed="'+on+'">'+(ico&&ico[x]?'<span class="ci">'+ico[x]+'</span>':'')+'<b>'+x+'</b>'+(desc&&desc[x]?'<small>'+desc[x]+'</small>':'')+'</button>'}).join('')+'</div>'}
+var TONE_D={'정보를 쉽게 전달':'차분하고 또렷하게','친근하게 설명':'옆에서 말해 주듯이','감성적으로':'마음에 남는 이야기처럼','유쾌하게':'가볍고 재미있게','진지하게':'무게 있고 믿음직하게','박진감 있게':'빠르고 긴장감 있게'};
+var MOOD_D={'무서운':'오싹한 긴장감','따뜻한':'마음이 훈훈해지는','반전 있는':'끝에서 뒤집히는','슬픈':'눈시울이 붉어지는','해학·웃음':'웃음이 나는 이야기'};
+var VF_D={'AI 영상형':'장면마다 AI가 영상을 만들어요','낭독형':'책·해설을 읽어 주고 그림이 천천히 바뀌어요'};
+var VF_I={'AI 영상형':'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M10 9.5v5l4.5-2.5z"/></svg>','낭독형':'<svg viewBox="0 0 24 24"><path d="M4 5.5C6.5 4.5 9.5 4.5 12 6c2.5-1.5 5.5-1.5 8-.5V18c-2.5-1-5.5-1-8 .5-2.5-1.5-5.5-1.5-8-.5z"/><path d="M12 6v12.5"/></svg>'};
 function chips(list,k,cur){return '<div class="chips">'+list.map(function(x){return '<button type="button" data-ch="'+k+':'+x+'" class="'+(cur===x?'on':'')+'" aria-pressed="'+(cur===x)+'">'+x+'</button>'}).join('')+'</div>'}
 var LAB_ICO={
  '어떤 날인가요?':'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
@@ -1504,7 +1523,7 @@ function renderBrief(){
   var h;
   if(cfg.kind==='mood'){
     var memo=B.occ==='부고·추모';
-    h='<div class="f"><label>어떤 날인가요? <small>고르지 않으면 AI가 알아서</small></label>'+chips(OCCS.concat(['직접']),'occ',B.occ)+(B.occ==='직접'?'<input type="text" id="brOccC" data-b="occCustom" value="'+esc(B.occCustom)+'" maxlength="30" placeholder="예: 환갑, 퇴임, 입대" style="margin-top:8px">':'')+'</div>'+
+    h='<div class="f"><label>어떤 날인가요? <small>고르지 않으면 AI가 알아서</small></label>'+cards(OCCS.concat(['직접']),'occ',B.occ,null,'cs')+(B.occ==='직접'?'<input type="text" id="brOccC" data-b="occCustom" value="'+esc(B.occCustom)+'" maxlength="30" placeholder="예: 환갑, 퇴임, 입대" style="margin-top:8px">':'')+'</div>'+
       (memo?'<div class="g2"><div class="f"><label for="brTo">고인 성함 <small>예: 홍길동</small></label><input type="text" id="brTo" data-b="to" value="'+esc(B.to)+'" maxlength="30" placeholder="돌아가신 분"></div>'+
       '<div class="f"><label for="brRel">나와의 관계 <small>예: 아버지</small></label><input type="text" id="brRel" data-b="rel" value="'+esc(B.rel)+'" maxlength="20" placeholder="누구인가요?"></div></div>'+
       '<div class="f"><label for="brFrom">보내는 사람 <small>예: 큰아들 민구</small></label><input type="text" id="brFrom" data-b="from" value="'+esc(B.from)+'" maxlength="30" placeholder="나는 누구인가요?"></div>'+
@@ -1519,15 +1538,15 @@ function renderBrief(){
   }else if(cfg.kind==='gen'){
     var lg=cfg.form==='롱폼';
     var nr=lg&&B.vf==='낭독형';
-    h=(lg?'<div class="f"><label>영상 형태</label><div class="chips">'+['AI 영상형','낭독형'].map(function(x){var on=(x==='낭독형')===nr;return '<button type="button" data-ch="vf:'+x+'" class="'+(on?'on':'')+'" aria-pressed="'+on+'">'+x+'</button>'}).join('')+'</div>'+(nr?'<small class="nrnote">책이나 해설을 읽어 주는 영상용 글이에요. 소리 내어 읽기 좋게, 그림이 떠오르는 문단으로 써 드려요.</small>':'')+'</div>':'')+'<div class="f"><label for="brTopic">주제 <small>예: 통돌이 세탁기 고르는 법</small></label><input type="text" id="brTopic" data-b="topic" value="'+esc(B.topic)+'" maxlength="120" placeholder="무엇에 대한 영상인가요?"></div>'+
-      '<div class="f"><label>말투 <small>고르지 않으면 AI가 알아서</small></label>'+chips(TONES,'tone',B.tone)+'</div>'+
+    h=(lg?'<div class="f"><label>영상 형태</label>'+cards(['AI 영상형','낭독형'],'vf',nr?'낭독형':'AI 영상형',VF_D,'c2',VF_I)+'</div>':'')+'<div class="f"><label for="brTopic">주제 <small>예: 통돌이 세탁기 고르는 법</small></label><input type="text" id="brTopic" data-b="topic" value="'+esc(B.topic)+'" maxlength="120" placeholder="무엇에 대한 영상인가요?"></div>'+
+      '<div class="f"><label>말투 <small>고르지 않으면 AI가 알아서</small></label>'+cards(TONES,'tone',B.tone,TONE_D)+'</div>'+
       '<div class="f"><label>길이</label>'+(lg?stp('min',B.min,'분','약 '+Math.round(B.min*360).toLocaleString('ko-KR')+'자'):stp('sec',B.sec,'초','약 '+Math.round(B.sec*6)+'자'))+'</div>';
     $('briefHead').innerHTML='<span class="bh-o">칸을 채우고(몰라도 돼요) 요청문을 복사해 쓰시는 AI에 보내세요.</span><span class="bh-a">칸을 채우면 그대로 '+cfg.form+' 대본을 써 드려요. 한 줄 주제만 있어도 돼요.'+(nr?' 낭독형은 최대 약 125분(45,000자)까지 만들 수 있어요.':(lg?' 이야기·해설·에세이처럼 듣는 긴 영상은 위에서 "낭독형"을 고르세요.':''))+'</span>';
     $('askSteps').innerHTML='<b>1</b> 요청문을 복사해 AI에 붙여넣어요. 길이와 주제는 이미 들어 있어요.<br><b>2</b> AI가 써 준 글을 <b>붙여넣기·파일</b> 탭의 칸에 붙여넣어요.<br><b>3</b> 읽기 좋게 자동으로 정리해 드려요. 고쳐서 확정하세요.';
     $('copyAsk').textContent=cfg.form+' 대본 요청문 복사';
   }else{
     h='<div class="f"><label for="brTopic">주제 <small>비우면 AI가 골라요</small></label><input type="text" id="brTopic" data-b="topic" value="'+esc(B.topic)+'" maxlength="120" placeholder="예: 효심 깊은 나무꾼과 호랑이"></div>'+
-      '<div class="f"><label>분위기 <small>고르지 않으면 AI가 알아서</small></label>'+chips(MOODS,'mood',B.mood)+'</div>'+
+      '<div class="f"><label>분위기 <small>고르지 않으면 AI가 알아서</small></label>'+cards(MOODS,'mood',B.mood,MOOD_D)+'</div>'+
       '<div class="g2"><div class="f"><label>길이</label>'+stp('min',B.min,'분','약 '+(B.min*350).toLocaleString('ko-KR')+'자')+'</div>'+
       '<div class="f"><label>인트로 <small>대본+인트로 요청문에만</small></label>'+stp('intro',B.intro,'초','')+'</div></div>';
     $('briefHead').innerHTML='<span class="bh-o">칸을 채우고(몰라도 돼요) 요청문을 복사해 쓰시는 AI에 보내세요.</span><span class="bh-a">칸을 채우면(몰라도 돼요) 그대로 대본을 써 드려요. 비워 두면 AI가 알아서 골라요.</span>';
