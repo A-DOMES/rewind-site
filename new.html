@@ -2973,10 +2973,10 @@
   }
   // ===== [상품쇼츠] 영상 제작 방식 · 화면 구성 (꾸미기) =====
   // 서버·렌더 서버가 지금 실제로 만들 수 있는 것만 고를 수 있다. 나머지는 "준비 중"으로 잠가 두고, 준비되면 아래 표에서 열어 준다.
-  const PD_MOTION_READY = { '이미지 중심': true };
+  const PD_MOTION_READY = { '이미지 중심': true, '혼합': true, '모두 영상': true };
   const PD_MOTION_DESC = {
     '이미지 중심': '올려 주신 사진에 카메라 움직임(줌·이동)을 줘요. 영상은 그대로 써요.',
-    '혼합': '핵심 장면의 사진은 AI 영상으로 움직이고, 나머지는 사진 그대로 써요.',
+    '혼합': '사진 장면의 약 1/3(첫 장면 포함)을 AI 영상으로 움직이고, 나머지는 사진 그대로 써요.',
     '모두 영상': '모든 사진을 AI 영상으로 움직여요. 요즘 쇼츠 느낌 그대로예요.'
   };
   const PD_LAYOUTS = [['자동', '기본 · 전체화면형'], ['제목고정형', '제목이 위에 고정'], ['전체화면형', '장면을 가득'], ['자막바형', '아래 띠에 큰 자막']];
@@ -3160,6 +3160,7 @@
     const pe = document.querySelector('input[name="df-people"]:checked');
     if (!pe) add('agree', '사람이 나오는지', '사진·영상에 사람이 나오는지 골라 주세요.', document.querySelector('input[name="df-people"]'));
     const people = !!pe && pe.value === 'yes';
+    if (people && pdMotion() !== '이미지 중심') add('media', '제작 방식', '사람이 나오는 사진·영상은 AI 영상(혼합·모두 영상)으로 만들 수 없어요. 제작 방식을 "이미지 중심"으로 골라 주세요.', document.querySelector('input[name="pd-motion"]'));
     if (people && !g('df-prodConsent').checked) add('agree', '나온 분의 동의 확인', '나온 분의 동의 확인에 체크해 주세요.', g('df-prodConsent'));
     const list = opt.partial ? probs.filter(x => x.part !== 'agree') : probs;
     if (list.length) return { err: list[0].msg, el: list[0].el, part: list[0].part, probs };
@@ -3368,7 +3369,19 @@
     setupLenCtl(lenIn);   // 막대/다이얼 모양의 길이 조절
     // 영상 제작 방식: 고른 카드의 설명을 보여 주고, 요금에 바로 반영한다
     const mBox = document.getElementById('pd-motion'), mNote = document.getElementById('pd-motion-note');
-    function drawMotionNote() { const m = pdMotion(); mNote.textContent = PD_MOTION_DESC[m] + (MOTION_LIST.some(x => !PD_MOTION_READY[x]) ? ' 혼합·모두 영상은 AI 영상 연결이 끝나면 열려요.' : ''); }
+    const 사람나옴 = () => (document.querySelector('input[name="df-people"]:checked') || {}).value === 'yes';
+    function drawMotionNote() {
+      const m = pdMotion(), ai = m !== '이미지 중심';
+      mNote.textContent = PD_MOTION_DESC[m] + (사람나옴() ? ' 사진·영상에 사람이 나온다고 하셔서 AI 영상은 쓸 수 없어요(사람 얼굴이 이상하게 바뀔 수 있어요).' : ai ? ' AI가 만든 장면은 유튜브 업로드 때 "합성된 콘텐츠"로 표시해야 해요. 제품 모양·글자가 조금 달라 보일 수 있으니 완성 뒤 꼭 확인해 주세요. 사람이 나오는 사진은 쓸 수 없어요.' : '');
+    }
+    // 사람이 나오는 사진은 AI 영상으로 움직이지 않는다: 카드를 잠그고 이미지 중심으로 되돌린다
+    function syncPeopleMotion() {
+      const 막음 = 사람나옴();
+      mBox.querySelectorAll('input[name="pd-motion"]').forEach(inp => { if (inp.value === '이미지 중심') return; inp.disabled = 막음 || !PD_MOTION_READY[inp.value]; inp.closest('label').classList.toggle('is-off', inp.disabled); });
+      if (막음 && pdMotion() !== '이미지 중심') { const base = mBox.querySelector('input[value="이미지 중심"]'); base.checked = true; updatePrice(); }
+      drawMotionNote();
+    }
+    document.getElementById('df-fields').addEventListener('change', e => { if (e.target.name === 'df-people') syncPeopleMotion(); });
     mBox.addEventListener('change', () => { drawMotionNote(); updatePrice(); });
     drawMotionNote();
     setupStyle();
@@ -3465,7 +3478,7 @@
       review.innerHTML = `<div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg></span><div><h3 data-n="${LAST + 1}">이대로 만들까요?</h3><p>고칠 곳이 있으면 "고치기"를 눌러 돌아가세요. 고른 내용은 그대로 남아 있어요</p></div></div>` +
         `<div class="pw-pv" role="img" aria-label="고른 화면 모양 미리보기">${미리}<small>고른 화면 모양이에요</small></div>` +
         row('제품', d.name, 1) + row('제품 내용', 설명, 1) + row('링크·판매', 링크, 1) + row('사진·영상', pdMediaSummary(d), 2) + row('영상 길이', pdLenLabel(d.sec), 2) + row('제작 방식', d.motion, 2) + (window.RWVoice ? row('목소리', RWVoice.summary(), 3) : '') + row('화면 구성', d.layout === '자동' ? '자동 (전체화면형)' : d.layout, 4) + row('위쪽 문구', (d.hook || 'AI가 만들어요') + (d.hookShow === '3s' ? ' · 처음 3초만' : ' · 계속 보이기'), 4) + (window.RWVoice ? row('자막', 자막, 4) + row('목소리 세부', 세부, 4) : '') +
-        `<p class="pw-note">AI 목소리가 들어간 영상은 유튜브에 올릴 때 "변경된 콘텐츠" 표시를 확인해 주세요.${esc(광고)}</p>`;
+        `<p class="pw-note">AI 목소리가 들어간 영상은 유튜브에 올릴 때 "변경된 콘텐츠" 표시를 확인해 주세요.${d.motion !== '이미지 중심' ? esc(' AI 영상 장면이 있어서 "합성된 콘텐츠"로도 표시해야 하고, 완성된 영상에서 제품 모양·글자가 실제와 같은지 꼭 확인해 주세요.') : ''}${esc(광고)}</p>`;
     }
     const filmIcon = d => `<svg viewBox="0 0 20 20" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg>`;
     const TAG = { done: '마침', cur: '지금', todo: '잠김', redo: '다시 확인' };
