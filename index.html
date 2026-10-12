@@ -563,7 +563,7 @@
       <p class="use-line"><b>분위기 영상</b>은 이런 영상에 써요 <span class="use-chip">수면</span><span class="use-chip">공부·집중</span><span class="use-chip">힐링·명상</span><span class="use-chip">카페 분위기</span><span class="use-chip">빗소리·자연음</span><span class="use-chip">생일·결혼 축하</span><span class="use-chip">감사·추억 영상</span></p>
       <div class="rate-scroll"><table class="rate-table" id="rate-table-long"></table></div>
       <p class="rate-note" id="rate-long-example"></p>
-      <p class="rate-note">정확한 요금은 신청 화면의 직접 설정하기나 챗봇에서 길이·등급을 넣으면 바로 계산돼요(분위기 영상 최대 8시간, 야담 최대 <span data-yd-max>6시간</span>). 분위기 영상은 수면·휴식·집중·카페 같은 긴 소리 영상이에요. 둘 다 지금 신청할 수 있어요.</p>
+      <p class="rate-note">야담은 등급에 따라 경제형 30초·표준형 18초·고급형 10초마다 그림이 바뀌어요(인트로 영상은 15초부터, 1초당 0.6P가 따로 더해져요). 체험은 3분 · 그림 6장 · 인트로 5초로 만들어지고, 정식 모드에서는 고른 길이·등급대로 만들어져요. 정확한 요금은 신청 화면의 직접 설정하기나 챗봇에서 길이·등급을 넣으면 바로 계산돼요(분위기 영상 최대 8시간, 야담 최대 <span data-yd-max>8시간</span>). 분위기 영상은 수면·휴식·집중·카페 같은 긴 소리 영상이에요. 둘 다 지금 신청할 수 있어요.</p>
     </div>
     <p class="choice-note">두 경우 모두 구글 계정으로 30초면 신청할 수 있어요.</p>
   </div>
@@ -602,6 +602,12 @@
   const LONG = { '경제형': { 수면음악: [40, 15], 야담: [50, 6] }, '표준형': { 수면음악: [60, 20], 야담: [60, 9] }, '고급형': { 수면음악: [90, 35], 야담: [80, 13] } };
   let LONG_MIN = 9;   // 최소 요금. 위 값과 함께 시트 '설정' 탭 값으로 덮어쓴다(window.__rwApplyLong)
   const lp = (tier, kind, min) => { const [b, r] = LONG[tier][kind]; return Math.max(LONG_MIN, Math.round(b + (kind === '수면음악' ? (min / 60) * r : min * r))); };
+  // [야담 · 인트로 영상 + 긴 이야기] new.html·접수 서버·전체 상담 Agent와 같은 공식: 기본 + (시간 + 장면) , 인트로는 따로(이 표는 인트로 제외)
+  const YL = { 기본: 10, 분당: 1.5, 장면당: 1.6, 간격: { '경제형': 30, '표준형': 18, '고급형': 10 } };   // 장편 할인 없음 (new.html·접수 서버·전체 상담 Agent와 같은 공식)
+  const ylp = (tier, min) => {
+    const m = Math.max(0.25, min), 장면 = Math.max(1, Math.round(m * 60 / YL.간격[tier]));
+    return Math.max(LONG_MIN, Math.round(YL.기본 + m * YL.분당 + 장면 * YL.장면당));
+  };
   const fmt = n => n.toLocaleString('ko-KR') + 'P';
   const tiers = Object.keys(LONG);
   const lt = document.getElementById('rate-table-long');
@@ -609,13 +615,13 @@
   function renderLong() {
   if (lt) {
     const row = (label, f) => `<tr><td>${label}</td>` + tiers.map(k => `<td>${f(k)}</td>`).join('') + '</tr>';
-    const lab = { 수면음악: '분위기 영상' };
-    const cases = [['수면음악', 30], ['수면음악', 60], ['수면음악', 180], ['수면음악', 480], ['야담', 30], ['야담', 60], ['야담', 120]];
+    const lab = { 수면음악: '분위기 영상', 야담: '야담(인트로 영상 + 긴 이야기)' };
+    const cases = [['수면음악', 30], ['수면음악', 60], ['수면음악', 180], ['수면음악', 480], ['야담', 30], ['야담', 60], ['야담', 180], ['야담', 480]];
     const hl = m => m < 60 ? m + '분' : (m % 60 ? Math.floor(m / 60) + '시간 ' + (m % 60) + '분' : m / 60 + '시간');
     lt.innerHTML = '<tr><th><b>유형 · 길이</b></th>' + tiers.map(k => `<th><b>${k}</b></th>`).join('') + '</tr>' +
-      cases.map(([kind, m]) => row((lab[kind] || kind) + ' ' + hl(m), k => '약 ' + fmt(lp(k, kind, m)))).join('');
+      cases.map(([kind, m]) => row((lab[kind] || kind) + ' ' + hl(m), k => '약 ' + fmt(kind === '야담' ? ylp(k, m) : lp(k, kind, m)))).join('');
   }
-  if (ex) ex.textContent = `예) 표준형 야담 1시간 30분 약 ${fmt(lp('표준형', '야담', 90))} · 표준형 분위기 영상 2시간 30분 약 ${fmt(lp('표준형', '수면음악', 150))}`;
+  if (ex) ex.textContent = `예) 표준형 야담 1시간 30분 약 ${fmt(ylp('표준형', 90))} · 표준형 분위기 영상 2시간 30분 약 ${fmt(lp('표준형', '수면음악', 150))}`;
   }
   renderLong();
   window.__rwApplyLong = function (l) {
@@ -799,7 +805,7 @@
     if (!c || c.ok !== true) return;
     showNotice(c.notice);
     if (typeof window.__rwApplyLong === 'function') window.__rwApplyLong(c.long);
-    try { var lm = c.limits && Number(c.limits.yadam); if (lm >= 30 && lm <= 720) { var tx = Math.floor(lm / 60) ? Math.floor(lm / 60) + '시간' + (lm % 60 ? ' ' + (lm % 60) + '분' : '') : lm + '분'; document.querySelectorAll('[data-yd-max]').forEach(function (e) { e.textContent = tx; }); } } catch (e) {}
+    try { var lm = c.limits && Number(c.limits.yl || c.limits.yadam);   /* 인트로 영상 + 긴 이야기 한도(없으면 기존 야담 한도) */ if (lm >= 30 && lm <= 720) { var tx = Math.floor(lm / 60) ? Math.floor(lm / 60) + '시간' + (lm % 60 ? ' ' + (lm % 60) + '분' : '') : lm + '분'; document.querySelectorAll('[data-yd-max]').forEach(function (e) { e.textContent = tx; }); } } catch (e) {}
     if (typeof window.__rwApplyPrice === 'function') { var tp = window.__rwApplyPrice(c.price); if (tp !== null && tp > 0) TRIAL_SHORT_PRICE = tp; }
     var g = Number(c.signupGrant);
     if (!isFinite(g) || g < 0) return;

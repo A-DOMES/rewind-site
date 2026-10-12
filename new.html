@@ -1065,6 +1065,8 @@
   .len-box button { width:40px; height:44px; border:0; background:transparent; color:var(--ink-dim); font-size:1.15rem; cursor:pointer; }
   .len-box button:hover { background:var(--amber-wash); color:var(--amber); }
   .len-box input { width:56px; height:44px; text-align:center; border:0; border-inline:1px solid var(--line); background:transparent; color:var(--ink); font:inherit; font-size:1.05rem; -moz-appearance:textfield; border-radius:0; }
+  .len-box input#df-yl-intro { width:56px; padding:0; }
+  @media (max-width:480px) { .len-box input#df-yl-intro { width:52px; } }
   .len-box input::-webkit-outer-spin-button, .len-box input::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
   .len-unit { color:var(--ink-dim); margin-right:8px; }
   .len-read { margin-top:10px; font-size:.95rem; color:var(--ink); }
@@ -1487,10 +1489,7 @@
         <p class="sub">길이와 등급으로 정해져요. 말 넣기(AI 목소리)는 분당 <span data-nar-per-min>3</span>P가 더해져요.</p>
         <table class="price-table" id="pm-mood"></table></div>
         <div class="pm-sec"><h3 class="pm-h"><span class="hi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5C4 4.7 4.7 4 5.5 4H11v15H5.5C4.7 19 4 18.3 4 17.5zM20 5.5c0-.8-.7-1.5-1.5-1.5H13v15h5.5c.8 0 1.5-.7 1.5-1.5z"/></svg></span>야담</h3>
-        <p class="sub">길이와 등급으로 정해져요. 인트로 영상 + 긴 이야기 방식은 아래 표를 보세요.</p>
-        <table class="price-table" id="pm-yadam"></table></div>
-        <div class="pm-sec"><h3 class="pm-h"><span class="hi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5C4 4.7 4.7 4 5.5 4H11v15H5.5C4.7 19 4 18.3 4 17.5zM20 5.5c0-.8-.7-1.5-1.5-1.5H13v15h5.5c.8 0 1.5-.7 1.5-1.5z"/></svg></span>야담 · 인트로 영상 + 긴 이야기</h3>
-        <p class="sub">기본 + 시간당 요금에 인트로(1초당 <span data-intro-per-sec>1</span>P)가 더해져요. 인트로 없이 계산한 금액이에요.</p>
+        <p class="sub">기본 10P + 시간 요금 + 그림 요금이에요. 그림은 경제형 30초·표준형 18초·고급형 10초마다 한 장이 들어가요. 인트로 영상(15초부터, 넣지 않아도 돼요)은 1초당 <span data-intro-per-sec>0.6</span>P가 따로 더해져요. 아래는 인트로 없이 계산한 금액이에요. 체험은 3분 · 그림 6장 · 인트로 5초로 만들어져요.</p>
         <table class="price-table" id="pm-yl"></table></div>
         <div class="pm-sec"><h3 class="pm-h"><span class="hi"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M10 9.5l4.5 2.5-4.5 2.5z"/></svg></span>영상 중심 롱폼 (3~10분)</h3>
         <p class="sub">쇼츠와 같은 영상 제작 방식 요금이에요.</p>
@@ -2066,7 +2065,7 @@
     const rows = Object.keys(answers)
       .filter(k => answers[k] && k !== 'thumbnail' && k !== 'musicRights' && k !== 'scriptId' && k !== 'genScriptId' && !(k === 'motion' && answers.narrate) && !(k === 'estimatedPrice' && planMode !== 'paid'))
       .filter(k => !((k === 'productLink' || k === 'productImageUrl') && !/^https?:\/\//i.test(String(answers[k]))))
-      .filter(k => !['productImages', 'productShort', 'mediaShort', 'imageRights', 'affiliateNotice', 'disclosureCaption', 'voice'].includes(k) && !(k === 'productImageUrl' && answers.productShort))
+      .filter(k => !['productImages', 'productShort', 'mediaShort', 'imageRights', 'affiliateNotice', 'disclosureCaption', 'voice', 'yadamKind'].includes(k) && !(k === 'productImageUrl' && answers.productShort))
       .map(k => `<div class="summary-row"><span class="k">${FIELD_LABEL[k] || k}</span><span class="v">${k === 'characterUse' ? (answers[k] ? '예' : '아니오') : k === 'narrate' ? '낭독형 · 목소리가 읽고 그림이 천천히 바뀌어요' : k === 'videoLength' && answers.productShort ? lenLabel(parseFloat(answers[k])) : k === 'estimatedPrice' && !isNaN(Number(answers[k])) ? Number(answers[k]).toLocaleString('ko-KR') + 'P' : k === 'videoLength' && answers.videoType ? (parseFloat(answers[k]) < 30 && answers.videoType === '수면음악' ? lenLabel(parseFloat(answers[k])) : hourLabel(parseFloat(answers[k]))) : k === 'videoType' ? kindName(answers[k]) : k === 'yadamKind' ? (answers[k] === 'long' ? '인트로 영상 + 긴 이야기' : '그림이 자주 바뀌는 야담') : k === 'introSeconds' ? (answers[k] + '초') : k === 'soundMode' ? (소리이름[answers[k]] || answers[k]) : escapeHtml(String(answers[k])).slice(0, 60)}</span></div>`)
       .join('');
     const 방식행 = `<div class="summary-row summary-mode ${planMode === 'paid' ? 'is-paid' : 'is-trial'}"><span class="k">신청 종류</span><span class="v">${planMode === 'paid' ? '정식 제작 (결제 안내 메일 발송)' : answers.videoType ? `체험 (3분 미리보기 · 체험 ${pt(신청체험가())})` : `체험 (워터마크 미리보기 · 체험 ${pt(신청체험가())})`}</span></div>`;
@@ -2401,22 +2400,31 @@
   // [표시 이름] 화면·안내 문구에서 보이는 이름은 여기 한 곳에서만 바꾼다. 내부 값('수면음악')은 시트·서버·워크플로와 이어져 있어서 그대로 둔다.
   const LONG_LABEL = { '수면음악': '분위기 영상', '야담': '야담' };
   const kindName = k => LONG_LABEL[k] || k;
-  // [야담 두 가지 방식] 기존 야담은 분당 요금(최대 6시간, 설정). '인트로 영상 + 긴 이야기'는 분위기 영상처럼 기본 + 시간당 + 인트로(초당 1P), 최대 8시간.
-  // 인트로 초(인트로초)가 0보다 크면 긴 이야기 방식으로 계산한다. (접수 서버·야담 워크플로도 같은 값)
-  const YL_RATE = { '경제형': [50, 120], '표준형': [60, 140], '고급형': [80, 170] };   // [기본, 시간당]
+  // [야담 두 가지 방식] 기존 야담은 분당 요금(최대 6시간, 설정). '인트로 영상 + 긴 이야기'는 아래 공식(최대 8시간).
+  // 인트로 초(인트로초)가 0보다 크면 긴 이야기 방식으로 계산한다. (접수 서버·전체 상담 Agent·야담 워크플로(롱폼_야담 v1.11)도 같은 값)
+  // [긴 이야기 요금 공식] 기본 10P + 시간 1.5P/분 + 그림 1.6P/장 + 인트로(초당). 장편 할인 없음(부가세·결제 수수료를 감안한 값). 그림 수 = 영상 길이 ÷ 등급별 간격.
+  //  값은 코드 고정(시트 '설정'의 예전 '롱폼_긴야담_*'은 쓰지 않음). 인트로 초당만 시트 값(INTRO_PER_SEC)을 따른다. 접수 서버·전체 상담 Agent·index.html 과 같은 값.
+  //  체험은 3분 · 그림 6장(경제형 간격) · 인트로 5초로 고정하고, 체험 가격은 그 조건의 정식가의 50%(YL_TRIAL_PCT).
+  const YL = { 기본: 10, 분당: 1.5, 장면당: 1.6, 간격: { '경제형': 30, '표준형': 18, '고급형': 10 } };
+  const YL_TRIAL_PCT = 50, YL_TRIAL_INTRO = 5, UI_INTRO_MIN = 15;   // 화면에서 고르는 인트로는 15초부터(대본의 [인트로]는 5초부터 따른다)
   let YL_MAX_MIN = 480; const YL_INTRO_MIN = 5, YL_INTRO_MAX = 60;
-  let INTRO_PER_SEC = 1, LONG_MIN_PRICE = 9;   // 위 요금과 함께 시트 '설정' 탭 값으로 덮어쓴다(applySiteLong)
-  function ylPrice(tier, min, 인트로초) {
-    const [b, r] = YL_RATE[tier] || YL_RATE['표준형'];
+  let INTRO_PER_SEC = 0.6, LONG_MIN_PRICE = 9;   // 시트 '설정' 탭 값으로 덮어쓴다(applySiteLong)
+  function ylDetail(tier, min, 인트로초) {   // 요금과 내역(그림 수)을 같이 돌려준다
     const m = Math.min(Math.max(0.25, Number(min) || 60), YL_MAX_MIN);
-    return Math.max(LONG_MIN_PRICE, Math.round(b + (m / 60) * r + Math.round(인트로초 || 0) * INTRO_PER_SEC));
+    const 장면 = Math.max(1, Math.round(m * 60 / (YL.간격[tier] || YL.간격['표준형'])));
+    const 인트로 = Math.round(인트로초 || 0) * INTRO_PER_SEC;
+    const 합계 = Math.max(LONG_MIN_PRICE, Math.round(YL.기본 + m * YL.분당 + 장면 * YL.장면당 + 인트로));
+    return { 합계, 장면, 할인: 0, 인트로 };
   }
+  function ylPrice(tier, min, 인트로초) { return ylDetail(tier, min, 인트로초).합계; }
   // [분위기 영상 말 넣기] AI 목소리로 읽어 주면 낭독 요금(분당 NAR_PER_MIN P, 최소 NAR_MIN P)이 더해진다. 글자로 보여주기·내 목소리 녹음은 추가 요금이 없다. (접수 서버도 같은 값)
   let NAR_PER_MIN = 3, NAR_MIN = 3;
   const NARRATION_READY = true;    // 글자·AI 목소리 넣기 제작 연결 완료(접수 v3.17 + 롱폼_수면음악 v1.6)
   const NARRATION_OWN_READY = true;    // 내 목소리 녹음 제작 연결 완료(접수 v3.18 + 롱폼_수면음악 v1.7 + 렌더 서버)
-  function longPrice(kind, tier, min, 인트로초, 낭독) {
-    if (kind === '야담' && 인트로초 > 0) return ylPrice(tier, min, 인트로초);
+  // 긴: 야담에서 '인트로 영상 + 긴 이야기' 요금(true) / 기존 야담 요금(false)을 정한다. 빈 값이면 인트로가 있거나 화면에서 긴 이야기를 고른 상태일 때만 긴 이야기 요금.
+  //  (내 대본에 [인트로]가 없어 인트로 0초여도 긴 이야기로 신청되므로, 인트로 초만으로 가르면 화면 요금이 서버와 어긋난다)
+  function longPrice(kind, tier, min, 인트로초, 낭독, 긴) {
+    if (kind === '야담' && (인트로초 > 0 || 긴 === true || (긴 === undefined && 야담형식() === 'long'))) return ylPrice(tier, min, 인트로초);
     const [base, rate] = (LONG_RATE[tier] || LONG_RATE['표준형'])[kind];
     const m = Math.min(Math.max(0.25, Number(min) || 60), LONG_MAX_MIN[kind]);
     const raw = base + (kind === '수면음악' ? (m / 60) * rate : m * rate);
@@ -2424,7 +2432,9 @@
     return Math.max(LONG_MIN_PRICE, Math.round(raw)) + 낭독비;
   }
   // [체험 포인트] 체험 가격 = 정식 이미지 중심(길이 3분까지) 가격의 25%, 최소 5P. 서버(접수 v3.11)와 같은 식이다.
-  function trialPriceOf(kind, tier, min, 인트로초, 낭독) { return Math.max(TRIAL_MIN, Math.round(longPrice(kind, tier, Math.min(Number(min) || 60, 3), 인트로초, 낭독) * TRIAL_PCT / 100)); }
+  function trialPriceOf(kind, tier, min, 인트로초, 낭독, 긴) {
+    if (kind === '야담') return Math.max(TRIAL_MIN, Math.round(ylPrice('경제형', 3, 인트로초 > 0 ? YL_TRIAL_INTRO : 0) * YL_TRIAL_PCT / 100));   // 체험: 3분 · 그림 6장 · 인트로 5초 조건 정식가의 50% (접수 v3.45와 같은 값)
+    return Math.max(TRIAL_MIN, Math.round(longPrice(kind, tier, Math.min(Number(min) || 60, 3), 인트로초, 낭독, 긴) * TRIAL_PCT / 100)); }
   function trialPriceShort(len) { return Math.max(TRIAL_MIN, Math.round(computePrice(Math.min(len, 3), '이미지 중심') * TRIAL_PCT / 100)); }
   function 신청체험가() {
     if (answers.videoType) return trialPriceOf(answers.videoType, answers.tier || '표준형', parseFloat(answers.videoLength) || 60, Number(answers.introSeconds) || 0, answers.narration === '목소리');
@@ -2470,14 +2480,13 @@
     const TC = { '경제형': '#4a9be8', '표준형': '#e2a23c', '고급형': '#f0694a' };
     const tHead = () => '<tr><th>길이</th>' + LONG_TIERS.map(t => `<th class="num mc" style="--mc:${TC[t]}">${t}${t === '표준형' ? '<small>추천</small>' : ''}</th>`).join('') + '</tr>';
     const tCell = v => LONG_TIERS.map(t => `<td class="num mc" style="--mc:${TC[t]}">${v(t).toLocaleString('ko-KR')}P</td>`).join('');
-    const tierTable = (kind, mins) => tHead() + mins.map(m => `<tr><td>${hourLabel(m)}</td>${tCell(t => longPrice(kind, t, m))}</tr>`).join('');
+    const tierTable = (kind, mins) => tHead() + mins.map(m => `<tr><td>${hourLabel(m)}</td>${tCell(t => longPrice(kind, t, m, 0, false, false))}</tr>`).join('');
     function renderTables() {
       $('motion-legend').innerHTML = motionLegendHtml();
       $('price-table-body').innerHTML = priceTableHtml(null, PRICE_ROWS.filter(r => r[0] === '쇼츠'), true);
       $('price-modal-note').textContent = priceNote();
       $('pm-mood').innerHTML = tierTable('수면음악', [30, 60, 180, 480]);
-      $('pm-yadam').innerHTML = tierTable('야담', [10, 30, 60, 120, 180, 360].filter(v => v <= LONG_MAX_MIN['야담']));
-      $('pm-yl').innerHTML = tHead() + [60, 180, 480].map(m => `<tr><td>${hourLabel(m)}</td>${tCell(t => ylPrice(t, m, 0))}</tr>`).join('');
+      $('pm-yl').innerHTML = tHead() + [10, 30, 60, 180, 480].filter(v => v <= YL_MAX_MIN).map(m => `<tr><td>${hourLabel(m)}</td>${tCell(t => ylPrice(t, m, 0))}</tr>`).join('');
       $('pm-motion-long').innerHTML = priceTableHtml(null, PRICE_ROWS.filter(r => r[0] === '롱폼'), true);
     }
     renderTables(); window.__rwRenderPriceModal = renderTables;
@@ -2561,14 +2570,14 @@
     if (!l || typeof l !== 'object') return false;
     const ok = (v, lo, hi) => Number.isFinite(v) && v >= lo && v <= hi;
     const pair = (o, t, hi) => { const a = o && o[t]; if (!Array.isArray(a)) return null; const b = Number(a[0]), r = Number(a[1]); return ok(b, 0, 1000) && ok(r, 0, hi) ? [b, r] : null; };
-    const mood = {}, yad = {}, yl = {}; let valid = true;
-    LONG_TIERS.forEach(t => { mood[t] = pair(l.mood, t, 3000); yad[t] = pair(l.yadam, t, 300); yl[t] = pair(l.yl, t, 3000); if (!mood[t] || !yad[t] || !yl[t]) valid = false; });
+    const mood = {}, yad = {}; let valid = true;
+    LONG_TIERS.forEach(t => { mood[t] = pair(l.mood, t, 3000); yad[t] = pair(l.yadam, t, 300); if (!mood[t] || !yad[t]) valid = false; });   // 긴 이야기(l.yl)는 더 쓰지 않는다
     const ip = Number(l.introPerSec), nm = Number(l.narPerMin), nn = Number(l.narMin), mp = Number(l.minPrice);
     if (!valid || !ok(ip, 0, 20) || !ok(nm, 0, 50) || !ok(nn, 0, 100) || !ok(mp, 0, 200)) return false;
     let changed = ip !== INTRO_PER_SEC || nm !== NAR_PER_MIN || nn !== NAR_MIN || mp !== LONG_MIN_PRICE;
     LONG_TIERS.forEach(t => {
-      if (LONG_RATE[t]['수면음악'].join() !== mood[t].join() || LONG_RATE[t]['야담'].join() !== yad[t].join() || YL_RATE[t].join() !== yl[t].join()) changed = true;
-      LONG_RATE[t]['수면음악'] = mood[t]; LONG_RATE[t]['야담'] = yad[t]; YL_RATE[t] = yl[t];
+      if (LONG_RATE[t]['수면음악'].join() !== mood[t].join() || LONG_RATE[t]['야담'].join() !== yad[t].join()) changed = true;
+      LONG_RATE[t]['수면음악'] = mood[t]; LONG_RATE[t]['야담'] = yad[t];
     });
     INTRO_PER_SEC = ip; NAR_PER_MIN = nm; NAR_MIN = nn; LONG_MIN_PRICE = mp;
     if (changed) afterPriceChange();
@@ -2670,14 +2679,15 @@
     const kind = /야담/.test(text) ? '야담' : '수면음악';
     const 이름 = kindName(kind);
     const 입력분 = parseLongMinutes(text);
-    const 분 = Math.min(입력분 || 60, LONG_MAX_MIN[kind]);
-    const 잘림 = 입력분 && 입력분 > LONG_MAX_MIN[kind];
-    const 줄 = LONG_TIERS.map(t => `<tr><td>${t}</td><td class="num">${pt(longPrice(kind, t, 분))}</td></tr>`).join('');
-    const 안내 = `직접 설정하기에서 ${이름}을(를) 고르면 길이를 넣는 즉시 정확한 요금이 계산돼요.`;
+    const 긴 = kind === '야담' ? true : undefined, 최대분 = kind === '야담' ? YL_MAX_MIN : LONG_MAX_MIN[kind];   // 야담은 기본 방식(인트로 영상 + 긴 이야기) 요금으로 안내한다(인트로 제외)
+    const 분 = Math.min(입력분 || 60, 최대분);
+    const 잘림 = 입력분 && 입력분 > 최대분;
+    const 줄 = LONG_TIERS.map(t => `<tr><td>${t}</td><td class="num">${pt(longPrice(kind, t, 분, 0, false, 긴))}</td></tr>`).join('');
+    const 안내 = `직접 설정하기에서 ${이름}을(를) 고르면 길이를 넣는 즉시 정확한 요금이 계산돼요.` + (kind === '야담' ? ' 인트로 영상은 1초당 ' + INTRO_PER_SEC + 'P가 따로 더해져요.' : '');
     const 체험안내 = planMode !== 'paid' ? `<p class="cp-note">지금은 체험 모드라 3분 길이까지 체험 포인트로 만들어드려요. 아래는 정식 제작 요금이에요.</p>` : '';
-    const html = `${이름} ${hourLabel(분)} 기준 예상 요금이에요${입력분 ? '' : '(길이를 말씀하시지 않아 1시간으로 계산했어요)'}.${잘림 ? ` ${이름}은 최대 ${hourLabel(LONG_MAX_MIN[kind])}까지라 그 길이로 계산했어요.` : ''}<div class="chat-price"><table class="price-table"><tr><th>등급</th><th class="num">예상 요금</th></tr>${줄}</table></div>${체험안내}<p class="cp-note">${안내} 길이를 바꾸면 요금도 함께 달라져요.</p>`;
+    const html = `${이름} ${hourLabel(분)} 기준 예상 요금이에요${입력분 ? '' : '(길이를 말씀하시지 않아 1시간으로 계산했어요)'}.${잘림 ? ` ${이름}은 최대 ${hourLabel(최대분)}까지라 그 길이로 계산했어요.` : ''}<div class="chat-price"><table class="price-table"><tr><th>등급</th><th class="num">예상 요금</th></tr>${줄}</table></div>${체험안내}<p class="cp-note">${안내} 길이를 바꾸면 요금도 함께 달라져요.</p>`;
     addMsg('bot', html);
-    history.push({ role: 'bot', text: `[요금 안내] ${이름} ${hourLabel(분)}: ` + LONG_TIERS.map(t => `${t} ${longPrice(kind, t, 분)}P`).join(', ') });
+    history.push({ role: 'bot', text: `[요금 안내] ${이름} ${hourLabel(분)}: ` + LONG_TIERS.map(t => `${t} ${longPrice(kind, t, 분, 0, false, 긴)}P`).join(', ') });
     saveChatState();
   }
   function showPriceCard(text) {
@@ -2943,7 +2953,7 @@
     const t = document.getElementById('df-tempo');
     if (t && t.parentNode) t.parentNode.classList.toggle('df-hide', 종류 === '상품쇼츠' || 종류 === '일반');   // 말하기 속도는 카드의 슬라이더가 대신한다
   }
-  function 야담형식() { return document.querySelector('input[name="df-ykind"]:checked')?.value === 'classic' ? 'classic' : 'long'; }
+  function 야담형식() { return 'long'; }   // 기존 '그림이 자주 바뀌는 야담' 방식은 없앴다(긴 이야기 방식이 더 싸고 그림도 더 자주 바뀐다). 인트로는 넣기/넣지 않기로 고른다
   function 내대본인트로초() {   // 보관함에서 고른 대본의 [인트로] 장 분량(초). 없으면 0
     const sr = window.__rwScript; if (!sr || sr.src !== 'ready') return 0;
     const x = (window.__rwScriptLib ? window.__rwScriptLib() : []).find(y => y.id === sr.id);
@@ -2952,9 +2962,12 @@
   }
   function 인트로초() {
     if (현재종류() !== '야담' || 야담형식() !== 'long') return 0;
+    if (planMode !== 'paid') return YL_TRIAL_INTRO;   // 체험은 인트로 5초로 고정(내 대본의 [인트로]·'넣지 않기'와 상관없이)
     if (window.__rwScript && window.__rwScript.src === 'ready') { const n = 내대본인트로초(); return n > 0 ? Math.min(Math.max(n, YL_INTRO_MIN), YL_INTRO_MAX) : 0; } // 내 대본: 대본의 [인트로] 길이를 따른다 (없으면 0 = 인트로 영상 없음)
+    if (document.getElementById('df-yl-nointro')?.checked) return 0;   // 인트로 영상 넣지 않기
+    if (planMode !== 'paid') return YL_TRIAL_INTRO;   // 체험은 인트로 5초로 고정
     const v = Math.round(parseFloat(document.getElementById('df-yl-intro')?.value));
-    return Number.isFinite(v) ? Math.min(Math.max(v, YL_INTRO_MIN), YL_INTRO_MAX) : 10;
+    return Number.isFinite(v) ? Math.min(Math.max(v, UI_INTRO_MIN), YL_INTRO_MAX) : UI_INTRO_MIN;
   }
   function 야담최대분() { return 야담형식() === 'long' ? YL_MAX_MIN : LONG_MAX_MIN['야담']; }
   // [무료 사진] 장수: 기본은 길이에 맞춰 자동(정지·숨쉬기 약 60초에 한 장, 전환은 장면 간격마다 한 장, 3~300장). 자동보다 많이 고르면 구간에 따라 소액이 더해진다. 서버(롱폼_수면음악 v1.10)와 같은 식.
@@ -3067,10 +3080,6 @@
     const tier = t => `<label><input type="radio" name="df-ytier" value="${t}"${t === '표준형' ? ' checked' : ''}><span class="tcard"><b>${t}${t === '표준형' ? ' · 추천' : ''}</b><small><span class="yts" data-t="${t}"></span><br><span class="ytp" data-t="${t}"></span></small></span></label>`;
     return `<section class="df-sec df-yadam df-hide" style="--c:#e2a23c"><div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h6a2 2 0 0 1 2 2v12a2 2 0 0 0-2-2H4z"/><path d="M20 5h-6a2 2 0 0 0-2 2v12a2 2 0 0 1 2-2h6z"/></svg></span><div><h3>야담 설정</h3><p>소재와 길이, 목소리를 정해주세요. 이야기는 AI가 지어서 들려줘요</p></div></div>
       <div class="df-use" data-pw="2"><p>옛이야기를 이야기꾼의 목소리로 들려주고 장면을 그림으로 보여줘요. 눌러서 소재 예시로 시작해 보세요.</p><div class="len-chips" id="df-yd-ex">${[['도깨비와 욕심 많은 부자','욕심 많은 부자와 도깨비의 내기 이야기'],['효자와 호랑이','산길에서 호랑이를 만난 효자 이야기'],['지혜로운 사또','마을의 억울한 일을 지혜롭게 풀어내는 사또 이야기'],['선녀와 나무꾼','하늘에서 내려온 선녀와 나무꾼 이야기']].map(([l, t]) => `<button type="button" class="len-chip" data-topic="${t}">${l}</button>`).join('')}</div></div>
-      <div class="df-field" data-pw="3"><label>어떤 방식으로 만들까요</label><div class="df-chipset df-ykind" role="radiogroup" aria-label="야담 방식">
-        <label><input type="radio" name="df-ykind" value="long" checked><span class="tcard"><b>인트로 영상 + 긴 이야기 · 추천</b><small>처음엔 AI 영상으로 시작하고, 그림이 천천히 바뀌어요 · 최대 <span data-yl-max>${hourLabel(YL_MAX_MIN)}</span></small></span></label>
-        <label><input type="radio" name="df-ykind" value="classic"><span class="tcard"><b>그림이 자주 바뀌는 야담</b><small>그림이 30초마다 바뀌어요 · 최대 <span data-yd-max>${hourLabel(LONG_MAX_MIN['야담'])}</span></small></span></label>
-      </div></div>
       <div class="df-field" data-pw="3"><label>영상 길이 <span class="opt" id="df-yd-range">5분 ~ 8시간</span></label>
         <div class="len-pick" id="df-yd-pick-classic"><div class="len-box"><button type="button" data-ystep="-5" aria-label="5분 줄이기">−</button><input type="number" id="df-yd-min" inputmode="numeric" min="5" max="480" step="1" value="60" aria-label="분"><button type="button" data-ystep="5" aria-label="5분 늘리기">＋</button></div><span class="len-unit">분</span></div>
         <div class="len-pick" id="df-yd-pick-long">
@@ -3079,8 +3088,9 @@
         </div>
         <div class="len-read" id="df-yd-read"></div>
         <div class="len-chips" id="df-yd-chips"></div><p class="df-hint" id="df-yd-note"></p></div>
-      <div class="df-field" id="df-yl-intro-field" data-pw="3"><label>인트로 영상 길이 <span class="opt">5초 ~ 60초</span></label>
-        <div class="len-pick"><div class="len-box"><button type="button" data-istep="-5" aria-label="5초 줄이기">−</button><input type="number" id="df-yl-intro" inputmode="numeric" min="5" max="60" step="1" value="10" aria-label="초"><button type="button" data-istep="5" aria-label="5초 늘리기">＋</button></div><span class="len-unit">초</span></div>
+      <div class="df-field" id="df-yl-intro-field" data-pw="3"><label>인트로 영상 <span class="opt">15초 ~ 60초</span></label>
+        <div class="len-pick"><div class="len-box"><button type="button" data-istep="-5" aria-label="5초 줄이기">−</button><input type="number" id="df-yl-intro" inputmode="numeric" min="15" max="60" step="1" value="15" aria-label="초"><button type="button" data-istep="5" aria-label="5초 늘리기">＋</button></div><span class="len-unit">초</span></div>
+        <label class="df-chk" id="df-yl-nointro-wrap" style="display:flex;gap:8px;align-items:center;margin-top:8px;font-size:14px"><input type="checkbox" id="df-yl-nointro"> <span>인트로 영상 넣지 않기 (바로 이야기로 시작해요)</span></label>
         <div class="len-read" id="df-yl-intro-read"></div><p class="df-hint" id="df-yl-intro-note"></p></div>
       <div class="df-field" data-pw="3"><label>품질 등급</label><div class="df-chipset" role="radiogroup" aria-label="품질 등급">${tier('경제형')}${tier('표준형')}${tier('고급형')}</div></div>
       <div class="df-field" data-pw="4"><label>이야기꾼 목소리</label><select id="df-yvoice"><option value="남성">남성 · 차분한 이야기꾼</option><option value="여성">여성 · 부드러운 이야기꾼</option></select></div>
@@ -3789,7 +3799,7 @@
       } else {
         const sr = (window.__rwScript && window.__rwScript.src === 'ready') ? window.__rwScript : null, long = 야담형식() === 'long';
         const 분 = planMode === 'paid' ? 롱폼길이분() : 3;
-        review.innerHTML = head + row('만드는 방식', long ? '인트로 영상 + 긴 이야기' : '그림이 자주 바뀌는 야담', 2) + row('이야기', sr ? sr.title + ' (내 대본)' : (gv('df-topic') || '아직 비어 있어요'), 1) +
+        review.innerHTML = head + row('이야기', sr ? sr.title + ' (내 대본)' : (gv('df-topic') || '아직 비어 있어요'), 1) +
           row('영상 길이', planMode !== 'paid' ? '3분 (체험판)' : sr ? '대본 길이에 맞춰요 (약 ' + 분표시(sr.minutes) + ')' : 분표시(분), 2) + (long ? row('인트로 길이', 인트로초() > 0 ? 인트로초() + '초' : '없음', 2) : '') + row('품질 등급', lab('df-ytier'), 2) + row('이야기꾼 목소리', gv('df-yvoice'), 3) +
           `<p class="pw-note">AI 목소리와 AI 그림${long ? '·AI 영상 인트로' : ''}이 들어간 영상이에요. 유튜브에 올릴 때 "변경된 콘텐츠"(합성 콘텐츠) 표시를 확인해 주세요. 이야기는 창작이며 실존 인물·실제 사건은 넣지 않아요.</p>`;
       }
@@ -4144,16 +4154,19 @@
       document.getElementById('df-yd-pick-classic').style.display = 긴 ? 'none' : '';
       document.getElementById('df-yd-pick-long').style.display = 긴 ? '' : 'none';
       document.getElementById('df-yl-intro-field').style.display = 긴 ? '' : 'none';
-      document.querySelector('#df-yl-intro-field .len-pick').style.display = 대본 ? 'none' : '';
-      document.querySelector('#df-yl-intro-field .opt').textContent = 대본 ? '내 대본의 [인트로]를 따라요' : '5초 ~ 60초';
+      const 체험 = planMode !== 'paid';
+      const 인트로없음 = !!document.getElementById('df-yl-nointro')?.checked;
+      document.querySelector('#df-yl-intro-field .len-pick').style.display = (대본 || 체험 || 인트로없음) ? 'none' : '';
+      document.getElementById('df-yl-nointro-wrap').style.display = (대본 || planMode !== 'paid') ? 'none' : 'flex';
+      document.querySelector('#df-yl-intro-field .opt').textContent = 대본 ? '내 대본의 [인트로]를 따라요' : 체험 ? '체험은 5초로 만들어져요' : '15초 ~ 60초';
       document.getElementById('df-yd-range').textContent = '5분 ~ ' + hourLabel(최대);
       ydIn.max = String(최대); ylH.max = String(Math.ceil(최대 / 60));
       document.querySelectorAll('[data-yd-max]').forEach(el => { el.textContent = hourLabel(LONG_MAX_MIN['야담']); });
       document.querySelectorAll('[data-yl-max]').forEach(el => { el.textContent = hourLabel(YL_MAX_MIN); });
       // 등급 카드: 방식별 그림 간격과 기준 요금
-      const 간격 = 긴 ? { '경제형': '5분마다 그림', '표준형': '3분마다 그림', '고급형': '2분마다 그림' } : { '경제형': '45초마다 그림', '표준형': '30초마다 그림', '고급형': '20초마다 그림' };
+      const 간격 = 긴 ? { '경제형': '30초마다 그림', '표준형': '18초마다 그림', '고급형': '10초마다 그림' } : { '경제형': '45초마다 그림', '표준형': '30초마다 그림', '고급형': '20초마다 그림' };
       document.querySelectorAll('.yts').forEach(el => { el.textContent = 간격[el.dataset.t]; });
-      document.querySelectorAll('.ytp').forEach(el => { el.textContent = (긴 ? '1시간 ' : '10분 ') + (긴 ? ylPrice(el.dataset.t, 60, 0) : longPrice('야담', el.dataset.t, 10, 0)).toLocaleString('ko-KR') + 'P'; });
+      document.querySelectorAll('.ytp').forEach(el => { el.textContent = (긴 ? '1시간 ' : '10분 ') + (긴 ? ylPrice(el.dataset.t, 60, 0) : longPrice('야담', el.dataset.t, 10, 0, false, false)).toLocaleString('ko-KR') + 'P'; });
       // 길이 칸 값 맞추기
       const 정수 = Math.round(m);
       ydIn.value = 대본 ? ydIn.value : 정수;
@@ -4167,12 +4180,17 @@
       else if (ydNote && 대본) ydNote.textContent = '내 대본의 분량(약 ' + 대본분 + '분)으로 만들어요. 길이를 바꾸려면 대본을 고쳐 주세요.';
       else if (ydNote && 긴 && m > 120 && planMode === 'paid') ydNote.innerHTML = '2시간이 넘는 이야기는 AI가 한 번에 쓰기 어려워요. <b>직접 쓴 대본</b>(왼쪽 대본 만들기)을 쓰면 훨씬 자연스러워요.';
       else if (ydNote) ydNote.textContent = planMode !== 'paid' ? '체험판은 3분 길이의 짧은 이야기로 만들어요.' : '5분부터 ' + hourLabel(최대) + '까지 만들 수 있어요.';
-      ydRead.innerHTML = `총 <b>${대본 ? 대본분 + '분' : hourLabel(m)}</b> · 약 <b>${요금.toLocaleString('ko-KR')}P</b>` + (planMode !== 'paid' ? ' <span class="len-sub">(체험판은 3분 영상이 체험 포인트로 만들어져요)</span>' : '') + (ydWarn ? `<span class="len-warn"> ${ydWarn}</span>` : '');
+      const 내역 = ylDetail(현재등급(), m, 인트로초());   // 그림 수를 같이 보여 준다
+      if (planMode !== 'paid') {
+        // 체험: 3분 · 그림 6장 · 인트로 5초 (정식과 다름을 알려 준다)
+        ydRead.innerHTML = `체험판 · <b>3분</b> · 그림 <b>6장</b>` + (인트로초() > 0 ? ` · 인트로 <b>5초</b>` : ' · 인트로 없음') + ` · 약 <b>${trialPriceOf('야담', 현재등급(), 3, 인트로초(), false, true).toLocaleString('ko-KR')}P</b> <span class="len-sub">(정식 모드에서는 고른 길이 · 등급 · 인트로대로 만들어져요)</span>` + (ydWarn ? `<span class="len-warn"> ${ydWarn}</span>` : '');
+      } else
+      ydRead.innerHTML = `총 <b>${대본 ? 대본분 + '분' : hourLabel(m)}</b> · 약 <b>${요금.toLocaleString('ko-KR')}P</b> <span class="len-sub">(그림 ${내역.장면.toLocaleString('ko-KR')}장)</span>` + (ydWarn ? `<span class="len-warn"> ${ydWarn}</span>` : '');
       ydChips.innerHTML = (긴 ? [30, 60, 120, 180, 480] : [10, 30, 60, 120, 180, 360]).filter(v => v <= 최대).map(v => `<button type="button" class="len-chip${v === 정수 ? ' on' : ''}" data-m="${v}">${v < 60 ? v + '분' : (v / 60) + '시간'}</button>`).join('');
       // 인트로 길이 안내
       if (긴) {
         const n = 대본 ? 내대본인트로초() : 0;
-        document.getElementById('df-yl-intro-read').innerHTML = (대본 && 초 === 0) ? '<b>인트로 영상 없음</b> · 본편부터 시작해요' : `인트로 <b>${초}초</b> · <b>+${(초 * INTRO_PER_SEC).toLocaleString('ko-KR')}P</b>` + (!대본 && ylWarn ? `<span class="len-warn"> ${ylWarn}</span>` : '');
+        document.getElementById('df-yl-intro-read').innerHTML = 초 === 0 ? '<b>인트로 영상 없음</b> · 본편부터 시작해요' : `인트로 <b>${초}초</b> · <b>+${(초 * INTRO_PER_SEC).toLocaleString('ko-KR')}P</b>` + (!대본 && ylWarn ? `<span class="len-warn"> ${ylWarn}</span>` : '');
         document.getElementById('df-yl-intro-note').textContent = 대본
           ? (n > 0 ? '내 대본의 [인트로](약 ' + n + '초)로 영상을 만들어요. 길이를 바꾸려면 대본 만들기에서 인트로 초를 조절해 주세요.' : '내 대본에 [인트로]가 없어서 인트로 영상 없이 만들어요. 넣으려면 대본 만들기에서 "+ 인트로 붙이기"를 눌러 주세요.')
           : '이야기 맨 앞의 이 길이만큼이 움직이는 AI 영상으로 시작해요. 초당 ' + INTRO_PER_SEC + 'P예요.';
@@ -4189,8 +4207,8 @@
       drawYadam();
     }
     function setIntro(v, fromUser) {
-      let n = Math.round(Number.isFinite(v) ? v : 10); ylWarn = '';
-      if (n < YL_INTRO_MIN) { n = YL_INTRO_MIN; if (fromUser) ylWarn = '최소 5초로 맞췄어요.'; }
+      let n = Math.round(Number.isFinite(v) ? v : UI_INTRO_MIN); ylWarn = '';
+      if (n < UI_INTRO_MIN) { n = UI_INTRO_MIN; if (fromUser) ylWarn = '최소 ' + UI_INTRO_MIN + '초로 맞췄어요.'; }
       if (n > YL_INTRO_MAX) { n = YL_INTRO_MAX; if (fromUser) ylWarn = '최대 60초로 맞췄어요.'; }
       ylI.value = n;
       ylI.dispatchEvent(new Event('input', { bubbles: true }));
@@ -4207,9 +4225,9 @@
         const [k, d] = b.dataset.ylstep.split(':'); const step = parseInt(d, 10);
         setYd(현재분() + (k === 'h' ? step * 60 : step), true);
       }));
-      document.querySelectorAll('[data-istep]').forEach(b => b.addEventListener('click', () => setIntro((parseFloat(ylI.value) || 10) + parseInt(b.dataset.istep, 10), true)));
+      document.querySelectorAll('[data-istep]').forEach(b => b.addEventListener('click', () => setIntro((parseFloat(ylI.value) || UI_INTRO_MIN) + parseInt(b.dataset.istep, 10), true)));
       document.querySelectorAll('input[name="df-ytier"]').forEach(r => r.addEventListener('change', drawYadam));
-      document.querySelectorAll('input[name="df-ykind"]').forEach(r => r.addEventListener('change', () => { const 이전 = parseFloat(ydIn.value) || 10; setYd(이전, 이전 > 야담최대분()); ydIn.dispatchEvent(new Event('input', { bubbles: true })); }));
+      const noI = document.getElementById('df-yl-nointro'); if (noI) noI.addEventListener('change', () => { drawYadam(); ydIn.dispatchEvent(new Event('input', { bubbles: true })); });
       document.getElementById('df-yd-ex').addEventListener('click', e => { const b = e.target.closest('.len-chip'); const t = document.getElementById('df-topic'); if (b && t) { t.value = b.dataset.topic; t.dispatchEvent(new Event('input', { bubbles: true })); } });
       setYd(60, false);
     }

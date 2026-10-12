@@ -340,7 +340,7 @@
   const TAB_DESC = {
     '가격·포인트': '가입 포인트, 하루 지급 인원, 충전 보너스, 쇼츠·일반 영상 요금과 체험 가격을 정해요. 이미 지급된 포인트와 접수된 주문은 바뀌지 않아요.',
     '롱폼 요금': '분위기 영상 요금과 AI 목소리 낭독, 롱폼 최소 요금을 정해요. 야담 요금은 야담 칸에 있어요. 이미 접수된 주문은 바뀌지 않아요.',
-    '야담': '야담 요금(그림이 자주 바뀌는 야담, 인트로 + 긴 이야기), 인트로 영상 요금, 최대 길이(분 단위, 360이면 6시간)를 정해요. 이미 접수된 주문은 바뀌지 않아요.',
+    '야담': '야담 인트로 영상 요금(1초당), 최대 길이(분 단위, 360이면 6시간)를 정해요. 이미 접수된 주문은 바뀌지 않아요.',
     '공지': '모든 고객 화면 맨 위에 띠로 보이는 공지를 켜고 끄고, 문구를 바꿔요.',
     '문구': '고객 화면의 안내 문구를 바꾸는 칸이에요. 준비 중이에요.',
     '이미지·영상': '첫 화면의 이미지와 영상을 바꾸는 칸이에요. 준비 중이에요.',
@@ -389,8 +389,9 @@
     const TIER_RE = /^롱폼_(분위기|야담|긴야담)_(경제형|표준형|고급형)_(기본|시간당|분당)$/;
     const tierItems = mine.filter((it) => TIER_RE.test(it.key));
     if (!tierItems.length) { mine.forEach((it) => list.appendChild(buildRow(it))); return; }
-    const KINDS = [['분위기', '분위기 영상', '기본 요금과 1시간당 포인트'], ['야담', '야담', '기본 요금과 1분당 포인트'], ['긴야담', '인트로 + 긴 이야기 야담', '기본 요금과 1시간당 포인트 (인트로는 아래 공통 요금에서 정해요)']];
+    const KINDS = [['분위기', '분위기 영상', '기본 요금과 1시간당 포인트'], ['야담', '야담', '기본 요금과 1분당 포인트'], ];   // 인트로 + 긴 이야기 야담은 길이·그림 수로 자동 계산(코드 고정)이라 여기서 고치지 않는다
     const TC = { '경제형': '#4a9be8', '표준형': '#e2a23c', '고급형': '#f0694a' };
+    if (activeTab === '야담') { const nt = document.createElement('section'); nt.className = 'sec'; nt.innerHTML = '<h2 class="sec-h">인트로 + 긴 이야기 야담</h2><p class="sec-sub"></p>'; nt.querySelector('.sec-sub').textContent = '영상 길이와 그림 장수(경제형 30초·표준형 18초·고급형 10초마다 한 장)로 자동 계산돼요. 요금 공식은 코드에 고정돼 있어 이 화면에서 고치지 않아요. 아래 공통 요금의 "인트로 영상 1초당"만 이 화면에서 정해요.'; list.appendChild(nt); }
     KINDS.forEach(([kind, title, sub]) => {
       const its = tierItems.filter((it) => it.key.split('_')[1] === kind); if (!its.length) return;
       const sec = document.createElement('section'); sec.className = 'sec';
