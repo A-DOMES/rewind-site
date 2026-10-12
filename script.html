@@ -994,7 +994,7 @@ function init(o){
   cfg.blank=cfg.src==='mine';
   uid=0;undo=[];redo=[];imported=false;spentRewrite=0;spentAI=0;balance=BALANCE0;lastImport=null;q='';matches=[];mi=-1;
   $('q').value='';$('rq').value='';
-  if(o.load&&o.load.chapters&&o.load.chapters.length){cfg.blank=false;ch=o.load.chapters.map(function(c){return C(c.title,c.text)});title=o.load.title||'대본'}
+  if(o.load&&o.load.chapters&&o.load.chapters.length){cfg.blank=false;ch=o.load.chapters.map(function(c){return C(c.title,c.text)});title=o.load.title||''}
   else if(cfg.blank){ch=[C(cfg.type==='short'?'대본':'1장','')];title=''}
   else if(cfg.type==='short'){ch=[C('대본',SHORT_AI)];title='호랑이 고개의 약속 (숏폼)'}
   else{ch=LONG_AI.map(function(a,i){return C(a[0],a[1])});title='호랑이 고개의 약속'}
@@ -1681,6 +1681,7 @@ function aiFinish(texts,charged){
   var all=texts.join('\n\n').trim();
   if(!all){toast('쓴 글이 없어요');return}
   importText(all,'replace');
+  if(!String(title||'').trim()){var tp=String((B&&B.topic)||'').replace(/\s+/g,' ').trim();if(tp){title=tp.length>40?tp.slice(0,40).replace(/\s+\S*$/,'')||tp.slice(0,40):tp;$('ttl').value=title;markDirty()}}   // AI가 쓴 뒤 제목이 비어 있으면 주제로 채운다
   var a=aiCtx();if(a&&a.refresh)a.refresh();
   $('aiProg').hidden=true;
   toast((aiFitted?'길이에 맞게 다듬어서 만들었어요':'대본을 만들었어요')+(charged?' · '+Math.round(charged*10)/10+'P 사용':''));aiFitted=false
