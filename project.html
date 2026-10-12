@@ -902,11 +902,17 @@
   // [v4] 시트의 내부 처리 상태를 고객 화면 단계로 바꿔서 보여준다.
   // 부분실패(일부 장면 자동 재시도)·업로드확인필요(유튜브만 지연)는 고객 입장에선 '아직 만드는 중'이고,
   // 메일발송실패는 영상은 완성된 상태다. 이 상태들의 ErrorLog는 자동으로 처리되는 중이라 오류로 보여주지 않는다.
-  const 상태바꾸기 = { '부분실패': '제작 중', '업로드확인필요': '제작 중', '배포실패': '제작 중', '메일발송실패': '배포' };
+  // [신규] 대본실패(대본 자동 작성이 실패해 운영자가 확인하는 중)도 고객에겐 '대본을 준비하는 중'으로 보여준다. 오류 문구는 숨긴다.
+  const 상태바꾸기 = { '부분실패': '제작 중', '업로드확인필요': '제작 중', '배포실패': '제작 중', '메일발송실패': '배포', '대본실패': '기획' };
   function 화면용(p) {
     const 원래 = p.status;
+    // 대본 자동 작성 실패 메모는 상태와 상관없이(운영자가 Status만 '기획'으로 되돌린 경우 포함) 고객에게 보이지 않게 비운다.
+    // 진행 상담 AI에도 이 값이 같이 넘어가므로 화면에서만 숨기지 말고 값 자체를 비운다.
+    // '[안내] 작성 중 …'은 서버가 대본을 쓰는 동안 남기는 내부 표시라 마찬가지로 비운다.
+    const 메모 = String(p.errorLog || '');
+    if (메모.startsWith('대본 작성 실패') || 메모.startsWith('[안내] 작성 중')) p = { ...p, errorLog: '' };
     if (!상태바꾸기[원래]) return p;
-    return { ...p, status: 상태바꾸기[원래], 원래상태: 원래, errorLog: p.errorLog ? '[안내] ' + p.errorLog : p.errorLog };
+    return { ...p, status: 상태바꾸기[원래], 원래상태: 원래, errorLog: (원래 === '대본실패' || !p.errorLog) ? '' : '[안내] ' + p.errorLog };
   }
 
   function renderProject(p) {
@@ -924,6 +930,10 @@
 
     renderVideoCard(p);
     renderStepper(p.status, (p.errorLog && !String(p.errorLog).startsWith('[안내]')) ? p.errorLog : '', p.paid); // [안내] 메모는 오류로 표시하지 않음
+    if (p.원래상태 === '대본실패') { // 평소 '약 5분 이내' 대신, 늦어지고 있다는 안내를 보여준다
+      const h = document.querySelector('#stepper .status-step-row.current .status-step-hint');
+      if (h) h.textContent = '평소보다 오래 걸리고 있어요. 확인해서 이어서 진행해 드릴게요';
+    }
     renderWaitNote(p);
     renderReviewCard(p);
     renderUpgradeCard(p);
@@ -1243,7 +1253,7 @@
       '검수완료': '승인 감사해요! 체험 제작을 준비하고 있어요, 곧 시작할게요.',
       '제작 중': '지금 체험 영상을 만들고 있어요, 조금만 기다려주세요.',
     } : {};
-    const greeting = p && (AGENT_GREETING_OVERRIDE[p.status] || AGENT_GREETING[p.status]);
+    const greeting = p && (p.원래상태 === '대본실패' ? '대본 준비가 평소보다 늦어지고 있어요. 저희가 확인해서 이어서 진행할게요, 조금만 기다려주세요 :)' : (AGENT_GREETING_OVERRIDE[p.status] || AGENT_GREETING[p.status]));
     if (greeting && log.dataset.greetedStatus !== p.status) {
       log.dataset.greetedStatus = p.status;
       addAgentMsg('bot', greeting); // AI 호출 없이 바로 보여주는 무료 안내
