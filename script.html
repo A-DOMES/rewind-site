@@ -148,6 +148,19 @@ h4 b{color:var(--amber);margin-left:2px}
 .aigo .aiest .lab{font-size:.92rem;font-weight:500;color:var(--dim);margin-right:6px}
 .aigo .aiest .val{font-family:var(--serif,inherit);font-size:1.5rem;font-weight:700;color:var(--amber)}
 .aigo .aiest .meta{display:block;margin-top:4px}
+.aigo .aimetaw{display:flex;gap:8px;align-items:center;font-size:.88rem;color:var(--dim);margin:0 0 4px;cursor:pointer}
+.aigo .aimeta-note{font-size:.8rem;line-height:1.6;color:var(--faint);margin:0 0 10px 26px}
+.metabox{margin:10px 0 2px;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
+.metabox>summary{cursor:pointer;list-style:none;padding:10px 12px;font:600 .86rem var(--sans);color:var(--ink);display:flex;align-items:center;gap:6px}
+.metabox>summary::-webkit-details-marker{display:none}
+.metabox>summary::after{content:'▾';margin-left:auto;color:var(--faint);font-size:.8rem}
+.metabox[open]>summary::after{content:'▴'}
+.metabox .mb-in{padding:0 12px 12px;display:flex;flex-direction:column;gap:8px}
+.metabox .mb-help{font-size:.78rem;line-height:1.55;color:var(--faint);margin:0}
+.metabox label{font:600 .76rem var(--sans);color:var(--dim)}
+.metabox textarea,.metabox input{width:100%;box-sizing:border-box;font:400 .88rem/1.55 var(--sans);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.metabox textarea{min-height:84px;resize:vertical}
+.metabox .mb-cnt{font-size:.74rem;color:var(--faint);text-align:right}
 .aigo .aiest b{color:inherit}.aigo .aiest .warn{color:var(--err)}
 .askai .aigo .reqs button{width:100%;padding:14px 18px;font-size:1.02rem;border-radius:999px}
 .askai .aigo .reqs button.main{background:var(--amber);color:var(--on-amber);border-color:var(--amber)}
@@ -479,7 +492,7 @@ h4 b{color:var(--amber);font-size:1rem;margin-left:0}
         <div class="lp-head">
           <label class="ttl-lb" for="ttl"><span class="hi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12l-8 8-9-9V4h7z"/><circle cx="8" cy="8" r="1.2"/></svg></span>제목</label>
           <input class="ttl" id="ttl" aria-label="대본 제목" placeholder="제목을 입력하세요" value="">
-          <div class="sub"><span class="save" id="save"><i class="dot"></i><span id="saveTxt">자동 저장됨</span></span><span id="subinfo"></span></div>
+          <details class="metabox" id="metaBox" hidden><summary>유튜브 설명·태그 <span class="opt" style="font-weight:400;color:var(--faint)">선택</span></summary><div class="mb-in"><p class="mb-help">영상을 유튜브에 올릴 때 설명란과 태그에 들어가요. 비워 두면 영상을 만들 때 자동으로 만든 기본 설명과 태그가 들어가요. 직접 써도 돼요. 낭독형 영상에는 쓰이지 않아요.</p><label for="metaDesc">설명</label><textarea id="metaDesc" maxlength="300" placeholder="예: 아침에 하면 좋은 스트레칭 3가지를 소개해요."></textarea><div class="mb-cnt" id="metaCnt">0/300</div><label for="metaTags">태그 <span style="font-weight:400">쉼표로 구분 · 최대 12개</span></label><input id="metaTags" placeholder="예: 스트레칭, 아침 루틴, 건강 습관"></div></details><div class="sub"><span class="save" id="save"><i class="dot"></i><span id="saveTxt">자동 저장됨</span></span><span id="subinfo"></span></div>
         </div>
         <div class="srch">
           <div class="sbox">
@@ -550,7 +563,7 @@ h4 b{color:var(--amber);font-size:1rem;margin-left:0}
             <p id="dzP">다른 AI로 쓴 글, 시나리오, 자막 파일도 괜찮아요.<br>대본 형식은 자동으로 맞춰 드려요.</p>
             <div class="paths" role="tablist"><button type="button" data-p="paste" class="on"><span class="pi"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 11h6M9 15h4"/></svg></span><b>붙여넣기 · 파일</b><small id="pSub1">이미 쓴 대본이 있어요</small></button><button type="button" data-p="ai" id="aiTab"><span class="pi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg></span><b>AI로 쓰기</b><small id="pSub2">여기서 바로 Claude가 대본을 써 드려요</small><em id="aiTabNote" hidden>로그인 후</em></button><button type="button" data-p="other"><span class="pi"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></span><b>다른 AI로 쓰기</b><small>요청문을 복사해 내가 쓰는 AI에 붙여넣어요</small></button></div>
             <div class="aisoon" id="aiSoon"></div>
-            <div class="askai"><div id="briefHead"></div><div class="brief" id="brief"></div><div class="reqs copyreqs"><button type="button" id="copyAsk" class="main">대본 요청문 복사 (대본만)</button><button type="button" id="copyAskFull" class="main">대본+인트로 요청문 복사</button></div><div class="steps" id="askSteps"></div><div class="aigo" id="aiGo"><label class="aiintro" id="aiIntroWrap"><input type="checkbox" id="aiIntro" checked> 인트로도 함께 만들기</label><div class="aiest" id="aiEst"></div><div class="reqs"><button type="button" id="aiRun" class="main">대본 만들기</button></div><div class="aiprog" id="aiProg" hidden></div></div></div>
+            <div class="askai"><div id="briefHead"></div><div class="brief" id="brief"></div><div class="reqs copyreqs"><button type="button" id="copyAsk" class="main">대본 요청문 복사 (대본만)</button><button type="button" id="copyAskFull" class="main">대본+인트로 요청문 복사</button></div><div class="steps" id="askSteps"></div><div class="aigo" id="aiGo"><label class="aiintro" id="aiIntroWrap"><input type="checkbox" id="aiIntro" checked> 인트로도 함께 만들기</label><label class="aimetaw" id="aiMetaWrap" style="display:none"><input type="checkbox" id="aiMeta" checked> 유튜브 설명·태그도 함께 만들기</label><p class="aimeta-note" id="aiMetaNote" hidden>영상을 올릴 때 쓰는 설명란 글과 태그를 대본과 같이 써 드려요. 추가 포인트는 없어요. 끄면 영상을 만들 때 자동으로 만든 기본 설명과 태그가 들어가요. 만든 뒤에는 제목 아래 '유튜브 설명·태그'에서 고칠 수 있어요.</p><div class="aiest" id="aiEst"></div><div class="reqs"><button type="button" id="aiRun" class="main">대본 만들기</button></div><div class="aiprog" id="aiProg" hidden></div></div></div>
             <textarea id="pasteBox" placeholder="여기에 붙여넣기 (Ctrl+V)" aria-label="대본 붙여넣기"></textarea>
             <div class="btns"><button class="btn gold" id="pasteGo">이 글로 시작</button><button class="btn" id="pickFile">파일 선택</button><button class="btn" id="startTyping">직접 쓰기</button></div>
             <div class="ex2" id="ex2"></div>
@@ -1000,8 +1013,10 @@ function init(o){
   else{ch=LONG_AI.map(function(a,i){return C(a[0],a[1])});title='호랑이 고개의 약속'}
   sel=ch[0].id;
   $('ttl').value=title;
+  metaSet(o.load&&o.load.meta||null);metaAI=false;
   document.body.classList.toggle('short',cfg.type==='short');document.body.classList.toggle('mood',cfg.kind==='mood');
   setupKind();
+  $('metaBox').hidden=!(cfg.kind==='gen'&&cfg.mode!=='review');
   $('studio').classList.toggle('blank',cfg.blank);
   $('studio').classList.remove('reading','focus');
   $('tRead').setAttribute('aria-pressed','false');
@@ -1642,11 +1657,34 @@ function aiCtx(){var a=null;try{a=window.parent&&window.parent!==window?window.p
 function aiMinutes(){return cfg.kind==='mood'||(cfg.kind==='gen'&&cfg.form==='쇼츠')?Math.max(0.25,Math.round(B.sec/60*100)/100):B.min}
 function aiParts(M){if(M<=6)return[M];var n=Math.ceil(M/AI_PART),m=Math.round(M/n*10)/10,a=[];for(var i=0;i<n-1;i++)a.push(m);a.push(Math.round((M-m*(n-1))*10)/10);return a}
 function aiPrice(parts){var t=0;parts.forEach(function(m,i){var p=Math.round(m*AI_PM*10)/10;t+=i===0?Math.max(AI_MIN_P,p):p});return Math.round(t*10)/10}
+var meta={description:'',tags:''},metaAI=false;
+function metaSet(m){
+  meta.description=(m&&m.description)?String(m.description):'';
+  meta.tags=(m&&m.tags)?(Array.isArray(m.tags)?m.tags.join(', '):String(m.tags)):'';
+  var d=$('metaDesc'),t=$('metaTags');if(d)d.value=meta.description;if(t)t.value=meta.tags;metaCnt();
+  var b=$('metaBox');if(b&&(meta.description||meta.tags))b.open=true
+}
+function metaCnt(){var c=$('metaCnt'),d=$('metaDesc');if(c&&d)c.textContent=d.value.length+'/300'}
+/* 주소·도메인·메일·@계정·전화번호·꺾쇠·#는 설명·태그에 넣지 않는다 (접수 서버가 같은 규칙으로 다시 거른다) */
+function metaClean(t){return String(t==null?'':t).replace(/[\w.+-]+@[\w-]+(\.[\w-]+)+/g,'').replace(/https?:\/\/\S+/gi,'').replace(/www\.\S+/gi,'').replace(/\b[\w-]+(\.[\w-]+)*\.(com|net|org|kr|io|me|ly|tv|app|shop|store|link|site|xyz)\b\S*/gi,'').replace(/@[\w가-힣._-]+/g,'').replace(/\b0\d{1,2}[-.\s]?\d{3,4}[-.\s]?\d{4}\b/g,'').replace(/[<>#＃]/g,'').replace(/\s+/g,' ').trim()}
+function metaOut(){
+  if(cfg.kind!=='gen')return undefined;
+  var d=metaClean(meta.description).slice(0,300);
+  var seen={},t=[];
+  String(meta.tags||'').split(/[,\n，]/).forEach(function(x){x=metaClean(x);if(!x||x.length>20||seen[x.toLowerCase()]||t.length>=12)return;seen[x.toLowerCase()]=1;t.push(x)});
+  if(!d&&!t.length)return undefined;
+  return {description:d,tags:t}
+}
+(function(){var d=$('metaDesc'),t=$('metaTags');
+  if(d)d.addEventListener('input',function(){meta.description=d.value;metaAI=false;metaCnt();markDirty()});
+  if(t)t.addEventListener('input',function(){meta.tags=t.value;metaAI=false;markDirty()})})();
 function aiRefresh(){
   var a=aiCtx(),tab=$('aiTab');
   $('dz').classList.toggle('noai',!a);
   var note=$('aiTabNote');if(note)note.hidden=!!a;
   $('aiIntroWrap').style.display=(cfg.kind==='mood'||cfg.kind==='gen')?'none':'inline-flex';
+  var mv=cfg.kind==='gen'&&!narrOn();$('aiMetaWrap').style.display=mv?'flex':'none';$('aiMetaNote').hidden=!mv;
+  $('metaBox').hidden=!(cfg.kind==='gen'&&cfg.mode!=='review'&&!narrOn());
   if(!a)return;
   var M=aiMinutes(),parts=aiParts(M),price=aiPrice(parts),paid=a.mode()==='paid',have=a.balance?a.balance():null,bad='';
   if(!paid&&M>AI_TRIAL_MIN)bad='체험은 '+AI_TRIAL_MIN+'분까지 쓸 수 있어요. 길이를 줄이거나 정식 모드로 바꿔 주세요.';
@@ -1677,32 +1715,34 @@ function aiAsk(i,parts,withIntro,plot,tail){
   return p.replace('"[ ','"[')
 }
 function aiShow(html,acts){var el=$('aiProg');el.hidden=false;el.innerHTML=html+(acts?'<div class="acts">'+acts+'</div>':'')}
-function aiFinish(texts,charged){
+function aiFinish(texts,charged,m){
   var all=texts.join('\n\n').trim();
   if(!all){toast('쓴 글이 없어요');return}
   importText(all,'replace');
   if(!String(title||'').trim()){var tp=String((B&&B.topic)||'').replace(/\s+/g,' ').trim();if(tp){title=tp.length>40?tp.slice(0,40).replace(/\s+\S*$/,'')||tp.slice(0,40):tp;$('ttl').value=title;markDirty()}}   // AI가 쓴 뒤 제목이 비어 있으면 주제로 채운다
+  if(m&&cfg.kind==='gen'&&typeof m.description==='string'&&m.description&&Array.isArray(m.tags)&&m.tags.length){metaSet(m);metaAI=true}else{m=null;if(metaAI){metaSet(null);metaAI=false}}   /* 새 대본에 설명이 없으면, 이전 AI 설명이 새 대본에 남지 않게 비운다(직접 고친 값은 그대로 둔다) */
   var a=aiCtx();if(a&&a.refresh)a.refresh();
   $('aiProg').hidden=true;
-  toast((aiFitted?'길이에 맞게 다듬어서 만들었어요':'대본을 만들었어요')+(charged?' · '+Math.round(charged*10)/10+'P 사용':''));aiFitted=false
+  toast((aiFitted?'길이에 맞게 다듬어서 만들었어요':'대본을 만들었어요')+(m?' · 설명·태그도 만들었어요':'')+(charged?' · '+Math.round(charged*10)/10+'P 사용':''));aiFitted=false
 }
 async function aiRun(){
   var a=aiCtx();if(!a||aiBusy)return;
-  var M=aiMinutes(),parts=aiParts(M),withIntro=cfg.kind==='yadam'&&$('aiIntro').checked,texts=[],plot='',tail='',charged=0;
+  var M=aiMinutes(),parts=aiParts(M),withIntro=cfg.kind==='yadam'&&$('aiIntro').checked,texts=[],plot='',tail='',charged=0,gotMeta=null;
+  var wantMeta=cfg.kind==='gen'&&!narrOn()&&!!$('aiMeta')&&$('aiMeta').checked&&parts.length===1;
   aiBusy=true;aiStop=false;$('aiRun').disabled=true;
   try{
     for(var i=0;i<parts.length;i++){
       aiShow('<b>대본을 쓰는 중이에요</b> ('+(i+1)+'/'+parts.length+')<div class="bar"><i></i></div>'+(parts.length>1?'한 조각씩 이어서 써요. 창을 닫지 말아 주세요.':'보통 30초쯤 걸려요. 창을 닫지 말아 주세요.'),parts.length>1&&i>0?'<button type="button" id="aiStopBtn">여기서 멈추기</button>':'');
       var sb=$('aiStopBtn');if(sb)sb.onclick=function(){aiStop=true;this.disabled=true;this.textContent='이 조각까지만 쓰고 멈춰요'};
       var d=await aiCall(a,aiAsk(i,parts,withIntro,plot,tail),parts[i],i,parts.length);
-      charged+=d.charged||0;if(d.fitted)aiFitted=true;
+      charged+=d.charged||0;if(d.fitted)aiFitted=true;if(d.meta&&wantMeta)gotMeta=d.meta;
       var t=String(d.text||'').trim();
       if(parts.length>1&&i===0){var k=t.search(/#{2,3}\s*줄거리\s*[:：]/);if(k>=0){plot=t.slice(k).replace(/^#{2,3}\s*줄거리\s*[:：]\s*/,'').replace(/\s+/g,' ').trim();t=t.slice(0,k).trim()}}
       texts.push(t);
       tail=t.slice(-700);
       if(aiStop&&i<parts.length-1)break
     }
-    aiBusy=false;aiFinish(texts,charged)
+    aiBusy=false;aiFinish(texts,charged,gotMeta)
   }catch(e){
     aiBusy=false;
     var msg=(e&&e.message)||'AI가 응답하지 못했어요.';
@@ -1714,7 +1754,7 @@ async function aiRun(){
 /* 글자 수 한도(공백 포함): 일반 영상(쇼츠·롱폼)의 한 번짜리 요청만. 길이의 10% 여유, 체험은 1,080자까지. 서버가 넘으면 알아서 줄여 줘요 */
 function aiMaxChars(a,minutes,total){if(cfg.kind!=='gen'||total!==1)return 0;var n=Math.round(minutes*360*1.1);if(a.mode()!=='paid')n=Math.min(n,1080);return n}
 async function aiCall(a,prompt,minutes,idx,total){
-  var r=await fetch(a.url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({idToken:a.token(),planMode:a.mode(),kind:cfg.kind,prompt:prompt,minutes:minutes,partIndex:idx,partTotal:total,maxChars:aiMaxChars(a,minutes,total)})});
+  var r=await fetch(a.url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({idToken:a.token(),planMode:a.mode(),kind:cfg.kind,prompt:prompt,minutes:minutes,partIndex:idx,partTotal:total,maxChars:aiMaxChars(a,minutes,total),withMeta:(cfg.kind==='gen'&&total===1&&!narrOn()&&$('aiMeta')&&$('aiMeta').checked)?true:undefined,form:cfg.kind==='gen'?cfg.form:undefined})});
   var d=await r.json().catch(function(){return null});
   if(!r.ok||!d||!d.ok)throw new Error((d&&d.message)||'AI가 응답하지 못했어요. 잠시 뒤 다시 시도해 주세요.');
   return d
@@ -1759,7 +1799,7 @@ $('introYes').onclick=function(){var v=$('introText').value;if(!v.trim()){toast(
 $('okno').onclick=closeAll;
 $('okyes').onclick=function(){
   var s=stats();closeAll();
-  tell({type:cfg.mode==='review'?'rw-studio-approve':'rw-script-confirm',scriptId:'S-'+Date.now().toString(36),title:title,kind:cfg.kind,form:cfg.kind==='gen'?cfg.form:'',occ:cfg.kind==='mood'?occName():'',type2:cfg.type,src:cfg.src,imported:imported,chapters:ch.filter(function(c){return !c.off}).map(function(c){return{title:c.title,text:c.text}}),chars:s.n,minutes:Math.round(s.m*10)/10,prod:s.prod,narrate:(cfg.kind==='gen'&&cfg.form==='롱폼'&&cfg.mode!=='review')?(okVf==='read'):undefined});
+  tell({type:cfg.mode==='review'?'rw-studio-approve':'rw-script-confirm',scriptId:'S-'+Date.now().toString(36),title:title,kind:cfg.kind,form:cfg.kind==='gen'?cfg.form:'',occ:cfg.kind==='mood'?occName():'',type2:cfg.type,src:cfg.src,imported:imported,chapters:ch.filter(function(c){return !c.off}).map(function(c){return{title:c.title,text:c.text}}),chars:s.n,minutes:Math.round(s.m*10)/10,prod:s.prod,narrate:(cfg.kind==='gen'&&cfg.form==='롱폼'&&cfg.mode!=='review')?(okVf==='read'):undefined,meta:(cfg.mode==='review'||okVf==='read')?undefined:metaOut()});
   toast(inFrame?'대본을 확정했어요':'시안 화면이라 실제로 확정되지는 않아요');
 };
 
