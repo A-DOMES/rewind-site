@@ -44,6 +44,14 @@ input{font:inherit;color:inherit}
 .ttl{width:100%;border:0;background:transparent;font:700 1.05rem var(--sans);letter-spacing:-.02em;padding:2px 4px;margin-left:-4px;border-radius:8px;color:var(--ink)}
 .ttl-lb{display:block;font:600 .72rem var(--sans);color:var(--mute,#888);margin:0 0 2px;letter-spacing:-.01em}
 .ttl::placeholder{color:var(--mute,#888);font-weight:500}
+.ttlpick{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 2px;align-items:stretch}
+.ttlpick .tp-h{flex-basis:100%;font:500 .72rem var(--sans);color:var(--faint)}
+.ttlpick button{flex:1 1 180px;min-width:0;max-width:100%;text-align:left;background:var(--raised);border:1px solid var(--line);border-radius:10px;padding:6px 10px;color:var(--dim);cursor:pointer;font-family:var(--sans)}
+.ttlpick button:hover{border-color:var(--line2)}
+.ttlpick button[aria-pressed=true]{border-color:var(--amber);background:var(--wash);color:var(--ink)}
+.ttlpick .tp-k{display:block;font-size:.7rem;color:var(--faint)}
+.ttlpick button[aria-pressed=true] .tp-k{color:var(--amber)}
+.ttlpick .tp-v{display:block;font-size:.86rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ttl:hover,.ttl:focus{background:var(--raised);outline:none}
 .sub{display:flex;align-items:center;gap:8px;color:var(--faint);font-size:.78rem;padding:0 0 0 0}
 .dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex:none}
@@ -491,7 +499,7 @@ h4 b{color:var(--amber);font-size:1rem;margin-left:0}
       <div class="lp-in">
         <div class="lp-head">
           <label class="ttl-lb" for="ttl"><span class="hi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12l-8 8-9-9V4h7z"/><circle cx="8" cy="8" r="1.2"/></svg></span>제목</label>
-          <input class="ttl" id="ttl" aria-label="대본 제목" placeholder="제목을 입력하세요" value="">
+          <input class="ttl" id="ttl" aria-label="대본 제목" placeholder="제목을 입력하세요" value=""><div class="ttlpick" id="ttlPick" hidden></div>
           <details class="metabox" id="metaBox" hidden><summary>유튜브 설명·태그 <span class="opt" style="font-weight:400;color:var(--faint)">선택</span></summary><div class="mb-in"><p class="mb-help">영상을 유튜브에 올릴 때 설명란과 태그에 들어가요. 비워 두면 영상을 만들 때 자동으로 만든 기본 설명과 태그가 들어가요. 직접 써도 돼요. 낭독형 영상에는 쓰이지 않아요.</p><label for="metaDesc">설명</label><textarea id="metaDesc" maxlength="300" placeholder="예: 아침에 하면 좋은 스트레칭 3가지를 소개해요."></textarea><div class="mb-cnt" id="metaCnt">0/300</div><label for="metaTags">태그 <span style="font-weight:400">쉼표로 구분 · 최대 12개</span></label><input id="metaTags" placeholder="예: 스트레칭, 아침 루틴, 건강 습관"></div></details><div class="sub"><span class="save" id="save"><i class="dot"></i><span id="saveTxt">자동 저장됨</span></span><span id="subinfo"></span></div>
         </div>
         <div class="srch">
@@ -1012,7 +1020,7 @@ function init(o){
   else if(cfg.type==='short'){ch=[C('대본',SHORT_AI)];title='호랑이 고개의 약속 (숏폼)'}
   else{ch=LONG_AI.map(function(a,i){return C(a[0],a[1])});title='호랑이 고개의 약속'}
   sel=ch[0].id;
-  $('ttl').value=title;
+  $('ttl').value=title;ttlPickClear();
   metaSet(o.load&&o.load.meta||null);metaAI=false;
   document.body.classList.toggle('short',cfg.type==='short');document.body.classList.toggle('mood',cfg.kind==='mood');
   setupKind();
@@ -1100,7 +1108,7 @@ function renderSheet(){
   document.querySelectorAll('#sheet textarea').forEach(fit);
   applyCur();
 }
-function renderAll(){renderRail();renderSheet();stats();$('studio').classList.toggle('blank',cfg.blank)}
+function renderAll(){renderRail();renderSheet();stats();$('studio').classList.toggle('blank',cfg.blank);ttlPickRender()}
 function select(id,scroll){
   sel=id;
   document.querySelectorAll('.chap').forEach(function(e){e.classList.toggle('on',+e.dataset.id===id)});
@@ -1258,7 +1266,7 @@ $('pane').addEventListener('scroll',function(){
 });
 $('prev').onclick=$('mprev').onclick=function(){if(cfg.type==='short'){$('pane').scrollTo({top:0});return}var i=idx(sel);if(i>0)select(ch[i-1].id,true)};
 $('next').onclick=function(){var i=idx(sel);if(i<ch.length-1)select(ch[i+1].id,true)};
-$('ttl').addEventListener('input',function(){title=this.value;markDirty();renderRail()});
+$('ttl').addEventListener('input',function(){title=this.value;markDirty();renderRail();ttlPickRender()});
 $('tUndo').onclick=doUndo;$('tRedo').onclick=doRedo;
 $('tRead').onclick=function(){var on=this.getAttribute('aria-pressed')!=='true';this.setAttribute('aria-pressed',on);$('studio').classList.toggle('reading',on);document.querySelectorAll('#sheet textarea').forEach(fit);closeAll()};
 
@@ -1327,7 +1335,7 @@ function readFile(f){
   r.onload=function(){
     var txt=String(r.result||'');
     if(/\.json$/i.test(f.name)){
-      try{var o=JSON.parse(txt);if(o&&o.format==='rewind-script'&&Array.isArray(o.chapters)){snap();ch=o.chapters.map(function(c){return C(c.title||'제목 없음',c.text||'')});if(cfg.type==='short')ch=[C('대본',ch.map(function(c){return c.text}).join('\n\n'))];sel=ch[0].id;if(o.title)title=o.title;$('ttl').value=title;cfg.blank=false;imported=true;renderAll();markDirty();showBanner('저장해 둔 대본을 그대로 불러왔어요 · 챕터 '+ch.length+'개',[['되돌리기',doUndo]]);return}}catch(e){}
+      try{var o=JSON.parse(txt);if(o&&o.format==='rewind-script'&&Array.isArray(o.chapters)){snap();ch=o.chapters.map(function(c){return C(c.title||'제목 없음',c.text||'')});if(cfg.type==='short')ch=[C('대본',ch.map(function(c){return c.text}).join('\n\n'))];sel=ch[0].id;if(o.title)title=o.title;$('ttl').value=title;ttlPickClear();cfg.blank=false;imported=true;renderAll();markDirty();showBanner('저장해 둔 대본을 그대로 불러왔어요 · 챕터 '+ch.length+'개',[['되돌리기',doUndo]]);return}}catch(e){}
     }
     importText(txt,'replace');
   };
@@ -1357,10 +1365,22 @@ $('pbAppend').onclick=function(){var t=pendingPaste;closeAll();importText(t,'app
 $('pbInsert').onclick=function(){var t=pendingPaste;closeAll();importText(t,'insert')};
 $('pbCancel').onclick=closeAll;
 
+/* ---------- 제목 고르기: AI가 지은 제목 / 내가 쓴 제목(또는 주제) ---------- */
+var ttlOpts=null;
+function ttlPickClear(){ttlOpts=null;var el=$('ttlPick');if(el){el.hidden=true;el.innerHTML=''}}
+function ttlPickRender(){
+  var el=$('ttlPick');if(!el)return;
+  if(!ttlOpts){el.hidden=true;return}
+  var cur=String(title||'').trim();
+  el.innerHTML='<span class="tp-h">제목을 골라 보세요. 위 칸에서 직접 고쳐도 돼요.</span>'+ttlOpts.map(function(o,i){return '<button type="button" data-i="'+i+'" aria-pressed="'+(cur===o.v?'true':'false')+'" title="'+esc(o.v)+'"><span class="tp-k">'+esc(o.k)+'</span><span class="tp-v">'+esc(o.v)+'</span></button>'}).join('');
+  el.hidden=false;
+  el.querySelectorAll('button').forEach(function(b){b.onclick=function(){var o=ttlOpts[+b.getAttribute('data-i')];if(!o)return;snap();title=o.v;$('ttl').value=title;markDirty();renderRail();ttlPickRender()}})
+}
 /* ---------- 가져온 글을 우리 형식으로 재구성 ---------- */
 function importText(raw,how){
   var res=RWNormalize.normalize(raw,{type:cfg.type});
   if(!res.chars){toast('읽을 수 있는 글을 찾지 못했어요');return}
+  ttlPickClear();
   var before=snapObj();snap();
   var add=res.chapters.map(function(c){var n=C(c.title,c.text);n.mod=true;return n});
   if(how==='replace'||cfg.blank){ch=add;if(res.title){title=res.title;$('ttl').value=title}else if(title==='새 대본'&&!res.title){}}
@@ -1718,8 +1738,15 @@ function aiShow(html,acts){var el=$('aiProg');el.hidden=false;el.innerHTML=html+
 function aiFinish(texts,charged,m){
   var all=texts.join('\n\n').trim();
   if(!all){toast('쓴 글이 없어요');return}
+  var prevTitle=String(title||'').trim();   /* AI가 쓰기 전에 사용자가 이미 적어 둔 제목 */
   importText(all,'replace');
+  var aiT=String(title||'').trim();
+  if(prevTitle&&aiT!==prevTitle){title=prevTitle;$('ttl').value=title;   /* 직접 적은 제목은 AI가 덮어쓰지 않는다. AI가 지은 제목은 고르기 칸에 둔다 */
+    ttlOpts=[{k:'AI가 지은 제목',v:aiT},{k:'내가 쓴 제목',v:prevTitle}].filter(function(o){return o.v})}
+  else{ttlOpts=null}
   if(!String(title||'').trim()){var tp=String((B&&B.topic)||'').replace(/\s+/g,' ').trim();if(tp){title=tp.length>40?tp.slice(0,40).replace(/\s+\S*$/,'')||tp.slice(0,40):tp;$('ttl').value=title;markDirty()}}   // AI가 쓴 뒤 제목이 비어 있으면 주제로 채운다
+  if(!ttlOpts){var tpc=String((B&&B.topic)||'').replace(/\s+/g,' ').trim().slice(0,100),tcur=String(title||'').trim();if(tpc&&tcur&&tpc!==tcur&&aiT&&aiT===tcur)ttlOpts=[{k:'AI가 지은 제목',v:aiT},{k:'내가 쓴 주제',v:tpc}]}
+  ttlPickRender();
   if(m&&cfg.kind==='gen'&&typeof m.description==='string'&&m.description&&Array.isArray(m.tags)&&m.tags.length){metaSet(m);metaAI=true}else{m=null;if(metaAI){metaSet(null);metaAI=false}}   /* 새 대본에 설명이 없으면, 이전 AI 설명이 새 대본에 남지 않게 비운다(직접 고친 값은 그대로 둔다) */
   var a=aiCtx();if(a&&a.refresh)a.refresh();
   $('aiProg').hidden=true;
