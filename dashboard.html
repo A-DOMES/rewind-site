@@ -658,14 +658,17 @@
     function 만든시각글(p) { const d = 번호시각(p.id); return d ? 날짜시각글(d) : String(p.createdAt || ''); }
     list.innerHTML = projects.map(p => {
       const hasError = (p.errorLog && !String(p.errorLog).startsWith('[안내]') && !대본실패메모(p)) ? '1' : '0'; // [안내]로 시작하는 메모는 오류가 아님
-      const label = hasError === '1' ? '문제 발생' : (STATUS_LABEL[p.status] || p.status || '-');
-      const meta = hasError === '1'
+      const 제작실패 = String(p.status || '').trim() === '실패';   // 제작을 끝내지 못함: 내부 오류 문구 대신 안내를 보여 주고 포인트는 자동 환불
+      const label = 제작실패 ? '제작 실패' : hasError === '1' ? '문제 발생' : (STATUS_LABEL[p.status] || p.status || '-');
+      const meta = 제작실패
+        ? `<span class="err">제작 중 문제가 생겼어요. 사용한 포인트는 자동으로 돌려드려요</span>`
+        : hasError === '1'
         ? `<span class="err">${escapeHtml(p.errorLog)}</span>`
         : `${escapeHtml(p.form || '쇼츠')} · ${escapeHtml(만든시각글(p))}`;
       const 지울수있음 = window.RewindDelete && window.RewindDelete.canDelete(p.status);
       return `
         <div class="reel-wrap" data-id="${escapeHtml(p.id)}">
-        <a class="reel-row" href="./project.html?id=${encodeURIComponent(p.id)}" data-status="${escapeHtml(p.status)}" data-error="${hasError}">
+        <a class="reel-row" href="./project.html?id=${encodeURIComponent(p.id)}" data-status="${escapeHtml(p.status)}" data-error="${제작실패 ? '1' : hasError}">
           <div class="reel-edge"></div>
           <div class="reel-icon">▶</div>
           <div class="reel-body">
