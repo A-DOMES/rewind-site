@@ -84,7 +84,8 @@
   .notice { background: var(--bg-raised); border: 1px solid var(--line); border-left: 3px solid var(--amber); border-radius: 12px; padding: 12px 16px; font-size: .9rem; color: var(--ink-dim); margin-bottom: 18px; box-shadow: var(--card-shadow); }
 
   .list { display: grid; gap: 12px; background: var(--bg-raised); border: 1px solid var(--line); border-radius: 14px; padding: 18px; position: relative; z-index: 1; box-shadow: var(--card-shadow); }
-  .list:has(> .state), .list:has(> .hist-wrap) { display: block; }
+  .list:has(> .state), .list:has(> .hist-wrap), .list:has(> #pc-table) { display: block; }
+  #pc-table { min-width: 0; }
   .list > .state { border: 0; padding: 40px 12px; }
   .list > .hist-wrap { border: 0; border-radius: 0; background: transparent; }
   .row { display: grid; grid-template-columns: 1fr auto; gap: 10px 20px; align-items: center; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; transition: background .15s, border-color .15s; }
@@ -101,6 +102,19 @@
   .row.changed .was { display: flex; align-items: center; gap: 10px; }
   .row .ctl { display: flex; align-items: center; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
   .row .apply { padding: 9px 16px; font-size: .92rem; border-radius: 10px; }
+  .pc-form { display: grid; grid-template-columns: 1fr 120px 100px; gap: 10px; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; margin-bottom: 14px; }
+  .pc-form label { display: flex; flex-direction: column; gap: 4px; font-size: .85rem; color: var(--ink-dim); min-width: 0; }
+  .pc-form input { background: var(--bg-input); color: var(--ink); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font: inherit; font-size: 1rem; width: 100%; box-sizing: border-box; min-width: 0; }
+  .pc-form input:focus { border-color: var(--amber); outline: none; box-shadow: 0 0 0 3px rgba(198,138,18,.25); }
+  .pc-form .wide { grid-column: 1 / -1; }
+  .pc-form .go { grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .pc-msg { font-size: .9rem; color: var(--ink-dim); }
+  .pc-msg.err { color: var(--err); }
+  .pc-code { font: 600 1.15rem/1.2 ui-monospace, Menlo, Consolas, monospace; letter-spacing: .06em; user-select: all; }
+  .pc-st { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: .78rem; border: 1px solid var(--line); }
+  .pc-st.발급 { color: var(--olive); } .pc-st.사용 { color: var(--ink-dim); } .pc-st.만료, .pc-st.취소 { color: var(--ink-faint); }
+  .pc-x { padding: 4px 10px; font-size: .8rem; border-radius: 8px; }
+  @media (max-width: 560px) { .pc-form { grid-template-columns: 1fr 1fr; } .pc-form label:first-child { grid-column: 1 / -1; } }
   .row.text { grid-template-columns: 1fr; }
   .row.text .ctl { justify-content: stretch; }
   .row.text .field { flex: 1; }
@@ -266,6 +280,7 @@
   const GOOGLE_CLIENT_ID = '188637268860-9hj2af4bt8esn506bf5bqs72qnbu0qjs.apps.googleusercontent.com';
   const GET_URL = 'https://bald-buffalo.pikapod.net/webhook/admin-settings-get';
   const SAVE_URL = 'https://bald-buffalo.pikapod.net/webhook/admin-settings-save';
+  const CODE_URL = 'https://bald-buffalo.pikapod.net/webhook/admin-point-code';
   const TOKEN_KEY = 'rw_id_token';
   const $ = (id) => document.getElementById(id);
   const sections = ['gate', 'expired', 'forbidden', 'failed', 'loading', 'panel'];
@@ -346,12 +361,13 @@
     '이미지·영상': '첫 화면의 이미지와 영상을 바꾸는 칸이에요. 준비 중이에요.',
     '운영 한도': '무료 체험 횟수, 동시에 만드는 영상 수 같은 운영 한도를 정하는 칸이에요. 준비 중이에요. (야담 최대 길이는 야담 칸에 있어요.)',
     '기타': '어느 칸에도 속하지 않은 항목이에요.',
+    '포인트 코드': '이메일과 포인트를 적으면 코드를 만들어 그 이메일로 보내요. 받은 사람이 리와인드 계정 메뉴에서 코드를 넣으면 충전 포인트로 들어가요. 코드는 받는 이메일 계정에서만 한 번 쓸 수 있어요.',
     '변경 이력': '누가 언제 무엇을 바꿨는지 기록이에요. 최근 100건까지 보여요.'
   };
   const DEFAULT_SUB = '위쪽 서류철 탭을 눌러 칸을 고르고, 항목마다 [적용]을 눌러요. 바꾼 내용은 시트에 기록돼요.';
   function cleanGroup(v) { return String(v == null ? '' : v).normalize('NFC').replace(/[\u200B-\u200D\u2060\uFEFF]/g, '').replace(/[\u00A0\u3000]/g, ' ').replace(/[・•∙‧⋅･]/g, '·').replace(/\s*·\s*/g, '·').replace(/\s+/g, ' ').trim(); }
   function fixGroup(it) { const g = cleanGroup(it.group); if (/^롱폼_(야담|긴야담)_|^롱폼_인트로_|^한도_(야담|긴야담)_/.test(it.key)) { it.group = '야담'; return it; } it.group = PLANNED.includes(g) ? g : (KEY_GROUP[it.key] || (/^롱폼_/.test(it.key) ? '롱폼 요금' : g) || '기타'); return it; }
-  const groups = () => { const have = []; items.forEach((it) => { if (!have.includes(it.group)) have.push(it.group); }); const g = PLANNED.slice(); have.forEach((n) => { if (!g.includes(n)) g.push(n); }); g.push('변경 이력'); return g; };
+  const groups = () => { const have = []; items.forEach((it) => { if (!have.includes(it.group)) have.push(it.group); }); const g = PLANNED.slice(); have.forEach((n) => { if (!g.includes(n)) g.push(n); }); g.push('포인트 코드'); g.push('변경 이력'); return g; };
 
   function renderTabs() {
     const tabs = $('tabs'); tabs.innerHTML = '';
@@ -360,12 +376,96 @@
     g.forEach((name) => {
       const b = document.createElement('button'); b.type = 'button'; b.className = 'tab'; b.setAttribute('role', 'tab');
       b.setAttribute('aria-selected', name === activeTab ? 'true' : 'false'); b.textContent = name;
-      if (name !== '변경 이력' && !items.some((it) => it.group === name)) b.classList.add('soon');
+      if (name !== '변경 이력' && name !== '포인트 코드' && !items.some((it) => it.group === name)) b.classList.add('soon');
       if (name !== '변경 이력' && items.some((it) => it.group === name && isChanged(it))) { const d = document.createElement('span'); d.className = 'dot'; d.title = '적용하지 않은 변경이 있어요'; b.appendChild(d); }
       b.addEventListener('click', () => { activeTab = name; renderTabs(); renderList(); });
       tabs.appendChild(b);
     });
   }
+
+  // 포인트 코드 탭: 발급 폼 + 발급 목록(취소 가능)
+  let codes = null, pcNote = null;   // pcNote: 목록을 다시 그려도 남겨 둘 안내 {t, err, code}
+  async function codeCall(body) {
+    const { status, data } = await post(CODE_URL, Object.assign({ idToken: token() }, body));
+    if (status === 401) { clearToken(); renderLogin('expired'); throw new Error('login'); }
+    if (status === 403) { $('forbidden-msg').textContent = '이 화면은 관리자만 볼 수 있어요.'; show('forbidden'); throw new Error('forbidden'); }
+    return { status, data: data || {} };
+  }
+  async function loadCodes() {
+    try { const { data } = await codeCall({ action: 'list' }); codes = data.ok && Array.isArray(data.codes) ? data.codes : false; }
+    catch (e) { if (e.message === 'login' || e.message === 'forbidden') return; codes = false; toast('발급 목록을 불러오지 못했어요.', true); }
+    if (activeTab === '포인트 코드') drawCodeTable();
+  }
+  function renderCodes(list) {
+    const form = document.createElement('div'); form.className = 'pc-form';
+    form.innerHTML = '<label class="wide">받는 사람 이메일(그 사람이 리와인드에 구글로 로그인하는 이메일 그대로)<input id="pc-email" type="email" autocomplete="off" placeholder="name@example.com" maxlength="120"></label>'
+      + '<label>포인트<input id="pc-points" type="number" min="1" max="5000" step="1" inputmode="numeric" placeholder="예: 100"></label>'
+      + '<label>사용 기한(일)<input id="pc-days" type="number" min="1" max="365" step="1" inputmode="numeric" value="30"></label>'
+      + '<label class="wide">메모(받는 사람에게는 안 보여요)<input id="pc-memo" type="text" maxlength="200" placeholder="예: 이벤트 당첨"></label>'
+      + '<div class="go"><button class="btn" id="pc-send" type="button">코드 만들어 메일 보내기</button><span class="pc-msg" id="pc-msg" role="status"></span></div>';
+    list.appendChild(form);
+    const msg = (t, err) => { pcNote = { t, err: !!err, code: '' }; const m = $('pc-msg'); m.textContent = t; m.classList.toggle('err', !!err); };
+    if (pcNote) { $('pc-msg').textContent = pcNote.t; $('pc-msg').classList.toggle('err', pcNote.err); if (pcNote.code) showCodeOnce(pcNote.code, true); }
+    $('pc-send').addEventListener('click', async () => {
+      const email = $('pc-email').value.trim(), points = Number($('pc-points').value), days = Number($('pc-days').value || 30), memo = $('pc-memo').value.trim();
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { msg('이메일을 확인해 주세요.', true); return; }
+      if (!Number.isInteger(points) || points < 1 || points > 5000) { msg('포인트는 1 ~ 5,000 사이 정수로 적어 주세요.', true); return; }
+      if (!Number.isInteger(days) || days < 1 || days > 365) { msg('사용 기한은 1 ~ 365일로 적어 주세요.', true); return; }
+      const b = $('pc-send');
+      const sig = email + '|' + points + '|' + days;
+      if (b.dataset.sure !== sig) {   // 메일은 되돌릴 수 없어서 한 번 더 눌러야 보낸다
+        b.dataset.sure = sig; b.textContent = email + ' 에게 ' + points + 'P 보내기 (한 번 더 누르세요)';
+        clearTimeout(b._t); b._t = setTimeout(() => { b.dataset.sure = ''; b.textContent = '코드 만들어 메일 보내기'; }, 6000);
+        return;
+      }
+      clearTimeout(b._t); b.dataset.sure = ''; b.textContent = '코드 만들어 메일 보내기';
+      b.disabled = true; msg('보내는 중이에요…');
+      try {
+        const { status, data } = await codeCall({ action: 'issue', email, points, days, memo });
+        if (status === 200 && data.ok) {
+          msg(data.mailed ? '보냈어요.' : data.note, !data.mailed);
+          if (!data.mailed) showCodeOnce(data.code);
+          $('pc-email').value = ''; $('pc-points').value = ''; $('pc-memo').value = '';
+          loadCodes();
+        } else msg(data.error || '코드를 만들지 못했어요. 잠시 뒤 다시 시도해 주세요.', true);
+      } catch (e) { if (e.message !== 'login' && e.message !== 'forbidden') msg('서버 연결에 문제가 있어요. 잠시 뒤 다시 시도해 주세요.', true); }
+      finally { b.disabled = false; }
+    });
+    const box = document.createElement('div'); box.id = 'pc-table'; list.appendChild(box); drawCodeTable(); if (codes === null || codes === false) { codes = null; drawCodeTable(); loadCodes(); }
+  }
+  function drawCodeTable() {
+    const list = $('pc-table'); if (!list) return; list.innerHTML = '';
+    if (codes === null) { const w = document.createElement('div'); w.className = 'state'; w.innerHTML = '<p style="margin:0">발급 목록을 불러오는 중이에요…</p>'; list.appendChild(w); return; }
+    if (codes === false) { const w = document.createElement('div'); w.className = 'state'; w.innerHTML = '<p style="margin:0">발급 목록을 불러오지 못했어요. 탭을 다시 눌러 보세요.</p>'; list.appendChild(w); return; }
+    if (!codes.length) { const w = document.createElement('div'); w.className = 'state'; w.innerHTML = '<p style="margin:0">아직 보낸 코드가 없어요.</p>'; list.appendChild(w); return; }
+    const wrap = document.createElement('div'); wrap.className = 'hist-wrap';
+    const t = document.createElement('table'); t.className = 'hist';
+    t.innerHTML = '<thead><tr><th>발급</th><th>받는 사람</th><th>포인트</th><th>기한</th><th>상태</th><th>메모</th><th></th></tr></thead><tbody></tbody>';
+    codes.forEach((c) => {
+      const tr = document.createElement('tr');
+      [String(c.issuedAt || '').slice(0, 16), c.email, String(c.points), c.expires, c.status, c.memo].forEach((v, i) => {
+        const td = document.createElement('td');
+        if (i === 4) { const sp = document.createElement('span'); sp.className = 'pc-st ' + (['발급','사용','만료','취소'].includes(v) ? v : ''); sp.textContent = v + (c.status === '사용' && c.usedAt ? ' · ' + String(c.usedAt).slice(0, 10) : ''); td.appendChild(sp); }
+        else { if (i === 0 || i === 2) td.className = 'num'; td.textContent = v == null ? '' : v; }
+        tr.appendChild(td);
+      });
+      const td = document.createElement('td');
+      if (c.status === '발급') {
+        const x = document.createElement('button'); x.type = 'button'; x.className = 'btn ghost pc-x'; x.textContent = '취소';
+        x.addEventListener('click', async () => {
+          if (x.dataset.sure !== '1') { x.dataset.sure = '1'; x.textContent = '정말 취소'; setTimeout(() => { x.dataset.sure = ''; x.textContent = '취소'; }, 4000); return; }
+          x.disabled = true;
+          try { const { data } = await codeCall({ action: 'cancel', id: c.id }); toast(data.ok ? '코드를 취소했어요.' : (data.error || '취소하지 못했어요.'), !data.ok); loadCodes(); }
+          catch (e) { x.disabled = false; }
+        });
+        td.appendChild(x);
+      }
+      tr.appendChild(td); t.querySelector('tbody').appendChild(tr);
+    });
+    wrap.appendChild(t); list.appendChild(wrap);
+  }
+  function showCodeOnce(code, again) { const m = $('pc-msg'); if (!m || !code) return; if (!again && pcNote) pcNote.code = code; const s = document.createElement('span'); s.className = 'pc-code'; s.textContent = code; m.appendChild(document.createTextNode(' ')); m.appendChild(s); }
+
 
   function renderHistory(list) {
     if (!history.length) { list.innerHTML = '<div class="state"><p style="margin:0">아직 바꾼 기록이 없어요.</p></div>'; return; }
@@ -383,6 +483,7 @@
   function renderList() {
     const list = $('list'); list.innerHTML = '';
     if (activeTab === '변경 이력') { renderHistory(list); return; }
+    if (activeTab === '포인트 코드') { renderCodes(list); return; }
     if (activeTab === '공지' && items.some((x) => x.key === '공지문구') && items.some((x) => x.key === '공지사용')) { renderNotice(list); return; }
     const mine = items.filter((it) => it.group === activeTab);
     if (!mine.length) { list.innerHTML = '<div class="state"><h2>준비 중이에요</h2><p style="margin:0">이 칸에서 고칠 수 있는 항목은 앞으로 추가돼요.</p></div>'; return; }
@@ -624,7 +725,7 @@
     }
   });
 
-  $('logout').addEventListener('click', () => { clearToken(); try { google.accounts.id.disableAutoSelect(); } catch (e) {} items = []; draft = {}; history = []; renderLogin('gate'); });
+  $('logout').addEventListener('click', () => { clearToken(); try { google.accounts.id.disableAutoSelect(); } catch (e) {} items = []; draft = {}; history = []; codes = null; renderLogin('gate'); });
   $('switch').addEventListener('click', () => { clearToken(); try { google.accounts.id.disableAutoSelect(); } catch (e) {} renderLogin('gate'); });
   $('retry').addEventListener('click', load);
   window.addEventListener('beforeunload', (e) => { if (items.some(isChanged)) { e.preventDefault(); e.returnValue = ''; } });

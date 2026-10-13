@@ -316,6 +316,16 @@
   .form-status.err { color: var(--err); }
   .form-status.ok { color: var(--gold); }
 
+  #code-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 210; align-items: center; justify-content: center; padding: 16px; }
+  #code-modal-overlay.show { display: flex; }
+  .code-modal { background: var(--bg-raised); border: 1px solid var(--line); border-radius: 16px; padding: 24px 24px 20px; max-width: 420px; width: 100%; box-sizing: border-box; }
+  .code-modal h2 { font-family: 'Fraunces', serif; font-size: 1.15rem; margin: 0 0 6px; }
+  .code-modal p { color: var(--ink-faint); font-size: .85rem; margin: 0 0 14px; line-height: 1.5; }
+  .code-modal input { width: 100%; box-sizing: border-box; background: var(--bg-input); color: var(--ink); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font: 600 1.15rem/1.2 ui-monospace, Menlo, Consolas, monospace; letter-spacing: .08em; text-transform: uppercase; text-align: center; }
+  .code-modal input:focus { outline: none; border-color: var(--amber); box-shadow: 0 0 0 3px rgba(198,138,18,.25); }
+  .code-modal .cm-msg { min-height: 1.4em; margin: 10px 0 0; font-size: .88rem; color: var(--ink-dim); }
+  .code-modal .cm-msg.err { color: #e5675f; } .code-modal .cm-msg.ok { color: #6fbf73; }
+  .code-modal .cm-act { display: flex; gap: 10px; justify-content: flex-end; margin-top: 14px; }
   #price-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; align-items: center; justify-content: center; }
   #price-modal-overlay.show { display: flex; }
   .price-modal { background: var(--bg-raised); border: 1px solid var(--line); border-radius: 16px; padding: 26px 28px; max-width: 640px; width: 92%; max-height: 80vh; overflow-y: auto; }
@@ -1381,6 +1391,7 @@
             <div class="acc-head"><img class="acc-head-img" alt=""><div><b class="acc-head-name"></b><small id="acc-plan">개인 · 체험 모드</small></div></div>
             <a class="acc-item" role="menuitem" href="./dashboard.html"><span class="ico" style="--c:#b99bff"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 4v16M16 4v16M4 9h4M4 15h4M16 9h4M16 15h4"/></svg></span>내 프로젝트</a>
             <button class="acc-item" role="menuitem" type="button" data-acc="price"><span class="ico" style="--c:#86d980"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M14.5 9.5h-3.5a1.5 1.5 0 0 0 0 3h2a1.5 1.5 0 0 1 0 3H9.5M12 7.5v1.5M12 15.5V17"/></svg></span>요금 안내</button>
+            <button class="acc-item" role="menuitem" type="button" data-acc="code"><span class="ico" style="--c:#f2c230"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4z"/><path d="M14 6v12" stroke-dasharray="2 2"/></svg></span>포인트 코드 입력</button>
             <a class="acc-item" id="acc-admin" role="menuitem" href="./admin.html" hidden><span class="ico" style="--c:#e2a23c"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg></span>관리자 설정</a>
             <div class="acc-item acc-theme"><span class="ico" style="--c:#b8ad9c"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2"/></svg></span>화면 테마
               <div class="theme-switch" role="group" aria-label="화면 테마">
@@ -1462,10 +1473,61 @@
   <a class="mm-link" id="mm-admin" role="menuitem" href="./admin.html" hidden><svg class="mmi" style="--c:#6fb3ff" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M18.4 5.6l-1.8 1.8M7.4 16.6l-1.8 1.8"/></svg><span>관리자 설정</span></a>
   <button type="button" data-go="script" role="menuitem"><svg class="mmi" style="--c:#8ad7c4" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg><span>대본 만들기</span></button>
   <button type="button" data-go="price" role="menuitem"><svg class="mmi" style="--c:#86d980" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M14.5 9.5h-3.5a1.5 1.5 0 0 0 0 3h2a1.5 1.5 0 0 1 0 3H9.5M12 7.5v1.5M12 15.5V17"/></svg><span>요금 안내</span></button>
+  <button type="button" data-go="code" role="menuitem"><svg class="mmi" style="--c:#f2c230" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4z"/><path d="M14 6v12" stroke-dasharray="2 2"/></svg><span>포인트 코드 입력</span></button>
   <button type="button" data-go="logout" role="menuitem"><svg class="mmi" style="--c:#ef7a7a" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H5v16h5M15 8l4 4-4 4M19 12H9"/></svg><span>로그아웃</span></button>
 </div>
 
 <div id="soon-toast">이 기능은 아직 준비 중이에요.</div>
+
+<div id="code-modal-overlay">
+  <div class="code-modal" role="dialog" aria-modal="true" aria-labelledby="cm-title">
+    <h2 id="cm-title">포인트 코드 입력</h2>
+    <p>이메일로 받은 코드를 넣으면 포인트가 바로 들어와요. 코드는 받은 이메일 계정으로 로그인했을 때만 쓸 수 있어요.</p>
+    <input id="cm-input" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="14" placeholder="XXXX-XXXX-XXXX" aria-label="포인트 코드">
+    <div class="cm-msg" id="cm-msg" role="status" aria-live="polite"></div>
+    <div class="cm-act"><button type="button" class="btn-ghost" id="cm-close">닫기</button><button type="button" class="btn-primary" id="cm-go">포인트 받기</button></div>
+  </div>
+</div>
+<script>
+(function () {
+  var URL_ = 'https://bald-buffalo.pikapod.net/webhook/point-code-redeem';
+  var ov = document.getElementById('code-modal-overlay'), inp = document.getElementById('cm-input'), msg = document.getElementById('cm-msg'), go = document.getElementById('cm-go'), busy = false;
+  if (!ov) return;
+  function say(t, c) { msg.textContent = t || ''; msg.className = 'cm-msg' + (c ? ' ' + c : ''); }
+  function open() { say(''); inp.value = ''; go.disabled = false; ov.classList.add('show'); setTimeout(function () { inp.focus(); }, 30); }
+  function close() { ov.classList.remove('show'); }
+  window.__rwOpenCode = open;
+  document.getElementById('cm-close').addEventListener('click', close);
+  ov.addEventListener('click', function (e) { if (e.target === ov) close(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && ov.classList.contains('show')) close(); });
+  inp.addEventListener('input', function () {   // 12자리를 4자씩 끊어 보여 준다
+    var c = inp.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 12);
+    inp.value = c.replace(/(.{4})(?=.)/g, '$1-');
+  });
+  inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') submit(); });
+  go.addEventListener('click', submit);
+  async function submit() {
+    if (busy) return;
+    var code = inp.value.replace(/[^A-Za-z0-9]/g, '');
+    if (code.length !== 12) { say('코드 12자리를 모두 넣어 주세요.', 'err'); return; }
+    var tok = ''; try { tok = sessionStorage.getItem('rw_id_token') || ''; } catch (e) {}
+    if (!tok) { say('로그인이 풀렸어요. 새로 고침한 뒤 다시 로그인해 주세요.', 'err'); return; }
+    busy = true; go.disabled = true; say('확인하는 중이에요…');
+    try {
+      var res = await fetch(URL_, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idToken: tok, code: code }) });
+      var d = await res.json().catch(function () { return null; });
+      if (res.ok && d && d.ok) {
+        say((d.points != null ? d.points + 'P가 ' : '') + '들어왔어요. 지금 포인트는 ' + d.balance + 'P예요.', 'ok');
+        inp.value = ''; go.disabled = true;
+        if (window.__rwReloadPoints) window.__rwReloadPoints();
+        setTimeout(close, 2200);
+      } else if (res.status === 401) { say('로그인이 풀렸어요. 새로 고침한 뒤 다시 로그인해 주세요.', 'err'); go.disabled = false; }
+      else { say((d && d.error) || '코드를 확인하지 못했어요. 잠시 뒤 다시 시도해 주세요.', 'err'); go.disabled = false; }
+    } catch (e) { say('서버 연결에 문제가 있어요. 잠시 뒤 다시 시도해 주세요.', 'err'); go.disabled = false; }
+    busy = false;
+  }
+})();
+</script>
 
 <div id="price-modal-overlay">
   <div class="price-modal" role="dialog" aria-modal="true" aria-labelledby="pm-title">
@@ -1519,6 +1581,7 @@
   let myAdmin = false;  // 관리자 명단에 있는 계정이면 true (포인트 조회 응답 isAdmin)
   let myPoints = null;  // 충전 포인트 (null = 아직 모름·조회 실패)
   let myTrial = null;   // 체험 포인트
+  let fullAccount = false;   // 결제로 충전한 적이 있는 계정(정식 계정): 체험 포인트는 정식 포인트로 합쳐지고, 체험 모드는 쓰지 않는다(조회 서버가 알려 준다)
   let trialPending = false; // 오늘 가입 포인트 지급이 마감된 경우
   const PROJECTS_WEBHOOK_URL = 'https://bald-buffalo.pikapod.net/webhook/my-projects';
   const REVIEW_ACTION_WEBHOOK_URL = 'https://bald-buffalo.pikapod.net/webhook/review-action';
@@ -1583,7 +1646,7 @@
   }
   function updateModeBadge() {
     if (planMode === 'paid') {
-      badge.classList.add('paid'); modeLabel.innerHTML = '정식 모드 · 결제 안내가 이메일로 갑니다<br><span class="hint">(누르면 체험으로)</span>';
+      badge.classList.add('paid'); modeLabel.innerHTML = fullAccount ? '정식 모드' : '정식 모드 · 결제 안내가 이메일로 갑니다<br><span class="hint">(누르면 체험으로)</span>';
       topBadge.classList.add('paid'); topModeLabel.textContent = '정식 모드';
       setMmMode(true);
     } else {
@@ -1634,12 +1697,15 @@
     const adm = document.getElementById('acc-admin'); if (adm) adm.hidden = !myAdmin;
     const b = document.getElementById('pt-badge'), t = document.getElementById('top-pt');
     const ma = document.getElementById('mm-admin'); if (ma) ma.hidden = !myAdmin;
-    setMmPoints(myPoints === null && myTrial === null ? '' : '체험 포인트 ' + (myTrial === null ? '–' : pt(myTrial)) + ' · 충전 포인트 ' + (myPoints === null ? '–' : pt(myPoints)));
+    const mmGo = document.querySelector('[data-go="mode"]'); if (mmGo) mmGo.hidden = fullAccount;   // 정식 계정은 모드 전환 메뉴를 숨긴다
+    document.getElementById('pt-trial').parentElement.hidden = fullAccount;   // 정식 계정은 체험 포인트 줄을 보이지 않는다(합쳐졌다)
+    setMmPoints(myPoints === null && myTrial === null ? '' : fullAccount ? '포인트 ' + pt(myPoints) : '체험 포인트 ' + (myTrial === null ? '–' : pt(myTrial)) + ' · 충전 포인트 ' + (myPoints === null ? '–' : pt(myPoints)));
     if (myPoints === null && myTrial === null) { b.hidden = true; t.classList.remove('on'); return; }
     b.hidden = false;
     document.getElementById('pt-trial').textContent = myTrial === null ? '–' : pt(myTrial);
     document.getElementById('pt-val').textContent = myPoints === null ? '–' : pt(myPoints);
-    t.textContent = '체험 ' + (myTrial === null ? '–' : pt(myTrial)) + ' · 충전 ' + (myPoints === null ? '–' : pt(myPoints)); t.classList.add('on');
+    document.querySelector('#pt-val').previousElementSibling.textContent = fullAccount ? '포인트' : '충전 포인트';
+    t.textContent = fullAccount ? '포인트 ' + pt(myPoints) : '체험 ' + (myTrial === null ? '–' : pt(myTrial)) + ' · 충전 ' + (myPoints === null ? '–' : pt(myPoints)); t.classList.add('on');
   }
   async function loadPoints(idToken) {
     try {
@@ -1650,9 +1716,14 @@
       myTrial = ok && typeof d.trialBalance === 'number' ? d.trialBalance : null;
       trialPending = !!(ok && d.trialPending);
       myAdmin = !!(ok && d.isAdmin === true);
-    } catch (e) { myPoints = null; myTrial = null; trialPending = false; myAdmin = false; }
+      fullAccount = !!(ok && d.fullAccount === true);
+      try { if (fullAccount) localStorage.setItem('rw_full_account', '1'); else if (ok) localStorage.removeItem('rw_full_account'); } catch (e) {}   // index.html 의 버튼 문구용
+      if (fullAccount && planMode !== 'paid') { planMode = 'paid'; savePlanMode(); }   // 결제한 계정은 ?mode=trial 로 들어와도 정식 모드로 연다
+    } catch (e) { myPoints = null; myTrial = null; trialPending = false; myAdmin = false; fullAccount = false; }
+    updateModeBadge();
     renderPoints(); refreshDirectFormIfOpen();
   }
+  window.__rwReloadPoints = () => { const t = sessionStorage.getItem('rw_id_token'); return t ? loadPoints(t) : Promise.resolve(); };
   function updatePrice() {
     document.querySelectorAll('#pd-motion [data-rate]').forEach(e => { e.textContent = '분당 ' + (MOTION_RATE[e.dataset.rate] || 0) + 'P'; });   // 시트 설정으로 요금이 바뀌면 카드의 분당 요금도 따라간다
     applyMotionPlan();
@@ -1698,8 +1769,8 @@
   function refreshDirectFormIfOpen() {
     updatePrice(); // 폼이 안 열려있으면 updatePrice 안에서 조용히 무시됨
   }
-  badge.addEventListener('click', () => { planMode = planMode === 'paid' ? 'trial' : 'paid'; savePlanMode(); updateModeBadge(); refreshDirectFormIfOpen(); });
-  topBadge.addEventListener('click', () => { planMode = planMode === 'paid' ? 'trial' : 'paid'; savePlanMode(); updateModeBadge(); refreshDirectFormIfOpen(); });
+  badge.addEventListener('click', () => { if (fullAccount) return; planMode = planMode === 'paid' ? 'trial' : 'paid'; savePlanMode(); updateModeBadge(); refreshDirectFormIfOpen(); });
+  topBadge.addEventListener('click', () => { if (fullAccount) return; planMode = planMode === 'paid' ? 'trial' : 'paid'; savePlanMode(); updateModeBadge(); refreshDirectFormIfOpen(); });
 
   const chatLog = document.getElementById('chat-log');
   const composer = document.getElementById('composer-inner');
@@ -2361,7 +2432,7 @@
     btn.addEventListener('click', () => { toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 1800); });
   });
 
-  document.getElementById('logout-btn').addEventListener('click', () => { sessionStorage.removeItem('rw_id_token'); location.reload(); });
+  document.getElementById('logout-btn').addEventListener('click', () => { sessionStorage.removeItem('rw_id_token'); try { localStorage.removeItem('rw_full_account'); } catch (e) {} location.reload(); });
 
   /* ===================== 직접 설정하기 (채팅 대신 폼으로) ===================== */
   // ───── 요금 (모든 화면·챗봇·서버가 같은 공식을 쓴다: 전체 상담 Agent v5, 웹 신청 접수 v3.2) ─────
@@ -4595,6 +4666,7 @@
       else if (what === 'script') press('to-longscript');
       else if (what === 'price') press('to-price-table');
       else if (what === 'mode') press('mode-badge');
+      else if (what === 'code') { if (window.__rwOpenCode) window.__rwOpenCode(); }
       else if (what === 'logout') press('logout-btn');
       setTimeout(mark, 50);
     };
@@ -4628,7 +4700,7 @@
 function sync(){var i=document.getElementById('account-avatar'),n=document.getElementById('account-name');var hi=p.querySelector('.acc-head-img'),hn=p.querySelector('.acc-head-name');if(i&&hi)hi.src=i.src;if(n&&hn)hn.textContent=n.textContent;var ml=document.getElementById('mode-label'),pl=document.getElementById('acc-plan');if(ml&&pl)pl.textContent='개인 · '+(ml.textContent.trim().indexOf('정식')===0?'정식 모드':'체험 모드');}
 function openM(o){p.hidden=!o;t.setAttribute('aria-expanded',o?'true':'false');if(o)sync();}
 t.addEventListener('click',function(e){e.stopPropagation();openM(p.hidden);});
-p.addEventListener('click',function(e){e.stopPropagation();var b=e.target.closest('[data-acc="price"]');if(b){openM(false);var x=document.getElementById('to-price-table');if(x)x.click();}});
+p.addEventListener('click',function(e){e.stopPropagation();var b=e.target.closest('[data-acc="price"]');if(b){openM(false);var x=document.getElementById('to-price-table');if(x)x.click();}var c=e.target.closest('[data-acc="code"]');if(c){openM(false);if(window.__rwOpenCode)window.__rwOpenCode();}});
 document.addEventListener('click',function(){openM(false);});
 document.addEventListener('keydown',function(e){if(e.key==='Escape')openM(false);});})();
 </script>

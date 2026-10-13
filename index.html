@@ -823,5 +823,21 @@
   }).catch(function () {});
 })();
 </script>
+<script>
+// 결제로 충전한 적이 있는 계정(정식 계정)은 '체험' 버튼을 눌러도 정식 모드로 들어가고, 문구도 '영상 만들기'로 바꾼다.
+// (new.html 이 포인트 조회 결과를 localStorage 'rw_full_account' 로 남긴다. 서버가 다시 확인하므로 이 표시만으로 권한이 생기지는 않는다)
+(function () {
+  var full = false; try { full = localStorage.getItem('rw_full_account') === '1'; } catch (e) {}
+  if (!full) return;
+  [].forEach.call(document.querySelectorAll('a[href="./new.html?mode=trial"]'), function (a) {
+    a.setAttribute('href', './new.html?mode=paid');
+    var f = a.querySelector('.t-full'), sh = a.querySelector('.t-short');
+    if (f && sh) { f.textContent = '영상 만들기'; sh.textContent = '만들기'; return; }
+    var sp = a.querySelector('span'); if (sp) { sp.textContent = '영상 만들기'; return; }
+    a.textContent = '영상 만들기';
+  });
+  var card = document.querySelector('.choice-grid .choice'); if (card) card.style.opacity = '.75';   // 체험 안내 카드는 흐리게
+})();
+</script>
 </body>
 </html>
