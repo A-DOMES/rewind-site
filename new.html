@@ -1619,7 +1619,7 @@
 
   const FIELD_LABEL = {
     topic: '주제', productLink: '제품 링크', productImageUrl: '제품 이미지', productImageCount: '제품 이미지', productMediaCount: '사진·영상', productSeller: '판매 유형', productInfoLen: '제품 내용', target: '타겟', form: '영상 형태', tempo: '말하기 속도',
-    voiceGender: '목소리', voiceAge: '목소리 연령대', directorNote: '연출 메모', style: '연출 스타일', characterUse: '캐릭터 통일',
+    voiceGender: '목소리', voiceAge: '목소리 연령대', directorNote: '연출 메모', style: '분위기·스타일', characterUse: '캐릭터 통일',
     driveLink: '드라이브 링크', mediaNote: '분위기 메모', voiceSummary: '목소리·자막',
     sceneCount: '장면 수', videoLength: '영상 길이', estimatedPrice: '필요 포인트', scriptTitle: '내 대본', narrate: '영상 제작 방식', yadamKind: '야담 방식', narration: '말', voiceUrl: '내 목소리 녹음', voiceTone: '목소리 기분', voiceSpeed: '읽는 속도', introSeconds: '인트로 영상', hookText: '화면 상단 문구',
     layout: '화면 구성', captionPos: '자막 위치', motion: '영상 제작 방식',
@@ -3030,7 +3030,7 @@
     if (위치) answers.captionPos = 위치;
   }
   // ===== [분위기 카드] 고른 분위기를 '영상 이렇게 만들어주세요' 칸 맨 앞 줄("분위기: ○○")에 넣고 뺀다. 칸의 글이 곧 값이라 시트·워크플로는 그대로다
-  const 분위기줄 = /^분위기:\s*([^\n]*)\n?/;
+  const 분위기줄 = /^분위기:\s*(포근하고 따뜻한|차분하고 담백한|쓸쓸하고 서정적인|어둡고 묵직한|밝고 경쾌한)[ \t]*[,·:\-–]?[ \t]*\n?/;   // 상담 챗봇이 '분위기: ○○ 느낌…'처럼 한 줄에 이어 써도 이름만 알아본다
   function 분위기카드맞춤() {
     const box = document.getElementById('df-mood'), ta = document.getElementById('df-style');
     if (!box || !ta) return;
