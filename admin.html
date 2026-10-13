@@ -219,6 +219,41 @@
     .page-title { font-size: 1.4rem; }
   }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+  /* 주제 찾기 탭 */
+  main.wrap.wide { max-width: 1100px; }
+  .list:has(> #tp-box) { display: block; } #tp-box { min-width: 0; }
+  .tp-bar { display: grid; gap: 10px; margin-bottom: 14px; }
+  .tp-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .tp-lab { font-size: .8rem; color: var(--ink-faint); min-width: 3.4em; }
+  .chip { background: var(--bg-input); color: var(--ink-dim); border: 1px solid var(--line); border-radius: 99px; padding: 5px 13px; font-size: .88rem; cursor: pointer; line-height: 1.4; }
+  .chip:hover { color: var(--ink); border-color: var(--ink-faint); }
+  .chip[aria-pressed="true"] { background: var(--amber); border-color: var(--amber); color: var(--on-amber); font-weight: 600; }
+  .chip small { opacity: .7; margin-left: 4px; font-size: .78rem; }
+  .chip.x { border-style: dashed; }
+  .tp-search { position: relative; flex: 1 1 260px; max-width: 420px; }
+  .tp-search input { width: 100%; background: var(--bg-input); color: var(--ink); border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; font: inherit; font-size: .95rem; }
+  .tp-search input:focus { border-color: var(--amber); outline: none; box-shadow: 0 0 0 3px rgba(198,138,18,.25); }
+  .tp-sug { position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 5; background: var(--bg-raised); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 10px 24px -10px rgba(0,0,0,.45); overflow: hidden; }
+  .tp-sug button { display: flex; justify-content: space-between; gap: 10px; width: 100%; background: none; border: 0; color: var(--ink); padding: 9px 12px; font-size: .92rem; text-align: left; cursor: pointer; }
+  .tp-sug button:hover, .tp-sug button:focus-visible { background: var(--changed-bg); }
+  .tp-sug small { color: var(--ink-faint); }
+  .tp-select { background: var(--bg-input); color: var(--ink); border: 1px solid var(--line); border-radius: 10px; padding: 6px 10px; font: inherit; font-size: .88rem; }
+  .tp-sum { color: var(--ink-dim); font-size: .88rem; margin: 0 0 12px; }
+  .tp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+  .tp-card { display: flex; flex-direction: column; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; text-decoration: none; color: inherit; min-width: 0; transition: border-color .15s, transform .15s; }
+  .tp-card:hover, .tp-card:focus-visible { border-color: var(--amber); }
+  .tp-th { position: relative; aspect-ratio: 16 / 9; background: #000; }
+  .tp-th img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .tp-score { position: absolute; left: 8px; top: 8px; background: var(--olive); color: #14100a; font-weight: 700; font-size: .85rem; padding: 2px 9px; border-radius: 99px; font-variant-numeric: tabular-nums; }
+  .tp-score.hot { background: #f0694a; color: #fff; } .tp-score.warm { background: var(--amber); }
+  .tp-fmt { position: absolute; right: 8px; bottom: 8px; background: rgba(0,0,0,.72); color: #fff; font-size: .75rem; padding: 1px 8px; border-radius: 6px; font-variant-numeric: tabular-nums; }
+  .tp-body { padding: 11px 13px 13px; display: grid; gap: 4px; }
+  .tp-title { font-weight: 600; font-size: .95rem; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .tp-ch { color: var(--ink-dim); font-size: .84rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tp-meta { color: var(--ink-faint); font-size: .8rem; font-variant-numeric: tabular-nums; }
+  .tp-meta b { color: var(--ink); font-weight: 600; }
+  .tp-more { display: flex; justify-content: center; margin-top: 16px; }
 </style>
 <script src="./theme.js"></script>
 </head>
@@ -286,6 +321,7 @@
   const GOOGLE_CLIENT_ID = '188637268860-9hj2af4bt8esn506bf5bqs72qnbu0qjs.apps.googleusercontent.com';
   const GET_URL = 'https://bald-buffalo.pikapod.net/webhook/admin-settings-get';
   const SAVE_URL = 'https://bald-buffalo.pikapod.net/webhook/admin-settings-save';
+  const TOPICS_URL = 'https://bald-buffalo.pikapod.net/webhook/admin-topics';
   const STATUS_URL = 'https://bald-buffalo.pikapod.net/webhook/admin-status';
   const CODE_URL = 'https://bald-buffalo.pikapod.net/webhook/admin-point-code';
   const TOKEN_KEY = 'rw_id_token';
@@ -368,6 +404,7 @@
     '이미지·영상': '첫 화면의 이미지와 영상을 바꾸는 칸이에요. 준비 중이에요.',
     '운영 한도': '무료 체험 횟수, 동시에 만드는 영상 수 같은 운영 한도를 정하는 칸이에요. 준비 중이에요. (야담 최대 길이는 야담 칸에 있어요.)',
     '기타': '어느 칸에도 속하지 않은 항목이에요.',
+    '주제 찾기': '전 세계 쇼핑 채널에서 평소보다 조회수가 유독 높은 영상을 찾아요. 카드를 누르면 유튜브에서 그 영상이 열려요. 보기만 하는 화면이에요.',
     '현황': '제작 중인 영상과 기다리는 신청, 실패한 건을 한눈에 봐요. 보기만 하는 화면이에요.',
     '포인트 코드': '이메일과 포인트를 적으면 코드를 만들어 그 이메일로 보내요. 받은 사람이 리와인드 계정 메뉴에서 코드를 넣으면 충전 포인트로 들어가요. 코드는 받는 이메일 계정에서만 한 번 쓸 수 있어요.',
     '변경 이력': '누가 언제 무엇을 바꿨는지 기록이에요. 최근 100건까지 보여요.'
@@ -375,16 +412,18 @@
   const DEFAULT_SUB = '위쪽 서류철 탭을 눌러 칸을 고르고, 항목마다 [적용]을 눌러요. 바꾼 내용은 시트에 기록돼요.';
   function cleanGroup(v) { return String(v == null ? '' : v).normalize('NFC').replace(/[\u200B-\u200D\u2060\uFEFF]/g, '').replace(/[\u00A0\u3000]/g, ' ').replace(/[・•∙‧⋅･]/g, '·').replace(/\s*·\s*/g, '·').replace(/\s+/g, ' ').trim(); }
   function fixGroup(it) { const g = cleanGroup(it.group); if (/^롱폼_(야담|긴야담)_|^롱폼_인트로_|^한도_(야담|긴야담)_/.test(it.key)) { it.group = '야담'; return it; } it.group = PLANNED.includes(g) ? g : (KEY_GROUP[it.key] || (/^롱폼_/.test(it.key) ? '롱폼 요금' : g) || '기타'); return it; }
-  const groups = () => { const have = []; items.forEach((it) => { if (!have.includes(it.group)) have.push(it.group); }); const g = PLANNED.slice(); have.forEach((n) => { if (!g.includes(n)) g.push(n); }); g.push('현황'); g.push('포인트 코드'); g.push('변경 이력'); return g; };
+  const groups = () => { const have = []; items.forEach((it) => { if (!have.includes(it.group)) have.push(it.group); }); const g = PLANNED.slice(); have.forEach((n) => { if (!g.includes(n)) g.push(n); }); g.push('주제 찾기'); g.push('현황'); g.push('포인트 코드'); g.push('변경 이력'); return g; };
 
   function renderTabs() {
     const tabs = $('tabs'); tabs.innerHTML = '';
     const g = groups(); if (!g.includes(activeTab)) activeTab = g[0];
     $('page-sub').textContent = TAB_DESC[activeTab] || DEFAULT_SUB;
+    document.querySelector('main').classList.toggle('wide', activeTab === '주제 찾기');
+    const nt = document.querySelector('#panel .notice'); if (nt) nt.hidden = activeTab === '주제 찾기';
     g.forEach((name) => {
       const b = document.createElement('button'); b.type = 'button'; b.className = 'tab'; b.setAttribute('role', 'tab');
       b.setAttribute('aria-selected', name === activeTab ? 'true' : 'false'); b.textContent = name;
-      if (name !== '변경 이력' && name !== '포인트 코드' && name !== '현황' && !items.some((it) => it.group === name)) b.classList.add('soon');
+      if (name !== '변경 이력' && name !== '포인트 코드' && name !== '현황' && name !== '주제 찾기' && !items.some((it) => it.group === name)) b.classList.add('soon');
       if (name !== '변경 이력' && items.some((it) => it.group === name && isChanged(it))) { const d = document.createElement('span'); d.className = 'dot'; d.title = '적용하지 않은 변경이 있어요'; b.appendChild(d); }
       b.addEventListener('click', () => { activeTab = name; renderTabs(); renderList(); });
       tabs.appendChild(b);
@@ -515,6 +554,100 @@
     const f = document.createElement('p'); f.className = 'sec-sub'; f.textContent = '기준 시각 ' + (d.at || '') + ' · '; const b = document.createElement('button'); b.type = 'button'; b.className = 'btn ghost pc-x'; b.textContent = '새로 고침'; b.addEventListener('click', () => { statusData = null; drawStatus(); loadStatus(); }); f.appendChild(b); box.appendChild(f);
   }
 
+
+  // 주제 찾기 탭: 돌풍영상 카드 (보기 전용)
+  let tpData = null, tpErr = false;
+  const tp = { region: '전체', country: '', days: 7, fmt: '전체', sort: 's', shown: 24, q: '' };
+  async function loadTopics() {
+    tpErr = false;
+    try {
+      const { status, data } = await post(TOPICS_URL, { idToken: token() });
+      if (status === 401) { clearToken(); renderLogin('expired'); return; }
+      if (status === 403) { $('forbidden-msg').textContent = '이 화면은 관리자만 볼 수 있어요.'; show('forbidden'); return; }
+      if (status === 200 && data && data.ok && Array.isArray(data.videos)) tpData = data; else tpErr = true;
+    } catch (e) { tpErr = true; }
+    if (activeTab === '주제 찾기') drawTopics();
+  }
+  function renderTopics(list) {
+    const box = document.createElement('div'); box.id = 'tp-box'; list.appendChild(box);
+    if (!tpData || tpErr) { tpData = null; drawTopics(); loadTopics(); } else drawTopics();
+  }
+  const tpN = (n) => n >= 1e8 ? (n / 1e8).toFixed(1) + '억' : n >= 1e4 ? (n >= 1e5 ? Math.round(n / 1e4) : (n / 1e4).toFixed(1)) + '만' : Math.round(n).toLocaleString('ko-KR');
+  const tpAge = (a) => a < 1 ? Math.max(1, Math.round(a * 24)) + '시간 전' : Math.floor(a) + '일 전';
+  const tpDur = (s) => s < 60 ? s + '초' : Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+  const tpScore = (x) => x >= 100 ? String(Math.round(x)) : (Math.round(x * 10) / 10).toFixed(1);
+  const tpNorm = (t) => String(t || '').normalize('NFC').toLowerCase().replace(/\s+/g, '');
+  function tpEl(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  function drawTopics() {
+    const box = $('tp-box'); if (!box) return; box.innerHTML = '';
+    const note = (t) => { const w = tpEl('div', 'state'); const p = tpEl('p', '', t); p.style.margin = '0'; w.appendChild(p); box.appendChild(w); };
+    if (tpErr) { note('주제 목록을 불러오지 못했어요. 탭을 다시 눌러 보세요.'); return; }
+    if (!tpData) { note('불러오는 중이에요…'); return; }
+    if (!tpData.videos.length) { note('아직 돌풍 영상이 없어요. 영상수집 워크플로우가 돌면 여기에 나타나요.'); return; }
+    const bar = tpEl('div', 'tp-bar'), sum = tpEl('p', 'tp-sum'), grid = tpEl('div', 'tp-grid'), more = tpEl('div', 'tp-more');
+    const chip = (label, on, fn, count) => { const b = tpEl('button', 'chip', label); b.type = 'button'; b.setAttribute('aria-pressed', on ? 'true' : 'false'); if (count != null) b.appendChild(tpEl('small', '', String(count))); b.addEventListener('click', () => { fn(); tp.shown = 24; paint(); }); return b; };
+    const row = (lab) => { const r = tpEl('div', 'tp-row'); r.appendChild(tpEl('span', 'tp-lab', lab)); bar.appendChild(r); return r; };
+    const rRegion = row('권역'), rCountry = row('나라'), rPeriod = row('기간'), rOpt = row('형식');
+    // 나라 찾기 (한글·영어·코드)
+    const sw = tpEl('div', 'tp-search'), inp = tpEl('input'); inp.type = 'search'; inp.placeholder = '나라 찾기 — 한국, korea, KR'; inp.autocomplete = 'off'; inp.setAttribute('aria-label', '나라 찾기'); inp.maxLength = 30; inp.value = tp.q;
+    const sug = tpEl('div', 'tp-sug'); sug.hidden = true; sw.appendChild(inp); sw.appendChild(sug);
+    const sel = tpEl('select', 'tp-select'); sel.setAttribute('aria-label', '정렬');
+    [['s', '돌풍점수 높은 순'], ['v', '조회수 많은 순'], ['n', '최신 순'], ['r', '구독자 대비 높은 순']].forEach(([k, t]) => { const o = tpEl('option', '', t); o.value = k; if (k === tp.sort) o.selected = true; sel.appendChild(o); });
+    sel.addEventListener('change', () => { tp.sort = sel.value; tp.shown = 24; paintCards(); });
+    const base = () => tpData.videos.filter((v) => v.age <= tp.days && (tp.fmt === '전체' || v.f === tp.fmt));
+    function suggest() {
+      const q = tpNorm(tp.q); sug.innerHTML = '';
+      if (!q) { sug.hidden = true; return; }
+      const cnt = {}; base().forEach((v) => { cnt[v.cc] = (cnt[v.cc] || 0) + 1; });
+      const hit = tpData.countries.filter((c) => tpNorm(c.cc).startsWith(q) || tpNorm(c.en).includes(q) || tpNorm(c.ko).includes(q)).sort((a, b) => a.en.localeCompare(b.en)).slice(0, 8);
+      if (!hit.length) { const b = tpEl('button', '', '찾는 나라가 없어요'); b.disabled = true; sug.appendChild(b); sug.hidden = false; return; }
+      hit.forEach((c) => { const b = tpEl('button', '', c.en + (c.ko ? ' · ' + c.ko : '')); b.type = 'button'; b.appendChild(tpEl('small', '', (cnt[c.cc] || 0) + '개')); b.addEventListener('click', () => { tp.country = c.cc; tp.region = '전체'; tp.q = ''; tp.shown = 24; inp.value = ''; sug.hidden = true; paint(); }); sug.appendChild(b); });
+      sug.hidden = false;
+    }
+    inp.addEventListener('input', () => { tp.q = inp.value; suggest(); });
+    inp.addEventListener('keydown', (e) => { if (e.key === 'Escape') { tp.q = ''; inp.value = ''; suggest(); } else if (e.key === 'Enter') { const f = sug.querySelector('button:not([disabled])'); if (f) f.click(); } });
+    inp.addEventListener('blur', () => setTimeout(() => { sug.hidden = true; }, 150));
+    function paintBar() {
+      const rows = base(), cnt = {}, ccnt = {};
+      rows.forEach((v) => { cnt[v.rg] = (cnt[v.rg] || 0) + 1; ccnt[v.cc] = (ccnt[v.cc] || 0) + 1; });
+      [rRegion, rCountry, rPeriod, rOpt].forEach((r) => { while (r.children.length > 1) r.removeChild(r.lastChild); });
+      const regions = Object.keys(cnt).sort((a, b) => (a === '한국' ? -1 : b === '한국' ? 1 : cnt[b] - cnt[a]));
+      rRegion.appendChild(chip('전체', tp.region === '전체' && !tp.country, () => { tp.region = '전체'; tp.country = ''; }, rows.length));
+      regions.forEach((rg) => rRegion.appendChild(chip(rg, tp.region === rg && !tp.country, () => { tp.region = rg; tp.country = ''; }, cnt[rg])));
+      const cs = tpData.countries.filter((c) => (ccnt[c.cc] || 0) > 0 && (tp.region === '전체' || c.rg === tp.region)).sort((a, b) => a.en.localeCompare(b.en));
+      if (tp.country) { const c = tpData.countries.find((x) => x.cc === tp.country); const x = chip((c ? c.en + (c.ko ? ' · ' + c.ko : '') : tp.country) + '  ✕', true, () => { tp.country = ''; }); x.title = '나라 선택 해제'; rCountry.appendChild(x); }
+      else if (cs.length && (tp.region !== '전체' || cs.length <= 12)) cs.forEach((c) => rCountry.appendChild(chip(c.en + (c.ko ? ' · ' + c.ko : ''), false, () => { tp.country = c.cc; }, ccnt[c.cc])));
+      rCountry.appendChild(sw);
+      [[7, '7일'], [14, '14일'], [30, '30일']].forEach(([d, t]) => rPeriod.appendChild(chip(t + ' 이내', tp.days === d, () => { tp.days = d; })));
+      ['전체', '쇼츠', '롱폼'].forEach((f) => rOpt.appendChild(chip(f, tp.fmt === f, () => { tp.fmt = f; })));
+      rOpt.appendChild(sel);
+    }
+    function paintCards() {
+      const rows = base().filter((v) => (tp.region === '전체' || v.rg === tp.region) && (!tp.country || v.cc === tp.country));
+      const key = { s: (v) => v.s, v: (v) => v.v, n: (v) => -v.age, r: (v) => v.rel };
+      rows.sort((a, b) => key[tp.sort](b) - key[tp.sort](a));
+      sum.textContent = rows.length + '개 · 기준 수집일 ' + (tpData.collected || '-') + ' · ';
+      const rb = tpEl('button', 'btn ghost pc-x', '새로 고침'); rb.type = 'button'; rb.addEventListener('click', () => { tpData = null; drawTopics(); loadTopics(); }); sum.appendChild(rb);
+      grid.innerHTML = ''; more.innerHTML = '';
+      if (!rows.length) { const w = tpEl('div', 'state'); const p = tpEl('p', '', '조건에 맞는 영상이 없어요. 기간을 늘리거나 다른 나라를 골라 보세요.'); p.style.margin = '0'; w.appendChild(p); grid.style.display = 'block'; grid.appendChild(w); return; }
+      grid.style.display = '';
+      rows.slice(0, tp.shown).forEach((v) => {
+        const a = tpEl('a', 'tp-card'); a.href = (v.f === '쇼츠' ? 'https://www.youtube.com/shorts/' : 'https://www.youtube.com/watch?v=') + encodeURIComponent(v.id); a.target = '_blank'; a.rel = 'noopener noreferrer';
+        a.title = '이 채널의 평소 조회수 ' + Math.round(v.base).toLocaleString('ko-KR') + '의 ' + tpScore(v.s) + '배';
+        const th = tpEl('div', 'tp-th'), im = document.createElement('img'); im.loading = 'lazy'; im.alt = ''; im.referrerPolicy = 'no-referrer'; im.src = 'https://i.ytimg.com/vi/' + encodeURIComponent(v.id) + '/mqdefault.jpg'; im.addEventListener('error', () => { im.style.display = 'none'; });
+        th.appendChild(im); th.appendChild(tpEl('span', 'tp-score ' + (v.s >= 20 ? 'hot' : v.s >= 5 ? 'warm' : ''), '돌풍 ×' + tpScore(v.s))); th.appendChild(tpEl('span', 'tp-fmt', v.f + ' ' + tpDur(v.sec)));
+        const body = tpEl('div', 'tp-body'); body.appendChild(tpEl('div', 'tp-title', v.t || '(제목 없음)'));
+        const cn = (tpData.countries.find((c) => c.cc === v.cc) || {}); body.appendChild(tpEl('div', 'tp-ch', v.ch + ' · ' + (cn.ko || cn.en || v.cc)));
+        const m1 = tpEl('div', 'tp-meta'); m1.appendChild(document.createTextNode('평소 ' + tpN(v.base) + ' → 지금 ')); m1.appendChild(tpEl('b', '', tpN(v.v))); body.appendChild(m1);
+        body.appendChild(tpEl('div', 'tp-meta', tpAge(v.age) + (v.sub ? ' · 구독자 ' + tpN(v.sub) + '명' : '')));
+        a.appendChild(th); a.appendChild(body); grid.appendChild(a);
+      });
+      if (rows.length > tp.shown) { const b = tpEl('button', 'btn ghost', '더 보기 (' + (rows.length - tp.shown) + '개 남음)'); b.type = 'button'; b.addEventListener('click', () => { tp.shown += 24; paintCards(); }); more.appendChild(b); }
+    }
+    function paint() { paintBar(); paintCards(); }
+    box.appendChild(bar); box.appendChild(sum); box.appendChild(grid); box.appendChild(more); paint();
+  }
+
   function renderHistory(list) {
     if (!history.length) { list.innerHTML = '<div class="state"><p style="margin:0">아직 바꾼 기록이 없어요.</p></div>'; return; }
     const wrap = document.createElement('div'); wrap.className = 'hist-wrap';
@@ -533,6 +666,7 @@
     if (activeTab === '변경 이력') { renderHistory(list); return; }
     if (activeTab === '포인트 코드') { renderCodes(list); return; }
     if (activeTab === '현황') { renderStatus(list); return; }
+    if (activeTab === '주제 찾기') { renderTopics(list); return; }
     if (activeTab === '공지' && items.some((x) => x.key === '공지문구') && items.some((x) => x.key === '공지사용')) { renderNotice(list); return; }
     const mine = items.filter((it) => it.group === activeTab);
     if (!mine.length) { list.innerHTML = '<div class="state"><h2>준비 중이에요</h2><p style="margin:0">이 칸에서 고칠 수 있는 항목은 앞으로 추가돼요.</p></div>'; return; }
