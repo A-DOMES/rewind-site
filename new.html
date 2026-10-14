@@ -1419,7 +1419,6 @@
   .tpv-go { background: var(--gold); color: var(--on-gold); border: 0; border-radius: 10px; padding: 11px 20px; font: inherit; font-weight: 800; cursor: pointer; }
   .tpv-clr { background: none; color: var(--ink-dim); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; font: inherit; cursor: pointer; }
   @media (max-width: 560px) { .tpv-dock { padding-inline: 12px; } .tpv-go { flex: 1 1 100%; } }
-  .tpv-door { font-weight: 700; border-color: var(--gold) !important; }
   @media (max-width: 1100px) {
     .tpv-cols { display: none; }
     .tpv-vr, .tpv-vr.flat { grid-template-columns: 104px minmax(0, 1fr); gap: 4px 12px; align-items: start; padding-inline: 12px; }
@@ -1434,6 +1433,55 @@
   }
   @media (max-width: 560px) { .tpv-who span { display: none; } }
   @media (max-height: 640px) { .tpv-head p { display: none; } }
+  /* ===== [주제 찾기] 전용 화면 (대본 만들기처럼 종류부터 고른다) ===== */
+  #topic-hub { display: none; flex: 1; min-height: 0; overflow: auto; background: var(--bg); }
+  body.topic-open #topic-hub { display: block; }
+  body.topic-open .split-row { display: none !important; }
+  @media (max-width: 760px) { #topic-hub { margin-bottom: 58px; } body.topic-open .top-mode-bar { display: none; } }
+  .tf-in { max-width: 880px; margin: 0 auto; padding: 40px 24px 60px; display: grid; gap: 26px; }
+  .tf-in h2 { font-size: 1.7rem; font-weight: 700; letter-spacing: -.025em; margin: 0; text-wrap: balance; line-height: 1.3; }
+  .tf-in h2:focus { outline: none; }
+  .tf-sub { margin: 6px 0 0; color: var(--ink-dim); font-size: 1rem; max-width: 54ch; }
+  .tf-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  .tf-card { --c: var(--gold); text-align: left; font: inherit; color: inherit; cursor: pointer; background: var(--bg-raised); border: 1px solid var(--line); border-radius: 18px; padding: 20px 20px 18px; display: grid; gap: 14px; align-content: start; min-width: 0; transition: border-color .15s, transform .15s; }
+  .tf-card:hover, .tf-card:focus-visible { border-color: var(--c); outline: none; }
+  .tf-card:focus-visible { box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 35%, transparent); }
+  .tf-card:active { transform: scale(.995); }
+  .tf-head { display: flex; gap: 14px; align-items: center; min-width: 0; }
+  .tf-glyph { flex: none; width: 54px; height: 54px; border-radius: 14px; background: color-mix(in srgb, var(--c) 22%, transparent); display: grid; place-items: center; }
+  .tf-glyph svg { width: 30px; height: 30px; stroke: color-mix(in srgb, var(--c) 78%, var(--ink)); fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  .tf-head b { display: block; font-size: 1.22rem; letter-spacing: -.02em; }
+  .tf-head small { display: block; color: var(--ink-dim); font-size: .88rem; line-height: 1.4; }
+  .tf-ex { display: grid; border-top: 1px solid var(--line); }
+  .tf-ex > span { display: flex; gap: 10px; align-items: baseline; padding: 9px 2px; border-bottom: 1px solid var(--line); font-size: .93rem; }
+  .tf-ex > span::before { content: ''; flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--c); transform: translateY(-2px); }
+  .tf-ex > span:last-child { border-bottom: 0; }
+  .tf-go { display: flex; justify-content: space-between; align-items: center; gap: 10px; color: color-mix(in srgb, var(--c) 62%, var(--ink)); font-weight: 600; font-size: .9rem; }
+  .tf-go small { color: var(--ink-faint); font-weight: 400; font-size: .8rem; margin-left: auto; }
+  .tf-go svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; transition: transform .15s; flex: none; }
+  .tf-card:hover .tf-go svg { transform: translateX(3px); }
+  .tf-prod { grid-column: 1 / -1; border-color: color-mix(in srgb, var(--c) 55%, var(--line)); background: linear-gradient(135deg, color-mix(in srgb, var(--c) 10%, var(--bg-raised)), var(--bg-raised) 60%); grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 20px 28px; align-items: center; }
+  .tf-prod.tf-plain { grid-template-columns: minmax(0, 1fr); }
+  .tf-left { display: grid; gap: 14px; min-width: 0; }
+  .tf-badge { display: inline-block; width: fit-content; max-width: 100%; font-size: .76rem; color: color-mix(in srgb, var(--c) 62%, var(--ink)); border: 1px solid var(--c); border-radius: 99px; padding: 0 9px; }
+  .tf-hot { display: grid; gap: 8px; min-width: 0; }
+  .tf-hot-row { display: flex; align-items: center; gap: 12px; background: var(--bg-input); border: 1px solid var(--line); border-radius: 12px; padding: 9px 12px; min-width: 0; }
+  .tf-hot-row .nm { flex: 1; min-width: 0; font-weight: 600; font-size: .95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tf-hot-row .ct { color: var(--ink-faint); font-size: .8rem; white-space: nowrap; }
+  .tf-score { background: #c93d1f; color: #fff; font-weight: 700; font-size: .82rem; padding: 1px 9px; border-radius: 99px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .tf-hint { display: block; color: var(--ink-faint); font-size: .8rem; margin-top: 8px; }
+  /* 두 번째 화면: 분야·예시 고르기 */
+  .tf-chips { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .tf-chip { --c: var(--gold); display: flex; align-items: center; gap: 10px; text-align: left; font: inherit; font-size: .98rem; color: var(--ink); background: var(--bg-raised); border: 1px solid var(--line); border-radius: 14px; padding: 13px 14px; cursor: pointer; min-width: 0; transition: border-color .15s; }
+  .tf-chip i { flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--c); }
+  .tf-chip:hover, .tf-chip:focus-visible { border-color: var(--c); outline: none; }
+  .tf-chip:focus-visible { box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 35%, transparent); }
+  .tf-chip.tf-alt { color: var(--ink-dim); border-style: dashed; }
+  .tf-list { display: grid; gap: 10px; }
+  .tf-list .tf-chip { padding: 15px 16px; }
+  .tf-list .tf-chip small { display: block; color: var(--ink-faint); font-size: .8rem; }
+  @media (max-width: 760px) { .tf-in { padding: 26px 16px 40px; } .tf-in h2 { font-size: 1.4rem; } .tf-grid { grid-template-columns: minmax(0, 1fr); } .tf-prod { grid-template-columns: minmax(0, 1fr); } .tf-chips { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (prefers-reduced-motion: reduce) { .tf-card, .tf-go svg, .tf-chip { transition: none; } }
 </style>
 <script src="./theme.js"></script>
 <script src="./assets/voice-panel.js"></script>
@@ -1555,6 +1603,7 @@
     </div>
       </div>
       <div id="script-hub" style="display:none;flex:1;min-height:0;overflow:auto;background:var(--bg)"></div>
+      <div id="topic-hub" role="region" aria-label="주제 찾기"></div>
       <iframe id="studio-frame" title="대본 작업실" style="display:none;flex:1;border:0;width:100%;min-height:0;background:var(--bg)"></iframe>
       <div class="split-row" id="split-row">
         <div class="direct-form-wrap" id="direct-form-wrap" style="display:none;"></div>
@@ -2002,9 +2051,7 @@
     const 초기화패턴 = /(화면|채팅|대화).{0,6}(지워|깨끗|초기화|리셋)|처음부터\s*다시|새로\s*시작/;
     // [주제 찾기] "주제찾기 목록 보여줘", "주제 찾기 다시 하고 싶어", "분야 다시 고를래" 같은 말은 서버에 보내지 않고 분야 버튼을 바로 다시 펼친다
     const 주제찾기패턴 = /주제\s*찾기|(분야|카테고리).{0,8}(목록|다시|보여|고를|선택|바꿀|바꾸)/;
-    if (주제찾기패턴.test(검사)) {
-      addMsg('user', escapeHtml(text));
-      history.push({ role: 'user', text });
+    if (주제찾기패턴.test(검사)) {   // 말풍선은 남기지 않고 주제 찾기 화면만 연다
       showCategoryPicker();
       return;
     }
@@ -2155,15 +2202,6 @@
     })();
     return tpvPending;
   }
-  // 분야 버튼 줄 맨 앞에 '요즘 뜨는 상품 영상 보기'를 끼워 넣는다 (열려 있을 때만)
-  function tpvAddDoor(row) {
-    tpvLoad().then((ok) => {
-      if (!ok || !row.isConnected || row.querySelector('.tpv-door')) return;
-      const b = tpvEl('button', 'suggest-chip cat-chip tpv-door', '요즘 뜨는 상품 영상 보기'); b.type = 'button'; b.style.setProperty('--c', '#ff8f6b');
-      b.addEventListener('click', () => tpvOpen());
-      const first = row.querySelector('.cat-chip'); row.insertBefore(b, first || row.firstChild);
-    });
-  }
   function tpvClose() {
     const ov = document.getElementById('tpv-overlay'); if (!ov) return;
     ov.hidden = true; document.removeEventListener('keydown', tpvKey, true);
@@ -2185,13 +2223,11 @@
     document.getElementById('tpv-prev').hidden = !tpvData.preview;
     tpvDraw(); const x = document.getElementById('tpv-x'); if (x) x.focus();
   }
-  // 고른 것으로 상담을 시작한다: 형식을 먼저 채워 두고, 추천 주제를 골랐을 때와 같은 길로 보낸다
+  // 고른 상품으로 직접 설정하기를 상품쇼츠로 연다 (제품 이름 칸에 상품명이 들어간다). 챗봇은 부르지 않는다
   function tpvGo() {
     const s = tpv.sel; if (!s) return;
-    tpvClose(); document.querySelectorAll('.suggest-row').forEach((r) => r.remove());
-    const 폼열림 = document.getElementById('split-row')?.classList.contains('split-active');   // 직접 설정하기 화면이 열려 있으면 그 화면의 형식을 따른다
-    if (!폼열림) answers.form = s.form;
-    pickSuggestedTopic(s.p + ' 소개', { raw: true });   // raw: 상품명에 '가격', '수면' 같은 말이 있어도 사이트 안내 가로채기에 걸리지 않게 곧바로 상담으로 보낸다
+    tpvClose(); tfClose();
+    openFormFor('prod', s.p, `제품 이름 칸에 "${escapeHtml(s.p)}"을(를) 넣어드렸어요. 정확한 제품명으로 고쳐 주세요. 이어서 사진·영상과 길이를 정하면 돼요.`);
   }
   function tpvDraw() {
     const box = document.getElementById('tpv-box'); if (!box) return; box.innerHTML = '';
@@ -2323,53 +2359,24 @@
     document.querySelectorAll('#tpv-box .tpv-vr').forEach((r) => { const on = !!(tpv.sel && r.dataset.id === tpv.sel.id); r.classList.toggle('on', on); const b = r.querySelector('.tpv-pick'); if (b) { b.textContent = on ? '선택됨' : '선택'; b.setAttribute('aria-pressed', on ? 'true' : 'false'); } });
     const dock = document.getElementById('tpv-dock'); if (!dock) return;
     dock.innerHTML = ''; dock.hidden = !tpv.sel; if (!tpv.sel) return;
-    const s = tpv.sel, who = tpvEl('div', 'tpv-who'); who.appendChild(tpvEl('small', '', '선택한 주제'));
+    const s = tpv.sel, who = tpvEl('div', 'tpv-who'); who.appendChild(tpvEl('small', '', '선택한 상품'));
     who.appendChild(tpvEl('b', '', s.p + ' · ' + s.c)); who.appendChild(tpvEl('span', '', '참고 영상: ' + s.tt));
-    const seg = tpvEl('div', 'tpv-seg'); seg.setAttribute('role', 'group'); seg.setAttribute('aria-label', '만들 영상 형식');
-    ['쇼츠', '롱폼'].forEach((f) => { const b = tpvEl('button', '', f); b.type = 'button'; b.setAttribute('aria-pressed', s.form === f ? 'true' : 'false'); b.addEventListener('click', () => { s.form = f; seg.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', x === b ? 'true' : 'false')); }); seg.appendChild(b); });
     const clr = tpvEl('button', 'tpv-clr', '선택 취소'); clr.type = 'button'; clr.addEventListener('click', () => { tpv.sel = null; markSel(); });
     const go = tpvEl('button', 'tpv-go', '이 주제로 만들기'); go.type = 'button'; go.addEventListener('click', tpvGo);
-    dock.appendChild(who); dock.appendChild(seg); dock.appendChild(clr); dock.appendChild(go);
+    dock.appendChild(who); dock.appendChild(clr); dock.appendChild(go);
   }
   document.getElementById('tpv-x').addEventListener('click', tpvClose);
   document.getElementById('tpv-overlay').addEventListener('mousedown', (e) => { if (e.target.id === 'tpv-overlay') tpvClose(); });
 
-  // [주제 찾기] 분야를 눌러서 바로 추천받기 - 글자를 칠 필요 없이 분야 버튼 → 추천 주제 버튼 → 제작
+  // [주제 찾기] 분야 목록 (쇼츠·롱폼 카드의 분야 고르기에 쓴다)
   const 주제분야 = [
     ['상품 쇼츠', '#ff8f6b'], ['생활 정보', '#74b6ff'], ['건강·시니어', '#4fd6bd'], ['반려동물', '#ffc857'],
     ['여행·캠핑', '#8fd694'], ['음식·카페', '#ff8cc0'], ['생활 경제', '#b99bff'], ['계절 이벤트', '#e2a23c'],
     ['과학·기술', '#5fb8ff'], ['역사·상식', '#c9a27a'], ['교육·공부법', '#9ad06b'], ['취미·자기계발', '#f59bd0']
   ];
-  function showCategoryPicker() {
-    주제찾기열림 = true; if (window.갱신위치표시) window.갱신위치표시();
-    // [수정] 직접 설정하기 화면이 열려 있어도 닫지 않는다 - 채팅 쪽에서 분야를 고르고, 고른 주제는 폼의 주제 칸에 바로 넣어준다
-    exampleRow.style.display = 'none';
-    document.querySelectorAll('.suggest-row').forEach(r => r.remove());
-    const row = document.createElement('div');
-    row.className = 'suggest-row';
-    // 첫 화면(가운데 정렬)에서는 말풍선을 더 띄우지 않고, 입력창 아래에 분야 버튼만 펼친다
-    if (document.getElementById('chat-column')?.classList.contains('is-fresh')) {
-      const label = document.createElement('div'); label.className = 'label'; label.textContent = '어떤 분야의 주제를 찾아볼까요?';
-      row.appendChild(label);
-    } else {
-      addMsg('bot', '어떤 분야의 주제를 찾아볼까요? 요즘 반응 좋은 주제를 골라드릴게요.');
-    }
-    주제분야.forEach(([이름, 색]) => {
-      const b = document.createElement('button');
-      b.type = 'button'; b.className = 'suggest-chip cat-chip'; b.style.setProperty('--c', 색);
-      b.innerHTML = `<i></i>${이름}`;
-      b.addEventListener('click', () => { row.remove(); sendMessage(`${이름} 분야 영상 주제 추천해줘`); });
-      row.appendChild(b);
-    });
-    const any = document.createElement('button');
-    any.type = 'button'; any.className = 'suggest-chip more'; any.textContent = '분야 상관없이';
-    any.addEventListener('click', () => { row.remove(); sendMessage('요즘 반응 좋은 영상 주제를 추천해줘'); });
-    row.appendChild(any);
-    tpvAddDoor(row);   // 열려 있으면 맨 앞에 '요즘 뜨는 상품 영상 보기'가 끼워진다
-    chatLog.appendChild(row);
-    row.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-  }
-  document.getElementById('to-topic-finder').addEventListener('click', showCategoryPicker);
+  // 채팅 안에 분야 버튼을 펼치던 방식은 없어졌다. 어디서 부르든 전용 화면(주제 찾기)을 연다
+  function showCategoryPicker() { tfOpen('root'); }
+  document.getElementById('to-topic-finder').addEventListener('click', () => tfOpen('root'));
 
   // [주제 추천] 추천 주제를 버튼으로 보여주고, 누르면 그 주제로 대화를 이어간다. "다른 주제 보기"는 한 대화에서 3번까지.
   function showSuggestions(list) {
@@ -2385,7 +2392,7 @@
     });
     const 분야다시 = document.createElement('button');
     분야다시.type = 'button'; 분야다시.className = 'suggest-chip more'; 분야다시.textContent = '다른 분야 고르기';
-    분야다시.addEventListener('click', () => { row.remove(); showCategoryPicker(); });
+    분야다시.addEventListener('click', () => { row.remove(); tfOpen(answers.form === '롱폼' ? 'long' : 'short'); });
     if (추천횟수 < 3) {
       const more = document.createElement('button');
       more.type = 'button'; more.className = 'suggest-chip more'; more.textContent = '다른 주제 보기';
@@ -2417,22 +2424,184 @@
     row.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }
 
-  // 추천 주제를 골랐을 때: 직접 설정하기 화면이 열려 있으면 주제 칸에 넣어주고, 아니면 채팅으로 이어간다
-  function pickSuggestedTopic(topic, opts) {
-    const 폼주제 = document.getElementById('df-topic');
-    const 폼열림 = document.getElementById('split-row')?.classList.contains('split-active') && 폼주제;
-    if (폼열림) {
-      폼주제.value = topic;
-      폼주제.dispatchEvent(new Event('input', { bubbles: true }));
-      폼주제.focus();
-      폼주제.style.transition = 'box-shadow .3s'; 폼주제.style.boxShadow = '0 0 0 3px var(--amber)';
-      setTimeout(() => { 폼주제.style.boxShadow = ''; }, 1200);
-      addMsg('user', escapeHtml(`"${topic}"`));
-      addMsg('bot', '직접 설정하기의 주제 칸에 넣어드렸어요. 나머지를 고르고 "이 내용으로 확인하기"를 눌러주세요.');
-      return;
-    }
-    sendMessage(`"${topic}" 주제로 만들게요`, opts);
+  // 추천 주제를 골랐을 때: 직접 설정하기를 열어 주제 칸에 넣어준다 (챗봇이 이어서 묻지 않는다)
+  function pickSuggestedTopic(topic) {
+    addMsg('user', escapeHtml(`"${topic}"`));
+    openFormFor(answers.form === '롱폼' ? 'long' : 'short', topic, '직접 설정하기의 주제 칸에 넣어드렸어요. 나머지를 고르고 "이 내용으로 확인하기"를 눌러주세요.');
   }
+
+  // ===== [주제 찾기] 전용 화면: 대본 만들기처럼 영상 종류(쇼츠·롱폼·상품쇼츠·야담·분위기 영상)부터 고른다 =====
+  // 주제의 출처가 목적지를 정한다. 상품 영상 → 상품쇼츠의 제품 이름 / 분야 추천 → 쇼츠·롱폼 주제 / 예시 → 야담·분위기 영상 주제.
+  // 주제를 고르는 순간 직접 설정하기가 열리고, 챗봇은 둘러보는 동안 움직이지 않는다.
+  const TF_FIELDS = 주제분야.filter(([n]) => n !== '상품 쇼츠');   // 상품은 '상품쇼츠' 카드(요즘 뜨는 상품 영상)로 간다
+  const TF_YADAM = ['욕심 많은 부자와 도깨비의 내기 이야기', '산길에서 호랑이를 만난 효자 이야기', '마을의 억울한 일을 지혜롭게 풀어내는 사또 이야기', '하늘에서 내려온 선녀와 나무꾼 이야기', '호랑이와 곶감 이야기', '과거 시험장에서 벌어진 뜻밖의 사건 이야기'];
+  const TF_MOOD = ['비 오는 밤 작은 오두막의 빗소리', '도서관 같은 조용한 공부 집중 BGM', '숲속 시냇물 소리 힐링 자연음', '비 오는 날 재즈 카페 분위기', '사랑하는 사람의 생일을 축하하는 따뜻한 영상', '가족과 함께한 여행의 추억을 담은 영상'];
+  const TF_KINDS = [
+    { k: 'short', name: '쇼츠', sub: '세로 9:16 · 짧은 영상', c: '#74b6ff', ex: ['아침에 일어나자마자 하면 좋은 스트레칭 3가지', '냉장고 정리 전에 꼭 알아야 할 보관 기준', '전기요금 아끼는 겨울철 난방 습관'], go: '분야별 주제 보기', note: TF_FIELDS.length + '개 분야' },
+    { k: 'long', name: '롱폼', sub: '가로 16:9 · 긴 영상', c: '#8ad7c4', ex: ['처음 주식을 시작하는 사람이 꼭 알아야 할 기초 상식', '한 번에 이해하는 건강보험료 계산 방식', '은퇴 전에 점검해야 할 생활비 체크리스트'], go: '분야별 주제 보기', note: TF_FIELDS.length + '개 분야' },
+    { k: 'prod', name: '상품쇼츠', sub: '내 사진·영상으로 제품을 소개하는 쇼츠', c: '#ff8f6b' },
+    { k: 'yadam', name: '야담', sub: '이야기 낭독 영상', c: '#c9a27a', ex: TF_YADAM.slice(0, 3), go: '이야기 소재 고르기' },
+    { k: 'mood', name: '분위기 영상', sub: '소리와 함께 전하는 영상', c: '#b99bff', ex: TF_MOOD.slice(0, 3), go: '분위기 고르기' }
+  ];
+  const TF_ICON = {
+    short: '<rect x="7" y="2.5" width="10" height="19" rx="2.4"/><path d="M10.5 18.5h3"/>',
+    long: '<rect x="2.5" y="6" width="19" height="12" rx="2.4"/><path d="M10.5 9.5l4.2 2.5-4.2 2.5z"/>',
+    prod: '<path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>',
+    yadam: '<path d="M4 5.5C4 4.7 4.7 4 5.5 4H11v15H5.5C4.7 19 4 18.3 4 17.5zM20 5.5c0-.8-.7-1.5-1.5-1.5H13v15h5.5c.8 0 1.5-.7 1.5-1.5z"/>',
+    mood: '<rect x="3" y="5" width="18" height="14" rx="2.4"/><path d="M3 7.5l9 6 9-6"/>',
+    arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>'
+  };
+  const TF_TYPE = { short: '일반', long: '일반', prod: '상품쇼츠', yadam: '야담', mood: '수면음악' };   // 직접 설정하기의 영상 종류
+  let tfView = 'root', tfHidForm = false;
+  const tfBox = () => document.getElementById('topic-hub');
+  const tfIsOpen = () => document.body.classList.contains('topic-open');
+  function tfSvg(key) { const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); s.setAttribute('viewBox', '0 0 24 24'); s.setAttribute('aria-hidden', 'true'); s.innerHTML = TF_ICON[key]; return s; }
+  function tfGoRow(text, note) {
+    const r = tpvEl('span', 'tf-go'); r.appendChild(tpvEl('span', '', text)); if (note) r.appendChild(tpvEl('small', '', note)); r.appendChild(tfSvg('arrow')); return r;
+  }
+  function tfCard(kd, cls) {
+    const b = tpvEl('button', 'tf-card' + (cls ? ' ' + cls : '')); b.type = 'button'; b.style.setProperty('--c', kd.c); b.dataset.k = kd.k;
+    return b;
+  }
+  function tfHead(kd) {
+    const h = tpvEl('span', 'tf-head'), g = tpvEl('span', 'tf-glyph'), t = tpvEl('span');
+    g.appendChild(tfSvg(kd.k)); t.appendChild(tpvEl('b', '', kd.name)); t.appendChild(tpvEl('small', '', kd.sub)); h.appendChild(g); h.appendChild(t); return h;
+  }
+  // 요즘 뜨는 상품 3개: 최근 7일 영상을 상품별로 묶어 최고 돌풍 순
+  function tfHot() {
+    if (!tpvData) return [];
+    const m = new Map();
+    tpvData.videos.forEach((v) => {
+      if (v.age > 7) return;
+      const key = tpvNorm(v.p); let g = m.get(key); if (!g) { g = { names: new Map(), n: 0, s: 0 }; m.set(key, g); }
+      g.n += 1; g.s = Math.max(g.s, v.s); g.names.set(v.p, (g.names.get(v.p) || 0) + 1);
+    });
+    return [...m.values()].map((g) => { let b = '', c = -1; g.names.forEach((x, k) => { if (x > c) { b = k; c = x; } }); return { name: b, n: g.n, s: g.s }; }).sort((a, b) => b.s - a.s).slice(0, 3);
+  }
+  function tfProdCard(kd) {
+    const hot = tfHot(), has = !!tpvData;
+    const b = tfCard(kd, 'tf-prod' + (has && hot.length ? '' : ' tf-plain'));
+    const left = tpvEl('span', 'tf-left'); left.appendChild(tfHead(kd));
+    if (has) left.appendChild(tpvEl('span', 'tf-badge', tpvData.preview ? '관리자 미리보기 · 고객에게는 아직 안 보여요' : '유튜브에서 요즘 반응이 터진 상품을 모았어요'));
+    left.appendChild(tfGoRow(has ? '요즘 뜨는 상품 영상 보기' : '상품쇼츠 만들기'));
+    b.appendChild(left);
+    if (has && hot.length) {
+      const right = tpvEl('span'), list = tpvEl('span', 'tf-hot');
+      hot.forEach((h) => { const r = tpvEl('span', 'tf-hot-row'); r.appendChild(tpvEl('span', 'nm', h.name)); r.appendChild(tpvEl('span', 'ct', '영상 ' + h.n + '개')); r.appendChild(tpvEl('span', 'tf-score', '×' + tpvScore(h.s))); list.appendChild(r); });
+      right.appendChild(list); right.appendChild(tpvEl('span', 'tf-hint', '×는 그 채널의 평소 조회수보다 몇 배 나왔는지예요(리와인드가 직접 계산한 값). 출처: YouTube · 약관 링크는 영상 보기 화면 아래에 있어요'));
+      b.appendChild(right);
+    }
+    b.addEventListener('click', () => { if (tpvData) tpvOpen(); else { tfClose(); openFormFor('prod', ''); } });
+    return b;
+  }
+  function tfRoot(box) {
+    const hd = tpvEl('div'), h = tpvEl('h2', '', '어떤 영상의 주제를 찾을까요?'); h.tabIndex = -1; h.id = 'tf-h';
+    hd.appendChild(h); hd.appendChild(tpvEl('p', 'tf-sub', '종류를 고르면 주제를 둘러볼 수 있어요. 마음에 드는 주제를 고르면 직접 설정하기가 열리고 주제가 채워져요.'));
+    const grid = tpvEl('div', 'tf-grid');
+    TF_KINDS.forEach((kd) => {
+      if (kd.k === 'prod') { grid.appendChild(tfProdCard(kd)); return; }
+      const b = tfCard(kd); b.appendChild(tfHead(kd));
+      const ex = tpvEl('span', 'tf-ex'); kd.ex.forEach((t) => ex.appendChild(tpvEl('span', '', t))); b.appendChild(ex);
+      b.appendChild(tfGoRow(kd.go, kd.note)); b.addEventListener('click', () => tfShow(kd.k)); grid.appendChild(b);
+    });
+    box.appendChild(hd); box.appendChild(grid);
+  }
+  function tfChip(text, color, cls, fn) {
+    const b = tpvEl('button', 'tf-chip' + (cls ? ' ' + cls : '')); b.type = 'button'; if (color) { b.style.setProperty('--c', color); b.appendChild(document.createElement('i')); }
+    b.appendChild(tpvEl('span', '', text)); b.addEventListener('click', fn); return b;
+  }
+  function tfSub(box, k) {
+    const kd = TF_KINDS.find((x) => x.k === k), general = k === 'short' || k === 'long';
+    const hd = tpvEl('div'), h = tpvEl('h2', '', general ? '어떤 분야의 ' + kd.name + ' 주제를 찾을까요?' : k === 'yadam' ? '어떤 이야기를 들려줄까요?' : '어떤 분위기의 영상일까요?'); h.tabIndex = -1; h.id = 'tf-h';
+    hd.appendChild(h);
+    hd.appendChild(tpvEl('p', 'tf-sub', general ? '분야를 고르면 요즘 반응 좋은 주제를 골라 드려요. 마음에 드는 주제를 고르면 직접 설정하기가 열려요.' : '하나를 고르면 ' + kd.name + ' 직접 설정하기가 열리고 주제 칸이 채워져요. 고친 뒤에 써도 돼요.'));
+    box.appendChild(hd);
+    const own = () => tfChip('주제는 직접 쓸게요', '', 'tf-alt', () => { tfClose(); openFormFor(k, ''); });
+    if (general) {
+      const g = tpvEl('div', 'tf-chips');
+      TF_FIELDS.forEach(([n, c]) => g.appendChild(tfChip(n, c, '', () => tfPickField(k, n))));
+      g.appendChild(tfChip('분야 상관없이', kd.c, '', () => tfPickField(k, '')));
+      g.appendChild(own()); box.appendChild(g);
+    } else {
+      const l = tpvEl('div', 'tf-list');
+      (k === 'yadam' ? TF_YADAM : TF_MOOD).forEach((t) => { const b = tfChip(t, kd.c, '', () => { tfClose(); openFormFor(k, t); }); l.appendChild(b); });
+      l.appendChild(own()); box.appendChild(l);
+    }
+  }
+  function tfRender() {
+    const box = tfBox(); if (!box) return; box.innerHTML = '';
+    const inn = tpvEl('div', 'tf-in');
+    if (tfView === 'root') tfRoot(inn); else tfSub(inn, tfView);
+    box.appendChild(inn);
+  }
+  function tfShow(view) {
+    tfView = view || 'root'; tfRender();
+    const box = tfBox(); if (box) box.scrollTop = 0;
+    if (window.갱신위치표시) window.갱신위치표시();
+    const h = document.getElementById('tf-h'); if (h) { try { h.focus({ preventScroll: true }); } catch (e) {} }
+  }
+  function tfOpen(view) {
+    tfHidForm = false; document.body.classList.add('topic-open');
+    const side = document.getElementById('to-topic-finder'); if (side) { document.querySelectorAll('.side-item.active').forEach((b) => b.classList.remove('active')); side.classList.add('active'); }
+    tfShow(view || 'root');
+    tpvLoad().then((ok) => {
+      if (!(ok && tfIsOpen() && tfView === 'root')) return;
+      const k = document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.k : '';
+      tfRender(); if (k) { const el = document.querySelector('#topic-hub .tf-card[data-k="' + k + '"]'); if (el) el.focus(); }
+    });   // 상품 영상이 열려 있으면 상품쇼츠 카드에 요즘 뜨는 상품을 보여준다
+  }
+  function tfClose() {
+    document.body.classList.remove('topic-open');
+    const side = document.getElementById('to-topic-finder'); if (side) side.classList.remove('active');
+    if (window.갱신위치표시) window.갱신위치표시();
+  }
+  // 분야를 고르면 허브를 닫고 챗봇이 그 분야의 추천 주제를 버튼으로 보여준다. 주제를 고르면 직접 설정하기가 열린다
+  function tfPickField(kind, name) {
+    tfClose(); answers.form = kind === 'long' ? '롱폼' : '쇼츠';
+    // 좁은 화면에서는 직접 설정하기가 열려 있으면 채팅이 가려진다. 추천 주제 버튼이 보이도록 채팅으로 돌아온다 (주제를 고르면 폼은 다시 열린다)
+    const cc = document.getElementById('chat-column');
+    if (document.getElementById('split-row').classList.contains('split-active') && (!cc || cc.offsetWidth < 50)) { showChatFromDirectForm(); tfHidForm = true; }
+    sendMessage(name ? `${name} 분야 영상 주제 추천해줘` : '요즘 반응 좋은 영상 주제를 추천해줘');
+  }
+  // 직접 설정하기를 그 종류로 열고 주제(상품쇼츠는 제품 이름)를 채운다. 이미 열려 있으면 종류만 바꾸고 쓰던 내용은 그대로 둔다
+  function openFormFor(kind, text, say) {
+    const type = TF_TYPE[kind], form = kind === 'long' ? '롱폼' : '쇼츠';
+    const row = document.getElementById('split-row');
+    const keep = tfHidForm; tfHidForm = false;   // 좁은 화면에서 채팅을 보이려고 폼을 잠깐 숨긴 경우: 쓰던 내용을 지우지 않고 그대로 다시 보인다
+    const shown = row && row.classList.contains('split-active');
+    const ready = (shown || keep) && document.getElementById('df-types');
+    if (!ready) { dfMode = 'topic'; dfPreType = type; dfPreForm = type === '일반' ? form : null; showDirectForm(); }   // '내 드라이브 자료로' 탭이 열려 있었다면 주제 탭으로 바꾼다
+    else {
+      if (!shown) { row.classList.add('split-active'); document.getElementById('direct-form-wrap').style.display = 'flex'; }
+      const r = document.querySelector(`input[name="df-type"][value="${type}"]`);
+      if (r && !r.disabled && !r.checked) { r.checked = true; r.dispatchEvent(new Event('change', { bubbles: true })); }
+      if (type === '일반') { const sel = document.getElementById('df-form'); if (sel && sel.value !== form) { sel.value = form; sel.dispatchEvent(new Event('change', { bubbles: true })); } }
+    }
+    setTimeout(() => {
+      const t = document.querySelector(`input[name="df-type"][value="${type}"]`);
+      if (!t || t.disabled || !t.checked) { addMsg('bot', '이 영상 종류는 지금 열려 있지 않아요.'); return; }
+      const f = document.getElementById(kind === 'prod' ? 'df-prodName' : 'df-topic');
+      if (f && text) {
+        f.value = String(text).slice(0, f.maxLength > 0 ? f.maxLength : 300); f.dispatchEvent(new Event('input', { bubbles: true }));
+        if (kind === 'prod') {   // 폰에서는 채팅이 가려져서 안내가 안 보이므로 칸 아래에 직접 알려 준다. 고치기 시작하면 사라진다
+          const old = document.getElementById('tf-prod-hint'); if (old) old.remove();
+          const hint = document.createElement('p'); hint.className = 'df-hint'; hint.id = 'tf-prod-hint'; hint.textContent = '요즘 뜨는 상품에서 가져온 이름이에요. 정확한 제품명으로 고쳐 주세요.';
+          f.insertAdjacentElement('afterend', hint); f.addEventListener('input', () => hint.remove(), { once: true });
+        }
+      }
+      if (window.__pwGo && window.__pwOn && window.__pwOn()) window.__pwGo(1, true);
+      if (f) { try { f.focus(); } catch (e) {} f.style.transition = 'box-shadow .3s'; f.style.boxShadow = '0 0 0 3px var(--amber)'; setTimeout(() => { f.style.boxShadow = ''; }, 1200); }
+      if (say) addMsg('bot', say);
+    }, 90);
+  }
+  // 다른 메뉴를 누르면 주제 찾기 화면은 닫는다
+  document.addEventListener('click', (e) => {
+    if (!tfIsOpen() || !e.target.closest) return;
+    const el = e.target.closest('.sidebar .side-item, .sidebar .new-chat-btn, #mobile-nav [data-go], #mobile-more [data-go]');
+    if (!el || el.id === 'to-topic-finder' || ['topic', 'more', 'theme'].includes(el.dataset.go)) return;
+    tfClose();
+  }, true);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && tfIsOpen() && document.getElementById('tpv-overlay').hidden) { if (tfView !== 'root') tfShow('root'); } });
 
   document.querySelectorAll('.example-chip').forEach(chip => {
     chip.addEventListener('click', () => chip.dataset.action === 'pick-category' ? showCategoryPicker() : sendMessage(chip.dataset.topic));
@@ -4951,28 +5120,36 @@
           sep = document.getElementById('crumb-sep'), here = document.getElementById('crumb-here'),
           rowEl = document.getElementById('split-row');
     if (!back || !root || !rowEl) return;
-    const 상태 = () => rowEl.classList.contains('split-active') ? 'direct' : ((주제찾기열림 && !chatLog.querySelector('.msg.user')) ? 'topic' : 'chat');
+    const 상태 = () => document.body.classList.contains('topic-open') ? 'hub' : rowEl.classList.contains('split-active') ? 'direct' : ((주제찾기열림 && !chatLog.querySelector('.msg.user')) ? 'topic' : 'chat');
     const 갱신 = () => {
       const st = 상태();
       back.hidden = st === 'chat'; sep.hidden = here.hidden = st === 'chat';
-      here.textContent = st === 'direct' ? '직접 설정하기' : st === 'topic' ? '주제 찾기' : '';
+      if (st === 'hub' && tfView !== 'root') {   // 주제 찾기 › 쇼츠 처럼 한 단계 더 들어가 있을 때: 앞 이름을 누르면 첫 화면으로
+        here.textContent = '';
+        const lk = document.createElement('button'); lk.type = 'button'; lk.className = 'cb-link'; lk.dataset.tfRoot = '1'; lk.title = '주제 찾기(으)로 돌아가기'; lk.textContent = '주제 찾기';
+        here.appendChild(lk); here.appendChild(document.createTextNode(' › ' + ({ short: '쇼츠', long: '롱폼', yadam: '야담', mood: '분위기 영상' }[tfView] || '')));
+      } else here.textContent = st === 'direct' ? '직접 설정하기' : (st === 'topic' || st === 'hub') ? '주제 찾기' : '';
       root.classList.toggle('is-here', st === 'chat');
     };
     window.갱신위치표시 = 갱신;
     back.addEventListener('click', () => {
       const st = 상태();
+      if (st === 'hub') { if (tfView !== 'root') tfShow('root'); else tfClose(); return; }   // 주제 찾기: 한 단계씩만 뒤로
       if (st === 'direct') showChatFromDirectForm();
       else if (st === 'topic') { 주제찾기열림 = false; startFreshChat(true); }
       갱신();
     });
     root.addEventListener('click', () => {
+      const hubWas = tfIsOpen(), viewWas = tfView;
+      if (hubWas) tfClose();
       const st = 상태();
       if (st === 'chat' && chatLog.querySelector('.msg.user')) {
-        if (!confirm('지금 대화를 닫고 새로 시작할까요?')) return;
+        if (!confirm('지금 대화를 닫고 새로 시작할까요?')) { if (hubWas) tfOpen(viewWas); return; }
       }
       if (st === 'direct') showChatFromDirectForm();
       주제찾기열림 = false; startFreshChat(true); 갱신();
     });
+    here.addEventListener('click', (e) => { if (e.target.closest && e.target.closest('[data-tf-root]')) tfShow('root'); });
     new MutationObserver(갱신).observe(rowEl, { attributes: true, attributeFilter: ['class'] });
     new MutationObserver(갱신).observe(chatLog, { childList: true });
     갱신();
@@ -5021,15 +5198,16 @@
     const closeMore = () => { more.classList.remove('open'); const m = nav.querySelector('[data-go="more"]'); if (m) m.setAttribute('aria-expanded', 'false'); };
     const press = (id) => { const el = document.getElementById(id); if (el) el.click(); };
     const mark = () => {
-      const open = document.getElementById('split-row')?.classList.contains('split-active');
-      nav.querySelectorAll('[data-go]').forEach(b => b.classList.toggle('is-on', b.dataset.go === 'direct' && open));
+      const hub = document.body.classList.contains('topic-open');
+      const open = document.getElementById('split-row')?.classList.contains('split-active') && !hub;
+      nav.querySelectorAll('[data-go]').forEach(b => b.classList.toggle('is-on', (b.dataset.go === 'direct' && open) || (b.dataset.go === 'topic' && hub)));
     };
     const go = (what) => {
       if (what === 'theme') { if (window.rwTheme) window.rwTheme.cycle(); return; }   // 색을 돌려 보는 동안 메뉴는 열어 둔다
       closeMore();
       if (what === 'home') { location.href = './index.html'; return; }
       else if (what === 'direct') press('to-direct-form');
-      else if (what === 'topic') { if (document.getElementById('split-row')?.classList.contains('split-active')) showChatFromDirectForm(); press('to-topic-finder'); }
+      else if (what === 'topic') press('to-topic-finder');
       else if (what === 'script') press('to-longscript');
       else if (what === 'price') press('to-price-table');
       else if (what === 'mode') press('mode-badge');
@@ -5045,6 +5223,7 @@
     more.addEventListener('click', (e) => { const b = e.target.closest('[data-go]'); if (b) go(b.dataset.go); });
     document.addEventListener('click', (e) => { if (!e.target.closest('#mobile-more') && !e.target.closest('#mobile-nav')) closeMore(); });
     new MutationObserver(mark).observe(document.getElementById('split-row'), { attributes: true, attributeFilter: ['class'] });
+    new MutationObserver(mark).observe(document.body, { attributes: true, attributeFilter: ['class'] });
     mark();
     // 키보드가 올라와 화면이 확 줄어들면 메뉴 줄을 숨겨서 입력창을 가리지 않게
     let 최대높이 = 0;
