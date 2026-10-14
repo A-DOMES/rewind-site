@@ -1325,6 +1325,115 @@
   .pd-dlg-x:hover, .pd-dlg-x:focus-visible { background: color-mix(in srgb, var(--amber) 14%, var(--bg)); }
   .pd-dlg-svg svg { display: block; height: min(64vh, 560px); width: auto; max-width: 100%; }
   .pd-dlg ul { margin: 0; padding-left: 18px; font-size: .84rem; line-height: 1.6; color: var(--ink-dim); align-self: stretch; }
+  /* ===== [주제 찾기] 요즘 뜨는 상품 영상 (둘러보기 창) ===== */
+  #tpv-overlay { position: fixed; inset: 0; z-index: 250; background: rgba(0,0,0,.62); display: flex; align-items: stretch; justify-content: center; padding: 20px; }
+  #tpv-overlay[hidden] { display: none; }
+  .tpv { position: relative; width: 100%; max-width: 1180px; background: var(--bg); border: 1px solid var(--line); border-radius: 16px; display: flex; flex-direction: column; overflow: hidden; }
+  @media (max-width: 760px) { #tpv-overlay { padding: 0; } .tpv { border-radius: 0; border: 0; max-width: none; } }
+  .tpv-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; padding: 16px 20px 12px; border-bottom: 1px solid var(--line); }
+  .tpv-head h2 { margin: 0 0 3px; font-size: 1.2rem; font-weight: 800; }
+  .tpv-head p { margin: 0; color: var(--ink-dim); font-size: .86rem; line-height: 1.5; max-width: 62ch; }
+  .tpv-x { flex: none; width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line); background: var(--bg-raised); color: var(--ink); display: grid; place-items: center; cursor: pointer; }
+  .tpv-x svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+  .tpv-x:hover { border-color: var(--gold); }
+  .tpv-prev { margin: 10px 20px 0; padding: 8px 12px; border: 1px dashed var(--gold); border-radius: 10px; color: var(--ink-dim); font-size: .82rem; }
+  .tpv-prev[hidden] { display: none; }
+  .tpv-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 14px 20px 22px; }
+  @media (max-width: 560px) { .tpv-head { padding: 14px 14px 10px; } .tpv-scroll { padding: 12px 12px 18px; } .tpv-prev { margin: 8px 14px 0; } }
+  .tpv-bar { background: var(--bg-raised); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; display: grid; gap: 10px; margin-bottom: 10px; }
+  .tpv-top { display: flex; flex-wrap: wrap; gap: 10px 12px; align-items: center; }
+  .tpv-seg { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .tpv-seg button { background: var(--bg-input); color: var(--ink-dim); border: 0; padding: 8px 16px; font: inherit; font-size: .9rem; cursor: pointer; }
+  .tpv-seg button + button { border-left: 1px solid var(--line); }
+  .tpv-seg button[aria-pressed="true"] { background: var(--gold); color: var(--on-gold); font-weight: 700; }
+  .tpv-find { flex: 1 1 220px; max-width: 400px; }
+  .tpv-find input { width: 100%; background: var(--bg-input); color: var(--ink); border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; font: inherit; font-size: .92rem; }
+  .tpv-find input:focus, .tpv-sel:focus-visible { border-color: var(--gold); outline: none; box-shadow: 0 0 0 3px rgba(198,138,18,.25); }
+  .tpv-fl { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)) auto; gap: 8px; align-items: end; }
+  @media (max-width: 1000px) { .tpv-fl { grid-template-columns: repeat(3, minmax(0, 1fr)); } .tpv-reset { grid-column: 1 / -1; } }
+  @media (max-width: 560px) { .tpv-fl { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .tpv-fld { display: grid; gap: 3px; min-width: 0; }
+  .tpv-fld label { font-size: .76rem; color: var(--ink-faint); }
+  .tpv-sel { width: 100%; background: var(--bg-input); color: var(--ink); border: 1px solid var(--line); border-radius: 10px; padding: 8px 8px; font: inherit; font-size: .88rem; cursor: pointer; }
+  .tpv-reset { background: none; color: var(--ink-dim); border: 1px solid var(--line); border-radius: 10px; padding: 8px 14px; font: inherit; font-size: .88rem; cursor: pointer; }
+  .tpv-reset:hover { border-color: var(--gold); color: var(--ink); }
+  .tpv-sum { color: var(--ink-dim); font-size: .84rem; margin: 0 2px 4px; }
+  .tpv-help { color: var(--ink-faint); font-size: .78rem; margin: 0 2px 12px; line-height: 1.5; }
+  .tpv-src { color: var(--ink-faint); font-size: .76rem; margin: 20px 0 0; line-height: 1.7; }
+  .tpv-src a { color: var(--ink-dim); }
+  .tpv-tag { display: inline-block; font-size: .74rem; padding: 0 8px; border-radius: 6px; color: var(--ink-dim); border: 1px solid var(--line); white-space: nowrap; }
+  .tpv-tag.sh { color: var(--gold); border-color: var(--gold); }
+  .tpv-cat { margin-bottom: 24px; }
+  .tpv-cat-h { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 12px; padding: 0 4px 8px; border-bottom: 2px solid var(--gold); margin-bottom: 8px; }
+  .tpv-cat-h h3 { margin: 0; font-size: 1.35rem; font-weight: 800; letter-spacing: -.01em; }
+  .tpv-cnt { color: var(--ink-dim); font-size: .82rem; }
+  .tpv-p { background: var(--bg-raised); border: 1px solid var(--line); border-radius: 12px; margin-bottom: 8px; overflow: hidden; }
+  .tpv-ph { width: 100%; display: flex; align-items: center; flex-wrap: wrap; gap: 4px 14px; background: none; color: inherit; border: 0; padding: 11px 14px; font: inherit; text-align: left; cursor: pointer; }
+  .tpv-ph:hover { background: rgba(198,138,18,.10); }
+  .tpv-car { color: var(--ink-faint); font-size: .75rem; width: 14px; transition: transform .15s; }
+  .tpv-p[data-open="1"] .tpv-car { transform: rotate(90deg); }
+  .tpv-pn { font-size: 1.04rem; font-weight: 700; overflow-wrap: anywhere; flex: 1 1 180px; min-width: 0; }
+  .tpv-ps { color: var(--ink-dim); font-size: .82rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .tpv-ps b { color: var(--ink); font-weight: 600; }
+  .tpv-pb { border-top: 1px solid var(--line); }
+  .tpv-cols, .tpv-vr { display: grid; grid-template-columns: 120px 64px minmax(0, 1fr) 62px 70px 160px 68px 74px; gap: 12px; align-items: center; padding: 9px 14px; }
+  .tpv-cols.flat, .tpv-vr.flat { grid-template-columns: 120px 64px minmax(0, 1fr) 110px 62px 70px 160px 68px 74px; }
+  .tpv-vm { display: contents; }
+  .tpv-cols { font-size: .76rem; color: var(--ink-faint); border-bottom: 1px solid var(--line); background: var(--bg); padding-block: 6px; }
+  .tpv-cols button { background: none; border: 0; padding: 0; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+  .tpv-cols button:hover, .tpv-cols button[aria-pressed="true"] { color: var(--gold); }
+  .tpv-cols .r, .tpv-vr .r { text-align: right; }
+  .tpv-vr { position: relative; border-bottom: 1px solid var(--line); font-size: .84rem; }
+  .tpv-vr:last-child { border-bottom: 0; }
+  .tpv-vr:hover { background: rgba(198,138,18,.07); }
+  .tpv-vr.on { background: rgba(198,138,18,.14); box-shadow: inset 3px 0 0 var(--gold); }
+  .tpv-vth { position: relative; display: block; aspect-ratio: 16 / 9; border-radius: 6px; overflow: hidden; background: #000; }
+  .tpv-vth img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .tpv-vth i { position: absolute; right: 4px; bottom: 4px; background: rgba(0,0,0,.75); color: #fff; font-size: .68rem; padding: 0 5px; border-radius: 4px; font-style: normal; font-variant-numeric: tabular-nums; }
+  .tpv-score { display: inline-block; background: #d4af37; color: #14100a; font-weight: 700; font-size: .82rem; padding: 1px 9px; border-radius: 99px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .tpv-score.hot { background: #c93d1f; color: #fff; } .tpv-score.warm { background: var(--gold); color: var(--on-gold); }
+  .tpv-vti { min-width: 0; display: grid; gap: 1px; }
+  .tpv-vt { color: var(--ink); font-weight: 600; font-size: .92rem; line-height: 1.4; text-decoration: none; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .tpv-vt:hover { text-decoration: underline; }
+  .tpv-vti small { color: var(--ink-faint); font-size: .74rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tpv-vca { min-width: 0; display: grid; gap: 2px; justify-items: start; }
+  .tpv-vca small { color: var(--ink-faint); font-size: .74rem; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tpv-vch { min-width: 0; display: grid; }
+  .tpv-vch span, .tpv-vch small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tpv-vch small { color: var(--ink-faint); font-size: .74rem; }
+  .tpv-num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .tpv-dim { color: var(--ink-dim); }
+  .tpv-pick { background: var(--bg-input); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; font: inherit; font-size: .84rem; cursor: pointer; white-space: nowrap; }
+  .tpv-pick:hover { border-color: var(--gold); }
+  .tpv-vr.on .tpv-pick { background: var(--gold); border-color: var(--gold); color: var(--on-gold); font-weight: 700; }
+  .tpv-grid { background: var(--bg-raised); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .tpv-more { display: flex; justify-content: center; margin-top: 14px; }
+  .tpv-more button { background: var(--bg-input); color: var(--ink); border: 1px solid var(--line); border-radius: 10px; padding: 9px 18px; font: inherit; cursor: pointer; }
+  .tpv-empty { padding: 28px 12px; text-align: center; color: var(--ink-dim); }
+  .tpv-dock { flex: none; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 12px 20px calc(12px + env(safe-area-inset-bottom, 0px)); background: var(--bg-raised); border-top: 2px solid var(--gold); }
+  .tpv-dock[hidden] { display: none; }
+  .tpv-who { flex: 1 1 240px; min-width: 0; }
+  .tpv-who small { display: block; color: var(--ink-faint); font-size: .74rem; }
+  .tpv-who b { display: block; font-size: 1rem; overflow-wrap: anywhere; }
+  .tpv-who span { display: block; color: var(--ink-dim); font-size: .78rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tpv-go { background: var(--gold); color: var(--on-gold); border: 0; border-radius: 10px; padding: 11px 20px; font: inherit; font-weight: 800; cursor: pointer; }
+  .tpv-clr { background: none; color: var(--ink-dim); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; font: inherit; cursor: pointer; }
+  @media (max-width: 560px) { .tpv-dock { padding-inline: 12px; } .tpv-go { flex: 1 1 100%; } }
+  .tpv-door { font-weight: 700; border-color: var(--gold) !important; }
+  @media (max-width: 1100px) {
+    .tpv-cols { display: none; }
+    .tpv-vr, .tpv-vr.flat { grid-template-columns: 104px minmax(0, 1fr); gap: 4px 12px; align-items: start; padding-inline: 12px; }
+    .tpv-vth { grid-column: 1; grid-row: 1 / span 3; }
+    .tpv-vsc { position: absolute; left: 20px; top: 16px; }
+    .tpv-vti { grid-column: 2; grid-row: 1; }
+    .tpv-vm { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; grid-column: 2; grid-row: 2; color: var(--ink-dim); font-size: .78rem; }
+    .tpv-vm [data-l]::before { content: attr(data-l) ' '; color: var(--ink-faint); }
+    .tpv-vm .r { text-align: left; }
+    .tpv-vch { display: block; } .tpv-vch small { display: inline; } .tpv-vch small::before { content: ' · '; }
+    .tpv-vpk { grid-column: 2; grid-row: 3; }
+  }
+  @media (max-width: 560px) { .tpv-who span { display: none; } }
+  @media (max-height: 640px) { .tpv-head p { display: none; } }
 </style>
 <script src="./theme.js"></script>
 <script src="./assets/voice-panel.js"></script>
@@ -1541,6 +1650,18 @@
   }
 })();
 </script>
+
+<div id="tpv-overlay" hidden>
+  <div class="tpv" role="dialog" aria-modal="true" aria-labelledby="tpv-title">
+    <div class="tpv-head">
+      <div><h2 id="tpv-title">요즘 뜨는 상품 영상</h2><p>전 세계 쇼핑 채널에서 평소보다 조회수가 크게 오른 영상이에요. 마음에 드는 상품을 고르면 그 주제로 영상 만들기를 이어가요.</p></div>
+      <button type="button" class="tpv-x" id="tpv-x" aria-label="닫기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="tpv-prev" id="tpv-prev" hidden>관리자 미리보기예요. 아직 고객에게는 보이지 않아요.</div>
+    <div class="tpv-scroll"><div id="tpv-box"></div></div>
+    <div class="tpv-dock" id="tpv-dock" hidden></div>
+  </div>
+</div>
 
 <div id="price-modal-overlay">
   <div class="price-modal" role="dialog" aria-modal="true" aria-labelledby="pm-title">
@@ -1874,19 +1995,20 @@
     }
   }
 
-  async function sendMessage(text) {
+  async function sendMessage(text, opts) {
+    const 검사 = (opts && opts.raw) ? '' : text;   // raw: 사이트가 먼저 가로채는 말(가격·수면·초기화 등) 검사를 건너뛰고 곧바로 상담으로 보낸다
     // [화면 초기화 감지] "화면 지워줘", "처음부터 다시" 같은 요청은 AI에 보내지 않고
     // 그 자리에서 바로 진짜로 화면과 대화 기록을 지운다 (말로만 "다시 안내"하고 화면은 그대로였던 문제 해결).
     const 초기화패턴 = /(화면|채팅|대화).{0,6}(지워|깨끗|초기화|리셋)|처음부터\s*다시|새로\s*시작/;
     // [주제 찾기] "주제찾기 목록 보여줘", "주제 찾기 다시 하고 싶어", "분야 다시 고를래" 같은 말은 서버에 보내지 않고 분야 버튼을 바로 다시 펼친다
     const 주제찾기패턴 = /주제\s*찾기|(분야|카테고리).{0,8}(목록|다시|보여|고를|선택|바꿀|바꾸)/;
-    if (주제찾기패턴.test(text)) {
+    if (주제찾기패턴.test(검사)) {
       addMsg('user', escapeHtml(text));
       history.push({ role: 'user', text });
       showCategoryPicker();
       return;
     }
-    if (초기화패턴.test(text)) {
+    if (초기화패턴.test(검사)) {
       startFreshChat(true);
       return;
     }
@@ -1894,7 +2016,7 @@
     // 설정 변경(“모두 영상으로 바꿔줘”)이 같이 들어 있으면 표를 보여준 뒤 챗봇에게도 보내서 설정에 반영한다.
     const 요금패턴 = /(가격|요금|비용|얼마|견적|단가)/;
     // [음악 폴더 공유 방법] "음악은 어떻게 올려요?", "폴더 공유는 어떻게 해요?" → 서버를 거치지 않고 정해진 안내로 바로 답한다
-    if (/(음악|노래|곡).{0,12}(올려|올리|넣|공유|폴더|드라이브)|(폴더|드라이브).{0,12}(공유|음악)/.test(text)) {
+    if (/(음악|노래|곡).{0,12}(올려|올리|넣|공유|폴더|드라이브)|(폴더|드라이브).{0,12}(공유|음악)/.test(검사)) {
       exampleRow.style.display = 'none';
       addMsg('user', escapeHtml(text));
       history.push({ role: 'user', text });
@@ -1905,7 +2027,7 @@
       return;
     }
     // [내 대본] 대본을 어디서 쓰고 어떻게 영상으로 만드는지 안내한다
-    if (/(내\s*대본|직접\s*쓴|대본.{0,12}(어디|어떻게|쓰|써|만들|올리|붙여|넣|저장|불러))/.test(text) && !요금패턴.test(text)) {
+    if (/(내\s*대본|직접\s*쓴|대본.{0,12}(어디|어떻게|쓰|써|만들|올리|붙여|넣|저장|불러))/.test(검사) && !요금패턴.test(검사)) {
       exampleRow.style.display = 'none';
       addMsg('user', escapeHtml(text));
       history.push({ role: 'user', text });
@@ -1919,11 +2041,11 @@
       return;
     }
     // [수면음악·야담] 이 종류는 직접 설정하기에서 신청한다 - 상담 챗봇이 일반 영상 질문(영상 제작 방식 등)을 하지 않도록 여기서 안내한다
-    if (/(수면\s*음악|수면용|잠들|자장가|야담|분위기\s*영상)/.test(text) && !요금패턴.test(text)) {
+    if (/(수면\s*음악|수면용|잠들|자장가|야담|분위기\s*영상)/.test(검사) && !요금패턴.test(검사)) {
       exampleRow.style.display = 'none';
       addMsg('user', escapeHtml(text));
       history.push({ role: 'user', text });
-      const 야담 = /야담/.test(text);
+      const 야담 = /야담/.test(검사);
       const el = addMsg('bot', 야담
         ? '야담은 직접 설정하기에서 만들 수 있어요. 소재와 길이, 목소리를 고르면 요금이 바로 계산돼요. 직접 쓴 대본이 있으면 왼쪽 <b>대본 만들기</b>에서 저장해 두고 야담 설정의 <b>내 대본</b> 카드에서 쓸 수 있어요.<div style="margin-top:10px"><button type="button" class="btn-gold-sm" data-open-sleep>야담 설정 열기</button></div>'
         : '분위기 영상(수면·집중·힐링, 생일·결혼 축하, 감사·추억 영상)은 직접 설정하기에서 만들 수 있어요. 길이와 등급, 듣고 싶은 소리를 고르면 요금이 바로 계산돼요.<div style="margin-top:10px"><button type="button" class="btn-gold-sm" data-open-sleep>분위기 영상 설정 열기</button></div>');
@@ -1934,9 +2056,9 @@
       renderComposer();
       return;
     }
-    const 변경의도 = /(바꿔|바꿀|변경|로\s*해|으로\s*해|로\s*만들|으로\s*만들|할게|할래|주제)/.test(text);
+    const 변경의도 = /(바꿔|바꿀|변경|로\s*해|으로\s*해|로\s*만들|으로\s*만들|할게|할래|주제)/.test(검사);
     let 요금표나중에 = false;
-    if (요금패턴.test(text)) {
+    if (요금패턴.test(검사)) {
       if (!변경의도) {
         exampleRow.style.display = 'none';
         addMsg('user', escapeHtml(text));
@@ -2003,6 +2125,215 @@
     }
   }
 
+  // ===== [주제 찾기] 요즘 뜨는 상품 영상: 둘러보는 동안 챗봇은 움직이지 않고, "이 주제로 만들기"를 누를 때만 상담이 시작된다 =====
+  const TOPICS_URL = 'https://bald-buffalo.pikapod.net/webhook/order-topics';
+  let tpvData = null, tpvPending = null, tpvFt = 0, tpvPrevFocus = null, tpvClosed = false;
+  const tpv = { region: '전체', country: '', days: 7, fmt: '전체', cat: '전체', sort: 's', gsort: 'n', view: 'g', shown: 30, gshown: 10, pq: '', open: {}, sel: null };
+  const tpvN = (n) => n >= 1e8 ? (n / 1e8).toFixed(1) + '억' : n >= 1e4 ? (n >= 1e5 ? Math.round(n / 1e4) : (n / 1e4).toFixed(1)) + '만' : Math.round(n).toLocaleString('ko-KR');
+  const tpvAge = (a) => a < 1 ? Math.max(1, Math.round(a * 24)) + '시간 전' : Math.floor(a) + '일 전';
+  const tpvDur = (s) => s < 60 ? s + '초' : Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+  const tpvScore = (x) => x >= 100 ? String(Math.round(x)) : (Math.round(x * 10) / 10).toFixed(1);
+  const tpvNorm = (t) => String(t || '').normalize('NFC').toLowerCase().replace(/\s+/g, '');
+  function tpvEl(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  // 열 수 있는지 서버에 물어본다. 열려 있지 않으면(403 등) 새 길은 보이지 않는다. 한 번 성공하면 그 결과를 계속 쓴다.
+  function tpvLoad() {
+    if (tpvData) return Promise.resolve(true);
+    if (tpvClosed) return Promise.resolve(false);   // 한 번 막혀 있다고 받았으면 이 접속 동안은 다시 묻지 않는다(시트 읽기 절약)
+    if (tpvPending) return tpvPending;
+    tpvPending = (async () => {
+      try {
+        const res = await fetch(TOPICS_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idToken: googleIdToken }) });
+        const d = await res.json().catch(() => null);
+        if (res.status === 403) { tpvClosed = true; return false; }
+        if (!res.ok || !d || d.ok !== true || !Array.isArray(d.videos) || !d.videos.length) return false;
+        d.videos = d.videos.filter((v) => v && v.id && v.p && v.c);
+        d.videos.forEach((v) => { ['v', 's', 'age', 'sec'].forEach((k) => { v[k] = +v[k] || 0; }); v.t = v.t || ''; v.tr = v.tr || ''; v.f = v.f === '롱폼' ? '롱폼' : '쇼츠'; });
+        d.cats = Array.isArray(d.cats) ? d.cats : []; d.countries = Array.isArray(d.countries) ? d.countries : [];
+        if (!d.videos.length) return false;
+        tpvData = d; return true;
+      } catch (e) { return false; } finally { tpvPending = null; }
+    })();
+    return tpvPending;
+  }
+  // 분야 버튼 줄 맨 앞에 '요즘 뜨는 상품 영상 보기'를 끼워 넣는다 (열려 있을 때만)
+  function tpvAddDoor(row) {
+    tpvLoad().then((ok) => {
+      if (!ok || !row.isConnected || row.querySelector('.tpv-door')) return;
+      const b = tpvEl('button', 'suggest-chip cat-chip tpv-door', '요즘 뜨는 상품 영상 보기'); b.type = 'button'; b.style.setProperty('--c', '#ff8f6b');
+      b.addEventListener('click', () => tpvOpen());
+      const first = row.querySelector('.cat-chip'); row.insertBefore(b, first || row.firstChild);
+    });
+  }
+  function tpvClose() {
+    const ov = document.getElementById('tpv-overlay'); if (!ov) return;
+    ov.hidden = true; document.removeEventListener('keydown', tpvKey, true);
+    if (tpvPrevFocus && tpvPrevFocus.isConnected && tpvPrevFocus.focus) { try { tpvPrevFocus.focus(); } catch (e) {} }
+  }
+  function tpvKey(e) {
+    const ov = document.getElementById('tpv-overlay'); if (!ov || ov.hidden) return;
+    if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); tpvClose(); return; }
+    if (e.key !== 'Tab') return;
+    const f = [...ov.querySelectorAll('a[href], button:not([disabled]), input, select')].filter((x) => x.offsetParent !== null);
+    if (!f.length) return;
+    const a = f[0], z = f[f.length - 1];
+    if (!ov.contains(document.activeElement)) { e.preventDefault(); a.focus(); return; }
+    if (e.shiftKey && document.activeElement === a) { e.preventDefault(); z.focus(); } else if (!e.shiftKey && document.activeElement === z) { e.preventDefault(); a.focus(); }
+  }
+  function tpvOpen() {
+    const ov = document.getElementById('tpv-overlay'); if (!ov || !tpvData) return;
+    tpvPrevFocus = document.activeElement; ov.hidden = false; document.addEventListener('keydown', tpvKey, true);
+    document.getElementById('tpv-prev').hidden = !tpvData.preview;
+    tpvDraw(); const x = document.getElementById('tpv-x'); if (x) x.focus();
+  }
+  // 고른 것으로 상담을 시작한다: 형식을 먼저 채워 두고, 추천 주제를 골랐을 때와 같은 길로 보낸다
+  function tpvGo() {
+    const s = tpv.sel; if (!s) return;
+    tpvClose(); document.querySelectorAll('.suggest-row').forEach((r) => r.remove());
+    const 폼열림 = document.getElementById('split-row')?.classList.contains('split-active');   // 직접 설정하기 화면이 열려 있으면 그 화면의 형식을 따른다
+    if (!폼열림) answers.form = s.form;
+    pickSuggestedTopic(s.p + ' 소개', { raw: true });   // raw: 상품명에 '가격', '수면' 같은 말이 있어도 사이트 안내 가로채기에 걸리지 않게 곧바로 상담으로 보낸다
+  }
+  function tpvDraw() {
+    const box = document.getElementById('tpv-box'); if (!box) return; box.innerHTML = '';
+    clearTimeout(tpvFt);
+    const D = tpvData, again = () => { tpv.shown = 30; tpv.gshown = 10; };
+    const bar = tpvEl('div', 'tpv-bar'), top = tpvEl('div', 'tpv-top'), fl = tpvEl('div', 'tpv-fl'), sum = tpvEl('p', 'tpv-sum'), help = tpvEl('p', 'tpv-help'), out = tpvEl('div'), more = tpvEl('div', 'tpv-more');
+    // 보기 · 찾기
+    const seg = tpvEl('div', 'tpv-seg'); seg.setAttribute('role', 'group'); seg.setAttribute('aria-label', '보기 방식');
+    [['g', '상품별로 보기'], ['v', '영상 목록']].forEach(([k, t]) => { const b = tpvEl('button', '', t); b.type = 'button'; b.setAttribute('aria-pressed', tpv.view === k ? 'true' : 'false'); b.addEventListener('click', () => { tpv.view = k; again(); seg.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', x === b ? 'true' : 'false')); fillSort(); paintCards(); }); seg.appendChild(b); });
+    const fw = tpvEl('div', 'tpv-find'), fi = tpvEl('input'); fi.type = 'search'; fi.placeholder = '상품·제목·채널 찾기'; fi.autocomplete = 'off'; fi.setAttribute('aria-label', '상품·제목·채널 찾기'); fi.maxLength = 40; fi.value = tpv.pq; fw.appendChild(fi);
+    fi.addEventListener('input', () => { clearTimeout(tpvFt); tpvFt = setTimeout(() => { tpv.pq = fi.value; again(); paint(); }, 180); });
+    top.appendChild(seg); top.appendChild(fw); bar.appendChild(top); bar.appendChild(fl);
+    // 드롭다운
+    let fn = 0;
+    const fld = (lab) => { const w = tpvEl('div', 'tpv-fld'), s = tpvEl('select', 'tpv-sel'), l = tpvEl('label', '', lab); s.id = 'tpv-f' + (fn++); l.htmlFor = s.id; w.appendChild(l); w.appendChild(s); fl.appendChild(w); return { s, l }; };
+    const setOpts = (s, opts, cur) => { s.innerHTML = ''; opts.forEach(([v, t]) => { const o = tpvEl('option', '', t); o.value = v; if (String(v) === String(cur)) o.selected = true; s.appendChild(o); }); };
+    const fCat = fld('분류'), fRegion = fld('권역'), fCountry = fld('나라'), fFmt = fld('형식'), fDays = fld('기간'), fSort = fld('정렬');
+    const onSel = (f, fnc) => f.s.addEventListener('change', () => { fnc(f.s.value); again(); paint(); });
+    onSel(fCat, (v) => { tpv.cat = v; }); onSel(fRegion, (v) => { tpv.region = v; tpv.country = ''; }); onSel(fCountry, (v) => { tpv.country = v; }); onSel(fFmt, (v) => { tpv.fmt = v; }); onSel(fDays, (v) => { tpv.days = +v; });
+    const fixedOpts = () => { setOpts(fFmt.s, [['전체', '전체 형식'], ['쇼츠', '쇼츠'], ['롱폼', '롱폼']], tpv.fmt); setOpts(fDays.s, [[7, '최근 7일'], [14, '최근 14일'], [30, '최근 30일']], tpv.days); };
+    fixedOpts();
+    const SORTS = { g: [['n', '영상 많은 순'], ['s', '최고 돌풍 순'], ['t', '최신 순']], v: [['s', '돌풍 높은 순'], ['v', '조회수 많은 순'], ['n', '최신 순']] };
+    function fillSort() { fSort.l.textContent = tpv.view === 'g' ? '상품 정렬' : '정렬'; setOpts(fSort.s, SORTS[tpv.view], tpv.view === 'g' ? tpv.gsort : tpv.sort); }
+    fSort.s.addEventListener('change', () => { if (tpv.view === 'g') tpv.gsort = fSort.s.value; else tpv.sort = fSort.s.value; again(); paintCards(); });
+    fillSort();
+    const rs = tpvEl('button', 'tpv-reset', '초기화'); rs.type = 'button';
+    rs.addEventListener('click', () => { clearTimeout(tpvFt); Object.assign(tpv, { region: '전체', country: '', days: 7, fmt: '전체', cat: '전체', pq: '', sort: 's', gsort: 'n', open: {} }); fi.value = ''; again(); fillSort(); fixedOpts(); paint(); });
+    fl.appendChild(rs);
+    // 걸러내기
+    const base = () => D.videos.filter((v) => v.age <= tpv.days && (tpv.fmt === '전체' || v.f === tpv.fmt));
+    const geo = (v) => (tpv.region === '전체' || v.rg === tpv.region) && (!tpv.country || v.cc === tpv.country);
+    const pq = () => tpvNorm(tpv.pq);
+    const hit = (v, q) => !q || tpvNorm([v.p, v.tr, v.t, v.ch].join(' ')).includes(q);
+    const current = () => { const q = pq(); return base().filter((v) => geo(v) && hit(v, q) && (tpv.cat === '전체' || v.c === tpv.cat)); };
+    const catNames = () => { const n = D.cats.map((c) => c.n); D.videos.forEach((v) => { if (!n.includes(v.c)) n.push(v.c); }); return n; };
+    function paintBar() {
+      const rows = base(), q = pq(), rcnt = {};
+      rows.forEach((v) => { rcnt[v.rg] = (rcnt[v.rg] || 0) + 1; });
+      const cpool = rows.filter((v) => tpv.region === '전체' || v.rg === tpv.region), ccnt = {}; cpool.forEach((v) => { ccnt[v.cc] = (ccnt[v.cc] || 0) + 1; });
+      const pool = rows.filter((v) => geo(v) && hit(v, q)), cc = {}; pool.forEach((v) => { cc[v.c] = (cc[v.c] || 0) + 1; });
+      setOpts(fCat.s, [['전체', '전체 분류 (' + pool.length + ')']].concat(catNames().filter((n) => cc[n] || n === tpv.cat).map((n) => [n, n + ' (' + (cc[n] || 0) + ')'])), tpv.cat);
+      const regions = Object.keys(rcnt).sort((a, b) => (a === '한국' ? -1 : b === '한국' ? 1 : rcnt[b] - rcnt[a])); if (tpv.region !== '전체' && !regions.includes(tpv.region)) regions.push(tpv.region);
+      setOpts(fRegion.s, [['전체', '전체 권역 (' + rows.length + ')']].concat(regions.map((r) => [r, r + ' (' + (rcnt[r] || 0) + ')'])), tpv.region);
+      const nm = (c) => c.ko || c.en || c.cc;
+      let cs = D.countries.filter((c) => (ccnt[c.cc] || 0) > 0 && (tpv.region === '전체' || c.rg === tpv.region));
+      if (tpv.country && !cs.some((c) => c.cc === tpv.country)) { const c = D.countries.find((x) => x.cc === tpv.country); if (c) cs.push(c); }
+      cs.sort((a, b) => nm(a).localeCompare(nm(b), 'ko'));
+      setOpts(fCountry.s, [['', '전체 나라 (' + cpool.length + ')']].concat(cs.map((c) => [c.cc, nm(c) + (c.ko && c.en ? ' · ' + c.en : '') + ' (' + (ccnt[c.cc] || 0) + ')'])), tpv.country);
+    }
+    // 영상 한 줄: 썸네일·제목은 유튜브로 열리고, "선택"을 누르면 고른 것으로 담긴다
+    const rowKey = { s: (v) => v.s, v: (v) => v.v, n: (v) => -v.age };
+    const ytUrl = (v) => (v.f === '쇼츠' ? 'https://www.youtube.com/shorts/' : 'https://www.youtube.com/watch?v=') + encodeURIComponent(v.id);
+    const openLink = (a, v) => { a.href = ytUrl(v); a.target = '_blank'; a.rel = 'noopener noreferrer'; return a; };
+    function vrow(v, flat) {
+      const r = tpvEl('div', 'tpv-vr' + (flat ? ' flat' : '') + (tpv.sel && tpv.sel.id === v.id ? ' on' : '')); r.dataset.id = v.id;
+      r.title = '리와인드가 계산한 값 — 이 채널 평소 조회수의 ' + tpvScore(v.s) + '배';
+      const cn = D.countries.find((c) => c.cc === v.cc) || {}, cname = cn.ko || cn.en || v.cc;
+      const th = openLink(tpvEl('a', 'tpv-vth'), v); th.setAttribute('aria-label', '유튜브에서 영상 보기'); th.tabIndex = -1;
+      const im = document.createElement('img'); im.loading = 'lazy'; im.alt = ''; im.referrerPolicy = 'no-referrer'; im.src = 'https://i.ytimg.com/vi/' + encodeURIComponent(v.id) + '/mqdefault.jpg'; im.addEventListener('error', () => { im.style.display = 'none'; });
+      th.appendChild(im); th.appendChild(tpvEl('i', '', tpvDur(v.sec)));
+      const sc = tpvEl('div', 'tpv-vsc'); sc.appendChild(tpvEl('span', 'tpv-score ' + (v.s >= 20 ? 'hot' : v.s >= 5 ? 'warm' : ''), '×' + tpvScore(v.s)));
+      const ti = tpvEl('div', 'tpv-vti'); ti.appendChild(openLink(tpvEl('a', 'tpv-vt', v.tr || v.t || '(제목 없음)'), v)); if (v.tr && v.t) ti.appendChild(tpvEl('small', '', v.t));
+      const vm = tpvEl('div', 'tpv-vm');
+      if (flat) { const ca = tpvEl('div', 'tpv-vca'); ca.appendChild(tpvEl('span', 'tpv-tag', v.c)); ca.appendChild(tpvEl('small', '', v.p)); vm.appendChild(ca); }
+      const fm = tpvEl('div'); fm.appendChild(tpvEl('span', 'tpv-tag' + (v.f === '쇼츠' ? ' sh' : ''), v.f)); vm.appendChild(fm);
+      const vw = tpvEl('div', 'tpv-num r', tpvN(v.v)); vw.dataset.l = '조회'; vm.appendChild(vw);
+      const ch = tpvEl('div', 'tpv-vch'); ch.appendChild(tpvEl('span', '', v.ch)); ch.appendChild(tpvEl('small', '', cname)); vm.appendChild(ch);
+      vm.appendChild(tpvEl('div', 'tpv-num tpv-dim', tpvAge(v.age)));
+      const pk = tpvEl('div', 'tpv-vpk r'), pb = tpvEl('button', 'tpv-pick', r.classList.contains('on') ? '선택됨' : '선택'); pb.type = 'button'; pb.setAttribute('aria-pressed', r.classList.contains('on') ? 'true' : 'false'); pb.setAttribute('aria-label', (v.tr || v.t || v.p) + ' 선택');
+      pb.addEventListener('click', () => { tpv.sel = (tpv.sel && tpv.sel.id === v.id) ? null : { id: v.id, p: v.p, c: v.c, tt: v.tr || v.t, form: v.f }; markSel(); }); pk.appendChild(pb);
+      r.appendChild(th); r.appendChild(sc); r.appendChild(ti); r.appendChild(vm); r.appendChild(pk); return r;
+    }
+    function colhead(flat) {
+      const h = tpvEl('div', 'tpv-cols' + (flat ? ' flat' : ''));
+      const sb = (k, t, cls) => { const b = tpvEl('button', '', t + (tpv.sort === k ? ' ▾' : '')); b.type = 'button'; b.setAttribute('aria-pressed', tpv.sort === k ? 'true' : 'false'); b.addEventListener('click', () => { tpv.sort = k; fillSort(); paintCards(); }); const d = tpvEl('div', cls || ''); d.appendChild(b); return d; };
+      h.appendChild(tpvEl('div', '', '영상')); h.appendChild(sb('s', '돌풍')); h.appendChild(tpvEl('div', '', '제목'));
+      if (flat) h.appendChild(tpvEl('div', '', '분류 · 상품'));
+      h.appendChild(tpvEl('div', '', '형식')); h.appendChild(sb('v', '조회수', 'r')); h.appendChild(tpvEl('div', '', '채널')); h.appendChild(sb('n', '게시')); h.appendChild(tpvEl('div', '', ''));
+      return h;
+    }
+    function groupsOf(rows) {
+      const m = new Map();
+      rows.forEach((v) => { const key = tpvNorm(v.p); let g = m.get(key); if (!g) { g = { key, names: new Map(), cats: new Map(), rows: [], chs: new Set(), ccs: new Set(), sMax: 0, ageMin: 1e9 }; m.set(key, g); } g.names.set(v.p, (g.names.get(v.p) || 0) + 1); g.cats.set(v.c, (g.cats.get(v.c) || 0) + 1); g.rows.push(v); g.chs.add(v.ch); g.ccs.add(v.cc); g.sMax = Math.max(g.sMax, v.s); g.ageMin = Math.min(g.ageMin, v.age); });
+      const top1 = (mp) => { let b = '', n = -1; mp.forEach((c, k) => { if (c > n) { b = k; n = c; } }); return b; };
+      const gs = [...m.values()]; gs.forEach((g) => { g.name = top1(g.names); g.cat = top1(g.cats); });
+      const key = { n: (g) => g.rows.length * 1e6 + g.sMax, s: (g) => g.sMax, t: (g) => -g.ageMin };
+      return gs.sort((a, b) => key[tpv.gsort](b) - key[tpv.gsort](a));
+    }
+    function prodEl(g, open) {
+      const key = g.cat + '|' + g.key, el = tpvEl('div', 'tpv-p'), h = tpvEl('button', 'tpv-ph'); h.type = 'button';
+      const body = tpvEl('div', 'tpv-pb');
+      const build = () => { if (body.firstChild) return; body.appendChild(colhead(false)); g.rows.slice().sort((a, b) => rowKey[tpv.sort](b) - rowKey[tpv.sort](a)).slice(0, 30).forEach((v) => body.appendChild(vrow(v, false))); };
+      const set = (o) => { el.dataset.open = o ? '1' : '0'; h.setAttribute('aria-expanded', o ? 'true' : 'false'); body.hidden = !o; if (o) build(); };
+      h.appendChild(tpvEl('span', 'tpv-car', '▶')); h.appendChild(tpvEl('span', 'tpv-pn', g.name));
+      const st = (label, val) => { const s = tpvEl('span', 'tpv-ps', label + ' '); s.appendChild(tpvEl('b', '', val)); h.appendChild(s); };
+      st('영상', g.rows.length + '개'); st('최고', '×' + tpvScore(g.sMax)); st('나라', g.ccs.size + '곳');
+      h.addEventListener('click', () => { const o = el.dataset.open !== '1'; tpv.open[key] = o; set(o); });
+      el.appendChild(h); el.appendChild(body); set(open); return el;
+    }
+    function paintCards() {
+      const rows = current(); out.innerHTML = ''; more.innerHTML = '';
+      sum.textContent = (tpv.view === 'g' ? '상품 ' + groupsOf(rows).length + '개 · ' : '') + '영상 ' + rows.length + '개 · 기준 수집일 ' + (D.collected || '-');
+      const empty = () => out.appendChild(tpvEl('div', 'tpv-empty', '조건에 맞는 영상이 없어요. 기간을 늘리거나 분류·나라를 바꿔 보세요.'));
+      if (tpv.view === 'g') {
+        const all = groupsOf(rows); if (!all.length) { empty(); return; }
+        const order = catNames(), ix = (g) => { const i = order.indexOf(g.cat); return i < 0 ? order.length : i; };
+        const gs = all.map((g, i) => ({ g, i })).sort((a, b) => ix(a.g) - ix(b.g) || a.i - b.i).map((x) => x.g);
+        const tot = new Map(); gs.forEach((g) => { const t = tot.get(g.cat) || { p: 0, v: 0 }; t.p += 1; t.v += g.rows.length; tot.set(g.cat, t); });
+        let cur = null, secEl = null;
+        gs.slice(0, tpv.gshown).forEach((g, i) => {
+          if (g.cat !== cur) { cur = g.cat; secEl = tpvEl('section', 'tpv-cat'); const hd = tpvEl('div', 'tpv-cat-h'); hd.appendChild(tpvEl('h3', '', g.cat)); const t = tot.get(g.cat); hd.appendChild(tpvEl('span', 'tpv-cnt', '상품 ' + t.p + '개 · 영상 ' + t.v + '개')); secEl.appendChild(hd); out.appendChild(secEl); }
+          const k = g.cat + '|' + g.key; secEl.appendChild(prodEl(g, k in tpv.open ? tpv.open[k] : (i === 0 || !!pq())));
+        });
+        if (gs.length > tpv.gshown) { const b = tpvEl('button', '', '상품 더 보기 (' + (gs.length - tpv.gshown) + '개 남음)'); b.type = 'button'; b.addEventListener('click', () => { tpv.gshown += 10; paintCards(); }); more.appendChild(b); }
+      } else {
+        rows.sort((a, b) => rowKey[tpv.sort](b) - rowKey[tpv.sort](a)); if (!rows.length) { empty(); return; }
+        const grid = tpvEl('div', 'tpv-grid'); grid.appendChild(colhead(true)); rows.slice(0, tpv.shown).forEach((v) => grid.appendChild(vrow(v, true))); out.appendChild(grid);
+        if (rows.length > tpv.shown) { const b = tpvEl('button', '', '더 보기 (' + (rows.length - tpv.shown) + '개 남음)'); b.type = 'button'; b.addEventListener('click', () => { tpv.shown += 30; paintCards(); }); more.appendChild(b); }
+      }
+    }
+    function paint() { paintBar(); paintCards(); }
+    help.textContent = '돌풍 ×N 은 그 채널의 평소 조회수보다 N배 나왔다는 뜻이에요(리와인드가 직접 계산한 값). 고른 영상은 주제를 정하는 참고로만 쓰고, 영상 화면이나 내용을 그대로 가져오지는 않아요.';
+    const src = tpvEl('p', 'tpv-src'); src.appendChild(document.createTextNode('영상·조회수 출처: YouTube. '));
+    const ta = tpvEl('a', '', 'YouTube 서비스 약관'); ta.href = 'https://www.youtube.com/t/terms'; ta.target = '_blank'; ta.rel = 'noopener noreferrer'; src.appendChild(ta); src.appendChild(document.createTextNode(' · ')); const pa = tpvEl('a', '', 'Google 개인정보처리방침'); pa.href = 'https://policies.google.com/privacy'; pa.target = '_blank'; pa.rel = 'noopener noreferrer'; src.appendChild(pa);
+    box.appendChild(bar); box.appendChild(sum); box.appendChild(help); box.appendChild(out); box.appendChild(more); box.appendChild(src); paint(); markSel();
+  }
+  // 선택 상태를 화면(행 · 하단 고정바)에 반영
+  function markSel() {
+    document.querySelectorAll('#tpv-box .tpv-vr').forEach((r) => { const on = !!(tpv.sel && r.dataset.id === tpv.sel.id); r.classList.toggle('on', on); const b = r.querySelector('.tpv-pick'); if (b) { b.textContent = on ? '선택됨' : '선택'; b.setAttribute('aria-pressed', on ? 'true' : 'false'); } });
+    const dock = document.getElementById('tpv-dock'); if (!dock) return;
+    dock.innerHTML = ''; dock.hidden = !tpv.sel; if (!tpv.sel) return;
+    const s = tpv.sel, who = tpvEl('div', 'tpv-who'); who.appendChild(tpvEl('small', '', '선택한 주제'));
+    who.appendChild(tpvEl('b', '', s.p + ' · ' + s.c)); who.appendChild(tpvEl('span', '', '참고 영상: ' + s.tt));
+    const seg = tpvEl('div', 'tpv-seg'); seg.setAttribute('role', 'group'); seg.setAttribute('aria-label', '만들 영상 형식');
+    ['쇼츠', '롱폼'].forEach((f) => { const b = tpvEl('button', '', f); b.type = 'button'; b.setAttribute('aria-pressed', s.form === f ? 'true' : 'false'); b.addEventListener('click', () => { s.form = f; seg.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', x === b ? 'true' : 'false')); }); seg.appendChild(b); });
+    const clr = tpvEl('button', 'tpv-clr', '선택 취소'); clr.type = 'button'; clr.addEventListener('click', () => { tpv.sel = null; markSel(); });
+    const go = tpvEl('button', 'tpv-go', '이 주제로 만들기'); go.type = 'button'; go.addEventListener('click', tpvGo);
+    dock.appendChild(who); dock.appendChild(seg); dock.appendChild(clr); dock.appendChild(go);
+  }
+  document.getElementById('tpv-x').addEventListener('click', tpvClose);
+  document.getElementById('tpv-overlay').addEventListener('mousedown', (e) => { if (e.target.id === 'tpv-overlay') tpvClose(); });
+
   // [주제 찾기] 분야를 눌러서 바로 추천받기 - 글자를 칠 필요 없이 분야 버튼 → 추천 주제 버튼 → 제작
   const 주제분야 = [
     ['상품 쇼츠', '#ff8f6b'], ['생활 정보', '#74b6ff'], ['건강·시니어', '#4fd6bd'], ['반려동물', '#ffc857'],
@@ -2034,6 +2365,7 @@
     any.type = 'button'; any.className = 'suggest-chip more'; any.textContent = '분야 상관없이';
     any.addEventListener('click', () => { row.remove(); sendMessage('요즘 반응 좋은 영상 주제를 추천해줘'); });
     row.appendChild(any);
+    tpvAddDoor(row);   // 열려 있으면 맨 앞에 '요즘 뜨는 상품 영상 보기'가 끼워진다
     chatLog.appendChild(row);
     row.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }
@@ -2086,7 +2418,7 @@
   }
 
   // 추천 주제를 골랐을 때: 직접 설정하기 화면이 열려 있으면 주제 칸에 넣어주고, 아니면 채팅으로 이어간다
-  function pickSuggestedTopic(topic) {
+  function pickSuggestedTopic(topic, opts) {
     const 폼주제 = document.getElementById('df-topic');
     const 폼열림 = document.getElementById('split-row')?.classList.contains('split-active') && 폼주제;
     if (폼열림) {
@@ -2099,7 +2431,7 @@
       addMsg('bot', '직접 설정하기의 주제 칸에 넣어드렸어요. 나머지를 고르고 "이 내용으로 확인하기"를 눌러주세요.');
       return;
     }
-    sendMessage(`"${topic}" 주제로 만들게요`);
+    sendMessage(`"${topic}" 주제로 만들게요`, opts);
   }
 
   document.querySelectorAll('.example-chip').forEach(chip => {
