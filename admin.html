@@ -221,36 +221,72 @@
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 
   /* 주제 찾기 탭 */
-  main.wrap.wide { max-width: 1100px; }
+  main.wrap.wide { max-width: 1440px; }
   .list:has(> #tp-box) { display: block; } #tp-box { min-width: 0; }
-  .tp-bar { display: grid; gap: 10px; margin-bottom: 14px; }
-  .tp-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .tp-top { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; margin-bottom: 14px; }
+  .tp-seg { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .tp-seg button { background: var(--bg-input); color: var(--ink-dim); border: 0; padding: 8px 18px; font-size: .94rem; cursor: pointer; }
+  .tp-seg button + button { border-left: 1px solid var(--line); }
+  .tp-seg button[aria-pressed="true"] { background: var(--amber); color: var(--on-amber); font-weight: 600; }
+  .tp-find { flex: 1 1 240px; max-width: 360px; }
+  .tp-find input { width: 100%; background: var(--bg-input); color: var(--ink); border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; font: inherit; font-size: .95rem; }
+  .tp-find input:focus { border-color: var(--amber); outline: none; box-shadow: 0 0 0 3px rgba(198,138,18,.25); }
+  .tp-bar { display: grid; gap: 10px 32px; margin-bottom: 14px; grid-template-columns: minmax(0, 1fr); }
+  @media (min-width: 1100px) { .tp-bar { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .tp-bar .full { grid-column: 1 / -1; } }
+  .tp-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; min-width: 0; }
   .tp-lab { font-size: .8rem; color: var(--ink-faint); min-width: 3.4em; }
   .chip { background: var(--bg-input); color: var(--ink-dim); border: 1px solid var(--line); border-radius: 99px; padding: 5px 13px; font-size: .88rem; cursor: pointer; line-height: 1.4; }
   .chip:hover { color: var(--ink); border-color: var(--ink-faint); }
   .chip[aria-pressed="true"] { background: var(--amber); border-color: var(--amber); color: var(--on-amber); font-weight: 600; }
   .chip small { opacity: .7; margin-left: 4px; font-size: .78rem; }
   .chip.x { border-style: dashed; }
-  .tp-search { position: relative; flex: 1 1 260px; max-width: 420px; }
-  .tp-search input { width: 100%; background: var(--bg-input); color: var(--ink); border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; font: inherit; font-size: .95rem; }
+  .chip.lim { border-color: var(--err); }
+  .tp-search { position: relative; flex: 1 1 240px; max-width: 360px; }
+  .tp-search input { width: 100%; background: var(--bg-input); color: var(--ink); border: 1px solid var(--line); border-radius: 10px; padding: 7px 12px; font: inherit; font-size: .9rem; }
   .tp-search input:focus { border-color: var(--amber); outline: none; box-shadow: 0 0 0 3px rgba(198,138,18,.25); }
   .tp-sug { position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 5; background: var(--bg-raised); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 10px 24px -10px rgba(0,0,0,.45); overflow: hidden; }
   .tp-sug button { display: flex; justify-content: space-between; gap: 10px; width: 100%; background: none; border: 0; color: var(--ink); padding: 9px 12px; font-size: .92rem; text-align: left; cursor: pointer; }
   .tp-sug button:hover, .tp-sug button:focus-visible { background: var(--changed-bg); }
   .tp-sug small { color: var(--ink-faint); }
-  .tp-select { background: var(--bg-input); color: var(--ink); border: 1px solid var(--line); border-radius: 10px; padding: 6px 10px; font: inherit; font-size: .88rem; }
+  .tp-select { background: var(--bg-input); color: var(--ink); border: 1px solid var(--line); border-radius: 10px; padding: 7px 10px; font: inherit; font-size: .9rem; }
   .tp-sum { color: var(--ink-dim); font-size: .88rem; margin: 0 0 12px; }
+  .tp-src { color: var(--ink-faint); font-size: .8rem; margin: 18px 0 0; line-height: 1.6; }
+  .tp-src a { color: var(--ink-dim); }
+  .tp-warn { color: var(--err); }
+
+  /* 상품 묶음: 상품 하나가 가로 한 줄 */
+  .tp-g { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 18px; padding: 14px 16px; background: var(--bg-raised); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--card-shadow); margin-bottom: 12px; }
+  @media (max-width: 760px) { .tp-g { grid-template-columns: minmax(0, 1fr); gap: 10px; } }
+  .tp-gi { display: grid; gap: 6px; align-content: start; min-width: 0; }
+  .tp-gn { margin: 0; font-family: inherit; font-size: 1.12rem; font-weight: 700; line-height: 1.35; overflow-wrap: anywhere; }
+  .tp-gt { display: flex; flex-wrap: wrap; gap: 5px; }
+  .tp-tag { font-size: .76rem; padding: 1px 9px; border-radius: 99px; background: var(--changed-bg); color: var(--ink-dim); border: 1px solid var(--line); }
+  .tp-tag.lim { color: var(--err); border-color: var(--err); background: transparent; }
+  .tp-gs { color: var(--ink-dim); font-size: .85rem; font-variant-numeric: tabular-nums; }
+  .tp-gs b { color: var(--ink); font-weight: 600; }
+  .tp-gs.faint { color: var(--ink-faint); font-size: .8rem; }
+  .tp-sw { position: relative; min-width: 0; }
+  .tp-strip { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x proximity; padding-bottom: 8px; scrollbar-width: thin; }
+  .tp-strip > .tp-card { flex: 0 0 196px; scroll-snap-align: start; }
+  .tp-arrow { position: absolute; top: 34%; width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line); background: var(--bg-raised); color: var(--ink); font-size: 1.1rem; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px -4px rgba(0,0,0,.5); }
+  .tp-arrow:hover { border-color: var(--amber); }
+  .tp-arrow[hidden] { display: none; }
+  .tp-arrow.l { left: -10px; } .tp-arrow.r { right: -10px; }
+
+  /* 영상 카드 (묶음 안 · 영상 목록 공용) */
   .tp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
-  .tp-card { display: flex; flex-direction: column; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; text-decoration: none; color: inherit; min-width: 0; transition: border-color .15s, transform .15s; }
+  .tp-card { display: flex; flex-direction: column; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; text-decoration: none; color: inherit; min-width: 0; transition: border-color .15s; }
   .tp-card:hover, .tp-card:focus-visible { border-color: var(--amber); }
   .tp-th { position: relative; aspect-ratio: 16 / 9; background: #000; }
   .tp-th img { width: 100%; height: 100%; object-fit: contain; display: block; }
-  .tp-score { position: absolute; left: 8px; top: 8px; background: var(--olive); color: #14100a; font-weight: 700; font-size: .85rem; padding: 2px 9px; border-radius: 99px; font-variant-numeric: tabular-nums; }
-  .tp-score.hot { background: #f0694a; color: #fff; } .tp-score.warm { background: var(--amber); }
+  .tp-score { position: absolute; left: 8px; top: 8px; background: #d4af37; color: #14100a; font-weight: 700; font-size: .85rem; padding: 2px 9px; border-radius: 99px; font-variant-numeric: tabular-nums; }
+  .tp-score.hot { background: #c93d1f; color: #fff; } .tp-score.warm { background: var(--amber); }
   .tp-fmt { position: absolute; right: 8px; bottom: 8px; background: rgba(0,0,0,.72); color: #fff; font-size: .75rem; padding: 1px 8px; border-radius: 6px; font-variant-numeric: tabular-nums; }
-  .tp-body { padding: 11px 13px 13px; display: grid; gap: 4px; }
-  .tp-title { font-weight: 600; font-size: .95rem; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-  .tp-ch { color: var(--ink-dim); font-size: .84rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tp-limb { position: absolute; right: 8px; top: 8px; background: var(--err); color: #fff; font-size: .72rem; padding: 1px 7px; border-radius: 6px; }
+  .tp-body { padding: 10px 12px 12px; display: grid; gap: 3px; }
+  .tp-title { font-weight: 600; font-size: .92rem; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .tp-orig { color: var(--ink-faint); font-size: .78rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tp-ch { color: var(--ink-dim); font-size: .82rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .tp-meta { color: var(--ink-faint); font-size: .8rem; font-variant-numeric: tabular-nums; }
   .tp-meta b { color: var(--ink); font-weight: 600; }
   .tp-more { display: flex; justify-content: center; margin-top: 16px; }
@@ -404,7 +440,7 @@
     '이미지·영상': '첫 화면의 이미지와 영상을 바꾸는 칸이에요. 준비 중이에요.',
     '운영 한도': '무료 체험 횟수, 동시에 만드는 영상 수 같은 운영 한도를 정하는 칸이에요. 준비 중이에요. (야담 최대 길이는 야담 칸에 있어요.)',
     '기타': '어느 칸에도 속하지 않은 항목이에요.',
-    '주제 찾기': '전 세계 쇼핑 채널에서 평소보다 조회수가 유독 높은 영상을 찾아요. 카드를 누르면 유튜브에서 그 영상이 열려요. 보기만 하는 화면이에요.',
+    '주제 찾기': '전 세계 쇼핑 채널에서 평소보다 조회수가 유독 높은 영상을 상품별로 묶어 보여줘요. 영상 카드를 누르면 유튜브에서 열려요. 보기만 하는 화면이에요.',
     '현황': '제작 중인 영상과 기다리는 신청, 실패한 건을 한눈에 봐요. 보기만 하는 화면이에요.',
     '포인트 코드': '이메일과 포인트를 적으면 코드를 만들어 그 이메일로 보내요. 받은 사람이 리와인드 계정 메뉴에서 코드를 넣으면 충전 포인트로 들어가요. 코드는 받는 이메일 계정에서만 한 번 쓸 수 있어요.',
     '변경 이력': '누가 언제 무엇을 바꿨는지 기록이에요. 최근 100건까지 보여요.'
@@ -555,16 +591,20 @@
   }
 
 
-  // 주제 찾기 탭: 돌풍영상 카드 (보기 전용)
+  // 주제 찾기 탭: 돌풍영상을 상품별로 묶어서(가로 한 줄) 또는 영상 카드로 보기 (보기 전용)
   let tpData = null, tpErr = false;
-  const tp = { region: '전체', country: '', days: 7, fmt: '전체', sort: 's', shown: 24, q: '' };
+  const tp = { view: 'g', region: '전체', country: '', days: 7, fmt: '전체', cat: '전체', sort: 's', gsort: 'n', shown: 24, gshown: 12, q: '', pq: '' };
   async function loadTopics() {
     tpErr = false;
     try {
       const { status, data } = await post(TOPICS_URL, { idToken: token() });
       if (status === 401) { clearToken(); renderLogin('expired'); return; }
       if (status === 403) { $('forbidden-msg').textContent = '이 화면은 관리자만 볼 수 있어요.'; show('forbidden'); return; }
-      if (status === 200 && data && data.ok && Array.isArray(data.videos)) tpData = data; else tpErr = true;
+      if (status === 200 && data && data.ok && Array.isArray(data.videos)) {
+        data.videos.forEach((v) => { v.p = v.p || ''; v.c = v.c || ''; v.tr = v.tr || ''; v.lim = v.lim ? 1 : 0; });
+        data.cats = Array.isArray(data.cats) ? data.cats : [];
+        tpData = data;
+      } else tpErr = true;
     } catch (e) { tpErr = true; }
     if (activeTab === '주제 찾기') drawTopics();
   }
@@ -578,41 +618,74 @@
   const tpScore = (x) => x >= 100 ? String(Math.round(x)) : (Math.round(x * 10) / 10).toFixed(1);
   const tpNorm = (t) => String(t || '').normalize('NFC').toLowerCase().replace(/\s+/g, '');
   function tpEl(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  const NONE = '__none', NA = '__na';   // 상품명 분석 전 / 상품이 아닌 영상
   function drawTopics() {
     const box = $('tp-box'); if (!box) return; box.innerHTML = '';
     const note = (t) => { const w = tpEl('div', 'state'); const p = tpEl('p', '', t); p.style.margin = '0'; w.appendChild(p); box.appendChild(w); };
     if (tpErr) { note('주제 목록을 불러오지 못했어요. 탭을 다시 눌러 보세요.'); return; }
     if (!tpData) { note('불러오는 중이에요…'); return; }
     if (!tpData.videos.length) { note('아직 돌풍 영상이 없어요. 영상수집 워크플로우가 돌면 여기에 나타나요.'); return; }
-    const bar = tpEl('div', 'tp-bar'), sum = tpEl('p', 'tp-sum'), grid = tpEl('div', 'tp-grid'), more = tpEl('div', 'tp-more');
-    const chip = (label, on, fn, count) => { const b = tpEl('button', 'chip', label); b.type = 'button'; b.setAttribute('aria-pressed', on ? 'true' : 'false'); if (count != null) b.appendChild(tpEl('small', '', String(count))); b.addEventListener('click', () => { fn(); tp.shown = 24; paint(); }); return b; };
-    const row = (lab) => { const r = tpEl('div', 'tp-row'); r.appendChild(tpEl('span', 'tp-lab', lab)); bar.appendChild(r); return r; };
-    const rRegion = row('권역'), rCountry = row('나라'), rPeriod = row('기간'), rOpt = row('형식');
+
+    const top = tpEl('div', 'tp-top'), bar = tpEl('div', 'tp-bar'), sum = tpEl('p', 'tp-sum'), out = tpEl('div'), more = tpEl('div', 'tp-more');
+    const chip = (label, on, fn, count, cls) => { const b = tpEl('button', 'chip' + (cls ? ' ' + cls : ''), label); b.type = 'button'; b.setAttribute('aria-pressed', on ? 'true' : 'false'); if (count != null) b.appendChild(tpEl('small', '', String(count))); b.addEventListener('click', () => { fn(); tp.shown = 24; tp.gshown = 12; paint(); }); return b; };
+    const row = (lab, full) => { const r = tpEl('div', 'tp-row' + (full ? ' full' : '')); r.appendChild(tpEl('span', 'tp-lab', lab)); bar.appendChild(r); return r; };
+    const rCat = row('분류', true), rRegion = row('권역'), rPeriod = row('기간'), rCountry = row('나라'), rOpt = row('형식');
+
+    // 보기 전환 · 상품/제목 찾기 · 정렬
+    const seg = tpEl('div', 'tp-seg'); seg.setAttribute('role', 'group'); seg.setAttribute('aria-label', '보기 방식');
+    [['g', '상품 묶음'], ['v', '영상 목록']].forEach(([k, t]) => { const b = tpEl('button', '', t); b.type = 'button'; b.setAttribute('aria-pressed', tp.view === k ? 'true' : 'false'); b.addEventListener('click', () => { tp.view = k; tp.shown = 24; tp.gshown = 12; seg.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', x === b ? 'true' : 'false')); fillSort(); paintCards(); }); seg.appendChild(b); });
+    const fw = tpEl('div', 'tp-find'), fi = tpEl('input'); fi.type = 'search'; fi.placeholder = '상품·제목·채널 찾기'; fi.autocomplete = 'off'; fi.setAttribute('aria-label', '상품·제목·채널 찾기'); fi.maxLength = 40; fi.value = tp.pq; fw.appendChild(fi);
+    let ft = 0; fi.addEventListener('input', () => { clearTimeout(ft); ft = setTimeout(() => { tp.pq = fi.value; tp.shown = 24; tp.gshown = 12; paint(); }, 180); });
+    const sel = tpEl('select', 'tp-select'); sel.setAttribute('aria-label', '정렬');
+    const SORTS = { g: [['n', '영상 많은 순'], ['s', '돌풍점수 높은 순'], ['v', '합산 조회수 순'], ['t', '최신 순']], v: [['s', '돌풍점수 높은 순'], ['v', '조회수 많은 순'], ['n', '최신 순'], ['r', '구독자 대비 높은 순']] };
+    function fillSort() { sel.innerHTML = ''; const cur = tp.view === 'g' ? tp.gsort : tp.sort; SORTS[tp.view].forEach(([k, t]) => { const o = tpEl('option', '', t); o.value = k; if (k === cur) o.selected = true; sel.appendChild(o); }); }
+    sel.addEventListener('change', () => { if (tp.view === 'g') tp.gsort = sel.value; else tp.sort = sel.value; tp.shown = 24; tp.gshown = 12; paintCards(); });
+    fillSort();
+    top.appendChild(seg); top.appendChild(fw); top.appendChild(sel);
+
     // 나라 찾기 (한글·영어·코드)
     const sw = tpEl('div', 'tp-search'), inp = tpEl('input'); inp.type = 'search'; inp.placeholder = '나라 찾기 — 한국, korea, KR'; inp.autocomplete = 'off'; inp.setAttribute('aria-label', '나라 찾기'); inp.maxLength = 30; inp.value = tp.q;
     const sug = tpEl('div', 'tp-sug'); sug.hidden = true; sw.appendChild(inp); sw.appendChild(sug);
-    const sel = tpEl('select', 'tp-select'); sel.setAttribute('aria-label', '정렬');
-    [['s', '돌풍점수 높은 순'], ['v', '조회수 많은 순'], ['n', '최신 순'], ['r', '구독자 대비 높은 순']].forEach(([k, t]) => { const o = tpEl('option', '', t); o.value = k; if (k === tp.sort) o.selected = true; sel.appendChild(o); });
-    sel.addEventListener('change', () => { tp.sort = sel.value; tp.shown = 24; paintCards(); });
+
+    // 걸러내기 규칙
     const base = () => tpData.videos.filter((v) => v.age <= tp.days && (tp.fmt === '전체' || v.f === tp.fmt));
+    const geo = (v) => (tp.region === '전체' || v.rg === tp.region) && (!tp.country || v.cc === tp.country);
+    const pq = () => tpNorm(tp.pq);
+    const hit = (v, q) => !q || tpNorm([v.p, v.tr, v.t, v.ch].join(' ')).includes(q);
+    const catOk = (v) => tp.cat === '전체' ? v.c !== '해당없음' : tp.cat === NONE ? !v.c : tp.cat === NA ? v.c === '해당없음' : v.c === tp.cat;
+    const current = () => { const q = pq(); return base().filter((v) => geo(v) && hit(v, q) && catOk(v)); };
+
     function suggest() {
       const q = tpNorm(tp.q); sug.innerHTML = '';
       if (!q) { sug.hidden = true; return; }
       const cnt = {}; base().forEach((v) => { cnt[v.cc] = (cnt[v.cc] || 0) + 1; });
-      const hit = tpData.countries.filter((c) => tpNorm(c.cc).startsWith(q) || tpNorm(c.en).includes(q) || tpNorm(c.ko).includes(q)).sort((a, b) => a.en.localeCompare(b.en)).slice(0, 8);
-      if (!hit.length) { const b = tpEl('button', '', '찾는 나라가 없어요'); b.disabled = true; sug.appendChild(b); sug.hidden = false; return; }
-      hit.forEach((c) => { const b = tpEl('button', '', c.en + (c.ko ? ' · ' + c.ko : '')); b.type = 'button'; b.appendChild(tpEl('small', '', (cnt[c.cc] || 0) + '개')); b.addEventListener('click', () => { tp.country = c.cc; tp.region = '전체'; tp.q = ''; tp.shown = 24; inp.value = ''; sug.hidden = true; paint(); }); sug.appendChild(b); });
+      const found = tpData.countries.filter((c) => tpNorm(c.cc).startsWith(q) || tpNorm(c.en).includes(q) || tpNorm(c.ko).includes(q)).sort((a, b) => a.en.localeCompare(b.en)).slice(0, 8);
+      if (!found.length) { const b = tpEl('button', '', '찾는 나라가 없어요'); b.disabled = true; sug.appendChild(b); sug.hidden = false; return; }
+      found.forEach((c) => { const b = tpEl('button', '', c.en + (c.ko ? ' · ' + c.ko : '')); b.type = 'button'; b.appendChild(tpEl('small', '', (cnt[c.cc] || 0) + '개')); b.addEventListener('click', () => { tp.country = c.cc; tp.region = '전체'; tp.q = ''; tp.shown = 24; tp.gshown = 12; inp.value = ''; sug.hidden = true; paint(); }); sug.appendChild(b); });
       sug.hidden = false;
     }
     inp.addEventListener('input', () => { tp.q = inp.value; suggest(); });
     inp.addEventListener('keydown', (e) => { if (e.key === 'Escape') { tp.q = ''; inp.value = ''; suggest(); } else if (e.key === 'Enter') { const f = sug.querySelector('button:not([disabled])'); if (f) f.click(); } });
     inp.addEventListener('blur', () => setTimeout(() => { sug.hidden = true; }, 150));
+
     function paintBar() {
       const rows = base(), cnt = {}, ccnt = {};
-      rows.forEach((v) => { cnt[v.rg] = (cnt[v.rg] || 0) + 1; ccnt[v.cc] = (ccnt[v.cc] || 0) + 1; });
-      [rRegion, rCountry, rPeriod, rOpt].forEach((r) => { while (r.children.length > 1) r.removeChild(r.lastChild); });
+      rows.forEach((v) => { if (v.c === '해당없음') return; cnt[v.rg] = (cnt[v.rg] || 0) + 1; ccnt[v.cc] = (ccnt[v.cc] || 0) + 1; });
+      [rCat, rRegion, rCountry, rPeriod, rOpt].forEach((r) => { while (r.children.length > 1) r.removeChild(r.lastChild); });
+      // 분류 칩: 상품분류 탭 순서 + (목록에 없지만 데이터에 있는 분류) + 분석 전 + 상품 아님
+      const q = pq(), pool = rows.filter((v) => geo(v) && hit(v, q)), cc = {};
+      pool.forEach((v) => { const k = v.c || NONE; cc[k] = (cc[k] || 0) + 1; });
+      const limOf = new Set((tpData.cats || []).filter((c) => c.lim).map((c) => c.n)); pool.forEach((v) => { if (v.lim) limOf.add(v.c); });
+      const names = (tpData.cats || []).map((c) => c.n); Object.keys(cc).forEach((k) => { if (k !== NONE && k !== '해당없음' && !names.includes(k)) names.push(k); });
+      const real = pool.filter((v) => v.c !== '해당없음').length;
+      rCat.appendChild(chip('전체', tp.cat === '전체', () => { tp.cat = '전체'; }, real));
+      if (tp.cat !== '전체' && tp.cat !== NONE && tp.cat !== NA && !names.includes(tp.cat)) names.push(tp.cat);
+      names.filter((n) => cc[n] || n === tp.cat).forEach((n) => { const lim = limOf.has(n); rCat.appendChild(chip((lim ? '⚠ ' : '') + n, tp.cat === n, () => { tp.cat = n; }, cc[n] || 0, lim ? 'lim' : '')); if (lim) rCat.lastChild.title = '제한 상품 분류 — 유튜브 정책과 표시광고 규정에 걸리기 쉬워요'; });
+      if (cc[NONE] || tp.cat === NONE) { const c2 = chip('분석 전', tp.cat === NONE, () => { tp.cat = NONE; }, cc[NONE] || 0, 'x'); c2.title = '상품명을 아직 못 뽑은 영상 (다음 영상수집 때 채워져요)'; rCat.appendChild(c2); }
+      if (cc['해당없음'] || tp.cat === NA) { const c3 = chip('상품 아님', tp.cat === NA, () => { tp.cat = NA; }, cc['해당없음'] || 0, 'x'); c3.title = '특정 상품을 소개하지 않는 영상'; rCat.appendChild(c3); }
       const regions = Object.keys(cnt).sort((a, b) => (a === '한국' ? -1 : b === '한국' ? 1 : cnt[b] - cnt[a]));
-      rRegion.appendChild(chip('전체', tp.region === '전체' && !tp.country, () => { tp.region = '전체'; tp.country = ''; }, rows.length));
+      const all = rows.filter((v) => v.c !== '해당없음').length;
+      rRegion.appendChild(chip('전체', tp.region === '전체' && !tp.country, () => { tp.region = '전체'; tp.country = ''; }, all));
       regions.forEach((rg) => rRegion.appendChild(chip(rg, tp.region === rg && !tp.country, () => { tp.region = rg; tp.country = ''; }, cnt[rg])));
       const cs = tpData.countries.filter((c) => (ccnt[c.cc] || 0) > 0 && (tp.region === '전체' || c.rg === tp.region)).sort((a, b) => a.en.localeCompare(b.en));
       if (tp.country) { const c = tpData.countries.find((x) => x.cc === tp.country); const x = chip((c ? c.en + (c.ko ? ' · ' + c.ko : '') : tp.country) + '  ✕', true, () => { tp.country = ''; }); x.title = '나라 선택 해제'; rCountry.appendChild(x); }
@@ -620,32 +693,90 @@
       rCountry.appendChild(sw);
       [[7, '7일'], [14, '14일'], [30, '30일']].forEach(([d, t]) => rPeriod.appendChild(chip(t + ' 이내', tp.days === d, () => { tp.days = d; })));
       ['전체', '쇼츠', '롱폼'].forEach((f) => rOpt.appendChild(chip(f, tp.fmt === f, () => { tp.fmt = f; })));
-      rOpt.appendChild(sel);
     }
-    function paintCards() {
-      const rows = base().filter((v) => (tp.region === '전체' || v.rg === tp.region) && (!tp.country || v.cc === tp.country));
-      const key = { s: (v) => v.s, v: (v) => v.v, n: (v) => -v.age, r: (v) => v.rel };
-      rows.sort((a, b) => key[tp.sort](b) - key[tp.sort](a));
-      sum.textContent = rows.length + '개 · 기준 수집일 ' + (tpData.collected || '-') + ' · ';
-      const rb = tpEl('button', 'btn ghost pc-x', '새로 고침'); rb.type = 'button'; rb.addEventListener('click', () => { tpData = null; drawTopics(); loadTopics(); }); sum.appendChild(rb);
-      grid.innerHTML = ''; more.innerHTML = '';
-      if (!rows.length) { const w = tpEl('div', 'state'); const p = tpEl('p', '', '조건에 맞는 영상이 없어요. 기간을 늘리거나 다른 나라를 골라 보세요.'); p.style.margin = '0'; w.appendChild(p); grid.style.display = 'block'; grid.appendChild(w); return; }
-      grid.style.display = '';
-      rows.slice(0, tp.shown).forEach((v) => {
-        const a = tpEl('a', 'tp-card'); a.href = (v.f === '쇼츠' ? 'https://www.youtube.com/shorts/' : 'https://www.youtube.com/watch?v=') + encodeURIComponent(v.id); a.target = '_blank'; a.rel = 'noopener noreferrer';
-        a.title = '이 채널의 평소 조회수 ' + Math.round(v.base).toLocaleString('ko-KR') + '의 ' + tpScore(v.s) + '배';
-        const th = tpEl('div', 'tp-th'), im = document.createElement('img'); im.loading = 'lazy'; im.alt = ''; im.referrerPolicy = 'no-referrer'; im.src = 'https://i.ytimg.com/vi/' + encodeURIComponent(v.id) + '/mqdefault.jpg'; im.addEventListener('error', () => { im.style.display = 'none'; });
-        th.appendChild(im); th.appendChild(tpEl('span', 'tp-score ' + (v.s >= 20 ? 'hot' : v.s >= 5 ? 'warm' : ''), '돌풍 ×' + tpScore(v.s))); th.appendChild(tpEl('span', 'tp-fmt', v.f + ' ' + tpDur(v.sec)));
-        const body = tpEl('div', 'tp-body'); body.appendChild(tpEl('div', 'tp-title', v.t || '(제목 없음)'));
-        const cn = (tpData.countries.find((c) => c.cc === v.cc) || {}); body.appendChild(tpEl('div', 'tp-ch', v.ch + ' · ' + (cn.ko || cn.en || v.cc)));
-        const m1 = tpEl('div', 'tp-meta'); m1.appendChild(document.createTextNode('평소 ' + tpN(v.base) + ' → 지금 ')); m1.appendChild(tpEl('b', '', tpN(v.v))); body.appendChild(m1);
-        body.appendChild(tpEl('div', 'tp-meta', tpAge(v.age) + (v.sub ? ' · 구독자 ' + tpN(v.sub) + '명' : '')));
-        a.appendChild(th); a.appendChild(body); grid.appendChild(a);
+
+    // 영상 카드 (묶음 안 · 영상 목록 공용). 카드를 누르면 유튜브에서 열려요.
+    function card(v) {
+      const a = tpEl('a', 'tp-card'); a.href = (v.f === '쇼츠' ? 'https://www.youtube.com/shorts/' : 'https://www.youtube.com/watch?v=') + encodeURIComponent(v.id); a.target = '_blank'; a.rel = 'noopener noreferrer';
+      a.title = '리와인드가 계산한 값 — 이 채널 평소 조회수 ' + Math.round(v.base).toLocaleString('ko-KR') + '의 ' + tpScore(v.s) + '배';
+      const th = tpEl('div', 'tp-th'), im = document.createElement('img'); im.loading = 'lazy'; im.alt = ''; im.referrerPolicy = 'no-referrer'; im.src = 'https://i.ytimg.com/vi/' + encodeURIComponent(v.id) + '/mqdefault.jpg'; im.addEventListener('error', () => { im.style.display = 'none'; });
+      th.appendChild(im); th.appendChild(tpEl('span', 'tp-score ' + (v.s >= 20 ? 'hot' : v.s >= 5 ? 'warm' : ''), '돌풍 ×' + tpScore(v.s))); th.appendChild(tpEl('span', 'tp-fmt', v.f + ' ' + tpDur(v.sec)));
+      if (v.lim) th.appendChild(tpEl('span', 'tp-limb', '⚠ 제한'));
+      const body = tpEl('div', 'tp-body'); body.appendChild(tpEl('div', 'tp-title', v.tr || v.t || '(제목 없음)'));
+      if (v.tr && v.t) body.appendChild(tpEl('div', 'tp-orig', v.t));
+      const cn = (tpData.countries.find((c) => c.cc === v.cc) || {}); body.appendChild(tpEl('div', 'tp-ch', v.ch + ' · ' + (cn.ko || cn.en || v.cc)));
+      const m1 = tpEl('div', 'tp-meta'); m1.appendChild(document.createTextNode('평소 ' + tpN(v.base) + ' → 지금 ')); m1.appendChild(tpEl('b', '', tpN(v.v))); body.appendChild(m1);
+      body.appendChild(tpEl('div', 'tp-meta', tpAge(v.age) + (v.sub ? ' · 구독자 ' + tpN(v.sub) + '명' : '')));
+      a.appendChild(th); a.appendChild(body); return a;
+    }
+
+    // 같은 상품끼리 묶기
+    function groupsOf(rows) {
+      const m = new Map();
+      rows.forEach((v) => {
+        let key, label;
+        if (!v.c) { key = NONE; label = '상품명 분석 전'; } else if (v.c === '해당없음' || !v.p) { key = NA; label = '상품이 아닌 영상'; } else { key = tpNorm(v.p); label = v.p; }
+        let g = m.get(key); if (!g) { g = { key, names: new Map(), cats: new Map(), rows: [], chs: new Set(), ccs: new Set(), vSum: 0, sMax: 0, ageMin: 1e9, lim: false }; m.set(key, g); }
+        g.names.set(label, (g.names.get(label) || 0) + 1); if (v.c) g.cats.set(v.c, (g.cats.get(v.c) || 0) + 1);
+        g.rows.push(v); g.chs.add(v.cid || v.ch); g.ccs.add(v.cc); g.vSum += v.v; g.sMax = Math.max(g.sMax, v.s); g.ageMin = Math.min(g.ageMin, v.age); if (v.lim) g.lim = true;
       });
-      if (rows.length > tp.shown) { const b = tpEl('button', 'btn ghost', '더 보기 (' + (rows.length - tp.shown) + '개 남음)'); b.type = 'button'; b.addEventListener('click', () => { tp.shown += 24; paintCards(); }); more.appendChild(b); }
+      const top1 = (mp) => { let b = '', n = -1; mp.forEach((c, k) => { if (c > n) { b = k; n = c; } }); return b; };
+      const gs = [...m.values()]; gs.forEach((g) => { g.name = top1(g.names); g.cat = top1(g.cats); g.rows.sort((a, b) => b.s - a.s); });
+      const key = { n: (g) => g.rows.length * 1e6 + g.sMax, s: (g) => g.sMax, v: (g) => g.vSum, t: (g) => -g.ageMin };
+      const real = gs.filter((g) => g.key !== NONE && g.key !== NA).sort((a, b) => key[tp.gsort](b) - key[tp.gsort](a));
+      return real.concat(gs.filter((g) => g.key === NONE || g.key === NA));
+    }
+    const STRIP_MAX = 40;
+    function groupRow(g) {
+      const el = tpEl('article', 'tp-g'), info = tpEl('div', 'tp-gi');
+      info.appendChild(tpEl('h3', 'tp-gn', g.name));
+      const tags = tpEl('div', 'tp-gt'); if (g.cat && g.cat !== '해당없음') tags.appendChild(tpEl('span', 'tp-tag', g.cat)); if (g.lim) tags.appendChild(tpEl('span', 'tp-tag lim', '⚠ 제한 상품'));
+      if (tags.children.length) info.appendChild(tags);
+      info.appendChild(tpEl('div', 'tp-gs', '영상 ' + g.rows.length + '개 · 채널 ' + g.chs.size + '곳 · 나라 ' + g.ccs.size + '곳'));
+      if (g.key !== NONE && g.key !== NA) {
+        const s2 = tpEl('div', 'tp-gs'); s2.appendChild(document.createTextNode('최고 ')); s2.appendChild(tpEl('b', '', '×' + tpScore(g.sMax))); s2.appendChild(document.createTextNode(' · 합산 조회 ')); s2.appendChild(tpEl('b', '', tpN(g.vSum))); info.appendChild(s2);
+      }
+      if (g.key === NONE) info.appendChild(tpEl('div', 'tp-gs faint', '다음 영상수집 때 상품명이 채워져요'));
+      if (g.rows.length > STRIP_MAX) info.appendChild(tpEl('div', 'tp-gs faint', '점수 높은 ' + STRIP_MAX + '개만 보여요'));
+      const wrap = tpEl('div', 'tp-sw'), strip = tpEl('div', 'tp-strip');
+      g.rows.slice(0, STRIP_MAX).forEach((v) => strip.appendChild(card(v)));
+      const mkArrow = (cls, label, dir) => { const b = tpEl('button', 'tp-arrow ' + cls, dir < 0 ? '‹' : '›'); b.type = 'button'; b.setAttribute('aria-label', label); b.addEventListener('click', () => { strip.scrollBy({ left: dir * strip.clientWidth * 0.8, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); }); return b; };
+      const bl = mkArrow('l', '왼쪽 영상 보기', -1), br = mkArrow('r', '오른쪽 영상 보기', 1);
+      const sync = () => { bl.hidden = strip.scrollLeft < 8; br.hidden = strip.scrollLeft + strip.clientWidth >= strip.scrollWidth - 8; };
+      strip.addEventListener('scroll', sync, { passive: true });
+      if (window.ResizeObserver) new ResizeObserver(sync).observe(strip);
+      wrap.appendChild(strip); wrap.appendChild(bl); wrap.appendChild(br); bl.hidden = br.hidden = true;
+      requestAnimationFrame(sync);
+      el.appendChild(info); el.appendChild(wrap); return el;
+    }
+
+    function paintCards() {
+      const rows = current();
+      out.innerHTML = ''; more.innerHTML = '';
+      const stale = (() => { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(tpData.collected || ''); if (!m) return 0; const d = Date.UTC(+m[1], +m[2] - 1, +m[3]); const t = new Date(Date.now() + 9 * 3600e3); return Math.floor((Date.UTC(t.getUTCFullYear(), t.getUTCMonth(), t.getUTCDate()) - d) / 86400e3); })();
+      const tail = () => { if (stale >= 2) { sum.appendChild(tpEl('span', 'tp-warn', '⚠ 수집한 지 ' + stale + '일이 지났어요(영상수집이 멈췄는지 확인) · ')); } if (tpData.total > tpData.videos.length) sum.appendChild(document.createTextNode('점수 높은 ' + tpData.videos.length.toLocaleString('ko-KR') + '개만 불러왔어요(전체 ' + tpData.total.toLocaleString('ko-KR') + '개) · ')); };
+      const rb = tpEl('button', 'btn ghost pc-x', '새로 고침'); rb.type = 'button'; rb.addEventListener('click', () => { tpData = null; drawTopics(); loadTopics(); });
+      const empty = () => { const w = tpEl('div', 'state'); const p = tpEl('p', '', '조건에 맞는 영상이 없어요. 기간을 늘리거나 분류·나라를 바꿔 보세요.'); p.style.margin = '0'; w.appendChild(p); out.appendChild(w); };
+      if (tp.view === 'g') {
+        const gs = groupsOf(rows), nProd = gs.filter((g) => g.key !== NONE && g.key !== NA).length;
+        sum.textContent = '상품 ' + nProd + '개 · 영상 ' + rows.length + '개 · 기준 수집일 ' + (tpData.collected || '-') + ' · '; tail(); sum.appendChild(rb);
+        if (!gs.length) { empty(); return; }
+        gs.slice(0, tp.gshown).forEach((g) => out.appendChild(groupRow(g)));
+        if (gs.length > tp.gshown) { const b = tpEl('button', 'btn ghost', '더 보기 (' + (gs.length - tp.gshown) + '개 남음)'); b.type = 'button'; b.addEventListener('click', () => { tp.gshown += 12; paintCards(); }); more.appendChild(b); }
+      } else {
+        const key = { s: (v) => v.s, v: (v) => v.v, n: (v) => -v.age, r: (v) => v.rel };
+        rows.sort((a, b) => key[tp.sort](b) - key[tp.sort](a));
+        sum.textContent = rows.length + '개 · 기준 수집일 ' + (tpData.collected || '-') + ' · '; tail(); sum.appendChild(rb);
+        if (!rows.length) { empty(); return; }
+        const grid = tpEl('div', 'tp-grid'); rows.slice(0, tp.shown).forEach((v) => grid.appendChild(card(v))); out.appendChild(grid);
+        if (rows.length > tp.shown) { const b = tpEl('button', 'btn ghost', '더 보기 (' + (rows.length - tp.shown) + '개 남음)'); b.type = 'button'; b.addEventListener('click', () => { tp.shown += 24; paintCards(); }); more.appendChild(b); }
+      }
     }
     function paint() { paintBar(); paintCards(); }
-    box.appendChild(bar); box.appendChild(sum); box.appendChild(grid); box.appendChild(more); paint();
+
+    const src = tpEl('p', 'tp-src'); src.appendChild(document.createTextNode('영상·조회수 출처: YouTube. 돌풍점수(평소 조회수의 몇 배)와 구독자 대비는 리와인드가 조회수로 직접 계산한 값이에요. '));
+    const ta = tpEl('a', '', 'YouTube 서비스 약관'); ta.href = 'https://www.youtube.com/t/terms'; ta.target = '_blank'; ta.rel = 'noopener noreferrer'; src.appendChild(ta); src.appendChild(document.createTextNode(' · ')); const pa = tpEl('a', '', 'Google 개인정보처리방침'); pa.href = 'https://policies.google.com/privacy'; pa.target = '_blank'; pa.rel = 'noopener noreferrer'; src.appendChild(pa);
+    box.appendChild(top); box.appendChild(bar); box.appendChild(sum); box.appendChild(out); box.appendChild(more); box.appendChild(src); paint();
   }
 
   function renderHistory(list) {
