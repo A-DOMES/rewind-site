@@ -1349,7 +1349,7 @@
   .tpv-find { flex: 1 1 220px; max-width: 400px; }
   .tpv-find input { width: 100%; background: var(--bg-input); color: var(--ink); border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; font: inherit; font-size: .92rem; }
   .tpv-find input:focus, .tpv-sel:focus-visible { border-color: var(--gold); outline: none; box-shadow: 0 0 0 3px rgba(198,138,18,.25); }
-  .tpv-fl { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)) auto; gap: 8px; align-items: end; }
+  .tpv-fl { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)) auto; gap: 8px; align-items: end; }
   @media (max-width: 1000px) { .tpv-fl { grid-template-columns: repeat(3, minmax(0, 1fr)); } .tpv-reset { grid-column: 1 / -1; } }
   @media (max-width: 560px) { .tpv-fl { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   .tpv-fld { display: grid; gap: 3px; min-width: 0; }
@@ -1363,6 +1363,37 @@
   .tpv-src a { color: var(--ink-dim); }
   .tpv-tag { display: inline-block; font-size: .74rem; padding: 0 8px; border-radius: 6px; color: var(--ink-dim); border: 1px solid var(--line); white-space: nowrap; }
   .tpv-tag.sh { color: var(--gold); border-color: var(--gold); }
+  .tpv-main { display: grid; grid-template-columns: 216px minmax(0, 1fr); gap: 16px; align-items: start; }
+  .tpv-content { min-width: 0; }
+  .tpv-side { position: sticky; top: 0; background: var(--bg-raised); border: 1px solid var(--line); border-radius: 14px; padding: 12px; max-height: max(220px, calc(100vh - 290px)); overflow-y: auto; }
+  .tpv-cat-h h3 { min-width: 0; overflow-wrap: anywhere; }
+  .tpv-chk.zero { opacity: .55; }
+  .tpv-side-tg { display: none; width: 100%; background: none; color: var(--ink); border: 0; padding: 4px 2px; font: inherit; font-weight: 700; text-align: left; cursor: pointer; }
+  .tpv-side-body { display: grid; gap: 8px; }
+  .tpv-side-h { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+  .tpv-side-n { color: var(--ink-dim); font-size: .78rem; }
+  .tpv-side-act { display: flex; gap: 6px; }
+  .tpv-mini { background: none; color: var(--ink-dim); border: 1px solid var(--line); border-radius: 8px; padding: 5px 10px; font: inherit; font-size: .8rem; cursor: pointer; }
+  .tpv-mini:hover { border-color: var(--gold); color: var(--ink); }
+  .tpv-side-list { display: grid; gap: 2px; }
+  .tpv-chk { display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 4px 6px; border-radius: 8px; cursor: pointer; }
+  .tpv-chk:hover { background: rgba(198,138,18,.10); }
+  .tpv-chk input { width: 18px; height: 18px; accent-color: var(--gold); flex: none; cursor: pointer; }
+  .tpv-chk input:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  .tpv-chk-n { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; font-size: .92rem; }
+  .tpv-chk-c { color: var(--ink-dim); font-size: .8rem; font-variant-numeric: tabular-nums; }
+  .tpv-side-hint { margin: 0; color: var(--ink-faint); font-size: .76rem; line-height: 1.5; }
+  .tpv-catmore { display: block; width: 100%; background: var(--bg-input); color: var(--ink); border: 1px solid var(--line); border-radius: 10px; padding: 9px 14px; font: inherit; font-size: .9rem; cursor: pointer; }
+  .tpv-catmore:hover { border-color: var(--gold); }
+  .tpv-empty .tpv-mini { margin-top: 8px; }
+  @media (max-width: 760px) {
+    .tpv-main { grid-template-columns: minmax(0, 1fr); }
+    .tpv-side { position: static; max-height: none; overflow: visible; margin-bottom: 10px; }   /* 폰에서는 관심 분야를 맨 위(필터보다 앞)에 둔다(위치는 JS가 옮김) */
+    .tpv-side-h { display: none; }
+    .tpv-side-tg { display: block; }
+    .tpv-side:not(.open) .tpv-side-body { display: none; }
+    .tpv-side.open .tpv-side-body { margin-top: 8px; }
+  }
   .tpv-cat { margin-bottom: 24px; }
   .tpv-cat-h { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 12px; padding: 0 4px 8px; border-bottom: 2px solid var(--gold); margin-bottom: 8px; }
   .tpv-cat-h h3 { margin: 0; font-size: 1.35rem; font-weight: 800; letter-spacing: -.01em; }
@@ -2175,7 +2206,12 @@
   // ===== [주제 찾기] 요즘 뜨는 상품 영상: 둘러보는 동안 챗봇은 움직이지 않고, "이 주제로 만들기"를 누를 때만 상담이 시작된다 =====
   const TOPICS_URL = 'https://bald-buffalo.pikapod.net/webhook/order-topics';
   let tpvData = null, tpvPending = null, tpvFt = 0, tpvPrevFocus = null, tpvClosed = false;
-  const tpv = { region: '전체', country: '', days: 7, fmt: '전체', cat: '전체', sort: 's', gsort: 'n', view: 'g', shown: 30, gshown: 10, pq: '', open: {}, sel: null };
+  // 관심 분야(즐겨찾기): 꺼 둔 분류만 이 기기(브라우저)에 기억한다. 새 분류가 생기면 기본으로 켜져 있다
+  const TPV_OFF_KEY = 'rw_tpv_off';
+  function tpvLoadOff() { try { const a = JSON.parse(localStorage.getItem(TPV_OFF_KEY) || '[]'); return new Set(Array.isArray(a) ? a.filter((x) => typeof x === 'string').slice(0, 60) : []); } catch (e) { return new Set(); } }
+  function tpvSaveOff() { try { if (tpv.off.size) localStorage.setItem(TPV_OFF_KEY, JSON.stringify([...tpv.off])); else localStorage.removeItem(TPV_OFF_KEY); } catch (e) {} }
+  const tpv = { region: '전체', country: '', days: 7, fmt: '전체', off: tpvLoadOff(), sort: 's', gsort: 'n', view: 'g', shown: 30, cshown: Object.create(null), pq: '', open: {}, sel: null };
+  let tpvMq = null, tpvMqFn = null;   // 폰 폭일 때 관심 분야 패널을 맨 앞(필터보다 앞)으로 옮기는 감시기(창을 다시 그릴 때마다 하나만 유지)
   const tpvN = (n) => n >= 1e8 ? (n / 1e8).toFixed(1) + '억' : n >= 1e4 ? (n >= 1e5 ? Math.round(n / 1e4) : (n / 1e4).toFixed(1)) + '만' : Math.round(n).toLocaleString('ko-KR');
   const tpvAge = (a) => a < 1 ? Math.max(1, Math.round(a * 24)) + '시간 전' : Math.floor(a) + '일 전';
   const tpvDur = (s) => s < 60 ? s + '초' : Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
@@ -2232,7 +2268,7 @@
   function tpvDraw() {
     const box = document.getElementById('tpv-box'); if (!box) return; box.innerHTML = '';
     clearTimeout(tpvFt);
-    const D = tpvData, again = () => { tpv.shown = 30; tpv.gshown = 10; };
+    const D = tpvData, again = () => { tpv.shown = 30; tpv.cshown = Object.create(null); };
     const bar = tpvEl('div', 'tpv-bar'), top = tpvEl('div', 'tpv-top'), fl = tpvEl('div', 'tpv-fl'), sum = tpvEl('p', 'tpv-sum'), help = tpvEl('p', 'tpv-help'), out = tpvEl('div'), more = tpvEl('div', 'tpv-more');
     // 보기 · 찾기
     const seg = tpvEl('div', 'tpv-seg'); seg.setAttribute('role', 'group'); seg.setAttribute('aria-label', '보기 방식');
@@ -2244,9 +2280,9 @@
     let fn = 0;
     const fld = (lab) => { const w = tpvEl('div', 'tpv-fld'), s = tpvEl('select', 'tpv-sel'), l = tpvEl('label', '', lab); s.id = 'tpv-f' + (fn++); l.htmlFor = s.id; w.appendChild(l); w.appendChild(s); fl.appendChild(w); return { s, l }; };
     const setOpts = (s, opts, cur) => { s.innerHTML = ''; opts.forEach(([v, t]) => { const o = tpvEl('option', '', t); o.value = v; if (String(v) === String(cur)) o.selected = true; s.appendChild(o); }); };
-    const fCat = fld('분류'), fRegion = fld('권역'), fCountry = fld('나라'), fFmt = fld('형식'), fDays = fld('기간'), fSort = fld('정렬');
+    const fRegion = fld('권역'), fCountry = fld('나라'), fFmt = fld('형식'), fDays = fld('기간'), fSort = fld('정렬');
     const onSel = (f, fnc) => f.s.addEventListener('change', () => { fnc(f.s.value); again(); paint(); });
-    onSel(fCat, (v) => { tpv.cat = v; }); onSel(fRegion, (v) => { tpv.region = v; tpv.country = ''; }); onSel(fCountry, (v) => { tpv.country = v; }); onSel(fFmt, (v) => { tpv.fmt = v; }); onSel(fDays, (v) => { tpv.days = +v; });
+    onSel(fRegion, (v) => { tpv.region = v; tpv.country = ''; }); onSel(fCountry, (v) => { tpv.country = v; }); onSel(fFmt, (v) => { tpv.fmt = v; }); onSel(fDays, (v) => { tpv.days = +v; });
     const fixedOpts = () => { setOpts(fFmt.s, [['전체', '전체 형식'], ['쇼츠', '쇼츠'], ['롱폼', '롱폼']], tpv.fmt); setOpts(fDays.s, [[7, '최근 7일'], [14, '최근 14일'], [30, '최근 30일']], tpv.days); };
     fixedOpts();
     const SORTS = { g: [['n', '영상 많은 순'], ['s', '최고 돌풍 순'], ['t', '최신 순']], v: [['s', '돌풍 높은 순'], ['v', '조회수 많은 순'], ['n', '최신 순']] };
@@ -2254,21 +2290,51 @@
     fSort.s.addEventListener('change', () => { if (tpv.view === 'g') tpv.gsort = fSort.s.value; else tpv.sort = fSort.s.value; again(); paintCards(); });
     fillSort();
     const rs = tpvEl('button', 'tpv-reset', '초기화'); rs.type = 'button';
-    rs.addEventListener('click', () => { clearTimeout(tpvFt); Object.assign(tpv, { region: '전체', country: '', days: 7, fmt: '전체', cat: '전체', pq: '', sort: 's', gsort: 'n', open: {} }); fi.value = ''; again(); fillSort(); fixedOpts(); paint(); });
+    rs.addEventListener('click', () => { clearTimeout(tpvFt); Object.assign(tpv, { region: '전체', country: '', days: 7, fmt: '전체', pq: '', sort: 's', gsort: 'n', open: {} }); fi.value = ''; again(); fillSort(); fixedOpts(); paint(); });   // 관심 분야 체크는 내 설정이라 초기화하지 않는다
     fl.appendChild(rs);
     // 걸러내기
     const base = () => D.videos.filter((v) => v.age <= tpv.days && (tpv.fmt === '전체' || v.f === tpv.fmt));
     const geo = (v) => (tpv.region === '전체' || v.rg === tpv.region) && (!tpv.country || v.cc === tpv.country);
     const pq = () => tpvNorm(tpv.pq);
     const hit = (v, q) => !q || tpvNorm([v.p, v.tr, v.t, v.ch].join(' ')).includes(q);
-    const current = () => { const q = pq(); return base().filter((v) => geo(v) && hit(v, q) && (tpv.cat === '전체' || v.c === tpv.cat)); };
+    const current = () => { const q = pq(); return base().filter((v) => geo(v) && hit(v, q) && !tpv.off.has(v.c)); };
     const catNames = () => { const n = D.cats.map((c) => c.n); D.videos.forEach((v) => { if (!n.includes(v.c)) n.push(v.c); }); return n; };
+    // 관심 분야 패널: 체크한 분류의 영상만 보인다. 체크는 언제든 바꿀 수 있고 바로 반영된다
+    const side = tpvEl('aside', 'tpv-side'), sideTg = tpvEl('button', 'tpv-side-tg'), sideBody = tpvEl('div', 'tpv-side-body'), sideList = tpvEl('div', 'tpv-side-list');
+    side.setAttribute('aria-label', '관심 분야'); sideBody.id = 'tpv-side-body'; sideList.setAttribute('role', 'group'); sideList.setAttribute('aria-label', '관심 분야 목록');
+    sideTg.type = 'button'; sideTg.setAttribute('aria-expanded', 'false'); sideTg.setAttribute('aria-controls', 'tpv-side-body');
+    const dropSel = () => { if (tpv.sel && tpv.off.has(tpv.sel.c)) { tpv.sel = null; markSel(); } };   // 끈 분야의 영상을 골라 둔 채로 남지 않게
+    sideTg.addEventListener('click', () => { const o = !side.classList.contains('open'); side.classList.toggle('open', o); sideTg.setAttribute('aria-expanded', o ? 'true' : 'false'); sideCount(); });
+    let sideNames = [];
+    const sideHead = tpvEl('div', 'tpv-side-h'), sideTit = tpvEl('b', '', '관심 분야'), sideSum = tpvEl('span', 'tpv-side-n'), sideAct = tpvEl('div', 'tpv-side-act');
+    const mini = (t, fnc) => { const b = tpvEl('button', 'tpv-mini', t); b.type = 'button'; b.addEventListener('click', fnc); return b; };
+    sideAct.appendChild(mini('모두 선택', () => { sideNames.forEach((n) => tpv.off.delete(n)); tpvSaveOff(); tpv.shown = 30; paintSide(); paintCards(); }));
+    sideAct.appendChild(mini('모두 해제', () => { sideNames.forEach((n) => tpv.off.add(n)); tpvSaveOff(); tpv.shown = 30; dropSel(); paintSide(); paintCards(); }));
+    sideHead.appendChild(sideTit); sideHead.appendChild(sideSum);
+    const sideHint = tpvEl('p', 'tpv-side-hint', '체크한 분야의 영상만 보여요. 이 기기에 기억돼요.');
+    sideBody.appendChild(sideHead); sideBody.appendChild(sideAct); sideBody.appendChild(sideList); sideBody.appendChild(sideHint);
+    side.appendChild(sideTg); side.appendChild(sideBody);
+    let sideCnt = Object.create(null);
+    function sideCount() { const on = sideNames.filter((n) => !tpv.off.has(n)).length; sideSum.textContent = on + '/' + sideNames.length + ' 선택'; sideTg.textContent = '관심 분야 ' + on + '/' + sideNames.length + ' 선택 ' + (side.classList.contains('open') ? '▴' : '▾'); }
+    function paintSide(cc) {
+      if (cc) sideCnt = cc;
+      sideNames = catNames();   // 지금 조건에서 영상이 없는 분류도 항상 보여 준다(0으로 흐리게) — "모두 선택/해제"와 n/m 이 늘 같은 범위
+      sideList.innerHTML = '';
+      sideNames.forEach((n) => {
+        const k = sideCnt[n] || 0, lb = tpvEl('label', 'tpv-chk' + (k ? '' : ' zero')), cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !tpv.off.has(n);
+        cb.setAttribute('aria-label', n + ', 영상 ' + k + '개');
+        cb.addEventListener('change', () => { if (cb.checked) tpv.off.delete(n); else tpv.off.add(n); tpvSaveOff(); tpv.shown = 30; dropSel(); sideCount(); paintCards(); });   // 다른 분류의 "더 보기" 펼침은 그대로 둔다
+        const kc = tpvEl('span', 'tpv-chk-c', String(k)); kc.setAttribute('aria-hidden', 'true');
+        lb.appendChild(cb); lb.appendChild(tpvEl('span', 'tpv-chk-n', n)); lb.appendChild(kc); sideList.appendChild(lb);
+      });
+      sideCount();
+    }
     function paintBar() {
-      const rows = base(), q = pq(), rcnt = {};
+      const rows = base(), q = pq(), rcnt = {};   // (cc 는 분류 이름이 키라 프로토타입 없는 객체로)
       rows.forEach((v) => { rcnt[v.rg] = (rcnt[v.rg] || 0) + 1; });
       const cpool = rows.filter((v) => tpv.region === '전체' || v.rg === tpv.region), ccnt = {}; cpool.forEach((v) => { ccnt[v.cc] = (ccnt[v.cc] || 0) + 1; });
-      const pool = rows.filter((v) => geo(v) && hit(v, q)), cc = {}; pool.forEach((v) => { cc[v.c] = (cc[v.c] || 0) + 1; });
-      setOpts(fCat.s, [['전체', '전체 분류 (' + pool.length + ')']].concat(catNames().filter((n) => cc[n] || n === tpv.cat).map((n) => [n, n + ' (' + (cc[n] || 0) + ')'])), tpv.cat);
+      const pool = rows.filter((v) => geo(v) && hit(v, q)), cc = Object.create(null); pool.forEach((v) => { cc[v.c] = (cc[v.c] || 0) + 1; });
+      paintSide(cc);
       const regions = Object.keys(rcnt).sort((a, b) => (a === '한국' ? -1 : b === '한국' ? 1 : rcnt[b] - rcnt[a])); if (tpv.region !== '전체' && !regions.includes(tpv.region)) regions.push(tpv.region);
       setOpts(fRegion.s, [['전체', '전체 권역 (' + rows.length + ')']].concat(regions.map((r) => [r, r + ' (' + (rcnt[r] || 0) + ')'])), tpv.region);
       const nm = (c) => c.ko || c.en || c.cc;
@@ -2330,18 +2396,25 @@
     function paintCards() {
       const rows = current(); out.innerHTML = ''; more.innerHTML = '';
       sum.textContent = (tpv.view === 'g' ? '상품 ' + groupsOf(rows).length + '개 · ' : '') + '영상 ' + rows.length + '개 · 기준 수집일 ' + (D.collected || '-');
-      const empty = () => out.appendChild(tpvEl('div', 'tpv-empty', '조건에 맞는 영상이 없어요. 기간을 늘리거나 분류·나라를 바꿔 보세요.'));
+      const empty = () => out.appendChild(tpvEl('div', 'tpv-empty', '조건에 맞는 영상이 없어요. 기간을 늘리거나 나라를 바꾸거나, 관심 분야를 더 체크해 보세요.'));
+      if (sideNames.length && sideNames.every((n) => tpv.off.has(n))) {   // 전부 꺼 두면 빈 화면 대신 안내
+        const box0 = tpvEl('div', 'tpv-empty'); box0.appendChild(tpvEl('p', '', '관심 분야를 하나 이상 체크해 주세요.'));
+        const all0 = tpvEl('button', 'tpv-mini', '모두 선택'); all0.type = 'button'; all0.addEventListener('click', () => { sideNames.forEach((n) => tpv.off.delete(n)); tpvSaveOff(); tpv.shown = 30; paintSide(); paintCards(); const fb = sideAct.querySelector('button'); if (fb && fb.offsetParent) fb.focus(); });
+        box0.appendChild(all0); out.appendChild(box0); return;
+      }
       if (tpv.view === 'g') {
         const all = groupsOf(rows); if (!all.length) { empty(); return; }
         const order = catNames(), ix = (g) => { const i = order.indexOf(g.cat); return i < 0 ? order.length : i; };
         const gs = all.map((g, i) => ({ g, i })).sort((a, b) => ix(a.g) - ix(b.g) || a.i - b.i).map((x) => x.g);
-        const tot = new Map(); gs.forEach((g) => { const t = tot.get(g.cat) || { p: 0, v: 0 }; t.p += 1; t.v += g.rows.length; tot.set(g.cat, t); });
-        let cur = null, secEl = null;
-        gs.slice(0, tpv.gshown).forEach((g, i) => {
-          if (g.cat !== cur) { cur = g.cat; secEl = tpvEl('section', 'tpv-cat'); const hd = tpvEl('div', 'tpv-cat-h'); hd.appendChild(tpvEl('h3', '', g.cat)); const t = tot.get(g.cat); hd.appendChild(tpvEl('span', 'tpv-cnt', '상품 ' + t.p + '개 · 영상 ' + t.v + '개')); secEl.appendChild(hd); out.appendChild(secEl); }
-          const k = g.cat + '|' + g.key; secEl.appendChild(prodEl(g, k in tpv.open ? tpv.open[k] : (i === 0 || !!pq())));
+        const byCat = new Map(); gs.forEach((g) => { if (!byCat.has(g.cat)) byCat.set(g.cat, []); byCat.get(g.cat).push(g); });
+        let firstProd = true;
+        byCat.forEach((list, cat) => {   // 분류마다 상품 3개만 먼저(찾는 중이면 10개) 보여 주고, "더 보기"로 그 분류만 늘린다
+          const secEl = tpvEl('section', 'tpv-cat'), hd = tpvEl('div', 'tpv-cat-h'), vcnt = list.reduce((s, g) => s + g.rows.length, 0); secEl.dataset.cat = cat;
+          hd.appendChild(tpvEl('h3', '', cat)); hd.appendChild(tpvEl('span', 'tpv-cnt', '상품 ' + list.length + '개 · 영상 ' + vcnt + '개')); secEl.appendChild(hd); out.appendChild(secEl);
+          const lim = tpv.cshown[cat] || (pq() ? 10 : 3);
+          list.slice(0, lim).forEach((g) => { const k = g.cat + '|' + g.key; secEl.appendChild(prodEl(g, k in tpv.open ? tpv.open[k] : (firstProd || !!pq()))); firstProd = false; });
+          if (list.length > lim) { const mb = tpvEl('button', 'tpv-catmore', '“' + cat + '” 상품 더 보기 (' + (list.length - lim) + '개 남음)'); mb.type = 'button'; mb.addEventListener('click', () => { tpv.cshown[cat] = lim + 10; paintCards(); const s2 = [...out.querySelectorAll('.tpv-cat')].find((x) => x.dataset.cat === cat), h2 = s2 && s2.querySelectorAll('.tpv-ph')[lim]; if (h2) h2.focus(); }); secEl.appendChild(mb); }   // 새로 보이는 첫 상품에 포커스
         });
-        if (gs.length > tpv.gshown) { const b = tpvEl('button', '', '상품 더 보기 (' + (gs.length - tpv.gshown) + '개 남음)'); b.type = 'button'; b.addEventListener('click', () => { tpv.gshown += 10; paintCards(); }); more.appendChild(b); }
       } else {
         rows.sort((a, b) => rowKey[tpv.sort](b) - rowKey[tpv.sort](a)); if (!rows.length) { empty(); return; }
         const grid = tpvEl('div', 'tpv-grid'); grid.appendChild(colhead(true)); rows.slice(0, tpv.shown).forEach((v) => grid.appendChild(vrow(v, true))); out.appendChild(grid);
@@ -2352,7 +2425,17 @@
     help.textContent = '돌풍 ×N 은 그 채널의 평소 조회수보다 N배 나왔다는 뜻이에요(리와인드가 직접 계산한 값). 고른 영상은 주제를 정하는 참고로만 쓰고, 영상 화면이나 내용을 그대로 가져오지는 않아요.';
     const src = tpvEl('p', 'tpv-src'); src.appendChild(document.createTextNode('영상·조회수 출처: YouTube. '));
     const ta = tpvEl('a', '', 'YouTube 서비스 약관'); ta.href = 'https://www.youtube.com/t/terms'; ta.target = '_blank'; ta.rel = 'noopener noreferrer'; src.appendChild(ta); src.appendChild(document.createTextNode(' · ')); const pa = tpvEl('a', '', 'Google 개인정보처리방침'); pa.href = 'https://policies.google.com/privacy'; pa.target = '_blank'; pa.rel = 'noopener noreferrer'; src.appendChild(pa);
-    box.appendChild(bar); box.appendChild(sum); box.appendChild(help); box.appendChild(out); box.appendChild(more); box.appendChild(src); paint(); markSel();
+    const main = tpvEl('div', 'tpv-main'), content = tpvEl('div', 'tpv-content'); content.appendChild(out); content.appendChild(more);
+    main.appendChild(side); main.appendChild(content);
+    box.appendChild(bar); box.appendChild(sum); box.appendChild(help); box.appendChild(main); box.appendChild(src);
+    // 폰 폭에서는 관심 분야를 필터보다 앞(맨 위)에 두어 화면 순서와 Tab 순서를 맞춘다
+    if (tpvMq && tpvMqFn) { try { tpvMq.removeEventListener('change', tpvMqFn); } catch (e) {} }
+    try {
+      tpvMq = window.matchMedia('(max-width: 760px)');
+      tpvMqFn = () => { if (tpvMq.matches) box.insertBefore(side, box.firstChild); else main.insertBefore(side, main.firstChild); };
+      tpvMq.addEventListener('change', tpvMqFn); tpvMqFn();
+    } catch (e) {}
+    paint(); markSel();
   }
   // 선택 상태를 화면(행 · 하단 고정바)에 반영
   function markSel() {
