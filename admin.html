@@ -51,7 +51,7 @@
   a { color: inherit; }
   button { font-family: inherit; }
   :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
-  .wrap { max-width: 760px; margin: 0 auto; padding: 0 20px; }
+  .wrap { max-width: 1440px; margin: 0 auto; padding: 0 20px; }
 
   header.shell {
     position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--bg);
@@ -221,7 +221,15 @@
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 
   /* 주제 찾기 탭 */
-  main.wrap.wide { max-width: 1440px; }
+  /* 넓은 화면: 모든 탭이 같은 폭. 탭 줄은 헤더 아래에 고정, 내용만 스크롤 */
+  .page-sub, .notice, .nc, .pc-form { max-width: 860px; }
+  @media (min-width: 561px) {
+    .tabs { position: sticky; top: calc(var(--hh, 58px) + env(safe-area-inset-top, 0px)); background: var(--bg); padding-top: 4px; z-index: 15; }
+  }
+  @media (min-width: 1000px) {
+    .list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    #list > .sec, #list > .notice { grid-column: 1 / -1; }
+  }
   .list:has(> #tp-box) { display: block; } #tp-box { min-width: 0; }
   .tp-bar { background: var(--bg-raised); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--card-shadow); padding: 14px 16px; display: grid; gap: 12px; margin-bottom: 10px; }
   .tp-top { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; }
@@ -370,6 +378,7 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
+  (function () { function hh() { const h = document.querySelector('header.shell'); if (h) document.documentElement.style.setProperty('--hh', h.offsetHeight + 'px'); } hh(); window.addEventListener('resize', hh); window.addEventListener('load', hh); })();
 (function () {
   'use strict';
   const GOOGLE_CLIENT_ID = '188637268860-9hj2af4bt8esn506bf5bqs72qnbu0qjs.apps.googleusercontent.com';
@@ -472,7 +481,6 @@
     const tabs = $('tabs'); tabs.innerHTML = '';
     const g = groups(); if (!g.includes(activeTab)) activeTab = g[0];
     $('page-sub').textContent = TAB_DESC[activeTab] || DEFAULT_SUB;
-    document.querySelector('main').classList.toggle('wide', activeTab === '주제 찾기');
     const nt = document.querySelector('#panel .notice'); if (nt) nt.hidden = activeTab === '주제 찾기';
     g.forEach((name) => {
       const b = document.createElement('button'); b.type = 'button'; b.className = 'tab'; b.setAttribute('role', 'tab');
