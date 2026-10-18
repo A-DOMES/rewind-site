@@ -4171,7 +4171,7 @@
         const res = await fetch('https://bald-buffalo.pikapod.net/webhook/product-kind', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idToken: googleIdToken, name, info: src === 'write' && g('df-prodInfo') ? g('df-prodInfo').value.trim() : '' }) });
         const j = await res.json().catch(() => ({}));
         if (j && j.ok && pdAiSig() === sig) { pdAi.sig = sig; pdAi.kind = j.kind || ''; kindNoticeUpdate(); }
-      } catch (e) {}
+      } catch (e) { if (pdAiSig() === sig) { pdAi.sig = sig; pdAi.kind = 'fail'; } }
       pdAiBusy = '';
     }, 1000);
   }
