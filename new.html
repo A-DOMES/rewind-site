@@ -2954,6 +2954,7 @@
         return;
       }
       payload.script = { title: 보관.title || answers.scriptTitle || '', chapters: 보관.chapters.map(c => ({ title: String(c.title || ''), text: String(c.text || '') })) };
+      if (window.__rwSpecialNoted) payload.productKindCheck = 'script';   // 제품 안내를 보고 대본 쓰기로 넘어온 경우 (접수 v3.48 이 시트에 기록)
       if (answers.narrate === true && answers.form === '롱폼') payload.narrate = true;   // 낭독형: 접수 서버가 영상유형 '낭독'으로 기록한다
       // 유튜브 설명·태그: 대본 스튜디오에서 만들었거나 직접 쓴 값. 낭독형은 보내지 않는다 (접수 v3.43 이 다시 검사한다)
       if (!(answers.narrate === true) && 보관.meta && typeof 보관.meta === 'object') {
@@ -5512,7 +5513,7 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
     if(d.type==='rw-script-confirm'){
       var kd=d.kind==='mood'?'mood':d.kind==='gen'?'gen':'yadam';var gf=d.form==='롱폼'?'롱폼':'쇼츠';var a=lib();a.unshift({id:d.scriptId,title:d.title,type:'long',kind:kd,form:kd==='gen'?gf:'',occ:d.occ||'',src:'mine',imported:!!d.imported,chapters:d.chapters,meta:(kd==='gen'&&d.meta&&typeof d.meta==='object')?d.meta:undefined,chars:d.chars,minutes:d.minutes,prod:d.prod,narrate:(kd==='gen'&&gf==='롱폼'&&typeof d.narrate==='boolean')?d.narrate:undefined,at:Date.now()});saveLib(a);
       if(kd==='gen'){window.__rwGenScript={id:d.scriptId,title:d.title,form:gf,chars:d.chars,minutes:d.minutes};if(gf==='롱폼'&&typeof d.narrate==='boolean')window.__rwGenScript.mode=d.narrate?'read':'ai'}else if(kd==='mood')window.__rwMoodScript={id:d.scriptId,title:d.title,kind:'mood',minutes:d.minutes,occ:d.occ||''};else window.__rwScript={id:d.scriptId,title:d.title,type:'long',src:'ready',imported:!!d.imported,minutes:d.minutes};
-      var spn=window.__rwSpecialGo;var from=ret;close();
+      var spn=window.__rwSpecialGo;var from=ret;close();if(spn&&kd==='gen')window.__rwSpecialNoted=true;
       if(window.__rwRefreshScriptCard)window.__rwRefreshScriptCard();if(window.__rwRefreshGenCard)window.__rwRefreshGenCard();if(window.__rwFormRedraw)window.__rwFormRedraw();
       window.__rwSpecialGo=null;
       if(spn&&kd==='gen'&&window.__rwGoGen){setTimeout(function(){window.__rwGoGen('쇼츠');setTimeout(function(){var t=document.getElementById('df-topic');if(t&&!t.value){t.value=spn;t.dispatchEvent(new Event('input'))}},150)},60);return}
