@@ -747,6 +747,10 @@
   /* [수정] 페이지가 어두운 테마(color-scheme: dark)라 구글 로그인 버튼 iframe 주변에 흰 바탕이 깔리던 문제 -
      버튼 영역만 밝은 테마로 맞춰 iframe 배경이 투명하게 보이게 한다 */
   #gsi-area, #gsi-area iframe { color-scheme: light; background: transparent; }
+  .gsi-wrap { position: relative; min-height: 44px; }
+  .gsi-lock { display: none; position: absolute; inset: 0; z-index: 2; background: transparent; border: 0; padding: 0; cursor: not-allowed; }
+  .gsi-wrap.locked .gsi-lock { display: block; }
+  .gsi-wrap.locked #gsi-area { opacity: .35; filter: grayscale(1); }
   .gate-perks { list-style: none; margin: 28px 0 0; padding: 22px 0 0; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 10px; color: var(--ink-dim); font-size: 0.94rem; }
   .gate-perks li { display: flex; gap: 10px; align-items: flex-start; }
   .gate-perks svg { width: 17px; height: 17px; margin-top: 4px; flex-shrink: 0; fill: none; stroke: var(--amber); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
@@ -1525,6 +1529,7 @@
 </style>
 <script src="./theme.js"></script>
 <script src="./assets/voice-panel.js"></script>
+<script src="./assets/rw-consent.js"></script>
 </head>
 <body>
 
@@ -1563,7 +1568,8 @@
       <a class="gate-logo" href="./index.html"><img src="./리와인드_로고1_512px.png" alt=""> 리와인드</a>
       <h1>로그인하고 시작하세요</h1>
       <p class="gate-lede">구글 계정으로 30초면 시작할 수 있어요. 신청 확인과 완성 알림도 이 계정으로 보내드려요.</p>
-      <div id="gsi-area"></div>
+      <div id="rwc-gate"></div>
+      <div class="gsi-wrap" id="gsi-wrap"><div id="gsi-area"></div><button type="button" class="gsi-lock" id="gsi-lock" aria-label="필수 항목에 모두 동의하면 로그인할 수 있어요"></button></div>
       <ul class="gate-perks">
         <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg><span>가입하면 체험 포인트 <span data-grant>50</span>P를 드려요</span></li>
         <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>대본과 최종 장면은 직접 확인하고 승인</li>
@@ -1932,9 +1938,14 @@
   }
   async function loadPoints(idToken) {
     try {
-      const res = await fetch(POINTS_WEBHOOK_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ idToken }) });
+      const res = await fetch(POINTS_WEBHOOK_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ idToken, consent: RWConsent.pending() || undefined }) });
       const d = await res.json().catch(() => null);
+      if (d && d.needConsent === true) {   // 처음 쓰는 계정인데 서버가 동의를 요구한다: 동의 창을 띄우고, 동의하면 다시 조회한다
+        RWConsent.ask(() => loadPoints(idToken), () => { sessionStorage.removeItem('rw_id_token'); location.reload(); });
+        return;
+      }
       const ok = res.ok && d && d.ok && typeof d.balance === 'number';
+      if (ok && RWConsent.pending()) RWConsent.remember();   // 동의를 보냈고 서버가 받았다: 이 브라우저에서는 다시 묻지 않는다
       myPoints = ok ? d.balance : null;
       myTrial = ok && typeof d.trialBalance === 'number' ? d.trialBalance : null;
       trialPending = !!(ok && d.trialPending);
@@ -2774,7 +2785,7 @@
     consentWrap.className = 'confirm-consent';
     consentWrap.innerHTML = `
       <input type="checkbox" id="terms-consent" style="margin-top:3px;">
-      <label for="terms-consent"><a href="./terms.html" target="_blank">이용약관 및 개인정보 처리방침</a>에 동의합니다.${mode === 'media' ? ' 업로드 원본은 구글 드라이브에 보관되며, 체험 후 24시간 안에 결제가 확인되지 않으면 시스템의 분석 정보는 자동 삭제됩니다.' : ''}</label>`;
+      <label for="terms-consent"><a href="./tos.html" target="_blank">이용약관</a> 및 <a href="./terms.html" target="_blank">개인정보 처리방침</a>에 동의합니다.${mode === 'media' ? ' 업로드 원본은 구글 드라이브에 보관되며, 체험 후 24시간 안에 결제가 확인되지 않으면 시스템의 분석 정보는 자동 삭제됩니다.' : ''}</label>`;
     composer.appendChild(consentWrap);
 
     const actions = document.createElement('div');
@@ -2829,7 +2840,7 @@
       pinGen();
     }
     const profile = decodeJwt(googleIdToken);
-    const payload = { name: (profile && profile.name) || '', contact: (profile && profile.email) || '', idToken: googleIdToken, termsConsent: true, mode: mode || 'topic', planMode };
+    const payload = { name: (profile && profile.name) || '', contact: (profile && profile.email) || '', idToken: googleIdToken, termsConsent: true, consentVersion: RWConsent.versionObj(), mode: mode || 'topic', planMode };
 
     if (mode === 'media') {
       payload.driveLink = answers.driveLink || '';
@@ -2849,6 +2860,7 @@
         const d = productExtra;
         payload.mode = 'topic';
         payload.productShort = true;
+        payload.productKind = d.kind; payload.productKindCheck = d.kindCheck;   // 접수 v3.47 이 받는 값
         payload.topic = d.name;
         delete payload.productImageUrl;
         if (d.link) { payload.productLink = d.link; payload.sellerType = d.seller; } else delete payload.productLink;
@@ -3946,10 +3958,18 @@
   // 상품쇼츠 입력 화면은 구역으로 나뉜다(단계 안내가 한 단계씩 보여 준다): 내용(2단계) / 사진·영상·길이(3단계) / 꼭 확인(5단계). 칸 id는 예전과 같다.
   const PROD_ICO = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>';
   function productSectionHtml() {
+    const kindOpt = (v, t, s) => `<label><input type="radio" name="df-kind" value="${v}"><span class="tcard"><b>${t}</b>${s ? `<small>${s}</small>` : ''}</span></label>`;
+    const kindChk = (v, t) => `<label><input type="radio" name="df-kindchk" value="${v}"><span class="tcard"><b>${t}</b></span></label>`;
     const seller = (v, t, s) => `<label><input type="radio" name="df-seller" value="${v}"><span class="tcard"><b>${t}</b><small>${s}</small></span></label>`;
     const head = (t, p) => `<div class="df-sec-head"><span class="df-sec-ico">${PROD_ICO}</span><div><h3>${t}</h3><p>${p}</p></div></div>`;
     return `<section class="df-sec df-prod pd-content df-hide" style="--c:#ff8f6b">${head('어떤 제품인가요?', '제품 이름과 내용을 알려 주세요')}
       <div class="df-field"><label>제품 이름 <em class="req">*</em> <span class="opt">100자</span></label><input type="text" id="df-prodName" maxlength="100" placeholder="예: 보온 텀블러 500ml"></div>
+      <div class="df-field" id="df-kind-wrap"><label>제품 종류 <em class="req">*</em> <span class="opt">대본 작성 방식이 달라져요</span></label>
+        <div class="df-chipset pd-seller" role="radiogroup" aria-label="제품 종류">${kindOpt('general', '일반 제품', '생활용품·전자기기·의류처럼 몸에 대한 효과를 말하지 않는 제품')}${kindOpt('restricted', '건강기능식품·화장품·의료기기·의약품', '효과를 말하는 제품이에요 · 내가 쓴 대본으로만 만들 수 있어요')}${kindOpt('unknown', '잘 모르겠어요', '')}</div>
+        <p class="df-hint" id="df-kind-note" aria-live="polite">건강기능식품·화장품·의료기기·의약품은 표시·광고 규정이 엄격해서, AI가 대본을 쓰지 않고 직접 쓴 대본으로만 만들 수 있어요. 이 경우 "내 사진·영상으로 만들기"를 이용해 주세요.</p>
+        <div class="df-hide" id="df-kindcheck" role="radiogroup" aria-label="효과를 말하는 제품인지 확인">
+          <p class="df-hint" style="margin-top:10px">제품 이름이나 설명에 효능·치료·다이어트 같은 표현이 있어요. 몸이나 피부에 효과를 말하는 제품인가요?</p>
+          <div class="df-chipset pd-two">${kindChk('no', '아니에요, 일반 제품이에요')}${kindChk('yes', '맞아요')}</div></div></div>
       <div class="df-field"><label>제품 내용 <em class="req">*</em> <span class="opt">대본에 쓸 자료예요 · 하나를 골라 주세요</span></label>
         <div class="df-chipset pd-seller pd-src" role="radiogroup" aria-label="제품 내용 넣는 방법">
           <label><input type="radio" name="df-src" value="write"><span class="tcard"><b>직접 쓰기</b><small>설명·후기 붙여넣기 · 가장 정확</small></span></label>
@@ -4118,6 +4138,26 @@
     // --- 내용 (2단계) ---
     const name = v('df-prodName');
     if (!name) add('content', '제품 이름', '제품 이름을 적어 주세요.', g('df-prodName'));
+    // 제품 종류: 일반 제품만 AI 대본으로 만든다 (접수 서버가 한 번 더 막는다). 효과를 말하는 낱말이 있으면 한 번 더 확인한다.
+    const kindSel = document.querySelector('input[name="df-kind"]:checked');
+    let kind = '', kindCheck = 'none';
+    const KIND_STOP = '건강기능식품·화장품·의료기기·의약품처럼 몸이나 피부에 효과를 말하는 제품은 AI 대본으로 만들 수 없어요. "내 사진·영상으로 만들기"에서 직접 쓴 대본으로 신청해 주세요.';
+    if (!kindSel) add('content', '제품 종류', '제품 종류를 골라 주세요.', document.querySelector('input[name="df-kind"]'));
+    else if (kindSel.value === 'unknown') add('content', '제품 종류', '제품 종류를 모르면 AI 대본으로 만들 수 없어요. 건강기능식품·화장품·의료기기·의약품이 아닌 일반 제품이 확실할 때만 "일반 제품"을 골라 주세요. 아니면 "내 사진·영상으로 만들기"에서 직접 쓴 대본으로 신청해 주세요.', kindSel);
+    else if (kindSel.value !== 'general') add('content', '제품 종류', KIND_STOP, kindSel);
+    else {
+      kind = 'general';
+      const 효과말 = /(건강기능식품|건기식|건강식품|기능성|화장품|의료기기|의약품|식약처|식품의약품안전처|임상|치료|예방|완화|면역|항산화|다이어트|살빼|체지방|탈모|주름|미백|안티에이징|효능|영양제|비타민|오메가|홍삼|유산균|프로바이오틱|콜라겐|collagen|혈당|혈압|관절|피부|크림|세럼|마스크팩|선크림|마사지기|보청기)/i;
+      const 걸림 = 효과말.test([name, (document.querySelector('input[name="df-src"]:checked') || {}).value === 'write' ? v('df-prodInfo') : ''].map(x => String(x || '').replace(/\s+/g, '')).join(' '));
+      const box = g('df-kindcheck');
+      if (box) box.classList.toggle('df-hide', !걸림);   // 보이고 숨기는 것만 하므로 mutate:false 호출에서도 한다 (안 그러면 선택지가 안 보여 다음 단계로 못 간다)
+      if (걸림) {
+        const ck = document.querySelector('input[name="df-kindchk"]:checked');
+        if (!ck) add('content', '제품 종류', '제품 이름이나 설명에 효과를 말하는 표현이 있어요. 몸이나 피부에 효과를 말하는 제품인지 골라 주세요.', document.querySelector('input[name="df-kindchk"]'));
+        else if (ck.value === 'yes') add('content', '제품 종류', KIND_STOP, ck);
+        else kindCheck = 'no';
+      }
+    }
     const srcSel = document.querySelector('input[name="df-src"]:checked');
     const src = srcSel ? srcSel.value : '';
     if (!srcSel) add('content', '제품 내용', '제품 내용을 어떻게 넣을지 골라 주세요. (직접 쓰기 / 링크로 읽기 / 이름만으로)', document.querySelector('input[name="df-src"]'));
@@ -4156,7 +4196,7 @@
     if (list.length) return { err: list[0].msg, el: list[0].el, part: list[0].part, probs };
     const sec = pdSnapLen(v('df-prodLen'));
     const layoutSel = document.querySelector('input[name="pd-layout"]:checked');
-    return { data: { name, sec, media, src, info: src === 'write' ? v('df-prodInfo').slice(0, 3000) : '', link, seller, rights: true, people, consent: people,
+    return { data: { name, kind, kindCheck, sec, media, src, info: src === 'write' ? v('df-prodInfo').slice(0, 3000) : '', link, seller, rights: true, people, consent: people,
       motion: pdMotion(), layout: layoutSel ? layoutSel.value : '자동', hook: v('pd-hook').slice(0, 18), hookShow: (layoutSel && layoutSel.value === '제목고정형') ? 'all' : ((document.querySelector('input[name="pd-hookshow"]:checked') || {}).value || 'all'), captionPos: window.RWVoice ? RWVoice.captionPos() : '' }, probs };
   }
   // 오류 문구는 문제가 있는 칸 바로 아래에 붙인다 (폰에서 화면 밖으로 밀리지 않게)
@@ -5185,6 +5225,8 @@
     }
   }
   window.handleGoogleSignIn = function (response) {
+    // 동의 없이는 로그인을 마치지 않는다 (자동 로그인·원탭 포함). 이미 동의한 브라우저(RWConsent.has)는 그대로 통과.
+    if (!RWConsent.has() && !RWConsent.ok()) { RWConsent.nudge(); return; }
     sessionStorage.setItem('rw_id_token', response.credential);
     enterApp(response.credential);
     const data = decodeJwt(response.credential);
@@ -5207,7 +5249,16 @@
     if (window.google && google.accounts && google.accounts.id) {
       google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: window.handleGoogleSignIn, auto_select: true });
       google.accounts.id.renderButton(document.getElementById('gsi-area'), { theme: 'filled_black', size: 'large', text: 'continue_with', shape: 'pill' });
-      const saved = sessionStorage.getItem('rw_id_token');
+      // 동의 창: 이미 동의한 브라우저에서는 보이지 않는다. 아직이면 버튼을 잠그고 세 항목을 모두 체크해야 열린다.
+      (function () {
+        const box = document.getElementById('rwc-gate'), wrap = document.getElementById('gsi-wrap'), lock = document.getElementById('gsi-lock');
+        if (RWConsent.has()) { box.hidden = true; return; }
+        wrap.classList.add('locked');
+        const ui = RWConsent.mount(box, ok => wrap.classList.toggle('locked', !ok));
+        lock.addEventListener('click', () => ui.nudge());
+      })();
+      let saved = sessionStorage.getItem('rw_id_token');
+      if (saved && !RWConsent.has()) { sessionStorage.removeItem('rw_id_token'); saved = null; }   // 동의 기록이 없는 브라우저의 예전 로그인은 이어가지 않고 동의 창부터 보여 준다
       if (saved) {
         const profile = decodeJwt(saved);
         const 지금초 = Math.floor(Date.now() / 1000);
