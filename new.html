@@ -1748,6 +1748,18 @@
         if (window.__rwReloadPoints) window.__rwReloadPoints();
         setTimeout(close, 2200);
       } else if (res.status === 401) { say('로그인이 풀렸어요. 새로 고침한 뒤 다시 로그인해 주세요.', 'err'); go.disabled = false; }
+      else if (d && d.reason === 'consent' && window.RWConsent) {   // 포인트코드_사용 v1.1: 동의 기록이 없으면 동의를 받은 뒤 같은 코드로 다시 시도한다
+        go.disabled = false; busy = false; say('');
+        window.RWConsent.ask(async function () {
+          busy = true; say('동의를 저장하는 중이에요…');
+          try {
+            var r2 = await fetch('https://bald-buffalo.pikapod.net/webhook/my-points', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idToken: tok, consent: window.RWConsent.obj() }) });
+            if (r2.ok) window.RWConsent.remember();
+          } catch (e2) {}
+          busy = false; submit();
+        }, function () { say('동의하면 코드를 쓸 수 있어요.', 'err'); });
+        return;
+      }
       else { say((d && d.error) || '코드를 확인하지 못했어요. 잠시 뒤 다시 시도해 주세요.', 'err'); go.disabled = false; }
     } catch (e) { say('서버 연결에 문제가 있어요. 잠시 뒤 다시 시도해 주세요.', 'err'); go.disabled = false; }
     busy = false;
