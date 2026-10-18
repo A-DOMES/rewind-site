@@ -175,10 +175,14 @@
   .pd-more[open] > summary::after { transform: rotate(-135deg); }
   .pd-note { margin-top: 8px; padding: 12px 14px; border-radius: 10px; background: color-mix(in srgb, var(--amber) 8%, var(--bg)); font-size: .82rem; line-height: 1.6; color: var(--ink-dim); }
   .pd-note b { color: var(--ink); }
-  .pd-kindnote { margin: -4px 0 16px; padding: 12px 14px; border: 1px solid var(--line); border-left: 3px solid var(--gold, #c68a12); border-radius: 8px; background: var(--bg-raised); }
-  .pd-kindnote p { margin: 0 0 10px; font-size: .92rem; line-height: 1.55; color: var(--ink); }
-  .pd-kindbtn { min-height: 40px; padding: 0 16px; border: 1px solid var(--line); border-radius: 999px; background: transparent; color: var(--ink); font: inherit; font-size: .92rem; cursor: pointer; }
-  .pd-kindbtn:disabled { opacity: .65; cursor: default; }
+  .pd-kindnote { margin: -4px 0 16px; padding: 14px 16px; border: 1px solid var(--line); border-left: 3px solid var(--gold, #c68a12); border-radius: 8px; background: var(--bg-raised); }
+  .pd-kindnote p { margin: 0 0 12px; font-size: .95rem; line-height: 1.6; color: var(--ink); }
+  .pd-kindgo { display: block; width: 100%; min-height: 46px; border: 0; border-radius: 10px; background: var(--gold, #c68a12); color: var(--on-gold, #14100a); font: inherit; font-size: 1rem; font-weight: 600; cursor: pointer; }
+  .pd-kindlink { display: block; margin: 10px auto 0; padding: 6px 4px; border: 0; background: none; color: var(--ink-dim); font: inherit; font-size: .86rem; text-decoration: underline; cursor: pointer; }
+  .pd-kindokline { display: none; font-size: .9rem; color: var(--ink-dim); }
+  .pd-kindnote.ok { padding: 10px 14px; border-left-color: var(--line); }
+  .pd-kindnote.ok p, .pd-kindnote.ok .pd-kindgo, .pd-kindnote.ok .pd-kindlink { display: none; }
+  .pd-kindnote.ok .pd-kindokline { display: inline; }
   .pd-err { margin: 10px 0 0; min-height: 1.2em; font-size: .9rem; color: var(--err, #d4663f); }
   .df-sec .df-chipset.pd-two label, .df-sec .df-chipset.pd-seller label { display: block; margin: 0; font-weight: 400; }
   .df-chipset.pd-two .tcard, .df-chipset.pd-seller .tcard { width: 100%; box-sizing: border-box; }
@@ -3968,7 +3972,7 @@
     const head = (t, p) => `<div class="df-sec-head"><span class="df-sec-ico">${PROD_ICO}</span><div><h3>${t}</h3><p>${p}</p></div></div>`;
     return `<section class="df-sec df-prod pd-content df-hide" style="--c:#ff8f6b">${head('어떤 제품인가요?', '제품 이름과 내용을 알려 주세요')}
       <div class="df-field"><label>제품 이름 <em class="req">*</em> <span class="opt">100자</span></label><input type="text" id="df-prodName" maxlength="100" placeholder="예: 보온 텀블러 500ml"></div>
-      <div class="pd-kindnote df-hide" id="df-kindnote" role="alert"><p>몸이나 피부에 효과를 말하는 제품은 AI 대본으로 만들 수 없어요. 직접 쓴 대본으로 "내 사진·영상으로 만들기"를 이용해 주세요.</p><button type="button" class="pd-kindbtn" id="df-kind-ok">일반 제품이에요</button></div>
+      <div class="pd-kindnote df-hide" id="df-kindnote" role="alert"><p><b>'<span id="df-kind-word"></span>'</b> 같은 건강식품·화장품은<br>직접 쓴 대본으로 만들어요.</p><button type="button" class="pd-kindgo" id="df-kind-go">대본 쓰러 가기</button><button type="button" class="pd-kindlink" id="df-kind-ok">단어만 비슷한 일반 제품이에요</button><span class="pd-kindokline">일반 제품으로 진행해요 ✓</span></div>
       <div class="df-field"><label>제품 내용 <em class="req">*</em> <span class="opt">대본에 쓸 자료예요 · 하나를 골라 주세요</span></label>
         <div class="df-chipset pd-seller pd-src" role="radiogroup" aria-label="제품 내용 넣는 방법">
           <label><input type="radio" name="df-src" value="write"><span class="tcard"><b>직접 쓰기</b><small>설명·후기 붙여넣기 · 가장 정확</small></span></label>
@@ -4128,7 +4132,7 @@
     return { media, cards, err: null };
   }
   // 제품 이름·내용에 효과를 말하는 낱말이 있는지 보고 안내를 보이거나 숨긴다. 접수 서버의 낱말에 몇 개를 더한 목록(서버 것을 모두 포함해야 한다).
-  const PD_EFFECT_RE = /(건강기능식품|건기식|건강식품|기능성|화장품|의료기기|의약품|식약처|식품의약품안전처|임상|치료|예방|완화|면역|항산화|다이어트|살빼|체지방|탈모|주름|미백|안티에이징|효능|영양제|비타민|오메가|홍삼|유산균|프로바이오틱|콜라겐|collagen|혈당|혈압|관절|피부|크림|세럼|마스크팩|선크림|마사지기|보청기|프로틴|락토|루테인|밀크씨슬|크릴오일|쏘팔메토|흑마늘|에센스|앰플|토너|로션)/i;
+  const PD_EFFECT_RE = /(건강기능식품|건기식|건강식품|기능성|영양제|비타민|오메가|홍삼|인삼|유산균|프로바이오틱|프리바이오틱|콜라겐|collagen|루테인|밀크씨슬|크릴오일|쏘팔메토|흑마늘|프로틴|락토|프로폴리스|마그네슘|칼슘|엽산|폴리코사놀|글루코사민|msm|코엔자임|coq10|rtg|알티지|초유|스피루리나|클로렐라|녹용|침향|공진단|다이어트|체지방|가르시니아|보충제|슬리밍|디톡스|숙취|간건강|장건강|눈건강|혈행|혈당|혈압|콜레스테롤|갱년기|전립선|면역|항산화|화장품|크림|세럼|에센스|앰플|토너|로션|선크림|선케어|자외선차단|마스크팩|클렌징|클렌저|립밤|립스틱|파운데이션|쿠션팩트|아이크림|수분크림|보습|미백|주름|안티에이징|탄력|모공|트러블|여드름|기미|잡티|탈모|샴푸|두피|바디로션|핸드크림|피부|의료기기|의약품|의약외품|연고|진통|소염|치료|완화|예방|임상|식약처|식품의약품안전처|보청기|마사지기|안마기|혈압계|혈당계|체온계|콘택트렌즈|보호대|찜질기|저주파|재활|살빼|효능)/i;   // 접수 서버의 낱말을 모두 포함한다(서버 것보다 넓다). 단어만 비슷한 일반 제품은 '일반 제품이에요' 한 번으로 통과한다
   let pdKindOkSig = '';
   function kindNoticeUpdate() {
     const g = id => document.getElementById(id);
@@ -4137,16 +4141,22 @@
     const m = txt.match(PD_EFFECT_RE), box = g('df-kindnote');
     const sig = m ? m[0].toLowerCase() : '';
     const ok = !!sig && pdKindOkSig === sig;
-    if (box) { box.classList.toggle('df-hide', !sig); box.classList.toggle('ok', ok); const bt = g('df-kind-ok'); if (bt) { bt.textContent = ok ? '확인했어요 ✓' : '일반 제품이에요'; bt.disabled = ok; } }
+    if (box) { box.classList.toggle('df-hide', !sig); box.classList.toggle('ok', ok); const w = g('df-kind-word'); if (w && m) { const raw = [g('df-prodName') ? g('df-prodName').value : '', src === 'write' && g('df-prodInfo') ? g('df-prodInfo').value : ''].join(' ').split(/\s+/); const tok = raw.find(t => t.toLowerCase().includes(m[0].toLowerCase())) || m[0]; w.textContent = tok.length > 14 ? m[0] : tok; } }
     return { hit: !!sig, ok };
   }
   document.addEventListener('input', e => { const id = e.target && e.target.id; if (id === 'df-prodName' || id === 'df-prodInfo') kindNoticeUpdate(); });
   document.addEventListener('change', e => { if (e.target && e.target.name === 'df-src') kindNoticeUpdate(); });
   document.addEventListener('click', e => {
-    if (!(e.target && e.target.id === 'df-kind-ok')) return;
+    const id = e.target && e.target.id;
+    if (id !== 'df-kind-ok' && id !== 'df-kind-go') return;
     const src = (document.querySelector('input[name="df-src"]:checked') || {}).value;
-    const txt = [(document.getElementById('df-prodName') || {}).value, src === 'write' ? (document.getElementById('df-prodInfo') || {}).value : ''].map(x => String(x || '').replace(/\s+/g, '')).join(' ');
-    const m = txt.match(PD_EFFECT_RE); pdKindOkSig = m ? m[0].toLowerCase() : ''; kindNoticeUpdate();
+    const name = ((document.getElementById('df-prodName') || {}).value || '').trim();
+    const txt = [name, src === 'write' ? (document.getElementById('df-prodInfo') || {}).value : ''].map(x => String(x || '').replace(/\s+/g, '')).join(' ');
+    const m = txt.match(PD_EFFECT_RE);
+    if (id === 'df-kind-ok') { pdKindOkSig = m ? m[0].toLowerCase() : ''; kindNoticeUpdate(); return; }
+    // 대본 쓰러 가기: 대본 쓰기 화면을 바로 열고, 저장하면 쇼츠 설정(내 대본이 골라진 상태)으로 이어 간다
+    window.__rwSpecialGo = name || '제품';
+    if (window.__rwOpenStudio) window.__rwOpenStudio('long', 'mine', null, 'gen', '쇼츠');
   });
   function readProduct(opt) {
     opt = opt || {};
@@ -4161,7 +4171,7 @@
     // 제품 종류: 따로 묻지 않는다. 이름·내용에 효과를 말하는 낱말이 있으면 안내가 나오고, "일반 제품이에요"를 눌러야 다음으로 간다. (접수 서버가 같은 낱말로 한 번 더 막는다)
     const kindState = kindNoticeUpdate();
     const kind = 'general', kindCheck = kindState.hit ? 'no' : 'none';
-    if (kindState.hit && !kindState.ok) add('content', '제품 확인', '몸이나 피부에 효과를 말하는 제품은 AI 대본으로 만들 수 없어요. 일반 제품이면 안내 아래 "일반 제품이에요"를 눌러 주세요.', g('df-kind-ok') || g('df-prodName'));
+    if (kindState.hit && !kindState.ok) add('content', '제품 확인', '건강식품·화장품 같은 제품이면 "대본 쓰러 가기"를 눌러 주세요. 일반 제품이면 안내 아래 "단어만 비슷한 일반 제품이에요"를 눌러 주세요.', g('df-kind-ok') || g('df-prodName'));
     const srcSel = document.querySelector('input[name="df-src"]:checked');
     const src = srcSel ? srcSel.value : '';
     if (!srcSel) add('content', '제품 내용', '제품 내용을 어떻게 넣을지 골라 주세요. (직접 쓰기 / 링크로 읽기 / 이름만으로)', document.querySelector('input[name="df-src"]'));
@@ -5504,6 +5514,8 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
       if(kd==='gen'){window.__rwGenScript={id:d.scriptId,title:d.title,form:gf,chars:d.chars,minutes:d.minutes};if(gf==='롱폼'&&typeof d.narrate==='boolean')window.__rwGenScript.mode=d.narrate?'read':'ai'}else if(kd==='mood')window.__rwMoodScript={id:d.scriptId,title:d.title,kind:'mood',minutes:d.minutes,occ:d.occ||''};else window.__rwScript={id:d.scriptId,title:d.title,type:'long',src:'ready',imported:!!d.imported,minutes:d.minutes};
       var from=ret;close();
       if(window.__rwRefreshScriptCard)window.__rwRefreshScriptCard();if(window.__rwRefreshGenCard)window.__rwRefreshGenCard();if(window.__rwFormRedraw)window.__rwFormRedraw();
+      var spn=window.__rwSpecialGo;window.__rwSpecialGo=null;
+      if(spn&&kd==='gen'&&window.__rwGoGen){setTimeout(function(){window.__rwGoGen('쇼츠');setTimeout(function(){var t=document.getElementById('df-topic');if(t&&!t.value){t.value=spn;t.dispatchEvent(new Event('input'))}},150)},60);return}
       if(from!=='direct')savedPop(d.title,kd,gf)
     }
   });
