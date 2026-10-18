@@ -4151,18 +4151,50 @@
   // 제품 이름·내용에 효과를 말하는 낱말이 있는지 보고 안내를 보이거나 숨긴다. 접수 서버의 낱말에 몇 개를 더한 목록(서버 것을 모두 포함해야 한다).
   const PD_EFFECT_RE = /(건강기능식품|건기식|건강식품|기능성|영양제|비타민|오메가|홍삼|인삼|유산균|프로바이오틱|프리바이오틱|콜라겐|collagen|루테인|밀크씨슬|크릴오일|쏘팔메토|흑마늘|프로틴|락토|프로폴리스|마그네슘|칼슘|엽산|폴리코사놀|글루코사민|코엔자임|알티지|초유|스피루리나|클로렐라|녹용|침향|공진단|다이어트|체지방|가르시니아|보충제|슬리밍|디톡스|숙취|간건강|장건강|눈건강|혈행|혈당|관절|혈압|콜레스테롤|갱년기|전립선|면역|항산화|화장품|크림|세럼|에센스|앰플|토너|로션|선크림|선케어|자외선차단|마스크팩|클렌징|클렌저|립밤|립스틱|파운데이션|쿠션팩트|아이크림|수분크림|보습|미백|주름|안티에이징|탄력|모공|트러블|여드름|기미|잡티|탈모|샴푸|두피|바디로션|핸드크림|피부|의료기기|의약품|의약외품|연고|진통|소염|치료|완화|예방|임상|식약처|식품의약품안전처|보청기|마사지기|안마기|혈압계|혈당계|체온계|콘택트렌즈|보호대|찜질기|저주파|재활|살빼|효능)/i;   // 접수 서버의 낱말을 모두 포함한다(서버 것보다 넓다). 단어만 비슷한 일반 제품은 '일반 제품이에요' 한 번으로 통과한다
   let pdKindOkSig = '';
+  // 제품 종류 AI 판별: 낱말 검사에 안 걸린 제품 이름·설명을 잠깐 쉬었다가 한 번 물어본다. 실패해도 막지 않는다(접수 서버가 한 번 더 본다).
+  const pdAi = { sig: '', kind: '' }; let pdAiTimer = null, pdAiBusy = '';
+  function pdAiSig() {
+    const g = id => document.getElementById(id);
+    const src = (document.querySelector('input[name="df-src"]:checked') || {}).value;
+    return [g('df-prodName') ? g('df-prodName').value : '', src === 'write' && g('df-prodInfo') ? g('df-prodInfo').value : ''].map(x => String(x || '').replace(/\s+/g, ' ').trim()).join('|');
+  }
+  function pdAiSchedule() {
+    clearTimeout(pdAiTimer);
+    pdAiTimer = setTimeout(async () => {
+      const g = id => document.getElementById(id);
+      const name = g('df-prodName') ? g('df-prodName').value.trim() : '';
+      const sig = pdAiSig();
+      if (name.length < 2 || !googleIdToken || pdAi.sig === sig || pdAiBusy === sig || PD_EFFECT_RE.test(sig.replace(/\s+/g, ''))) return;
+      const src = (document.querySelector('input[name="df-src"]:checked') || {}).value;
+      pdAiBusy = sig;
+      try {
+        const res = await fetch('https://bald-buffalo.pikapod.net/webhook/product-kind', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idToken: googleIdToken, name, info: src === 'write' && g('df-prodInfo') ? g('df-prodInfo').value.trim() : '' }) });
+        const j = await res.json().catch(() => ({}));
+        if (j && j.ok && pdAiSig() === sig) { pdAi.sig = sig; pdAi.kind = j.kind || ''; kindNoticeUpdate(); }
+      } catch (e) {}
+      pdAiBusy = '';
+    }, 1000);
+  }
   function kindNoticeUpdate() {
     const g = id => document.getElementById(id);
     const src = (document.querySelector('input[name="df-src"]:checked') || {}).value;
     const txt = [g('df-prodName') ? g('df-prodName').value : '', src === 'write' && g('df-prodInfo') ? g('df-prodInfo').value : ''].map(x => String(x || '').replace(/\s+/g, '')).join(' ');
     const m = txt.match(PD_EFFECT_RE), box = g('df-kindnote');
     const sig = m ? m[0].toLowerCase() : '';
+    // AI 판별이 '제한 제품'으로 본 경우(낱말 검사에는 안 걸렸어도): 같은 안내를 보이되 "일반 제품이에요"는 없다
+    const nm0 = g('df-prodName') ? g('df-prodName').value.trim() : '';
+    const aiHit = !sig && !!pdAi.sig && pdAi.sig === pdAiSig() && pdAi.kind === 'restricted';
+    if (aiHit) {
+      if (box) { box.classList.remove('df-hide', 'ok'); box.classList.add('ai'); const w = g('df-kind-word'); if (w) w.textContent = nm0.length > 14 ? nm0.slice(0, 14) + '…' : nm0; const okb = g('df-kind-ok'); if (okb) okb.style.display = 'none'; }
+      return { hit: true, ok: false, ai: true };
+    }
+    if (box) { box.classList.remove('ai'); const okb = g('df-kind-ok'); if (okb) okb.style.display = ''; }
     const ok = !!sig && pdKindOkSig === sig;
     if (box) { box.classList.toggle('df-hide', !sig); box.classList.toggle('ok', ok); const w = g('df-kind-word'); if (w && m) { const raw = [g('df-prodName') ? g('df-prodName').value : '', src === 'write' && g('df-prodInfo') ? g('df-prodInfo').value : ''].join(' ').split(/\s+/); const tok = raw.find(t => t.toLowerCase().includes(m[0].toLowerCase())) || m[0]; w.textContent = tok.length > 14 ? m[0] : tok; } }
     return { hit: !!sig, ok };
   }
-  document.addEventListener('input', e => { const id = e.target && e.target.id; if (id === 'df-prodName' || id === 'df-prodInfo') kindNoticeUpdate(); });
-  document.addEventListener('change', e => { if (e.target && e.target.name === 'df-src') kindNoticeUpdate(); });
+  document.addEventListener('input', e => { const id = e.target && e.target.id; if (id === 'df-prodName' || id === 'df-prodInfo') { kindNoticeUpdate(); pdAiSchedule(); } });
+  document.addEventListener('change', e => { if (e.target && e.target.name === 'df-src') { kindNoticeUpdate(); pdAiSchedule(); } });
   document.addEventListener('click', e => {
     const id = e.target && e.target.id;
     if (id !== 'df-kind-ok' && id !== 'df-kind-go') return;
@@ -4188,7 +4220,8 @@
     // 제품 종류: 따로 묻지 않는다. 이름·내용에 효과를 말하는 낱말이 있으면 안내가 나오고, "일반 제품이에요"를 눌러야 다음으로 간다. (접수 서버가 같은 낱말로 한 번 더 막는다)
     const kindState = kindNoticeUpdate();
     const kind = 'general', kindCheck = kindState.hit ? 'no' : 'none';
-    if (kindState.hit && !kindState.ok) add('content', '제품 확인', '건강식품·화장품 같은 제품이면 "대본 쓰러 가기"를 눌러 주세요. 일반 제품이면 안내 아래 "단어만 비슷한 일반 제품이에요"를 눌러 주세요.', g('df-kind-ok') || g('df-prodName'));
+    if (kindState.ai) add('content', '제품 확인', '이 제품은 몸이나 피부에 효과를 말하게 되는 제품으로 보여요. 안내 아래 "대본 쓰러 가기"에서 직접 쓴 대본으로 만들어 주세요.', g('df-kind-go') || g('df-prodName'));
+    else if (kindState.hit && !kindState.ok) add('content', '제품 확인', '건강식품·화장품 같은 제품이면 "대본 쓰러 가기"를 눌러 주세요. 일반 제품이면 안내 아래 "단어만 비슷한 일반 제품이에요"를 눌러 주세요.', g('df-kind-ok') || g('df-prodName'));
     const srcSel = document.querySelector('input[name="df-src"]:checked');
     const src = srcSel ? srcSel.value : '';
     if (!srcSel) add('content', '제품 내용', '제품 내용을 어떻게 넣을지 골라 주세요. (직접 쓰기 / 링크로 읽기 / 이름만으로)', document.querySelector('input[name="df-src"]'));
