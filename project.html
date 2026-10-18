@@ -443,6 +443,10 @@
   .thumb-edit.is-over svg { stroke: var(--ink-faint); }
   .video-note.is-soon strong { color: var(--amber); }
   .video-note.is-over strong { color: var(--err); }
+  .pre-check { margin: 14px 0 0; font-size: 0.88rem; color: var(--ink-dim); }
+  .pre-check summary { cursor: pointer; min-height: 40px; display: flex; align-items: center; color: var(--ink); }
+  .pre-check ul { margin: 4px 0 0; padding-left: 20px; line-height: 1.65; }
+  .pre-check li + li { margin-top: 6px; }
   .thumb-edit svg { flex: none; width: 22px; height: 22px; fill: none; stroke: var(--amber); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
   .thumb-edit span { display: flex; flex-direction: column; line-height: 1.4; }
   .thumb-edit b { font-weight: 600; font-size: .95rem; }
@@ -811,6 +815,11 @@
           <a class="btn-primary" href="${escapeHtml(url)}" target="_blank" rel="noopener" ${ytMatch ? '' : `data-dl="${escapeHtml(파일이름(p.title, '영상', url, 'mp4'))}"`}>${ytMatch ? '유튜브에서 보기' : '영상 다운로드'}</a>
         </div>
         ${thumbnailPicker(p)}
+        <details class="pre-check"><summary>올리기 전에 확인할 것</summary><ul>
+          <li>유튜브가 "변경되거나 합성된 콘텐츠"인지 물으면 안내에 맞게 답해 주세요. 이 영상에는 AI 목소리·화면이 쓰였을 수 있어요.</li>
+          <li>광고·제휴 링크가 있으면 "유료 프로모션 포함"을 체크하고 설명란에 광고임을 적어 주세요.</li>
+          <li>제품·사실 설명이 실제와 같은지 확인해 주세요. 건강·미용 제품은 치료·예방·개선 같은 효능 표현을 빼 주세요.</li>
+        </ul></details>
         ${ytMatch ? '' : 보관안내(p)}`;
     } else {
       // 체험판 - 원본 다운로드 링크는 노출하지 않고 화면 안에서만 재생
