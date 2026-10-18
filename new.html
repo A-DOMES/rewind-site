@@ -175,6 +175,10 @@
   .pd-more[open] > summary::after { transform: rotate(-135deg); }
   .pd-note { margin-top: 8px; padding: 12px 14px; border-radius: 10px; background: color-mix(in srgb, var(--amber) 8%, var(--bg)); font-size: .82rem; line-height: 1.6; color: var(--ink-dim); }
   .pd-note b { color: var(--ink); }
+  .pd-kindnote { margin: -4px 0 16px; padding: 12px 14px; border: 1px solid var(--line); border-left: 3px solid var(--gold, #c68a12); border-radius: 8px; background: var(--bg-raised); }
+  .pd-kindnote p { margin: 0 0 10px; font-size: .92rem; line-height: 1.55; color: var(--ink); }
+  .pd-kindbtn { min-height: 40px; padding: 0 16px; border: 1px solid var(--line); border-radius: 999px; background: transparent; color: var(--ink); font: inherit; font-size: .92rem; cursor: pointer; }
+  .pd-kindbtn:disabled { opacity: .65; cursor: default; }
   .pd-err { margin: 10px 0 0; min-height: 1.2em; font-size: .9rem; color: var(--err, #d4663f); }
   .df-sec .df-chipset.pd-two label, .df-sec .df-chipset.pd-seller label { display: block; margin: 0; font-weight: 400; }
   .df-chipset.pd-two .tcard, .df-chipset.pd-seller .tcard { width: 100%; box-sizing: border-box; }
@@ -3960,18 +3964,11 @@
   // 상품쇼츠 입력 화면은 구역으로 나뉜다(단계 안내가 한 단계씩 보여 준다): 내용(2단계) / 사진·영상·길이(3단계) / 꼭 확인(5단계). 칸 id는 예전과 같다.
   const PROD_ICO = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>';
   function productSectionHtml() {
-    const kindOpt = (v, t, s) => `<label><input type="radio" name="df-kind" value="${v}"><span class="tcard"><b>${t}</b>${s ? `<small>${s}</small>` : ''}</span></label>`;
-    const kindChk = (v, t) => `<label><input type="radio" name="df-kindchk" value="${v}"><span class="tcard"><b>${t}</b></span></label>`;
     const seller = (v, t, s) => `<label><input type="radio" name="df-seller" value="${v}"><span class="tcard"><b>${t}</b><small>${s}</small></span></label>`;
     const head = (t, p) => `<div class="df-sec-head"><span class="df-sec-ico">${PROD_ICO}</span><div><h3>${t}</h3><p>${p}</p></div></div>`;
     return `<section class="df-sec df-prod pd-content df-hide" style="--c:#ff8f6b">${head('어떤 제품인가요?', '제품 이름과 내용을 알려 주세요')}
       <div class="df-field"><label>제품 이름 <em class="req">*</em> <span class="opt">100자</span></label><input type="text" id="df-prodName" maxlength="100" placeholder="예: 보온 텀블러 500ml"></div>
-      <div class="df-field" id="df-kind-wrap"><label>제품 종류 <em class="req">*</em> <span class="opt">대본 작성 방식이 달라져요</span></label>
-        <div class="df-chipset pd-seller" role="radiogroup" aria-label="제품 종류">${kindOpt('general', '일반 제품', '생활용품·전자기기·의류처럼 몸에 대한 효과를 말하지 않는 제품')}${kindOpt('restricted', '건강기능식품·화장품·의료기기·의약품', '효과를 말하는 제품이에요 · 내가 쓴 대본으로만 만들 수 있어요')}${kindOpt('unknown', '잘 모르겠어요', '')}</div>
-        <p class="df-hint" id="df-kind-note" aria-live="polite">건강기능식품·화장품·의료기기·의약품은 표시·광고 규정이 엄격해서, AI가 대본을 쓰지 않고 직접 쓴 대본으로만 만들 수 있어요. 이 경우 "내 사진·영상으로 만들기"를 이용해 주세요.</p>
-        <div class="df-hide" id="df-kindcheck" role="radiogroup" aria-label="효과를 말하는 제품인지 확인">
-          <p class="df-hint" style="margin-top:10px">제품 이름이나 설명에 효능·치료·다이어트 같은 표현이 있어요. 몸이나 피부에 효과를 말하는 제품인가요?</p>
-          <div class="df-chipset pd-two">${kindChk('no', '아니에요, 일반 제품이에요')}${kindChk('yes', '맞아요')}</div></div></div>
+      <div class="pd-kindnote df-hide" id="df-kindnote" role="alert"><p>몸이나 피부에 효과를 말하는 제품은 AI 대본으로 만들 수 없어요. 직접 쓴 대본으로 "내 사진·영상으로 만들기"를 이용해 주세요.</p><button type="button" class="pd-kindbtn" id="df-kind-ok">일반 제품이에요</button></div>
       <div class="df-field"><label>제품 내용 <em class="req">*</em> <span class="opt">대본에 쓸 자료예요 · 하나를 골라 주세요</span></label>
         <div class="df-chipset pd-seller pd-src" role="radiogroup" aria-label="제품 내용 넣는 방법">
           <label><input type="radio" name="df-src" value="write"><span class="tcard"><b>직접 쓰기</b><small>설명·후기 붙여넣기 · 가장 정확</small></span></label>
@@ -4130,6 +4127,27 @@
     }
     return { media, cards, err: null };
   }
+  // 제품 이름·내용에 효과를 말하는 낱말이 있는지 보고 안내를 보이거나 숨긴다. 접수 서버의 낱말에 몇 개를 더한 목록(서버 것을 모두 포함해야 한다).
+  const PD_EFFECT_RE = /(건강기능식품|건기식|건강식품|기능성|화장품|의료기기|의약품|식약처|식품의약품안전처|임상|치료|예방|완화|면역|항산화|다이어트|살빼|체지방|탈모|주름|미백|안티에이징|효능|영양제|비타민|오메가|홍삼|유산균|프로바이오틱|콜라겐|collagen|혈당|혈압|관절|피부|크림|세럼|마스크팩|선크림|마사지기|보청기|프로틴|락토|루테인|밀크씨슬|크릴오일|쏘팔메토|흑마늘|에센스|앰플|토너|로션)/i;
+  let pdKindOkSig = '';
+  function kindNoticeUpdate() {
+    const g = id => document.getElementById(id);
+    const src = (document.querySelector('input[name="df-src"]:checked') || {}).value;
+    const txt = [g('df-prodName') ? g('df-prodName').value : '', src === 'write' && g('df-prodInfo') ? g('df-prodInfo').value : ''].map(x => String(x || '').replace(/\s+/g, '')).join(' ');
+    const m = txt.match(PD_EFFECT_RE), box = g('df-kindnote');
+    const sig = m ? m[0].toLowerCase() : '';
+    const ok = !!sig && pdKindOkSig === sig;
+    if (box) { box.classList.toggle('df-hide', !sig); box.classList.toggle('ok', ok); const bt = g('df-kind-ok'); if (bt) { bt.textContent = ok ? '확인했어요 ✓' : '일반 제품이에요'; bt.disabled = ok; } }
+    return { hit: !!sig, ok };
+  }
+  document.addEventListener('input', e => { const id = e.target && e.target.id; if (id === 'df-prodName' || id === 'df-prodInfo') kindNoticeUpdate(); });
+  document.addEventListener('change', e => { if (e.target && e.target.name === 'df-src') kindNoticeUpdate(); });
+  document.addEventListener('click', e => {
+    if (!(e.target && e.target.id === 'df-kind-ok')) return;
+    const src = (document.querySelector('input[name="df-src"]:checked') || {}).value;
+    const txt = [(document.getElementById('df-prodName') || {}).value, src === 'write' ? (document.getElementById('df-prodInfo') || {}).value : ''].map(x => String(x || '').replace(/\s+/g, '')).join(' ');
+    const m = txt.match(PD_EFFECT_RE); pdKindOkSig = m ? m[0].toLowerCase() : ''; kindNoticeUpdate();
+  });
   function readProduct(opt) {
     opt = opt || {};
     const mutate = opt.mutate !== false;
@@ -4140,26 +4158,10 @@
     // --- 내용 (2단계) ---
     const name = v('df-prodName');
     if (!name) add('content', '제품 이름', '제품 이름을 적어 주세요.', g('df-prodName'));
-    // 제품 종류: 일반 제품만 AI 대본으로 만든다 (접수 서버가 한 번 더 막는다). 효과를 말하는 낱말이 있으면 한 번 더 확인한다.
-    const kindSel = document.querySelector('input[name="df-kind"]:checked');
-    let kind = '', kindCheck = 'none';
-    const KIND_STOP = '건강기능식품·화장품·의료기기·의약품처럼 몸이나 피부에 효과를 말하는 제품은 AI 대본으로 만들 수 없어요. "내 사진·영상으로 만들기"에서 직접 쓴 대본으로 신청해 주세요.';
-    if (!kindSel) add('content', '제품 종류', '제품 종류를 골라 주세요.', document.querySelector('input[name="df-kind"]'));
-    else if (kindSel.value === 'unknown') add('content', '제품 종류', '제품 종류를 모르면 AI 대본으로 만들 수 없어요. 건강기능식품·화장품·의료기기·의약품이 아닌 일반 제품이 확실할 때만 "일반 제품"을 골라 주세요. 아니면 "내 사진·영상으로 만들기"에서 직접 쓴 대본으로 신청해 주세요.', kindSel);
-    else if (kindSel.value !== 'general') add('content', '제품 종류', KIND_STOP, kindSel);
-    else {
-      kind = 'general';
-      const 효과말 = /(건강기능식품|건기식|건강식품|기능성|화장품|의료기기|의약품|식약처|식품의약품안전처|임상|치료|예방|완화|면역|항산화|다이어트|살빼|체지방|탈모|주름|미백|안티에이징|효능|영양제|비타민|오메가|홍삼|유산균|프로바이오틱|콜라겐|collagen|혈당|혈압|관절|피부|크림|세럼|마스크팩|선크림|마사지기|보청기)/i;
-      const 걸림 = 효과말.test([name, (document.querySelector('input[name="df-src"]:checked') || {}).value === 'write' ? v('df-prodInfo') : ''].map(x => String(x || '').replace(/\s+/g, '')).join(' '));
-      const box = g('df-kindcheck');
-      if (box) box.classList.toggle('df-hide', !걸림);   // 보이고 숨기는 것만 하므로 mutate:false 호출에서도 한다 (안 그러면 선택지가 안 보여 다음 단계로 못 간다)
-      if (걸림) {
-        const ck = document.querySelector('input[name="df-kindchk"]:checked');
-        if (!ck) add('content', '제품 종류', '제품 이름이나 설명에 효과를 말하는 표현이 있어요. 몸이나 피부에 효과를 말하는 제품인지 골라 주세요.', document.querySelector('input[name="df-kindchk"]'));
-        else if (ck.value === 'yes') add('content', '제품 종류', KIND_STOP, ck);
-        else kindCheck = 'no';
-      }
-    }
+    // 제품 종류: 따로 묻지 않는다. 이름·내용에 효과를 말하는 낱말이 있으면 안내가 나오고, "일반 제품이에요"를 눌러야 다음으로 간다. (접수 서버가 같은 낱말로 한 번 더 막는다)
+    const kindState = kindNoticeUpdate();
+    const kind = 'general', kindCheck = kindState.hit ? 'no' : 'none';
+    if (kindState.hit && !kindState.ok) add('content', '제품 확인', '몸이나 피부에 효과를 말하는 제품은 AI 대본으로 만들 수 없어요. 일반 제품이면 안내 아래 "일반 제품이에요"를 눌러 주세요.', g('df-kind-ok') || g('df-prodName'));
     const srcSel = document.querySelector('input[name="df-src"]:checked');
     const src = srcSel ? srcSel.value : '';
     if (!srcSel) add('content', '제품 내용', '제품 내용을 어떻게 넣을지 골라 주세요. (직접 쓰기 / 링크로 읽기 / 이름만으로)', document.querySelector('input[name="df-src"]'));
