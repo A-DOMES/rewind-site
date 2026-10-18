@@ -747,7 +747,8 @@
   /* [수정] 페이지가 어두운 테마(color-scheme: dark)라 구글 로그인 버튼 iframe 주변에 흰 바탕이 깔리던 문제 -
      버튼 영역만 밝은 테마로 맞춰 iframe 배경이 투명하게 보이게 한다 */
   #gsi-area, #gsi-area iframe { color-scheme: light; background: transparent; }
-  .gsi-wrap { position: relative; min-height: 44px; }
+  .gsi-wrap { position: relative; min-height: 56px; }
+  #gate.gate-v2 #gsi-area { transform: scale(1.15); transform-origin: left center; }   /* 구글 버튼은 크기를 못 바꿔서 화면에서 조금 키운다 */
   .gsi-lock { display: none; position: absolute; inset: 0; z-index: 2; background: transparent; border: 0; padding: 0; cursor: not-allowed; }
   .gsi-wrap.locked .gsi-lock { display: block; }
   .gsi-wrap.locked #gsi-area { opacity: .35; filter: grayscale(1); }
