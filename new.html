@@ -4132,7 +4132,7 @@
     return { media, cards, err: null };
   }
   // 제품 이름·내용에 효과를 말하는 낱말이 있는지 보고 안내를 보이거나 숨긴다. 접수 서버의 낱말에 몇 개를 더한 목록(서버 것을 모두 포함해야 한다).
-  const PD_EFFECT_RE = /(건강기능식품|건기식|건강식품|기능성|영양제|비타민|오메가|홍삼|인삼|유산균|프로바이오틱|프리바이오틱|콜라겐|collagen|루테인|밀크씨슬|크릴오일|쏘팔메토|흑마늘|프로틴|락토|프로폴리스|마그네슘|칼슘|엽산|폴리코사놀|글루코사민|msm|코엔자임|coq10|rtg|알티지|초유|스피루리나|클로렐라|녹용|침향|공진단|다이어트|체지방|가르시니아|보충제|슬리밍|디톡스|숙취|간건강|장건강|눈건강|혈행|혈당|혈압|콜레스테롤|갱년기|전립선|면역|항산화|화장품|크림|세럼|에센스|앰플|토너|로션|선크림|선케어|자외선차단|마스크팩|클렌징|클렌저|립밤|립스틱|파운데이션|쿠션팩트|아이크림|수분크림|보습|미백|주름|안티에이징|탄력|모공|트러블|여드름|기미|잡티|탈모|샴푸|두피|바디로션|핸드크림|피부|의료기기|의약품|의약외품|연고|진통|소염|치료|완화|예방|임상|식약처|식품의약품안전처|보청기|마사지기|안마기|혈압계|혈당계|체온계|콘택트렌즈|보호대|찜질기|저주파|재활|살빼|효능)/i;   // 접수 서버의 낱말을 모두 포함한다(서버 것보다 넓다). 단어만 비슷한 일반 제품은 '일반 제품이에요' 한 번으로 통과한다
+  const PD_EFFECT_RE = /(건강기능식품|건기식|건강식품|기능성|영양제|비타민|오메가|홍삼|인삼|유산균|프로바이오틱|프리바이오틱|콜라겐|collagen|루테인|밀크씨슬|크릴오일|쏘팔메토|흑마늘|프로틴|락토|프로폴리스|마그네슘|칼슘|엽산|폴리코사놀|글루코사민|코엔자임|알티지|초유|스피루리나|클로렐라|녹용|침향|공진단|다이어트|체지방|가르시니아|보충제|슬리밍|디톡스|숙취|간건강|장건강|눈건강|혈행|혈당|관절|혈압|콜레스테롤|갱년기|전립선|면역|항산화|화장품|크림|세럼|에센스|앰플|토너|로션|선크림|선케어|자외선차단|마스크팩|클렌징|클렌저|립밤|립스틱|파운데이션|쿠션팩트|아이크림|수분크림|보습|미백|주름|안티에이징|탄력|모공|트러블|여드름|기미|잡티|탈모|샴푸|두피|바디로션|핸드크림|피부|의료기기|의약품|의약외품|연고|진통|소염|치료|완화|예방|임상|식약처|식품의약품안전처|보청기|마사지기|안마기|혈압계|혈당계|체온계|콘택트렌즈|보호대|찜질기|저주파|재활|살빼|효능)/i;   // 접수 서버의 낱말을 모두 포함한다(서버 것보다 넓다). 단어만 비슷한 일반 제품은 '일반 제품이에요' 한 번으로 통과한다
   let pdKindOkSig = '';
   function kindNoticeUpdate() {
     const g = id => document.getElementById(id);
@@ -5487,7 +5487,7 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
     hub.querySelectorAll('[data-del]').forEach(function(b){b.onclick=function(){var x=lib()[+b.dataset.del];saveLib(cache.filter(function(y){return y!==x}));if(window.__rwScript&&x&&window.__rwScript.id===x.id)window.__rwScript=null;if(window.__rwGenScript&&x&&window.__rwGenScript.id===x.id)window.__rwGenScript=null;renderHub()}});
   }
   function openHub(){loadLib(renderHub);renderHub();document.body.classList.remove('studio-focus');document.body.classList.add('studio-open','hub-open');crumb('대본 만들기');active(true)}
-  function close(){
+  function close(){ window.__rwSpecialGo=null;
     if(!document.body.classList.contains('studio-open'))return;
     document.body.classList.remove('studio-open','studio-focus','hub-open');
     active(false);
@@ -5512,9 +5512,9 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
     if(d.type==='rw-script-confirm'){
       var kd=d.kind==='mood'?'mood':d.kind==='gen'?'gen':'yadam';var gf=d.form==='롱폼'?'롱폼':'쇼츠';var a=lib();a.unshift({id:d.scriptId,title:d.title,type:'long',kind:kd,form:kd==='gen'?gf:'',occ:d.occ||'',src:'mine',imported:!!d.imported,chapters:d.chapters,meta:(kd==='gen'&&d.meta&&typeof d.meta==='object')?d.meta:undefined,chars:d.chars,minutes:d.minutes,prod:d.prod,narrate:(kd==='gen'&&gf==='롱폼'&&typeof d.narrate==='boolean')?d.narrate:undefined,at:Date.now()});saveLib(a);
       if(kd==='gen'){window.__rwGenScript={id:d.scriptId,title:d.title,form:gf,chars:d.chars,minutes:d.minutes};if(gf==='롱폼'&&typeof d.narrate==='boolean')window.__rwGenScript.mode=d.narrate?'read':'ai'}else if(kd==='mood')window.__rwMoodScript={id:d.scriptId,title:d.title,kind:'mood',minutes:d.minutes,occ:d.occ||''};else window.__rwScript={id:d.scriptId,title:d.title,type:'long',src:'ready',imported:!!d.imported,minutes:d.minutes};
-      var from=ret;close();
+      var spn=window.__rwSpecialGo;var from=ret;close();
       if(window.__rwRefreshScriptCard)window.__rwRefreshScriptCard();if(window.__rwRefreshGenCard)window.__rwRefreshGenCard();if(window.__rwFormRedraw)window.__rwFormRedraw();
-      var spn=window.__rwSpecialGo;window.__rwSpecialGo=null;
+      window.__rwSpecialGo=null;
       if(spn&&kd==='gen'&&window.__rwGoGen){setTimeout(function(){window.__rwGoGen('쇼츠');setTimeout(function(){var t=document.getElementById('df-topic');if(t&&!t.value){t.value=spn;t.dispatchEvent(new Event('input'))}},150)},60);return}
       if(from!=='direct')savedPop(d.title,kd,gf)
     }
