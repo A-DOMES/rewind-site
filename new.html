@@ -1752,11 +1752,14 @@
         go.disabled = false; busy = false; say('');
         window.RWConsent.ask(async function () {
           busy = true; say('동의를 저장하는 중이에요…');
+          var saved = false;
           try {
             var r2 = await fetch('https://bald-buffalo.pikapod.net/webhook/my-points', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idToken: tok, consent: window.RWConsent.obj() }) });
-            if (r2.ok) window.RWConsent.remember();
+            if (r2.ok) { window.RWConsent.remember(); saved = true; }
           } catch (e2) {}
-          busy = false; submit();
+          busy = false;
+          if (!saved) { say('동의를 저장하지 못했어요. 잠시 뒤 다시 시도해 주세요.', 'err'); return; }
+          submit();
         }, function () { say('동의하면 코드를 쓸 수 있어요.', 'err'); });
         return;
       }
