@@ -1368,6 +1368,7 @@
   .tpv-side { position: sticky; top: 0; background: var(--bg-raised); border: 1px solid var(--line); border-radius: 14px; padding: 12px; max-height: max(220px, calc(100vh - 290px)); overflow-y: auto; }
   .tpv-cat-h h3 { min-width: 0; overflow-wrap: anywhere; }
   .tpv-chk.zero { opacity: .55; }
+  .tpv-mini[aria-pressed="true"] { background: rgba(198,138,18,.22); border-color: var(--gold); color: var(--ink); }
   .tpv-side-tg { display: none; width: 100%; background: none; color: var(--ink); border: 0; padding: 4px 2px; font: inherit; font-weight: 700; text-align: left; cursor: pointer; }
   .tpv-side-body { display: grid; gap: 8px; }
   .tpv-side-h { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
@@ -2308,14 +2309,19 @@
     let sideNames = [];
     const sideHead = tpvEl('div', 'tpv-side-h'), sideTit = tpvEl('b', '', '관심 분야'), sideSum = tpvEl('span', 'tpv-side-n'), sideAct = tpvEl('div', 'tpv-side-act');
     const mini = (t, fnc) => { const b = tpvEl('button', 'tpv-mini', t); b.type = 'button'; b.addEventListener('click', fnc); return b; };
-    sideAct.appendChild(mini('모두 선택', () => { sideNames.forEach((n) => tpv.off.delete(n)); tpvSaveOff(); tpv.shown = 30; paintSide(); paintCards(); }));
+    const allBtn = mini('전체 보기', () => { sideNames.forEach((n) => tpv.off.delete(n)); tpvSaveOff(); tpv.shown = 30; paintSide(); paintCards(); }); sideAct.appendChild(allBtn);
     sideAct.appendChild(mini('모두 해제', () => { sideNames.forEach((n) => tpv.off.add(n)); tpvSaveOff(); tpv.shown = 30; dropSel(); paintSide(); paintCards(); }));
     sideHead.appendChild(sideTit); sideHead.appendChild(sideSum);
-    const sideHint = tpvEl('p', 'tpv-side-hint', '체크한 분야의 영상만 보여요. 이 기기에 기억돼요.');
+    const sideHint = tpvEl('p', 'tpv-side-hint', '');
     sideBody.appendChild(sideHead); sideBody.appendChild(sideAct); sideBody.appendChild(sideList); sideBody.appendChild(sideHint);
     side.appendChild(sideTg); side.appendChild(sideBody);
     let sideCnt = Object.create(null);
-    function sideCount() { const on = sideNames.filter((n) => !tpv.off.has(n)).length; sideSum.textContent = on + '/' + sideNames.length + ' 선택'; sideTg.textContent = '관심 분야 ' + on + '/' + sideNames.length + ' 선택 ' + (side.classList.contains('open') ? '▴' : '▾'); }
+    function sideCount() {
+      const on = sideNames.filter((n) => !tpv.off.has(n)).length, all = on === sideNames.length, lab = all ? '전체 보는 중' : on + '개 분야만 보는 중';
+      sideSum.textContent = lab; sideTg.textContent = '관심 분야 · ' + lab + ' ' + (side.classList.contains('open') ? '▴' : '▾');
+      allBtn.setAttribute('aria-pressed', all ? 'true' : 'false');
+      sideHint.textContent = all ? '보고 싶은 분야를 누르면 그 분야만 보여요.' : '체크를 켜거나 꺼서 분야를 더하고 뺄 수 있어요. 이 기기에 기억돼요.';
+    }
     function paintSide(cc) {
       if (cc) sideCnt = cc;
       sideNames = catNames();   // 지금 조건에서 영상이 없는 분류도 항상 보여 준다(0으로 흐리게) — "모두 선택/해제"와 n/m 이 늘 같은 범위
@@ -2323,7 +2329,12 @@
       sideNames.forEach((n) => {
         const k = sideCnt[n] || 0, lb = tpvEl('label', 'tpv-chk' + (k ? '' : ' zero')), cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !tpv.off.has(n);
         cb.setAttribute('aria-label', n + ', 영상 ' + k + '개');
-        cb.addEventListener('change', () => { if (cb.checked) tpv.off.delete(n); else tpv.off.add(n); tpvSaveOff(); tpv.shown = 30; dropSel(); sideCount(); paintCards(); });   // 다른 분류의 "더 보기" 펼침은 그대로 둔다
+        cb.addEventListener('change', () => {
+          const wasAll = sideNames.every((x) => !tpv.off.has(x) || x === n) && !cb.checked;   // 전부 켜져 있던 상태에서 하나를 누르면 → 그 분야만 보기
+          if (wasAll) { sideNames.forEach((x) => { if (x === n) tpv.off.delete(x); else tpv.off.add(x); }); cb.checked = true; sideList.querySelectorAll('input').forEach((o, i) => { o.checked = sideNames[i] === n; }); }
+          else if (cb.checked) tpv.off.delete(n); else tpv.off.add(n);
+          tpvSaveOff(); tpv.shown = 30; dropSel(); sideCount(); paintCards();
+        });   // 다른 분류의 "더 보기" 펼침은 그대로 둔다
         const kc = tpvEl('span', 'tpv-chk-c', String(k)); kc.setAttribute('aria-hidden', 'true');
         lb.appendChild(cb); lb.appendChild(tpvEl('span', 'tpv-chk-n', n)); lb.appendChild(kc); sideList.appendChild(lb);
       });
@@ -2396,10 +2407,10 @@
     function paintCards() {
       const rows = current(); out.innerHTML = ''; more.innerHTML = '';
       sum.textContent = (tpv.view === 'g' ? '상품 ' + groupsOf(rows).length + '개 · ' : '') + '영상 ' + rows.length + '개 · 기준 수집일 ' + (D.collected || '-');
-      const empty = () => out.appendChild(tpvEl('div', 'tpv-empty', '조건에 맞는 영상이 없어요. 기간을 늘리거나 나라를 바꾸거나, 관심 분야를 더 체크해 보세요.'));
+      const empty = () => out.appendChild(tpvEl('div', 'tpv-empty', '조건에 맞는 영상이 없어요. 기간을 늘리거나 나라를 바꾸거나, 분야를 더 체크하거나 [전체 보기]를 눌러 보세요.'));
       if (sideNames.length && sideNames.every((n) => tpv.off.has(n))) {   // 전부 꺼 두면 빈 화면 대신 안내
-        const box0 = tpvEl('div', 'tpv-empty'); box0.appendChild(tpvEl('p', '', '관심 분야를 하나 이상 체크해 주세요.'));
-        const all0 = tpvEl('button', 'tpv-mini', '모두 선택'); all0.type = 'button'; all0.addEventListener('click', () => { sideNames.forEach((n) => tpv.off.delete(n)); tpvSaveOff(); tpv.shown = 30; paintSide(); paintCards(); const fb = sideAct.querySelector('button'); if (fb && fb.offsetParent) fb.focus(); });
+        const box0 = tpvEl('div', 'tpv-empty'); box0.appendChild(tpvEl('p', '', '보고 싶은 분야를 하나 이상 체크해 주세요.'));
+        const all0 = tpvEl('button', 'tpv-mini', '전체 보기'); all0.type = 'button'; all0.addEventListener('click', () => { sideNames.forEach((n) => tpv.off.delete(n)); tpvSaveOff(); tpv.shown = 30; paintSide(); paintCards(); const fb = sideAct.querySelector('button'); if (fb && fb.offsetParent) fb.focus(); });
         box0.appendChild(all0); out.appendChild(box0); return;
       }
       if (tpv.view === 'g') {
