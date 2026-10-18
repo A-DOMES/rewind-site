@@ -1946,6 +1946,7 @@
       }
       const ok = res.ok && d && d.ok && typeof d.balance === 'number';
       if (ok && RWConsent.pending()) RWConsent.remember();   // 동의를 보냈고 서버가 받았다: 이 브라우저에서는 다시 묻지 않는다
+      if (ok && RWConsent.has() && RWConsent.next()) { location.replace(RWConsent.next()); return; }   // 다른 화면에서 동의 때문에 넘어온 경우: 원래 화면으로 돌아간다
       myPoints = ok ? d.balance : null;
       myTrial = ok && typeof d.trialBalance === 'number' ? d.trialBalance : null;
       trialPending = !!(ok && d.trialPending);

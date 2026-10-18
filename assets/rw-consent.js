@@ -86,5 +86,20 @@
     var f = m.querySelector('input'); if (f) f.focus();
   }
 
-  window.RWConsent = { TERMS: TERMS, PRIVACY: PRIVACY, has: has, remember: remember, obj: obj, versionObj: versionObj, pending: pending, ok: function () { return checked; }, mount: mount, nudge: nudge, ask: ask };
+  // 로그인이 필요한 다른 화면용: 이 브라우저에 동의 기록이 없으면 new.html 로그인 화면(동의 창)으로 보내고, 동의가 끝나면 원래 화면으로 돌려보낸다.
+  function guard() {
+    if (has()) return;
+    try { if (window.top !== window) return; } catch (e) { return; }
+    var cur = location.pathname.split('/').pop() + location.search;
+    location.replace('./new.html?next=' + encodeURIComponent(cur));
+  }
+  // new.html 이 돌려보낼 곳. 우리 화면 파일 이름만 허용한다(다른 주소로 보내는 것을 막는다).
+  function next() {
+    try {
+      var n = new URLSearchParams(location.search).get('next') || '';
+      return /^(dashboard|project|editor|new-studio-preview)\.html(\?[A-Za-z0-9_=&%.\-]*)?$/.test(n) ? './' + n : '';
+    } catch (e) { return ''; }
+  }
+
+  window.RWConsent = { guard: guard, next: next, TERMS: TERMS, PRIVACY: PRIVACY, has: has, remember: remember, obj: obj, versionObj: versionObj, pending: pending, ok: function () { return checked; }, mount: mount, nudge: nudge, ask: ask };
 })();
