@@ -214,7 +214,10 @@
   .upgrade-card .price { font-family: 'Fraunces', serif; font-size: 1.4rem; color: var(--amber); font-weight: 600; margin-bottom: 16px; }
   .upgrade-card button { background: var(--amber); color: var(--on-amber); border: none; border-radius: 8px; padding: 13px 28px; font-size: 0.95rem; font-weight: 600; cursor: pointer; font-family: inherit; }
   .upgrade-card button:disabled { opacity: 0.5; cursor: not-allowed; }
-  .upgrade-card .requested { color: var(--ink-dim); font-size: 0.88rem; }
+  .upgrade-card .requested { color: var(--ink-dim); font-size: 0.88rem; margin: 14px 0 0; }
+  .upgrade-card a.up-btn { display: inline-flex; align-items: center; min-height: 46px; padding: 0 28px; border-radius: 999px; background: var(--amber); color: var(--on-amber); font-size: 0.95rem; font-weight: 650; text-decoration: none; }
+  .upgrade-card a.up-btn:hover { background: #efb556; }
+  :root[data-theme="light"] .upgrade-card a.up-btn:hover { background: #87540a; }
 
 
   /* ===== 디자인 v2 (필름 스튜디오) — 기존 규칙 위에 덮어쓰는 층. 아래만 지우면 이전 디자인으로 돌아감 ===== */
@@ -544,7 +547,6 @@
   const PROGRESS_CONSULT_WEBHOOK_URL = 'https://bald-buffalo.pikapod.net/webhook/progress-consult';
   const REVIEW_ACTION_WEBHOOK_URL = 'https://bald-buffalo.pikapod.net/webhook/review-action';
   const SCRIPT_ALT_WEBHOOK_URL = 'https://bald-buffalo.pikapod.net/webhook/script-alt'; // [신규] 대본 다시 쓰기(정식) - 새 버전 받기·바꾸기
-  const UPGRADE_REQUEST_WEBHOOK_URL = 'https://bald-buffalo.pikapod.net/webhook/upgrade-request';
   const GOOGLE_CLIENT_ID = '188637268860-9hj2af4bt8esn506bf5bqs72qnbu0qjs.apps.googleusercontent.com';
   let currentIdToken = null;
   let currentProject = null;
@@ -762,7 +764,7 @@
         <h2>미리보기가 준비됐어요</h2>
         <p>체험판이에요. 이 화면에서 바로 확인해보세요.</p>`;
       나머지.innerHTML = `
-        <p class="video-note">마음에 드시면 아래 "정식으로 만들기"에서 전체 영상을 다운로드하실 수 있어요.</p>
+        <p class="video-note">마음에 드시면 아래 "같은 주제로 정식 신청하기"로 정식 영상을 만들어 다운로드하실 수 있어요.</p>
         ${ytMatch ? '' : 보관안내(p)}`;
     }
   }
@@ -1106,36 +1108,15 @@
     const card = document.getElementById('upgrade-card');
     if (!p.videoUrl || p.paid) { card.style.display = 'none'; card.innerHTML = ''; return; } // 이미 정식이거나, 아직 영상이 없으면 안 보임
 
+    // 정식으로 만들기 = 같은 주제로 정식 신청 (신청 화면이 요금을 보여 주고, 정식 요금만큼 포인트가 쓰인다. 체험에 쓴 포인트는 빼지 않는다)
+    const 주제 = String(p.title || '').trim().slice(0, 100);
+    const href = './new.html?mode=paid' + (주제 ? '&topic=' + encodeURIComponent(주제) : '');
     card.style.display = 'block';
     card.innerHTML = `
       <h3>이 영상, 마음에 드시나요?</h3>
-      <p class="sub">지금 보신 건 체험판이에요.<br>정식으로 만들면 영상을 다운로드해서 쓰실 수 있어요.</p>
-      ${p.estimatedPrice ? `<div class="price">약 ${Number(p.estimatedPrice).toLocaleString()}P</div>` : ''}
-      <button id="upgrade-btn">정식으로 만들기</button>
-      <p class="requested" id="upgrade-status"></p>`;
-
-    document.getElementById('upgrade-btn').addEventListener('click', async () => {
-      const btn = document.getElementById('upgrade-btn');
-      const status = document.getElementById('upgrade-status');
-      if (!confirm('정식으로 전환을 요청하시겠어요? 확인 후 결제 안내를 보내드려요.')) return;
-      btn.disabled = true;
-      status.textContent = '요청하고 있어요…';
-      try {
-        const res = await fetch(UPGRADE_REQUEST_WEBHOOK_URL, {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ idToken: currentIdToken, id: currentProject.id })
-        });
-        const data = await res.json().catch(() => null);
-        if (!res.ok || !data || data.ok === false) throw new Error((data && data.message) || '요청에 실패했어요.');
-        btn.textContent = '요청 완료 - 결제 안내를 기다려주세요';
-        status.textContent = '확인 이메일을 보내드렸어요. 곧 연락드릴게요!';
-        status.style.color = 'var(--olive)';
-      } catch (e) {
-        status.textContent = e.message || '요청 중 문제가 생겼어요.';
-        status.style.color = 'var(--err)';
-        btn.disabled = false;
-      }
-    });
+      <p class="sub">지금 보신 건 체험판이에요.<br>정식으로 만들면 영상을 다운로드해서 쓰실 수 있어요.<br>같은 주제로 길이와 만드는 방식을 고르고, 요금을 확인한 뒤 신청해요.</p>
+      <a class="up-btn" href="${href}">같은 주제로 정식 신청하기</a>
+      <p class="requested">정식 요금만큼 포인트가 쓰여요. 체험에 쓴 포인트는 정식 요금에서 빼지 않아요.</p>`;
   }
 
   async function submitReview(action) {
