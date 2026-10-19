@@ -1583,11 +1583,13 @@
   .cal-title .cal-ico svg { width: 22px; height: 22px; }
   @media (max-width: 480px) { .cal-modes { gap: var(--sp-1); padding: var(--sp-1); } .cal-modes button { font-size: .72rem; padding-inline: 0; } }
   .cal-chips { display: flex; flex-wrap: wrap; gap: var(--sp-1) var(--sp-1); }
-  .cal-chips button { font: inherit; font-size: var(--fs-sm); color: var(--ink-dim); background: transparent; border: 0; border-radius: var(--r-pill); padding: 6px var(--sp-3); cursor: pointer; }
+  .cal-chips button { font: inherit; font-size: 1rem; color: var(--ink-dim); background: transparent; border: 0; border-radius: var(--r-pill); padding: 8px var(--sp-3); cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
   .cal-chips button:hover { background: color-mix(in srgb, var(--ink) 6%, transparent); }
   .cal-chips button[aria-pressed="true"] { color: var(--ink); font-weight: 700; background: var(--accent-soft); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 55%, transparent); }
   .cal-modes button:focus-visible, .cal-chips button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
-  .cal-chips button.is-now::after { content: ' · 지금'; color: var(--ink-faint); font-weight: 400; font-size: .8rem; }
+  /* 현재 달·계절 표시: 작은 사각형 라벨 (글자는 data-now) */
+  .cal-chips button.is-now { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--gold) 55%, transparent); }
+  .cal-chips button.is-now::after { content: attr(data-now); font-size: .74rem; font-weight: 700; line-height: 1; padding: 4px 7px; border-radius: 6px; color: var(--ink); background: color-mix(in srgb, var(--gold) 28%, transparent); }
   .cal-filter { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
   .cal-filter label { color: var(--ink-dim); font-size: .9rem; }
   .cal-filter select { font: inherit; font-size: .93rem; color: var(--ink); background: var(--bg-input, var(--bg-raised)); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; min-width: 0; max-width: 100%; }
@@ -1597,12 +1599,14 @@
   .cal-row { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; text-align: left; font: inherit; color: inherit; background: none; border: 0; padding: 13px 16px; cursor: pointer; border-radius: 14px; }
   .cal-row:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; }
   .cal-name { font-weight: 600; font-size: 1rem; min-width: 0; overflow-wrap: anywhere; }
-  .cal-when { color: var(--ink-dim); font-size: .85rem; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .cal-when { color: var(--ink-dim); font-size: 1rem; font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums; display: inline-flex; align-items: center; gap: 8px; align-self: start; }
+  .cal-badge { font-size: .76rem; font-weight: 700; line-height: 1; padding: 5px 8px; border-radius: 6px; color: #2a1408; background: #ff9b78; }
+  @media (max-width: 480px) { .cal-row { grid-template-columns: minmax(0, 1fr); } .cal-when { grid-row: 2; } }
   .cal-why { grid-column: 1 / -1; color: var(--ink-faint); font-size: .86rem; min-width: 0; overflow-wrap: anywhere; }
   .cal-tag { display: inline-block; margin-left: 8px; font-size: .74rem; font-weight: 400; color: var(--ink-dim); border: 1px solid var(--line); border-radius: 99px; padding: 0 8px; vertical-align: 1px; }
-  .cal-now { color: #ff8f6b; font-weight: 700; }   /* 어두운 배경용 */
-  :root[data-theme="light"] .cal-now { color: var(--err); }   /* 밝은 배경은 진한 색(글자 대비) */
-  @media (prefers-color-scheme: light) { :root[data-theme="system"] .cal-now { color: var(--err); } }
+  .cal-now { color: var(--ink); }
+  :root[data-theme="light"] .cal-badge { color: #fff; background: #d6452a; }
+  @media (prefers-color-scheme: light) { :root[data-theme="system"] .cal-badge { color: #fff; background: #d6452a; } }
   .cal-item.is-open { border-color: var(--gold); }
   .cal-make { display: grid; gap: 10px; padding: 4px 16px 15px; }
   .cal-make p { margin: 0; color: var(--ink-dim); font-size: .88rem; }
@@ -3004,7 +3008,7 @@
     body.appendChild(modes);
     // 세부 고르기(월 · 계절 · 기념일/상황)
     const chips = tpvEl('div', 'cal-chips'); chips.setAttribute('role', 'group');
-    const chip = (text, on, fn, now) => { const b = tpvEl('button', now ? 'is-now' : '', text); b.type = 'button'; b.dataset.fk = 'c:' + text; b.setAttribute('aria-pressed', on ? 'true' : 'false'); b.addEventListener('click', () => { fn(); cal.open = ''; draw(); }); chips.appendChild(b); };
+    const chip = (text, on, fn, now) => { const b = tpvEl('button', now ? 'is-now' : '', text); if (now) b.dataset.now = cal.mode === 'm' ? '이번 달' : '이번 계절'; b.type = 'button'; b.dataset.fk = 'c:' + text; b.setAttribute('aria-pressed', on ? 'true' : 'false'); b.addEventListener('click', () => { fn(); cal.open = ''; draw(); }); chips.appendChild(b); };
     const nowM = calNowM();
     if (cal.mode === 'm') { chips.setAttribute('aria-label', '월 고르기'); for (let m = 1; m <= 12; m++) chip(m + '월', cal.month === m, () => { cal.month = m; }, m === nowM); }
     else if (cal.mode === 's') { chips.setAttribute('aria-label', '계절 고르기'); CAL_SEASONS.forEach((s) => chip(s, cal.season === s, () => { cal.season = s; }, s === calSeasonOf(nowM))); }
@@ -3029,7 +3033,7 @@
     const open = cal.open === x.p, it = tpvEl('div', 'cal-item' + (open ? ' is-open' : ''));
     const row = tpvEl('button', 'cal-row'); row.type = 'button'; row.dataset.fk = 'i:' + x.p; row.setAttribute('aria-expanded', open ? 'true' : 'false');
     const nm = tpvEl('span', 'cal-name', x.p); nm.appendChild(tpvEl('span', 'cal-tag', x.c));
-    const when = tpvEl('span', 'cal-when', calMonths(x.m)); if (nowM && x.m.includes(nowM) && x.m.length < 12) { when.classList.add('cal-now'); when.textContent = '지금 · ' + calMonths(x.m); }   // 지금 달이 성수기면 눈에 띄게
+    const when = tpvEl('span', 'cal-when', calMonths(x.m)); if (nowM && x.m.includes(nowM) && x.m.length < 12) { when.classList.add('cal-now'); when.textContent = ''; when.appendChild(tpvEl('span', 'cal-badge', '판매 시기')); when.appendChild(document.createTextNode(calMonths(x.m))); }   // 지금 달이 성수기면 눈에 띄게
     row.appendChild(nm); row.appendChild(when);
     const why = [x.o, x.r].filter(Boolean).join(' · '); if (why) row.appendChild(tpvEl('span', 'cal-why', why));
     row.addEventListener('click', () => { cal.open = open ? '' : x.p; redraw(); });
