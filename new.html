@@ -1518,6 +1518,20 @@
   .tf-hint { display: block; color: var(--ink-faint); font-size: .8rem; margin-top: 8px; }
   /* 두 번째 화면: 분야·예시 고르기 */
   .tf-chips { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .tf-season { display: grid; gap: 10px; }
+  .tf-season[hidden] { display: none; }
+  .tf-season h3 { margin: 0; font-size: 1.05rem; font-weight: 700; letter-spacing: -.02em; }
+  .tf-season .tf-snote { margin: 0; color: var(--ink-faint); font-size: .82rem; }
+  .tf-sgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .tf-sgrid .tf-chip { align-items: flex-start; }
+  .tf-sgrid .tf-chip i { margin-top: 6px; }
+  .tf-sgrid .tf-chip > span { display: grid; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
+  .tf-sgrid .tf-chip small { color: var(--ink-faint); font-size: .8rem; font-variant-numeric: tabular-nums; }
+  .tf-sgrid .tf-chip.mute { opacity: .8; }
+  .tf-smore { justify-self: start; background: none; color: var(--ink-dim); border: 1px solid var(--line); border-radius: 10px; padding: 7px 14px; font: inherit; font-size: .88rem; cursor: pointer; }
+  .tf-smore:hover { border-color: var(--gold); color: var(--ink); }
+  @media (max-width: 760px) { .tf-sgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 420px) { .tf-sgrid { grid-template-columns: minmax(0, 1fr); } }
   .tf-chip { --c: var(--gold); display: flex; align-items: center; gap: 10px; text-align: left; font: inherit; font-size: .98rem; color: var(--ink); background: var(--bg-raised); border: 1px solid var(--line); border-radius: 14px; padding: 13px 14px; cursor: pointer; min-width: 0; transition: border-color .15s; }
   .tf-chip i { flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--c); }
   .tf-chip:hover, .tf-chip:focus-visible { border-color: var(--c); outline: none; }
@@ -2250,6 +2264,7 @@
 
   // ===== [주제 찾기] 요즘 뜨는 상품 영상: 둘러보는 동안 챗봇은 움직이지 않고, "이 주제로 만들기"를 누를 때만 상담이 시작된다 =====
   const TOPICS_URL = 'https://bald-buffalo.pikapod.net/webhook/order-topics';
+  const SEASON_URL = 'https://bald-buffalo.pikapod.net/webhook/order-season';
   let tpvData = null, tpvPending = null, tpvFt = 0, tpvPrevFocus = null, tpvClosed = false;
   // 관심 분야(즐겨찾기): 꺼 둔 분류만 이 기기(브라우저)에 기억한다. 새 분류가 생기면 기본으로 켜져 있다
   const TPV_OFF_KEY = 'rw_tpv_off';
@@ -2646,6 +2661,48 @@
     });
     box.appendChild(hd); box.appendChild(grid);
   }
+  // 지금 시즌인 소재(시즌캘린더). 열려 있지 않으면(403 등) 시즌 칸은 보이지 않는다. 같은 날에는 다시 묻지 않는다
+  let seasonData = null, seasonDay = '', seasonPending = null, seasonClosed = false;
+  const seasonToday = () => new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10);
+  function seasonLoad() {
+    if (seasonData && seasonDay === seasonToday()) return Promise.resolve(true);
+    if (seasonClosed) return Promise.resolve(false);
+    if (seasonPending) return seasonPending;
+    seasonPending = (async () => {
+      try {
+        const res = await fetch(SEASON_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idToken: googleIdToken }) });
+        const d = await res.json().catch(() => null);
+        if (res.status === 403) { seasonClosed = true; return false; }
+        if (!res.ok || !d || d.ok !== true || !Array.isArray(d.items)) return false;
+        d.items = d.items.filter((x) => x && typeof x.t === 'string' && x.t && ['지금 뜸', '곧 시즌', '시즌 중'].includes(x.s));
+        seasonData = d; seasonDay = seasonToday(); return true;
+      } catch (e) { return false; } finally { seasonPending = null; }
+    })();
+    return seasonPending;
+  }
+  const SEASON_COLOR = { '지금 뜸': '#ff8f6b', '곧 시즌': '#e2a23c', '시즌 중': '#9aa3ad' };
+  function seasonNote(x) {
+    if (x.s === '곧 시즌') return '곧 시즌 · ' + (x.d === 1 ? '내일 시작' : x.d + '일 뒤 시작');
+    return (x.s === '지금 뜸' ? '지금 뜸 · ' : '시즌 중 · ') + x.e + '까지';
+  }
+  // 쇼츠·롱폼 분야 화면 맨 위: 지금 시즌인 소재. 누르면 직접 설정하기의 주제 칸이 채워진다
+  function tfSeasonFill(box, kind, all) {
+    box.innerHTML = '';
+    const items = seasonData ? seasonData.items : [];
+    if (!items.length) { box.hidden = true; return; }
+    box.hidden = false;
+    box.appendChild(tpvEl('h3', '', '지금 시즌 소재'));
+    box.appendChild(tpvEl('p', 'tf-snote', seasonData.preview ? '관리자 미리보기 · 고객에게는 아직 안 보여요' : '철이 되면 찾는 사람이 늘어요. 영상은 시즌이 오기 전에 올려 두면 좋아요.'));
+    const g = tpvEl('div', 'tf-sgrid');
+    const 처음 = window.matchMedia && window.matchMedia('(max-width: 760px)').matches ? 3 : 6;   // 폰에서는 시즌 칸이 분야 선택을 밀어내지 않게 적게 보여준다
+    items.slice(0, all ? items.length : 처음).forEach((x) => {
+      const b = tfChip('', SEASON_COLOR[x.s], x.s === '시즌 중' ? 'mute' : '', () => { tfClose(); openFormFor(kind, x.t, '주제 칸에 "' + escapeHtml(x.t) + '"을(를) 넣어드렸어요. 원하는 주제로 고쳐 써도 돼요.'); });
+      const sp = b.querySelector('span'); sp.appendChild(document.createTextNode(x.t)); sp.appendChild(tpvEl('small', '', seasonNote(x)));
+      g.appendChild(b);
+    });
+    box.appendChild(g);
+    if (!all && items.length > 처음) { const m = tpvEl('button', 'tf-smore', '시즌 소재 더 보기 (' + (items.length - 처음) + ')'); m.type = 'button'; m.addEventListener('click', () => { tfSeasonFill(box, kind, true); const c = box.querySelectorAll('.tf-sgrid .tf-chip')[처음]; if (c) c.focus(); }); box.appendChild(m); }
+  }
   function tfChip(text, color, cls, fn) {
     const b = tpvEl('button', 'tf-chip' + (cls ? ' ' + cls : '')); b.type = 'button'; if (color) { b.style.setProperty('--c', color); b.appendChild(document.createElement('i')); }
     b.appendChild(tpvEl('span', '', text)); b.addEventListener('click', fn); return b;
@@ -2656,6 +2713,11 @@
     hd.appendChild(h);
     hd.appendChild(tpvEl('p', 'tf-sub', general ? '분야를 고르면 요즘 반응 좋은 주제를 골라 드려요. 마음에 드는 주제를 고르면 직접 설정하기가 열려요.' : '하나를 고르면 ' + kd.name + ' 직접 설정하기가 열리고 주제 칸이 채워져요. 고친 뒤에 써도 돼요.'));
     box.appendChild(hd);
+    if (general) {
+      const ss = tpvEl('section', 'tf-season'); ss.setAttribute('aria-label', '지금 시즌 소재'); ss.hidden = true; box.appendChild(ss);
+      if (seasonData && seasonDay === seasonToday()) tfSeasonFill(ss, k);
+      else seasonLoad().then((ok) => { if (ok && ss.isConnected) tfSeasonFill(ss, k); });
+    }
     const own = () => tfChip('주제는 직접 쓸게요', '', 'tf-alt', () => { tfClose(); openFormFor(k, ''); });
     if (general) {
       const g = tpvEl('div', 'tf-chips');
