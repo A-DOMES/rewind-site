@@ -1616,6 +1616,9 @@
   .sidebar .mode-badge:hover { background: color-mix(in srgb, var(--ink) 5%, transparent); }
   .pt-badge { border-radius: var(--r-md); padding: var(--sp-1) 12px var(--sp-2); font-size: var(--fs-xs); border-color: transparent; }
   .pt-badge .pt-charge { margin-top: var(--sp-1); padding-block: 5px; }
+  /* 홈 인사말: 제목(질문) 한 줄 + 설명 한 줄 */
+  .msg .greet-title { display: block; font-family: 'Fraunces', 'IBM Plex Sans KR', serif; font-size: var(--fs-lg); font-weight: 600; line-height: 1.35; letter-spacing: -0.01em; margin-bottom: var(--sp-2); text-wrap: balance; }
+  .msg .greet-sub { display: block; font-size: var(--fs-base); line-height: 1.7; color: var(--ink-dim); }
 </style>
 <script src="./theme.js"></script>
 <script src="./assets/voice-panel.js"></script>
@@ -3396,13 +3399,17 @@
       return;
     }
 
+    // 인사말: 제목 한 줄(질문) + 설명 한 줄. 제목/설명 모양은 CSS .greet-title / .greet-sub 에서만 고친다
+    const 인사 = (title, sub) => `<span class="greet-title">${title}</span><span class="greet-sub">${sub}</span>`;
+    const 직접안내 = '정했다면 "직접 설정하기"로 바로 진행하세요.';
     let greeting;
     if (pastProjects.length === 0) {
-      greeting = (name ? `안녕하세요, ${escapeHtml(name)}님! ` : '안녕하세요! ') +
-        '리와인드에 처음 오셨네요. 이미 뭘 원하시는지 확실하시면 왼쪽 메뉴의 "직접 설정하기"로 빠르게 진행하실 수 있고, 아직 고민 중이시면 그냥 편하게 이야기해주세요 - 대본부터 목소리, 장면까지 AI가 전부 만들어드려요. 어떤 걸 만들어드릴까요?';
+      greeting = 인사((name ? `안녕하세요, ${escapeHtml(name)}님!` : '안녕하세요!') + ' 어떤 영상을 만들까요?',
+        `리와인드에 처음 오셨네요. ${직접안내} 아직 고민 중이면 편하게 이야기해 주세요. 대본부터 목소리, 장면까지 AI가 전부 만들어 드려요.`);
     } else {
       const last = pastProjects[0];
-      greeting = `다시 오셨네요! ${last && last.title ? `지난번 "${escapeHtml(last.title)}" 이후로 ` : ''}이번엔 어떤 영상을 만들어볼까요? 뭘 원하시는지 확실하면 왼쪽 메뉴의 "직접 설정하기"로 바로 진행하셔도 좋아요.`;
+      greeting = 인사('다시 오셨네요! 이번엔 어떤 영상을 만들까요?',
+        `${last && last.title ? `지난번 작업은 "${escapeHtml(last.title)}"였어요. ` : ''}${직접안내}`);
     }
     addMsg('bot', greeting);
     chatLog.parentElement.scrollTop = 0; // 처음엔 예시+인사말이 같이 보이도록 맨 위에서 시작
