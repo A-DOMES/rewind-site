@@ -407,6 +407,7 @@
   .pt-row .bal { grid-column: 2; grid-row: 2 / span 2; text-align: right; font-size: .8rem; color: var(--ink-faint); font-variant-numeric: tabular-nums; align-self: end; white-space: nowrap; }
   @media (max-width: 480px) { .sum-chip { flex-basis: calc(50% - 5px); } }
 </style>
+<link rel="stylesheet" href="./assets/notice-cards.css">
 <script src="./theme.js"></script>
 <script src="./assets/rw-consent.js"></script>
 <script>RWConsent.guard();</script>
@@ -477,6 +478,7 @@
     </div>
 
     <div id="proj-pane" role="tabpanel" aria-labelledby="tab-proj">
+    <div class="nc-list" id="notice-list" role="region" aria-label="알림" hidden></div>
     <div class="dash-summary" id="dash-summary" hidden></div>
 
     <div id="loading">
@@ -537,6 +539,8 @@
 
 </main>
 
+<script src="./assets/fail-reason.js"></script>
+<script src="./assets/notice-cards.js"></script>
 <script>
 (() => {
   // ⚠️ n8n Webhook의 Production URL로 교체하세요 (Test URL 아님)
@@ -583,8 +587,7 @@
   // 창을 다른 곳에 두었다가 돌아오면(탭 전환) 즉시 한 번 갱신한다. 모두 완료/오류면 멈춘다.
   let dashPollTimer = null, dashToken = null;
   // 대본 자동 작성 실패(상태 '대본실패', 또는 Status만 되돌려 메모가 남은 경우)는 고객에겐 오류가 아니라 '대본 준비 중'이다
-  function 대본실패메모(p) { return p.status === '대본실패' || String(p.errorLog || '').startsWith('대본 작성 실패'); }
-  function 오류있음(p) { return !!(p.errorLog && !String(p.errorLog).startsWith('[안내]') && !대본실패메모(p)); }   // [안내]로 시작하는 메모와 대본 작성 실패 메모는 오류가 아님 (목록 줄과 위쪽 요약이 같은 기준을 쓴다)
+  const 오류있음 = RewindNotice.hasError;   // [안내]로 시작하는 메모와 대본 작성 실패 메모는 오류가 아님 — 목록 줄·위쪽 요약·알림 카드·새로 만들기 메뉴 숫자가 같은 기준(assets/notice-cards.js)을 쓴다
   function 진행중(p) { return p.status !== '배포' && !p.videoUrl && !오류있음(p); }
   // [신규] 로그인(구글 토큰, 약 1시간 유효)이 만료되면 자동 갱신이 조용히 실패해서 화면이 멈춰 보였다.
   // 이제 만료를 감지하면 위쪽에 알림을 띄우고 한 번에 다시 로그인할 수 있게 한다.
@@ -675,10 +678,12 @@
   document.getElementById('tab-proj').addEventListener('click', () => 탭열기('proj'));
   document.getElementById('tab-points').addEventListener('click', () => 탭열기('points'));
 
+  function 알림그리기(list) { RewindNotice.render(document.getElementById('notice-list'), list, { onAct: (a) => { if (a === 'points') { 탭열기('points'); window.scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); } } }); }
   let 최근목록 = [];
   const deletedIds = new Set(); // 방금 삭제한 것은 새로고침(15초 점검)에서 잠깐 다시 보이지 않게
   function renderProjects(projects) {
     projects = (projects || []).filter(p => !deletedIds.has(String(p.id)));
+    알림그리기(projects);
     요약(projects); projects = 확인먼저(projects); 최근목록 = projects;
     document.getElementById('loading').style.display = 'none';
     if (!projects || projects.length === 0) {
@@ -733,7 +738,8 @@
       window.RewindDelete.ask({ id, title: p && p.title, status: p && p.status, token: () => dashToken, onDone: () => {
         const w = btn.closest('.reel-wrap'); if (w) w.remove();
         deletedIds.add(String(id));
-        요약(최근목록.filter(x => !deletedIds.has(String(x.id))));   // 위쪽 숫자도 바로 맞춘다
+        const 남은 = 최근목록.filter(x => !deletedIds.has(String(x.id)));
+        요약(남은); 알림그리기(남은);   // 위쪽 숫자와 알림 카드도 바로 맞춘다
         if (!list.querySelector('.reel-wrap')) { list.style.display = 'none'; document.getElementById('empty').style.display = 'block'; }
       } });
     }));
@@ -749,6 +755,7 @@
     document.getElementById('session-expired').style.display = 'none';
     document.getElementById('load-failed').style.display = 'none';
     document.getElementById('project-list').style.display = 'none';
+    RewindNotice.render(document.getElementById('notice-list'), []);   // 불러오는 동안·실패했을 때 이전 카드가 남지 않게
     try {
       const res = await fetch(PROJECTS_WEBHOOK_URL, {
         method: 'POST',
@@ -818,7 +825,6 @@
 })();
 </script>
 
-<script src="./assets/fail-reason.js"></script>
 <script src="./assets/project-delete.js"></script>
 <script>
   // 샘플 영상: 화면에 보일 때만 재생(음소거·반복). 움직임 줄이기 설정이면 자동 재생 대신 재생 버튼을 보여준다.
