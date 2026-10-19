@@ -65,14 +65,21 @@
 
   /* ----- hero ----- */
   .hero { padding: clamp(56px, 9vw, 110px) var(--pad) clamp(64px, 9vw, 120px); display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 40px; align-items: center; max-width: 1440px; margin: 0 auto; }
-  .hero h1 { font-size: clamp(2.6rem, 6.4vw, 5rem); font-weight: 700; line-height: 1.1; letter-spacing: -0.04em; }
+  .hero h1 { font-size: clamp(2.2rem, 4.6vw, 3.8rem); word-break: keep-all; font-weight: 700; line-height: 1.1; letter-spacing: -0.04em; }
   .hero h1 .soft { color: var(--amber); }
   .hero .lede { margin-top: 28px; max-width: 34em; font-size: clamp(1.02rem, 1.4vw, 1.18rem); color: var(--ink-dim); line-height: 1.8; }
   .hero .ctas { margin-top: 36px; display: flex; gap: 12px; flex-wrap: wrap; }
-  .hero .facts { margin-top: 44px; padding-top: 22px; border-top: 1px solid #2a241f; display: flex; gap: clamp(20px, 4vw, 48px); flex-wrap: wrap; max-width: 620px; }
-  .hero .facts div { display: flex; flex-direction: column; gap: 4px; }
-  .hero .facts dt { font-size: 0.82rem; color: var(--ink-faint); }
-  .hero .facts dd { margin: 0; font-size: 1rem; }
+  .hero .aud { margin-top: 18px; font-size: clamp(1rem, 1.3vw, 1.1rem); font-weight: 600; color: var(--ink); line-height: 1.6; }
+  .hero .cta-note { margin-top: 16px; max-width: 34em; font-size: .92rem; color: var(--ink-faint); line-height: 1.6; }
+  /* 결과물 샘플 줄 */
+  .hero-samples { grid-column: 1 / -1; margin-top: clamp(8px, 2vw, 24px); padding-top: 28px; border-top: 1px solid #2a241f; }
+  .hero-samples h2 { margin: 0 0 16px; font-size: 1.15rem; font-weight: 700; letter-spacing: -0.02em; }
+  .hero-samples ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(10px, 1.6vw, 20px); }
+  .hero-samples li { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .hero-samples img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 12px; display: block; background: var(--bg-deep, #1a1612); margin-bottom: 8px; }
+  .hero-samples b { font-size: 1rem; }
+  .hero-samples span { font-size: .88rem; color: var(--ink-dim); line-height: 1.5; }
+  @media (max-width: 760px) { .hero-samples ul { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
   /* film + phone */
   .stage { position: relative; height: 620px; display: flex; justify-content: center; }
@@ -282,7 +289,7 @@
     --blue: #2f6fb3; --green: #3f7d34; --err: #b64532; --focus: #9a600a;
     --status-plan: #2f6fb3; --status-making: #2f6fb3; --status-review: #9a600a; --status-final: #2f6fb3; --status-done: #3f7d34; --status-error: #b64532; } }
   :root[data-theme="light"] header { border-bottom: 1px solid #e3d9c8 }
-  :root[data-theme="light"] .hero .facts { border-top: 1px solid #e3d9c8 }
+  :root[data-theme="light"] .hero-samples { border-top: 1px solid #e3d9c8 }
   :root[data-theme="light"] section.alt { border-top: 1px solid #e3d9c8; border-bottom: 1px solid #e3d9c8 }
   :root[data-theme="light"] .choice.featured { background: #fbf0dc }
   :root[data-theme="light"] footer { border-top: 1px solid #e3d9c8 }
@@ -290,7 +297,7 @@
   :root[data-theme="light"] .footer-disclaimer { color: #7a6c5c }
   @media (prefers-color-scheme: light) {
     :root[data-theme="system"] header { border-bottom: 1px solid #e3d9c8 }
-    :root[data-theme="system"] .hero .facts { border-top: 1px solid #e3d9c8 }
+    :root[data-theme="system"] .hero-samples { border-top: 1px solid #e3d9c8 }
     :root[data-theme="system"] section.alt { border-top: 1px solid #e3d9c8; border-bottom: 1px solid #e3d9c8 }
     :root[data-theme="system"] .choice.featured { background: #fbf0dc }
     :root[data-theme="system"] footer { border-top: 1px solid #e3d9c8 }
@@ -394,18 +401,15 @@
 <main>
 <section class="hero">
   <div>
-    <h1>주제 하나로 완성되는<br><span class="soft">세로형 영상</span></h1>
-    <p class="lede">대본, 목소리, 장면 구성까지 AI가 만드는 숏폼 영상 서비스예요. 촬영도 편집도 필요 없고, 중요한 순간마다 직접 확인하고 승인하시면 됩니다.</p>
+    <h1>세상의 모든 순간을<br><span class="soft">영상으로 담다</span></h1>
+    <p class="lede">주제 한 줄이면 AI가 대본, 목소리, 장면 구성까지 만들어요. 촬영도 편집도 필요 없고, 중요한 순간마다 직접 확인하고 승인해요.</p>
+    <p class="aud">상품을 소개하는 셀러, 정보를 전하는 채널, 추억을 남기는 누구나</p>
     <div class="ctas">
       <a class="btn btn-amber" href="./new.html?mode=trial"><span>가입하고 체험 포인트 <span data-grant>50</span>P 받기</span>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
       <a class="btn btn-line" href="#how">만드는 과정 보기</a>
     </div>
-    <dl class="facts">
-      <div><dt>시작하는 방법</dt><dd>주제 한 줄, 또는 내 사진·영상</dd></div>
-      <div><dt>직접 확인하는 단계</dt><dd>대본, 최종 장면</dd></div>
-      <div><dt>받는 방법</dt><dd>다운로드, 유튜브 업로드, 썸네일</dd></div>
-    </dl>
+    <p class="cta-note">체험 포인트로 먼저 만들어 보세요. 제작에 실패하면 포인트는 자동으로 돌아와요.</p>
   </div>
 
   <div class="stage" aria-hidden="true">
@@ -423,6 +427,16 @@
       </div>
     </div>
     <div class="timecode"><span class="tc" id="hero-tc-label">장면 3 / 8</span><b id="hero-tc">00:00:17:08</b></div>
+  </div>
+
+  <div class="hero-samples">
+    <h2>이렇게 완성돼요</h2>
+    <ul>
+      <li><img src="./assets/sample-info.jpg" alt="" loading="lazy"><b>쇼츠</b><span>주제 한 줄로 만든 정보 영상</span></li>
+      <li><img src="./assets/sample-product.jpg" alt="" loading="lazy"><b>상품 쇼츠</b><span>상품 사진으로 만든 소개 영상</span></li>
+      <li><img src="./assets/sample-yadam.jpg" alt="" loading="lazy"><b>야담</b><span>이야기를 길게 풀어낸 롱폼</span></li>
+      <li><img src="./assets/sample-mood.jpg" alt="" loading="lazy"><b>분위기 영상</b><span>소리와 풍경으로 채우는 긴 영상</span></li>
+    </ul>
   </div>
 </section>
 
