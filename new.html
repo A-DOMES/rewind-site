@@ -1589,7 +1589,7 @@
   .cal-modes button:focus-visible, .cal-chips button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
   /* 현재 달·계절 표시: 작은 사각형 라벨 (글자는 data-now) */
   .cal-chips button.is-now { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--gold) 55%, transparent); }
-  .cal-chips button.is-now::after { content: attr(data-now); font-size: .74rem; font-weight: 700; line-height: 1; padding: 4px 7px; border-radius: 6px; color: var(--ink); background: color-mix(in srgb, var(--gold) 28%, transparent); }
+  .cal-chips button.is-now::after { content: attr(data-now); font-size: .82rem; font-weight: 700; line-height: 1; padding: 5px 8px; border-radius: 6px; color: var(--ink); background: color-mix(in srgb, var(--gold) 28%, transparent); }
   .cal-filter { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
   .cal-filter label { color: var(--ink-dim); font-size: .9rem; }
   .cal-filter select { font: inherit; font-size: .93rem; color: var(--ink); background: var(--bg-input, var(--bg-raised)); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; min-width: 0; max-width: 100%; }
@@ -1600,7 +1600,7 @@
   .cal-row:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; }
   .cal-name { font-weight: 600; font-size: 1rem; min-width: 0; overflow-wrap: anywhere; }
   .cal-when { color: var(--ink-dim); font-size: 1rem; font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums; display: inline-flex; align-items: center; gap: 8px; align-self: start; }
-  .cal-badge { font-size: .76rem; font-weight: 700; line-height: 1; padding: 5px 8px; border-radius: 6px; color: #2a1408; background: #ff9b78; }
+  .cal-badge { font-size: .875rem; font-weight: 700; line-height: 1; padding: 6px 11px; border-radius: 6px; color: #2a1408; background: #ff9b78; }
   @media (max-width: 480px) { .cal-row { grid-template-columns: minmax(0, 1fr); } .cal-when { grid-row: 2; } }
   .cal-why { grid-column: 1 / -1; color: var(--ink-faint); font-size: .86rem; min-width: 0; overflow-wrap: anywhere; }
   .cal-tag { display: inline-block; margin-left: 8px; font-size: .74rem; font-weight: 400; color: var(--ink-dim); border: 1px solid var(--line); border-radius: 99px; padding: 0 8px; vertical-align: 1px; }
@@ -2988,7 +2988,7 @@
   function calRender(box) {
     const hd = tpvEl('div'), h = tpvEl('h2', 'cal-title'); h.tabIndex = -1; h.id = 'tf-h';
     h.appendChild(calIcon('var(--ic-cal)', '<rect x="3.5" y="5" width="17" height="15" rx="2.2"/><path d="M3.5 10h17M8 3v4M16 3v4"/>')); h.appendChild(document.createTextNode('상품 캘린더'));
-    hd.appendChild(h); hd.appendChild(tpvEl('p', 'tf-sub', '철 따라, 기념일마다 잘 팔리는 상품을 골라 보세요.'));
+    hd.appendChild(h); hd.appendChild(tpvEl('p', 'tf-sub', '수요가 늘어나는 상품을 선택하세요.'));
     box.appendChild(hd);
     const body = tpvEl('div', 'cal-body'); body.style.display = 'grid'; body.style.gap = '16px'; box.appendChild(body);
     const msg = (t, retry) => { body.innerHTML = ''; const w = tpvEl('div', 'cal-empty'); w.appendChild(tpvEl('p', '', t)); if (retry) { const b = tpvEl('button', 'cal-retry', cal.closed ? '다시 확인하기' : '다시 불러오기'); b.type = 'button'; b.addEventListener('click', () => { cal.err = false; cal.closed = false; calRender2(); }); w.appendChild(b); } body.appendChild(w); };
