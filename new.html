@@ -1634,7 +1634,8 @@
   .mobile-nav a[href="./dashboard.html"] svg { --c: var(--ic-proj); }
   .mobile-nav [data-go="more"] svg { --c: var(--ic-script); }
   .mobile-nav svg { background: var(--c) !important; stroke: #fff !important; }
-  .sidebar { overflow-y: auto; scrollbar-width: thin; }   /* 낮은 화면에서도 프로필까지 닿도록 */
+  /* 낮은 화면에서는 메뉴 목록만 스크롤한다. 사이드바 전체를 스크롤 영역으로 두면 계정 메뉴 팝업이 옆으로 잘린다 */
+  .side-nav { flex: 0 1 auto; min-height: 0; overflow-y: auto; scrollbar-width: thin; }
   #to-direct-form { margin-bottom: 0; }   /* 예전에 따로 주던 여백 제거: 메뉴 간격 통일 */
   .side-nav .side-item { min-height: 44px; padding-block: 0; align-items: center; }   /* 메뉴 높이를 모두 같게 */
   .soon-group { margin-top: var(--sp-3); padding-top: var(--sp-2); }
