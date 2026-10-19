@@ -923,7 +923,7 @@
     const 메모 = String(p.errorLog || '');
     if (메모.startsWith('대본 작성 실패') || 메모.startsWith('[안내] 작성 중')) p = { ...p, errorLog: '' };
     if (!상태바꾸기[원래]) return p;
-    if (원래 === '실패') return { ...p, status: '제작 중', 원래상태: 원래, errorLog: '제작 중 문제가 생겨 멈췄어요. 사용한 포인트는 자동으로 돌려드려요(약 10분 이내). 잠시 뒤 다시 신청해 주세요.' };   // 내부 오류 문구는 고객에게 보이지 않게 한다
+    if (원래 === '실패') return { ...p, status: '제작 중', 원래상태: 원래, errorLog: window.RewindFail ? window.RewindFail.notice(p.errorLog) : '제작 중 문제가 생겨 완성하지 못했어요. 사용한 포인트는 모두 자동으로 돌려드려요(약 10분 이내).' };   // 내부 오류 문구는 고객에게 보이지 않게 한다
     return { ...p, status: 상태바꾸기[원래], 원래상태: 원래, errorLog: (원래 === '대본실패' || !p.errorLog) ? '' : '[안내] ' + p.errorLog };
   }
 
@@ -1475,6 +1475,7 @@
 })();
 </script>
 
+<script src="./assets/fail-reason.js"></script>
 <script src="./assets/project-delete.js"></script>
 <script>
   document.getElementById('proj-delete').addEventListener('click', () => {

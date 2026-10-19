@@ -663,7 +663,7 @@
       const 제작실패 = String(p.status || '').trim() === '실패';   // 제작을 끝내지 못함: 내부 오류 문구 대신 안내를 보여 주고 포인트는 자동 환불
       const label = 제작실패 ? '제작 실패' : hasError === '1' ? '문제 발생' : (STATUS_LABEL[p.status] || p.status || '-');
       const meta = 제작실패
-        ? `<span class="err">제작 중 문제가 생겼어요. 사용한 포인트는 자동으로 돌려드려요</span>`
+        ? `<span class="err">${escapeHtml(window.RewindFail ? window.RewindFail.reason(p.errorLog) : '제작 중 문제가 생겼어요.')} 포인트는 자동으로 돌려드려요</span>`
         : hasError === '1'
         ? `<span class="err">${escapeHtml(p.errorLog)}</span>`
         : `${escapeHtml(p.form || '쇼츠')} · ${escapeHtml(만든시각글(p))}`;
@@ -774,6 +774,7 @@
 })();
 </script>
 
+<script src="./assets/fail-reason.js"></script>
 <script src="./assets/project-delete.js"></script>
 <script>
 // [로그인 화면] 가운데 슬라이드의 샘플 영상: 슬라이드가 나타날 때마다 '우주 지름 930억' 장면부터 재생 (약 4초 동안만 보임)
