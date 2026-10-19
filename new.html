@@ -996,6 +996,8 @@
 
   /* 글씨 강약: 본문은 보통 굵기 */
   .msg .bubble { font-weight: 400; }
+  .msg .bubble .msg-time { display: block; margin-top: 6px; font-size: 0.68rem; line-height: 1; letter-spacing: 0.01em; color: var(--ink-dim); opacity: 0.7; font-weight: 400; font-variant-numeric: tabular-nums; user-select: none; }
+  .msg.user .bubble .msg-time { text-align: right; }
   .msg .bubble strong { font-weight: 650; }
   /* 보내기 버튼: 비활성은 회색, 입력하면 앰버 */
   .chat-send-btn:disabled { opacity: 1; background: var(--bg-input); color: var(--ink-faint); }
@@ -2055,10 +2057,21 @@
   let productExtra = null;   // 상품쇼츠: 사진·영상 목록, 설명·후기, 판매 유형, 권리·사람 확인 (상담 챗봇에는 보내지 않는다)
   let history = [];
 
-  function addMsg(role, html) {
+  // 말풍선 시각: 오늘이면 '오후 1:27', 다른 날이면 '10월 18일 오후 1:27'. 이전 대화를 되살릴 때는(저장된 시각이 없어) 붙이지 않는다.
+  function msgTimeLabel(d) {
+    try {
+      const t = d.toLocaleTimeString('ko-KR', { hour: 'numeric', minute: '2-digit', hour12: true });
+      const now = new Date();
+      if (d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate()) return t;
+      return (d.getMonth() + 1) + '월 ' + d.getDate() + '일 ' + t;
+    } catch (e) { return ''; }
+  }
+  function addMsg(role, html, opt) {
     const el = document.createElement('div');
     el.className = 'msg ' + role;
-    el.innerHTML = `<div class="avatar">R</div><div class="bubble">${html}</div>`;
+    const when = (opt && opt.noTime) ? null : new Date();
+    const label = when ? msgTimeLabel(when) : '';
+    el.innerHTML = `<div class="avatar">R</div><div class="bubble">${html}${label ? `<time class="msg-time" datetime="${when.toISOString()}">${label}</time>` : ''}</div>`;
     chatLog.appendChild(el);
     const wrap = chatLog.parentElement;
     wrap.scrollTop = wrap.scrollHeight;
@@ -3080,7 +3093,7 @@
       chatLog.appendChild(exampleRow);
       exampleRow.style.display = 'none';
       document.getElementById('form-status').textContent = '';
-      history.forEach(h => addMsg(h.role, h.role === 'bot' ? renderReply(h.text) : escapeHtml(h.text)));
+      history.forEach(h => addMsg(h.role, h.role === 'bot' ? renderReply(h.text) : escapeHtml(h.text), { noTime: true }));
       renderComposer();
       return;
     }
