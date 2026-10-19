@@ -1480,7 +1480,7 @@
   document.getElementById('proj-delete').addEventListener('click', () => {
     const p = window.__rwCurrentProject && window.__rwCurrentProject();
     if (!p || !window.RewindDelete) return;
-    window.RewindDelete.ask({ id: p.id, title: p.title, token: () => window.__rwToken && window.__rwToken(), onDone: () => { location.href = './dashboard.html'; } });
+    window.RewindDelete.ask({ id: p.id, title: p.title, status: p.원래상태 || p.status, token: () => window.__rwToken && window.__rwToken(), onDone: () => { location.href = './dashboard.html'; } });
   });
 </script>
 </body>

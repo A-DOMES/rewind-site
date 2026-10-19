@@ -687,7 +687,7 @@
     list.querySelectorAll('.reel-del').forEach(btn => btn.addEventListener('click', (e) => {
       e.preventDefault(); e.stopPropagation();
       const id = btn.dataset.del, p = projects.find(x => String(x.id) === String(id));
-      window.RewindDelete.ask({ id, title: p && p.title, token: () => dashToken, onDone: () => {
+      window.RewindDelete.ask({ id, title: p && p.title, status: p && p.status, token: () => dashToken, onDone: () => {
         const w = btn.closest('.reel-wrap'); if (w) w.remove();
         deletedIds.add(String(id));
         if (!list.querySelector('.reel-wrap')) { list.style.display = 'none'; document.getElementById('empty').style.display = 'block'; }

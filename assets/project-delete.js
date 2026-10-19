@@ -15,6 +15,7 @@
       .rwdel-box h3 { margin: 0 0 8px; font-size: 1.08rem; }
       .rwdel-box .nm { margin: 0 0 12px; padding: 8px 12px; border-radius: 10px; background: var(--bg-input, rgba(0,0,0,.05)); font-weight: 600; word-break: keep-all; overflow-wrap: anywhere; }
       .rwdel-box p { margin: 0 0 6px; font-size: .9rem; line-height: 1.55; color: var(--ink-dim, #666); }
+      .rwdel-box .rwdel-pt { color: var(--ink, #222); font-weight: 600; }
       .rwdel-box .err { color: var(--err, #d64545); margin-top: 8px; min-height: 1.2em; }
       .rwdel-row { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; }
       .rwdel-row button { height: 42px; padding: 0 18px; border-radius: 10px; font: inherit; font-weight: 600; cursor: pointer; border: 1px solid var(--line, #ddd); background: transparent; color: var(--ink, #222); }
@@ -26,14 +27,25 @@
 
   function 지울수있나(status) { return 만드는중.indexOf(String(status || '').trim()) < 0; }
 
-  // opts: { id, title, token(): 로그인 토큰을 돌려주는 함수, onDone() }
+  // 상태별 포인트 안내 (실제 환불은 서버가 정한다: 프로젝트_삭제 v1.2. 금액은 서버 응답으로 알려 준다)
+  const 전액환불 = ['실패', '대본실패'], 대본비만 = ['대본검수대기', '검수 대기'];
+  function 포인트안내(status) {
+    const s = String(status || '').trim();
+    if (전액환불.indexOf(s) >= 0) return '제작에 실패한 건이라 사용한 포인트가 모두 돌아와요.';
+    if (대본비만.indexOf(s) >= 0) return '영상 제작을 시작하기 전이라, 대본 작성 비용을 뺀 포인트가 바로 돌아와요.';
+    return '';
+  }
+
+  // opts: { id, title, status(화면에 보이는 상태), token(): 로그인 토큰을 돌려주는 함수, onDone(data) }
   function 묻기(opts) {
     스타일();
+    const 안내 = 포인트안내(opts.status);
     const ov = document.createElement('div'); ov.className = 'rwdel-ov'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true');
     ov.innerHTML = `<div class="rwdel-box">
       <h3>이 프로젝트를 삭제할까요?</h3>
       <div class="nm">${esc(opts.title || '주제 준비 중')}</div>
       <p>삭제하면 되돌릴 수 없어요. 내 프로젝트 목록에서 바로 사라져요.</p>
+      ${안내 ? `<p class="rwdel-pt">${esc(안내)}</p>` : ''}
       <p>이미 기기에 받아 둔 영상·썸네일, 유튜브에 올린 영상은 지워지지 않아요.</p>
       <div class="err" id="rwdel-err" role="alert"></div>
       <div class="rwdel-row"><button type="button" id="rwdel-no">취소</button><button type="button" class="danger" id="rwdel-yes">삭제하기</button></div>
@@ -55,7 +67,15 @@
         const res = await fetch(URL_DELETE, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idToken: token, id: opts.id }), signal: ctl.signal });
         clearTimeout(timer);
         const data = await res.json().catch(() => null);
-        if (res.ok && data && data.ok) { 닫기(); if (opts.onDone) opts.onDone(); return; }
+        if (res.ok && data && data.ok) {
+          const 돌려줌 = Number(data.refunded) > 0 ? Number(data.refunded) : 0;
+          if (돌려줌) {   // 환불 결과를 잠깐 보여 준 뒤 닫는다 (시각은 포인트 내역에도 남는다)
+            const 지금 = new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', hour12: false });
+            ov.querySelector('.rwdel-box').innerHTML = `<h3>삭제했어요</h3><p class="rwdel-pt">포인트 ${돌려줌.toLocaleString('ko-KR')}P가 돌아왔어요.</p><p>${esc(지금)}</p>`;
+            setTimeout(() => { 닫기(); if (opts.onDone) opts.onDone(data); }, 1800);
+          } else { 닫기(); if (opts.onDone) opts.onDone(data); }
+          return;
+        }
         err.textContent = res.status === 401 ? '로그인 시간이 지났어요. 페이지를 새로고침한 뒤 다시 시도해 주세요.'
           : (data && data.message) || '삭제하지 못했어요. 잠시 뒤 다시 시도해 주세요.';
       } catch (e) {
