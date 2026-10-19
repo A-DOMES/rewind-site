@@ -1558,6 +1558,34 @@
   html[data-rw-off~="쇼츠"][data-rw-off~="롱폼"] label:has(> input[name="df-type"][value="일반"]),
   html[data-rw-off~="쇼츠"] label:has(> input[name="gn-form"][value="쇼츠"]),
   html[data-rw-off~="롱폼"] label:has(> input[name="gn-form"][value="롱폼"]) { display: none !important; }
+  /* ===== [상품 캘린더] 주제 찾기 허브 안의 한 화면(tfView 'cal'). 규칙은 아래 '상품 캘린더' 스크립트 블록 ===== */
+  .side-item[hidden], .mobile-more [hidden] { display: none !important; }
+  .cal-modes, .cal-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .cal-modes button, .cal-chips button { font: inherit; font-size: .93rem; color: var(--ink-dim); background: var(--bg-raised); border: 1px solid var(--line); border-radius: 999px; padding: 8px 15px; cursor: pointer; }
+  .cal-modes button[aria-pressed="true"] { background: var(--gold); border-color: var(--gold); color: #1c1409; font-weight: 700; }
+  .cal-chips button[aria-pressed="true"] { border-color: var(--gold); color: var(--ink); font-weight: 700; background: color-mix(in srgb, var(--gold) 16%, var(--bg-raised)); }
+  .cal-chips button.is-now::after { content: ' · 지금'; color: var(--ink-faint); font-weight: 400; font-size: .8rem; }
+  .cal-filter { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+  .cal-filter label { color: var(--ink-dim); font-size: .9rem; }
+  .cal-filter select { font: inherit; font-size: .93rem; color: var(--ink); background: var(--bg-input, var(--bg-raised)); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; min-width: 0; max-width: 100%; }
+  .cal-count { margin: 0; color: var(--ink-faint); font-size: .86rem; }
+  .cal-list { display: grid; gap: 10px; }
+  .cal-item { background: var(--bg-raised); border: 1px solid var(--line); border-radius: 14px; min-width: 0; }
+  .cal-row { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; text-align: left; font: inherit; color: inherit; background: none; border: 0; padding: 13px 16px; cursor: pointer; border-radius: 14px; }
+  .cal-row:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; }
+  .cal-name { font-weight: 600; font-size: 1rem; min-width: 0; overflow-wrap: anywhere; }
+  .cal-when { color: var(--ink-dim); font-size: .85rem; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .cal-why { grid-column: 1 / -1; color: var(--ink-faint); font-size: .86rem; min-width: 0; overflow-wrap: anywhere; }
+  .cal-tag { display: inline-block; margin-left: 8px; font-size: .74rem; font-weight: 400; color: var(--ink-dim); border: 1px solid var(--line); border-radius: 99px; padding: 0 8px; vertical-align: 1px; }
+  .cal-now { color: #ff8f6b; font-weight: 700; }
+  .cal-item.is-open { border-color: var(--gold); }
+  .cal-make { display: grid; gap: 10px; padding: 4px 16px 15px; }
+  .cal-make p { margin: 0; color: var(--ink-dim); font-size: .88rem; }
+  .cal-make .cal-btns { display: flex; flex-wrap: wrap; gap: 8px; }
+  .cal-make button { font: inherit; font-size: .92rem; color: var(--ink); background: var(--bg-input, var(--bg-raised)); border: 1px solid var(--line); border-radius: 10px; padding: 9px 14px; cursor: pointer; }
+  .cal-make button:hover, .cal-make button:focus-visible { border-color: var(--gold); outline: none; }
+  .cal-note { color: var(--ink-dim); font-size: .88rem; margin: 0; }
+  .cal-empty { border: 1px dashed var(--line); border-radius: 14px; padding: 28px 16px; text-align: center; color: var(--ink-dim); }
 </style>
 <script src="./theme.js"></script>
 <script src="./assets/voice-panel.js"></script>
@@ -1623,6 +1651,7 @@
         <button class="side-item" id="to-direct-form"><span class="ico" style="--c:#e2a23c"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/></svg></span> 직접 설정하기</button>
         <button class="side-item" id="to-longscript"><span class="ico" style="--c:#8ad7c4"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg></span> 대본 만들기</button>
         <button class="side-item" id="to-topic-finder"><span class="ico" style="--c:#ffc857"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.4 1 1.1 1 1.8V16h5v-.3c0-.7.4-1.4 1-1.8A6 6 0 0 0 12 3z"/></svg></span> 주제 찾기</button>
+        <button class="side-item" id="to-calendar" hidden><span class="ico" style="--c:#7fd1b9"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg></span> 상품 캘린더</button>
         <button class="side-item" id="to-price-table"><span class="ico" style="--c:#86d980"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M14.5 9.5h-3.5a1.5 1.5 0 0 0 0 3h2a1.5 1.5 0 0 1 0 3H9.5M12 7.5v1.5M12 15.5V17"/></svg></span> 요금 안내</button>
       </nav>
       <details class="soon-group">
@@ -1721,6 +1750,7 @@
   <button type="button" data-go="code" role="menuitem"><svg class="mmi" style="--c:#f2c230" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4z"/><path d="M14 6v12" stroke-dasharray="2 2"/></svg><span>포인트 코드 입력</span></button>
   <button type="button" data-go="mode" role="menuitem"><svg class="mmi" style="--c:#f08a4b" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h11l-3-3M17 17H6l3 3"/></svg><span id="mm-mode-item">체험 모드로 사용 중</span><small id="mm-mode-hint">눌러서 정식 모드로 전환</small></button>
   <button type="button" data-go="theme" role="menuitem"><svg class="mmi" style="--c:#f06fa8" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18c1.4 0 2-.9 2-1.8 0-1.2-1-1.5-1-2.7 0-1 .8-1.5 1.8-1.5H17a4 4 0 0 0 4-4C21 6.6 17 3 12 3z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10" cy="7.5" r="1"/><circle cx="14.5" cy="7.5" r="1"/></svg><span>화면 색상</span><small id="mm-theme-name">눌러서 다음 색으로</small></button>
+  <button type="button" data-go="calendar" role="menuitem" hidden><svg class="mmi" style="--c:#7fd1b9" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span>상품 캘린더</span></button>
   <button type="button" data-go="script" role="menuitem"><svg class="mmi" style="--c:#8ad7c4" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg><span>대본 만들기</span></button>
   <button type="button" data-go="price" role="menuitem"><svg class="mmi" style="--c:#86d980" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M14.5 9.5h-3.5a1.5 1.5 0 0 0 0 3h2a1.5 1.5 0 0 1 0 3H9.5M12 7.5v1.5M12 15.5V17"/></svg><span>요금 안내</span></button>
   <button type="button" data-go="logout" role="menuitem"><svg class="mmi" style="--c:#ef7a7a" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H5v16h5M15 8l4 4-4 4M19 12H9"/></svg><span>로그아웃</span></button>
@@ -1889,7 +1919,8 @@
     } catch (e) { return; }
     paint();
   }
-  window.RWFlags = { load: load, on: on };
+  function has(name) { return features !== null && features[name] === true; }   // 새 기능용: 열렸다고 확인될 때만 보인다(on 은 모를 때 열림으로 본다)
+  window.RWFlags = { load: load, on: on, has: has };
 })();
 </script>
 <script>
@@ -2804,7 +2835,7 @@
   function tfRender() {
     const box = tfBox(); if (!box) return; box.innerHTML = '';
     const inn = tpvEl('div', 'tf-in');
-    if (tfView === 'root') tfRoot(inn); else tfSub(inn, tfView);
+    if (tfView === 'root') tfRoot(inn); else if (tfView === 'cal') calRender(inn); else tfSub(inn, tfView);
     box.appendChild(inn);
   }
   document.addEventListener('rw-flags', () => { if (tfIsOpen() && tfView === 'root') tfRender(); });   // 공개 목록이 늦게 도착해도 열려 있는 카드 화면을 다시 그린다
@@ -2814,9 +2845,137 @@
     if (window.갱신위치표시) window.갱신위치표시();
     const h = document.getElementById('tf-h'); if (h) { try { h.focus({ preventScroll: true }); } catch (e) {} }
   }
+  // ───────────────────────── 상품 캘린더 ─────────────────────────
+  // 주제 찾기 허브 안의 한 화면(tfView 'cal'). 데이터는 order-calendar(시트 `상품캘린더`)가 정리해서 주고, 월·계절·유형으로 나누는 것은 여기서 한다.
+  // 열림 여부: 시트 `기능공개`의 `상품캘린더` 줄(site-flags). 새 기능이라 목록이 확인될 때만 메뉴가 보인다. 서버(order-calendar)도 같은 규칙으로 막는다.
+  // 고칠 곳: CAL_MODES(보는 방법) · calPick()(어떤 상품이 어떤 보기에 나오는지) · calMake()(상품을 눌렀을 때 영상 만들기 입구).
+  const CALENDAR_URL = 'https://bald-buffalo.pikapod.net/webhook/order-calendar';
+  const CAL_MODES = [['m', '월별'], ['s', '계절별'], ['g', '기념일·선물'], ['a', '늘 쓰는 것'], ['x', '상황별']];
+  const CAL_SEASONS = ['봄', '여름', '가을', '겨울', '사계절'];
+  let cal = { data: null, day: '', pending: null, closed: false, err: false, mode: 'm', month: 0, season: '', occ: '', cat: '', open: '' };
+  const calToday = () => new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10);
+  const calNowM = () => new Date(Date.now() + 9 * 3600e3).getUTCMonth() + 1;   // '지금' 달은 손님 기기 시계(한국시간) 기준
+  const calSeasonOf = (m) => (m >= 3 && m <= 5 ? '봄' : m >= 6 && m <= 8 ? '여름' : m >= 9 && m <= 11 ? '가을' : '겨울');
+  function calMonths(m) {   // [11,12,1,2] → "11~2월", [3,4] → "3~4월", 12개 → "연중"
+    if (m.length >= 12) return '연중';
+    const set = new Set(m); let start = m.find((x) => !set.has(x === 1 ? 12 : x - 1)); if (start === undefined) return '연중';
+    const parts = []; for (let cur = start, n = 0; n < 12; n++) { if (!set.has(cur)) { cur = cur === 12 ? 1 : cur + 1; continue; } let len = 0, e = cur; while (set.has(e) && len < 12) { len++; e = e === 12 ? 1 : e + 1; } const last = ((cur + len - 2) % 12) + 1; parts.push(len === 1 ? cur + '월' : cur + '~' + last + '월'); n += len; cur = e; }
+    return parts.join(', ');
+  }
+  function calLoad() {
+    if (cal.data && cal.day === calToday()) return Promise.resolve(true);
+    if (cal.closed) return Promise.resolve(false);
+    if (cal.pending) return cal.pending;
+    cal.pending = (async () => {
+      try {
+        const res = await fetch(CALENDAR_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idToken: googleIdToken }) });
+        const d = await res.json().catch(() => null);
+        if (res.status === 403) { cal.closed = true; return false; }   // 닫힘은 잠깐일 수 있어 '다시 확인' 버튼으로 풀 수 있다
+        if (!res.ok || !d || d.ok !== true || !Array.isArray(d.items)) { cal.err = true; return false; }
+        d.items = d.items.filter((x) => x && typeof x.p === 'string' && x.p && Array.isArray(x.m));
+        cal.data = d; cal.day = calToday(); cal.err = false;
+        if (!cal.month) { cal.month = calNowM(); cal.season = calSeasonOf(cal.month); }
+        return true;
+      } catch (e) { cal.err = true; return false; } finally { cal.pending = null; }
+    })();
+    return cal.pending;
+  }
+  // 지금 고른 보기에 맞는 상품만 (분야 필터 포함)
+  function calPick() {
+    const it = cal.data ? cal.data.items : [];
+    let out = it;
+    if (cal.mode === 'm') out = it.filter((x) => x.m.includes(cal.month));
+    else if (cal.mode === 's') out = cal.season === '사계절' ? it.filter((x) => x.s === '사계절' || x.t === '상시') : it.filter((x) => x.t !== '상시' && x.s !== '사계절' && x.m.some((m) => calSeasonOf(m) === cal.season));   // 계절은 성수기 달 기준
+    else if (cal.mode === 'g') out = it.filter((x) => x.t === '기념일·선물' && (!cal.occ || x.o === cal.occ));
+    else if (cal.mode === 'a') out = it.filter((x) => x.t === '상시');
+    else if (cal.mode === 'x') out = it.filter((x) => x.t === '상황' && (!cal.occ || x.o === cal.occ));
+    if (cal.cat && !out.some((x) => x.c === cal.cat)) cal.cat = '';   // 다른 달·보기로 옮겼을 때 지난 분야 선택이 목록을 비워 보이지 않게
+    return { base: out, shown: cal.cat ? out.filter((x) => x.c === cal.cat) : out };
+  }
+  function calOccasions(type) {   // 그 유형의 기념일·상황 이름들(빠른 달 순)
+    const seen = new Map(); (cal.data ? cal.data.items : []).forEach((x) => { if (x.t === type && x.o && !seen.has(x.o)) seen.set(x.o, Math.min(...x.m)); });
+    return [...seen].sort((a, b) => a[1] - b[1]).map((e) => e[0]);
+  }
+  function calRender(box) {
+    const hd = tpvEl('div'), h = tpvEl('h2', '', '상품 캘린더'); h.tabIndex = -1; h.id = 'tf-h';
+    hd.appendChild(h); hd.appendChild(tpvEl('p', 'tf-sub', '철 따라, 기념일마다 잘 팔리는 상품을 골라 보세요. 상품을 누르면 영상을 만들 수 있어요.'));
+    box.appendChild(hd);
+    const body = tpvEl('div', 'cal-body'); body.style.display = 'grid'; body.style.gap = '16px'; box.appendChild(body);
+    const msg = (t, retry) => { body.innerHTML = ''; const w = tpvEl('div', 'cal-empty'); w.appendChild(tpvEl('p', '', t)); if (retry) { const b = tpvEl('button', 'cal-retry', cal.closed ? '다시 확인하기' : '다시 불러오기'); b.type = 'button'; b.addEventListener('click', () => { cal.err = false; cal.closed = false; calRender2(); }); w.appendChild(b); } body.appendChild(w); };
+    const calRender2 = () => {
+      const fk = document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.fk : '';   // 다시 그린 뒤에도 키보드 위치를 유지
+      box.innerHTML = ''; calRender(box);
+      if (fk) { const el = box.querySelector('[data-fk="' + fk.replace(/"/g, '') + '"]'); if (el) el.focus({ preventScroll: true }); }
+    };
+    if (cal.closed) { msg('지금은 열려 있지 않아요.', true); return; }
+    if (!cal.data && cal.err) { msg('상품 목록을 불러오지 못했어요.', true); return; }   // 오류 화면에서는 다시 묻지 않는다(눌러서 다시 불러오기)
+    if (!cal.data) { msg('불러오는 중이에요…'); calLoad().then((ok) => { if (tfIsOpen() && tfView === 'cal' && body.isConnected && (ok || cal.closed || cal.err)) calRender2(); }); return; }
+    if (cal.data.preview) body.appendChild(tpvEl('p', 'cal-note', '관리자 미리보기 · 고객에게는 아직 안 보여요' + (cal.data.dropped > 0 ? ' · 분야 이름이 상품분류와 달라 빠진 줄 ' + cal.data.dropped + '개' : '')));
+    const draw = calRender2;
+    // 보는 방법
+    const modes = tpvEl('div', 'cal-modes'); modes.setAttribute('role', 'group'); modes.setAttribute('aria-label', '보는 방법');
+    CAL_MODES.forEach(([k, t]) => { const b = tpvEl('button', '', t); b.type = 'button'; b.dataset.fk = 'm:' + k; b.setAttribute('aria-pressed', cal.mode === k ? 'true' : 'false'); b.addEventListener('click', () => { cal.mode = k; cal.occ = ''; cal.open = ''; draw(); }); modes.appendChild(b); });
+    body.appendChild(modes);
+    // 세부 고르기(월 · 계절 · 기념일/상황)
+    const chips = tpvEl('div', 'cal-chips'); chips.setAttribute('role', 'group');
+    const chip = (text, on, fn, now) => { const b = tpvEl('button', now ? 'is-now' : '', text); b.type = 'button'; b.dataset.fk = 'c:' + text; b.setAttribute('aria-pressed', on ? 'true' : 'false'); b.addEventListener('click', () => { fn(); cal.open = ''; draw(); }); chips.appendChild(b); };
+    const nowM = calNowM();
+    if (cal.mode === 'm') { chips.setAttribute('aria-label', '월 고르기'); for (let m = 1; m <= 12; m++) chip(m + '월', cal.month === m, () => { cal.month = m; }, m === nowM); }
+    else if (cal.mode === 's') { chips.setAttribute('aria-label', '계절 고르기'); CAL_SEASONS.forEach((s) => chip(s === '사계절' ? '늘 쓰는 사계절' : s, cal.season === s, () => { cal.season = s; }, s === calSeasonOf(nowM))); }
+    else if (cal.mode === 'g' || cal.mode === 'x') { chips.setAttribute('aria-label', cal.mode === 'g' ? '기념일 고르기' : '상황 고르기'); chip('전체', !cal.occ, () => { cal.occ = ''; }); calOccasions(cal.mode === 'g' ? '기념일·선물' : '상황').forEach((o) => chip(o, cal.occ === o, () => { cal.occ = o; })); }
+    if (chips.childNodes.length) body.appendChild(chips);
+    // 분야 + 개수
+    const { base, shown } = calPick();
+    const fl = tpvEl('div', 'cal-filter'), lb = tpvEl('label', '', '분야'), sel = tpvEl('select'); sel.id = 'cal-cat'; sel.dataset.fk = 'cat'; lb.htmlFor = 'cal-cat';
+    const counts = new Map(); base.forEach((x) => counts.set(x.c, (counts.get(x.c) || 0) + 1));
+    const o0 = tpvEl('option', '', '전체 분야 (' + base.length + ')'); o0.value = ''; sel.appendChild(o0);
+    [...counts].sort((a, b) => b[1] - a[1]).forEach(([c, n]) => { const o = tpvEl('option', '', c + ' (' + n + ')'); o.value = c; if (cal.cat === c) o.selected = true; sel.appendChild(o); });
+    sel.addEventListener('change', () => { cal.cat = sel.value; cal.open = ''; draw(); });
+    fl.appendChild(lb); fl.appendChild(sel); body.appendChild(fl);
+    // 목록
+    if (!shown.length) { const w = tpvEl('div', 'cal-empty'); w.appendChild(tpvEl('p', '', '이 조건에 맞는 상품이 아직 없어요. 다른 달·분야를 골라 보세요.')); body.appendChild(w); return; }
+    body.appendChild(tpvEl('p', 'cal-count', shown.length + '개'));
+    const list = tpvEl('div', 'cal-list');
+    shown.forEach((x) => list.appendChild(calItem(x, draw, nowM)));
+    body.appendChild(list);
+  }
+  function calItem(x, redraw, nowM) {
+    const open = cal.open === x.p, it = tpvEl('div', 'cal-item' + (open ? ' is-open' : ''));
+    const row = tpvEl('button', 'cal-row'); row.type = 'button'; row.dataset.fk = 'i:' + x.p; row.setAttribute('aria-expanded', open ? 'true' : 'false');
+    const nm = tpvEl('span', 'cal-name', x.p); nm.appendChild(tpvEl('span', 'cal-tag', x.c));
+    const when = tpvEl('span', 'cal-when', calMonths(x.m)); if (nowM && x.m.includes(nowM) && x.m.length < 12) { when.classList.add('cal-now'); when.textContent = '지금 · ' + calMonths(x.m); }   // 지금 달이 성수기면 눈에 띄게
+    row.appendChild(nm); row.appendChild(when);
+    const why = [x.o, x.r].filter(Boolean).join(' · '); if (why) row.appendChild(tpvEl('span', 'cal-why', why));
+    row.addEventListener('click', () => { cal.open = open ? '' : x.p; redraw(); });
+    it.appendChild(row);
+    if (open) it.appendChild(calMake(x));
+    return it;
+  }
+  // 상품을 눌렀을 때: 영상 만들기 입구(닫힌 종류는 보이지 않는다). 상품쇼츠는 내 사진·영상이 필요하고, 쇼츠·롱폼은 AI가 대본을 써요. 주제 칸은 고쳐 쓸 수 있어요.
+  function calMake(x) {
+    const w = tpvEl('div', 'cal-make'); w.appendChild(tpvEl('p', '', '이 상품으로 만들기 — 직접 설정하기가 열리고 주제가 채워져요. 고쳐 쓸 수 있어요.'));
+    const b = tpvEl('div', 'cal-btns');
+    const on = (n) => !window.RWFlags || window.RWFlags.on(n);
+    const go = (label, kind, topic) => { const el = tpvEl('button', '', label); el.type = 'button'; el.addEventListener('click', () => { tfClose(); openFormFor(kind, topic, '', '상품 캘린더에서 가져온 이름이에요. 정확한 제품명으로 고쳐 주세요.'); }); b.appendChild(el); };
+    if (on('상품쇼츠')) go('상품쇼츠 (내 사진·영상으로)', 'prod', x.p);
+    if (on('쇼츠')) go('쇼츠 (AI가 대본을)', 'short', x.p + ' 고르는 법');
+    if (on('롱폼')) go('롱폼 (AI가 대본을)', 'long', x.p + ' 고르는 법 총정리');
+    if (!b.childNodes.length) { w.appendChild(tpvEl('p', 'cal-note', '지금은 만들 수 있는 영상 종류가 없어요.')); return w; }
+    w.appendChild(b);
+    if (x.c === '완구·교육' || x.c === '육아') w.appendChild(tpvEl('p', 'cal-note', '어린이 대상 상품이면 유튜브에 올릴 때 "아동용" 설정을 확인해 주세요.'));
+    return w;
+  }
+  // 메뉴: 열려 있을 때만 보인다(데스크톱 사이드 · 모바일 더보기). 눌러서 허브의 'cal' 화면을 연다
+  (function () {
+    const side = document.getElementById('to-calendar'), mm = document.querySelector('.mobile-more [data-go="calendar"]');
+    const sync = () => { const on = !!(window.RWFlags && window.RWFlags.has('상품캘린더')); if (side) side.hidden = !on; if (mm) mm.hidden = !on; if (!on && tfIsOpen() && tfView === 'cal') { tfClose(); } };
+    document.addEventListener('rw-flags', sync); sync();
+    if (side) side.addEventListener('click', () => tfOpen('cal'));
+  })();
+  // ───────────────────────── (상품 캘린더 끝) ─────────────────────────
   function tfOpen(view) {
     tfHidForm = false; document.body.classList.add('topic-open');
-    const side = document.getElementById('to-topic-finder'); if (side) { document.querySelectorAll('.side-item.active').forEach((b) => b.classList.remove('active')); side.classList.add('active'); }
+    const side = document.getElementById(view === 'cal' ? 'to-calendar' : 'to-topic-finder'); if (side) { document.querySelectorAll('.side-item.active').forEach((b) => b.classList.remove('active')); side.classList.add('active'); }
     tfShow(view || 'root');
     tpvLoad().then((ok) => {
       if (!(ok && tfIsOpen() && tfView === 'root')) return;
@@ -2826,7 +2985,7 @@
   }
   function tfClose() {
     document.body.classList.remove('topic-open');
-    const side = document.getElementById('to-topic-finder'); if (side) side.classList.remove('active');
+    document.querySelectorAll('#to-topic-finder, #to-calendar').forEach((b) => b.classList.remove('active'));
     if (window.갱신위치표시) window.갱신위치표시();
   }
   // 분야를 고르면 허브를 닫고 챗봇이 그 분야의 추천 주제를 버튼으로 보여준다. 주제를 고르면 직접 설정하기가 열린다
@@ -2838,7 +2997,7 @@
     sendMessage(name ? `${name} 분야 영상 주제 추천해줘` : '요즘 반응 좋은 영상 주제를 추천해줘');
   }
   // 직접 설정하기를 그 종류로 열고 주제(상품쇼츠는 제품 이름)를 채운다. 이미 열려 있으면 종류만 바꾸고 쓰던 내용은 그대로 둔다
-  function openFormFor(kind, text, say) {
+  function openFormFor(kind, text, say, hintText) {
     const type = TF_TYPE[kind], form = kind === 'long' ? '롱폼' : '쇼츠';
     const row = document.getElementById('split-row');
     const keep = tfHidForm; tfHidForm = false;   // 좁은 화면에서 채팅을 보이려고 폼을 잠깐 숨긴 경우: 쓰던 내용을 지우지 않고 그대로 다시 보인다
@@ -2859,7 +3018,7 @@
         f.value = String(text).slice(0, f.maxLength > 0 ? f.maxLength : 300); f.dispatchEvent(new Event('input', { bubbles: true }));
         if (kind === 'prod') {   // 폰에서는 채팅이 가려져서 안내가 안 보이므로 칸 아래에 직접 알려 준다. 고치기 시작하면 사라진다
           const old = document.getElementById('tf-prod-hint'); if (old) old.remove();
-          const hint = document.createElement('p'); hint.className = 'df-hint'; hint.id = 'tf-prod-hint'; hint.textContent = '요즘 뜨는 상품에서 가져온 이름이에요. 정확한 제품명으로 고쳐 주세요.';
+          const hint = document.createElement('p'); hint.className = 'df-hint'; hint.id = 'tf-prod-hint'; hint.textContent = hintText || '요즘 뜨는 상품에서 가져온 이름이에요. 정확한 제품명으로 고쳐 주세요.';
           f.insertAdjacentElement('afterend', hint); f.addEventListener('input', () => hint.remove(), { once: true });
         }
       }
@@ -2875,7 +3034,7 @@
     if (!el || el.id === 'to-topic-finder' || ['topic', 'more', 'theme'].includes(el.dataset.go)) return;
     tfClose();
   }, true);
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && tfIsOpen() && document.getElementById('tpv-overlay').hidden) { if (tfView !== 'root') tfShow('root'); } });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && tfIsOpen() && document.getElementById('tpv-overlay').hidden) { if (tfView === 'cal') tfClose(); else if (tfView !== 'root') tfShow('root'); } });
 
   document.querySelectorAll('.example-chip').forEach(chip => {
     chip.addEventListener('click', () => chip.dataset.action === 'pick-category' ? showCategoryPicker() : sendMessage(chip.dataset.topic));
@@ -5478,7 +5637,8 @@
     const 갱신 = () => {
       const st = 상태();
       back.hidden = st === 'chat'; sep.hidden = here.hidden = st === 'chat';
-      if (st === 'hub' && tfView !== 'root') {   // 주제 찾기 › 쇼츠 처럼 한 단계 더 들어가 있을 때: 앞 이름을 누르면 첫 화면으로
+      if (st === 'hub' && tfView === 'cal') here.textContent = '상품 캘린더';
+      else if (st === 'hub' && tfView !== 'root') {   // 주제 찾기 › 쇼츠 처럼 한 단계 더 들어가 있을 때: 앞 이름을 누르면 첫 화면으로
         here.textContent = '';
         const lk = document.createElement('button'); lk.type = 'button'; lk.className = 'cb-link'; lk.dataset.tfRoot = '1'; lk.title = '주제 찾기(으)로 돌아가기'; lk.textContent = '주제 찾기';
         here.appendChild(lk); here.appendChild(document.createTextNode(' › ' + ({ short: '쇼츠', long: '롱폼', yadam: '야담', mood: '분위기 영상' }[tfView] || '')));
@@ -5488,7 +5648,7 @@
     window.갱신위치표시 = 갱신;
     back.addEventListener('click', () => {
       const st = 상태();
-      if (st === 'hub') { if (tfView !== 'root') tfShow('root'); else tfClose(); return; }   // 주제 찾기: 한 단계씩만 뒤로
+      if (st === 'hub') { if (tfView !== 'root' && tfView !== 'cal') tfShow('root'); else tfClose(); return; }   // 주제 찾기: 한 단계씩만 뒤로
       if (st === 'direct') showChatFromDirectForm();
       else if (st === 'topic') { 주제찾기열림 = false; startFreshChat(true); }
       갱신();
@@ -5562,6 +5722,7 @@
       if (what === 'home') { location.href = './index.html'; return; }
       else if (what === 'direct') press('to-direct-form');
       else if (what === 'topic') press('to-topic-finder');
+      else if (what === 'calendar') press('to-calendar');
       else if (what === 'script') press('to-longscript');
       else if (what === 'price') press('to-price-table');
       else if (what === 'mode') press('mode-badge');
