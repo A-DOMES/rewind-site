@@ -316,6 +316,38 @@
   .rw-notice button { position: absolute; right: 0; top: 0; bottom: 0; width: 48px; background: var(--nt-bg); box-shadow: -14px 0 12px var(--nt-bg); border: 0; color: inherit; font-size: 1.3rem; line-height: 1; cursor: pointer; padding: 0; }
   .rw-notice button:hover { opacity: .75; }
   @media (prefers-reduced-motion: reduce) { .rw-notice { padding-left: 16px; } .rw-notice .nt-track { animation: none; width: auto; justify-content: center; text-align: center; } .rw-notice .nt-item { white-space: normal; padding-right: 0; word-break: keep-all; } .rw-notice .nt-item[aria-hidden] { display: none; } }
+
+  /* 상품 영상 소개 · 요금 접기 */
+  .way .fine { font-size: 0.85rem; color: var(--ink-faint); line-height: 1.6; }
+  .way.soon .poster svg { opacity: .85; }
+  .rate-lead { max-width: 1000px; margin: 26px auto 0; text-align: center; color: var(--ink-dim); font-size: 0.95rem; }
+  .rate-fold { max-width: 1000px; margin: 14px auto 0; border: 1px solid var(--line); background: var(--bg-raised); border-radius: 24px; }
+  .rate-fold > summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px clamp(18px, 3vw, 28px); font-weight: 700; border-radius: 24px; }
+  .rate-fold > summary::-webkit-details-marker { display: none; }
+  .rate-fold > summary small { display: block; margin-top: 2px; font-weight: 400; font-size: 0.85rem; color: var(--ink-faint); }
+  .rate-fold > summary::after { content: ""; width: 10px; height: 10px; flex: none; border-right: 2px solid var(--ink-dim); border-bottom: 2px solid var(--ink-dim); transform: rotate(45deg); transition: transform .2s; margin-right: 4px; }
+  .rate-fold[open] > summary::after { transform: rotate(-135deg); }
+  .rate-fold > summary:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+  .rate-fold .rate-wrap { margin: 0 clamp(12px, 2vw, 18px) clamp(12px, 2vw, 18px); max-width: none; border-radius: 18px; background: transparent; }
+  @media (prefers-reduced-motion: reduce) { .rate-fold > summary::after { transition: none; } }
+
+  /* 상품 영상 소개: 세로 영상 틀 · 상품 캘린더 화면 예시 */
+  .way .poster.phone-poster { justify-content: center; align-items: center; }
+  .way .poster.phone-poster .tag { position: absolute; left: 20px; top: 18px; z-index: 1; }
+  .way .poster.phone-poster .ib { display: none; }
+  .pp-frame { position: relative; height: 172px; aspect-ratio: 9 / 16; border-radius: 14px; overflow: hidden; border: 2px solid rgba(255,255,255,.28); background: #111; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+  .pp-frame video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .way .poster.cal-poster { align-items: flex-end; justify-content: flex-start; }
+  .way .poster.cal-poster .tag { position: absolute; left: 20px; top: 18px; }
+  .cal-mock { display: flex; flex-direction: column; gap: 12px; width: min(100%, 440px); }
+  .cm-tabs, .cm-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .cm-tabs span { padding: 5px 14px; border-radius: 999px; font-size: .85rem; font-weight: 600; color: #cfe8dc; border: 1px solid rgba(207,232,220,.28); }
+  .cm-tabs span.on { background: var(--c); border-color: var(--c); color: #0f1f17; }
+  .cm-chips span { padding: 6px 12px; border-radius: 10px; font-size: .85rem; color: #e8f3ec; background: rgba(255,255,255,.1); }
+  :root[data-theme="light"] .cm-tabs span { color: #2d5a45; border-color: rgba(45,90,69,.35); }
+  :root[data-theme="light"] .cm-tabs span.on { color: #fff; background: #2f9e6b; border-color: #2f9e6b; }
+  :root[data-theme="light"] .cm-chips span { color: #24483a; background: rgba(47,158,107,.14); }
+  @media (max-width: 980px) { .way .poster.phone-poster, .way .poster.cal-poster { height: 200px; } .pp-frame { height: 150px; } .way .poster.phone-poster { padding-top: 42px; } .cal-mock { gap: 8px; } .cm-tabs span { padding: 4px 12px; } .cm-chips span { padding: 5px 10px; } .hide-xs { display: none; } .way .poster.cal-poster { padding-top: 56px; } }
 </style>
 <script src="./theme.js"></script>
 </head>
@@ -325,6 +357,7 @@
   <a class="logo" href="./index.html"><img src="./리와인드_로고1_512px.png" alt=""> 리와인드</a>
   <nav aria-label="주요 메뉴">
     <a class="plain hide-sm" href="#how">만드는 과정</a>
+    <a class="plain hide-sm" href="#product">상품 영상</a>
     <a class="plain hide-sm" href="#layouts">화면 구성</a>
     <a class="plain hide-sm" href="#thumbs">썸네일</a>
     <a class="plain hide-sm" href="#signup">요금</a>
@@ -432,7 +465,47 @@
   </div>
 </section>
 
-<section class="band alt" id="layouts">
+<section class="band alt" id="product">
+  <div class="inner">
+    <div class="sec-head">
+      <h2>판매 상품을 선정하고, 상품 영상을 제작하세요</h2>
+      <p>시기별 상품 목록으로 미리 준비하고, 상품 쇼츠로 영상을 제작할 수 있어요.</p>
+    </div>
+    <div class="ways two">
+      <a class="way" href="./new.html">
+        <div class="poster phone-poster" style="background:#33231f; --c:#ff8f6b;"><span class="ib"></span>
+          <div class="pp-frame"><video id="product-video" muted loop playsinline preload="metadata" poster="./assets/sample-product.jpg" aria-hidden="true">
+            <source src="./assets/sample-product.webm" type="video/webm"><source src="./assets/sample-product.mp4" type="video/mp4">
+          </video></div>
+          <span class="tag tag-dark">상품 소개 쇼츠 · 샘플</span>
+        </div>
+        <div class="body">
+          <h3>상품 쇼츠</h3>
+          <p>상품 사진과 영상을 올리면 상품 소개 쇼츠를 만들어 드려요. 영상 길이, 움직임 방식, 위쪽에 보일 문구, 화면 구성을 직접 고를 수 있어요.</p>
+          <div class="uses"><span class="use-chip">제목 고정형</span><span class="use-chip">전체화면형</span><span class="use-chip">자막바형</span></div>
+          <p class="fine">광고 규정에 맞지 않는 과장·가격 표현은 자동으로 막아요. 건강기능식품·화장품·의료기기는 직접 쓴 대본으로만 만들 수 있어요.</p>
+          <span class="go">상품 쇼츠 만들기</span>
+        </div>
+      </a>
+      <div class="way soon">
+        <div class="poster cal-poster" style="background:#1f2c25; --c:#4fd6a0;">
+          <div class="cal-mock" aria-hidden="true">
+            <div class="cm-tabs"><span>10월</span><span class="on">11월</span><span>12월</span><span class="hide-xs">1월</span></div>
+            <div class="cm-chips"><span>핫팩</span><span>전기장판</span><span>방한 장갑</span><span>김장 매트</span><span class="hide-xs">수능 응원 선물</span><span class="hide-xs">크리스마스 장식</span></div>
+          </div>
+          <span class="tag">곧 공개 · 화면 예시</span>
+        </div>
+        <div class="body">
+          <h3>상품 캘린더</h3>
+          <p>월별·계절별로 수요가 늘어나는 상품 목록을 미리 알려 드려요. 판매 시기에 앞서 다룰 상품을 선정하고, 선정한 상품으로 바로 상품 쇼츠를 제작할 수 있어요.</p>
+          <div class="uses"><span class="use-chip">월별</span><span class="use-chip">계절별</span><span class="use-chip">기념일·선물</span><span class="use-chip">필수 상품</span><span class="use-chip">상황별</span></div>
+          <p class="fine">상품을 고를 때 참고하는 목록이에요. 판매 결과를 보장하지 않아요.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="band" id="layouts">
   <div class="inner layouts">
     <div>
       <h2>화면 구성과 자막 위치도 직접 고르세요</h2>
@@ -455,7 +528,7 @@
   </div>
 </section>
 
-<section class="band" id="thumbs">
+<section class="band alt" id="thumbs">
   <div class="inner th-wrap">
     <div class="th-copy">
       <span class="th-kick">정식 영상 전용</span>
@@ -482,7 +555,7 @@
   </div>
 </section>
 
-<section class="band alt" id="long">
+<section class="band" id="long">
   <div class="inner">
     <div class="sec-head">
       <h2>쇼츠 말고,<br>긴 영상도 만들어요</h2>
@@ -518,7 +591,7 @@
   </div>
 </section>
 
-<section class="band" id="signup">
+<section class="band alt" id="signup">
   <div class="inner">
     <div class="sec-head" style="justify-content:center; text-align:center;">
       <div>
@@ -551,6 +624,9 @@
         <a class="btn btn-amber" href="./new.html?mode=paid">정식으로 신청하기</a>
       </div>
     </div>
+    <p class="rate-lead">영상 길이와 방식에 따라 포인트가 차감돼요. 정확한 포인트는 신청 화면에서 길이를 넣으면 바로 보여요.</p>
+    <details class="rate-fold" id="rates">
+      <summary><span>요금 자세히 보기<small>영상 길이와 방식별 포인트 예시</small></span></summary>
     <div class="rate-wrap">
       <h3 class="rate-title">쇼츠·일반 롱폼 요금 예시</h3>
       <p class="rate-sub">예시예요. 정확한 포인트는 신청 화면에서 길이를 넣으면 바로 나와요. 장면이 자주 바뀌고 움직임이 많아서 길이(분)로 계산돼요.</p>
@@ -565,6 +641,7 @@
       <p class="rate-note" id="rate-long-example"></p>
       <p class="rate-note">야담은 등급에 따라 경제형 30초·표준형 18초·고급형 10초마다 그림이 바뀌어요(인트로 영상은 15초부터, 1초당 0.6P가 따로 더해져요). 체험은 3분 · 그림 6장 · 인트로 5초로 만들어지고, 정식 모드에서는 고른 길이·등급대로 만들어져요. 정확한 요금은 신청 화면의 직접 설정하기나 챗봇에서 길이·등급을 넣으면 바로 계산돼요(분위기 영상 최대 8시간, 야담 최대 <span data-yd-max>8시간</span>). 분위기 영상은 수면·휴식·집중·카페 같은 긴 소리 영상이에요. 둘 다 지금 신청할 수 있어요.</p>
     </div>
+    </details>
     <p class="choice-note">두 경우 모두 구글 계정으로 30초면 신청할 수 있어요.</p>
   </div>
 </section>
@@ -650,7 +727,7 @@
       <h4>제품</h4>
       <a href="./new.html">주제로 만들기</a>
       <a href="./new.html">내 자료로 만들기</a>
-      <a href="#signup">가격</a>
+      <a href="#rates" data-open-rates>가격</a>
       <a href="mailto:mailsock9@gmail.com">기업용 (준비 중)</a>
     </div>
     <div class="footer-col">
@@ -764,15 +841,17 @@
 })();
 </script>
 <script>
-// [분위기 영상 샘플] 카드 안에서 소리 없이 반복 재생. 움직임 줄이기 설정이면 멈춘 그림만 보여준다.
+// [샘플 영상] 카드 안에서 소리 없이 반복 재생(분위기 영상 · 상품 쇼츠). 움직임 줄이기 설정이면 멈춘 그림만 보여준다.
 (() => {
-  const v = document.getElementById('mood-video');
-  if (!v) return;
   if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const play = () => { const p = v.play(); if (p && p.catch) p.catch(() => {}); };
-  if ('IntersectionObserver' in window) {
-    new IntersectionObserver(es => es.forEach(e => e.isIntersecting ? play() : v.pause()), { threshold: 0.3 }).observe(v);
-  } else play();
+  ['mood-video', 'product-video'].forEach(id => {
+    const v = document.getElementById(id);
+    if (!v) return;
+    const play = () => { const p = v.play(); if (p && p.catch) p.catch(() => {}); };
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(es => es.forEach(e => e.isIntersecting ? play() : v.pause()), { threshold: 0.3 }).observe(v);
+    } else play();
+  });
 })();
 </script>
 <script>
@@ -837,6 +916,15 @@
     a.textContent = '영상 만들기';
   });
   var card = document.querySelector('.choice-grid .choice'); if (card) card.style.opacity = '.75';   // 체험 안내 카드는 흐리게
+})();
+</script>
+<script>
+// 푸터의 '가격' 링크와 #rates 주소로 들어오면 접힌 요금을 펼친다
+(() => {
+  const open = () => { const d = document.getElementById('rates'); if (d) d.open = true; };
+  document.querySelectorAll('[data-open-rates]').forEach(a => a.addEventListener('click', open));
+  if (location.hash === '#rates') { open(); const d = document.getElementById('rates'); if (d) d.scrollIntoView(); }
+  window.addEventListener('hashchange', () => { if (location.hash === '#rates') open(); });
 })();
 </script>
 </body>
