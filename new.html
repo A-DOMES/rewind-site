@@ -1597,6 +1597,25 @@
   .cal-make button:hover, .cal-make button:focus-visible { border-color: var(--gold); outline: none; }
   .cal-note { color: var(--ink-dim); font-size: .88rem; margin: 0; }
   .cal-empty { border: 1px dashed var(--line); border-radius: 14px; padding: 28px 16px; text-align: center; color: var(--ink-dim); }
+  /* ───────── 사이드바 정리 (2단계) ─────────
+     메뉴 아이콘은 한 가지 색(--icon), 선택된 메뉴만 강조색(--accent). 메뉴는 '만들기 / 찾기 / 내 것'으로 묶는다.
+     아이콘마다 붙어 있는 개별 색(--c 인라인 값)은 이 블록이 !important 로 덮는다. 다시 색을 입히려면 이 블록의 --c 한 줄만 지우면 된다. */
+  .side-group { margin: var(--sp-4) 0 var(--sp-1); padding: 0 12px; font-size: var(--fs-2xs); font-weight: 600; letter-spacing: .02em; color: var(--ink-faint); }
+  .side-nav > .side-group:first-child { margin-top: 0; }
+  .sidebar .side-item .ico, .acc-item .ico { --c: var(--icon) !important; background: transparent !important; }
+  .sidebar .side-item.active .ico { --c: var(--accent) !important; background: var(--accent-soft) !important; }
+  .side-item.soon-btn .ico, .soon-group .side-item .ico { opacity: .7; }
+  .sidebar { overflow-y: auto; scrollbar-width: thin; }   /* 낮은 화면에서도 프로필까지 닿도록 */
+  #to-direct-form { margin-bottom: 0; }   /* 예전에 따로 주던 여백 제거: 메뉴 간격 통일 */
+  .side-nav .side-item { min-height: 44px; padding-block: 0; align-items: center; }   /* 메뉴 높이를 모두 같게 */
+  .soon-group { margin-top: var(--sp-3); padding-top: var(--sp-2); }
+  .side-group { margin-top: var(--sp-3); }
+  /* 아래쪽 안내: 상자 3개를 줄인다. 결제 안내는 박스 없이 한 줄 글자, 포인트는 얇은 선만 */
+  .sidebar-footer { gap: var(--sp-2); }
+  .sidebar .mode-badge { background: transparent; border: 0; border-radius: var(--r-md); padding: var(--sp-2) 12px; font-size: var(--fs-xs); color: var(--ink-dim); }
+  .sidebar .mode-badge:hover { background: color-mix(in srgb, var(--ink) 5%, transparent); }
+  .pt-badge { border-radius: var(--r-md); padding: var(--sp-1) 12px var(--sp-2); font-size: var(--fs-xs); border-color: transparent; }
+  .pt-badge .pt-charge { margin-top: var(--sp-1); padding-block: 5px; }
 </style>
 <script src="./theme.js"></script>
 <script src="./assets/voice-panel.js"></script>
@@ -1657,12 +1676,15 @@
       <a class="logo" href="./index.html" title="메인 페이지로" style="text-decoration:none;color:inherit"><img src="./리와인드_로고1_512px.png" alt=""> 리와인드</a>
       <button class="new-chat-btn" id="new-chat-btn">+ 새로 만들기</button>
       <nav class="side-nav" aria-label="메뉴">
+        <p class="side-group" aria-hidden="true">만들기</p>
         <a class="side-item active" href="./new.html"><span class="ico" style="--c:#74b6ff"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-6 8 6v8h-5v-5h-6v5H4z"/></svg></span> 홈</a>
-        <a class="side-item" href="./dashboard.html"><span class="ico" style="--c:#b99bff"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 4v16M16 4v16M4 9h4M4 15h4M16 9h4M16 15h4"/></svg></span> 내 프로젝트</a>
         <button class="side-item" id="to-direct-form"><span class="ico" style="--c:#e2a23c"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/></svg></span> 직접 설정하기</button>
         <button class="side-item" id="to-longscript"><span class="ico" style="--c:#8ad7c4"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg></span> 대본 만들기</button>
+        <p class="side-group" aria-hidden="true">찾기</p>
         <button class="side-item" id="to-topic-finder"><span class="ico" style="--c:#ffc857"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.4 1 1.1 1 1.8V16h5v-.3c0-.7.4-1.4 1-1.8A6 6 0 0 0 12 3z"/></svg></span> 주제 찾기</button>
         <button class="side-item" id="to-calendar" hidden><span class="ico" style="--c:#7fd1b9"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg></span> 상품 캘린더</button>
+        <p class="side-group" aria-hidden="true">내 것</p>
+        <a class="side-item" href="./dashboard.html"><span class="ico" style="--c:#b99bff"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 4v16M16 4v16M4 9h4M4 15h4M16 9h4M16 15h4"/></svg></span> 내 프로젝트</a>
         <button class="side-item" id="to-price-table"><span class="ico" style="--c:#86d980"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M14.5 9.5h-3.5a1.5 1.5 0 0 0 0 3h2a1.5 1.5 0 0 1 0 3H9.5M12 7.5v1.5M12 15.5V17"/></svg></span> 요금 안내</button>
       </nav>
       <details class="soon-group">
