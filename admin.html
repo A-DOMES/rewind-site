@@ -347,6 +347,7 @@
   .ff-self input { margin-top: 4px; }
   @media (max-width: 640px) { .ff-lists { grid-template-columns: 1fr; } .ff-seg button { padding: 7px 12px; } }
 </style>
+<link rel="stylesheet" href="./assets/admin-categories.css">
 <script src="./theme.js"></script>
 </head>
 <body>
@@ -420,6 +421,7 @@
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+<script src="./assets/admin-categories.js"></script>
 <script>
   (function () { function hh() { const h = document.querySelector('header.shell'); if (h) document.documentElement.style.setProperty('--hh', h.offsetHeight + 'px'); } hh(); window.addEventListener('resize', hh); window.addEventListener('load', hh); })();
 (function () {
@@ -427,6 +429,8 @@
   const GOOGLE_CLIENT_ID = '188637268860-9hj2af4bt8esn506bf5bqs72qnbu0qjs.apps.googleusercontent.com';
   const GET_URL = 'https://bald-buffalo.pikapod.net/webhook/admin-settings-get';
   const SAVE_URL = 'https://bald-buffalo.pikapod.net/webhook/admin-settings-save';
+  const CATS_GET_URL = 'https://bald-buffalo.pikapod.net/webhook/admin-categories-get';
+  const CATS_SAVE_URL = 'https://bald-buffalo.pikapod.net/webhook/admin-categories-save';
   const FLAGS_GET_URL = 'https://bald-buffalo.pikapod.net/webhook/admin-flags-get';
   const FLAGS_SAVE_URL = 'https://bald-buffalo.pikapod.net/webhook/admin-flags-save';
   const TOPICS_URL = 'https://bald-buffalo.pikapod.net/webhook/admin-topics';
@@ -450,7 +454,8 @@
     clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), isErr ? 5000 : 3500);
   }
   const token = () => { try { return sessionStorage.getItem(TOKEN_KEY) || ''; } catch (e) { return ''; } };
-  function clearToken() { try { sessionStorage.removeItem(TOKEN_KEY); } catch (e) {} }
+  let catsBox = null;   // 분류 관리 상자는 한 번만 만들고 탭을 오가도 그대로 쓴다(고치던 내용 유지). 로그아웃하면 버린다
+  function clearToken() { catsBox = null; try { sessionStorage.removeItem(TOKEN_KEY); } catch (e) {} }
   function num(v) {
     const s = String(v == null ? '' : v).replace(/,/g, '').trim();
     if (s === '') return null; const n = Number(s); return Number.isFinite(n) ? n : null;
@@ -684,8 +689,16 @@
     if (activeTab === '주제 찾기') drawTopics();
   }
   function renderTopics(list) {
+    // 분류 관리(사용 스위치·제한·분류 추가): 코드는 assets/admin-categories.js 한 곳. 저장하면 아래 영상 목록도 새로 불러온다
+    if (!catsBox) { catsBox = document.createElement('div'); mountCats(catsBox); }
+    list.appendChild(catsBox);
     const box = document.createElement('div'); box.id = 'tp-box'; list.appendChild(box);
     if (!tpData || tpErr) { tpData = null; tpErr = false; drawTopics(); loadTopics(); } else drawTopics();
+  }
+  function mountCats(cbox) {
+    AdminCategories.mount(cbox, { getUrl: CATS_GET_URL, saveUrl: CATS_SAVE_URL, post, token, toast,
+      onExpired: () => { clearToken(); renderLogin('expired'); }, onForbidden: () => { $('forbidden-msg').textContent = '이 화면은 관리자만 볼 수 있어요.'; show('forbidden'); },
+      onSaved: (changes) => { changes.forEach((c) => history.unshift({ time: new Date().toLocaleString('sv-SE'), admin: $('who-email').textContent, key: '상품분류/' + c.name, from: String(c.from || ''), to: String(c.to || '') })); tpData = null; tpErr = false; if (activeTab === '주제 찾기') { drawTopics(); loadTopics(); } } });
   }
   const tpN = (n) => n >= 1e8 ? (n / 1e8).toFixed(1) + '억' : n >= 1e4 ? (n >= 1e5 ? Math.round(n / 1e4) : (n / 1e4).toFixed(1)) + '만' : Math.round(n).toLocaleString('ko-KR');
   const tpAge = (a) => a < 1 ? Math.max(1, Math.round(a * 24)) + '시간 전' : Math.floor(a) + '일 전';
