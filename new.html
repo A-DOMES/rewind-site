@@ -1627,6 +1627,15 @@
   /* 홈 인사말: 제목(질문) 한 줄 + 설명 한 줄 */
   .msg .greet-title { display: block; font-family: 'Fraunces', 'IBM Plex Sans KR', serif; font-size: var(--fs-lg); font-weight: 600; line-height: 1.35; letter-spacing: -0.01em; margin-bottom: var(--sp-2); text-wrap: balance; }
   .msg .greet-sub { display: block; font-size: var(--fs-base); line-height: 1.7; color: var(--ink-dim); }
+  /* 주제 찾기 허브: 카드마다 다르던 색(파랑·초록·산호·갈색·보라)을 강조색 한 가지로 통일. 종류 구분은 아이콘·이름이 맡는다.
+     다시 색을 입히려면 아래 --c 줄만 지우면 된다(카드별 색은 JS의 TF_KINDS 에 그대로 있음). */
+  #topic-hub .tf-card, #topic-hub .tf-chip { --c: var(--accent) !important; }
+  #topic-hub .tf-card { border-radius: var(--r-lg); box-shadow: var(--sh-card); }
+  #topic-hub .tf-glyph { background: var(--accent-soft); border-radius: var(--r-lg); }
+  #topic-hub .tf-glyph svg { stroke: var(--icon); }
+  #topic-hub .tf-card:hover .tf-glyph svg, #topic-hub .tf-card:focus-visible .tf-glyph svg { stroke: var(--accent); }
+  #topic-hub .tf-chip { border-radius: var(--r-md); }
+  #topic-hub .tf-prod { background: var(--bg-raised); border-color: var(--line); }   /* 상품쇼츠 카드의 그라데이션 제거: 크기로만 강조 */
 </style>
 <script src="./theme.js"></script>
 <script src="./assets/voice-panel.js"></script>
