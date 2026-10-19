@@ -84,7 +84,7 @@
   .notice { background: var(--bg-raised); border: 1px solid var(--line); border-left: 3px solid var(--amber); border-radius: 12px; padding: 12px 16px; font-size: .9rem; color: var(--ink-dim); margin-bottom: 18px; box-shadow: var(--card-shadow); }
 
   .list { display: grid; gap: 12px; background: var(--bg-raised); border: 1px solid var(--line); border-radius: 14px; padding: 18px; position: relative; z-index: 1; box-shadow: var(--card-shadow); }
-  .list:has(> .state), .list:has(> .hist-wrap), .list:has(> #pc-table) { display: block; }
+  .list:has(> .state), .list:has(> .hist-wrap), .list:has(> #pc-table), .list:has(> #ff-box) { display: block; }
   #pc-table { min-width: 0; }
   .list > .state { border: 0; padding: 40px 12px; }
   .list > .hist-wrap { border: 0; border-radius: 0; background: transparent; }
@@ -316,6 +316,35 @@
     .tp-vch { display: block; } .tp-vch small { display: inline; } .tp-vch small::before { content: ' · '; }
   }
   @media (max-width: 560px) { .tp-ph { padding: 10px 12px; } .tp-vr { padding: 10px 12px; } }
+  /* ── 기능 공개 탭 (접두어 ff-: 이 탭 전용, 다른 칸과 겹치지 않게) ── */
+  .ff-note { color: var(--ink-dim); font-size: .88rem; margin: 0 0 14px; }
+  .ff-grid { display: grid; gap: 12px; }
+  .ff-card { background: var(--bg-raised); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; display: grid; gap: 10px; box-shadow: var(--card-shadow); }
+  .ff-card.changed { border-color: var(--amber); background: linear-gradient(var(--changed-bg), var(--changed-bg)), var(--bg-raised); }
+  .ff-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 14px; }
+  .ff-name { font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
+  .ff-key { color: var(--ink-faint); font-size: .8rem; font-weight: 400; margin-left: 8px; }
+  .ff-seg { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .ff-seg button { background: var(--bg-input); color: var(--ink-dim); border: 0; padding: 7px 16px; font-size: .92rem; cursor: pointer; }
+  .ff-seg button + button { border-left: 1px solid var(--line); }
+  .ff-seg button[aria-pressed="true"] { font-weight: 700; color: var(--on-amber); background: var(--amber); }
+  .ff-seg button[data-s="전체"][aria-pressed="true"] { background: var(--ok); }
+  .ff-seg button[data-s="꺼짐"][aria-pressed="true"] { background: var(--err); color: #fff; }
+  .ff-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; color: var(--ink-dim); font-size: .88rem; }
+  .ff-desc { color: var(--ink-faint); }
+  .ff-link { background: none; border: 0; color: var(--amber); cursor: pointer; padding: 2px 0; font-size: .88rem; text-decoration: underline; text-underline-offset: 3px; }
+  .ff-lists { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .ff-lists label { display: grid; gap: 4px; font-size: .86rem; color: var(--ink-dim); min-width: 0; }
+  .ff-lists textarea { width: 100%; min-height: 110px; resize: vertical; background: var(--bg-input); color: var(--ink); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; font: inherit; font-size: .9rem; line-height: 1.5; }
+  .ff-lists textarea:focus-visible { border-color: var(--amber); outline: none; box-shadow: 0 0 0 3px rgba(198,138,18,.25); }
+  .ff-lists textarea.bad { border-color: var(--err); }
+  .ff-warn { color: var(--err); font-size: .86rem; margin: 0; }
+  .ff-info { color: var(--ink-dim); font-size: .86rem; margin: 0; }
+  .ff-foot { display: flex; justify-content: flex-end; gap: 8px; }
+  .ff-foot .btn { padding: 8px 18px; font-size: .94rem; }
+  .ff-self { display: flex; gap: 8px; align-items: flex-start; font-size: .9rem; margin: 0 0 14px; }
+  .ff-self input { margin-top: 4px; }
+  @media (max-width: 640px) { .ff-lists { grid-template-columns: 1fr; } .ff-seg button { padding: 7px 12px; } }
 </style>
 <script src="./theme.js"></script>
 </head>
@@ -375,6 +404,19 @@
     </div>
   </div>
 </div>
+<div class="overlay" id="ff-confirm" role="dialog" aria-modal="true" aria-labelledby="ff-confirm-title">
+  <div class="dialog">
+    <h2 id="ff-confirm-title">공개 설정을 바꿀까요?</h2>
+    <p>고객 사이트에는 최대 5분 뒤에 반영돼요.</p>
+    <ul class="diff" id="ff-diff"></ul>
+    <p class="ff-warn" id="ff-extra" hidden></p>
+    <label class="ff-self" id="ff-self" hidden><input type="checkbox" id="ff-self-chk"><span>내 이메일이 차단명단에 들어 있어요. 정말 나를 차단할게요.</span></label>
+    <div class="actions">
+      <button class="btn ghost" id="ff-confirm-no" type="button">취소</button>
+      <button class="btn" id="ff-confirm-yes" type="button">적용</button>
+    </div>
+  </div>
+</div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -384,6 +426,8 @@
   const GOOGLE_CLIENT_ID = '188637268860-9hj2af4bt8esn506bf5bqs72qnbu0qjs.apps.googleusercontent.com';
   const GET_URL = 'https://bald-buffalo.pikapod.net/webhook/admin-settings-get';
   const SAVE_URL = 'https://bald-buffalo.pikapod.net/webhook/admin-settings-save';
+  const FLAGS_GET_URL = 'https://bald-buffalo.pikapod.net/webhook/admin-flags-get';
+  const FLAGS_SAVE_URL = 'https://bald-buffalo.pikapod.net/webhook/admin-flags-save';
   const TOPICS_URL = 'https://bald-buffalo.pikapod.net/webhook/admin-topics';
   const STATUS_URL = 'https://bald-buffalo.pikapod.net/webhook/admin-status';
   const CODE_URL = 'https://bald-buffalo.pikapod.net/webhook/admin-point-code';
@@ -467,6 +511,7 @@
     '이미지·영상': '첫 화면의 이미지와 영상을 바꾸는 칸이에요. 준비 중이에요.',
     '운영 한도': '무료 체험 횟수, 동시에 만드는 영상 수 같은 운영 한도를 정하는 칸이에요. 준비 중이에요. (야담 최대 길이는 야담 칸에 있어요.)',
     '기타': '어느 칸에도 속하지 않은 항목이에요.',
+    '기능 공개': '기능마다 고객에게 보일지 정해요. 꺼짐은 관리자도 못 봐요. 일부만은 관리자와 허용명단만 봐요. 전체는 모두 보고, 차단명단에 적은 사람만 못 봐요.',
     '주제 찾기': '전 세계 쇼핑 채널에서 평소보다 조회수가 유독 높은 영상을 분류 → 상품 순서로 묶어 보여줘요. 상품 줄을 누르면 영상이 펼쳐지고, 영상 줄을 누르면 유튜브에서 열려요. 보기만 하는 화면이에요.',
     '현황': '제작 중인 영상과 기다리는 신청, 실패한 건을 한눈에 봐요. 보기만 하는 화면이에요.',
     '포인트 코드': '이메일과 포인트를 적으면 코드를 만들어 그 이메일로 보내요. 받은 사람이 리와인드 계정 메뉴에서 코드를 넣으면 충전 포인트로 들어가요. 코드는 받는 이메일 계정에서만 한 번 쓸 수 있어요.',
@@ -475,7 +520,7 @@
   const DEFAULT_SUB = '위쪽 서류철 탭을 눌러 칸을 고르고, 항목마다 [적용]을 눌러요. 바꾼 내용은 시트에 기록돼요.';
   function cleanGroup(v) { return String(v == null ? '' : v).normalize('NFC').replace(/[\u200B-\u200D\u2060\uFEFF]/g, '').replace(/[\u00A0\u3000]/g, ' ').replace(/[・•∙‧⋅･]/g, '·').replace(/\s*·\s*/g, '·').replace(/\s+/g, ' ').trim(); }
   function fixGroup(it) { const g = cleanGroup(it.group); if (/^롱폼_(야담|긴야담)_|^롱폼_인트로_|^한도_(야담|긴야담)_/.test(it.key)) { it.group = '야담'; return it; } it.group = PLANNED.includes(g) ? g : (KEY_GROUP[it.key] || (/^롱폼_/.test(it.key) ? '롱폼 요금' : g) || '기타'); return it; }
-  const groups = () => { const have = []; items.forEach((it) => { if (!have.includes(it.group)) have.push(it.group); }); const g = PLANNED.slice(); have.forEach((n) => { if (!g.includes(n)) g.push(n); }); g.push('주제 찾기'); g.push('현황'); g.push('포인트 코드'); g.push('변경 이력'); return g; };
+  const groups = () => { const have = []; items.forEach((it) => { if (!have.includes(it.group)) have.push(it.group); }); const g = PLANNED.slice(); have.forEach((n) => { if (!g.includes(n)) g.push(n); }); g.push('주제 찾기'); g.push('기능 공개'); g.push('현황'); g.push('포인트 코드'); g.push('변경 이력'); return g; };
 
   function renderTabs() {
     const tabs = $('tabs'); tabs.innerHTML = '';
@@ -485,7 +530,7 @@
     g.forEach((name) => {
       const b = document.createElement('button'); b.type = 'button'; b.className = 'tab'; b.setAttribute('role', 'tab');
       b.setAttribute('aria-selected', name === activeTab ? 'true' : 'false'); b.textContent = name;
-      if (name !== '변경 이력' && name !== '포인트 코드' && name !== '현황' && name !== '주제 찾기' && !items.some((it) => it.group === name)) b.classList.add('soon');
+      if (name !== '변경 이력' && name !== '포인트 코드' && name !== '현황' && name !== '주제 찾기' && name !== '기능 공개' && !items.some((it) => it.group === name)) b.classList.add('soon');
       if (name !== '변경 이력' && items.some((it) => it.group === name && isChanged(it))) { const d = document.createElement('span'); d.className = 'dot'; d.title = '적용하지 않은 변경이 있어요'; b.appendChild(d); }
       b.addEventListener('click', () => { activeTab = name; renderTabs(); renderList(); });
       tabs.appendChild(b);
@@ -843,12 +888,143 @@
     wrap.appendChild(t); list.appendChild(wrap);
   }
 
+  // ───────────────────────── 기능 공개 탭 ─────────────────────────
+  // 이 블록은 이 탭 전용이에요(상태 ff, 함수 ff*). 다른 칸의 코드와 섞이는 곳은 아래 '연결 지점' 주석이 달린 몇 줄뿐이에요.
+  // 규칙(꺼짐·일부만·전체, 차단명단 우선 등)의 판정은 서버가 해요. 여기는 보여 주고 값을 보내기만 해요.
+  const FF_WIRED = ['주제찾기_뜨는상품', '주제찾기_시즌소재'];   // 지금 사이트·서버가 실제로 이 스위치를 따르는 기능. 4단계에서 연결할 때마다 여기에 추가하세요.
+  const FF_STATES = ['꺼짐', '일부만', '전체'];
+  const FF_STATE_HELP = { '꺼짐': '아무에게도 안 보여요(관리자도). 차단·허용명단과 상관없어요.', '일부만': '관리자와 허용명단에 있는 사람에게만 보여요.', '전체': '모든 고객에게 보여요(차단명단에 있는 사람만 빼고).' };
+  let ff = { items: null, err: false, draft: {}, open: {}, saving: false, me: '', pending: null };
+  const ffOf = (key) => ff.items && ff.items.find((x) => x.key === key);
+  const ffMails = (text) => { const out = [], seen = new Set(); String(text || '').split(/[\s,;]+/).forEach((p) => { const e = p.replace(/^[<"'(]+|[>"'),.]+$/g, '').toLowerCase(); if (e && !seen.has(e)) { seen.add(e); out.push(e); } }); return out; };
+  const ffBadMails = (list) => list.filter((e) => !/^[^\s@<>"',;]+@[^\s@<>"',;]+\.[^\s@<>"',;]+$/.test(e));
+  const ffDraftOf = (it) => ff.draft[it.key] || (ff.draft[it.key] = { state: it.state, allow: it.allow.join('\n'), block: it.block.join('\n') });
+  const ffSame = (a, b) => a.length === b.length && a.every((e) => b.includes(e));
+  function ffChanged(it) { const d = ff.draft[it.key]; return !!d && (d.state !== it.state || !ffSame(ffMails(d.allow), it.allow) || !ffSame(ffMails(d.block), it.block)); }
+  const ffAnyChanged = () => !!ff.items && ff.items.some(ffChanged);
+  function ffProblem(it) {
+    const d = ffDraftOf(it), a = ffMails(d.allow), b = ffMails(d.block);
+    if (ffBadMails(a).length) return '허용명단에 이메일이 아닌 항목이 있어요: ' + ffBadMails(a).slice(0, 3).join(', ');
+    if (ffBadMails(b).length) return '차단명단에 이메일이 아닌 항목이 있어요: ' + ffBadMails(b).slice(0, 3).join(', ');
+    if (a.length > 500 || b.length > 500) return '명단은 500명까지예요.';
+    return '';
+  }
+  async function loadFlags() {
+    ff.err = false;
+    try {
+      const { status, data } = await post(FLAGS_GET_URL, { idToken: token() });
+      if (status === 401) { clearToken(); renderLogin('expired'); return; }
+      if (status === 403) { $('forbidden-msg').textContent = '이 화면은 관리자만 볼 수 있어요.'; show('forbidden'); return; }
+      if (status === 200 && data && data.ok === true && Array.isArray(data.features)) { ff.items = data.features; ff.me = String(data.email || '').toLowerCase(); ff.draft = {}; } else ff.err = true;
+    } catch (e) { ff.err = true; }
+    if (activeTab === '기능 공개') drawFlags();
+  }
+  function renderFlags(list) {
+    const box = document.createElement('div'); box.id = 'ff-box'; list.appendChild(box);
+    if (!ff.items || ff.err) { ff.items = null; ff.err = false; drawFlags(); loadFlags(); } else drawFlags();
+  }
+  function ffEl(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  function drawFlags() {
+    const box = $('ff-box'); if (!box) return; box.innerHTML = '';
+    const note = (t, retry) => { const w = ffEl('div', 'state'); const p = ffEl('p', '', t); p.style.margin = '0'; w.appendChild(p); if (retry) { const b = ffEl('button', 'btn ghost', '다시 불러오기'); b.type = 'button'; b.style.marginTop = '14px'; b.addEventListener('click', () => { ff.items = null; ff.err = false; drawFlags(); loadFlags(); }); w.appendChild(b); } box.appendChild(w); };
+    if (ff.err) { note('기능 목록을 불러오지 못했어요.', true); return; }
+    if (!ff.items) { note('불러오는 중이에요…'); return; }
+    box.appendChild(ffEl('p', 'ff-note', '바꾼 내용은 고객 사이트에 최대 5분 뒤에 반영돼요. 새 기능은 시트 `기능공개` 탭에 줄을 추가하면 여기에 나타나요.'));
+    const grid = ffEl('div', 'ff-grid'); box.appendChild(grid);
+    ff.items.forEach((it) => grid.appendChild(ffCard(it)));
+  }
+  function ffCard(it) {
+    const d = ffDraftOf(it), changed = ffChanged(it), problem = ffProblem(it);
+    const card = ffEl('section', 'ff-card' + (changed ? ' changed' : ''));
+    const head = ffEl('div', 'ff-head'); const nm = ffEl('div', 'ff-name', it.label);
+    if (it.label !== it.key) nm.appendChild(ffEl('span', 'ff-key', it.key));
+    head.appendChild(nm);
+    const seg = ffEl('div', 'ff-seg'); seg.setAttribute('role', 'group'); seg.setAttribute('aria-label', it.label + ' 공개 상태');
+    FF_STATES.forEach((s) => { const b = ffEl('button', '', s); b.type = 'button'; b.dataset.s = s; b.setAttribute('aria-pressed', d.state === s ? 'true' : 'false'); b.addEventListener('click', () => { d.state = s; drawFlags(); }); seg.appendChild(b); });
+    head.appendChild(seg); card.appendChild(head);
+    const a = ffMails(d.allow), b = ffMails(d.block), meta = ffEl('div', 'ff-meta');
+    meta.appendChild(ffEl('span', '', FF_STATE_HELP[d.state]));
+    meta.appendChild(ffEl('span', '', '허용 ' + a.length + '명 · 차단 ' + b.length + '명'));
+    const tg = ffEl('button', 'ff-link', ff.open[it.key] ? '명단 접기' : '명단 편집'); tg.type = 'button'; tg.setAttribute('aria-expanded', ff.open[it.key] ? 'true' : 'false'); tg.addEventListener('click', () => { ff.open[it.key] = !ff.open[it.key]; drawFlags(); }); meta.appendChild(tg);
+    card.appendChild(meta);
+    if (it.desc) card.appendChild(ffEl('p', 'ff-info ff-desc', it.desc));
+    if (ff.open[it.key]) {
+      const lists = ffEl('div', 'ff-lists');
+      [['allow', '허용명단 (일부만일 때 볼 수 있는 사람)'], ['block', '차단명단 (어떤 상태에서도 못 보는 사람)']].forEach(([k, t]) => {
+        const lb = ffEl('label', '', t); const ta = ffEl('textarea'); ta.value = d[k]; ta.placeholder = '이메일을 한 줄에 하나씩'; ta.spellcheck = false; ta.autocomplete = 'off'; ta.setAttribute('aria-label', it.label + ' ' + t);
+        ta.addEventListener('input', () => { d[k] = ta.value; ffRefresh(card, it); });   // 글자 칠 때마다 전체를 다시 그리지 않아요(커서 유지)
+        lb.appendChild(ta); lists.appendChild(lb);
+      });
+      card.appendChild(lists);
+    }
+    card.appendChild(ffEl('p', 'ff-warn', '')); card.appendChild(ffEl('p', 'ff-info ff-nw', ''));
+    const foot = ffEl('div', 'ff-foot');
+    const undo = ffEl('button', 'btn ghost', '되돌리기'); undo.type = 'button'; undo.addEventListener('click', () => { delete ff.draft[it.key]; drawFlags(); });
+    const ap = ffEl('button', 'btn', '적용'); ap.type = 'button'; ap.addEventListener('click', () => ffAsk(it));
+    foot.appendChild(undo); foot.appendChild(ap); card.appendChild(foot);
+    ffRefresh(card, it);
+    return card;
+  }
+  function ffRefresh(card, it) {   // 경고 문구·버튼 상태·바뀜 표시만 갱신
+    const d = ffDraftOf(it), changed = ffChanged(it), problem = ffProblem(it), notes = [];
+    card.classList.toggle('changed', changed);
+    card.querySelector('.ff-warn').textContent = problem || (it.warn && it.warn.length && !changed ? it.warn.join(' ') : '');
+    if (!it.inSheet) notes.push('시트에 이 기능의 줄이 아직 없어요(지금은 기본값이 적용 중). 적용하면 줄이 만들어지고' + (/^주제찾기_/.test(it.key) ? ', 설정 탭의 옛 공개 스위치(주제찾기_고객공개)는 이 기능에서 더 이상 쓰이지 않아요.' : '.'));
+    if (!FF_WIRED.includes(it.key)) notes.push('아직 사이트 화면과 연결되기 전이에요. 지금 바꿔도 고객 화면은 그대로예요.');
+    card.querySelector('.ff-nw').textContent = notes.join(' ');
+    card.querySelectorAll('textarea').forEach((t, i) => t.classList.toggle('bad', !!problem && ffBadMails(ffMails(i ? d.block : d.allow)).length > 0));
+    const [undo, ap] = card.querySelectorAll('.ff-foot .btn'); undo.disabled = !changed || ff.saving; ap.disabled = !changed || !!problem || ff.saving;
+    const m = card.querySelector('.ff-meta span:nth-child(2)'); if (m) m.textContent = '허용 ' + ffMails(d.allow).length + '명 · 차단 ' + ffMails(d.block).length + '명';
+  }
+  const ffSummary = (st, a, b) => st + ' · 허용 ' + a.length + ' · 차단 ' + b.length;
+  function ffAsk(it) {
+    if (ff.saving || !ffChanged(it) || ffProblem(it)) return;
+    const d = ffDraftOf(it), a = ffMails(d.allow), b = ffMails(d.block), selfBlock = !!ff.me && b.includes(ff.me);
+    ff.pending = { key: it.key, state: d.state, allow: a, block: b };
+    $('ff-diff').innerHTML = '';
+    const li = ffEl('li'); li.appendChild(ffEl('span', '', it.label)); li.appendChild(ffEl('span', 'arrow', ffSummary(it.state, it.allow, it.block) + ' → ' + ffSummary(d.state, a, b))); $('ff-diff').appendChild(li);
+    const parts = [];
+    if (d.state === '꺼짐') parts.push('꺼짐이면 관리자를 포함해 아무에게도 보이지 않아요.');
+    if (d.state === '일부만' && a.length === 0) parts.push('허용명단이 비어 있어서 관리자만 볼 수 있어요.');
+    $('ff-extra').textContent = parts.join(' '); $('ff-extra').hidden = !parts.length;
+    $('ff-self').hidden = !selfBlock; $('ff-self-chk').checked = false;
+    $('ff-confirm-yes').disabled = false; $('ff-confirm').classList.add('show'); $('ff-confirm-no').focus();   // 실수로 Enter를 눌러도 저장되지 않게 취소에 포커스
+  }
+  const ffHide = () => { $('ff-confirm').classList.remove('show'); ff.pending = null; };
+  const ffClose = () => { if (!ff.saving) ffHide(); };   // 저장 중에는 사용자가 창을 닫지 못한다
+  $('ff-confirm-no').addEventListener('click', ffClose);
+  $('ff-confirm').addEventListener('click', (e) => { if (e.target === $('ff-confirm')) ffClose(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') ffClose(); });
+  $('ff-confirm-yes').addEventListener('click', async () => {
+    const p = ff.pending; if (ff.saving || !p) return;
+    if (!$('ff-self').hidden && !$('ff-self-chk').checked) { toast('내 이메일을 차단하려면 확인 칸을 체크해 주세요.', true); return; }
+    const it = ffOf(p.key); if (!it) { ffHide(); return; }
+    ff.saving = true; $('ff-confirm-yes').disabled = true; $('ff-confirm-yes').textContent = '저장 중…';
+    try {
+      const body = { idToken: token(), changes: [{ key: p.key, state: p.state, allow: p.allow, block: p.block, base: it.inSheet ? { state: it.state, allow: it.allow, block: it.block } : null, confirmSelf: !$('ff-self').hidden && $('ff-self-chk').checked }] };
+      const { status, data } = await post(FLAGS_SAVE_URL, body);
+      ffHide();
+      if (status === 401) { clearToken(); toast('로그인이 만료됐어요. 다시 로그인해 주세요.', true); renderLogin('expired'); return; }
+      if (status === 403) { toast('관리자 권한이 없어요.', true); show('forbidden'); return; }
+      if (status === 400 && data && Array.isArray(data.errors)) { toast(data.errors.join(' / '), true); if (data.stale) { ff.items = null; drawFlags(); loadFlags(); } return; }
+      if (status !== 200 || !data || data.ok !== true) { toast('저장 결과를 확인하지 못했어요. 목록을 다시 불러올게요.', true); ff.items = null; drawFlags(); loadFlags(); return; }
+      Object.assign(it, { state: p.state, allow: p.allow, block: p.block, inSheet: true, warn: [] }); delete ff.draft[it.key];
+      const ch = (data.changed && data.changed[0]) || {};
+      history.unshift({ time: new Date().toLocaleString('sv-SE'), admin: $('who-email').textContent, key: '기능공개/' + it.key, from: String(ch.from || ''), to: String(ch.to || ffSummary(p.state, p.allow, p.block)) });
+      toast(data.note || '저장했어요.');
+      if (activeTab === '기능 공개') drawFlags();
+    } catch (e) { ffHide(); toast('저장 결과를 확인하지 못했어요. 목록을 다시 불러올게요.', true); ff.items = null; drawFlags(); loadFlags(); }
+    finally { ff.saving = false; $('ff-confirm-yes').disabled = false; $('ff-confirm-yes').textContent = '적용'; }
+  });
+  // ───────────────────────── (기능 공개 탭 끝) ─────────────────────────
+
   function renderList() {
     const list = $('list'); list.innerHTML = '';
     if (activeTab === '변경 이력') { renderHistory(list); return; }
     if (activeTab === '포인트 코드') { renderCodes(list); return; }
     if (activeTab === '현황') { renderStatus(list); return; }
     if (activeTab === '주제 찾기') { renderTopics(list); return; }
+    if (activeTab === '기능 공개') { renderFlags(list); return; }   // 연결 지점
     if (activeTab === '공지' && items.some((x) => x.key === '공지문구') && items.some((x) => x.key === '공지사용')) { renderNotice(list); return; }
     const mine = items.filter((it) => it.group === activeTab);
     if (!mine.length) { list.innerHTML = '<div class="state"><h2>준비 중이에요</h2><p style="margin:0">이 칸에서 고칠 수 있는 항목은 앞으로 추가돼요.</p></div>'; return; }
@@ -1090,10 +1266,10 @@
     }
   });
 
-  $('logout').addEventListener('click', () => { clearToken(); try { google.accounts.id.disableAutoSelect(); } catch (e) {} items = []; draft = {}; history = []; codes = null; statusData = null; renderLogin('gate'); });
+  $('logout').addEventListener('click', () => { clearToken(); try { google.accounts.id.disableAutoSelect(); } catch (e) {} items = []; draft = {}; history = []; codes = null; statusData = null; ff = { items: null, err: false, draft: {}, open: {}, saving: false, me: '', pending: null }; renderLogin('gate'); });
   $('switch').addEventListener('click', () => { clearToken(); try { google.accounts.id.disableAutoSelect(); } catch (e) {} renderLogin('gate'); });
   $('retry').addEventListener('click', load);
-  window.addEventListener('beforeunload', (e) => { if (items.some(isChanged)) { e.preventDefault(); e.returnValue = ''; } });
+  window.addEventListener('beforeunload', (e) => { if (items.some(isChanged) || ffAnyChanged()) { e.preventDefault(); e.returnValue = ''; } });
 
   load();
 })();
