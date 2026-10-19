@@ -1551,6 +1551,13 @@
   .tf-list .tf-chip small { display: block; color: var(--ink-faint); font-size: .8rem; }
   @media (max-width: 760px) { .tf-in { padding: 26px 16px 40px; } .tf-in h2 { font-size: 1.4rem; } .tf-grid { grid-template-columns: minmax(0, 1fr); } .tf-prod { grid-template-columns: minmax(0, 1fr); } .tf-chips { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   @media (prefers-reduced-motion: reduce) { .tf-card, .tf-go svg, .tf-chip { transition: none; } }
+  /* ===== [기능 공개] 지금 열리지 않은 영상 종류의 입구 숨기기 (html[data-rw-off]에 닫힌 기능 이름이 들어간다. 위쪽 규칙은 new.html 아래 '기능 공개' 스크립트가 채운다) ===== */
+  html[data-rw-off~="상품쇼츠"] label:has(> input[name="df-type"][value="상품쇼츠"]),
+  html[data-rw-off~="분위기영상"] label:has(> input[name="df-type"][value="수면음악"]),
+  html[data-rw-off~="야담"] label:has(> input[name="df-type"][value="야담"]),
+  html[data-rw-off~="쇼츠"][data-rw-off~="롱폼"] label:has(> input[name="df-type"][value="일반"]),
+  html[data-rw-off~="쇼츠"] label:has(> input[name="gn-form"][value="쇼츠"]),
+  html[data-rw-off~="롱폼"] label:has(> input[name="gn-form"][value="롱폼"]) { display: none !important; }
 </style>
 <script src="./theme.js"></script>
 <script src="./assets/voice-panel.js"></script>
@@ -1842,6 +1849,49 @@
   </div>
 </div>
 
+<script>
+/* [기능 공개] 로그인 뒤 site-flags 에 물어, 지금 이 사용자에게 열려 있지 않은 영상 종류의 입구(카드·선택지)를 숨긴다.
+   · 서버(웹 신청 접수)가 신청을 따로 막으므로 이것은 화면 안내용이다. 목록을 못 불러오면 아무것도 숨기지 않는다(예전과 같게).
+   · 이 화면이 다루는 기능 이름은 KNOWN 한 곳. 입구 모양(어떤 카드를 숨기는지)은 위 CSS 'html[data-rw-off' 규칙과 tfRoot 의 TF_FEATURE.
+   · 응답에는 열린 기능만 들어 있다(없는 이름 = 닫힘). 시트 줄이 없는 기능은 서버가 기존 기본값으로 풀어서 준다. */
+(function () {
+  var URL_ = 'https://bald-buffalo.pikapod.net/webhook/site-flags';
+  var KNOWN = ['쇼츠', '롱폼', '상품쇼츠', '야담', '분위기영상', '낭독'];
+  var features = null;   // null = 아직/못 불러옴 → 전부 열림으로 본다
+  var TYPE_FEATURE = { '상품쇼츠': '상품쇼츠', '수면음악': '분위기영상', '야담': '야담' };
+  function on(name) { return features === null || features[name] === true; }
+  function paint() {
+    var off = features === null ? [] : KNOWN.filter(function (n) { return features[n] !== true; });
+    if (off.length) document.documentElement.setAttribute('data-rw-off', off.join(' ')); else document.documentElement.removeAttribute('data-rw-off');
+    fixChoice();
+    document.dispatchEvent(new CustomEvent('rw-flags'));
+  }
+  // 고른 종류가 닫혔다면 열린 첫 종류로 옮긴다(직접 설정하기 화면은 나중에 만들어지므로 화면이 바뀔 때마다도 확인한다)
+  function fixChoice() {
+    if (features === null) return;
+    // 쇼츠/롱폼 카드(gn-form): 고른 쪽이 닫혔으면 열린 쪽으로 옮긴다(숨은 칸 df-form 도 change 로 따라가게)
+    var gf = document.querySelector('input[name="gn-form"]:checked');
+    if (gf && !on(gf.value)) { var og = Array.prototype.find.call(document.querySelectorAll('input[name="gn-form"]'), function (r) { return on(r.value); }); if (og) { og.checked = true; og.dispatchEvent(new Event('change', { bubbles: true })); } }
+    var cur = document.querySelector('input[name="df-type"]:checked');
+    if (cur) {
+      var closed = cur.value === '일반' ? (!on('쇼츠') && !on('롱폼')) : (TYPE_FEATURE[cur.value] && !on(TYPE_FEATURE[cur.value]));
+      if (closed) { var ok = Array.prototype.find.call(document.querySelectorAll('input[name="df-type"]'), function (r) { return r.value === '일반' ? (on('쇼츠') || on('롱폼')) : (!TYPE_FEATURE[r.value] || on(TYPE_FEATURE[r.value])); }); if (ok) { ok.checked = true; ok.dispatchEvent(new Event('change', { bubbles: true })); } }
+    }
+  }
+  var tick = 0;
+  new MutationObserver(function () { if (features === null || tick) return; tick = requestAnimationFrame(function () { tick = 0; fixChoice(); }); }).observe(document.documentElement, { childList: true, subtree: true });
+  async function load(idToken) {
+    features = null;   // 다른 계정으로 다시 들어온 경우 이전 계정의 목록을 남기지 않는다
+    try {
+      var res = await fetch(URL_, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idToken: idToken }) });
+      var d = await res.json().catch(function () { return null; });
+      if (res.ok && d && d.ok === true && d.features && typeof d.features === 'object') features = d.features; else return;
+    } catch (e) { return; }
+    paint();
+  }
+  window.RWFlags = { load: load, on: on };
+})();
+</script>
 <script>
 (() => {
   const WEBHOOK_URL = 'https://bald-buffalo.pikapod.net/webhook/web-request';
@@ -2619,6 +2669,7 @@
     mood: '<rect x="3" y="5" width="18" height="14" rx="2.4"/><path d="M3 7.5l9 6 9-6"/>',
     arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>'
   };
+  const TF_FEATURE = { short: '쇼츠', long: '롱폼', prod: '상품쇼츠', yadam: '야담', mood: '분위기영상' };   // 카드 → 기능 이름(시트 `기능공개` 탭의 기능)
   const TF_TYPE = { short: '일반', long: '일반', prod: '상품쇼츠', yadam: '야담', mood: '수면음악' };   // 직접 설정하기의 영상 종류
   let tfView = 'root', tfHidForm = false;
   const tfBox = () => document.getElementById('topic-hub');
@@ -2666,7 +2717,7 @@
     const hd = tpvEl('div'), h = tpvEl('h2', '', '어떤 영상의 주제를 찾을까요?'); h.tabIndex = -1; h.id = 'tf-h';
     hd.appendChild(h); hd.appendChild(tpvEl('p', 'tf-sub', '종류를 고르면 주제를 둘러볼 수 있어요. 마음에 드는 주제를 고르면 직접 설정하기가 열리고 주제가 채워져요.'));
     const grid = tpvEl('div', 'tf-grid');
-    TF_KINDS.forEach((kd) => {
+    TF_KINDS.filter((kd) => !window.RWFlags || window.RWFlags.on(TF_FEATURE[kd.k])).forEach((kd) => {   // 닫힌 영상 종류는 카드를 그리지 않는다
       if (kd.k === 'prod') { grid.appendChild(tfProdCard(kd)); return; }
       const b = tfCard(kd); b.appendChild(tfHead(kd));
       const ex = tpvEl('span', 'tf-ex'); kd.ex.forEach((t) => ex.appendChild(tpvEl('span', '', t))); b.appendChild(ex);
@@ -2756,6 +2807,7 @@
     if (tfView === 'root') tfRoot(inn); else tfSub(inn, tfView);
     box.appendChild(inn);
   }
+  document.addEventListener('rw-flags', () => { if (tfIsOpen() && tfView === 'root') tfRender(); });   // 공개 목록이 늦게 도착해도 열려 있는 카드 화면을 다시 그린다
   function tfShow(view) {
     tfView = view || 'root'; tfRender();
     const box = tfBox(); if (box) box.scrollTop = 0;
@@ -5316,6 +5368,7 @@
     const profile = decodeJwt(idToken);
     if (!profile) return;
     googleIdToken = idToken;
+    if (window.RWFlags) window.RWFlags.load(idToken);   // [기능 공개] 닫힌 영상 종류 숨기기(실패해도 아무것도 숨기지 않는다)
     loadPoints(idToken);
     document.getElementById('gate').style.display = 'none';
     document.getElementById('app').style.display = 'block';
