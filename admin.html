@@ -435,6 +435,8 @@
   const TOKEN_KEY = 'rw_id_token';
   const $ = (id) => document.getElementById(id);
   const sections = ['gate', 'expired', 'forbidden', 'failed', 'loading', 'panel'];
+  // 기능 공개 탭으로 옮겨져 더 이상 쓰이지 않는 설정 키(목록에서만 숨긴다. 시트·서버는 건드리지 않음)
+  const RETIRED_KEYS = ['주제찾기_고객공개'];
   let items = [];          // 서버에서 받은 원래 값
   let draft = {};          // 키 -> 입력 중인 값(문자열)
   let busy = false;
@@ -478,7 +480,7 @@
       if (status === 403) { $('forbidden-msg').textContent = '이 화면은 관리자만 볼 수 있어요. 다른 구글 계정으로 로그인해 보세요.'; show('forbidden'); return; }
       if (status !== 200 || !data || data.ok !== true || !Array.isArray(data.items)) { show('failed'); return; }
       $('who-email').textContent = data.email || ''; $('who').hidden = false;
-      items = data.items.map(fixGroup); history = Array.isArray(data.history) ? data.history : []; draft = {};
+      items = data.items.filter((it) => !RETIRED_KEYS.includes(it && it.key)).map(fixGroup); history = Array.isArray(data.history) ? data.history : []; draft = {};
       renderTabs(); renderList(); show('panel');
     } catch (e) { show('failed'); }
   }
