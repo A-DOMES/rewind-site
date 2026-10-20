@@ -1260,6 +1260,8 @@
   #df-fields.pw-on[data-pwstep="4"] .df-sleep > [data-pw="4"], #df-fields.pw-on[data-pwstep="4"] .df-yadam > [data-pw="4"] { display: block; }
   #df-fields.pw-on > .sc-card { display: none; }
   #df-fields.pw-on[data-pwstep="2"] > .sc-card { display: flex; }
+  /* 대본 방식(내 대본·보관함)을 고르는 중에는 대본 카드만 보인다 — 주제·분위기·연출 칸은 대본을 고른 뒤 */
+  #df-fields.pw-on.gn-pick-script[data-pwstep="2"] > .df-sec { display: none !important; }
   #df-fields.pw-on > .df-sec { display: none; }
   #df-fields.pw-on > .df-sec.pw-cur { display: block; }
   #df-fields.pw-on .df-sec-head h3::before { content: attr(data-n); }
@@ -4415,7 +4417,13 @@
       else if (n > lim) add('content', '내 대본', (낭독 && sp < 0.995 ? '지금 말속도(×' + sp.toFixed(2) + ')에서는 낭독형 대본을 약 125분(' + lim.toLocaleString('ko-KR') + '자)까지 만들 수 있어요. 지금 ' + n.toLocaleString('ko-KR') + '자예요. 말속도를 올리거나 대본을 줄여 주세요.' : form + (낭독 ? ' 낭독형' : '') + ' 대본은 ' + lim.toLocaleString('ko-KR') + '자까지예요. 지금 ' + n.toLocaleString('ko-KR') + '자예요.' + 낭독안내), g('df-gen-script-card'));
       else if (planMode === 'paid' && !낭독 && motionOf(현재움직임() === '자동' ? '혼합' : 현재움직임()) === '모두 영상' && n > 1500) add('screen', '영상 제작 방식', '"모두 영상"은 지금 대본 약 4분(1,500자)까지 만들 수 있어요. 이 대본은 ' + n.toLocaleString('ko-KR') + '자예요. "혼합"이나 "이미지 중심"을 고르거나 대본을 줄여 주세요. 더 긴 모두 영상은 곧 지원해요.' + 낭독안내, g('df-motion'));
     }
-    if (!topic && !script && !gsel) add('content', '주제', '어떤 영상인지 주제를 적어 주세요.', g('df-topic'));
+    // 대본 방식(내 대본·보관함)을 골랐는데 아직 대본을 못 골랐으면, 주제가 아니라 대본을 고르게 안내한다
+    const gm = window.__rwGenMode || 'skip';
+    if (!topic && !script && !gsel && gm !== 'skip') add('content', '대본', '쓸 대본을 골라 주세요. 대본이 없으면 위에서 "주제만 적으면 AI가 써 줘요"를 골라 주세요.', g('df-gen-script-card'));
+    else if (!topic && !script && !gsel) add('content', '주제', '어떤 영상인지 주제를 적어 주세요.', g('df-topic'));
+    // 참고 영상: 분석이 끝나기 전에 넘어가면 참고가 빠지므로 잠깐 기다리게 한다(참고 없이 계속하기도 가능)
+    const rfs = (window.RWReference && RWReference.state) ? RWReference.state() : null;
+    if (rfs && rfs.visible && form === '쇼츠' && rfs.phase === 'wait') add('kind', '참고 영상 분석(끝나면 다음으로)', '영상 구성을 살펴보는 중이에요. 끝나면 다음으로 넘어갈 수 있어요. 기다리기 어려우면 "참고 없이 계속하기"를 눌러 주세요.', document.querySelector('.rf-box'));
     // 내 사진·영상(선택, 일반 쇼츠만): 넣었으면 내 대본이 있어야 하고, 사용 권리·사람 여부를 확인받는다
     const mmSec = document.querySelector('#df-fields .gn-mymedia');
     let mm = { media: [], people: false };
@@ -4904,7 +4912,7 @@
     const secsGn = () => [[typeSec(), gnForm()], [q('.gn-content'), q('.df-extra')], [q('.gn-mymedia'), q('.gn-screen')], [q('.df-voicesec'), q('.df-gender')], [q('.gn-style'), q('.gn-thumb')], [review]];
     const secsLong = () => [[typeSec()], [q('.sc-card:not(.gn-script)'), q('.gn-content'), q(MO() ? '.df-sleep' : '.df-yadam')], [q(MO() ? '.df-sleep' : '.df-yadam')], [q(MO() ? '.df-sleep' : '.df-yadam'), q('.df-voicesec')], [review]];   // 같은 카드(.df-sleep/.df-yadam)가 2·3·4단계에 모두 들어가고, 안의 블록은 data-pw 로 단계별로 나뉜다
     const secs = () => LONGK() ? secsLong() : GN() ? secsGn() : [[typeSec()], [q('.pd-content'), q('.df-extra')], [q('.pd-media')], [q('.df-voicesec'), q('.df-gender')], [q('.pd-style')], [review, q('.pd-agree')]];   // 한 단계에 섹션이 둘 이상일 수 있다 (기존 옵션을 숨기지 않으려고)
-    const PARTS_PD = { 1: 'content', 2: 'media', 4: 'style', 5: 'agree' }, PARTS_GN = { 1: 'content', 2: 'screen', 4: 'style' }, PARTS_MO = { 1: 'content', 3: 'sound' }, PARTS_YD = { 1: 'content', 2: 'screen' };
+    const PARTS_PD = { 1: 'content', 2: 'media', 4: 'style', 5: 'agree' }, PARTS_GN = { 0: 'kind', 1: 'content', 2: 'screen', 4: 'style' }, PARTS_MO = { 1: 'content', 3: 'sound' }, PARTS_YD = { 1: 'content', 2: 'screen' };
     const partsOf = () => MO() ? PARTS_MO : YD() ? PARTS_YD : GN() ? PARTS_GN : PARTS_PD;
     const readerOf = () => MO() ? readMood() : YD() ? readYadam() : GN() ? readGeneral() : readProduct({ mutate: false });
     const showErr = (m, focusEl) => {
@@ -4954,6 +4962,8 @@
       const gv = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
       const row = (k, v, go) => `<div class="pw-row"><span class="pw-k">${k}</span><span class="pw-v">${esc(v)}</span><button type="button" class="pw-fix" data-go="${go}">고치기</button></div>`;
       const 롱폼 = d.form === '롱폼';
+      const 참고상태 = (window.RWReference && RWReference.state) ? RWReference.state() : null;   // 참고 영상: 분석이 끝났으면 사실만 적고, 주소만 넣고 분석하지 않았으면 쓰이지 않는다고 알린다
+      const 참고줄 = (!롱폼 && 참고상태 && 참고상태.visible) ? (참고상태.phase === 'done' ? row('참고 영상', '이 영상의 구성으로 만들어요 (화면·자막·말 속도)', 0) : (참고상태.urlOk ? row('참고 영상', '주소만 넣고 분석하지 않아서 쓰이지 않아요', 0) : '')) : '';
       const 분 = parseFloat(d.len) > 0 ? parseFloat(d.len) : defaultLen(d.form);
       const 움직임 = d.narrate ? '낭독형 (목소리가 읽고 그림이 천천히 바뀜)' : paid ? motionOf(현재움직임() === '자동' ? '혼합' : 현재움직임()) : '이미지 중심';
       const 제품 = [d.link && '링크 ' + d.link.slice(0, 40), d.img && '사진 주소 입력함'].filter(Boolean).join(' · ') || '없음';
@@ -4962,7 +4972,7 @@
       const 썸네일 = paid ? (document.getElementById('df-thumbnail')?.checked ? 'AI 썸네일 3장 함께 만들기' : '만들지 않음') : '체험판은 제공하지 않아요';
       const 광고 = d.link && pdLooksAffiliate(d.link) ? ' 제휴 링크라서 설명란 맨 앞에 광고 안내 문구가 들어가요. 유튜브에 올릴 때 "유료 프로모션 포함"도 체크해 주세요.' : '';
       review.innerHTML = `<div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg></span><div><h3 data-n="${LAST + 1}">이대로 만들까요?</h3><p>고칠 곳이 있으면 "고치기"를 눌러 그 단계로 돌아가세요</p></div></div>` +
-        row('영상 형태', 롱폼 ? '롱폼 · 가로 16:9' : '쇼츠 · 세로 9:16', 0) + (d.script ? row('내 대본', d.script.title + ' · ' + ((window.__rwGenChars ? window.__rwGenChars(d.script) : Number(d.script.chars)) || 0).toLocaleString('ko-KR') + '자', 1) : '') + row('주제', d.topic || (d.script ? '대본 제목을 써요' : '아직 비어 있어요'), 1) +
+        row('영상 형태', 롱폼 ? '롱폼 · 가로 16:9' : '쇼츠 · 세로 9:16', 0) + 참고줄 + (d.script ? row('내 대본', d.script.title + ' · ' + ((window.__rwGenChars ? window.__rwGenChars(d.script) : Number(d.script.chars)) || 0).toLocaleString('ko-KR') + '자', 1) : '') + row('주제', d.topic || (d.script ? '대본 제목을 써요' : '아직 비어 있어요'), 1) +
         (gv('df-style') ? row('만드는 방향', gv('df-style'), 1) : '') + (document.getElementById('df-characterUse')?.checked ? row('캐릭터', '영상 내내 같은 캐릭터', 1) : '') +
         (gv('df-directorNote') ? row('꼭 넣을 연출', gv('df-directorNote'), 1) : '') + row('내 사진·영상', (d.media && d.media.length) ? pdMediaSummary({ media: d.media }) + ' · 올린 순서대로 장면에 써요' : 'AI가 장면 그림을 만들어요', 2) +
         row('영상 길이', lenLabel(분) + (parseFloat(d.len) > 0 ? '' : ' (기본)'), 2) + row('영상 제작 방식', 움직임 + (paid ? '' : ' (체험판)'), 2) +
@@ -5417,7 +5427,7 @@
     wrap.addEventListener('change', updatePrice);
     updatePrice();
     if (window.__rwInjectScriptCard) window.__rwInjectScriptCard();
-    if (window.RWReference && !isMedia) RWReference.mount({ host: fieldsEl.querySelector('.gn-formsec'), getToken: () => (typeof googleIdToken !== 'undefined' ? googleIdToken : '') });   // [참고 영상] 쇼츠 폼 안의 유튜브 주소 입력(기능 공개 '참고영상'이 열려 있을 때만 보임)
+    if (window.RWReference && !isMedia) RWReference.mount({ host: fieldsEl.querySelector('.gn-formsec'), isPaid: () => planMode === 'paid', getToken: () => (typeof googleIdToken !== 'undefined' ? googleIdToken : '') });   // [참고 영상] 쇼츠 폼 안의 유튜브 주소 입력(기능 공개 '참고영상'이 열려 있을 때만 보임)
     if (window.__rwInjectGenCard) window.__rwInjectGenCard();
 
     document.getElementById('df-tab-topic').addEventListener('click', () => { dfMode = 'topic'; renderDirectForm(); });
@@ -5506,7 +5516,7 @@
           if (window.RWVoice && RWVoice.value()) { answers.voice = RWVoice.value(); answers.voiceSummary = RWVoice.summary(); }   // 목소리·자막 카드 값 (접수 v3.26 body.voice)
         } else {
         productExtra = null;
-        if (window.__pwOn && window.__pwOn()) { const gr = readGeneral(); if (gr.err) { window.__pwGo(gr.part === 'content' ? 1 : gr.part === 'screen' ? 2 : 4); pdShowErr(gr.err, gr.el); return; } }   // 단계 화면에서는 막힌 칸이 있는 단계로 돌아가 알려 준다
+        if (window.__pwOn && window.__pwOn()) { const gr = readGeneral(); if (gr.err) { window.__pwGo(gr.part === 'kind' ? 0 : gr.part === 'content' ? 1 : gr.part === 'screen' ? 2 : 4); pdShowErr(gr.err, gr.el); return; } }   // 단계 화면에서는 막힌 칸이 있는 단계로 돌아가 알려 준다
         const gsr = (window.__rwGenScript && window.__rwGenLib) ? window.__rwGenLib().find(x => x.id === window.__rwGenScript.id && x.chapters && x.chapters.length) : null;
         { const gr2 = (window.__pwOn && window.__pwOn()) ? readGeneral() : null; mediaExtra = (gr2 && gr2.data && gr2.data.media && gr2.data.media.length && gsr) ? { media: gr2.data.media, people: gr2.data.people === true } : null; }   // 내 사진·영상(검사는 위 readGeneral 에서 끝났다)
         if (window.__rwGenScript && !gsr) { alert('선택한 대본을 이 브라우저 보관함에서 찾지 못했어요. 대본을 다시 불러와 주세요.'); return; }
@@ -5989,12 +5999,16 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
     var gn=isGen();host.style.display=gn?'':'none';
     var tpf=document.getElementById('df-topic');tpf=tpf&&tpf.closest('.df-field');
     var mmS=document.querySelector('#df-fields .gn-mymedia');
-    if(!gn){if(tpf)tpf.classList.remove('df-hide');if(mmS)mmS.classList.add('gn-mm-off');lock(false);return}
+    var ff=document.getElementById('df-fields');
+    if(!gn){if(tpf)tpf.classList.remove('df-hide');if(mmS)mmS.classList.add('gn-mm-off');lock(false);if(ff)ff.classList.remove('gn-pick-script');window.__rwGenMode='skip';return}
     var f=curForm(),g=window.__rwGenScript;
     if(mmS)mmS.classList.toggle('gn-mm-off',!(f==='쇼츠'&&window.__pwOn&&window.__pwOn()));   /* 내 사진·영상은 일반 쇼츠(단계 화면)에서만 */
     if(g&&g.form!==f){drop();note='영상 형태가 바뀌어서 '+g.form+' 대본을 뺐어요.';g=null}
     if(tpf)tpf.classList.toggle('df-hide',!!g);   /* 내 대본을 골랐으면 주제는 따로 받지 않는다 (대본 제목을 써요) */
     var L=(window.__rwGenLib?window.__rwGenLib():[]).filter(function(x){return x.form===f&&x.chapters&&x.chapters.length});
+    if(mode==='lib'&&!L.length)mode='skip';   /* 보관함이 비었으면(형태를 바꿨을 때 등) 빈 목록을 보이지 않고 처음 방식으로 */
+    window.__rwGenMode=mode;
+    if(ff)ff.classList.toggle('gn-pick-script',!g&&mode!=='skip');   /* 내 대본·보관함을 고르는 중에는 대본 카드만 보인다(주제·분위기·연출은 대본을 고른 뒤에) */
     if(g){
       var x=(window.__rwGenLib?window.__rwGenLib():[]).filter(function(y){return y.id===g.id})[0]||g;
       var nc=charsOf(x),auto='';
@@ -6018,7 +6032,7 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
     '<p class="sc-note">'+({skip:'아래 주제를 바탕으로 AI가 '+f+' 대본을 써서 영상으로 만들어요. 만들기 전에 대본을 먼저 보고 고치고 싶다면 "내 대본"을 골라 주세요.',mine:'왼쪽 <b>대본 만들기</b>와 같은 작업실에서 '+f+' 대본을 쓰고 고쳐요. 대본은 이 브라우저에 보관돼요.',lib:'확정해 둔 '+f+' 대본을 골라요.'})[mode]+(mode==='skip'&&f==='롱폼'?' 이야기·해설처럼 길게 듣는 영상은 "내 대본"을 고르면 낭독형으로도 만들 수 있어요.':'')+(nt?' <b>'+esc(nt)+'</b>':'')+'</p>'+
     (L.length&&mode==='skip'?'<button type="button" class="sc-hint" data-m="lib">저장해 둔 '+f+' 대본이 '+L.length+'개 있어요 · 눌러서 불러오기</button>':'')+
     (mode==='skip'?'':mode==='lib'?'<div class="sh-lib">'+L.slice(0,5).map(function(y,i){return'<div class="sh-item"><span>'+esc(y.title)+' <small>'+(f==='롱폼'&&typeof y.narrate==='boolean'?(y.narrate?'낭독형 · ':'AI 영상형 · '):'')+lenText(y)+'</small></span><button type="button" data-use="'+i+'">이 대본 쓰기</button></div>'}).join('')+'</div>':'<button type="button" class="sc-act" id="gs-open">'+f+' 대본 만들기</button>');
-    host.querySelectorAll('[data-m]').forEach(function(b){b.onclick=function(){mode=b.dataset.m;render()}});
+    host.querySelectorAll('[data-m]').forEach(function(b){b.onclick=function(){mode=b.dataset.m;render();redraw()}});
     var o=host.querySelector('#gs-open');if(o)o.onclick=function(){window.__rwOpenStudio('long','mine',null,'gen',f)};
     host.querySelectorAll('[data-use]').forEach(function(b){b.onclick=function(){var y=L[+b.dataset.use];window.__rwGenScript={id:y.id,title:y.title,form:f,chars:y.chars,minutes:y.minutes};if(f==='롱폼'&&typeof y.narrate==='boolean')window.__rwGenScript.mode=y.narrate?'read':'ai';render();redraw()}});
   }
@@ -6034,7 +6048,7 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
     var f=document.getElementById('df-fields');if(!f||!document.getElementById('df-form')||document.getElementById('df-tab-media').classList.contains('active'))return;
     var d=document.createElement('div');d.id='df-gen-script-card';d.className='sc-card gn-script';
     var first=f.querySelector('.df-sec');(first&&first.nextSibling?f.insertBefore(d,first.nextSibling):f.appendChild(d));
-    render();if(window.__rwLoadLib)window.__rwLoadLib(function(){render();redraw()});
+    mode='skip';note='';render();if(window.__rwLoadLib)window.__rwLoadLib(function(){render();redraw()});
     var w=document.getElementById('direct-form-wrap');if(w&&!w.__gs){w.__gs=1;w.addEventListener('change',function(e){if(e.target&&(e.target.name==='df-type'||e.target.id==='df-form')){render();var tp=document.getElementById('df-topic'),sf=document.getElementById('df-form');if(tp&&sf&&isGen())tp.placeholder=sf.value==='롱폼'?'예: 처음 주식을 시작하는 사람이 꼭 알아야 할 기초 상식':'예: 아침에 일어나자마자 하면 좋은 스트레칭 3가지'}})}
   };
 })();
