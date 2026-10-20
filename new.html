@@ -5412,7 +5412,7 @@
     wrap.addEventListener('change', updatePrice);
     updatePrice();
     if (window.__rwInjectScriptCard) window.__rwInjectScriptCard();
-    if (window.RWStructure && !isMedia) RWStructure.mount({ host: fieldsEl.querySelector('.gn-formsec'), getToken: () => (typeof googleIdToken !== 'undefined' ? googleIdToken : '') });   // [참고 구조] 쇼츠 폼 안의 카드(기능 공개 '참고영상'이 열려 있을 때만 보임)
+    if (window.RWReference && !isMedia) RWReference.mount({ host: fieldsEl.querySelector('.gn-formsec'), getToken: () => (typeof googleIdToken !== 'undefined' ? googleIdToken : '') });   // [참고 영상] 쇼츠 폼 안의 유튜브 주소 입력(기능 공개 '참고영상'이 열려 있을 때만 보임)
     if (window.__rwInjectGenCard) window.__rwInjectGenCard();
 
     document.getElementById('df-tab-topic').addEventListener('click', () => { dfMode = 'topic'; renderDirectForm(); });
@@ -6059,7 +6059,7 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
 })();
 </script>
 <script src="./assets/notice-cards.js"></script>
-<script src="./assets/structure-cards.js"></script>
+<script src="./assets/reference-input.js"></script>
 <script src="./assets/gate-slides.js" defer></script>
 </body>
 </html>
