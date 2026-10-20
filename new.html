@@ -3239,6 +3239,11 @@
         if (pe.hookShow === '3s') payload.hookShow = '3초';   // 기본(계속 보이기)은 보내지 않는다
       }
     }
+    // 참고 영상: 분석 결과 번호만 보낸다(값은 서버가 읽어 적용한다). 정식 모드 일반 쇼츠에서만.
+    if (mode !== 'media' && planMode === 'paid' && !answers.videoType && !answers.productShort && payload.form === '쇼츠') {
+      const rf = document.getElementById('df-referenceId');
+      if (rf && rf.value) payload.referenceId = String(rf.value).slice(0, 64);
+    }
     if (answers.videoType && mode !== 'media') {
       payload.form = '롱폼';
       payload.videoType = answers.videoType;
