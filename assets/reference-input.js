@@ -92,13 +92,13 @@
       if (S.phase === 'wait') {
         var w = el('div', 'rf-wait'); w.setAttribute('role', 'status'); w.appendChild(el('div', 'rf-spin'));
         var t = el('div'); t.appendChild(el('b', '', '영상 구성을 살펴보고 있어요')); t.appendChild(el('span', '', '약 1분 걸려요. 끝나면 아래 다음 버튼이 켜져요.')); w.appendChild(t); box.appendChild(w);
-        var sk = el('button', 'rf-btn rf-skip', '참고 없이 계속하기'); sk.type = 'button'; sk.addEventListener('click', function () { reset(false); }); box.appendChild(sk); return;
+        var sk = el('button', 'rf-btn rf-skip', '참고 없이 계속하기'); sk.type = 'button'; sk.addEventListener('click', function () { reset(false); var n = box.querySelector('#rf-url'); if (n) n.focus(); }); box.appendChild(sk); return;
       }
       if (S.phase === 'done') {
         var dn = el('div', 'rf-done'), ok = el('div', 'rf-ok'); ok.appendChild(el('i', '', '✓')); ok.appendChild(el('span', '', '이 영상과 비슷한 구성으로 만들게요')); dn.appendChild(ok);
         if (S.summary.length) { var cs = el('div', 'rf-chips'); S.summary.forEach(function (x) { cs.appendChild(el('span', 'rf-chip', x)); }); dn.appendChild(cs); }
-        var ch = el('button', 'rf-btn', '다른 영상으로 바꾸기'); ch.type = 'button'; ch.dataset.k = 'change'; ch.addEventListener('click', function () { reset(false); host.dispatchEvent(new CustomEvent('referencechange', { bubbles: true, detail: { id: '' } })); });
-        dn.appendChild(ch); var nx = el('p', 'rf-next', '화면·자막·말 속도는 이 영상대로 맞춰져요. 아래 \'다음\' 버튼을 눌러 이야기(주제나 대본)를 정해 주세요.'); nx.setAttribute('role', 'status'); dn.appendChild(nx); dn.appendChild(el('p', 'rf-fine', '영상 내용은 가져오지 않고 구성만 참고해요. 주제와 대본은 새로 만들어요.')); box.appendChild(dn); return;
+        var ch = el('button', 'rf-btn', '다른 영상으로 바꾸기'); ch.type = 'button'; ch.dataset.k = 'change'; ch.addEventListener('click', function () { reset(false); var n = box.querySelector('#rf-url'); if (n) n.focus(); host.dispatchEvent(new CustomEvent('referencechange', { bubbles: true, detail: { id: '' } })); });
+        dn.appendChild(ch); var nx = el('p', 'rf-next', '화면·자막·말 속도는 기본으로 이 영상에 맞춰져요(직접 고른 값이 있으면 그 값이 먼저예요). 아래 \'다음\' 버튼을 눌러 이야기(주제나 대본)를 정해 주세요.'); nx.setAttribute('role', 'status'); dn.appendChild(nx); dn.appendChild(el('p', 'rf-fine', '영상 내용은 가져오지 않고 구성만 참고해요. 주제와 대본은 새로 만들어요.')); box.appendChild(dn); return;
       }
       var row = el('div', 'rf-row'), inp = el('input', 'rf-in'); inp.type = 'url'; inp.inputMode = 'url'; inp.autocomplete = 'off'; inp.spellcheck = false; inp.id = 'rf-url'; inp.dataset.k = 'in';
       inp.placeholder = '유튜브 영상 주소를 붙여 넣으세요'; inp.value = S.url; inp.setAttribute('aria-label', '참고할 유튜브 영상 주소');
