@@ -89,12 +89,16 @@
     const bg = 장.배경 || {};
     if (img) {
       const p = 배경배치(설계, 장, img);
+      // 축소(확대 < 1)로 생긴 빈 곳: 흐리게(기본, 같은 사진을 흐리게 깔기) / 검정 / 흰색
+      if (p.dw < W - 0.5 || p.dh < H - 0.5) 빈곳채우기(ctx, W, H, 옵션.원본 ? img : 보정이미지(img, bg.보정, 옵션.보정크기), bg.채우기);
       // 색감: 원본 사진을 한 번 보정한 결과(캐시)를 그린다. 옵션.원본이면 보정 없이(전/후 비교), 옵션.보정크기는 처리할 긴 변(끄는 중엔 작게)
       ctx.drawImage(옵션.원본 ? img : 보정이미지(img, bg.보정, 옵션.보정크기), p.dx, p.dy, p.dw, p.dh);
       if (!옵션.원본) 비네팅그리기(ctx, W, H, bg.보정);
     }
-    const 어둡게 = 범위(Number(bg.어둡게) || 0, 0, 0.8);
+    // 덮개: + 는 검게(어둡게), - 는 하얗게(밝게) 덮는다 (글씨가 잘 보이게)
+    const 어둡게 = 범위(Number(bg.어둡게) || 0, -0.8, 0.8);
     if (어둡게 > 0) { ctx.fillStyle = `rgba(0,0,0,${어둡게})`; ctx.fillRect(0, 0, W, H); }
+    else if (어둡게 < 0) { ctx.fillStyle = `rgba(255,255,255,${-어둡게})`; ctx.fillRect(0, 0, W, H); }
 
     // 아래쪽 그늘 (자동 생성의 5겹 사각형과 같은 모양)
     const g = 장.그늘 || { 시작: 0.5, 끝불투명도: 0.55 };
@@ -274,11 +278,37 @@
     ctx.fillRect(0, 0, W, H);
   }
 
+  // 축소했을 때 빈 곳 채우기. 흐리게 = 사진을 아주 작게 줄였다가 크게 늘려 흐린 바탕을 만든다(모든 브라우저 같은 결과)
+  const 흐림캐시 = new WeakMap();
+  function 빈곳채우기(ctx, W, H, src, 방식) {
+    if (방식 === '검정' || 방식 === '흰색') { ctx.fillStyle = 방식 === '검정' ? '#000' : '#fff'; ctx.fillRect(0, 0, W, H); return; }
+    const iw = src.naturalWidth || src.width, ih = src.naturalHeight || src.height;
+    if (!iw || !ih) return;
+    let 묶음 = 흐림캐시.get(src); if (!묶음) { 묶음 = new Map(); 흐림캐시.set(src, 묶음); }
+    const 키 = W + 'x' + H;
+    let 작은 = 묶음.get(키);
+    if (!작은) {
+      작은 = document.createElement('canvas'); 작은.width = Math.max(2, Math.round(W / 40)); 작은.height = Math.max(2, Math.round(H / 40));
+      // 2단계로 줄인다(한 번에 1/40로 줄이면 색이 얼룩진다): 먼저 1/8 크기, 다음 1/40 크기
+      const 중간 = document.createElement('canvas'); 중간.width = Math.max(2, Math.round(W / 8)); 중간.height = Math.max(2, Math.round(H / 8));
+      const s = Math.max(중간.width / iw, 중간.height / ih), m = 중간.getContext('2d');
+      m.imageSmoothingQuality = 'high';
+      m.drawImage(src, (중간.width - iw * s) / 2, (중간.height - ih * s) / 2, iw * s, ih * s);
+      const x = 작은.getContext('2d'); x.imageSmoothingQuality = 'high';
+      x.drawImage(중간, 0, 0, 작은.width, 작은.height);
+      묶음.set(키, 작은);
+    }
+    ctx.save(); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(작은, 0, 0, W, H);
+    ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.fillRect(0, 0, W, H);
+    ctx.restore();
+  }
+
   // 배경을 캔버스에 놓는 위치: 가득 채우기(cover) + 확대 + 초점 이동
   function 배경배치(설계, 장, img) {
     const W = 설계.캔버스.w, H = 설계.캔버스.h, bg = 장.배경 || {};
     if (!img || !img.naturalWidth) return { dx: 0, dy: 0, dw: W, dh: H };
-    const 확대 = Math.max(1, Number(bg.확대) || 1);
+    const 확대 = 범위(Number(bg.확대) || 1, 0.5, 4);   // 0.5~1은 축소(빈 곳은 그리기에서 채움)
     const s = Math.max(W / img.naturalWidth, H / img.naturalHeight) * 확대;
     const dw = img.naturalWidth * s, dh = img.naturalHeight * s;
     const fx = 범위(Number(bg.초점x ?? 0.5), 0, 1), fy = 범위(Number(bg.초점y ?? 0.5), 0, 1);
