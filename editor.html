@@ -114,6 +114,31 @@
   .fp-list button { display: flex; align-items: center; width: 100%; min-height: 44px; padding: 0 10px; border: 0; border-radius: 8px; background: transparent; font-size: 1.1rem; text-align: left; cursor: pointer; }
   .fp-list button:hover, .fp-list button:focus-visible { background: var(--sel); outline: none; }
   .fp-list button[aria-pressed="true"] { background: var(--sel); color: var(--amber); }
+  /* 색감 패널 */
+  .cg-preview-wrap { display: none; }
+  .cg-top { display: flex; gap: 8px; }
+  .cg-top .btn { flex: 1; }
+  .cg-hold { touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+  .cg-hold.on { border-color: var(--amber); color: var(--amber); }
+  .cg-presets { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; scroll-snap-type: x proximity; }
+  .cg-presets button { flex: none; width: 74px; padding: 0; border: 2px solid transparent; border-radius: 10px; background: transparent; scroll-snap-align: start; cursor: pointer; }
+  .cg-presets button canvas { display: block; margin: 0 auto; border-radius: 8px; background: #000; }
+  .cg-presets button span { display: block; padding: 4px 0 2px; font-size: .74rem; color: var(--ink-dim); text-align: center; }
+  .cg-presets button[aria-pressed="true"] { border-color: var(--amber); }
+  .cg-presets button[aria-pressed="true"] span { color: var(--amber); font-weight: 600; }
+  .cg-grp { border-top: 1px solid var(--line); }
+  .cg-head { width: 100%; display: flex; align-items: center; gap: 8px; padding: 12px 2px; border: 0; background: transparent; font-weight: 700; font-size: .95rem; text-align: left; cursor: pointer; }
+  .cg-head small { font-weight: 400; color: var(--ink-faint); font-size: .76rem; }
+  .cg-head .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--amber); }
+  .cg-head svg { margin-left: auto; width: 18px; height: 18px; fill: none; stroke: var(--ink-dim); stroke-width: 2; transition: transform .15s; }
+  .cg-head[aria-expanded="true"] svg { transform: rotate(180deg); }
+  .cg-body { display: flex; flex-direction: column; gap: 14px; padding: 2px 2px 16px; }
+  .cg-val { display: inline-flex; align-items: center; gap: 6px; }
+  .cg-val output.on { color: var(--amber); font-weight: 600; }
+  .cg-one { border: 0; background: transparent; color: var(--ink-dim); font-size: .95rem; padding: 0 2px; cursor: pointer; }
+  .cg-ends { display: flex; justify-content: space-between; font-size: .7rem; color: var(--ink-faint); margin-top: 2px; }
+  input.cg-temp { background: linear-gradient(90deg, #4a8fe0, #9aa0a6, #e8b23a); border-radius: 6px; }
+  input.cg-tint { background: linear-gradient(90deg, #4fbf6a, #9aa0a6, #d65fb0); border-radius: 6px; }
   .fp-list button[aria-pressed="true"]::after { content: '✓'; margin-left: auto; font-family: 'IBM Plex Sans KR', sans-serif; font-size: .95rem; }
   input[type=range] { width: 100%; accent-color: var(--amber); height: 26px; margin: 0; }
   .sw { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -265,6 +290,9 @@
     nav.rail { position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; flex-direction: row; justify-content: space-around; padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0px)); border-right: 0; border-top: 1px solid var(--line); background: color-mix(in srgb, var(--bg) 95%, transparent); backdrop-filter: blur(10px); }
     .tab { flex: 1; padding: 8px 2px; font-size: .7rem; }
     .tab .lock { right: calc(50% - 20px); top: 4px; }
+    .tab .t-long { display: none; }
+    .cg-preview-wrap { display: flex; justify-content: center; position: sticky; top: 0; z-index: 45; margin: 0 -20px; padding: 8px 0 10px; background: var(--bg-raised); border-bottom: 1px solid var(--line); box-shadow: 0 10px 18px -12px rgba(0,0,0,.45); }
+    .cg-preview { display: block; border-radius: 8px; background: #000; }
     .dock { flex-wrap: wrap; }
     .mini { display: none; }
     .mdead { display: block !important; }
@@ -297,10 +325,11 @@
 <div class="app" id="editor" hidden>
   <nav class="rail" role="tablist" aria-label="편집 도구">
     <button class="tab" role="tab" data-tab="text" aria-selected="true"><svg class="i" viewBox="0 0 24 24"><path d="M4 7V5h16v2M9 19h6M12 5v14"/></svg>문구</button>
-    <button class="tab" role="tab" data-tab="style"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg>글씨 꾸미기</button>
-    <button class="tab" role="tab" data-tab="bg"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 15l5-5 5 5 3-3 5 5"/></svg>배경 장면</button>
-    <button class="tab" role="tab" data-tab="video"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="14" height="14" rx="2"/><path d="M17 10l4-2v8l-4-2"/></svg>영상에서</button>
-    <button class="tab" role="tab" data-tab="photo"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>내 사진<svg class="i lock" id="photo-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></button>
+    <button class="tab" role="tab" data-tab="style"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg>글씨<span class="t-long"> 꾸미기</span></button>
+    <button class="tab" role="tab" data-tab="bg"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 15l5-5 5 5 3-3 5 5"/></svg>배경<span class="t-long"> 장면</span></button>
+    <button class="tab" role="tab" data-tab="color"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4v16M5.1 8l13.8 8M5.1 16l13.8-8"/></svg>색감</button>
+    <button class="tab" role="tab" data-tab="video"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="14" height="14" rx="2"/><path d="M17 10l4-2v8l-4-2"/></svg>영상<span class="t-long">에서</span></button>
+    <button class="tab" role="tab" data-tab="photo"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M5 20a7 7 0 0 1 14 0"/></svg><span class="t-long">내 </span>사진<svg class="i lock" id="photo-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></button>
     <button class="tab help-tab" id="b-help" aria-pressed="false" aria-controls="chat"><svg class="i" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.4"/><circle cx="12" cy="14.6" r=".4" fill="currentColor"/></svg>도움말</button>
   </nav>
 
@@ -352,6 +381,22 @@
       <div class="fld"><div class="lbl"><span>전체 어둡게</span><output id="o-dark"></output></div><input type="range" id="r-dark" min="0" max="0.6" step="0.01" aria-label="전체 어둡게"></div>
       <div class="fld"><div class="lbl"><span>아래쪽 그늘</span><output id="o-shade"></output></div><input type="range" id="r-shade" min="0" max="0.85" step="0.01" aria-label="아래쪽 그늘"></div>
       <p class="hint">글씨 밖을 끌면 배경 위치가 움직여요.</p>
+    </section>
+
+    <!-- 색감 (배경 사진 보정: 프리셋 + 빛·색·효과) -->
+    <section class="pane" data-pane="color" hidden>
+      <div><h2>색감</h2><p class="sub">배경 사진의 분위기를 바꿔요. 글씨는 그대로예요.</p></div>
+      <div class="cg-preview-wrap"><canvas class="cg-preview" id="cg-preview" aria-label="색감 미리보기"></canvas></div>
+      <p class="hint" id="cg-nobg" hidden>먼저 "배경" 탭에서 배경 장면을 골라 주세요.</p>
+      <div class="cg-top">
+        <button type="button" class="btn small cg-hold" id="cg-hold" title="누르고 있는 동안 보정 전 사진을 보여 줘요">◐ 누르고 있으면 원본</button>
+        <button type="button" class="btn small" id="cg-reset">↺ 모두 처음으로</button>
+      </div>
+      <div class="fld"><div class="lbl"><span>색감 한 번에</span><span>옆으로 넘겨 보기</span></div><div class="cg-presets" id="cg-presets"></div></div>
+      <div class="fld" id="cg-amt-wrap" hidden><div class="lbl"><span>강도</span><output id="o-cg-amt"></output></div><input type="range" id="r-cg-amt" min="0" max="100" step="1" aria-label="색감 강도"></div>
+      <div id="cg-groups"></div>
+      <p class="hint">전체 어둡게·아래쪽 그늘은 "배경" 탭에 있어요.</p>
+      <button type="button" class="btn block" id="cg-all">이 색감을 모든 썸네일에 적용</button>
     </section>
 
     <!-- 영상에서 -->
@@ -658,8 +703,9 @@
   function 그리기() {
     const 장 = 현재();
     장.글씨 = R.블록에서글씨(상태.설계, 장);
-    R.그리기(ctx, 상태.설계, 장, 배경이미지(장), { 배율: 상태.화면배율 * 상태.dpr });
-    R.그리기(mctx, 상태.설계, 장, 배경이미지(장), { 배율: mini.width / 상태.설계.캔버스.w });
+    R.그리기(ctx, 상태.설계, 장, 배경이미지(장), { 배율: 상태.화면배율 * 상태.dpr, 원본: 상태.원본보기, 보정크기: 상태.보정끄는중 ? 480 : undefined });
+    R.그리기(mctx, 상태.설계, 장, 배경이미지(장), { 배율: mini.width / 상태.설계.캔버스.w, 원본: 상태.원본보기, 보정크기: 480 });
+    색감미리보기(); 프리셋카드그리기();
     덧그림(); 점검(); 버튼상태();
   }
   function 상자영역(b) {
@@ -938,7 +984,7 @@
     if (지금 && 지금.종류 === '내사진' && 지금.지문 === hash) { 그리기(); 목록그리기(); return 알림('사진을 다시 불러왔어요.'); }
     변경(() => {
       const 이전 = 현재().배경 || {};
-      현재().배경 = { 종류: '내사진', 지문: hash, 이름: String(file.name || '').slice(0, 40), 확대: 1, 초점x: 0.5, 초점y: 0.5, 어둡게: 이전.어둡게 || 0 };
+      현재().배경 = { 종류: '내사진', 지문: hash, 이름: String(file.name || '').slice(0, 40), 확대: 1, 초점x: 0.5, 초점y: 0.5, 어둡게: 이전.어둡게 || 0, 보정: 이전.보정 };
       현재().얼굴 = [];
     });
     알림('내 사진으로 바꿨어요. 글씨가 얼굴을 가리지 않게 직접 옮겨주세요.');
@@ -968,7 +1014,7 @@
       상태.이미지[s.src] = img;
       // 원본 이미지는 영상 화면과 같은 비율이라, 잡아둔 네모 상자 영역을 그대로 따라간다
       const 자르기 = 상자를배경으로(img);
-      변경(() => { const 이전 = 현재().배경 || {}; 현재().배경 = { 종류: 'image', src: s.src, ...자르기, 어둡게: 이전.어둡게 || 0 }; 현재().얼굴 = []; });
+      변경(() => { const 이전 = 현재().배경 || {}; 현재().배경 = { 종류: 'image', src: s.src, ...자르기, 어둡게: 이전.어둡게 || 0, 보정: 이전.보정 }; 현재().얼굴 = []; });
       $('dlg-video').close(); 알림(`장면 ${s.장면번호}의 글자 없는 원본을 배경으로 넣었어요.`);
     } catch (e) { 알림(e.message); }
     finally { btn.disabled = false; }
@@ -1109,7 +1155,7 @@
         if (!img) throw new Error();
         상태.이미지['frame:' + t.toFixed(1)] = img;
         const 자르기 = 상자를배경으로(img);
-        변경(() => { const 이전 = 현재().배경 || {}; 현재().배경 = { 종류: '영상장면', 시점: t, ...자르기, 어둡게: 이전.어둡게 || 0 }; 현재().얼굴 = []; });
+        변경(() => { const 이전 = 현재().배경 || {}; 현재().배경 = { 종류: '영상장면', 시점: t, ...자르기, 어둡게: 이전.어둡게 || 0, 보정: 이전.보정 }; 현재().얼굴 = []; });
         $('dlg-video').close(); 알림(`${시간글(t)} 장면을 배경으로 넣었어요.`); return;
       } catch (e) { 영상모드 = 'server'; }
     }
@@ -1119,7 +1165,7 @@
       const d = await 요청({ action: 'capture', time: t });
       상태.캡처횟수 = Number(d.captureCount) || 상태.캡처횟수 + 1;
       상태.설계.캡처 = [...(상태.설계.캡처 || []), { src: d.url, 시점: t }];
-      변경(() => { const 이전 = 현재().배경 || {}; 현재().배경 = { 종류: 'image', src: d.url, 확대: 1, 초점x: 0.5, 초점y: 0.5, 어둡게: 이전.어둡게 || 0 }; 현재().얼굴 = []; });
+      변경(() => { const 이전 = 현재().배경 || {}; 현재().배경 = { 종류: 'image', src: d.url, 확대: 1, 초점x: 0.5, 초점y: 0.5, 어둡게: 이전.어둡게 || 0, 보정: 이전.보정 }; 현재().얼굴 = []; });
       await 배경준비(현재());
       const 캡처이미지 = 배경이미지(현재());
       if (캡처이미지) { const 영역 = 서버캡처영역(캡처이미지); 변경(() => { Object.assign(현재().배경, 상자를배경으로(캡처이미지, 영역)); }, 'crop'); }
@@ -1202,7 +1248,7 @@
       const c = 목록[Number(b.dataset.i)];
       변경(() => {
         const 이전 = 현재().배경 || {};
-        현재().배경 = { 종류: 'image', src: c.src, 확대: 1, 초점x: 0.5, 초점y: 0.5, 어둡게: 이전.어둡게 || 0 };
+        현재().배경 = { 종류: 'image', src: c.src, 확대: 1, 초점x: 0.5, 초점y: 0.5, 어둡게: 이전.어둡게 || 0, 보정: 이전.보정 };
         const 같은장 = [...상태.설계.장면, ...(상태.자동본.장면 || [])].find(s => s !== 현재() && s.배경 && R.배경주소(s.배경) === c.src && (s.얼굴 || []).length);
         현재().얼굴 = 같은장 ? 깊은복사(같은장.얼굴) : [];
       });
@@ -1296,6 +1342,7 @@
   }
   function 입력반영() {
     const 장 = 현재(), b = 상자().블록;
+    색감반영();
     문구패널();
     추천문구();
     const { h: H } = 상태.설계.캔버스, 영역 = 상자영역(상자());
@@ -1327,6 +1374,118 @@
     $('photo-hint').textContent = `내 사진 ${n}/${상태.사진최대}장 사용 · 한 번 쓴 사진은 다시 골라도 늘지 않아요.`;
     $('card-photo').classList.toggle('locked', !상태.사진열림);
     $('card-photo-t').textContent = 상태.사진열림 ? `영상당 ${상태.사진최대}장까지 · 지금 ${n}장 사용` : '썸네일을 한 번 저장하면 열려요';
+  }
+
+  /* ---------- 색감 (배경 사진 보정. 계산은 thumb-render.js의 보정값·보정이미지) ---------- */
+  const 색감묶음 = [
+    { id: 'light', 이름: '빛', 설명: '밝기·대비·밝은 곳·어두운 곳', 항목: [
+      { 키: '밝기', 이름: '밝기', 끝: ['어둡게', '밝게'] }, { 키: '대비', 이름: '대비', 끝: ['흐리게', '또렷하게'] },
+      { 키: '밝은곳', 이름: '밝은 곳', 끝: ['누르기', '살리기'] }, { 키: '어두운곳', 이름: '어두운 곳', 끝: ['누르기', '살리기'] }] },
+    { id: 'color', 이름: '색', 설명: '색온도·색조·채도', 항목: [
+      { 키: '색온도', 이름: '색온도', 끝: ['차갑게', '따뜻하게'], 막대: 'cg-temp' }, { 키: '색조', 이름: '색조', 끝: ['초록', '분홍'], 막대: 'cg-tint' },
+      { 키: '채도', 이름: '채도', 끝: ['흑백', '진하게'] }] },
+    { id: 'fx', 이름: '효과', 설명: '선명하게·가장자리 어둡게', 항목: [
+      { 키: '선명', 이름: '선명하게', 끝: ['부드럽게', '선명하게'] }, { 키: '비네팅', 이름: '가장자리 어둡게', 끝: ['밝게', '어둡게'] }] }
+  ];
+  const 색감배경 = () => 현재().배경 || null;
+  const 색감값 = () => (색감배경() && 색감배경().보정) || {};
+  // 보정 고치기: 프리셋도 없고 값이 모두 0이면 보정을 지워 예전과 같은 데이터로 둔다
+  function 색감쓰기(fn) {
+    const bg = 색감배경(); if (!bg) return;
+    const 보정 = { ...(bg.보정 || {}) }; fn(보정);
+    R.보정키.forEach(k => { if (!Number(보정[k])) delete 보정[k]; });
+    if (!보정.프리셋) { delete 보정.프리셋; delete 보정.강도; }
+    if (Object.keys(보정).length) bg.보정 = 보정; else delete bg.보정;
+  }
+  let 색감카드서명 = '';
+  function 색감UI만들기() {
+    $('cg-presets').innerHTML = [['', '없음'], ...Object.entries(R.보정프리셋).map(([k, p]) => [k, p.이름])]
+      .map(([k, 이름]) => `<button type="button" data-preset="${k}" aria-pressed="false"><canvas></canvas><span>${이름}</span></button>`).join('');
+    $('cg-groups').innerHTML = 색감묶음.map((g, gi) => `<div class="cg-grp"><button type="button" class="cg-head" data-grp="${g.id}" aria-expanded="${gi === 0}">${g.이름} <small>${g.설명}</small><span class="dot" hidden></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>`
+      + `<div class="cg-body" data-body="${g.id}"${gi === 0 ? '' : ' hidden'}>` + g.항목.map(h => `<div class="fld" data-k="${h.키}"><div class="lbl"><span>${h.이름}</span><span class="cg-val"><output>0</output><button type="button" class="cg-one" aria-label="${h.이름} 처음으로" title="처음으로" hidden>↺</button></span></div>`
+        + `<input type="range" min="-100" max="100" step="1" value="0" class="${h.막대 || ''}" aria-label="${h.이름}"><div class="cg-ends"><span>${h.끝[0]}</span><span>${h.끝[1]}</span></div></div>`).join('') + '</div></div>').join('');
+    // 묶음 접기: 하나를 펼치면 나머지는 접힌다
+    $('cg-groups').querySelectorAll('.cg-head').forEach(h => h.addEventListener('click', () => {
+      const 열기 = h.getAttribute('aria-expanded') !== 'true';
+      $('cg-groups').querySelectorAll('.cg-head').forEach(x => { const 이것 = x === h && 열기; x.setAttribute('aria-expanded', String(이것)); $('cg-groups').querySelector(`[data-body="${x.dataset.grp}"]`).hidden = !이것; });
+    }));
+    // 슬라이더: 끄는 동안은 작게 처리(빠르게), 손을 떼면 원래 크기로 다시 그린다
+    const 끝내기 = () => { if (상태.보정끄는중) { 상태.보정끄는중 = false; 그리기(); } };
+    $('cg-groups').querySelectorAll('[data-k]').forEach(row => {
+      const k = row.dataset.k, r = row.querySelector('input');
+      r.addEventListener('input', () => { 상태.보정끄는중 = true; 변경(() => 색감쓰기(o => { o[k] = Number(r.value); }), 'cg-' + k); });
+      ['change', 'pointerup', 'pointercancel', 'blur'].forEach(n => r.addEventListener(n, 끝내기));   // 끌다 제자리로 오면 change가 안 올 수 있음
+      row.querySelector('.cg-one').addEventListener('click', () => 변경(() => 색감쓰기(o => { delete o[k]; })));
+    });
+    $('r-cg-amt').addEventListener('input', e => { 상태.보정끄는중 = true; 변경(() => 색감쓰기(o => { o.강도 = Number(e.target.value) / 100; }), 'cg-amt'); });
+    ['change', 'pointerup', 'pointercancel', 'blur'].forEach(n => $('r-cg-amt').addEventListener(n, 끝내기));
+    $('cg-presets').querySelectorAll('button').forEach(b => b.addEventListener('click', () => 변경(() => 색감쓰기(o => {
+      if (!b.dataset.preset) { delete o.프리셋; return; }
+      if (o.강도 === undefined) o.강도 = 0.8;
+      o.프리셋 = b.dataset.preset;
+    }))));
+    $('cg-reset').addEventListener('click', () => 변경(() => { const bg = 색감배경(); if (bg) delete bg.보정; }));
+    $('cg-all').addEventListener('click', () => {
+      const 보정 = 색감배경() && 색감배경().보정, 수 = 상태.설계.장면.length;
+      변경(() => 상태.설계.장면.forEach(s => { if (!s.배경) return; if (보정) s.배경.보정 = 깊은복사(보정); else delete s.배경.보정; }));
+      알림(`썸네일 ${수}장 모두 같은 색감으로 맞췄어요.`);
+    });
+    // 누르고 있으면 원본 (휴대폰 길게 누르기 메뉴는 막는다)
+    const 원본 = 켜기 => { if (!!상태.원본보기 === 켜기) return; 상태.원본보기 = 켜기; $('cg-hold').classList.toggle('on', 켜기); 그리기(); };
+    const h = $('cg-hold');
+    h.addEventListener('pointerdown', e => { e.preventDefault(); try { h.setPointerCapture(e.pointerId); } catch (x) { } 원본(true); });
+    ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(n => h.addEventListener(n, () => 원본(false)));
+    h.addEventListener('contextmenu', e => e.preventDefault());
+    h.addEventListener('keydown', e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); 원본(true); } });
+    h.addEventListener('keyup', () => 원본(false));
+    h.addEventListener('blur', () => 원본(false));
+    document.querySelector('.tab[data-tab="color"]').addEventListener('click', () => { 색감카드서명 = ''; 색감반영(); 색감미리보기(); });
+  }
+  // 색감 패널에 지금 값 반영 (입력반영에서 부름)
+  function 색감반영() {
+    if (!$('cg-groups').children.length || !상태.설계) return;
+    const bg = 색감배경(), 보정 = 색감값(), 잠금 = 잠김();
+    $('cg-nobg').hidden = !!bg;
+    $('cg-groups').querySelectorAll('[data-k]').forEach(row => {
+      const v = Number(보정[row.dataset.k]) || 0, o = row.querySelector('output');
+      row.querySelector('input').value = v;
+      o.textContent = v > 0 ? '+' + v : String(v); o.classList.toggle('on', v !== 0);
+      row.querySelector('.cg-one').hidden = v === 0;
+    });
+    색감묶음.forEach(g => { $('cg-groups').querySelector(`[data-grp="${g.id}"] .dot`).hidden = !g.항목.some(x => Number(보정[x.키])); });
+    $('cg-presets').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String((b.dataset.preset || '') === (보정.프리셋 || ''))));
+    $('cg-amt-wrap').hidden = !보정.프리셋;
+    const 강도 = Math.round((보정.강도 ?? 1) * 100);
+    $('r-cg-amt').value = 강도; $('o-cg-amt').textContent = 강도 + '%';
+    const n = 상태.설계.장면.length;
+    $('cg-all').hidden = n < 2; $('cg-all').textContent = `이 색감을 썸네일 ${n}장 모두에 적용`;
+    document.querySelectorAll('[data-pane="color"] input, [data-pane="color"] button:not(.cg-head)').forEach(x => { x.disabled = 잠금 || !bg; });
+    프리셋카드그리기();
+  }
+  // 프리셋 카드: 지금 배경으로 만든 작은 미리보기 (배경이 바뀌었을 때만 다시 그림)
+  function 프리셋카드그리기() {
+    if (document.querySelector('[data-pane="color"]').hidden) return;
+    const 장 = 현재(), bg = 장.배경, img = 배경이미지(장), { w: W, h: H } = 상태.설계.캔버스;
+    const 서명 = [R.배경주소(bg), bg && bg.확대, bg && bg.초점x, bg && bg.초점y, bg && bg.어둡게, W, H, !!img].join('|');
+    if (서명 === 색감카드서명) return;
+    색감카드서명 = 서명;
+    const dpr = Math.min(2, window.devicePixelRatio || 1), s = Math.min(70 / W, 110 / H), cw = Math.round(W * s), ch = Math.round(H * s);
+    $('cg-presets').querySelectorAll('button').forEach(b => {
+      const c = b.querySelector('canvas'); c.width = Math.round(cw * dpr); c.height = Math.round(ch * dpr); c.style.width = cw + 'px'; c.style.height = ch + 'px';
+      const x = c.getContext('2d');
+      if (!img) { x.fillStyle = '#222'; x.fillRect(0, 0, c.width, c.height); return; }
+      const 카드장 = { 배경: { ...bg, 보정: b.dataset.preset ? { 프리셋: b.dataset.preset, 강도: 1 } : undefined }, 그늘: { 끝불투명도: 0 }, 글씨: [] };
+      R.그리기(x, 상태.설계, 카드장, img, { 배율: c.width / W, 보정크기: 200 });
+    });
+  }
+  // 휴대폰: 색감 탭을 연 동안 위에 붙는 미리보기 (데스크톱에서는 숨김)
+  function 색감미리보기() {
+    const c = $('cg-preview');
+    if (!c || !상태.설계 || c.offsetParent === null || document.querySelector('[data-pane="color"]').hidden) return;
+    const { w: W, h: H } = 상태.설계.캔버스, dpr = Math.min(2, window.devicePixelRatio || 1);
+    const s = Math.min((window.innerWidth - 48) / W, window.innerHeight * 0.34 / H), w = Math.round(W * s), h = Math.round(H * s);
+    if (c.width !== Math.round(w * dpr) || c.height !== Math.round(h * dpr)) { c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); c.style.width = w + 'px'; c.style.height = h + 'px'; }
+    R.그리기(c.getContext('2d'), 상태.설계, 현재(), 배경이미지(현재()), { 배율: c.width / W, 원본: 상태.원본보기, 보정크기: 상태.보정끄는중 ? 480 : undefined });
   }
 
   // 글꼴 드롭다운 단추: 지금 글꼴 이름을 그 글꼴 모양으로, 옆에 분류
@@ -1364,6 +1523,7 @@
       if (번 !== 글꼴순번 || 상자() !== 고른상자) return;
       변경(() => { 상자().블록.글꼴 = b.dataset.font; 맞춤크기(); });
     }));
+    색감UI만들기();
     const 색버튼 = (el, 목록, 키) => {
       el.innerHTML = 목록.map(c => `<button type="button" data-c="${c}" style="background:${c}" aria-label="${c}"></button>`).join('');
       el.querySelectorAll('button').forEach(b => b.addEventListener('click', () => 변경(() => { const bx = 상자(); bx.블록[키] = b.dataset.c; if (키 === '강조색' && !bx.블록.강조줄) bx.블록.강조줄 = (bx.문구.줄 || []).length; })));
@@ -1509,7 +1669,7 @@
       c.width = Math.round(hpx * W / H * dpr); c.height = Math.round(hpx * dpr);
       c.style.width = Math.round(hpx * W / H) + 'px'; c.style.height = hpx + 'px';
       const 장 = 장면[i]; 장.글씨 = R.블록에서글씨(상태.설계, 장);
-      R.그리기(c.getContext('2d'), 상태.설계, 장, 배경이미지(장), { 배율: c.width / W });
+      R.그리기(c.getContext('2d'), 상태.설계, 장, 배경이미지(장), { 배율: c.width / W, 보정크기: 480 });   // 작은 목록 그림은 작게 보정(빠르게)
       const 바뀜 = JSON.stringify(장요약(장)) !== JSON.stringify(저장[i]);
       let dot = b.querySelector('.dot');
       if (바뀜 && !dot) { dot = document.createElement('span'); dot.className = 'dot'; dot.title = '저장하지 않은 변경'; b.appendChild(dot); }
