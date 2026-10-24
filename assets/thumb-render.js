@@ -102,13 +102,14 @@
 
     // 아래쪽 그늘 (자동 생성의 5겹 사각형과 같은 모양)
     const g = 장.그늘 || { 시작: 0.5, 끝불투명도: 0.55 };
-    if (g.끝불투명도 > 0) {
-      // 위에서 투명 → 아래로 갈수록 끝불투명도까지 부드럽게 어두워진다
+    if (g.끝불투명도) {
+      // 위에서 투명 → 아래로 갈수록 끝불투명도까지 부드럽게 어두워진다 (음수면 같은 모양으로 밝아진다)
       const 시작 = Math.max(0, g.시작) * H;
+      const 색 = g.끝불투명도 > 0 ? '0,0,0' : '255,255,255', 세기 = Math.abs(g.끝불투명도);
       const gr = ctx.createLinearGradient(0, 시작, 0, H);
-      gr.addColorStop(0, 'rgba(0,0,0,0)');
-      gr.addColorStop(0.5, `rgba(0,0,0,${(g.끝불투명도 * 0.6).toFixed(3)})`);
-      gr.addColorStop(1, `rgba(0,0,0,${g.끝불투명도})`);
+      gr.addColorStop(0, `rgba(${색},0)`);
+      gr.addColorStop(0.5, `rgba(${색},${(세기 * 0.6).toFixed(3)})`);
+      gr.addColorStop(1, `rgba(${색},${세기})`);
       ctx.fillStyle = gr;
       ctx.fillRect(0, 시작, W, H - 시작);
     }
@@ -308,7 +309,7 @@
   function 배경배치(설계, 장, img) {
     const W = 설계.캔버스.w, H = 설계.캔버스.h, bg = 장.배경 || {};
     if (!img || !img.naturalWidth) return { dx: 0, dy: 0, dw: W, dh: H };
-    const 확대 = 범위(Number(bg.확대) || 1, 0.5, 4);   // 0.5~1은 축소(빈 곳은 그리기에서 채움)
+    const 확대 = 범위(Number(bg.확대) || 1, 0.25, 4);   // 0.25~1은 축소(빈 곳은 그리기에서 채움)
     const s = Math.max(W / img.naturalWidth, H / img.naturalHeight) * 확대;
     const dw = img.naturalWidth * s, dh = img.naturalHeight * s;
     const fx = 범위(Number(bg.초점x ?? 0.5), 0, 1), fy = 범위(Number(bg.초점y ?? 0.5), 0, 1);

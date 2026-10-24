@@ -158,6 +158,9 @@
   .sw { display: flex; gap: 10px; flex-wrap: wrap; }
   .sw button { width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--line-strong); padding: 0; }
   .sw button[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--bg-raised), 0 0 0 4px var(--amber); }
+  .sw .sw-pick { position: relative; width: 34px; height: 34px; border-radius: 50%; border: 2px dashed var(--line-strong); overflow: hidden; cursor: pointer; background: conic-gradient(#f44, #fd4, #4f8, #4df, #84f, #f44); }
+  .sw .sw-pick:focus-within { outline: 2px solid var(--amber); outline-offset: 2px; }
+  .sw .sw-pick input { position: absolute; inset: -6px; width: 50px; height: 50px; opacity: 0; cursor: pointer; }
   .toggle { display: flex; align-items: center; justify-content: space-between; min-height: 40px; font-size: .9rem; }
   .toggle input { width: 20px; height: 20px; accent-color: var(--amber); }
   .scenes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
@@ -426,6 +429,7 @@
       <div class="fld"><div class="lbl"><span>크기</span><output id="o-size"></output></div><input type="range" id="r-size" min="40" max="240" step="1" aria-label="글씨 크기"></div>
       <div class="fld"><div class="lbl"><span>줄 간격</span><output id="o-gap"></output></div><input type="range" id="r-gap" min="0.9" max="1.6" step="0.01" aria-label="줄 간격"></div>
       <div class="fld"><div class="lbl"><span>테두리 두께</span><output id="o-outline"></output></div><input type="range" id="r-outline" min="0" max="30" step="1" aria-label="테두리 두께"></div>
+      <div class="fld"><div class="lbl">테두리 색</div><div class="sw" id="sw-outline"></div></div>
       <label class="toggle"><span>그림자</span><input type="checkbox" id="c-shadow"></label>
       <div class="fld"><div class="lbl">글자색</div><div class="sw" id="sw-main"></div></div>
       <div class="fld"><div class="lbl">강조색 (★ 줄)</div><div class="sw" id="sw-accent"></div></div>
@@ -438,10 +442,10 @@
       <button class="card" data-go="video"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="14" height="14" rx="2"/><path d="M17 10l4-2v8l-4-2"/></svg><div><b>영상에서 장면 가져오기</b><span>재생하다 원하는 순간에 멈추고 골라요</span></div></button>
       <button class="card" data-go="photo" id="card-photo"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M5 20a7 7 0 0 1 14 0"/></svg><div><b>내 사진으로 바꾸기</b><span id="card-photo-t"></span></div></button>
       <hr class="divider">
-      <div class="fld"><div class="lbl"><span>확대·축소</span><output id="o-zoom"></output></div><input type="range" id="r-zoom" min="0.5" max="4" step="0.01" aria-label="배경 확대·축소"><div class="cg-ends"><span>← 축소</span><span>확대 →</span></div></div>
+      <div class="fld"><div class="lbl"><span>확대·축소</span><output id="o-zoom"></output></div><input type="range" id="r-zoom" min="-100" max="100" step="1" aria-label="배경 확대·축소 (가운데가 원래 크기)"><div class="cg-ends"><span>−</span><span>+</span></div></div>
       <div class="fld" id="fill-wrap" hidden><div class="lbl"><span>빈 곳 채우기</span></div><div class="chips" id="fill"><button class="chip" type="button" data-fill="">흐리게 (추천)</button><button class="chip" type="button" data-fill="검정">검정</button><button class="chip" type="button" data-fill="흰색">흰색</button></div></div>
-      <div class="fld"><div class="lbl"><span>덮개 (밝게 ↔ 어둡게)</span><output id="o-dark"></output></div><input type="range" id="r-dark" min="-0.6" max="0.6" step="0.01" aria-label="덮개 밝게 어둡게"><div class="cg-ends"><span>← 하얗게</span><span>검게 →</span></div></div>
-      <div class="fld"><div class="lbl"><span>아래쪽 그늘</span><output id="o-shade"></output></div><input type="range" id="r-shade" min="0" max="0.85" step="0.01" aria-label="아래쪽 그늘"></div>
+      <div class="fld"><div class="lbl"><span>덮개</span><output id="o-dark"></output></div><input type="range" id="r-dark" min="-0.8" max="0.8" step="0.01" aria-label="덮개 (왼쪽 어둡게, 오른쪽 밝게)"><div class="cg-ends"><span>−</span><span>+</span></div></div>
+      <div class="fld"><div class="lbl"><span>음영</span><output id="o-shade"></output></div><input type="range" id="r-shade" min="-0.85" max="0.85" step="0.01" aria-label="음영 (왼쪽 어둡게, 오른쪽 밝게)"><div class="cg-ends"><span>−</span><span>+</span></div></div>
       <p class="hint">글씨 밖을 끌면 배경 위치가 움직여요.</p>
     </section>
 
@@ -463,7 +467,7 @@
           <input type="range" id="r-cg-m" min="-100" max="100" step="1" value="0" aria-label="밝기">
           <div class="cg-ends"><span id="cg-m-l"></span><span id="cg-m-r"></span></div></div>
       </div>
-      <p class="hint">덮개(밝게·어둡게)·아래쪽 그늘은 "배경" 탭에 있어요.</p>
+      <p class="hint">덮개·음영은 "배경" 탭에 있어요.</p>
       <button type="button" class="btn block" id="cg-all">이 색감을 모든 썸네일에 적용</button>
     </section>
 
@@ -559,6 +563,11 @@
   const $ = id => document.getElementById(id);
   const 글자색들 = ['#FFFFFF', '#FFE14D', '#111111', '#FF4D4D'];
   const 강조색들 = ['#FFE14D', '#FF4D4D', '#4DD2FF', '#7CFF6B', '#FF8A3D', '#D94DFF', '#00FFFF', '#FFFFFF'];
+  const 테두리색들 = ['#111111', '#FFFFFF', '#FF4D4D', '#FFE14D', '#4DD2FF', '#7CFF6B', '#FF8A3D', '#D94DFF'];
+  // 막대 값 ↔ 배경 확대: 가운데(0)가 원래 크기(100%), 왼쪽(−)은 줄이고 오른쪽(+)은 키운다 (0.25배 ~ 4배, 양쪽 같은 비율로)
+  const 확대에서막대 = z => Math.round(Math.log(Math.min(4, Math.max(0.25, z || 1))) / Math.log(4) * 100);
+  const 막대에서확대 = v => Math.abs(v) <= 3 ? 1 : Math.round(Math.pow(4, v / 100) * 1000) / 1000;   // 가운데 근처는 딱 100%
+  const 부호값 = n => (n > 0 ? '+' : '') + (Math.abs(n) < 0.5 ? 0 : n);
 
   const 상태 = {
     idToken: '', id: '', 제목: '', 설계: null, 자동본: null, 저장본: '', 장: 0, 상자: 0, 탭: 'text', 선택: false,
@@ -948,16 +957,29 @@
     }).join('');
     el.querySelectorAll('button').forEach(b => b.addEventListener('click', () => 모양바꾸기(b.dataset.shape)));
   }
-  function 모양바꾸기(key) {
+  // 사진 모양과 새 썸네일 모양이 많이 다르면(세로 영상 → 가로 등) 사진 전체가 보이게 줄이고 빈 곳은 흐린 사진으로 채운다.
+  // 비슷한 모양이 되면 줄여 둔 것을 원래 크기로 되돌린다. 불러오지 못한 사진은 건드리지 않는다
+  function 배경모양맞춤(장, 캔) {
+    const bg = 장.배경, img = 배경이미지(장);
+    if (!bg || !img || !img.naturalWidth) return;
+    if (현재모양키() === 상태.원모양) { if ((bg.확대 || 1) < 1) bg.확대 = 1; return; }   // 영상과 같은 모양으로 돌아오면 원래 크기로
+    const 덮 = Math.max(캔.w / img.naturalWidth, 캔.h / img.naturalHeight), 담 = Math.min(캔.w / img.naturalWidth, 캔.h / img.naturalHeight);
+    if (담 / 덮 < 0.8) { bg.확대 = Math.max(0.25, Math.round(담 / 덮 * 100) / 100); bg.초점x = 0.5; bg.초점y = 0.5; }
+    else if ((bg.확대 || 1) < 1) bg.확대 = 1;
+  }
+  async function 모양바꾸기(key) {
     const m = 모양목록.find(x => x.key === key);
     if (!m || 잠김()) return;
     const 전 = 상태.설계.캔버스;
     if (전.w === m.w && 전.h === m.h) return;
+    // 모든 장면의 사진 크기를 알아야 같은 기준으로 맞출 수 있어서, 아직 안 불러온 사진을 먼저 불러온다
+    try { await Promise.all(상태.설계.장면.map(배경준비)); } catch (e) { }
+    if (상태.설계.캔버스 !== 전 || 잠김()) return;   // 기다리는 사이 다른 모양을 눌렀거나 잠겼으면 그만둔다
     const 측정 = b => Math.max(0, ...R.상자글씨(상태.설계, b).map(t => R.줄너비(ctx, t)));
     const 기록 = { 장면: JSON.stringify(상태.설계.장면), 장: 상태.장, 키: 'shape', t: Date.now(), 캔: JSON.stringify(전) };
     const 후 = { ...전, w: m.w, h: m.h, 모양: key };
     상태.설계.캔버스 = 후;
-    상태.설계.장면.forEach(장 => 장면모양변환(장, 전, 후, 측정));
+    상태.설계.장면.forEach(장 => { 장면모양변환(장, 전, 후, 측정); 배경모양맞춤(장, 후); });
     상태.기록.push(기록); if (상태.기록.length > 80) 상태.기록.shift();
     상태.되돌림 = []; 상태.선택 = false;
     크기맞추기(); 배경목록(); 모양버튼그리기();
@@ -1426,15 +1448,20 @@
     $('c-shadow').checked = !!b.그림자;
     $('sw-main').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.c.toUpperCase() === String(b.글자색).toUpperCase())));
     $('sw-accent').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.c.toUpperCase() === String(b.강조색).toUpperCase())));
+    $('sw-outline').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.c.toUpperCase() === String(b.테두리색 || '#111111').toUpperCase())));
+    $('c-outline').value = /^#[0-9a-f]{6}$/i.test(b.테두리색 || '') ? b.테두리색.toLowerCase() : '#111111';
     $('style-for').textContent = 상자들().length > 1 ? `지금 고른 글씨 상자 ${상태.상자 + 1}에 적용돼요` : '';
     const bg = 장.배경 || {};
-    설정('r-zoom', bg.확대 || 1, Math.round((bg.확대 || 1) * 100) + '%' + ((bg.확대 || 1) < 1 ? ' (축소)' : ''));
-    const 덮개 = Number(bg.어둡게) || 0;
-    설정('r-dark', 덮개, 덮개 > 0 ? `어둡게 ${Math.round(덮개 * 100)}%` : 덮개 < 0 ? `밝게 ${Math.round(-덮개 * 100)}%` : '없음');
+    설정('r-zoom', 확대에서막대(bg.확대), Math.round((bg.확대 || 1) * 100) + '%');
+    $('r-zoom').setAttribute('aria-valuetext', Math.round((bg.확대 || 1) * 100) + '%');
+    const 덮개 = Number(bg.어둡게) || 0;   // 저장값은 + = 어둡게. 막대는 오른쪽(+)이 밝게라서 부호를 뒤집어 보여준다
+    설정('r-dark', -덮개 || 0, 부호값(Math.round(-덮개 * 100)));
+    $('r-dark').setAttribute('aria-valuetext', 덮개 > 0 ? `어둡게 ${Math.round(덮개 * 100)}%` : 덮개 < 0 ? `밝게 ${Math.round(-덮개 * 100)}%` : '없음');
     $('fill-wrap').hidden = !((bg.확대 || 1) < 1);
     $('fill').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.fill === (bg.채우기 || ''))));
     const 그늘 = (장.그늘 && 장.그늘.끝불투명도) || 0;
-    설정('r-shade', 그늘, Math.round(그늘 * 100) + '%');
+    설정('r-shade', -그늘 || 0, 부호값(Math.round(-그늘 * 100)));
+    $('r-shade').setAttribute('aria-valuetext', 그늘 > 0 ? `어둡게 ${Math.round(그늘 * 100)}%` : 그늘 < 0 ? `밝게 ${Math.round(-그늘 * 100)}%` : '없음');   // 저장값 + = 어둡게 → 막대는 뒤집어서
     배경목록(); 영상정보(); 사진상태();
   }
   function 사진상태() {
@@ -1612,15 +1639,18 @@
       el.innerHTML = 목록.map(c => `<button type="button" data-c="${c}" style="background:${c}" aria-label="${c}"></button>`).join('');
       el.querySelectorAll('button').forEach(b => b.addEventListener('click', () => 변경(() => { const bx = 상자(); bx.블록[키] = b.dataset.c; if (키 === '강조색' && !bx.블록.강조줄) bx.블록.강조줄 = (bx.문구.줄 || []).length; })));
     };
-    색버튼($('sw-main'), 글자색들, '글자색'); 색버튼($('sw-accent'), 강조색들, '강조색');
+    색버튼($('sw-main'), 글자색들, '글자색'); 색버튼($('sw-accent'), 강조색들, '강조색'); 색버튼($('sw-outline'), 테두리색들, '테두리색');
+    // 테두리 색: 목록에 없는 색은 직접 고른다
+    $('sw-outline').insertAdjacentHTML('beforeend', '<label class="sw-pick" title="다른 색 고르기"><input type="color" id="c-outline" aria-label="테두리 색 직접 고르기"></label>');
+    $('c-outline').addEventListener('input', e => 변경(() => { 상자().블록.테두리색 = e.target.value.toUpperCase(); }, 'c-outline'));
     const 슬라이더 = (id, fn) => $(id).addEventListener('input', e => 변경(() => fn(Number(e.target.value)), id));
     슬라이더('r-size', v => { 상자().블록.size = v; });
     슬라이더('r-gap', v => { 상자().블록.줄간격 = v; });
     슬라이더('r-outline', v => { 상자().블록.테두리 = v; });
-    슬라이더('r-zoom', v => { if (현재().배경) 현재().배경.확대 = Math.abs(v - 1) < 0.03 ? 1 : v; });   // 100% 근처는 딱 맞춤
+    슬라이더('r-zoom', v => { if (현재().배경) 현재().배경.확대 = 막대에서확대(v); });
     $('fill').querySelectorAll('button').forEach(x => x.addEventListener('click', () => 변경(() => { const bg = 현재().배경; if (!bg) return; if (x.dataset.fill) bg.채우기 = x.dataset.fill; else delete bg.채우기; })));
-    슬라이더('r-dark', v => { if (현재().배경) 현재().배경.어둡게 = v; });
-    슬라이더('r-shade', v => { 현재().그늘 = { ...(현재().그늘 || { 시작: 0.45 }), 끝불투명도: v }; });
+    슬라이더('r-dark', v => { if (현재().배경) 현재().배경.어둡게 = -v || 0; });
+    슬라이더('r-shade', v => { 현재().그늘 = { ...(현재().그늘 || { 시작: 0.45 }), 끝불투명도: -v || 0 }; });
     $('c-shadow').addEventListener('change', e => 변경(() => { 상자().블록.그림자 = e.target.checked; }));
     $('b-add-line').addEventListener('click', () => 줄추가(true));
     $('box-del').addEventListener('click', () => 상자지우기(상태.상자));
