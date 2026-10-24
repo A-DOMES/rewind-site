@@ -317,6 +317,51 @@
     aside.chat { position: fixed; left: 0; right: 0; bottom: 0; z-index: 70; height: 72vh; height: 72dvh; border-left: 0; border-top: 1px solid var(--line-strong); border-radius: 18px 18px 0 0; box-shadow: 0 -16px 40px rgba(0,0,0,.4); }
   }
   .mdead { display: none; font-size: .78rem; color: var(--ink-dim); text-align: center; }
+
+  /* ===== 편집 화면 디자인: 중립 회색 (시안 A) =====
+   * 사진 색을 정확히 보도록 바탕은 무채색. 사이트 테마가 밝으면 밝은 회색, 어두우면(검정·숲·와인) 진회색.
+   * 주황은 받기·선택·바뀐 값에만. body에 변수를 두어 사이트 테마(theme.js) 위에 덮는다 (편집 화면만 해당) */
+  body {
+    --bg: #ffffff; --bg-raised: #ffffff; --bg-input: #f6f7f9; --line: #e3e5e8; --line-strong: #d0d4d9;
+    --ink: #1d1f23; --ink-dim: #5d636b; --ink-faint: #8f959d; --sel: #eef1f5;
+    --amber: #a8690a; --on-amber: #ffffff; --err: #c4453a; --ok: #3f8f3a; --stage: #eceef1; --work: #eceef1;
+  }
+  html[data-theme="dark"] body, html[data-theme="forest"] body, html[data-theme="wine"] body {
+    --bg: #1b1c1f; --bg-raised: #222327; --bg-input: #2a2c31; --line: #2e3035; --line-strong: #3a3d43;
+    --ink: #ececee; --ink-dim: #a4a8b0; --ink-faint: #6c717a; --sel: #2c2e33;
+    --amber: #f0a81e; --on-amber: #1a1206; --err: #e07a68; --ok: #6fae4a; --stage: #121315; --work: #121315;
+  }
+  @media (prefers-color-scheme: dark) {
+    html:not([data-theme="light"]):not([data-theme="dark"]):not([data-theme="forest"]):not([data-theme="wine"]) body {
+      --bg: #1b1c1f; --bg-raised: #222327; --bg-input: #2a2c31; --line: #2e3035; --line-strong: #3a3d43;
+      --ink: #ececee; --ink-dim: #a4a8b0; --ink-faint: #6c717a; --sel: #2c2e33;
+      --amber: #f0a81e; --on-amber: #1a1206; --err: #e07a68; --ok: #6fae4a; --stage: #121315; --work: #121315;
+    }
+  }
+  /* 머리: 정보는 글씨로만, 버튼은 받기 하나만 강조 */
+  .crumb-back { border: 0; padding: 0 6px; }
+  .crumb-new { border: 0; color: var(--ink-dim); padding: 0 8px; }
+  .crumb-new:hover { color: var(--ink); background: var(--sel); }
+  .pill { border: 0; padding: 0 6px; }
+  .pill b { color: var(--ink); }
+  .pill.soon { border: 0; color: var(--amber); font-weight: 600; }
+  /* 작업 공간: 회색 바탕 위에 썸네일만 떠 보이게 */
+  .work { background: var(--work); }
+  .stage { background: transparent; border: 0; }
+  .frame { box-shadow: 0 18px 48px rgba(0,0,0,.28); }
+  .tip b { color: var(--ink-dim); }
+  /* 왼쪽 메뉴: 이름은 한 단어, 고른 메뉴는 왼쪽 막대로 */
+  .tab .t-long { display: none; }
+  .tab svg.i { width: 24px; height: 24px; }
+  .tab[aria-selected="true"] { font-weight: 600; }
+  .card svg.i { stroke: var(--ink-dim); }
+  .card:hover:not(:disabled) { border-color: var(--ink-faint); background: var(--sel); }
+  @media (min-width: 901px) {
+    .app { grid-template-columns: 76px 330px minmax(0, 1fr); }
+    .tab { padding: 12px 2px; font-size: .76rem; }
+    .tab[aria-selected="true"]::before { content: ''; position: absolute; left: -8px; top: 14px; bottom: 14px; width: 3px; border-radius: 0 3px 3px 0; background: var(--amber); }
+    .toast { top: 130px; bottom: auto; }   /* 알림은 위쪽 가운데 (아래 썸네일 목록을 가리지 않게) */
+  }
 </style>
 <script src="./theme.js"></script>
 <script src="./assets/rw-consent.js"></script>
