@@ -114,9 +114,16 @@
       ctx.fillRect(0, 시작, W, H - 시작);
     }
 
+    // 도형: 층이 '뒤'인 것은 글씨 아래, 그 밖(앞)은 글씨 위에 그린다
+    const 도형들 = Array.isArray(장.도형) ? 장.도형 : [];
+    도형들.forEach(d => { if (d && d.층 === '뒤') 도형그리기(ctx, d); });
+
     // 글씨
     (장.글씨 || []).forEach(t => {
       const f = 글꼴목록[t.font] || 글꼴목록['Black Han Sans'];
+      ctx.save();
+      // 회전: 글씨 상자 전체(여러 줄)의 가운데를 축으로 함께 돈다
+      if (t.회전) { ctx.translate(t.중심x, t.중심y); ctx.rotate(t.회전 * Math.PI / 180); ctx.translate(-t.중심x, -t.중심y); }
       ctx.font = `${f.weight} ${t.size}px ${f.css}, 'Noto Sans KR', sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
@@ -135,8 +142,119 @@
       }
       ctx.fillStyle = t.color || '#fff';
       ctx.fillText(t.text, cx, cy);
+      ctx.restore();
     });
+    도형들.forEach(d => { if (d && d.층 !== '뒤') 도형그리기(ctx, d); });
     ctx.restore();
+  }
+
+  /* ---------- 도형 (화살표·동그라미·네모·직선·별·번쩍) ----------
+   * 데이터: 장.도형 = [{ 종류, cx, cy, w, h, 회전(도), 채움('' = 없음), 테두리색, 테두리(px), 투명(10~100), 층('앞'|'뒤') }]
+   * 좌표는 썸네일 틀(설계.캔버스) 기준이라 편집 창·받기·작은 그림이 모두 같은 모양으로 그려진다. 모든 도형은 코드로 직접 그린다(외부 그림 없음). */
+  const 도형틀 = {
+    화살표: { 이름: '화살표', 비율: [0.42, 0.24], 채움: '#FF3B30', 테두리색: '#111111', 테두리비율: 0.011, 층: '앞' },
+    동그라미: { 이름: '동그라미', 비율: [0.36, 0.36], 채움: '', 테두리색: '#FF3B30', 테두리비율: 0.02, 층: '앞' },
+    네모: { 이름: '네모', 비율: [0.55, 0.3], 채움: '', 테두리색: '#FFE14D', 테두리비율: 0.017, 층: '앞' },
+    직선: { 이름: '직선', 비율: [0.45, 0], 채움: '', 테두리색: '#FF3B30', 테두리비율: 0.02, 층: '앞' },
+    별: { 이름: '별', 비율: [0.3, 0.3], 채움: '#FFE14D', 테두리색: '#111111', 테두리비율: 0.009, 층: '앞' },
+    번쩍: { 이름: '번쩍', 비율: [0.38, 0.38], 채움: '#FFE14D', 테두리색: '#111111', 테두리비율: 0.009, 층: '앞' }
+  };
+
+  // 새 도형: 틀 크기의 짧은 쪽을 기준으로 크기·두께를 정한다. 순번만큼 살짝 비켜 놓아 겹쳐 쌓이지 않게 한다
+  function 도형만들기(종류, 캔버스, 순번) {
+    const t = 도형틀[종류]; if (!t) return null;
+    const W = 캔버스.w, H = 캔버스.h, 기준 = Math.min(W, H);
+    const 두께 = Math.max(2, Math.round(기준 * t.테두리비율));
+    const 비껴 = ((순번 || 0) % 6) * 기준 * 0.035;
+    return {
+      종류, cx: Math.round(W / 2 + 비껴), cy: Math.round(H * 0.45 + 비껴),
+      w: Math.round(기준 * t.비율[0]), h: 종류 === '직선' ? 두께 : Math.round(기준 * t.비율[1]), 회전: 0,
+      채움: t.채움, 테두리색: t.테두리색, 테두리: 두께, 투명: 100, 층: t.층
+    };
+  }
+
+  // 다각형 도형(화살표·별·번쩍)의 꼭짓점 (도형 가운데가 원점인 좌표)
+  function 도형꼭짓점(d) {
+    const a = d.w / 2, b = d.h / 2;
+    if (d.종류 === '화살표') {
+      const 머리 = a - Math.min(d.h * 0.6, d.w * 0.6), 몸 = d.h * 0.2;
+      return [[-a, -몸], [머리, -몸], [머리, -b], [a, 0], [머리, b], [머리, 몸], [-a, 몸]];
+    }
+    const 별 = d.종류 === '별', 개수 = 별 ? 10 : 32, out = [];
+    for (let i = 0; i < 개수; i++) {
+      const 각 = -Math.PI / 2 + i * Math.PI * 2 / 개수;
+      const 반지름 = i % 2 === 0 ? 1 : (별 ? 0.42 : (i % 4 === 1 ? 0.7 : 0.78));
+      out.push([Math.cos(각) * 반지름 * a, Math.sin(각) * 반지름 * b]);
+    }
+    return out;
+  }
+
+  function 도형경로(ctx, d) {
+    const a = d.w / 2, b = d.h / 2;
+    ctx.beginPath();
+    if (d.종류 === '동그라미') {
+      ctx.ellipse(0, 0, Math.max(1, a), Math.max(1, b), 0, 0, Math.PI * 2);
+    } else if (d.종류 === '네모') {
+      const r = Math.min(d.w, d.h) * 0.1;
+      ctx.moveTo(-a + r, -b); ctx.lineTo(a - r, -b); ctx.quadraticCurveTo(a, -b, a, -b + r); ctx.lineTo(a, b - r);
+      ctx.quadraticCurveTo(a, b, a - r, b); ctx.lineTo(-a + r, b); ctx.quadraticCurveTo(-a, b, -a, b - r);
+      ctx.lineTo(-a, -b + r); ctx.quadraticCurveTo(-a, -b, -a + r, -b); ctx.closePath();
+    } else if (d.종류 === '직선') {
+      ctx.moveTo(-a, 0); ctx.lineTo(a, 0);
+    } else {
+      도형꼭짓점(d).forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
+      ctx.closePath();
+    }
+  }
+
+  function 도형그리기(ctx, d) {
+    if (!d || !(d.w > 0)) return;
+    ctx.save();
+    ctx.translate(d.cx, d.cy);
+    if (d.회전) ctx.rotate(d.회전 * Math.PI / 180);
+    ctx.globalAlpha = 범위((Number(d.투명) || 100) / 100, 0.1, 1);
+    도형경로(ctx, d);
+    ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.miterLimit = 2;
+    if (d.채움 && d.종류 !== '직선') { ctx.fillStyle = d.채움; ctx.fill(); }
+    const 두께 = d.종류 === '직선' ? Math.max(2, d.테두리 || 2) : (d.테두리 || 0);
+    if (두께 > 0) { ctx.lineWidth = 두께; ctx.strokeStyle = d.테두리색 || '#111'; ctx.stroke(); }
+    ctx.restore();
+  }
+
+  // 점 p를 c를 축으로 deg도 돌린다
+  function 점회전(p, c, deg) {
+    const r = deg * Math.PI / 180, co = Math.cos(r), si = Math.sin(r), x = p.x - c.x, y = p.y - c.y;
+    return { x: c.x + x * co - y * si, y: c.y + x * si + y * co };
+  }
+
+  // 점 p(틀 좌표)가 도형을 눌렀는지. 속이 빈 동그라미·네모·직선은 선 근처만 눌린 것으로 본다(안쪽을 끌면 배경이 움직이게)
+  function 도형맞음(d, p, 여유) {
+    const q = 점회전(p, { x: d.cx, y: d.cy }, -(d.회전 || 0)), x = q.x - d.cx, y = q.y - d.cy, e = 여유 || 0;
+    const a = d.w / 2, b = d.h / 2, 띠 = Math.max((d.테두리 || 0) / 2, 8) + e;
+    if (d.종류 === '직선') return Math.abs(x) <= a + e && Math.abs(y) <= Math.max((d.테두리 || 2) / 2, 8) + e;
+    if (d.종류 === '동그라미') {
+      const f = (x / Math.max(1, a)) ** 2 + (y / Math.max(1, b)) ** 2 - 1;
+      if (d.채움 && f <= 0) return true;
+      // 타원까지의 대략적인 거리 = |f| / |기울기| (길쭉한 타원도 끝 쪽에서 과하게 넓어지지 않는다)
+      const 기울기 = Math.hypot(2 * x / Math.max(1, a * a), 2 * y / Math.max(1, b * b)) || 1;
+      return Math.abs(f) / 기울기 <= 띠;
+    }
+    if (d.종류 === '네모' && !d.채움) {
+      const 안 = Math.abs(x) <= a + e && Math.abs(y) <= b + e;
+      return 안 && (Math.abs(x) >= a - 띠 || Math.abs(y) >= b - 띠);
+    }
+    if (d.종류 === '화살표' || d.종류 === '별' || d.종류 === '번쩍') {   // 모양 안쪽(또는 가장자리 e 이내)만 눌린 것으로 본다
+      const 점 = 도형꼭짓점(d);
+      let 안 = false, 가까움 = Infinity;
+      for (let i = 0, j = 점.length - 1; i < 점.length; j = i++) {
+        const [xi, yi] = 점[i], [xj, yj] = 점[j];
+        if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) 안 = !안;
+        const dx = xj - xi, dy = yj - yi, t = Math.max(0, Math.min(1, ((x - xi) * dx + (y - yi) * dy) / (dx * dx + dy * dy || 1)));
+        가까움 = Math.min(가까움, Math.hypot(x - (xi + t * dx), y - (yi + t * dy)));
+      }
+      return 안 || 가까움 <= e + (d.테두리 || 0) / 2;
+    }
+    return Math.abs(x) <= a + e && Math.abs(y) <= b + e;
   }
 
   /* ---------- 색감(보정): 배경 사진에만 적용. 값이 없거나 모두 0이면 예전과 똑같이 그린다 ----------
@@ -347,7 +465,8 @@
       text, x: Math.round(b.cx - 폭 / 2), y: Math.round(b.y + i * 줄높이), w: 폭, h: 줄높이,
       size: Math.round(b.size), color: (i + 1) === b.강조줄 ? b.강조색 : b.글자색,
       outline: b.테두리색, outlineWidth: Math.round(b.테두리), shadow: !!b.그림자,
-      font: b.글꼴 || 'Black Han Sans', weight: (글꼴목록[b.글꼴] || 글꼴목록['Black Han Sans']).weight, align: 'center', 상자: 상자번호 || 0
+      font: b.글꼴 || 'Black Han Sans', weight: (글꼴목록[b.글꼴] || 글꼴목록['Black Han Sans']).weight, align: 'center', 상자: 상자번호 || 0,
+      회전: 범위(Number(b.회전) || 0, -180, 180), 중심x: b.cx, 중심y: b.y + 줄.length * 줄높이 / 2
     }));
   }
 
@@ -382,6 +501,6 @@
 
   function 범위(v, a, b) { return Math.min(b, Math.max(a, isFinite(v) ? v : a)); }
 
-  global.RewindThumb = { 글꼴목록, 글꼴준비, 이미지불러오기, 배경주소, 배경배치, 영역변환, 그리기, 줄너비, 상자목록, 상자글씨, 블록에서글씨, 블록채우기, 파일로,
+  global.RewindThumb = { 도형틀, 도형만들기, 도형그리기, 도형맞음, 점회전, 글꼴목록, 글꼴준비, 이미지불러오기, 배경주소, 배경배치, 영역변환, 그리기, 줄너비, 상자목록, 상자글씨, 블록에서글씨, 블록채우기, 파일로,
     보정키, 보정프리셋, 보정값, 보정이미지 };
 })(window);

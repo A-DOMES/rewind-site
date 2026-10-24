@@ -230,6 +230,20 @@
   .float { position: absolute; z-index: 6; display: flex; gap: 2px; padding: 4px; border-radius: 10px; background: #1e1e1e; border: 1px solid #3a3a3a; box-shadow: 0 8px 24px rgba(0,0,0,.5); line-height: 1.2; pointer-events: auto; transform: translate(-50%, -100%); white-space: nowrap; }
   .float button { border: 0; background: transparent; color: #ddd; font-size: .8rem; padding: 7px 10px; border-radius: 7px; display: inline-flex; align-items: center; gap: 4px; }
   .float button:hover { background: #2c2415; color: #fff; }
+  .sel i[data-h], .sel b.rot { pointer-events: auto; }
+  .sel i[data-h]::after { content: ''; position: absolute; inset: -10px; }
+  .sel.small i[data-h]::after { inset: -3px; }
+  .sel i[data-h="nw"], .sel i[data-h="se"] { cursor: nwse-resize; } .sel i[data-h="ne"], .sel i[data-h="sw"] { cursor: nesw-resize; }
+  .sel i[data-h="n"], .sel i[data-h="s"] { cursor: ns-resize; } .sel i[data-h="e"], .sel i[data-h="w"] { cursor: ew-resize; }
+  .sel b.rot { position: absolute; left: 50%; top: -34px; width: 22px; height: 22px; margin-left: -11px; border-radius: 50%; background: #fff; border: 1.5px solid var(--amber); cursor: grab; display: flex; align-items: center; justify-content: center; color: var(--amber); font-size: 14px; line-height: 1; font-weight: 700; }
+  .sel b.rot::before { content: ''; position: absolute; left: 50%; top: 100%; width: 1.5px; height: 12px; margin-left: -.75px; background: var(--amber); }
+  .sel b.rot::after { content: ''; position: absolute; inset: -9px; }
+  .dz-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .dz-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 10px 4px; min-height: 66px; border: 1px solid var(--line-strong); border-radius: 12px; background: transparent; color: var(--ink-dim); font-size: .8rem; cursor: pointer; }
+  .dz-btn svg { width: 34px; height: 34px; overflow: visible; }
+  .dz-btn:hover:not(:disabled) { border-color: var(--amber); color: var(--ink); }
+  .dz-btn:disabled { opacity: .5; cursor: default; }
+  .sw button.sw-none { background: linear-gradient(135deg, transparent 44%, #e0483a 44%, #e0483a 56%, transparent 56%), var(--bg-raised); }
   .frame.over-text { cursor: grab; } .frame.dragging { cursor: grabbing; } .frame.over-bg { cursor: move; }
   .hide-guides .guide, .hide-guides .face { display: none; }
   .empty-bg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
@@ -423,6 +437,7 @@
     <button class="tab" role="tab" data-tab="style"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg>글씨<span class="t-long"> 꾸미기</span></button>
     <button class="tab" role="tab" data-tab="bg"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 15l5-5 5 5 3-3 5 5"/></svg>배경<span class="t-long"> 장면</span></button>
     <button class="tab" role="tab" data-tab="color"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4v16M5.1 8l13.8 8M5.1 16l13.8-8"/></svg>보정</button>
+    <button class="tab" role="tab" data-tab="shape" aria-selected="false"><svg class="i" viewBox="0 0 24 24"><path d="M12 3.5l2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 17.2 6.6 20.2l1.1-6.1L3.2 9.9l6.1-.8z"/></svg>도형</button>
     <button class="tab help-tab" id="b-help" aria-pressed="false" aria-controls="chat"><svg class="i" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.4"/><circle cx="12" cy="14.6" r=".4" fill="currentColor"/></svg>도움말</button>
   </nav>
 
@@ -458,6 +473,7 @@
       <div class="cardx"><div class="cx-h">크기·간격</div>
         <div class="fld"><div class="lbl"><span>크기</span><output id="o-size"></output></div><input type="range" id="r-size" min="40" max="240" step="1" aria-label="글씨 크기"></div>
         <div class="fld"><div class="lbl"><span>줄 간격</span><output id="o-gap"></output></div><input type="range" id="r-gap" min="0.9" max="1.6" step="0.01" aria-label="줄 간격"></div>
+        <div class="fld"><div class="lbl"><span>회전</span><output id="o-trot"></output></div><input type="range" id="r-trot" min="-180" max="180" step="1" aria-label="글씨 회전 (가운데가 똑바로)"><div class="cg-ends"><span>−</span><span>+</span></div></div>
       </div>
       <div class="cardx"><div class="cx-h">테두리·그림자</div>
         <div class="fld"><div class="lbl"><span>두께</span><output id="o-outline"></output></div><input type="range" id="r-outline" min="0" max="30" step="1" aria-label="테두리 두께"></div>
@@ -501,6 +517,33 @@
         <div class="fld"><div class="lbl"><span>아래 음영</span><output id="o-shade"></output></div><input type="range" id="r-shade" min="-0.85" max="0.85" step="0.01" aria-label="아래 음영 (왼쪽 어둡게, 오른쪽 밝게)"><div class="cg-ends"><span>−</span><span>+</span></div></div>
       </div>
       <button type="button" class="btn block" id="cg-all">이 색감을 모든 썸네일에 적용</button>
+    </section>
+
+
+    <!-- 도형 (화살표·동그라미·네모·직선·별·번쩍) -->
+    <section class="pane" data-pane="shape" hidden>
+      <div><h2>도형</h2><p class="sub">눌러서 넣고, 끌어서 옮기세요. 모서리를 끌면 크기가, 위쪽 동그라미를 끌면 방향이 바뀌어요.</p></div>
+      <div class="cardx"><div class="cx-h">도형 넣기</div>
+        <div class="dz-grid" id="dz-add">
+          <button type="button" class="dz-btn" data-kind="화살표"><svg viewBox="0 0 34 34"><path d="M3 12.5h15V5l13 12-13 12v-7.5H3z" fill="#FF3B30" stroke="#111" stroke-width="1.6" stroke-linejoin="round"/></svg>화살표</button>
+          <button type="button" class="dz-btn" data-kind="동그라미"><svg viewBox="0 0 34 34"><circle cx="17" cy="17" r="12" fill="none" stroke="#FF3B30" stroke-width="4"/></svg>동그라미</button>
+          <button type="button" class="dz-btn" data-kind="네모"><svg viewBox="0 0 34 34"><rect x="5" y="8" width="24" height="18" rx="3" fill="none" stroke="#E8B923" stroke-width="4"/></svg>네모</button>
+          <button type="button" class="dz-btn" data-kind="직선"><svg viewBox="0 0 34 34"><path d="M5 26L29 8" stroke="#FF3B30" stroke-width="4" stroke-linecap="round"/></svg>직선</button>
+          <button type="button" class="dz-btn" data-kind="별"><svg viewBox="0 0 34 34"><path d="M17 3.5l4 8.2 9 1.2-6.6 6.2 1.7 8.9L17 23.5l-8.1 4.5 1.7-8.9L4 12.9l9-1.2z" fill="#FFE14D" stroke="#111" stroke-width="1.6" stroke-linejoin="round"/></svg>별</button>
+          <button type="button" class="dz-btn" data-kind="번쩍"><svg viewBox="0 0 34 34"><path d="M17 2l3 8 7-5-2 8.5 8 .5-7 4.5 5 6.5-8-1.5-1 8-5-6-5 6-1-8-8 1.5 5-6.5-7-4.5 8-.5L7 5l7 5z" fill="#FFE14D" stroke="#111" stroke-width="1.4" stroke-linejoin="round"/></svg>번쩍</button>
+        </div>
+      </div>
+      <p class="hint" id="dz-hint">도형을 넣거나 화면의 도형을 누르면 여기서 꾸밀 수 있어요.</p>
+      <div class="cardx" id="dz-edit" hidden>
+        <div class="cx-h">고른 도형 <small id="dz-name"></small></div>
+        <div class="fld" id="dz-fill-wrap"><div class="lbl">채움 색</div><div class="sw" id="sw-dfill"></div></div>
+        <div class="fld"><div class="lbl" id="dz-line-lbl">테두리 색</div><div class="sw" id="sw-dline"></div></div>
+        <div class="fld"><div class="lbl"><span id="dz-width-lbl">테두리 두께</span><output id="o-dline"></output></div><input type="range" id="r-dline" min="0" max="60" step="1" aria-label="도형 테두리 두께"></div>
+        <div class="fld"><div class="lbl"><span>투명도</span><output id="o-dopa"></output></div><input type="range" id="r-dopa" min="10" max="100" step="1" aria-label="도형 투명도"></div>
+        <div class="fld"><div class="lbl"><span>회전</span><output id="o-drot"></output></div><input type="range" id="r-drot" min="-180" max="180" step="1" aria-label="도형 회전 (가운데가 똑바로)"><div class="cg-ends"><span>−</span><span>+</span></div></div>
+        <div class="fld"><div class="lbl">글씨와 겹칠 때</div><div class="chips" id="dz-layer"><button type="button" class="chip" data-layer="앞">글씨 앞</button><button type="button" class="chip" data-layer="뒤">글씨 뒤</button></div></div>
+        <div class="row-actions"><span class="chips"><button type="button" class="chip" id="dz-up">↑ 위로</button><button type="button" class="chip" id="dz-down">↓ 아래로</button><button type="button" class="chip" id="dz-copy">⧉ 복제</button></span><button type="button" class="chip danger" id="dz-del">🗑 지우기</button></div>
+      </div>
     </section>
 
     <!-- 영상에서 -->
@@ -627,7 +670,7 @@
   const 부호값 = n => (n > 0 ? '+' : '') + (Math.abs(n) < 0.5 ? 0 : n);
 
   const 상태 = {
-    idToken: '', id: '', 제목: '', 설계: null, 자동본: null, 저장본: '', 장: 0, 상자: 0, 탭: 'text', 선택: false,
+    idToken: '', id: '', 제목: '', 설계: null, 자동본: null, 저장본: '', 장: 0, 상자: 0, 도형: -1, 탭: 'text', 선택: false,
     수정횟수: 0, 최대: 10, 유튜브교체: false, 이미지: {}, 기록: [], 되돌림: [], 가이드: true,
     기한: null, 기한지남: false, 저장모양: '', 원모양: '', 사진최대: 3, 저장된지문: [], 사진열림: false, 캡처최대: 5, 캡처횟수: 0, 글자지움최대: 3, 글자지움횟수: 0, 재료: {}
   };
@@ -784,7 +827,7 @@
     const 높이 = 줄수 * bl.size * 간격;
     bl.y = Math.round(Math.max(후.h * 0.02, Math.min(후.h * 0.97 - 높이, 중심 * 후.h - 높이 / 2)));
   }
-  function 장면모양변환(장, 전, 후, 측정) { R.상자목록(장).forEach(b => 상자모양맞춤(b, 전, 후, 측정)); }
+  function 장면모양변환(장, 전, 후, 측정) { R.상자목록(장).forEach(b => 상자모양맞춤(b, 전, 후, 측정)); (장.도형 || []).forEach(d => 도형모양맞춤(d, 전, 후)); }
 
   /* ---------- 불러오기 ---------- */
   async function 시작(idToken) {
@@ -899,7 +942,69 @@
     if (!글씨.length) return null;
     let 폭 = 0; 글씨.forEach(t => { 폭 = Math.max(폭, R.줄너비(ctx, t)); });
     const 줄높이 = Math.round(b.블록.size * (b.블록.줄간격 || 1.15));
-    return { x: b.블록.cx - 폭 / 2, y: b.블록.y, w: 폭, h: (b.문구.줄 || []).length * 줄높이 };
+    return { x: b.블록.cx - 폭 / 2, y: b.블록.y, w: 폭, h: (b.문구.줄 || []).length * 줄높이, 회전: Number(b.블록.회전) || 0 };
+  }
+  // 회전한 사각형 a를 감싸는 바깥 사각형 (넘침·얼굴 겹침 점검용)
+  function 외접(a, deg) {
+    if (!a || !deg) return a;
+    const c = { x: a.x + a.w / 2, y: a.y + a.h / 2 };
+    const ps = [[a.x, a.y], [a.x + a.w, a.y], [a.x, a.y + a.h], [a.x + a.w, a.y + a.h]].map(([x, y]) => R.점회전({ x, y }, c, deg));
+    const xs = ps.map(q => q.x), ys = ps.map(q => q.y), x0 = Math.min(...xs), y0 = Math.min(...ys);
+    return { x: x0, y: y0, w: Math.max(...xs) - x0, h: Math.max(...ys) - y0 };
+  }
+  const 바깥 = a => (a ? 외접(a, a.회전) : a);
+
+  /* ---------- 도형 ---------- */
+  const 도형들 = () => (현재().도형 || []);
+  const 도형 = () => 도형들()[상태.도형] || null;
+  const 최대도형 = 20;
+  const 도형색이름 = { '#FF3B30': '빨강', '#FFE14D': '노랑', '#FFFFFF': '흰색', '#111111': '검정', '#34C759': '초록', '#0A84FF': '파랑', '#FF9F0A': '주황', '#FF2D92': '분홍' };
+  const 도형색들 = ['#FF3B30', '#FFE14D', '#FFFFFF', '#111111', '#34C759', '#0A84FF', '#FF9F0A', '#FF2D92'];
+  function 도형추가(종류) {
+    if (잠김()) return;
+    if (도형들().length >= 최대도형) return 알림(`도형은 한 장에 ${최대도형}개까지 넣을 수 있어요.`);
+    const 장 = 현재();
+    변경(() => {
+      if (!Array.isArray(장.도형)) 장.도형 = [];
+      장.도형.push(R.도형만들기(종류, 상태.설계.캔버스, 장.도형.length));
+      상태.도형 = 장.도형.length - 1; 상태.선택 = false;
+    });
+  }
+  function 도형복제() {
+    const d = 도형(); if (!d || 잠김()) return;
+    if (도형들().length >= 최대도형) return 알림(`도형은 한 장에 ${최대도형}개까지 넣을 수 있어요.`);
+    const 장 = 현재(), { w: W, h: H } = 상태.설계.캔버스, 밀기 = Math.min(W, H) * 0.04;
+    변경(() => {
+      const 새 = 깊은복사(d); 새.cx = Math.min(W, Math.round(d.cx + 밀기)); 새.cy = Math.min(H, Math.round(d.cy + 밀기));
+      장.도형.push(새); 상태.도형 = 장.도형.length - 1;
+    });
+  }
+  function 도형지우기() {
+    if (!도형() || 잠김()) return;
+    const 장 = 현재();
+    변경(() => { 장.도형.splice(상태.도형, 1); if (!장.도형.length) delete 장.도형; 상태.도형 = -1; });
+  }
+  // 위로(+1)/아래로(-1): 같은 층(글씨 앞끼리, 뒤끼리)에서 겹치는 순서를 한 칸 바꾼다
+  function 도형순서(방향) {
+    const d = 도형(); if (!d || 잠김()) return;
+    const 목록 = 현재().도형, 층 = x => (x.층 === '뒤' ? '뒤' : '앞');
+    let j = 상태.도형 + 방향;
+    while (j >= 0 && j < 목록.length && 층(목록[j]) !== 층(d)) j += 방향;
+    if (j < 0 || j >= 목록.length) return;
+    변경(() => { [목록[상태.도형], 목록[j]] = [목록[j], 목록[상태.도형]]; 상태.도형 = j; });
+  }
+  function 도형색바꾸기() {
+    const d = 도형(); if (!d || 잠김()) return;
+    const 키 = (d.채움 && d.종류 !== '직선') ? '채움' : '테두리색';
+    const i = 도형색들.findIndex(c => c.toUpperCase() === String(d[키]).toUpperCase());
+    변경(() => { d[키] = 도형색들[(i + 1) % 도형색들.length]; });
+  }
+  // 도형 하나를 새 틀 모양으로 옮긴다 (썸네일 모양을 바꿀 때)
+  function 도형모양맞춤(d, 전, 후) {
+    const kx = 후.w / 전.w, ky = 후.h / 전.h, k = Math.min(kx, ky);
+    d.cx = Math.round(d.cx * kx); d.cy = Math.round(d.cy * ky);
+    d.w = Math.max(8, Math.round(d.w * k)); d.테두리 = Math.max(d.종류 === '직선' ? 2 : 0, Math.round((d.테두리 || 0) * k));
+    d.h = d.종류 === '직선' ? d.테두리 : Math.max(8, Math.round(d.h * k));
   }
   function 얼굴영역(장) { return (장.얼굴 || []).map(f => R.영역변환(상태.설계, 장, 배경이미지(장), f)); }
   const 겹침 = (a, f) => Math.max(0, Math.min(a.x + a.w, f.x + f.w) - Math.max(a.x, f.x)) * Math.max(0, Math.min(a.y + a.h, f.y + f.h) - Math.max(a.y, f.y)) > 0;
@@ -907,20 +1012,22 @@
 
   function 덧그림() {
     const 장 = 현재(), { w: W, h: H } = 상태.설계.캔버스, s = 상태.화면배율;
-    const 얼굴 = 얼굴영역(장), 영역들 = 상자들().map(상자영역);
+    const 얼굴 = 얼굴영역(장), 영역들 = 상자들().map(상자영역), 바깥들 = 영역들.map(바깥);
     let html = `<div class="guide" style="top:${(H * 0.5 * s).toFixed(1)}px"><span>화면 절반</span></div>`;
-    얼굴.forEach(f => { html += `<div class="face${영역들.some(a => a && 겹침(a, f)) ? ' hit' : ''}" style="left:${f.x * s}px;top:${f.y * s}px;width:${f.w * s}px;height:${f.h * s}px"></div>`; });
+    얼굴.forEach(f => { html += `<div class="face${바깥들.some(a => a && 겹침(a, f)) ? ' hit' : ''}" style="left:${f.x * s}px;top:${f.y * s}px;width:${f.w * s}px;height:${f.h * s}px"></div>`; });
     let 떠있는 = '';
     영역들.forEach((a, i) => {
       if (!a) return;
       const 고름 = 상태.선택 && i === 상태.상자;
-      const bad = 얼굴.some(f => 겹침(a, f)) || 넘침(a, W, H);
+      const 밖 = 바깥들[i], bad = 얼굴.some(f => 겹침(밖, f)) || 넘침(밖, W, H), 잠금 = 잠김();
       const cls = 'sel' + (bad ? ' bad' : '') + (고름 || bad ? ' on' : '');
       const L = a.x * s - 8, T = a.y * s - 6, Wd = a.w * s + 16, Hd = a.h * s + 12;
-      html += `<div class="${cls}" style="left:${L.toFixed(1)}px;top:${T.toFixed(1)}px;width:${Wd.toFixed(1)}px;height:${Hd.toFixed(1)}px">${고름 ? '<i style="left:-6px;top:-6px"></i><i style="right:-6px;top:-6px"></i><i style="left:-6px;bottom:-6px"></i><i style="right:-6px;bottom:-6px"></i>' : ''}</div>`;
-      if (고름 && !잠김()) {
-        const fx = Math.min(Math.max(L + Wd / 2, 150), W * s - 150);
-        const 위 = T - 8 > 46, fy = 위 ? T - 8 : T + Hd + 52;
+      const 돌림 = a.회전 ? `;transform:rotate(${a.회전}deg)` : '';
+      html += `<div class="${cls}" style="left:${L.toFixed(1)}px;top:${T.toFixed(1)}px;width:${Wd.toFixed(1)}px;height:${Hd.toFixed(1)}px${돌림}">${고름 ? '<i style="left:-6px;top:-6px"></i><i style="right:-6px;top:-6px"></i><i style="left:-6px;bottom:-6px"></i><i style="right:-6px;bottom:-6px"></i>' + (잠금 ? '' : '<b class="rot" data-h="rot" title="끌면 돌아가요"></b>') : ''}</div>`;
+      if (고름 && !잠금) {
+        const B = 외접({ x: L, y: T, w: Wd, h: Hd }, a.회전);
+        const fx = Math.min(Math.max(B.x + B.w / 2, 150), W * s - 150);
+        const 위 = B.y - 42 > 46, fy = 위 ? B.y - 42 : B.y + B.h + 52;
         
         떠있는 = `<div class="float" style="left:${fx}px;top:${fy}px">
           <button data-f="text" type="button">✎ 문구</button>
@@ -936,6 +1043,24 @@
       }
     });
     html += 떠있는;
+    const 고른도형 = 도형();
+    if (고른도형) {
+      const d = 고른도형, 선 = d.종류 === '직선', 잠금 = 잠김();
+      const bw = d.w * s, bh = 선 ? Math.max(d.h * s, 8) : d.h * s;
+      const 자리 = { nw: 'left:-6px;top:-6px', n: 'left:calc(50% - 5px);top:-6px', ne: 'right:-6px;top:-6px', e: 'right:-6px;top:calc(50% - 5px)', se: 'right:-6px;bottom:-6px', s: 'left:calc(50% - 5px);bottom:-6px', sw: 'left:-6px;bottom:-6px', w: 'left:-6px;top:calc(50% - 5px)' };
+      const 작음 = Math.min(bw, bh) < 56, 키들 = 선 ? ['w', 'e'] : (작음 ? ['nw', 'ne', 'se', 'sw'] : Object.keys(자리));
+      const 손 = 잠금 ? '' : 키들.map(k => `<i data-h="${k}" style="${자리[k]}"></i>`).join('') + '<b class="rot" data-h="rot" title="끌면 돌아가요"></b>';
+      html += `<div class="sel on${작음 ? ' small' : ''}" style="left:${(d.cx * s - bw / 2).toFixed(1)}px;top:${(d.cy * s - bh / 2).toFixed(1)}px;width:${bw.toFixed(1)}px;height:${bh.toFixed(1)}px${d.회전 ? `;transform:rotate(${d.회전}deg)` : ''}">${손}</div>`;
+      if (!잠금) {
+        const B = 외접({ x: d.cx * s - bw / 2, y: d.cy * s - bh / 2, w: bw, h: bh }, d.회전);
+        const fx = Math.min(Math.max(B.x + B.w / 2, 110), W * s - 110), 아래 = B.y + B.h + 52 < H * s + 20;
+        html += `<div class="float" style="left:${fx}px;top:${아래 ? B.y + B.h + 52 : Math.max(B.y - 42, 52)}px">
+          <button data-f="dz-copy" type="button">⧉ 복제</button>
+          <button data-f="dz-color" type="button">🎨 색</button>
+          <button data-f="dz-del" type="button" aria-label="이 도형 지우기">🗑</button>
+        </div>`;
+      }
+    }
     if (!장.배경) html += `<div class="empty-bg"><button class="btn small primary" data-go="bg" type="button">배경 장면 고르기</button></div>`;
     $('ov').innerHTML = html;
     $('frame').classList.toggle('hide-guides', !상태.가이드);
@@ -955,6 +1080,9 @@
   }
 
   function 떠있는도구(f) {
+    if (f === 'dz-copy') return 도형복제();
+    if (f === 'dz-del') return 도형지우기();
+    if (f === 'dz-color') return 도형색바꾸기();
     const b = 상자();
     if (f === 'text') { 
       탭열기('text'); 
@@ -1009,7 +1137,7 @@
           if (a && !막힌곳.some(f => 겹침({ x: a.x - 8, y: a.y - 8, w: a.w + 16, h: a.h + 16 }, f))) break;
         }
       }
-      상태.선택 = true;
+      상태.선택 = true; 상태.도형 = -1;
     });
     탭열기('text');
     const i = $('lines').querySelector('input'); if (i && !복제) { i.focus(); i.select(); }
@@ -1027,7 +1155,7 @@
   function 문제목록() {
     const 장 = 현재(), { w: W, h: H } = 상태.설계.캔버스, out = [];
     if (사진없음(장)) out.push({ 종류: '사진', 막음: true, 글: '이 썸네일은 내 사진을 썼어요. "내 사진"에서 같은 사진을 다시 골라야 받을 수 있어요.' });
-    const 모음 = 상자들(), 영역들 = 모음.map(상자영역), 얼굴 = 얼굴영역(장);
+    const 모음 = 상자들(), 영역들 = 모음.map(b => 바깥(상자영역(b))), 얼굴 = 얼굴영역(장);
     const 이름 = i => 모음.length > 1 ? `글씨 상자 ${i + 1}` : '글씨';
     if (!영역들[0]) out.push({ 종류: '빈문구', 막음: true, 글: '첫 번째 문구가 비어 있어요. 한 줄 이상 적어주세요.' });
     const 가린 = new Set();
@@ -1097,7 +1225,7 @@
   }
 
   /* ---------- 변경·기록 ---------- */
-  const 장요약 = s => ({ 블록: s.블록, 문구: s.문구 && s.문구.줄, 추가: (s.추가상자 || []).map(b => ({ 블록: b.블록, 줄: b.문구 && b.문구.줄 })), 배경: s.배경, 그늘: s.그늘, 얼굴: s.얼굴 });
+  const 장요약 = s => ({ 블록: s.블록, 문구: s.문구 && s.문구.줄, 추가: (s.추가상자 || []).map(b => ({ 블록: b.블록, 줄: b.문구 && b.문구.줄 })), 배경: s.배경, 그늘: s.그늘, 얼굴: s.얼굴, 도형: s.도형 });
   function 스냅샷() { return JSON.stringify(상태.설계.장면.map(장요약)); }
   const 수정됨 = () => 스냅샷() !== 상태.저장본 || 현재모양키() !== 상태.저장모양;
   function 변경(fn, 묶음키) {
@@ -1115,7 +1243,7 @@
     const 출발 = 앞으로 ? 상태.되돌림 : 상태.기록, 도착 = 앞으로 ? 상태.기록 : 상태.되돌림;
     const 항목 = 출발.pop(); if (!항목) return;
     도착.push({ 장면: JSON.stringify(상태.설계.장면), 장: 상태.장, t: 0, 캔: JSON.stringify(상태.설계.캔버스) });
-    상태.설계.장면 = JSON.parse(항목.장면); 상태.장 = 항목.장; 상태.선택 = false;
+    상태.설계.장면 = JSON.parse(항목.장면); 상태.장 = 항목.장; 상태.선택 = false; 상태.도형 = -1;
     if (항목.캔 && 항목.캔 !== JSON.stringify(상태.설계.캔버스)) { 상태.설계.캔버스 = JSON.parse(항목.캔); 크기맞추기(); 배경목록(); 모양버튼그리기(); }
     if (상태.상자 >= 상자들().length) 상태.상자 = 0;
     그리기(); 입력반영(); 목록그리기();
@@ -1698,7 +1826,7 @@
       const 이름 = (b.문구.줄 || []).join(' ').trim() || '빈 상자';
       return `<button class="chip box-chip" data-box="${i}" aria-pressed="${i === 상태.상자}" type="button"><b>${i + 1}</b> ${escapeHtml(이름.length > 8 ? 이름.slice(0, 8) + '…' : 이름)}</button>`;
     }).join('') + `<button class="chip add-chip" id="b-add-box" type="button" ${모음.length >= 최대상자 ? 'disabled' : ''}>＋ 글씨 상자</button>`;
-    $('boxes').querySelectorAll('[data-box]').forEach(c => c.addEventListener('click', () => { 상태.상자 = Number(c.dataset.box); 상태.선택 = true; 입력반영(); 덧그림(); }));
+    $('boxes').querySelectorAll('[data-box]').forEach(c => c.addEventListener('click', () => { 상태.상자 = Number(c.dataset.box); 상태.선택 = true; 상태.도형 = -1; 입력반영(); 덧그림(); }));
     $('b-add-box').addEventListener('click', () => 상자추가(false));
     $('box-del').hidden = 상태.상자 === 0;
     $('box-title').textContent = 모음.length > 1 ? `글씨 상자 ${상태.상자 + 1}` : '문구';
@@ -1761,6 +1889,8 @@
     설정('r-size', b.size, Math.round(b.size) + 'px');
     설정('r-gap', b.줄간격 || 1.15, (b.줄간격 || 1.15).toFixed(2));
     설정('r-outline', b.테두리, Math.round(b.테두리) + 'px');
+    설정('r-trot', Math.round(Number(b.회전) || 0), Math.round(Number(b.회전) || 0) + '°');
+    도형패널();
     $('c-shadow').checked = !!b.그림자;
     $('sw-main').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.c.toUpperCase() === String(b.글자색).toUpperCase())));
     $('sw-accent').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.c.toUpperCase() === String(b.강조색).toUpperCase())));
@@ -1777,6 +1907,30 @@
     $('r-shade').setAttribute('aria-valuetext', 그늘 > 0 ? `어둡게 ${Math.round(그늘 * 100)}%` : 그늘 < 0 ? `밝게 ${Math.round(-그늘 * 100)}%` : '없음');   // 저장값 + = 어둡게 → 막대는 뒤집어서
     배경목록(); 영상정보(); 사진상태(); 사진보관그리기();
   }
+  /* ---------- 도형 패널 (고른 도형의 색·두께·투명도·회전·순서) ---------- */
+  function 도형패널() {
+    const d = 도형();
+    $('dz-hint').hidden = !!d; $('dz-edit').hidden = !d;
+    if (!d) return;
+    const 선 = d.종류 === '직선';
+    $('dz-name').textContent = R.도형틀[d.종류].이름;
+    $('dz-fill-wrap').hidden = 선;
+    $('dz-line-lbl').textContent = 선 ? '색' : '테두리 색';
+    $('dz-width-lbl').textContent = 선 ? '굵기' : '테두리 두께';
+    const 같음 = (a, b) => String(a || '').toUpperCase() === String(b || '').toUpperCase();
+    $('sw-dfill').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(same채움(x, d))));
+    $('sw-dline').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(같음(x.dataset.c, d.테두리색))));
+    $('c-dfill').value = /^#[0-9a-f]{6}$/i.test(d.채움 || '') ? d.채움.toLowerCase() : '#ff3b30';
+    $('c-dline').value = /^#[0-9a-f]{6}$/i.test(d.테두리색 || '') ? d.테두리색.toLowerCase() : '#111111';
+    const 값 = (id, v, 글) => { $(id).value = v; $('o-' + id.slice(2)).textContent = 글; };
+    $('r-dline').min = 선 ? 2 : 0;
+    값('r-dline', d.테두리 || 0, Math.round(d.테두리 || 0) + 'px');
+    값('r-dopa', Number(d.투명) || 100, (Number(d.투명) || 100) + '%');
+    값('r-drot', Math.round(d.회전 || 0), Math.round(d.회전 || 0) + '°');
+    $('dz-layer').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.layer === (d.층 === '뒤' ? '뒤' : '앞'))));
+  }
+  const same채움 = (x, d) => (x.dataset.none ? !d.채움 : String(x.dataset.c).toUpperCase() === String(d.채움 || '').toUpperCase());
+
   function 사진상태() {
     const n = 쓰는지문().size;
     document.querySelectorAll('.src-lock').forEach(x => { x.style.display = 상태.사진열림 ? 'none' : ''; });
@@ -1966,6 +2120,24 @@
     슬라이더('r-size', v => { 상자().블록.size = v; });
     슬라이더('r-gap', v => { 상자().블록.줄간격 = v; });
     슬라이더('r-outline', v => { 상자().블록.테두리 = v; });
+    슬라이더('r-trot', v => { const bl = 상자().블록; if (v) bl.회전 = v; else delete bl.회전; });
+    // 도형: 넣기 · 색 · 두께 · 투명도 · 회전 · 순서 · 복제 · 지우기
+    document.querySelectorAll('#dz-add .dz-btn').forEach(b => b.addEventListener('click', () => 도형추가(b.dataset.kind)));
+    $('sw-dfill').innerHTML = 도형색들.map(c => `<button type="button" data-c="${c}" style="background:${c}" aria-label="채움 색 ${도형색이름[c] || ''}"></button>`).join('')
+      + '<button type="button" class="sw-none" data-none="1" aria-label="채움 없음" title="채움 없음"></button>'
+      + '<label class="sw-pick" title="다른 색 고르기"><input type="color" id="c-dfill" aria-label="채움 색 직접 고르기"></label>';
+    $('sw-dline').innerHTML = 도형색들.map(c => `<button type="button" data-c="${c}" style="background:${c}" aria-label="테두리 색 ${도형색이름[c] || ''}"></button>`).join('')
+      + '<label class="sw-pick" title="다른 색 고르기"><input type="color" id="c-dline" aria-label="테두리 색 직접 고르기"></label>';
+    $('sw-dfill').querySelectorAll('button').forEach(b => b.addEventListener('click', () => 변경(() => { const d = 도형(); if (d) d.채움 = b.dataset.none ? '' : b.dataset.c; })));
+    $('sw-dline').querySelectorAll('button').forEach(b => b.addEventListener('click', () => 변경(() => { const d = 도형(); if (d) d.테두리색 = b.dataset.c; })));
+    $('c-dfill').addEventListener('input', e => 변경(() => { const d = 도형(); if (d) d.채움 = e.target.value.toUpperCase(); }, 'c-dfill'));
+    $('c-dline').addEventListener('input', e => 변경(() => { const d = 도형(); if (d) d.테두리색 = e.target.value.toUpperCase(); }, 'c-dline'));
+    슬라이더('r-dline', v => { const d = 도형(); if (!d) return; d.테두리 = v; if (d.종류 === '직선') d.h = v; });
+    슬라이더('r-dopa', v => { const d = 도형(); if (d) d.투명 = v; });
+    슬라이더('r-drot', v => { const d = 도형(); if (d) d.회전 = v; });
+    $('dz-layer').querySelectorAll('button').forEach(b => b.addEventListener('click', () => 변경(() => { const d = 도형(); if (d) d.층 = b.dataset.layer; })));
+    $('dz-up').addEventListener('click', () => 도형순서(1)); $('dz-down').addEventListener('click', () => 도형순서(-1));
+    $('dz-copy').addEventListener('click', 도형복제); $('dz-del').addEventListener('click', 도형지우기);
     슬라이더('r-zoom', v => { if (현재().배경) 현재().배경.확대 = 막대에서확대(v); });
     $('fill').querySelectorAll('button').forEach(x => x.addEventListener('click', () => 변경(() => { const bg = 현재().배경; if (!bg) return; if (x.dataset.fill) bg.채우기 = x.dataset.fill; else delete bg.채우기; })));
     슬라이더('r-shade', v => { 현재().그늘 = { ...(현재().그늘 || { 시작: 0.45 }), 끝불투명도: -v || 0 }; });
@@ -1973,6 +2145,7 @@
     $('b-add-line').addEventListener('click', () => 줄추가(true));
     $('box-del').addEventListener('click', () => 상자지우기(상태.상자));
     document.addEventListener('keydown', e => {
+      if ((e.key === 'Delete' || e.key === 'Backspace') && 상태.도형 >= 0 && !/INPUT|TEXTAREA/.test(document.activeElement.tagName) && !잠김() && !document.querySelector('dialog[open]')) { e.preventDefault(); 도형지우기(); return; }
       if ((e.key === 'Delete' || e.key === 'Backspace') && 상태.선택 && 상태.상자 > 0 && !/INPUT|TEXTAREA/.test(document.activeElement.tagName) && !잠김()) { e.preventDefault(); 상자지우기(상태.상자); }
     });
     $('pos').querySelectorAll('button').forEach(b => b.addEventListener('click', () => 변경(() => 위치정하기(b.dataset.pos))));
@@ -2035,7 +2208,7 @@
     $('dlg-cancel').addEventListener('click', () => $('dlg-save').close());
     끌기설정();
     window.addEventListener('resize', () => { 크기맞추기(); 그리기(); });
-    setInterval(() => { 기한표시(); 버튼상태(); }, 60000);
+    setInterval(() => { 기한표시(); 버튼상태(); 덧그림(); }, 60000);
   }
 
   /* ---------- 끌기 ---------- */
@@ -2043,17 +2216,24 @@
     const fr = $('frame');
     let 끌기 = null, 움직임 = 0;
     const 좌표 = e => { const r = fr.getBoundingClientRect(), s = 상태.화면배율; return { x: (e.clientX - r.left) / s, y: (e.clientY - r.top) / s }; };
-    const 누른상자 = p => {
-      const 모음 = 상자들();
-      for (let i = 모음.length - 1; i >= 0; i--) {
-        const a = 상자영역(모음[i]);
-        if (a && p.x >= a.x - 12 && p.x <= a.x + a.w + 12 && p.y >= a.y - 12 && p.y <= a.y + a.h + 12) return i;
-      }
-      return -1;
+    const 글맞음 = (b, p) => {
+      const a = 상자영역(b); if (!a) return false;
+      const q = a.회전 ? R.점회전(p, { x: a.x + a.w / 2, y: a.y + a.h / 2 }, -a.회전) : p;
+      return q.x >= a.x - 12 && q.x <= a.x + a.w + 12 && q.y >= a.y - 12 && q.y <= a.y + a.h + 12;
     };
+    // 눌린 것: 글씨 앞 도형 → 글씨 상자 → 글씨 뒤 도형 순서(그려진 순서의 반대)
+    const 누른것 = p => {
+      const 모음 = 상자들(), 도 = 도형들();
+      for (let i = 도.length - 1; i >= 0; i--) if (도[i].층 !== '뒤' && R.도형맞음(도[i], p, 8)) return { 종류: 'shape', i };
+      for (let i = 모음.length - 1; i >= 0; i--) if (글맞음(모음[i], p)) return { 종류: 'text', i };
+      for (let i = 도.length - 1; i >= 0; i--) if (도[i].층 === '뒤' && R.도형맞음(도[i], p, 8)) return { 종류: 'shape', i };
+      return null;
+    };
+    const 손잡이 = { nw: [-1, -1], n: [0, -1], ne: [1, -1], e: [1, 0], se: [1, 1], s: [0, 1], sw: [-1, 1], w: [-1, 0] };
+    const 최소크기 = 24;
     fr.addEventListener('pointermove', e => {
       const p = 좌표(e);
-      if (!끌기) { const i = 누른상자(p); fr.classList.toggle('over-text', i >= 0); fr.classList.toggle('over-bg', i < 0 && !!현재().배경); return; }
+      if (!끌기) { const 눌 = e.target.closest('[data-h]') ? null : 누른것(p); fr.classList.toggle('over-text', !!눌); fr.classList.toggle('over-bg', !눌 && !!현재().배경 && !e.target.closest('[data-h]')); return; }
       움직임 += Math.abs(e.movementX) + Math.abs(e.movementY);
       if (잠김()) return;
       const 장 = 현재(), { w: W, h: H } = 상태.설계.캔버스;
@@ -2063,35 +2243,84 @@
           let cx = 끌기.cx + (p.x - 끌기.x);
           if (Math.abs(cx - W / 2) < W * 0.02) cx = W / 2;
           b.블록.cx = Math.round(cx); b.블록.y = Math.round(끌기.y0 + (p.y - 끌기.y));
+        } else if (끌기.종류 === 'shape') {
+          const d = 도형들()[끌기.i]; if (!d) return;
+          d.cx = Math.round(Math.min(W, Math.max(0, 끌기.cx0 + (p.x - 끌기.x))));
+          d.cy = Math.round(Math.min(H, Math.max(0, 끌기.cy0 + (p.y - 끌기.y))));
+        } else if (끌기.종류 === 'rot') {
+          // 가운데에서 포인터가 있는 쪽을 위(0도)로 본다. 15도 단위에 가까우면 달라붙는다
+          let deg = Math.atan2(p.y - 끌기.c.y, p.x - 끌기.c.x) * 180 / Math.PI + 90;
+          deg = ((deg + 540) % 360) - 180;
+          const 맞춤 = Math.round(deg / 15) * 15;
+          if (Math.abs(deg - 맞춤) < 4) deg = 맞춤;
+          deg = Math.round(deg);
+          if (끌기.대상 === 'shape') { const d = 도형들()[끌기.i]; if (d) d.회전 = deg; }
+          else { const b = 상자들()[끌기.i]; if (b) { if (deg) b.블록.회전 = deg; else delete b.블록.회전; } }
+        } else if (끌기.종류 === 'size') {
+          const d = 도형들()[끌기.i]; if (!d) return;
+          const [sx, sy] = 손잡이[끌기.손], o = 끌기.d0, A = 끌기.앵커;
+          const q = R.점회전(p, A, -o.회전), dx = q.x - A.x, dy = q.y - A.y;   // 앵커(반대쪽 모서리) 기준, 도형 축 방향 좌표
+          let w = o.w, h = o.h;
+          if (sx && sy) { const k = Math.max(sx * dx / o.w, sy * dy / o.h, 최소크기 / Math.min(o.w, o.h)); w = o.w * k; h = o.h * k; }
+          else if (sx) w = Math.max(최소크기, sx * dx);
+          else if (sy) h = Math.max(최소크기, sy * dy);
+          const 중심 = R.점회전({ x: A.x + sx * w / 2, y: A.y + sy * h / 2 }, A, o.회전);
+          d.w = Math.round(w); d.h = d.종류 === '직선' ? d.h : Math.round(h); d.cx = Math.round(중심.x); d.cy = Math.round(중심.y);
         } else if (장.배경 && 끌기.img) {
           const img = 끌기.img, sc = Math.max(W / img.naturalWidth, H / img.naturalHeight) * (장.배경.확대 || 1);
           const 남w = img.naturalWidth * sc - W, 남h = img.naturalHeight * sc - H;
           if (Math.abs(남w) > 1) 장.배경.초점x = Math.min(1, Math.max(0, 끌기.fx - (p.x - 끌기.x) / 남w));
           if (Math.abs(남h) > 1) 장.배경.초점y = Math.min(1, Math.max(0, 끌기.fy - (p.y - 끌기.y) / 남h));
         }
-      }, 'drag-' + 끌기.종류 + (끌기.상자 ?? ''));
+      }, 'drag-' + 끌기.종류 + (끌기.상자 ?? 끌기.i ?? ''));
     });
+    // 선택이 바뀌면 오른쪽 패널도 맞춘다. 도형을 고르면 (넓은 화면에서만) "도형" 탭을 열어 바로 꾸밀 수 있게 한다
+    const 글선택 = i => { const 바뀜 = 상태.상자 !== i || 상태.도형 !== -1; 상태.상자 = i; 상태.선택 = true; 상태.도형 = -1; if (바뀜) 입력반영(); };
+    const 도형선택 = i => { const 바뀜 = 상태.도형 !== i || 상태.선택; 상태.도형 = i; 상태.선택 = false; if (바뀜) 입력반영(); if (window.innerWidth > 900 && 상태.탭 !== 'shape') 탭열기('shape'); };
     fr.addEventListener('pointerdown', e => {
       if (e.target.closest('.float, .empty-bg')) return;
-      const p = 좌표(e), 장 = 현재(), i = 누른상자(p);
+      const p = 좌표(e), 장 = 현재();
       움직임 = 0;
-      if (i >= 0) {
-        const b = 상자들()[i];
-        const 바뀜 = 상태.상자 !== i;
-        상태.상자 = i; 상태.선택 = true;
-        끌기 = { 종류: 'text', 상자: i, x: p.x, y: p.y, cx: b.블록.cx, y0: b.블록.y };
-        if (바뀜) 입력반영();
+      const 손 = e.target.closest('[data-h]');
+      if (손) {   // 모서리 손잡이(크기) · 위쪽 동그라미(회전)
+        if (잠김()) return;
+        const k = 손.dataset.h, d = 도형();
+        if (상태.선택 && !d) {
+          const a = 상자영역(상자());
+          if (k === 'rot' && a) 끌기 = { 종류: 'rot', 대상: 'text', i: 상태.상자, c: { x: a.x + a.w / 2, y: a.y + a.h / 2 } };
+        } else if (d) {
+          if (k === 'rot') 끌기 = { 종류: 'rot', 대상: 'shape', i: 상태.도형, c: { x: d.cx, y: d.cy } };
+          else if (손잡이[k]) {
+            const [sx, sy] = 손잡이[k];
+            끌기 = { 종류: 'size', i: 상태.도형, 손: k, d0: { w: d.w, h: d.h, 회전: d.회전 || 0 }, 앵커: R.점회전({ x: d.cx - sx * d.w / 2, y: d.cy - sy * d.h / 2 }, { x: d.cx, y: d.cy }, d.회전 || 0) };
+          }
+        }
+        if (끌기) { fr.setPointerCapture(e.pointerId); fr.classList.add('dragging'); e.preventDefault(); }
+        return;
+      }
+      const 눌 = 누른것(p);
+      if (눌 && 눌.종류 === 'shape') {
+        const d = 도형들()[눌.i];
+        도형선택(눌.i);
+        끌기 = { 종류: 'shape', i: 눌.i, x: p.x, y: p.y, cx0: d.cx, cy0: d.cy };
+      } else if (눌) {
+        const b = 상자들()[눌.i];
+        글선택(눌.i);
+        끌기 = { 종류: 'text', 상자: 눌.i, x: p.x, y: p.y, cx: b.블록.cx, y0: b.블록.y };
       } else {
-        상태.선택 = false;
+        const 있었음 = 상태.선택 || 상태.도형 >= 0;
+        상태.선택 = false; 상태.도형 = -1;
+        if (있었음) 입력반영();
         끌기 = 장.배경 ? { 종류: 'bg', x: p.x, y: p.y, fx: 장.배경.초점x ?? 0.5, fy: 장.배경.초점y ?? 0.5, img: 배경이미지(장) } : null;
       }
       if (끌기) { fr.setPointerCapture(e.pointerId); fr.classList.add('dragging'); e.preventDefault(); }
       덧그림();
     });
     fr.addEventListener('dblclick', e => {
-      if (잠김() || e.target.closest('.float')) return;
-      const p = 좌표(e);
-      if (누른상자(p) >= 0) { 떠있는도구('text'); return; }
+      if (잠김() || e.target.closest('.float, [data-h]')) return;
+      const p = 좌표(e), 눌 = 누른것(p);
+      if (눌 && 눌.종류 === 'text') { 떠있는도구('text'); return; }
+      if (눌) return;
       상자추가(false);
       const b = 상자(); b.블록.y = Math.round(p.y - b.블록.size / 2); b.블록.cx = Math.round(p.x); 맞춤크기(); 그리기();
     });
@@ -2128,7 +2357,7 @@
     });
   }
   async function 장고르기(i) {
-    상태.장 = i; 상태.선택 = false; 상태.상자 = 0;
+    상태.장 = i; 상태.선택 = false; 상태.상자 = 0; 상태.도형 = -1;
     크기맞추기(); 입력반영(); 그리기(); 목록그리기();
     await Promise.all(상태.설계.장면.map(배경준비));
     그리기(); 목록그리기();
