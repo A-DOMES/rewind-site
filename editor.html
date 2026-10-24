@@ -140,6 +140,10 @@
   .cg-row { display: grid; grid-template-columns: 74px minmax(0, 1fr) 54px; align-items: center; gap: 8px; min-height: 34px; }
   .cg-row .cg-name { font-size: .85rem; color: var(--ink-dim); white-space: nowrap; }
   .cg-row .cg-val { justify-content: flex-end; font-size: .85rem; }
+  .cg-curve { display: block; width: 100%; max-width: 260px; aspect-ratio: 1; margin: 0 auto; border-radius: 10px; background: var(--bg-input); border: 1px solid var(--line); touch-action: none; cursor: ns-resize; }
+  .cg-curve:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+  #cg-curve-card .cx-h { display: flex; align-items: center; }
+  .cx-h .cg-one { margin-left: auto; }
   .cg-m { display: none; }
   .cg-chips { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; }
   .cg-chips button { position: relative; flex: none; height: 36px; padding: 0 13px; border-radius: 18px; border: 1px solid var(--line-strong); background: transparent; font-size: .85rem; cursor: pointer; }
@@ -517,8 +521,13 @@
         <div class="cg-chips" id="cg-chips" role="group" aria-label="조절할 항목"></div>
         <div><div class="lbl"><span id="cg-m-name">밝기</span><span class="cg-val"><output id="o-cg-m">0</output><button type="button" class="cg-one" id="cg-m-one" title="처음으로" hidden>↺</button></span></div>
           <input type="range" id="r-cg-m" min="-100" max="100" step="1" value="0" aria-label="밝기">
-          <div class="cg-ends"><span id="cg-m-l"></span><span id="cg-m-r"></span></div></div>
+          <div class="cg-ends"><span id="cg-m-l"></span><span id="cg-m-r"></span></div>
+          <p class="hint" id="cg-m-desc" hidden></p></div>
       </div>
+      <div class="cardx" id="cg-curve-card"><div class="cx-h">곡선 <small>밝기 분포</small><button type="button" class="cg-one" id="cg-curve-reset" aria-label="곡선 처음으로" title="처음으로" hidden>↺</button></div>
+        <canvas id="cg-curve" class="cg-curve" width="240" height="240" tabindex="0" role="group" aria-label="곡선. 왼쪽·오른쪽 화살표로 점을 고르고 위·아래 화살표로 움직여요"></canvas>
+        <div class="cg-ends"><span>어두운 곳</span><span>밝은 곳</span></div>
+        <p class="hint">점을 위로 끌면 그 부분이 밝아지고, 아래로 끌면 어두워져요.</p></div>
       <div class="cardx" id="cg-xform"><div class="cx-h">변형 <small>배경 크기·음영</small></div>
         <div class="fld"><div class="lbl"><span>확대·축소</span><output id="o-zoom"></output></div><input type="range" id="r-zoom" min="-100" max="100" step="1" aria-label="배경 확대·축소 (가운데가 원래 크기)"><div class="cg-ends"><span>−</span><span>+</span></div></div>
         <div class="fld" id="fill-wrap" hidden><div class="lbl"><span>빈 곳 채우기</span></div><div class="chips" id="fill"><button class="chip" type="button" data-fill="">흐리게 (추천)</button><button class="chip" type="button" data-fill="검정">검정</button><button class="chip" type="button" data-fill="흰색">흰색</button></div></div>
@@ -2003,8 +2012,11 @@
     { id: 'color', 이름: '색', 설명: '색온도·색조·채도', 항목: [
       { 키: '색온도', 이름: '색온도', 끝: ['차갑게', '따뜻하게'], 막대: 'cg-temp' }, { 키: '색조', 이름: '색조', 끝: ['초록', '분홍'], 막대: 'cg-tint' },
       { 키: '채도', 이름: '채도', 끝: ['흑백', '진하게'] }] },
-    { id: 'fx', 이름: '효과', 설명: '선명하게·가장자리', 항목: [
-      { 키: '선명', 이름: '선명하게', 끝: ['부드럽게', '선명하게'] }, { 키: '비네팅', 이름: '가장자리', 끝: ['어둡게', '밝게'], 반전: true }] }
+    { id: 'fx', 이름: '효과', 설명: '선명·번짐·입자·가장자리', 항목: [
+      { 키: '선명', 이름: '선명하게', 끝: ['부드럽게', '선명하게'] },
+      { 키: '번짐', 이름: '번짐', 끝: ['흐리게', '빛 번짐'], 설명: '왼쪽은 흐리게, 오른쪽은 밝은 곳이 은은하게 퍼져요' },
+      { 키: '입자', 이름: '입자', 끝: ['매끈하게', '거칠게'], 설명: '왼쪽은 매끈하게, 오른쪽은 필름처럼 거칠게' },
+      { 키: '비네팅', 이름: '가장자리', 끝: ['어둡게', '밝게'], 반전: true }] }
   ];
   const 색감항목들 = () => 색감묶음.flatMap(g => g.항목);
   const 색감배경 = () => 현재().배경 || null;
@@ -2014,6 +2026,7 @@
     const bg = 색감배경(); if (!bg) return;
     const 보정 = { ...(bg.보정 || {}) }; fn(보정);
     R.보정키.forEach(k => { if (!Number(보정[k])) delete 보정[k]; });
+    if (!Array.isArray(보정.곡선) || !보정.곡선.some(x => Number(x))) delete 보정.곡선;
     if (!보정.프리셋) { delete 보정.프리셋; delete 보정.강도; }
     if (Object.keys(보정).length) bg.보정 = 보정; else delete bg.보정;
   }
@@ -2023,11 +2036,11 @@
       .map(([k, 이름]) => `<button type="button" data-preset="${k}" aria-pressed="false"><canvas></canvas><span>${이름}</span></button>`).join('');
     $('cg-groups').innerHTML = 색감묶음.map((g, gi) => `<div class="cg-grp"><button type="button" class="cg-head" data-grp="${g.id}" aria-expanded="true">${g.이름} <small>${g.설명}</small><span class="dot" hidden></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>`
       + `<div class="cg-body" data-body="${g.id}">` + g.항목.map(h => `<div class="cg-row" data-k="${h.키}"><span class="cg-name" title="${h.이름}">${h.짧게 || h.이름}</span>`
-        + `<input type="range" min="-100" max="100" step="1" value="0" class="${h.막대 || ''}" aria-label="${h.이름}" title="${h.이름}">`
+        + `<input type="range" min="-100" max="100" step="1" value="0" class="${h.막대 || ''}" aria-label="${h.이름}" title="${h.설명 || h.이름}">`
         + `<span class="cg-val"><output>0</output><button type="button" class="cg-one" aria-label="${h.이름} 처음으로" title="처음으로" hidden>↺</button></span></div>`).join('') + '</div></div>').join('');
     // 휴대폰: 항목 칩 + 막대 하나 (같은 값을 고친다)
     $('cg-chips').innerHTML = 색감항목들().map(h => `<button type="button" data-chip="${h.키}" aria-pressed="false">${h.이름}</button>`).join('');
-    $('cg-chips').querySelectorAll('button').forEach(b => b.addEventListener('click', () => { 상태.색감항목 = b.dataset.chip; 색감반영(); }));
+    $('cg-chips').querySelectorAll('button').forEach(b => b.addEventListener('click', () => { 상태.색감항목 = b.dataset.chip; 색감반영(); b.scrollIntoView({ inline: 'center', block: 'nearest' }); }));
     const 막대 = $('r-cg-m');
     막대.addEventListener('input', () => { const k = 상태.색감항목 || '밝기', 부 = 색감항목들().find(x => x.키 === k).반전 ? -1 : 1; 상태.보정끄는중 = true; 변경(() => 색감쓰기(o => { o[k] = Number(막대.value) * 부 || 0; }), 'cg-' + k); });
     $('cg-m-one').addEventListener('click', () => { const k = 상태.색감항목 || '밝기'; 변경(() => 색감쓰기(o => { delete o[k]; })); });
@@ -2067,7 +2080,71 @@
     h.addEventListener('keydown', e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); 원본(true); } });
     h.addEventListener('keyup', () => 원본(false));
     h.addEventListener('blur', () => 원본(false));
+    곡선끌기설정();
+    // 테마를 바꾸거나 창 크기가 바뀌면 곡선 그림도 다시 그린다
+    new MutationObserver(곡선그리기).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    if (window.ResizeObserver) new ResizeObserver(곡선그리기).observe($('cg-curve'));
     document.querySelector('.tab[data-tab="color"]').addEventListener('click', () => { 색감카드서명 = ''; 색감반영(); 색감미리보기(); });
+  }
+  // 곡선: 점 3개(어두운 쪽·가운데·밝은 쪽)를 위아래로 끈다. 저장값은 점마다 -100~100 (0이 원래 자리)
+  const 곡선점 = () => { const c = 색감값().곡선; return [0, 1, 2].map(i => Number(c && c[i]) || 0); };
+  const 곡선저장 = (i, d) => 변경(() => 색감쓰기(o => {
+    const 점 = [0, 1, 2].map(k => Number(o.곡선 && o.곡선[k]) || 0), 위치 = k => (k + 1) * 0.25 + 점[k] / 100 * 0.25;
+    점[i] = Math.round(Math.max(-100, Math.min(100, d)));
+    // 앞뒤 점을 넘지 않게(곡선이 거꾸로 꺾이지 않게)
+    const 아래 = i > 0 ? 위치(i - 1) : 0, 위 = i < 2 ? 위치(i + 1) : 1, y = Math.max(아래, Math.min(위, 위치(i)));
+    점[i] = Math.round(Math.max(-100, Math.min(100, (y - (i + 1) * 0.25) / 0.25 * 100)));
+    o.곡선 = 점;
+  }), 'cg-curve');
+  function 곡선그리기() {
+    const c = $('cg-curve'); if (!c) return;
+    const dpr = Math.min(2, window.devicePixelRatio || 1), 크기 = Math.round((c.clientWidth || 240) * dpr);
+    if (!크기 || c.offsetParent === null) return;
+    if (c.width !== 크기) { c.width = 크기; c.height = 크기; }
+    const x = c.getContext('2d'), st = getComputedStyle(c), 선 = st.getPropertyValue('--line-strong').trim() || '#888', 글 = st.getPropertyValue('--ink-faint').trim() || '#888', 강조 = st.getPropertyValue('--amber').trim() || '#c68a12';
+    const 여백 = 크기 * 0.06, 폭 = 크기 - 여백 * 2, X = u => 여백 + u * 폭, Y = u => 여백 + (1 - u) * 폭;
+    x.clearRect(0, 0, 크기, 크기);
+    x.lineWidth = 1 * dpr; x.strokeStyle = 선; x.globalAlpha = 0.45;
+    for (let i = 0; i <= 4; i++) { x.beginPath(); x.moveTo(X(i / 4), Y(0)); x.lineTo(X(i / 4), Y(1)); x.moveTo(X(0), Y(i / 4)); x.lineTo(X(1), Y(i / 4)); x.stroke(); }
+    x.globalAlpha = 1; x.setLineDash([4 * dpr, 4 * dpr]); x.strokeStyle = 글; x.beginPath(); x.moveTo(X(0), Y(0)); x.lineTo(X(1), Y(1)); x.stroke(); x.setLineDash([]);
+    const 표 = R.곡선표(곡선점());
+    x.strokeStyle = 강조; x.lineWidth = 2.5 * dpr; x.beginPath();
+    for (let k = 0; k < 256; k++) { const px = X(k / 255), py = Y(표[k] / 255); k ? x.lineTo(px, py) : x.moveTo(px, py); }
+    x.stroke();
+    곡선점().forEach((d, i) => {
+      const u = (i + 1) * 0.25, v = Math.max(0, Math.min(1, u + d / 100 * 0.25)), 켜짐 = i === 상태.곡선점;
+      x.beginPath(); x.arc(X(u), Y(v), (켜짐 ? 8 : 6.5) * dpr, 0, Math.PI * 2);
+      x.fillStyle = '#fff'; x.fill(); x.lineWidth = 2.5 * dpr; x.strokeStyle = 강조; x.stroke();
+    });
+    $('cg-curve-reset').hidden = !곡선점().some(Boolean);
+    const 막힘 = 잠김() || !색감배경(); c.style.opacity = 막힘 ? 0.5 : ''; c.style.cursor = 막힘 ? 'default' : '';
+  }
+  function 곡선끌기설정() {
+    const c = $('cg-curve'); let 잡음 = -1;
+    const 위치 = e => { const r = c.getBoundingClientRect(), 여 = 0.06; return { u: ((e.clientX - r.left) / r.width - 여) / (1 - 2 * 여), v: 1 - ((e.clientY - r.top) / r.height - 여) / (1 - 2 * 여) }; };
+    let 손 = null;
+    c.addEventListener('pointerdown', e => {
+      if (잠김() || !색감배경() || (e.pointerType === 'mouse' && e.button !== 0) || 잡음 >= 0) return;
+      const { u, v } = 위치(e), pts = 곡선점(), r = c.getBoundingClientRect();
+      // 점 근처(손가락 크기 반경)를 눌렀을 때만 그 점을 잡는다. 가까운 점이 여럿이면 가장 가까운 것
+      let 가까움 = -1, 거리 = 30; pts.forEach((d, i) => {
+        const g = Math.hypot(((i + 1) * 0.25 - u) * r.width * 0.88, (Math.max(0, Math.min(1, (i + 1) * 0.25 + d / 100 * 0.25)) - v) * r.height * 0.88);
+        if (g < 거리) { 거리 = g; 가까움 = i; }
+      });
+      if (가까움 < 0) { c.focus(); return; }
+      잡음 = 가까움; 손 = e.pointerId; 상태.곡선점 = 가까움; e.preventDefault();
+      try { c.setPointerCapture(e.pointerId); } catch (x) { }
+      상태.보정끄는중 = true; 곡선저장(잡음, (v - (잡음 + 1) * 0.25) / 0.25 * 100); c.focus();
+    });
+    c.addEventListener('pointermove', e => { if (잡음 < 0 || e.pointerId !== 손) return; const { v } = 위치(e); 곡선저장(잡음, (v - (잡음 + 1) * 0.25) / 0.25 * 100); });
+    const 끝 = e => { if (잡음 < 0 || (e && e.pointerId !== 손)) return; 잡음 = -1; 손 = null; if (상태.보정끄는중) { 상태.보정끄는중 = false; 그리기(); } };
+    ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(n => c.addEventListener(n, 끝));
+    c.addEventListener('keydown', e => {
+      if (잠김() || !색감배경()) return;
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { 상태.곡선점 = Math.max(0, Math.min(2, (상태.곡선점 ?? 1) + (e.key === 'ArrowLeft' ? -1 : 1))); 곡선그리기(); e.preventDefault(); }
+      else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') { const i = 상태.곡선점 ?? 1; 곡선저장(i, 곡선점()[i] + (e.key === 'ArrowUp' ? 5 : -5)); e.preventDefault(); }
+    });
+    $('cg-curve-reset').addEventListener('click', () => 변경(() => 색감쓰기(o => { delete o.곡선; })));
   }
   // 색감 패널에 지금 값 반영 (입력반영에서 부름)
   function 색감반영() {
@@ -2086,12 +2163,14 @@
     $('cg-chips').querySelectorAll('button').forEach(b => { b.setAttribute('aria-pressed', String(b.dataset.chip === 고른.키)); b.classList.toggle('on', !!Number(보정[b.dataset.chip])); });
     $('cg-m-name').textContent = 고른.이름; $('r-cg-m').value = mv; $('r-cg-m').setAttribute('aria-label', 고른.이름); $('r-cg-m').className = 고른.막대 || '';
     $('o-cg-m').textContent = mv > 0 ? '+' + mv : String(mv); $('o-cg-m').classList.toggle('on', mv !== 0); $('cg-m-one').hidden = mv === 0;
+    $('cg-m-desc').textContent = 고른.설명 || ''; $('cg-m-desc').hidden = !고른.설명;
     $('cg-m-l').textContent = '−'; $('cg-m-r').textContent = '+';   // 글자 대신 기호 (가운데가 원래 · 왼쪽 − · 오른쪽 +)
     $('cg-presets').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String((b.dataset.preset || '') === (보정.프리셋 || ''))));
     $('cg-amt-wrap').hidden = !보정.프리셋;
     const 강도 = Math.round((보정.강도 ?? 1) * 100);
     $('r-cg-amt').value = 강도; $('o-cg-amt').textContent = 강도 + '%';
     const n = 상태.설계.장면.length;
+    곡선그리기();
     $('cg-all').hidden = n < 2; $('cg-all').textContent = `이 색감을 썸네일 ${n}장 모두에 적용`;
     document.querySelectorAll('[data-pane="color"] input, [data-pane="color"] button:not(.cg-head)').forEach(x => { x.disabled = 잠금 || !bg; });
     프리셋카드그리기();
@@ -2201,8 +2280,8 @@
     $('b-add-line').addEventListener('click', () => 줄추가(true));
     $('box-del').addEventListener('click', () => 상자지우기(상태.상자));
     document.addEventListener('keydown', e => {
-      if ((e.key === 'Delete' || e.key === 'Backspace') && 상태.도형 >= 0 && !/INPUT|TEXTAREA/.test(document.activeElement.tagName) && !잠김() && !document.querySelector('dialog[open]')) { e.preventDefault(); 도형지우기(); return; }
-      if ((e.key === 'Delete' || e.key === 'Backspace') && 상태.선택 && 상태.상자 > 0 && !/INPUT|TEXTAREA/.test(document.activeElement.tagName) && !잠김()) { e.preventDefault(); 상자지우기(상태.상자); }
+      if ((e.key === 'Delete' || e.key === 'Backspace') && 상태.도형 >= 0 && !/INPUT|TEXTAREA|CANVAS/.test(document.activeElement.tagName) && !잠김() && !document.querySelector('dialog[open]')) { e.preventDefault(); 도형지우기(); return; }
+      if ((e.key === 'Delete' || e.key === 'Backspace') && 상태.선택 && 상태.상자 > 0 && !/INPUT|TEXTAREA|CANVAS/.test(document.activeElement.tagName) && !잠김()) { e.preventDefault(); 상자지우기(상태.상자); }
     });
     $('pos').querySelectorAll('button').forEach(b => b.addEventListener('click', () => 변경(() => 위치정하기(b.dataset.pos))));
     $('b-reset').addEventListener('click', async () => {

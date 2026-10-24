@@ -260,8 +260,9 @@
   /* ---------- 색감(보정): 배경 사진에만 적용. 값이 없거나 모두 0이면 예전과 똑같이 그린다 ----------
    * 슬라이더 값은 모두 -100~100(가운데 0). 프리셋은 같은 키 + 내부용(페이드·분할색·자동)을 쓰고,
    * 프리셋 값 × 강도(0~1) + 사용자 슬라이더 값 = 실제 값 (라이트룸 방식).
-   * 데이터: 장.배경.보정 = { 프리셋, 강도, 밝기, 대비, 밝은곳, 어두운곳, 색온도, 색조, 채도, 선명, 비네팅 } */
-  const 보정키 = ['밝기', '대비', '밝은곳', '어두운곳', '색온도', '색조', '채도', '선명', '비네팅'];
+   * 데이터: 장.배경.보정 = { 프리셋, 강도, 밝기, 대비, 밝은곳, 어두운곳, 색온도, 색조, 채도, 선명, 비네팅, 입자, 번짐, 곡선:[어두운 쪽,가운데,밝은 쪽] }
+   * 입자: +는 필름 입자, −는 매끈하게. 번짐: +는 빛 번짐(은은하게 퍼지는 빛), −는 흐리게. 곡선: 세 점의 위아래 이동(−100~100) */
+  const 보정키 = ['밝기', '대비', '밝은곳', '어두운곳', '색온도', '색조', '채도', '선명', '비네팅', '입자', '번짐'];
   const 보정프리셋 = {
     자동: { 이름: '자동', 자동: true },
     선명: { 이름: '선명하게', 대비: 15, 채도: 15, 선명: 45 },
@@ -285,7 +286,10 @@
     v.분할 = p && p.분할 ? p.분할 : null;
     v.분할강도 = v.분할 ? k : 0;
     v.자동 = p && p.자동 ? k : 0;
-    return (보정키.some(x => v[x]) || v.페이드 || v.분할강도 || v.자동) ? v : null;
+    // 곡선: 세 점. 어두운 쪽→밝은 쪽으로 계속 올라가야 하므로 앞 점보다 낮아지지 않게 맞춘다
+    const 점 = Array.isArray(보정.곡선) ? [0, 1, 2].map(i => 범위(Number(보정.곡선[i]) || 0, -100, 100)) : [0, 0, 0];
+    v.곡선 = 점.some(x => x) ? 점 : null;
+    return (보정키.some(x => v[x]) || v.페이드 || v.분할강도 || v.자동 || v.곡선) ? v : null;
   }
 
   const 보정캐시 = new WeakMap();   // 원본 이미지 → Map(값·크기 → 보정한 캔버스)
@@ -293,7 +297,7 @@
   // 원본 이미지를 긴 변 최대변(기본 1920) 안에서 한 번 보정해 캔버스로. 실패하면 원본을 그대로 돌려준다(보정 없이 그림)
   function 보정이미지(img, 보정, 최대변) {
     const v = 보정값(보정);
-    if (!img || !v || !(v.자동 || v.페이드 || v.분할강도 || 보정키.some(x => x !== '비네팅' && v[x]))) return img;
+    if (!img || !v || !(v.자동 || v.페이드 || v.분할강도 || v.곡선 || 보정키.some(x => x !== '비네팅' && v[x]))) return img;
     const iw = img.naturalWidth || img.width, ih = img.naturalHeight || img.height;
     if (!iw || !ih) return img;
     const s = Math.min(1, (최대변 || 1920) / Math.max(iw, ih));
@@ -329,6 +333,51 @@
     return 위 - 아래 < 20 ? [0, 255] : [아래, 위];
   }
 
+  // 곡선: 점 4~5개를 부드럽게 잇고(꺾이거나 튀지 않게 단조 보간) 0~255 → 0~255 표로 만든다
+  function 곡선표(점) {
+    const xs = [0, 0.25, 0.5, 0.75, 1], ys = [0, ...점.map((d, i) => 범위(xs[i + 1] + d / 100 * 0.25, 0, 1)), 1];
+    for (let i = 1; i < ys.length; i++) ys[i] = Math.max(ys[i], ys[i - 1]);
+    const n = xs.length, 기울기 = [], m = new Array(n);
+    for (let i = 0; i < n - 1; i++) 기울기[i] = (ys[i + 1] - ys[i]) / (xs[i + 1] - xs[i]);
+    m[0] = 기울기[0]; m[n - 1] = 기울기[n - 2];
+    for (let i = 1; i < n - 1; i++) m[i] = 기울기[i - 1] * 기울기[i] <= 0 ? 0 : (기울기[i - 1] + 기울기[i]) / 2;
+    for (let i = 0; i < n - 1; i++) {   // Fritsch–Carlson: 한 구간에서 기울기가 너무 크면 줄인다
+      if (기울기[i] === 0) { m[i] = 0; m[i + 1] = 0; continue; }
+      const a = m[i] / 기울기[i], b = m[i + 1] / 기울기[i], r = a * a + b * b;
+      if (r > 9) { const t = 3 / Math.sqrt(r); m[i] = t * a * 기울기[i]; m[i + 1] = t * b * 기울기[i]; }
+    }
+    const 표 = new Float32Array(256);
+    for (let k = 0; k < 256; k++) {
+      const x = k / 255; let i = 0; while (i < n - 2 && x > xs[i + 1]) i++;
+      const hh = xs[i + 1] - xs[i], t = (x - xs[i]) / hh, t2 = t * t, t3 = t2 * t;
+      표[k] = 255 * 범위((2 * t3 - 3 * t2 + 1) * ys[i] + (t3 - 2 * t2 + t) * hh * m[i] + (-2 * t3 + 3 * t2) * ys[i + 1] + (t3 - t2) * hh * m[i + 1], 0, 1);
+    }
+    return 표;
+  }
+
+  // 가로·세로 상자 흐림 (실행 시간이 반지름과 상관없는 누적합 방식). 세 번 겹치면 가우시안과 거의 같다
+  function 상자흐림(p, w, h, r, 번) {
+    const 길 = Math.max(w, h), 줄 = new Float32Array(길 + 2 * r + 2);
+    for (let n = 0; n < (번 || 3); n++) for (let 세로 = 0; 세로 < 2; 세로++) {
+      const 안 = 세로 ? w : h, 바깥 = 세로 ? h : w, 걸음 = 세로 ? w * 4 : 4, 줄걸음 = 세로 ? 4 : w * 4;
+      for (let ch = 0; ch < 3; ch++) for (let a = 0; a < 안; a++) {
+        const 시작 = a * 줄걸음 + ch;
+        let 합 = 0;
+        for (let i = -r; i <= r; i++) 합 += p[시작 + Math.min(바깥 - 1, Math.max(0, i)) * 걸음];
+        for (let i = 0; i < 바깥; i++) {
+          줄[i] = 합 / (2 * r + 1);
+          합 += p[시작 + Math.min(바깥 - 1, i + r + 1) * 걸음] - p[시작 + Math.max(0, i - r) * 걸음];
+        }
+        for (let i = 0; i < 바깥; i++) p[시작 + i * 걸음] = 줄[i];
+      }
+    }
+  }
+  // 같은 자리에서는 늘 같은 값이 나오는 잡음(-1~1): 미리보기와 받은 파일의 입자가 같은 모양이 되게
+  function 잡음(x, y) {
+    let n = (Math.imul(x, 374761393) + Math.imul(y, 668265263)) | 0; n = Math.imul(n ^ (n >>> 13), 1274126177); n = n ^ (n >>> 16);
+    return ((n >>> 0) / 4294967295) * 2 - 1;
+  }
+
   function 픽셀보정(p, w, h, v, 끝) {
     // 1) 채널별 표: 자동(분포 펴기) → 색온도·색조 → 밝기(중간 톤 감마) → 대비 → 페이드(검정 띄우기)
     const 온 = v.색온도 / 100, 조 = v.색조 / 100;
@@ -336,6 +385,7 @@
     const 감마 = Math.pow(2, -v.밝기 / 100);
     const 대 = v.대비 >= 0 ? 1 + v.대비 / 100 : 1 + v.대비 / 140;
     const 페 = v.페이드 / 100 * 45;
+    const 곡 = v.곡선 ? 곡선표(v.곡선) : null;
     const 표 = [0, 1, 2].map(ch => {
       const t = new Uint8ClampedArray(256);
       for (let i = 0; i < 256; i++) {
@@ -344,6 +394,7 @@
         c += 이동[ch];
         c = 255 * Math.pow(Math.min(1, Math.max(0, c / 255)), 감마);
         c = (c - 128) * 대 + 128;
+        if (곡) c = 곡[Math.round(Math.min(255, Math.max(0, c)))];
         t[i] = 페 + c * (1 - 페 / 255);
       }
       return t;
@@ -382,6 +433,37 @@
           p[i] = a > 0 ? c + (c - 평균) * a * 1.2 : c + (평균 - c) * -a;
         }
       }
+    }
+    // 4) 번짐: −는 사진 전체를 흐리게, +는 밝은 곳이 은은하게 퍼지는 빛 번짐(밝은 부분만 흐려서 위에 겹쳐 밝힌다)
+    if (v.번짐) {
+      const a = Math.abs(v.번짐) / 100, 큰변 = Math.max(w, h);
+      if (v.번짐 < 0) {
+        // 반지름이 1칸보다 작은 구간은 원본과 섞어서, 0 근처에서도 조금씩 부드럽게 변한다
+        const 반지름 = 큰변 * 0.012 * a, 섞음 = Math.min(1, 반지름), 흐림 = new Uint8ClampedArray(p);
+        상자흐림(흐림, w, h, Math.max(1, Math.round(반지름)));
+        for (let i = 0; i < p.length; i += 4) for (let ch = 0; ch < 3; ch++) p[i + ch] += (흐림[i + ch] - p[i + ch]) * 섞음;
+      } else {
+        const 빛 = new Uint8ClampedArray(p.length);
+        for (let i = 0; i < p.length; i += 4) {
+          const L = (0.299 * p[i] + 0.587 * p[i + 1] + 0.114 * p[i + 2]) / 255, 무게 = L > 0.5 ? Math.min(1, (L - 0.5) / 0.4) : 0;
+          빛[i] = p[i] * 무게; 빛[i + 1] = p[i + 1] * 무게; 빛[i + 2] = p[i + 2] * 무게;
+        }
+        상자흐림(빛, w, h, Math.max(2, Math.round(큰변 * 0.02)));
+        const 세 = a * 1.1;
+        for (let i = 0; i < p.length; i += 4) for (let ch = 0; ch < 3; ch++) p[i + ch] = 255 - (255 - p[i + ch]) * (255 - 빛[i + ch] * 세) / 255;   // 스크린 합성
+      }
+    }
+    // 5) 입자: +는 필름 입자(밝기만 흔들어 색이 번지지 않게, 어두운·밝은 끝은 덜), −는 살짝 흐린 사진을 섞어 매끈하게
+    if (v.입자 > 0) {
+      const 세 = v.입자 / 100 * 38, 칸 = Math.max(1, Math.round(Math.max(w, h) / 1000));
+      for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+        const i = (y * w + x) * 4, L = (0.299 * p[i] + 0.587 * p[i + 1] + 0.114 * p[i + 2]) / 255;
+        const d = 잡음(Math.floor(x / 칸), Math.floor(y / 칸)) * 세 * (0.35 + 0.65 * (1 - Math.abs(L - 0.5) * 2));
+        p[i] += d; p[i + 1] += d; p[i + 2] += d;
+      }
+    } else if (v.입자 < 0) {
+      const a = -v.입자 / 100, 흐림 = new Uint8ClampedArray(p); 상자흐림(흐림, w, h, Math.max(1, Math.round(Math.max(w, h) * 0.002)), 2);
+      for (let i = 0; i < p.length; i += 4) for (let ch = 0; ch < 3; ch++) p[i + ch] += (흐림[i + ch] - p[i + ch]) * a * 0.8;
     }
   }
 
@@ -502,5 +584,5 @@
   function 범위(v, a, b) { return Math.min(b, Math.max(a, isFinite(v) ? v : a)); }
 
   global.RewindThumb = { 도형틀, 도형만들기, 도형그리기, 도형맞음, 점회전, 글꼴목록, 글꼴준비, 이미지불러오기, 배경주소, 배경배치, 영역변환, 그리기, 줄너비, 상자목록, 상자글씨, 블록에서글씨, 블록채우기, 파일로,
-    보정키, 보정프리셋, 보정값, 보정이미지 };
+    보정키, 보정프리셋, 보정값, 보정이미지, 곡선표 };
 })(window);
