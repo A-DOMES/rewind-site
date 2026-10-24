@@ -186,6 +186,10 @@
   .scenes .sc-x:hover:not(:disabled) { background: var(--err, #c0392b); }
   .scenes .sc-x::after { content: ''; position: absolute; inset: -9px; }   /* 손가락으로 누르기 쉽게 터치 영역만 넓힌다 */
   .restore { margin-top: 8px; }
+  .lbl-r { display: inline-flex; align-items: center; gap: 8px; }
+  .chip.manage { min-height: 36px; padding: 3px 12px; font-size: .78rem; }
+  .scenes.managing .pick { opacity: .8; cursor: default; }
+  .scenes.managing .sc-x { background: var(--err, #c0392b); }
   .scenes img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .scenes .tag { position: absolute; left: 4px; bottom: 4px; background: rgba(0,0,0,.65); color: #fff; font-size: 10.5px; padding: 1px 6px; border-radius: 4px; }
   .card { display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px; border-radius: 14px; border: 1px solid var(--line-strong); background: transparent; text-align: left; }
@@ -469,7 +473,7 @@
     <!-- 배경 장면 -->
     <section class="pane" data-pane="bg" hidden>
       <div><h2>배경 장면</h2><p class="sub">핵심 대상이 크게 보이는 장면이 가장 잘 눌려요.</p></div>
-      <div class="fld cardx"><div class="lbl"><span>내 장면들</span><span id="scene-count"></span></div><div class="scenes" id="scenes"></div><button type="button" class="chip restore" id="b-restore" hidden></button><p class="hint" id="scenes-empty" hidden>고를 수 있는 장면 이미지가 없어요. 위의 "영상에서 뽑기"를 써보세요.</p></div>
+      <div class="fld cardx"><div class="lbl"><span>내 장면들</span><span class="lbl-r"><span id="scene-count"></span><button type="button" class="chip manage" data-for="scenes" hidden>정리</button></span></div><div class="scenes" id="scenes"></div><button type="button" class="chip restore" id="b-restore" hidden></button><p class="hint" id="scenes-empty" hidden>고를 수 있는 장면 이미지가 없어요. 위의 "영상에서 뽑기"를 써보세요.</p></div>
       <p class="hint">글씨 밖을 끌면 배경 위치가 움직여요.</p>
     </section>
 
@@ -504,7 +508,7 @@
       <div><h2>영상에서 뽑기</h2><p class="sub">완성된 영상을 재생하다 원하는 순간에 멈추고 "이 장면 쓰기"를 누르세요.</p></div>
       <button class="btn primary block" id="b-open-video"><svg class="i" viewBox="0 0 24 24"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg>영상 열기</button>
       <p class="hint" id="video-info"></p>
-      <div class="fld" id="caps-wrap" hidden><div class="lbl"><span>가져온 장면</span></div><div class="scenes" id="caps"></div>
+      <div class="fld" id="caps-wrap" hidden><div class="lbl"><span>가져온 장면</span><span class="lbl-r"><button type="button" class="chip manage" data-for="caps" hidden>정리</button></span></div><div class="scenes" id="caps"></div>
         <button type="button" class="chip restore" id="b-restore2" hidden></button>
         <button class="btn small block" id="b-erase-cap" type="button"><span aria-hidden="true">✨ </span>고른 장면 자막 지우고 쓰기</button>
         <p class="hint" id="erase-cap-hint"></p></div>
@@ -518,6 +522,11 @@
         <button class="btn primary block" id="b-photo"><svg class="i" viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></svg>사진 고르기</button>
         <input type="file" id="f-photo" accept="image/*" hidden>
         <p class="hint" id="photo-hint"></p>
+        <div class="fld cardx" id="photo-lib" hidden>
+          <div class="lbl"><span>내가 올린 사진 <span id="lib-count"></span></span><span class="lbl-r"><button type="button" class="chip manage" data-for="photos" hidden>정리</button></span></div>
+          <div class="scenes" id="photos"></div>
+          <p class="hint" id="lib-hint">이 기기 안에만 보관돼요. 서버로 보내지 않아요.</p>
+        </div>
       </div>
       <p class="hint">직접 찍었거나 쓸 권리가 있는 사진만 올려주세요. 내 사진은 얼굴 위치를 자동으로 알 수 없으니, 글씨가 얼굴을 가리지 않게 직접 보면서 옮겨주세요.</p>
     </section>
@@ -1163,20 +1172,104 @@
     if (file.size > 20 * 1024 * 1024) return 알림('사진이 너무 커요. 20MB 이하로 골라주세요.');
     const buf = await file.arrayBuffer();
     const hash = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', buf))).map(b => b.toString(16).padStart(2, '0')).join('');
+    const blob = new Blob([buf], { type: file.type });
+    const img = await 사진적용(hash, blob, String(file.name || '').slice(0, 40));
+    if (img) 사진보관하기(hash, img, String(file.name || '').slice(0, 40));   // 쓰게 된 사진만 이 기기에 보관한다
+  }
+  // 사진을 배경으로 쓴다 (새로 고른 사진도, 보관함에서 고른 사진도 같은 규칙: 영상당 서로 다른 사진 최대 장수). 성공하면 그림을 돌려준다
+  async function 사진적용(hash, blob, 이름) {
     const 모음 = 쓰는지문();
-    if (!모음.has(hash) && 모음.size >= 상태.사진최대) return 알림(`내 사진은 영상 하나에 ${상태.사진최대}장까지 쓸 수 있어요. 이미 쓴 사진은 다시 골라도 괜찮아요.`);
-    const url = URL.createObjectURL(new Blob([buf], { type: file.type }));
+    if (!모음.has(hash) && 모음.size >= 상태.사진최대) { 알림(`내 사진은 영상 하나에 ${상태.사진최대}장까지 쓸 수 있어요. 이미 쓴 사진은 다시 골라도 괜찮아요.`); return null; }
+    const url = URL.createObjectURL(blob);
     const img = await new Promise(ok => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => ok(null); i.src = url; });
-    if (!img) return 알림('사진을 열지 못했어요. 다른 사진을 골라주세요.');
+    if (!img) { 알림('사진을 열지 못했어요. 다른 사진을 골라주세요.'); return null; }
     상태.이미지['local:' + hash] = img;
     const 지금 = 현재().배경;
-    if (지금 && 지금.종류 === '내사진' && 지금.지문 === hash) { 그리기(); 목록그리기(); return 알림('사진을 다시 불러왔어요.'); }
+    if (지금 && 지금.종류 === '내사진' && 지금.지문 === hash) { 그리기(); 목록그리기(); 알림('사진을 다시 불러왔어요.'); return img; }
     변경(() => {
       const 이전 = 현재().배경 || {};
-      현재().배경 = { 종류: '내사진', 지문: hash, 이름: String(file.name || '').slice(0, 40), 확대: 1, 초점x: 0.5, 초점y: 0.5, 어둡게: 이전.어둡게 || 0, 보정: 이전.보정 };
+      현재().배경 = { 종류: '내사진', 지문: hash, 이름, 확대: 1, 초점x: 0.5, 초점y: 0.5, 어둡게: 이전.어둡게 || 0, 보정: 이전.보정 };
       현재().얼굴 = [];
     });
     알림('내 사진으로 바꿨어요. 글씨가 얼굴을 가리지 않게 직접 옮겨주세요.');
+    return img;
+  }
+
+  /* ---------- 내가 올린 사진 보관함 (이 기기 브라우저 IndexedDB에만. 서버로 보내지 않는다) ---------- */
+  const 보관최대 = 12, 보관긴변 = 2048;
+  let 보관DB = null, 보관가능 = true;
+  const 보관열기 = () => 보관DB || (보관DB = new Promise((ok, no) => {
+    try {
+      const r = indexedDB.open('rw_photos', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('p', { keyPath: 'hash' });
+      r.onsuccess = () => { const db = r.result; db.onversionchange = () => { db.close(); 보관DB = null; }; db.onclose = () => { 보관DB = null; }; ok(db); };
+      r.onerror = () => { 보관DB = null; no(r.error); }; r.onblocked = () => { 보관DB = null; no(new Error('blocked')); };
+    } catch (e) { no(e); }
+  }));
+  async function 보관요청(모드, fn) {
+    const db = await 보관열기();
+    return new Promise((ok, no) => { const t = db.transaction('p', 모드), st = t.objectStore('p'), r = fn(st); t.oncomplete = () => ok(r && r.result); t.onerror = t.onabort = () => no(t.error); });
+  }
+  const 보관읽기 = () => 보관요청('readonly', st => st.getAll()).then(a => (a || []).sort((x, y) => y.시각 - x.시각));
+  async function 보관불러오기() {
+    try { 상태.보관 = await 보관읽기(); } catch (e) { 보관가능 = false; 상태.보관 = []; }
+    사진보관그리기();
+  }
+  // 큰 사진은 가로세로 긴 변 2048로 줄여 JPEG로 보관한다 (기기 용량 절약, 썸네일 만들기에는 충분)
+  async function 줄이기(img, 긴변 = 보관긴변, 품질 = 0.9) {
+    const w = img.naturalWidth, h = img.naturalHeight; if (!w || !h) return null;
+    const k = Math.min(1, 긴변 / Math.max(w, h));
+    const c = document.createElement('canvas'); c.width = Math.max(1, Math.round(w * k)); c.height = Math.max(1, Math.round(h * k));
+    const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height);
+    return new Promise(ok => c.toBlob(b => ok(b), 'image/jpeg', 품질));
+  }
+  let 보관작업 = Promise.resolve();
+  const 사진보관하기 = (hash, img, 이름) => (보관작업 = 보관작업.then(() => 사진보관실행(hash, img, 이름)).catch(() => { }));   // 한 번에 하나씩 (연달아 올려도 12장을 넘지 않게)
+  async function 사진보관실행(hash, img, 이름) {
+    if (!보관가능) return;
+    try {
+      if (!상태.보관) await 보관불러오기();
+      const 있는 = (상태.보관 || []).find(x => x.hash === hash);
+      if (있는) { await 보관요청('readwrite', st => st.put({ ...있는, 시각: Date.now() })); return 보관불러오기(); }
+      if ((상태.보관 || []).length >= 보관최대) {
+        const 옛 = [...상태.보관].sort((x, y) => x.시각 - y.시각)[0];
+        if (!await 확인창('사진 보관함이 가득 찼어요', `내가 올린 사진은 ${보관최대}장까지 보관해요. 가장 오래된 사진(${옛.이름 || '이름 없음'})을 지우고 이 사진을 보관할까요? "취소"를 누르면 이 사진은 이번에만 쓰고 보관하지 않아요.`, '지우고 보관')) return;
+        await 보관요청('readwrite', st => st.delete(옛.hash));
+      }
+      const blob = await 줄이기(img), thumb = await 줄이기(img, 320, 0.8);
+      if (!blob) return;
+      await 보관요청('readwrite', st => st.put({ hash, 이름, 시각: Date.now(), blob, thumb: thumb || blob }));
+      await 보관불러오기();
+    } catch (e) { 알림('이 사진은 기기에 보관하지 못했어요. 지금 쓰는 데에는 문제없어요.'); }
+  }
+  let 보관주소들 = [], 보관서명 = '';
+  function 사진보관그리기() {
+    const lib = $('photo-lib'); if (!lib || !상태.설계 || !상태.설계.캔버스 || !현재()) return;
+    const 목록 = 상태.보관 || [], 지금해시 = (현재().배경 && 현재().배경.종류 === '내사진') ? 현재().배경.지문 : '';
+    const 서명 = [목록.map(r => r.hash).join(','), 지금해시, $('photos').dataset.manage || '', 상태.설계.캔버스.w + 'x' + 상태.설계.캔버스.h, 보관가능].join('|');
+    if (서명 === 보관서명) return;   // 바뀐 게 없으면 다시 그리지 않는다 (편집할 때마다 썸네일이 깜빡이지 않게)
+    보관서명 = 서명;
+    lib.hidden = !보관가능 || !목록.length;
+    보관주소들.forEach(u => URL.revokeObjectURL(u)); 보관주소들 = [];
+    $('lib-count').textContent = 목록.length ? `${목록.length}/${보관최대}` : '';
+    if (lib.hidden) { $('photos').innerHTML = ''; delete $('photos').dataset.manage; 정리버튼갱신(); return; }
+    const el = $('photos'), { w: W, h: H } = 상태.설계.캔버스, 지금 = 현재().배경, 정리 = el.dataset.manage === '1';
+    el.style.setProperty('--ar', `${W}/${H}`); el.classList.toggle('managing', 정리);
+    const 칸 = 목록.map(r => { const u = URL.createObjectURL(r.thumb || r.blob); 보관주소들.push(u); return { src: u, 이름: r.이름 || '내 사진', hash: r.hash, 지움말: '보관함에서 지우기' }; });
+    el.innerHTML = 칸.map((c, i) => 장면칸(c, i, !!(지금 && 지금.종류 === '내사진' && 지금.지문 === c.hash), 정리)).join('');
+    el.querySelectorAll('.pick').forEach(b => b.addEventListener('click', async () => {
+      if (정리 || 잠김()) return;
+      const r = 목록[Number(b.dataset.i)];
+      const 그림 = await 사진적용(r.hash, r.blob, r.이름);
+      if (그림) 사진보관하기(r.hash, 그림, r.이름);   // 쓴 사진은 '최근에 쓴' 것으로 올려, 가득 찼을 때 먼저 지워지지 않게 한다
+    }));
+    el.querySelectorAll('.sc-x').forEach(b => b.addEventListener('click', async e => {
+      e.stopPropagation();
+      const r = 목록[Number(b.dataset.i)];
+      if (!await 확인창('이 사진을 보관함에서 지울까요?', `"${r.이름 || '내 사진'}"을(를) 이 기기에서 지워요. 이미 썸네일에 쓴 배경은 그대로 남지만, 다시 쓰려면 사진을 새로 올려야 해요.`, '지우기')) return;
+      try { await 보관요청('readwrite', st => st.delete(r.hash)); await 보관불러오기(); 알림('보관함에서 지웠어요.'); ($('photos').querySelector('.sc-x') || document.querySelector('.manage[data-for=photos]'))?.focus(); } catch (er) { 알림('사진을 지우지 못했어요. 잠시 뒤 다시 시도해 주세요.'); }
+    }));
+    정리버튼갱신();
   }
 
   /* ---------- 영상에서 장면 가져오기 ---------- */
@@ -1227,7 +1320,7 @@
     const 숨김 = 숨김목록(), caps = (상태.설계.캡처 || []).filter(c => !숨김.has(c.src));
     $('caps-wrap').hidden = !caps.length && !(상태.설계.캡처 || []).some(c => 숨김.has(c.src));
     장면버튼($('caps'), caps.map(c => ({ src: c.src, 이름: '가져온 장면 ' + ((상태.설계.캡처 || []).indexOf(c) + 1) })));
-    숨김버튼갱신();
+    숨김버튼갱신(); 정리버튼갱신();
     const 고른 = 지금가져온장면();
     $('b-erase-cap').disabled = !고른 || 서버작업중 || 잠김();
     $('erase-cap-hint').textContent = 고른 ? `새 장면 횟수는 쓰지 않아요 · 자막 지우기 남은 ${남은지움()}번` : '위에서 가져온 장면을 눌러 배경으로 고르면 자막을 지울 수 있어요.';
@@ -1512,13 +1605,27 @@
     document.querySelectorAll('.pane').forEach(p => { p.hidden = p.dataset.pane !== tab; });
     if (window.innerWidth <= 900) document.querySelector('aside.panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
+  // 장면 한 칸 (내 장면들·가져온 장면·내가 올린 사진이 같은 모양을 쓴다). 정리 중일 때만 ✕가 보인다
+  function 장면칸(c, i, 선택됨, 정리) {
+    return `<div class="sc"><button type="button" class="pick" data-i="${i}" aria-pressed="${선택됨}"${정리 ? ' aria-disabled="true"' : ''} title="${escapeHtml(c.이름)}"><img src="${escapeHtml(c.src)}" alt="${escapeHtml(c.이름)}" loading="lazy">${c.태그 ? `<span class="tag">${escapeHtml(c.태그)}</span>` : ''}</button>${정리 ? `<button type="button" class="sc-x" data-i="${i}" aria-label="${escapeHtml(c.이름)} ${c.지움말 || '목록에서 지우기'}" title="${c.지움말 || '목록에서 지우기'}"><span aria-hidden="true">✕</span></button>` : ''}</div>`;
+  }
+  function 정리버튼갱신() {
+    document.querySelectorAll('.manage').forEach(b => {
+      const el = $(b.dataset.for), 있음 = !!el.querySelector('.sc');
+      if (!있음 && el.dataset.manage === '1') delete el.dataset.manage;
+      b.hidden = !있음; b.textContent = el.dataset.manage === '1' ? '완료' : '정리';
+    });
+  }
+  function 정리토글(id) { const el = $(id); if (el.dataset.manage === '1') delete el.dataset.manage; else el.dataset.manage = '1'; 배경목록(); 영상정보(); 사진보관그리기(); }
   function 장면버튼(el, 목록) {
     const { w: W, h: H } = 상태.설계.캔버스, 지금 = R.배경주소(현재().배경);
     el.style.setProperty('--ar', `${W}/${H}`);
-    el.innerHTML = 목록.map((c, i) => `<div class="sc"><button type="button" class="pick" data-i="${i}" aria-pressed="${c.src === 지금}" title="${escapeHtml(c.이름)}"><img src="${escapeHtml(c.src)}" alt="${escapeHtml(c.이름)}" loading="lazy">${c.태그 ? `<span class="tag">${escapeHtml(c.태그)}</span>` : ''}</button><button type="button" class="sc-x" data-i="${i}" aria-label="${escapeHtml(c.이름)} 목록에서 지우기" title="목록에서 지우기"><span aria-hidden="true">✕</span></button></div>`).join('');
-    el.querySelectorAll('.sc-x').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); if (잠김()) return; 장면지우기(목록[Number(b.dataset.i)]); }));
+    const 정리 = el.dataset.manage === '1';
+    el.classList.toggle('managing', 정리);
+    el.innerHTML = 목록.map((c, i) => 장면칸(c, i, c.src === 지금, 정리)).join('');
+    el.querySelectorAll('.sc-x').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); 장면지우기(목록[Number(b.dataset.i)]); }));
     el.querySelectorAll('.pick').forEach(b => b.addEventListener('click', async () => {
-      if (잠김()) return;
+      if (정리 || 잠김()) return;   // 정리 중에는 눌러도 배경이 바뀌지 않는다
       const c = 목록[Number(b.dataset.i)];
       변경(() => {
         const 이전 = 현재().배경 || {};
@@ -1540,7 +1647,7 @@
     $('scene-count').textContent = 모음.length ? 모음.length + '개' : '';
     $('scenes-empty').hidden = !!모음.length;
     장면버튼($('scenes'), 모음);
-    숨김버튼갱신();
+    숨김버튼갱신(); 정리버튼갱신();
   }
   function 숨김버튼갱신() {
     const 숨김 = 숨김목록();
@@ -1651,7 +1758,7 @@
     const 그늘 = (장.그늘 && 장.그늘.끝불투명도) || 0;
     설정('r-shade', -그늘 || 0, 부호값(Math.round(-그늘 * 100)));
     $('r-shade').setAttribute('aria-valuetext', 그늘 > 0 ? `어둡게 ${Math.round(그늘 * 100)}%` : 그늘 < 0 ? `밝게 ${Math.round(-그늘 * 100)}%` : '없음');   // 저장값 + = 어둡게 → 막대는 뒤집어서
-    배경목록(); 영상정보(); 사진상태();
+    배경목록(); 영상정보(); 사진상태(); 사진보관그리기();
   }
   function 사진상태() {
     const n = 쓰는지문().size;
@@ -1877,6 +1984,8 @@
     $('v-back').addEventListener('click', () => { vid.pause(); vid.currentTime = Math.max(0, vid.currentTime - 0.1); });
     $('v-fwd').addEventListener('click', () => { vid.pause(); vid.currentTime = Math.min(vid.duration || 0, vid.currentTime + 0.1); });
     $('msg-ok').addEventListener('click', () => $('dlg-msg').close());
+    document.querySelectorAll('.manage').forEach(b => b.addEventListener('click', () => 정리토글(b.dataset.for)));
+    보관불러오기();
     $('b-restore').addEventListener('click', 다시보이기); $('b-restore2').addEventListener('click', 다시보이기);
     $('dlg-work').addEventListener('cancel', e => e.preventDefault());
     $('dlg-work').addEventListener('close', () => { if (!작업창정상닫힘 && 서버작업중) { if (작업전영상창 && !$('dlg-video').open) $('dlg-video').showModal(); $('dlg-work').showModal(); } });
@@ -2032,7 +2141,7 @@
       if (x.closest('[data-pane="photo"]') && (x.id === 'b-photo' || x.id === 'f-photo')) { x.disabled = 잠금 && !사진없음(장); return; }
       if (x.classList.contains('card') || x.classList.contains('src')) { x.disabled = false; return; }
       if (x.id === 'b-open-video') { x.disabled = 잠금 || !상태.재료.영상; return; }
-      if (x.classList.contains('restore')) { x.disabled = false; return; }
+      if (x.classList.contains('restore') || x.classList.contains('manage') || x.classList.contains('sc-x')) { x.disabled = false; return; }
       if (x.id === 'b-erase-cap') { x.disabled = 잠금 || !지금가져온장면() || 서버작업중; return; }
       x.disabled = 잠금;
     });
