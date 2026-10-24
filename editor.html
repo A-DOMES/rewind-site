@@ -1512,7 +1512,11 @@
         // 왜 못 불러왔는지 한 번 더 확인해 알려 준다 (서버 응답 문구 또는 연결 문제)
         let 사유 = '';
         try { const t = await 시간제한(요청({ action: 'image', url: d.url }), 30000); 사유 = t && t.dataUrl ? '그림은 받았지만 화면에서 열지 못했어요' : '서버가 그림을 주지 않았어요'; }
-        catch (er) { 사유 = er.message || '연결 문제'; }
+        catch (er) {
+          사유 = er.message || '연결 문제';
+          // 어디가 막혔는지 알 수 있게 주소의 서버 이름과 시트 기록 여부를 덧붙인다 (주소 전체나 서명은 보여 주지 않는다)
+          try { const 호스트 = new URL(d.url).hostname; const 기록 = await 시간제한(요청({ action: 'load' }), 20000); 사유 += ` / 서버 ${호스트} / 시트 기록 ${String(기록.design || '').includes(d.url) ? '있음' : '없음'}`; } catch (e2) { }
+        }
         throw new Error(`지운 그림을 불러오지 못했어요. (${사유}) 같은 장면은 횟수를 다시 세지 않으니 한 번 더 눌러 보세요.`);
       }
       상태.이미지[d.url] = img;
