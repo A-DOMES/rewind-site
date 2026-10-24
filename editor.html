@@ -130,15 +130,29 @@
   .cg-head { width: 100%; display: flex; align-items: center; gap: 8px; padding: 12px 2px; border: 0; background: transparent; font-weight: 700; font-size: .95rem; text-align: left; cursor: pointer; }
   .cg-head small { font-weight: 400; color: var(--ink-faint); font-size: .76rem; }
   .cg-head .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--amber); }
-  .cg-head svg { margin-left: auto; width: 18px; height: 18px; fill: none; stroke: var(--ink-dim); stroke-width: 2; transition: transform .15s; }
+  .cg-head svg { flex: none; margin-left: auto; width: 18px; height: 18px; fill: none; stroke: var(--ink-dim); stroke-width: 2; transition: transform .15s; }
   .cg-head[aria-expanded="true"] svg { transform: rotate(180deg); }
-  .cg-body { display: flex; flex-direction: column; gap: 14px; padding: 2px 2px 16px; }
+  .cg-body { display: flex; flex-direction: column; gap: 6px; padding: 0 2px 14px; }
+  .cg-row { display: grid; grid-template-columns: 74px minmax(0, 1fr) 54px; align-items: center; gap: 8px; min-height: 34px; }
+  .cg-row .cg-name { font-size: .85rem; color: var(--ink-dim); white-space: nowrap; }
+  .cg-row .cg-val { justify-content: flex-end; font-size: .85rem; }
+  .cg-m { display: none; }
+  .cg-chips { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; }
+  .cg-chips button { position: relative; flex: none; height: 36px; padding: 0 13px; border-radius: 18px; border: 1px solid var(--line-strong); background: transparent; font-size: .85rem; cursor: pointer; }
+  .cg-chips button[aria-pressed="true"] { border-color: var(--amber); color: var(--amber); background: var(--sel); font-weight: 600; }
+  .cg-chips button.on::after { content: ''; position: absolute; top: 5px; right: 6px; width: 6px; height: 6px; border-radius: 50%; background: var(--amber); }
   .cg-val { display: inline-flex; align-items: center; gap: 6px; }
   .cg-val output.on { color: var(--amber); font-weight: 600; }
   .cg-one { border: 0; background: transparent; color: var(--ink-dim); font-size: .95rem; padding: 0 2px; cursor: pointer; }
   .cg-ends { display: flex; justify-content: space-between; font-size: .7rem; color: var(--ink-faint); margin-top: 2px; }
-  input.cg-temp { background: linear-gradient(90deg, #4a8fe0, #9aa0a6, #e8b23a); border-radius: 6px; }
-  input.cg-tint { background: linear-gradient(90deg, #4fbf6a, #9aa0a6, #d65fb0); border-radius: 6px; }
+  /* 색온도·색조 막대는 색 그라데이션으로 (어느 쪽이 어떤 색인지 바로 보이게) */
+  input.cg-temp, input.cg-tint { -webkit-appearance: none; appearance: none; background: transparent; }
+  input.cg-temp::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: linear-gradient(90deg, #4a8fe0, #9aa0a6, #e8b23a); }
+  input.cg-tint::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: linear-gradient(90deg, #4fbf6a, #9aa0a6, #d65fb0); }
+  input.cg-temp::-moz-range-track { height: 6px; border-radius: 3px; background: linear-gradient(90deg, #4a8fe0, #9aa0a6, #e8b23a); }
+  input.cg-tint::-moz-range-track { height: 6px; border-radius: 3px; background: linear-gradient(90deg, #4fbf6a, #9aa0a6, #d65fb0); }
+  input.cg-temp::-webkit-slider-thumb, input.cg-tint::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; margin-top: -6px; border-radius: 50%; background: #fff; border: 2px solid var(--amber); box-shadow: 0 1px 3px rgba(0,0,0,.4); }
+  input.cg-temp::-moz-range-thumb, input.cg-tint::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: #fff; border: 2px solid var(--amber); }
   .fp-list button[aria-pressed="true"]::after { content: '✓'; margin-left: auto; font-family: 'IBM Plex Sans KR', sans-serif; font-size: .95rem; }
   input[type=range] { width: 100%; accent-color: var(--amber); height: 26px; margin: 0; }
   .sw { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -291,6 +305,8 @@
     .tab { flex: 1; padding: 8px 2px; font-size: .7rem; }
     .tab .lock { right: calc(50% - 20px); top: 4px; }
     .tab .t-long { display: none; }
+    #cg-groups { display: none; }
+    .cg-m { display: flex; flex-direction: column; gap: 12px; }
     .cg-preview-wrap { display: flex; justify-content: center; position: sticky; top: 0; z-index: 45; margin: 0 -20px; padding: 8px 0 10px; background: var(--bg-raised); border-bottom: 1px solid var(--line); box-shadow: 0 10px 18px -12px rgba(0,0,0,.45); }
     .cg-preview { display: block; border-radius: 8px; background: #000; }
     .dock { flex-wrap: wrap; }
@@ -395,6 +411,12 @@
       <div class="fld"><div class="lbl"><span>색감 한 번에</span><span>옆으로 넘겨 보기</span></div><div class="cg-presets" id="cg-presets"></div></div>
       <div class="fld" id="cg-amt-wrap" hidden><div class="lbl"><span>강도</span><output id="o-cg-amt"></output></div><input type="range" id="r-cg-amt" min="0" max="100" step="1" aria-label="색감 강도"></div>
       <div id="cg-groups"></div>
+      <div class="cg-m" id="cg-m">
+        <div class="cg-chips" id="cg-chips" role="group" aria-label="조절할 항목"></div>
+        <div><div class="lbl"><span id="cg-m-name">밝기</span><span class="cg-val"><output id="o-cg-m">0</output><button type="button" class="cg-one" id="cg-m-one" title="처음으로" hidden>↺</button></span></div>
+          <input type="range" id="r-cg-m" min="-100" max="100" step="1" value="0" aria-label="밝기">
+          <div class="cg-ends"><span id="cg-m-l"></span><span id="cg-m-r"></span></div></div>
+      </div>
       <p class="hint">전체 어둡게·아래쪽 그늘은 "배경" 탭에 있어요.</p>
       <button type="button" class="btn block" id="cg-all">이 색감을 모든 썸네일에 적용</button>
     </section>
@@ -1385,8 +1407,9 @@
       { 키: '색온도', 이름: '색온도', 끝: ['차갑게', '따뜻하게'], 막대: 'cg-temp' }, { 키: '색조', 이름: '색조', 끝: ['초록', '분홍'], 막대: 'cg-tint' },
       { 키: '채도', 이름: '채도', 끝: ['흑백', '진하게'] }] },
     { id: 'fx', 이름: '효과', 설명: '선명하게·가장자리 어둡게', 항목: [
-      { 키: '선명', 이름: '선명하게', 끝: ['부드럽게', '선명하게'] }, { 키: '비네팅', 이름: '가장자리 어둡게', 끝: ['밝게', '어둡게'] }] }
+      { 키: '선명', 이름: '선명하게', 끝: ['부드럽게', '선명하게'] }, { 키: '비네팅', 이름: '가장자리 어둡게', 짧게: '가장자리', 끝: ['밝게', '어둡게'] }] }
   ];
+  const 색감항목들 = () => 색감묶음.flatMap(g => g.항목);
   const 색감배경 = () => 현재().배경 || null;
   const 색감값 = () => (색감배경() && 색감배경().보정) || {};
   // 보정 고치기: 프리셋도 없고 값이 모두 0이면 보정을 지워 예전과 같은 데이터로 둔다
@@ -1402,8 +1425,15 @@
     $('cg-presets').innerHTML = [['', '없음'], ...Object.entries(R.보정프리셋).map(([k, p]) => [k, p.이름])]
       .map(([k, 이름]) => `<button type="button" data-preset="${k}" aria-pressed="false"><canvas></canvas><span>${이름}</span></button>`).join('');
     $('cg-groups').innerHTML = 색감묶음.map((g, gi) => `<div class="cg-grp"><button type="button" class="cg-head" data-grp="${g.id}" aria-expanded="${gi === 0}">${g.이름} <small>${g.설명}</small><span class="dot" hidden></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>`
-      + `<div class="cg-body" data-body="${g.id}"${gi === 0 ? '' : ' hidden'}>` + g.항목.map(h => `<div class="fld" data-k="${h.키}"><div class="lbl"><span>${h.이름}</span><span class="cg-val"><output>0</output><button type="button" class="cg-one" aria-label="${h.이름} 처음으로" title="처음으로" hidden>↺</button></span></div>`
-        + `<input type="range" min="-100" max="100" step="1" value="0" class="${h.막대 || ''}" aria-label="${h.이름}"><div class="cg-ends"><span>${h.끝[0]}</span><span>${h.끝[1]}</span></div></div>`).join('') + '</div></div>').join('');
+      + `<div class="cg-body" data-body="${g.id}"${gi === 0 ? '' : ' hidden'}>` + g.항목.map(h => `<div class="cg-row" data-k="${h.키}"><span class="cg-name" title="${h.이름}">${h.짧게 || h.이름}</span>`
+        + `<input type="range" min="-100" max="100" step="1" value="0" class="${h.막대 || ''}" aria-label="${h.이름}" title="${h.이름}: ← ${h.끝[0]} · ${h.끝[1]} →">`
+        + `<span class="cg-val"><output>0</output><button type="button" class="cg-one" aria-label="${h.이름} 처음으로" title="처음으로" hidden>↺</button></span></div>`).join('') + '</div></div>').join('');
+    // 휴대폰: 항목 칩 + 막대 하나 (같은 값을 고친다)
+    $('cg-chips').innerHTML = 색감항목들().map(h => `<button type="button" data-chip="${h.키}" aria-pressed="false">${h.이름}</button>`).join('');
+    $('cg-chips').querySelectorAll('button').forEach(b => b.addEventListener('click', () => { 상태.색감항목 = b.dataset.chip; 색감반영(); }));
+    const 막대 = $('r-cg-m');
+    막대.addEventListener('input', () => { const k = 상태.색감항목 || '밝기'; 상태.보정끄는중 = true; 변경(() => 색감쓰기(o => { o[k] = Number(막대.value); }), 'cg-' + k); });
+    $('cg-m-one').addEventListener('click', () => { const k = 상태.색감항목 || '밝기'; 변경(() => 색감쓰기(o => { delete o[k]; })); });
     // 묶음 접기: 하나를 펼치면 나머지는 접힌다
     $('cg-groups').querySelectorAll('.cg-head').forEach(h => h.addEventListener('click', () => {
       const 열기 = h.getAttribute('aria-expanded') !== 'true';
@@ -1418,7 +1448,7 @@
       row.querySelector('.cg-one').addEventListener('click', () => 변경(() => 색감쓰기(o => { delete o[k]; })));
     });
     $('r-cg-amt').addEventListener('input', e => { 상태.보정끄는중 = true; 변경(() => 색감쓰기(o => { o.강도 = Number(e.target.value) / 100; }), 'cg-amt'); });
-    ['change', 'pointerup', 'pointercancel', 'blur'].forEach(n => $('r-cg-amt').addEventListener(n, 끝내기));
+    ['change', 'pointerup', 'pointercancel', 'blur'].forEach(n => { $('r-cg-amt').addEventListener(n, 끝내기); $('r-cg-m').addEventListener(n, 끝내기); });
     $('cg-presets').querySelectorAll('button').forEach(b => b.addEventListener('click', () => 변경(() => 색감쓰기(o => {
       if (!b.dataset.preset) { delete o.프리셋; return; }
       if (o.강도 === undefined) o.강도 = 0.8;
@@ -1453,6 +1483,11 @@
       row.querySelector('.cg-one').hidden = v === 0;
     });
     색감묶음.forEach(g => { $('cg-groups').querySelector(`[data-grp="${g.id}"] .dot`).hidden = !g.항목.some(x => Number(보정[x.키])); });
+    const 고른 = 색감항목들().find(x => x.키 === 상태.색감항목) || 색감항목들()[0], mv = Number(보정[고른.키]) || 0;
+    $('cg-chips').querySelectorAll('button').forEach(b => { b.setAttribute('aria-pressed', String(b.dataset.chip === 고른.키)); b.classList.toggle('on', !!Number(보정[b.dataset.chip])); });
+    $('cg-m-name').textContent = 고른.이름; $('r-cg-m').value = mv; $('r-cg-m').setAttribute('aria-label', 고른.이름); $('r-cg-m').className = 고른.막대 || '';
+    $('o-cg-m').textContent = mv > 0 ? '+' + mv : String(mv); $('o-cg-m').classList.toggle('on', mv !== 0); $('cg-m-one').hidden = mv === 0;
+    $('cg-m-l').textContent = '← ' + 고른.끝[0]; $('cg-m-r').textContent = 고른.끝[1] + ' →';
     $('cg-presets').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String((b.dataset.preset || '') === (보정.프리셋 || ''))));
     $('cg-amt-wrap').hidden = !보정.프리셋;
     const 강도 = Math.round((보정.강도 ?? 1) * 100);
