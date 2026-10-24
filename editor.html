@@ -1991,6 +1991,14 @@
     $('v-fwd').addEventListener('click', () => { vid.pause(); vid.currentTime = Math.min(vid.duration || 0, vid.currentTime + 0.1); });
     $('msg-ok').addEventListener('click', () => $('dlg-msg').close());
     document.querySelectorAll('.manage').forEach(b => b.addEventListener('click', () => 정리토글(b.dataset.for)));
+    // 정리 중에 Esc를 누르면 "완료"를 누른 것과 같다 (열린 창이 있으면 그 창이 먼저 닫힌다)
+    document.addEventListener('keydown', e => {
+      if (e.key !== 'Escape' || e.defaultPrevented || document.querySelector('dialog[open]')) return;
+      const 중 = [...document.querySelectorAll('.manage')].filter(b => !b.hidden && $(b.dataset.for).dataset.manage === '1');
+      if (!중.length) return;
+      중.forEach(b => { delete $(b.dataset.for).dataset.manage; });
+      배경목록(); 영상정보(); 사진보관그리기();
+    });
     보관불러오기();
     $('b-restore').addEventListener('click', 다시보이기); $('b-restore2').addEventListener('click', 다시보이기);
     $('dlg-work').addEventListener('cancel', e => e.preventDefault());
