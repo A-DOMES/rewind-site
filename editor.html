@@ -1796,7 +1796,7 @@
       .map(([k, 이름]) => `<button type="button" data-preset="${k}" aria-pressed="false"><canvas></canvas><span>${이름}</span></button>`).join('');
     $('cg-groups').innerHTML = 색감묶음.map((g, gi) => `<div class="cg-grp"><button type="button" class="cg-head" data-grp="${g.id}" aria-expanded="true">${g.이름} <small>${g.설명}</small><span class="dot" hidden></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>`
       + `<div class="cg-body" data-body="${g.id}">` + g.항목.map(h => `<div class="cg-row" data-k="${h.키}"><span class="cg-name" title="${h.이름}">${h.짧게 || h.이름}</span>`
-        + `<input type="range" min="-100" max="100" step="1" value="0" class="${h.막대 || ''}" aria-label="${h.이름}" title="${h.이름}: ← ${h.끝[0]} · ${h.끝[1]} →">`
+        + `<input type="range" min="-100" max="100" step="1" value="0" class="${h.막대 || ''}" aria-label="${h.이름}" title="${h.이름}">`
         + `<span class="cg-val"><output>0</output><button type="button" class="cg-one" aria-label="${h.이름} 처음으로" title="처음으로" hidden>↺</button></span></div>`).join('') + '</div></div>').join('');
     // 휴대폰: 항목 칩 + 막대 하나 (같은 값을 고친다)
     $('cg-chips').innerHTML = 색감항목들().map(h => `<button type="button" data-chip="${h.키}" aria-pressed="false">${h.이름}</button>`).join('');
@@ -1859,7 +1859,7 @@
     $('cg-chips').querySelectorAll('button').forEach(b => { b.setAttribute('aria-pressed', String(b.dataset.chip === 고른.키)); b.classList.toggle('on', !!Number(보정[b.dataset.chip])); });
     $('cg-m-name').textContent = 고른.이름; $('r-cg-m').value = mv; $('r-cg-m').setAttribute('aria-label', 고른.이름); $('r-cg-m').className = 고른.막대 || '';
     $('o-cg-m').textContent = mv > 0 ? '+' + mv : String(mv); $('o-cg-m').classList.toggle('on', mv !== 0); $('cg-m-one').hidden = mv === 0;
-    $('cg-m-l').textContent = '← ' + 고른.끝[0]; $('cg-m-r').textContent = 고른.끝[1] + ' →';
+    $('cg-m-l').textContent = '−'; $('cg-m-r').textContent = '+';   // 글자 대신 기호 (가운데가 원래 · 왼쪽 − · 오른쪽 +)
     $('cg-presets').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String((b.dataset.preset || '') === (보정.프리셋 || ''))));
     $('cg-amt-wrap').hidden = !보정.프리셋;
     const 강도 = Math.round((보정.강도 ?? 1) * 100);
