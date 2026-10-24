@@ -1,0 +1,121 @@
+/* 리와인드 썸네일 템플릿 (편집 창 "템플릿" 탭)
+ * 장면 하나의 "글씨 모양 + 도형"을 한 번에 깔아 준다. 내 문구(글자 내용)와 배경은 그대로 둔다.
+ * 순수 계산만 한다(화면·캔버스에 직접 그리지 않음) → 편집 창은 결과를 복사본에 적용해 미리보기를 그리고, 누르면 진짜 장면에 적용한다.
+ *
+ * 적용(장, 설계, 도구, id)
+ *   장    : 장면 객체(블록·문구·도형 …). 이 객체를 직접 고친다(미리보기는 복사본을 넘긴다)
+ *   설계  : { 캔버스: { w, h } }
+ *   도구  : { 폭(장) → 글씨 가장 긴 줄의 너비(px), 얼굴: [{x,y,w,h}] (캔버스 좌표, 없으면 []) }
+ * 글씨는 모두 화면 아래 절반에 둔다(편집 창의 "큰 문구가 위쪽에 있어요" 경고가 뜨지 않도록).
+ */
+(function (global) {
+  'use strict';
+
+  const 노랑 = '#FFE14D', 빨강 = '#FF3B30', 검정 = '#111111', 흰색 = '#FFFFFF';
+
+  // 틀마다 정해 둔 값. k = 글씨 크기 배율, cx·cy = 글씨 상자 가운데 위치(틀 비율), 폭 = 글씨가 차지할 수 있는 최대 폭(틀 비율)
+  const 목록 = [
+    { id: 'big', 이름: '큰 글씨', 글꼴: 'Black Han Sans', k: 1.0, cx: 0.5, cy: 0.74, 글자색: 흰색, 강조색: 노랑, 강조: '마지막', 테두리색: 검정, 테두리: 0.1, 그림자: false, 그늘: [0.5, 0.6] },
+    { id: 'yellow', 이름: '노랑 띠', 글꼴: 'Black Han Sans', k: 0.92, cx: 0.5, cy: 0.76, 글자색: 검정, 강조색: 검정, 강조: 0, 테두리색: 노랑, 테두리: 0, 그림자: false, 그늘: [0.6, 0.3], 도형: 'band', 띠색: 노랑 },
+    { id: 'red', 이름: '빨간 띠', 글꼴: 'Black Han Sans', k: 0.92, cx: 0.5, cy: 0.76, 글자색: 흰색, 강조색: 노랑, 강조: '마지막', 테두리색: 검정, 테두리: 0.04, 그림자: false, 그늘: [0.6, 0.3], 도형: 'band', 띠색: '#E53935' },
+    { id: 'arrow', 이름: '화살표', 글꼴: 'Black Han Sans', k: 0.95, cx: 0.5, cy: 0.8, 글자색: 흰색, 강조색: 노랑, 강조: '마지막', 테두리색: 검정, 테두리: 0.1, 그림자: false, 그늘: [0.5, 0.6], 도형: 'arrow' },
+    { id: 'ring', 이름: '동그라미', 글꼴: 'Black Han Sans', k: 0.95, cx: 0.5, cy: 0.8, 글자색: 흰색, 강조색: 노랑, 강조: '마지막', 테두리색: 검정, 테두리: 0.1, 그림자: false, 그늘: [0.5, 0.6], 도형: 'ring' },
+    { id: 'burst', 이름: '번쩍', 글꼴: 'Black Han Sans', k: 0.8, cx: 0.5, cy: 0.72, 글자색: 검정, 강조색: 빨강, 강조: '마지막', 테두리색: 흰색, 테두리: 0, 그림자: false, 그늘: [0.6, 0.3], 회전: -6, 도형: 'burst' },
+    { id: 'lines', 이름: '두 줄 선', 글꼴: 'Do Hyeon', k: 1.2, cx: 0.5, cy: 0.72, 글자색: 흰색, 강조색: 노랑, 강조: '마지막', 테두리색: 검정, 테두리: 0.1, 그림자: true, 그늘: [0.45, 0.5], 도형: 'lines' },
+    { id: 'tilt', 이름: '비스듬히', 글꼴: 'Gasoek One', k: 1.05, cx: 0.5, cy: 0.74, 글자색: 노랑, 강조색: 흰색, 강조: 0, 테두리색: 검정, 테두리: 0.12, 그림자: true, 그늘: [0.5, 0.55], 회전: -5, 도형: 'star' }
+  ];
+
+  const 범위 = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+  const 찾기 = id => 목록.find(t => t.id === id) || null;
+  const 돌린점 = (x, y, c, deg) => { const r = deg * Math.PI / 180, co = Math.cos(r), si = Math.sin(r), dx = x - c.x, dy = y - c.y; return { x: c.x + dx * co - dy * si, y: c.y + dx * si + dy * co }; };
+  // 회전한 사각형(가운데 c, 폭 w, 높이 h)을 감싸는 바깥 사각형
+  function 바깥(c, w, h, deg) {
+    const ps = [[-w / 2, -h / 2], [w / 2, -h / 2], [-w / 2, h / 2], [w / 2, h / 2]].map(([x, y]) => 돌린점(c.x + x, c.y + y, c, deg || 0));
+    const xs = ps.map(q => q.x), ys = ps.map(q => q.y), x0 = Math.min(...xs), y0 = Math.min(...ys);
+    return { x: x0, y: y0, w: Math.max(...xs) - x0, h: Math.max(...ys) - y0 };
+  }
+  const 겹침 = (p, q) => p.x < q.x + q.w && q.x < p.x + p.w && p.y < q.y + q.h && q.y < p.y + p.h;
+
+  function 적용(장, 설계, 도구, id) {
+    const t = 찾기(id);
+    if (!t || !장 || !장.블록) return false;
+    const { w: W, h: H } = 설계.캔버스, 기준 = Math.min(W, H), 세로 = W < H;
+    const b = 장.블록, 줄수 = Math.max(1, ((장.문구 && 장.문구.줄) || []).length), 돌림 = t.회전 || 0;
+    const 글자기준 = 세로 ? W * 0.16 : H * 0.17;   // 폭·높이 한도에 맞춰 줄어든다. 틀마다 k 로 크기를 조금씩 다르게
+    const 크기 = Math.max(24, Math.round(글자기준 * t.k));
+    Object.assign(b, {
+      size: 크기, 줄간격: 1.12, 강조줄: t.강조 === '마지막' ? 줄수 : 0, 글자색: t.글자색, 강조색: t.강조색,
+      테두리색: t.테두리색, 테두리: Math.round(크기 * t.테두리), 그림자: !!t.그림자, 글꼴: t.글꼴
+    });
+    if (돌림) b.회전 = 돌림; else delete b.회전;
+
+    // 글씨가 폭 한도(띠·번쩍이 글씨보다 넓어서 여유를 둠)와 높이 한도(화면 아래쪽 40%)를 넘으면 줄인다
+    const 폭한도 = W * (t.도형 === 'burst' ? 0.62 : t.도형 === 'band' ? 0.84 : 0.9), 높이한도 = H * (t.도형 === 'burst' ? 0.3 : 0.4);
+    let 폭 = 도구.폭(장), 높이 = 줄수 * b.size * b.줄간격;
+    const 줄임 = Math.min(1, 폭 > 0 ? 폭한도 / 폭 : 1, 높이한도 / 높이);
+    if (줄임 < 1) {
+      b.size = Math.max(24, Math.floor(b.size * 줄임));
+      b.테두리 = Math.round(b.size * t.테두리);
+      폭 = 도구.폭(장); 높이 = 줄수 * b.size * b.줄간격;
+    }
+    b.cx = Math.round(범위(W * t.cx, Math.min(폭 / 2 + W * 0.02, W / 2), Math.max(W - 폭 / 2 - W * 0.02, W / 2)));
+    b.y = Math.round(W * 0 + H * t.cy - 높이 / 2);
+    // 기울인 글씨의 바깥 사각형이 화면 아래·옆으로 나가지 않게 올리거나 옮긴다 (편집기의 넘침 점검과 같은 기준)
+    let 밖 = 바깥({ x: b.cx, y: b.y + 높이 / 2 }, 폭, 높이, 돌림);
+    if (밖.y + 밖.h > H * 0.97) b.y -= Math.ceil(밖.y + 밖.h - H * 0.97);
+    if (밖.x < W * 0.01) b.cx += Math.ceil(W * 0.01 - 밖.x); else if (밖.x + 밖.w > W * 0.99) b.cx -= Math.ceil(밖.x + 밖.w - W * 0.99);
+    if (b.y + 높이 / 2 < H * 0.5) b.y = Math.round(H * 0.5 - 높이 / 2);   // 글씨 중심은 화면 아래 절반
+    밖 = 바깥({ x: b.cx, y: b.y + 높이 / 2 }, 폭, 높이, 돌림);
+    const 중심 = { x: b.cx, y: b.y + 높이 / 2 }, a = { x: b.cx - 폭 / 2, y: b.y, w: 폭, h: 높이 };
+
+    장.그늘 = { 시작: t.그늘[0], 끝불투명도: t.그늘[1] };
+    const 도형 = [], 두께 = Math.max(2, Math.round(기준 * 0.011));
+    const 만들기 = (종류, 값) => 도형.push(Object.assign({ 종류, 회전: 0, 채움: '', 테두리색: 검정, 테두리: 0, 투명: 100, 층: '앞' }, 값));
+    // 도형이 화면 밖으로 나가지 않게: 크기를 틀 안으로 줄이고 가운데를 안쪽으로 옮긴다
+    const 안으로 = (cx, cy, w, h) => {
+      w = Math.min(w, W * 0.98); h = Math.min(h, H * 0.98);
+      return { cx: Math.round(범위(cx, w / 2, W - w / 2)), cy: Math.round(범위(cy, h / 2, H - h / 2)), w: Math.round(w), h: Math.round(h) };
+    };
+
+    if (t.도형 === 'band') {
+      const 여백 = b.size * 0.42;
+      만들기('네모', { ...안으로(중심.x, 중심.y, a.w + 여백 * 2, a.h + 여백 * 0.9), 회전: 돌림, 채움: t.띠색, 층: '뒤' });
+    } else if (t.도형 === 'burst') {
+      만들기('번쩍', { ...안으로(중심.x, 중심.y, a.w * 1.5 + b.size, a.h * 1.8 + b.size * 0.6), 회전: 돌림, 채움: 노랑, 테두리색: 검정, 테두리: Math.round(기준 * 0.009), 층: '뒤' });
+    } else if (t.도형 === 'lines') {
+      const 길이 = Math.round(Math.min(a.w * 1.04, W * 0.98)), 간격 = b.size * 0.3;
+      [a.y - 간격, a.y + a.h + 간격].forEach(y => 만들기('직선', { cx: Math.round(범위(중심.x, 길이 / 2, W - 길이 / 2)), cy: Math.round(범위(y, 두께, H - 두께)), w: 길이, h: 두께 * 2, 테두리색: 노랑, 테두리: 두께 * 2 }));
+    } else if (t.도형 === 'star') {
+      const 별 = Math.round(기준 * 0.13);
+      만들기('별', { cx: Math.round(범위(a.x + a.w + 별 * 0.1, 별 / 2, W - 별 / 2)), cy: Math.round(범위(a.y - 별 * 0.35, 별 / 2, H - 별 / 2)), w: 별, h: 별, 회전: 14, 채움: 노랑, 테두리색: 검정, 테두리: Math.max(2, Math.round(기준 * 0.008)) });
+    } else if (t.도형 === 'arrow' || t.도형 === 'ring') {
+      // 가리킬 곳: 얼굴이 있으면 그 얼굴, 없으면 글씨 위쪽 가운데
+      const 얼굴들 = (도구.얼굴 || []).filter(f => f && f.w > 0), 얼굴 = 얼굴들[0];
+      const 대상 = 얼굴 ? { x: 얼굴.x + 얼굴.w / 2, y: 얼굴.y + 얼굴.h / 2, r: Math.max(얼굴.w, 얼굴.h) * 0.62 } : { x: W * 0.5, y: H * 0.36, r: 기준 * 0.2 };
+      if (t.도형 === 'ring') {
+        const 지름 = Math.round(대상.r * 2.1);
+        만들기('동그라미', { ...안으로(대상.x, 대상.y, 지름, 지름), 테두리색: 빨강, 테두리: Math.max(4, Math.round(기준 * 0.022)) });
+      } else {
+        const 길이 = Math.round(기준 * 0.34), 높 = Math.round(기준 * 0.19);
+        // 여러 방향을 차례로 시험해 화면 안이면서 얼굴·글씨와 겹치지 않는 첫 자리를 고른다
+        const 방향들 = (대상.x > W * 0.62 ? [[-0.8, 0.35], [0.8, 0.35], [-0.8, -0.5], [0.8, -0.5], [0, -1], [-1, 0], [1, 0]] : [[0.8, 0.35], [-0.8, 0.35], [0.8, -0.5], [-0.8, -0.5], [0, -1], [1, 0], [-1, 0]]);
+        const 막힌곳 = [{ x: 밖.x - 4, y: 밖.y - 4, w: 밖.w + 8, h: 밖.h + 8 }, ...얼굴들];
+        let 고름 = null, 첫안쪽 = null;
+        방향들.forEach(([ux0, uy0]) => {
+          if (고름) return;
+          const n = Math.hypot(ux0, uy0), ux = ux0 / n, uy = uy0 / n, 거리 = 길이 / 2 + 대상.r * 1.08;
+          const c = { x: 대상.x + ux * 거리, y: 대상.y + uy * 거리 }, deg = Math.round(Math.atan2(-uy, -ux) * 180 / Math.PI), 상자 = 바깥(c, 길이, 높, deg);
+          if (상자.x < 0 || 상자.y < 0 || 상자.x + 상자.w > W || 상자.y + 상자.h > H) return;
+          if (!첫안쪽) 첫안쪽 = { c, deg };
+          if (!막힌곳.some(m => 겹침(상자, m))) 고름 = { c, deg };
+        });
+        const 끝 = 고름 || 첫안쪽 || { c: { x: 범위(대상.x + 길이 * 0.6, 길이 / 2, W - 길이 / 2), y: 범위(대상.y - 대상.r - 높, 높 / 2, H - 높 / 2) }, deg: 180 };
+        만들기('화살표', { cx: Math.round(끝.c.x), cy: Math.round(끝.c.y), w: 길이, h: 높, 회전: 끝.deg, 채움: 빨강, 테두리색: 검정, 테두리: Math.max(3, Math.round(기준 * 0.011)) });
+      }
+    }
+    if (도형.length) 장.도형 = 도형; else delete 장.도형;
+    return true;
+  }
+
+  global.RewindThumbTemplates = { 목록, 찾기, 적용 };
+})(window);
