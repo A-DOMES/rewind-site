@@ -6,15 +6,28 @@
 (function (global) {
   'use strict';
 
+  // 분류 = 편집 창 글꼴 버튼 묶음 제목. 모두 Google Fonts(OFL, 상업 이용 가능)
   const 글꼴목록 = {
-    'Black Han Sans': { css: "'Black Han Sans'", weight: '400', 이름: '블랙한산스' },
-    'Noto Sans KR': { css: "'Noto Sans KR'", weight: '900', 이름: '노토 산스 굵게' },
-    'Do Hyeon': { css: "'Do Hyeon'", weight: '400', 이름: '도현' },
-    'Jua': { css: "'Jua'", weight: '400', 이름: '주아' }
+    'Black Han Sans': { css: "'Black Han Sans'", weight: '400', 이름: '블랙한산스', 분류: '굵고 강하게' },
+    'Noto Sans KR': { css: "'Noto Sans KR'", weight: '900', 이름: '노토 산스 굵게', 분류: '굵고 강하게' },
+    'Bagel Fat One': { css: "'Bagel Fat One'", weight: '400', 이름: '베이글 팻', 분류: '굵고 강하게' },
+    'Gasoek One': { css: "'Gasoek One'", weight: '400', 이름: '가석', 분류: '굵고 강하게' },
+    'Gothic A1': { css: "'Gothic A1'", weight: '900', 이름: '고딕 A1 블랙', 분류: '굵고 강하게' },
+    'Do Hyeon': { css: "'Do Hyeon'", weight: '400', 이름: '도현', 분류: '친근하게' },
+    'Jua': { css: "'Jua'", weight: '400', 이름: '주아', 분류: '친근하게' },
+    'Nanum Brush Script': { css: "'Nanum Brush Script'", weight: '400', 이름: '나눔 붓글씨', 분류: '손글씨' },
+    'East Sea Dokdo': { css: "'East Sea Dokdo'", weight: '400', 이름: '동해독도', 분류: '손글씨' },
+    'Noto Serif KR': { css: "'Noto Serif KR'", weight: '900', 이름: '노토 세리프 굵게', 분류: '진지·고급' },
+    'Song Myung': { css: "'Song Myung'", weight: '400', 이름: '송명', 분류: '진지·고급' },
+    'Yeon Sung': { css: "'Yeon Sung'", weight: '400', 이름: '연성', 분류: '레트로' },
+    'Black And White Picture': { css: "'Black And White Picture'", weight: '400', 이름: '흑백사진', 분류: '레트로' }
   };
-  const 글꼴주소 = 'https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Do+Hyeon&family=Jua&family=Noto+Sans+KR:wght@900&display=swap';
+  const 글꼴주소 = 'https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Do+Hyeon&family=Jua&family=Noto+Sans+KR:wght@900'
+    + '&family=Bagel+Fat+One&family=Gasoek+One&family=Gothic+A1:wght@900&family=Nanum+Brush+Script&family=East+Sea+Dokdo'
+    + '&family=Noto+Serif+KR:wght@900&family=Song+Myung&family=Yeon+Sung&family=Black+And+White+Picture&display=swap';
 
-  function 글꼴준비() {
+  // 쓸글꼴(글꼴 키 배열)을 주면 그 글꼴만 기다리고 나머지는 뒤에서 받는다. 안 주면 전부 기다린다(예전 동작)
+  function 글꼴준비(쓸글꼴) {
     if (!document.querySelector('link[data-rw-thumb-fonts]')) {
       const l = document.createElement('link');
       l.rel = 'stylesheet'; l.href = 글꼴주소; l.setAttribute('data-rw-thumb-fonts', '1');
@@ -22,8 +35,11 @@
     }
     if (!document.fonts || !document.fonts.load) return Promise.resolve();
     const 샘플 = '가나다 ABC 123';
-    return Promise.all(Object.values(글꼴목록).map(f => document.fonts.load(`${f.weight} 64px ${f.css}`, 샘플).catch(() => null)))
-      .then(() => undefined);
+    const 받기 = f => document.fonts.load(`${f.weight} 64px ${f.css}`, 샘플).catch(() => null);
+    const 전부 = Object.values(글꼴목록);
+    const 대상 = Array.isArray(쓸글꼴) ? [...new Set(['Black Han Sans', ...쓸글꼴])].map(k => 글꼴목록[k]).filter(Boolean) : 전부;
+    전부.filter(f => !대상.includes(f)).forEach(받기);
+    return Promise.all(대상.map(받기)).then(() => undefined);
   }
 
   // 이미지 불러오기: 먼저 직접(CORS 허용 시), 막히면 중계 함수(proxy)로 받은 data URL 사용
