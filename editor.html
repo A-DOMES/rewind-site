@@ -102,7 +102,19 @@
   .seg { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
   .seg button { min-height: 44px; border-radius: 10px; border: 1px solid var(--line-strong); background: transparent; font-size: .95rem; }
   .seg button[aria-pressed="true"] { border-color: var(--amber); background: color-mix(in srgb, var(--amber) 10%, transparent); }
-  .seg .seg-lbl { grid-column: 1 / -1; margin-top: 6px; font-size: .78rem; color: var(--ink-dim); }
+  /* 글꼴 고르기 (드롭다운: 닫혀 있으면 지금 글꼴 한 줄, 누르면 분류별 목록이 아래로 펼쳐짐) */
+  .fp-btn { width: 100%; min-height: 48px; display: flex; align-items: center; gap: 8px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line-strong); background: var(--bg-input); cursor: pointer; text-align: left; }
+  .fp-btn:hover, .fp-btn[aria-expanded="true"] { border-color: var(--amber); }
+  .fp-cur { flex: 1; font-size: 1.15rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .fp-grp { font-size: .75rem; color: var(--ink-dim); white-space: nowrap; }
+  .fp-caret { width: 18px; height: 18px; fill: none; stroke: var(--ink-dim); stroke-width: 2; transition: transform .15s; }
+  .fp-btn[aria-expanded="true"] .fp-caret { transform: rotate(180deg); }
+  .fp-list { margin-top: 6px; max-height: 320px; overflow-y: auto; border: 1px solid var(--line-strong); border-radius: 10px; background: var(--bg-raised); padding: 4px; }
+  .fp-list .fp-lbl { padding: 8px 10px 4px; font-size: .75rem; color: var(--ink-dim); }
+  .fp-list button { display: flex; align-items: center; width: 100%; min-height: 44px; padding: 0 10px; border: 0; border-radius: 8px; background: transparent; font-size: 1.1rem; text-align: left; cursor: pointer; }
+  .fp-list button:hover, .fp-list button:focus-visible { background: var(--sel); outline: none; }
+  .fp-list button[aria-pressed="true"] { background: var(--sel); color: var(--amber); }
+  .fp-list button[aria-pressed="true"]::after { content: '✓'; margin-left: auto; font-family: 'IBM Plex Sans KR', sans-serif; font-size: .95rem; }
   input[type=range] { width: 100%; accent-color: var(--amber); height: 26px; margin: 0; }
   .sw { display: flex; gap: 10px; flex-wrap: wrap; }
   .sw button { width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--line-strong); padding: 0; }
@@ -315,7 +327,12 @@
     <!-- 글씨 꾸미기 -->
     <section class="pane" data-pane="style" hidden>
       <div><h2>글씨 꾸미기</h2><p class="sub">채널마다 같은 글꼴·색을 쓰면 썸네일만 봐도 알아봐요.</p><p class="sub" id="style-for" style="color:var(--amber)"></p></div>
-      <div class="fld"><div class="lbl">글꼴</div><div class="seg" id="fonts"></div></div>
+      <div class="fld"><div class="lbl">글꼴</div>
+        <div class="fontpick" id="fontpick">
+          <button type="button" class="fp-btn" id="fp-btn" aria-haspopup="listbox" aria-expanded="false" aria-controls="fonts"><span class="fp-cur" id="fp-cur">블랙한산스</span><span class="fp-grp" id="fp-grp"></span><svg class="fp-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+          <div class="fp-list" id="fonts" role="listbox" aria-label="글꼴 목록" hidden></div>
+        </div>
+      </div>
       <div class="fld"><div class="lbl"><span>크기</span><output id="o-size"></output></div><input type="range" id="r-size" min="40" max="240" step="1" aria-label="글씨 크기"></div>
       <div class="fld"><div class="lbl"><span>줄 간격</span><output id="o-gap"></output></div><input type="range" id="r-gap" min="0.9" max="1.6" step="0.01" aria-label="줄 간격"></div>
       <div class="fld"><div class="lbl"><span>테두리 두께</span><output id="o-outline"></output></div><input type="range" id="r-outline" min="0" max="30" step="1" aria-label="테두리 두께"></div>
@@ -1286,6 +1303,7 @@
     const 위치 = 중심 >= 0.6 ? 'bottom' : 중심 >= 0.38 ? 'middle' : 'top';
     $('pos').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.pos === 위치)));
     $('fonts').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.font === (b.글꼴 || 'Black Han Sans'))));
+    글꼴단추표시(b.글꼴 || 'Black Han Sans');
     const 설정 = (id, v, 표시) => { $(id).value = v; $('o-' + id.slice(2)).textContent = 표시; };
     설정('r-size', b.size, Math.round(b.size) + 'px');
     설정('r-gap', b.줄간격 || 1.15, (b.줄간격 || 1.15).toFixed(2));
@@ -1311,19 +1329,34 @@
     $('card-photo-t').textContent = 상태.사진열림 ? `영상당 ${상태.사진최대}장까지 · 지금 ${n}장 사용` : '썸네일을 한 번 저장하면 열려요';
   }
 
+  // 글꼴 드롭다운 단추: 지금 글꼴 이름을 그 글꼴 모양으로, 옆에 분류
+  function 글꼴단추표시(키) {
+    const f = R.글꼴목록[키] || R.글꼴목록['Black Han Sans'];
+    $('fp-cur').textContent = f.이름; $('fp-cur').style.fontFamily = f.css; $('fp-cur').style.fontWeight = f.weight;
+    $('fp-grp').textContent = f.분류 || '';
+  }
   function UI만들기() {
     document.querySelectorAll('.tab[data-tab]').forEach(t => t.addEventListener('click', () => 탭열기(t.dataset.tab)));
     document.querySelectorAll('.card[data-go]').forEach(c => c.addEventListener('click', () => 탭열기(c.dataset.go)));
     // 글꼴은 분류(굵고 강하게·친근하게…)별로 묶어 보여 준다
     let 앞분류 = '';
     $('fonts').innerHTML = Object.entries(R.글꼴목록).map(([k, f]) => {
-      const 제목 = f.분류 && f.분류 !== 앞분류 ? `<div class="seg-lbl">${f.분류}</div>` : '';
+      const 제목 = f.분류 && f.분류 !== 앞분류 ? `<div class="fp-lbl">${f.분류}</div>` : '';
       앞분류 = f.분류 || 앞분류;
       return 제목 + `<button type="button" data-font="${k}" style="font-family:${f.css};font-weight:${f.weight}">${f.이름}</button>`;
     }).join('');
     // 고른 글꼴을 지금 문구 글자로 먼저 받아 둔 뒤 적용한다 (안 받으면 크기 맞춤·그리기가 다른 글꼴로 될 수 있음)
     //   받는 동안 다른 상자를 골랐거나 다른 글꼴을 또 눌렀으면 적용하지 않는다 (마지막 클릭만 반영)
     let 글꼴순번 = 0;
+    // 드롭다운 열고 닫기: 단추를 누르면 펼침/접힘, 글꼴을 고르거나 바깥을 누르거나 Esc면 접힘
+    const 글꼴목록열기 = 열기 => {
+      $('fonts').hidden = !열기; $('fp-btn').setAttribute('aria-expanded', String(열기));
+      if (열기) { const 고른 = $('fonts').querySelector('button[aria-pressed="true"]'); if (고른) 고른.scrollIntoView({ block: 'nearest' }); }
+    };
+    $('fp-btn').addEventListener('click', () => 글꼴목록열기($('fonts').hidden));
+    document.addEventListener('pointerdown', e => { if (!$('fonts').hidden && !$('fontpick').contains(e.target)) 글꼴목록열기(false); });
+    $('fontpick').addEventListener('keydown', e => { if (e.key === 'Escape' && !$('fonts').hidden) { e.stopPropagation(); 글꼴목록열기(false); $('fp-btn').focus(); } });
+    $('fonts').querySelectorAll('button').forEach(b => b.addEventListener('click', () => 글꼴목록열기(false)));
     $('fonts').querySelectorAll('button').forEach(b => b.addEventListener('click', async () => {
       const 번 = ++글꼴순번, 고른상자 = 상자();
       const f = R.글꼴목록[b.dataset.font], 글자 = ((고른상자.문구 && 고른상자.문구.줄) || []).join('') || '가나다';

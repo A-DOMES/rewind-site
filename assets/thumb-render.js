@@ -20,11 +20,11 @@
     'Noto Serif KR': { css: "'Noto Serif KR'", weight: '900', 이름: '노토 세리프 굵게', 분류: '진지·고급' },
     'Song Myung': { css: "'Song Myung'", weight: '400', 이름: '송명', 분류: '진지·고급' },
     'Yeon Sung': { css: "'Yeon Sung'", weight: '400', 이름: '연성', 분류: '레트로' },
-    'Black And White Picture': { css: "'Black And White Picture'", weight: '400', 이름: '흑백사진', 분류: '레트로' }
+    'Gugi': { css: "'Gugi'", weight: '400', 이름: '구기', 분류: '레트로' }
   };
   const 글꼴주소 = 'https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Do+Hyeon&family=Jua&family=Noto+Sans+KR:wght@900'
     + '&family=Bagel+Fat+One&family=Gasoek+One&family=Gothic+A1:wght@900&family=Nanum+Brush+Script&family=East+Sea+Dokdo'
-    + '&family=Noto+Serif+KR:wght@900&family=Song+Myung&family=Yeon+Sung&family=Black+And+White+Picture&display=swap';
+    + '&family=Noto+Serif+KR:wght@900&family=Song+Myung&family=Yeon+Sung&family=Gugi&display=swap';
 
   // 쓸글꼴(글꼴 키 배열)을 주면 그 글꼴만 기다리고 나머지는 뒤에서 받는다. 안 주면 전부 기다린다(예전 동작)
   function 글꼴준비(쓸글꼴) {
