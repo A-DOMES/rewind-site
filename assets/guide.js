@@ -46,6 +46,7 @@
   function 길이분() { var 후보 = 길이후보[폼형태()] || 길이후보.쇼츠; return 후보[Math.max(0, Math.min(후보.length - 1, S.길이칸))]; }
   function 길이말(분) { var 초 = Math.round(분 * 60); return 초 < 60 ? 초 + '초' : (초 % 60 ? Math.floor(초 / 60) + '분 ' + (초 % 60) + '초' : (초 / 60) + '분'); }
   function 가운데칸() { return Math.floor((길이후보[폼형태()] || 길이후보.쇼츠).length / 2); }
+  function 설정종류() { var k = 지금종류(); return 세부설정종류() || (!!k && k.이름 === '상품쇼츠'); }   // 길이·목소리를 여기서 정하는 종류 (상품쇼츠는 화면 구성·자막이 따로 없다)
   function 세부설정종류() { var k = 지금종류(); return !!k && (k.이름 === '쇼츠' || k.이름 === '롱폼'); }
 
   /* ───── 화면 뼈대 ───── */
@@ -202,7 +203,7 @@
   }
   function 단계4() {
     var k = 지금종류(), api = window.__rwGuideApi;
-    if (!세부설정종류() || !api) {
+    if (!설정종류() || !api) {
       var 말 = { '상품쇼츠': '목소리와 자막은 다음 화면에서 정해요.', '야담': '이야기꾼 목소리와 이야기 길이는 다음 화면에서 정해요.', '분위기 영상': '분위기와 목소리는 다음 화면에서 정해요.' }[k ? k.이름 : ''] || '세부 설정은 다음 화면에서 정해요.';
       return '<div class="gd-title"><h2>이렇게 만들어 드릴게요</h2><p>' + esc(말) + '</p></div>' +
         '<div class="gd-box"><h3>' + (k ? k.이름 : '') + '</h3><p class="gd-fine" style="margin:6px 0 0">주제와 재료 선택은 미리 넣어 둘게요. 다음 화면에서 이어서 정하면 돼요.</p></div>' + 단추줄('다음');
@@ -210,19 +211,19 @@
     var 후보 = 길이후보[폼형태()], 분 = 길이분(), 기본 = S.길이칸 === 가운데칸();
     var 구성카드 = k.이름 === '쇼츠' ? '<div class="gd-k"><div class="gd-kh"><b>화면 구성</b><span class="gd-tag in">' + (S.구성 === '자동' ? '추천' : '직접 고름') + '</span></div>' +
       선택칸('구성', S.구성, api.구성들, function (v, 가로) { return api.그림(v === '자동' ? '제목고정형' : v, S.자막 === '자동' ? '하단' : S.자막, 가로, v === '자동'); }) + '</div>' : '';
-    return '<div class="gd-title"><h2>이렇게 만들어 드릴게요</h2><p>추천값으로 채워 두었어요. 바꾸고 싶은 것만 눌러 주세요.</p></div><div class="gd-grid">' + 구성카드 +
+    return '<div class="gd-title"><h2>이렇게 만들어 드릴게요</h2><p>추천값으로 채워 두었어요. 바꾸고 싶은 것만 눌러 주세요.</p></div><div class="gd-grid">' + 구성카드 + (!세부설정종류() ? '' :
       '<div class="gd-k"><div class="gd-kh"><b>자막 위치</b><span class="gd-tag in">' + (S.자막 === '자동' ? '추천' : '직접 고름') + '</span></div>' +
-      선택칸('자막', S.자막, api.자막들, function (v, 가로) { return api.그림(S.구성 === '자동' ? '제목고정형' : S.구성, v === '자동' ? '하단' : v, 가로, v === '자동'); }) + '</div>' +
+      선택칸('자막', S.자막, api.자막들, function (v, 가로) { return api.그림(S.구성 === '자동' ? '제목고정형' : S.구성, v === '자동' ? '하단' : v, 가로, v === '자동'); }) + '</div>') +
       '<div class="gd-k"><div class="gd-kh"><b>길이</b>' + (기본 ? '<span class="gd-tag in">추천</span>' : '') + '</div><div class="gd-big">' + 길이말(분) + '<small>' + (기본 ? '기본 길이' : '') + '</small></div>' +
       '<div class="gd-sl"><button type="button" class="gd-st" data-길이="-1" aria-label="짧게">−</button><input type="range" min="0" max="' + (후보.length - 1) + '" step="1" value="' + S.길이칸 + '" id="gd-len" aria-label="영상 길이"><button type="button" class="gd-st" data-길이="1" aria-label="길게">＋</button></div>' +
       '<p class="gd-fine">가운데가 기본 길이예요. 길게 하면 대본과 포인트가 함께 늘어요.</p></div>' +
       '<div class="gd-k"><div class="gd-kh"><b>목소리</b><span class="gd-tag in">' + (S.목소리 ? '직접 고름' : '추천') + '</span></div><div id="gd-vp"></div></div></div>' + 단추줄('다음');
   }
   function 단계5() {
-    var k = 지금종류(), 상세 = 세부설정종류();
+    var k = 지금종류(), 상세 = 설정종류(), 화면설정 = 세부설정종류();
     return '<div class="gd-title"><h2>이대로 만들까요</h2><p>' + (상세 ? '신청 화면에서 포인트를 확인하고 마지막으로 눌러 주세요.' : '신청 화면으로 이동해 이어서 정해요.') + '</p></div>' +
       '<div class="gd-box big">' + 요약줄('주제', S.주제.trim()) + 요약줄('재료', S.길 === 'none' ? '재료 없이 AI로' : (길들[S.길] ? 길들[S.길].이름 : '')) +
-      요약줄('영상 종류', k ? k.이름 : '') + (상세 ? 요약줄('길이', 길이말(길이분())) + 요약줄('화면 구성', k.이름 === '쇼츠' ? (S.구성 === '자동' ? '제목고정형 (추천)' : S.구성) : '전체화면') + 요약줄('자막 위치', S.자막 === '자동' ? '하단 (추천)' : S.자막) + 요약줄('목소리', S.목소리 ? (window.RWVoiceCatalog && RWVoiceCatalog.이름 ? RWVoiceCatalog.이름(S.목소리) : '직접 고름') : '추천') : '') + '</div>' +
+      요약줄('영상 종류', k ? k.이름 : '') + (상세 ? 요약줄('길이', 길이말(길이분())) + (!화면설정 ? '' : 요약줄('화면 구성', k.이름 === '쇼츠' ? (S.구성 === '자동' ? '제목고정형 (추천)' : S.구성) : '전체화면') + 요약줄('자막 위치', S.자막 === '자동' ? '하단 (추천)' : S.자막)) + 요약줄('목소리', S.목소리 ? (window.RWVoiceCatalog && RWVoiceCatalog.이름 ? RWVoiceCatalog.이름(S.목소리) : '직접 고름') : '추천') : '') + '</div>' +
       '<div class="gd-foot"><button type="button" class="gd-btn2" data-act="prev">이전</button>' + (상세 ?
       '<span class="gd-two"><button type="button" class="gd-btn2" data-act="detail">더 자세히 설정하기</button><button type="button" class="gd-btn" data-act="make">이대로 만들기</button></span>' :
       '<button type="button" class="gd-btn" data-act="detail">신청 화면으로 가기</button>') + '</div>';
@@ -234,7 +235,7 @@
     if (활성 && 허브.contains(활성)) { if (활성.id) 선택자 = '#' + 활성.id; else for (var i = 0; i < 활성.attributes.length; i++) { var a = 활성.attributes[i]; if (a.name.indexOf('data-') === 0) { 선택자 = '[' + a.name + '="' + a.value + '"]'; break; } } }
     var 본문 = [단계1, 단계2, 단계3, 단계4, 단계5][S.단계 - 1]();
     허브.innerHTML = '<div class="gd-wrap"><div class="gd-head"><h1>' + esc(이름) + '</h1><p>' + esc(부제) + '</p></div>' + 머리() + '<div class="gd-body"><section class="gd-main">' + 본문 + '</section>' + 옆칸() + '</div></div>';
-    if (S.단계 === 4 && 세부설정종류()) 소리판만들기();
+    if (S.단계 === 4 && 설정종류()) 소리판만들기();
     허브.scrollTop = 맨위 ? 0 : 위;
     if (선택자 && !맨위) { var 다시 = 허브.querySelector(선택자); if (다시) { try { 다시.focus({ preventScroll: true }); } catch (e) {} } }
     var 칸 = document.getElementById('gd-topic'); if (칸 && S.단계 === 1 && !S.주제) { try { 칸.focus({ preventScroll: true }); } catch (e) {} }
@@ -290,7 +291,7 @@
     if (!api || !k) return;
     var 힌트 = S.길 === 'B' ? (S.참고 && k.이름 === '쇼츠' ? '고른 참고 영상을 "참고 영상" 칸에 넣어 뒀어요. "이 영상으로 분석하기"를 눌러 주세요.' : 길들.B.힌트) : (S.길 === 'A' && k.이름 === '상품쇼츠' ? 길들.A.힌트.replace('아래 칸에', '아래 "내 사진·영상" 칸에') : '');
     var 값 = { 주제: S.주제.trim(), 종류: k.이름, 키: k.키, 폼: k.폼, 길: S.길, 참고: S.길 === 'B' && k.이름 === '쇼츠' ? S.참고 : '', 힌트: 힌트, 바로확인: !!바로확인 && S.길 !== 'B' };   // 참고 영상 칸은 앞 단계에 있어서 따라 만들기는 확인 단계로 건너뛰지 않는다
-    if (세부설정종류()) { 값.구성 = k.이름 === '쇼츠' ? S.구성 : ''; 값.자막 = S.자막; 값.길이분 = 길이분(); 값.목소리 = S.목소리; }
+    if (설정종류()) { 값.구성 = k.이름 === '쇼츠' ? S.구성 : ''; 값.자막 = S.자막; 값.길이분 = 길이분(); 값.목소리 = S.목소리; }
     닫기();
     api.적용(값);
   }

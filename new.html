@@ -4022,6 +4022,10 @@
           videoLength: v.길이분 ? `${v.길이분}분` : '', layout: v.키 === 'short' ? v.구성 : '', captionPos: v.자막 });
         setTimeout(() => { if (window.__pwGo && window.__pwOn && window.__pwOn()) window.__pwGo(v.바로확인 ? 5 : 1, true); }, 90);
       } else openFormFor(v.키, v.주제, '', v.키 === 'prod' ? '한번에 만들기에서 가져온 이름이에요. 정확한 제품명으로 고쳐 주세요.' : '');
+      if (v.키 === 'prod') setTimeout(() => {   // 길이(초)와 목소리를 상품쇼츠 폼에 채운다
+        const L = document.getElementById('df-prodLen'); if (L && v.길이분) { L.value = String(Math.max(30, Math.min(180, Math.round(v.길이분 * 60)))); L.dispatchEvent(new Event('input', { bubbles: true })); L.dispatchEvent(new Event('change', { bubbles: true })); }
+        if (v.목소리 && window.__rwVP && __rwVP.쇼츠) __rwVP.쇼츠.값설정(v.목소리);
+      }, 150);
       if (v.참고 && /^[\w-]{11}$/.test(v.참고)) {
         let 시도 = 0; const 넣기 = () => {
           const u = document.getElementById('rf-url');
