@@ -9,7 +9,7 @@
 
   // 종류별 처음 값. 빈 칸이면 서버가 기본값을 쓰므로, 상품쇼츠 말고는 지금 동작과 같다
   var KIND_DEFAULT = {
-    '상품쇼츠': { speed: 1.12, tone: '보통', pause: '짧게', subSize: '크게', subStyle: '구절형', subFx: '끔', subPos: '하단' },
+    '상품쇼츠': { speed: 1.12, tone: '보통', pause: '짧게', subSize: '보통', subStyle: '구절형', subFx: '끔', subPos: '하단' },
     // 그 밖의 종류: 아무것도 고르지 않은 상태가 처음 값이다(= 영상에 맞게 자동). 직접 건드린 것만 접수로 보낸다
     '_': { speed: 1.0, tone: '', pause: '', subSize: '', subStyle: '', subFx: '', subPos: '' }
   };

@@ -4395,7 +4395,7 @@
     if (hook) hookLines.forEach((l, i) => { g += `<text x="45" y="${hTop + hPitch * (i + 0.8)}" text-anchor="middle" font-size="${hPitch * 0.65}" font-weight="800" fill="#FFF200" stroke="#000" stroke-width="${hPitch * 0.14}" paint-order="stroke" font-family="inherit">${pdEsc(l)}</text>`; });
     else g += `<text x="45" y="${hTop + hPitch * 0.8}" text-anchor="middle" font-size="3.8" fill="#e8dfd0" fill-opacity=".75" font-family="inherit">위쪽 문구 · 비우면 AI가 만들어요</text>`;
     if (!st.off) {
-      const cPitch = W * ({ '작게': 0.048, '보통': 0.058, '크게': 0.072, '아주크게': 0.09 }[st.size] || 0.072) * 1.333 * (st.sub === '단어형' ? 1.2 : 1), sample = st.sub === '문장형' ? '자막은 이렇게 문장 하나를 통째로 보여 줘요' : st.sub === '단어형' ? '이렇게 한두 단어' : '이렇게 한 줄로 나와요';
+      const cPitch = W * ({ '작게': 0.048, '보통': 0.058, '크게': 0.072, '아주크게': 0.09 }[st.size] || 0.058) * 1.225 * (st.sub === '단어형' ? 1.2 : 1), sample = st.sub === '문장형' ? '자막은 이렇게 문장 하나를 통째로 보여 줘요' : st.sub === '단어형' ? '이렇게 한두 단어' : '이렇게 한 줄로 나와요';
       const lines = st.sub === '문장형' && lw(sample) * cPitch > W * 0.76 ? split2(sample) : [sample];
       const bar = lay === '자막바형', pad = bar ? cPitch * 0.45 : 0, bh = lines.length * cPitch + 2 * pad;
       const limit = hBottom + H * 0.025;
@@ -4820,7 +4820,7 @@
     const pv = document.getElementById('pd-pv'), hook = document.getElementById('pd-hook'), hookN = document.getElementById('pd-hook-n'), lay = document.getElementById('pd-layout'), note = document.getElementById('pd-layout-note'), hookNote = document.getElementById('pd-hookshow-note');
     if (!pv || !hook) return;
     const val = n => (document.querySelector(`input[name="${n}"]:checked`) || {}).value || '';
-    const state = () => ({ layout: val('pd-layout') || '자동', hook: hook.value, hookShow: val('pd-hookshow') || 'all', pos: val('vp-subPos') || '하단', size: val('vp-subSize') || '크게', sub: val('vp-subStyle') || '구절형', off: val('vp-subOn') === '끄기' });
+    const state = () => ({ layout: val('pd-layout') || '자동', hook: hook.value, hookShow: val('pd-hookshow') || 'all', pos: val('vp-subPos') || '하단', size: val('vp-subSize') || '보통', sub: val('vp-subStyle') || '구절형', off: val('vp-subOn') === '끄기' });
     let lastPos = '하단';
     function draw() {
       const st = state();
