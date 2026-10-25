@@ -1,5 +1,6 @@
 /* 사진 오려내기: 사진에서 사람·물건만 남기고 배경을 투명하게 (브라우저 안에서만 처리. 사진은 서버로 가지 않는다)
  * 모델: assets/cutout/silueta.onnx (U²-Net 경량판) · 실행기: assets/cutout/ort.wasm.min.js (ONNX Runtime Web)
+ * 옵션: 범위(직접 그린 흰색 마스크 — 그 안에서만 찾음) · 마스크만(참이면 오려낸 그림 대신 마스크 캔버스를 돌려줌 — 하얀색, 투명도 = 남길 정도. 범위와 함께 쓰면 둘레를 키워서 더 정밀하게 찾고, 범위 마스크와 같은 크기로 돌려줌)
  * 사용: RewindCutout.오려내기(이미지 또는 캔버스, { 진행: (글, 비율) => {} }) → 캔버스(RGBA, 대상만 잘라 냄) 또는 null(대상을 찾지 못함)
  * 처음 한 번만 실행기와 모델(약 55MB)을 받는다. 브라우저가 저장해 두므로 다음부터는 바로 시작한다. */
 (function (global) {
@@ -76,10 +77,34 @@
     return 남은면적 / (n * n);
   }
 
+  // 직접 그린 범위가 있으면 그 둘레만 잘라 키워서 AI 에 보여 준다 → 작은 물건도 윤곽이 훨씬 정확하다.
+  // 결과는 원래 사진과 같은 크기의 마스크(알파만 쓰는 캔버스). 못 찾으면 null
+  async function 범위확대(원본, 옵션, iw, ih) {
+    const R = 옵션.범위, rw = R.width, rh = R.height;
+    const ra = R.getContext('2d', { willReadFrequently: true }).getImageData(0, 0, rw, rh).data;
+    let x0 = rw, y0 = rh, x1 = -1, y1 = -1;
+    for (let yy = 0, i = 3; yy < rh; yy++) for (let xx = 0; xx < rw; xx++, i += 4) if (ra[i] >= 128) { if (xx < x0) x0 = xx; if (xx > x1) x1 = xx; if (yy < y0) y0 = yy; if (yy > y1) y1 = yy; }
+    if (x1 < 0) return null;
+    const 여 = Math.max(Math.round(Math.max(x1 - x0, y1 - y0) * 0.12), Math.round(Math.max(rw, rh) * 0.01));   // 둘레에 조금 여유를 둔다
+    const cx = Math.max(0, x0 - 여), cy = Math.max(0, y0 - 여), cw = Math.min(rw, x1 + 여 + 1) - cx, ch = Math.min(rh, y1 + 여 + 1) - cy;
+    const fx = iw / rw, fy = ih / rh, t = Math.min(1, 작업최대변 / Math.max(cw * fx, ch * fy));
+    const sw = Math.max(1, Math.round(cw * fx * t)), sh = Math.max(1, Math.round(ch * fy * t));
+    const 조각 = document.createElement('canvas'); 조각.width = sw; 조각.height = sh;
+    조각.getContext('2d').drawImage(원본, cx * fx, cy * fy, cw * fx, ch * fy, 0, 0, sw, sh);
+    const 조각범위 = document.createElement('canvas'); 조각범위.width = sw; 조각범위.height = sh;
+    조각범위.getContext('2d').drawImage(R, cx, cy, cw, ch, 0, 0, sw, sh);
+    const m = await 오려내기(조각, { ...옵션, 범위: 조각범위, 확대: false });
+    if (!m) return null;
+    const 전체 = document.createElement('canvas'); 전체.width = rw; 전체.height = rh;
+    const fx2 = 전체.getContext('2d'); fx2.imageSmoothingQuality = 'high'; fx2.drawImage(m, 0, 0, m.width, m.height, cx, cy, cw, ch);
+    return 전체;
+  }
+
   async function 오려내기(원본, 옵션) {
     옵션 = 옵션 || {};
     const iw = 원본.naturalWidth || 원본.width, ih = 원본.naturalHeight || 원본.height;
     if (!iw || !ih) throw new Error('사진을 읽지 못했어요.');
+    if (옵션.범위 && 옵션.마스크만 && 옵션.확대 !== false) return 범위확대(원본, 옵션, iw, ih);
     const 세션 = await 준비(옵션.진행);
     if (옵션.진행) 옵션.진행('사람과 물건을 찾는 중이에요', 1);
     await new Promise(ok => setTimeout(ok, 30));   // 화면에 안내가 먼저 보이게
@@ -126,6 +151,13 @@
       if (a > 20) { if (xx < x0) x0 = xx; if (xx > x1) x1 = xx; if (yy < y0) y0 = yy; if (yy > y1) y1 = yy; }
     }
     if (x1 < 0) return null;
+    if (옵션.마스크만) {   // 사진은 건드리지 않고 '남길 곳'만 알려 준다 (하얀색, 투명도 = 남길 정도)
+      const mc = document.createElement('canvas'); mc.width = w; mc.height = h;
+      const mi = mc.getContext('2d').createImageData(w, h);
+      for (let i = 0; i < mi.data.length; i += 4) { mi.data[i] = mi.data[i + 1] = mi.data[i + 2] = 255; mi.data[i + 3] = 사진데이터.data[i + 3]; }
+      mc.getContext('2d').putImageData(mi, 0, 0);
+      return mc;
+    }
     x.putImageData(사진데이터, 0, 0);
     // 4) 남은 부분만 잘라 낸다 (가장자리 2% 여백)
     const 여 = Math.round(Math.max(w, h) * 0.02);

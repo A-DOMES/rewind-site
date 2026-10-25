@@ -12,9 +12,9 @@
 <script src="./assets/thumb-stickers.js?v=20261025"></script>
 <script src="./assets/thumb-render.js?v=20261025"></script>
 <script src="./assets/thumb-templates.js?v=20261025"></script>
-<script src="./assets/thumb-cutout.js"></script>
-<script src="./assets/thumb-lasso.js"></script>
-<script src="./assets/thumb-help.js"></script>
+<script src="./assets/thumb-cutout.js?v=20261025b"></script>
+<script src="./assets/thumb-lasso.js?v=20261025b"></script>
+<script src="./assets/thumb-help.js?v=20261025b"></script>
 <style>
   :root {
     --bg: #0c0c0c; --bg-raised: #161616; --bg-input: #1c1c1c; --line: #2a2a2a; --line-strong: #3a3a3a;
@@ -1111,14 +1111,15 @@
     });
   }
   // 오려낸 사진은 최대 최대조각개까지 기억한다. 넘치면 어느 썸네일에서도 쓰지 않는 가장 오래된 것부터 지운다
-  function 조각자리만들기() {
+  function 조각자리만들기(실제로지우기 = true) {   // 실제로지우기=false: 자리가 나는지만 본다 (오려내기를 그만둘 수도 있어서, 지우는 건 등록 직전에)
     if (상태.조각.length < 최대조각) return true;
     // 지금 썸네일뿐 아니라 되돌리기·다시하기 기록에 든 것도 쓰는 것으로 본다 (되돌렸을 때 그림이 없어지지 않게)
     const 쓰는 = new Set(상태.설계.장면.flatMap(s => (s.도형 || []).filter(d => d.종류 === '사진').map(d => d.사진)));
     [...상태.기록, ...상태.되돌림].forEach(h => String(h.장면 || '').replace(/"사진":"([^"]+)"/g, (m, id) => { 쓰는.add(id); return m; }));
     const 옛 = 상태.조각.find(id => !쓰는.has(id));
     if (!옛) return false;
-    R.조각지우기(옛); 상태.조각 = 상태.조각.filter(id => id !== 옛); return true;
+    if (실제로지우기) { R.조각지우기(옛); 상태.조각 = 상태.조각.filter(id => id !== 옛); }
+    return true;
   }
   async function 사진오려내기(원본, 지문, 배경에서) {
     if (잠김()) return;
@@ -1131,22 +1132,32 @@
       범위 = await window.RewindLasso.열기(원본);
       if (!범위) return;
     }
-    if (!조각자리만들기()) return 안내창('오려낸 사진이 너무 많아요', `오려낸 사진은 최대 ${최대조각}개까지 쓸 수 있어요. 썸네일에서 안 쓰는 사진이 없어요. 하나를 지운 뒤 다시 해 보세요.`);
+    if (!조각자리만들기(false)) return 안내창('오려낸 사진이 너무 많아요', `오려낸 사진은 최대 ${최대조각}개까지 쓸 수 있어요. 썸네일에서 안 쓰는 사진이 없어요. 하나를 지운 뒤 다시 해 보세요.`);
     조각처리중 = true;
     작업창열기('사진을 오려내는 중이에요', '준비하는 중이에요');
     let 결과 = null, 실패 = null;
     let 알림말 = '오려냈어요. 끌어서 옮기고, 모서리로 크기를 바꾸세요.';
     try {
       if (!범위) 결과 = await window.RewindCutout.오려내기(원본, { 진행: 글 => 작업단계(글) });
-      else if (범위.AI) {   // 그린 범위 안에서 AI 로 정리. AI 가 못 찾으면 그린 그대로 쓴다
-        try { 결과 = await window.RewindCutout.오려내기(원본, { 범위: 범위.마스크, 진행: 글 => 작업단계(글) }); } catch (e) { 결과 = null; }
-        if (!결과) { 결과 = window.RewindLasso.자르기(원본, 범위.마스크); 알림말 = 'AI 가 정리하지 못해서 그린 모양 그대로 오려냈어요. 끌어서 옮기고, 모서리로 크기를 바꾸세요.'; }
+      else if (범위.AI) {   // 그린 범위 둘레를 키워서 AI 로 윤곽을 찾고, 미리 보며 붓으로 다듬는다. AI 가 못 찾으면 그린 그대로 쓴다
+        let 마 = null;
+        try { 마 = await window.RewindCutout.오려내기(원본, { 범위: 범위.마스크, 마스크만: true, 진행: 글 => 작업단계(글) }); } catch (e) { 마 = null; }
+        if (!마) { 결과 = window.RewindLasso.자르기(원본, 범위.마스크); 알림말 = 'AI 가 정리하지 못해서 그린 모양 그대로 오려냈어요. 끌어서 옮기고, 모서리로 크기를 바꾸세요.'; }
+        else {
+          작업창닫기();
+          const 고침 = await window.RewindLasso.다듬기(원본, 마);
+          if (!고침) { 조각처리중 = false; return; }   // 그만두기: 아무것도 바꾸지 않는다
+          작업창열기('사진을 오려내는 중이에요', '마무리하는 중이에요');
+          await new Promise(ok => setTimeout(ok, 30));
+          결과 = window.RewindLasso.자르기(원본, 고침);
+        }
       } else { 작업단계('그린 부분을 오리는 중이에요'); await new Promise(ok => setTimeout(ok, 30)); 결과 = window.RewindLasso.자르기(원본, 범위.마스크); }
     } catch (e) { 실패 = e; }
     작업창닫기(); 조각처리중 = false;
     if (실패) return 안내창('오려내지 못했어요', (실패.message || '알 수 없는 문제가 생겼어요.') + ' 같은 사진은 다시 해 봐도 돼요.');
-    if (!결과 && 범위) return 안내창('오려낼 부분이 너무 작아요', '그린 부분이 거의 없어요. 남기고 싶은 곳을 조금 더 크게 그려 보세요.');
+    if (!결과 && 범위) return 안내창('오려낼 부분이 없어요', '남은 부분이 거의 없어요. 남기고 싶은 곳을 조금 더 크게 그리거나, 다듬을 때 "더 살리기"로 채워 보세요.');
     if (!결과) return 안내창('오려낼 대상을 찾지 못했어요', '사람이나 제품이 또렷하게 보이는 사진으로 해 보세요. 배경과 색이 비슷하거나, 사진 전체가 하나의 물건이면 어려워요.');
+    if (!조각자리만들기()) return 안내창('오려낸 사진이 너무 많아요', `오려낸 사진은 최대 ${최대조각}개까지 쓸 수 있어요. 하나를 지운 뒤 다시 해 보세요.`);
     const id = 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
     R.조각등록(id, 결과); 상태.조각.push(id);
     if (지문 && !상태.조각지문.includes(지문)) 상태.조각지문.push(지문);
@@ -2463,7 +2474,8 @@
     $('t-redo').addEventListener('click', () => 되돌리기(true));
     $('t-guides').addEventListener('click', () => { 상태.가이드 = !상태.가이드; $('t-guides').setAttribute('aria-pressed', 상태.가이드); 덧그림(); });
     document.addEventListener('keydown', e => {
-      if (!(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== 'z' || /INPUT|TEXTAREA/.test(document.activeElement.tagName)) return;
+      if (!(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== 'z' || /INPUT|TEXTAREA/.test(document.activeElement.tagName) || document.querySelector('dialog[open]')) return;   // 창이 열려 있을 땐 뒤 화면을 되돌리지 않는다
+
       e.preventDefault(); 되돌리기(e.shiftKey);
     });
     $('b-photo').addEventListener('click', () => $('f-photo').click());

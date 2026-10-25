@@ -20,8 +20,9 @@
   .rw-lasso .rl-tools .chip { height: 34px; }
   .rw-lasso .rl-size { display: flex; align-items: center; gap: 8px; flex: 1 1 160px; min-width: 150px; font-size: .84rem; color: var(--ink-dim); }
   .rw-lasso .rl-size input { flex: 1; }
-  .rw-lasso .rl-ai { display: flex; align-items: flex-start; gap: 8px; margin-top: 10px; font-size: .86rem; line-height: 1.4; }
+  .rw-lasso .rl-ai { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; font-size: .86rem; line-height: 1.4; }
   .rw-lasso .rl-ai small { display: block; color: var(--ink-dim); }
+  .rw-lasso .rl-ai .chip, .rw-fine .rl-tools .chip { height: 34px; }
   `;
 
   function 창만들기() {
@@ -40,7 +41,10 @@
         <label class="rl-size" hidden>붓 크기 <input type="range" min="1" max="30" value="8" aria-label="붓 크기"></label>
         <span class="chips"><button type="button" class="chip" data-act="undo">↶ 한 획 취소</button><button type="button" class="chip" data-act="clear">모두 지우기</button></span>
       </div>
-      <label class="rl-ai"><input type="checkbox"><span>그린 범위 안에서 사람·물건만 자동으로 더 깔끔하게<small>처음 쓸 때는 AI 모델(약 55MB)을 받느라 조금 걸려요.</small></span></label>
+      <div class="rl-ai"><span class="chips" role="group" aria-label="오려내는 정도">
+        <button type="button" class="chip" data-ai="1" aria-pressed="true">🎯 물체만 정확히</button>
+        <button type="button" class="chip" data-ai="0" aria-pressed="false">✂️ 그린 모양 그대로</button></span>
+        <small id="rl-aihint"></small></div>
       <div class="dlg-row"><button type="button" class="btn" data-act="cancel">취소</button><button type="button" class="btn primary" data-act="ok" disabled>오려내기</button></div>`;
     document.body.appendChild(d);
     return d;
@@ -67,7 +71,7 @@
     if (!iw || !ih) return Promise.resolve(null);
     return new Promise(끝 => {
       const 창 = 창만들기(), 캔 = 창.querySelector('canvas'), x = 캔.getContext('2d');
-      const 도구 = { 방법: 'lasso', 크기: 8, 획: [], 지금: null, 마우스: null };
+      const 도구 = { 방법: 'lasso', 크기: 8, 획: [], 지금: null, 마우스: null, AI: true };
       // 화면에 보이는 크기: 창 안에 들어가게 (가로 최대 680, 세로 최대 화면의 58%)
       const 최대가로 = Math.min(680, Math.max(240, window.innerWidth - 80)), 최대세로 = Math.max(200, window.innerHeight * 0.58);
       const k = Math.min(최대가로 / iw, 최대세로 / ih), cw = Math.max(120, Math.round(iw * k)), ch = Math.max(120, Math.round(ih * k));
@@ -105,9 +109,11 @@
         $('[data-act="undo"]').disabled = !도구.획.length; $('[data-act="clear"]').disabled = !도구.획.length;
       }
       function 힌트() {
-        $('#rl-hint').textContent = 도구.방법 === 'lasso'
-          ? '남기고 싶은 부분을 한 바퀴 둘러 그리세요. 손을 떼면 저절로 닫혀요. 여러 번 그리면 합쳐져요.'
-          : '남기고 싶은 부분을 칠하세요. 칠한 곳만 남아요. 크기는 아래 막대로 바꿔요.';
+        $('#rl-hint').textContent = 도구.AI
+          ? (도구.방법 === 'lasso' ? '오려낼 물체를 동그라미로 대충 둘러 그리세요. 물체보다 조금 커도 괜찮아요. 손을 떼면 저절로 닫혀요.' : '오려낼 물체 위를 대충 칠하세요. 칠한 범위 안에서 물체의 윤곽을 찾아요.')
+          : (도구.방법 === 'lasso' ? '남기고 싶은 모양을 따라 둘러 그리세요. 손을 떼면 저절로 닫혀요. 그린 모양 그대로 잘려요.' : '남기고 싶은 부분을 칠하세요. 칠한 곳만 남아요.');
+        $('#rl-aihint').textContent = 도구.AI ? '처음 쓸 때는 AI 모델(약 55MB)을 받느라 조금 걸려요.' : 'AI 없이 바로 잘려요.';
+        창.querySelectorAll('[data-ai]').forEach(b => b.setAttribute('aria-pressed', String((b.dataset.ai === '1') === 도구.AI)));
         $('.rl-size').hidden = 도구.방법 !== 'brush';
         창.querySelectorAll('[data-mode]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === 도구.방법)));
       }
@@ -139,6 +145,7 @@
 
       $('.rl-size input').addEventListener('input', e => { 도구.크기 = Number(e.target.value); 보이기(); });
       창.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => { 도구.방법 = b.dataset.mode; 힌트(); 보이기(); }));
+      창.querySelectorAll('[data-ai]').forEach(b => b.addEventListener('click', () => { 도구.AI = b.dataset.ai === '1'; 힌트(); }));
       $('[data-act="undo"]').addEventListener('click', () => { 도구.획.pop(); 보이기(); });
       $('[data-act="clear"]').addEventListener('click', () => { 도구.획 = []; 보이기(); });
       let 결과 = null;
@@ -147,7 +154,7 @@
         if (!도구.획.length) return;
         const m = document.createElement('canvas'), s = Math.min(1, 최대변 / Math.max(iw, ih)); m.width = Math.max(1, Math.round(iw * s)); m.height = Math.max(1, Math.round(ih * s));
         마스크그리기(m.getContext('2d'), 도구.획, m.width, m.height);
-        결과 = { 마스크: m, AI: $('.rl-ai input').checked }; 창.close();
+        결과 = { 마스크: m, AI: 도구.AI }; 창.close();
       });
       창.addEventListener('close', () => { 창.remove(); 끝(결과); });
       힌트(); 보이기(); 창.showModal();
@@ -180,5 +187,101 @@
     return 결과;
   }
 
-  global.RewindLasso = { 열기, 자르기 };
+  const 다듬기스타일 = `
+  dialog.rw-fine { max-width: 720px; width: calc(100% - 20px); padding: 16px; }
+  .rw-fine h3 { margin: 0 0 4px; }
+  .rw-fine .rl-hint { margin: 0 0 10px; font-size: .84rem; }
+  .rw-fine .rl-stage { display: flex; justify-content: center; background: #050505; border-radius: 12px; padding: 6px; touch-action: none; }
+  .rw-fine canvas { display: block; height: auto; max-width: 100%; border-radius: 6px; touch-action: none; cursor: crosshair; background: repeating-conic-gradient(#2b2b2b 0 25%, #3a3a3a 0 50%) 0 0 / 16px 16px; }
+  .rw-fine .rl-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 10px 0 0; }
+  .rw-fine .rl-size { display: flex; align-items: center; gap: 8px; flex: 1 1 160px; min-width: 150px; font-size: .84rem; color: var(--ink-dim); }
+  .rw-fine .rl-size input { flex: 1; }
+  `;
+
+  // 오려낸 결과를 미리 보고 붓으로 다듬는다. 마스크는 열기/오려내기가 만든 것(원래 사진과 같은 비율, 하얀색/투명도 = 남길 곳).
+  // 확인하면 다듬은 마스크(캔버스)를, 그만두면 null 을 돌려준다
+  function 다듬기(사진, 마스크) {
+    const iw = 사진.naturalWidth || 사진.width, ih = 사진.naturalHeight || 사진.height;
+    if (!iw || !ih || !마스크) return Promise.resolve(마스크 || null);
+    return new Promise(끝 => {
+      if (!document.getElementById('rw-fine-css')) { const st = document.createElement('style'); st.id = 'rw-fine-css'; st.textContent = 다듬기스타일; document.head.appendChild(st); }
+      const 창 = document.createElement('dialog'); 창.className = 'rw-fine'; 창.setAttribute('aria-labelledby', 'rf-title');
+      창.innerHTML = `
+        <h3 id="rf-title">이대로 오려낼까요?</h3>
+        <p class="rl-hint">남길 곳은 또렷하게, 빠질 곳은 흐리게 보여요. 어긋난 곳은 붓으로 고치세요.</p>
+        <div class="rl-stage"><canvas aria-label="오려낸 결과 미리보기"></canvas></div>
+        <div class="rl-tools">
+          <span class="chips" role="group" aria-label="붓 종류">
+            <button type="button" class="chip" data-t="del" aria-pressed="true">➖ 더 지우기</button>
+            <button type="button" class="chip" data-t="add" aria-pressed="false">➕ 더 살리기</button></span>
+          <label class="rl-size">붓 크기 <input type="range" min="1" max="30" value="8" aria-label="붓 크기"></label>
+          <span class="chips"><button type="button" class="chip" data-act="undo">↶ 한 획 취소</button></span>
+        </div>
+        <div class="dlg-row"><button type="button" class="btn" data-act="cancel">처음으로</button><button type="button" class="btn primary" data-act="ok">이대로 쓰기</button></div>`;
+      document.body.appendChild(창);
+      const 캔 = 창.querySelector('canvas'), x = 캔.getContext('2d'), $ = q => 창.querySelector(q);
+      const 최대가로 = Math.min(680, Math.max(240, window.innerWidth - 80)), 최대세로 = Math.max(200, window.innerHeight * 0.58);
+      const k = Math.min(최대가로 / iw, 최대세로 / ih), cw = Math.max(120, Math.round(iw * k)), ch = Math.max(120, Math.round(ih * k));
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      캔.width = Math.round(cw * dpr); 캔.height = Math.round(ch * dpr); 캔.style.width = cw + 'px'; 캔.style.height = ch + 'px';
+      const 사진캔 = document.createElement('canvas'); 사진캔.width = 캔.width; 사진캔.height = 캔.height; 사진캔.getContext('2d').drawImage(사진, 0, 0, 캔.width, 캔.height);
+      const 흐린캔 = document.createElement('canvas'); 흐린캔.width = 캔.width; 흐린캔.height = 캔.height;   // 빠진 곳이 어렴풋이 보이게 흐리게 깔아 둔다
+      { const c = 흐린캔.getContext('2d'); c.globalAlpha = 0.35; c.drawImage(사진캔, 0, 0); }
+      const 임시 = document.createElement('canvas'); 임시.width = 캔.width; 임시.height = 캔.height;
+      const 마스크작업 = document.createElement('canvas'); 마스크작업.width = 캔.width; 마스크작업.height = 캔.height;
+      const 도구 = { 종류: 'del', 크기: 8, 획: [], 지금: null, 마우스: null };
+      const 반지름 = () => (도구.크기 / 100) * 0.5;
+      // 획을 마스크 위에 적용: 지우기는 구멍을 내고, 살리기는 하얗게 채운다
+      function 획적용(c, 획들, W, H) {
+        c.lineCap = c.lineJoin = 'round';
+        획들.forEach(h => {
+          const p = h.점, r = Math.max(1, h.반지름 * Math.min(W, H));
+          c.globalCompositeOperation = h.종류 === 'add' ? 'source-over' : 'destination-out'; c.fillStyle = c.strokeStyle = '#fff';
+          if (p.length === 1) { c.beginPath(); c.arc(p[0][0] * W, p[0][1] * H, r, 0, Math.PI * 2); c.fill(); return; }
+          c.lineWidth = r * 2; c.beginPath(); p.forEach(([a, b], i) => (i ? c.lineTo(a * W, b * H) : c.moveTo(a * W, b * H))); c.stroke();
+        });
+        c.globalCompositeOperation = 'source-over';
+      }
+      function 보이기() {
+        const m = 마스크작업.getContext('2d'); m.globalCompositeOperation = 'source-over'; m.clearRect(0, 0, 마스크작업.width, 마스크작업.height);
+        m.drawImage(마스크, 0, 0, 마스크작업.width, 마스크작업.height);
+        획적용(m, 도구.지금 ? [...도구.획, 도구.지금] : 도구.획, 마스크작업.width, 마스크작업.height);
+        const t = 임시.getContext('2d'); t.globalCompositeOperation = 'source-over'; t.clearRect(0, 0, 임시.width, 임시.height);
+        t.drawImage(사진캔, 0, 0); t.globalCompositeOperation = 'destination-in'; t.drawImage(마스크작업, 0, 0); t.globalCompositeOperation = 'source-over';
+        x.clearRect(0, 0, 캔.width, 캔.height); x.drawImage(흐린캔, 0, 0); x.drawImage(임시, 0, 0);
+        if (도구.마우스) { x.save(); x.lineWidth = Math.max(1.5, dpr); x.strokeStyle = 도구.종류 === 'add' ? '#7CFF9B' : '#FF7C7C'; x.beginPath(); x.arc(도구.마우스[0] * 캔.width, 도구.마우스[1] * 캔.height, 반지름() * Math.min(캔.width, 캔.height), 0, Math.PI * 2); x.stroke(); x.restore(); }
+        $('[data-act="undo"]').disabled = !도구.획.length;
+      }
+      const 위치 = e => { const r = 캔.getBoundingClientRect(); return [범위((e.clientX - r.left) / r.width, 0, 1), 범위((e.clientY - r.top) / r.height, 0, 1)]; };
+      let 그리는중 = null;
+      캔.addEventListener('pointerdown', e => {
+        if ((e.button != null && e.button > 0) || 그리는중 != null) return;
+        e.preventDefault(); 캔.setPointerCapture(e.pointerId); 그리는중 = e.pointerId;
+        도구.지금 = { 종류: 도구.종류, 점: [위치(e)], 반지름: 반지름() }; 보이기();
+      });
+      캔.addEventListener('pointermove', e => {
+        도구.마우스 = 위치(e);
+        if (그리는중 === e.pointerId && 도구.지금) { const p = 도구.지금.점, [a, b] = 위치(e), 끝점 = p[p.length - 1]; if (Math.hypot((a - 끝점[0]) * cw, (b - 끝점[1]) * ch) >= 2) p.push([a, b]); }
+        보이기();
+      });
+      캔.addEventListener('pointerleave', () => { 도구.마우스 = null; if (!도구.지금) 보이기(); });
+      const 마침 = e => { if (그리는중 !== e.pointerId) return; 그리는중 = null; if (도구.지금) 도구.획.push(도구.지금); 도구.지금 = null; 보이기(); };
+      캔.addEventListener('pointerup', 마침); 캔.addEventListener('pointercancel', 마침); 캔.addEventListener('lostpointercapture', 마침);
+      창.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); e.stopPropagation(); 도구.획.pop(); 보이기(); } });
+      $('.rl-size input').addEventListener('input', e => { 도구.크기 = Number(e.target.value); 보이기(); });
+      창.querySelectorAll('[data-t]').forEach(b => b.addEventListener('click', () => { 도구.종류 = b.dataset.t; 창.querySelectorAll('[data-t]').forEach(z => z.setAttribute('aria-pressed', String(z === b))); 보이기(); }));
+      $('[data-act="undo"]').addEventListener('click', () => { 도구.획.pop(); 보이기(); });
+      let 결과 = null;
+      $('[data-act="cancel"]').addEventListener('click', () => 창.close());
+      $('[data-act="ok"]').addEventListener('click', () => {
+        const m = document.createElement('canvas'); m.width = 마스크.width; m.height = 마스크.height;
+        const c = m.getContext('2d'); c.drawImage(마스크, 0, 0); 획적용(c, 도구.획, m.width, m.height);
+        결과 = m; 창.close();
+      });
+      창.addEventListener('close', () => { 창.remove(); 끝(결과); });
+      보이기(); 창.showModal();
+    });
+  }
+
+  global.RewindLasso = { 열기, 자르기, 다듬기 };
 })(window);
