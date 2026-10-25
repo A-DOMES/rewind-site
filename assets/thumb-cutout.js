@@ -103,8 +103,13 @@
     const m = new Float32Array(N * N);
     for (let i = 0; i < m.length; i++) m[i] = (출력[i] - lo) / Math.max(hi - lo, 1e-6);
     if (hi - lo < 0.2 * Math.max(hi, 1e-6) || hi - lo < 1e-3) return null;   // 마스크에 대상과 배경의 차이가 거의 없다(한 색뿐인 사진 등)
+    if (옵션.범위) {   // 직접 그린 범위 밖은 AI 가 찾은 것에서 먼저 빼고(작은 쪽을 그렸는데 큰 쪽이 뽑히는 일을 막는다) 남은 덩어리를 고른다
+      const rc = document.createElement('canvas'); rc.width = N; rc.height = N; const rx = rc.getContext('2d'); rx.drawImage(옵션.범위, 0, 0, N, N);
+      const ra = rx.getImageData(0, 0, N, N).data;
+      for (let i = 0; i < m.length; i++) if (ra[i * 4 + 3] < 128) m[i] = 0;
+    }
     const 비율 = 덩어리남기기(m, N);
-    if (비율 < 0.005 || 비율 > 0.97) return null;   // 대상이 없거나 사진 전체가 대상
+    if (비율 < 0.005 || (비율 > 0.97 && !옵션.범위)) return null;   // 대상이 없거나 사진 전체가 대상 (범위를 직접 그렸다면 전체여도 된다)
     const 마스크캔 = document.createElement('canvas'); 마스크캔.width = N; 마스크캔.height = N;
     const mx = 마스크캔.getContext('2d'), md = mx.createImageData(N, N);
     for (let i = 0; i < m.length; i++) { const t = 범위((m[i] - 0.25) / 0.5, 0, 1), v = t * t * (3 - 2 * t); md.data[i * 4 + 3] = Math.round(v * 255); }
@@ -113,9 +118,11 @@
     const 큰마스크 = document.createElement('canvas'); 큰마스크.width = w; 큰마스크.height = h;
     const bx = 큰마스크.getContext('2d'); bx.imageSmoothingQuality = 'high'; bx.drawImage(마스크캔, 0, 0, w, h);
     const 사진데이터 = x.getImageData(0, 0, w, h), 알파 = bx.getImageData(0, 0, w, h).data;
+    let 범위알파 = null;   // 직접 그린 범위(흰색 = 남길 곳)가 있으면 그 안쪽에서만 남긴다
+    if (옵션.범위) { const rc = document.createElement('canvas'); rc.width = w; rc.height = h; const rx = rc.getContext('2d'); rx.drawImage(옵션.범위, 0, 0, w, h); 범위알파 = rx.getImageData(0, 0, w, h).data; }
     let x0 = w, y0 = h, x1 = -1, y1 = -1;
     for (let yy = 0, i = 0; yy < h; yy++) for (let xx = 0; xx < w; xx++, i += 4) {
-      const a = 알파[i + 3]; 사진데이터.data[i + 3] = a;
+      const a = 범위알파 ? Math.round(알파[i + 3] * 범위알파[i + 3] / 255) : 알파[i + 3]; 사진데이터.data[i + 3] = a;
       if (a > 20) { if (xx < x0) x0 = xx; if (xx > x1) x1 = xx; if (yy < y0) y0 = yy; if (yy > y1) y1 = yy; }
     }
     if (x1 < 0) return null;
