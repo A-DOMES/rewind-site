@@ -145,7 +145,7 @@
       card('vp-subKey', '끔', '없음', '', I.capOn, d.subKey === '끔') +
       card('vp-subKey', '분홍', '분홍', '*별표*로 감싼 말만', I.fxColor, d.subKey === '분홍') +
       card('vp-subKey', '노랑', '노랑', '*별표*로 감싼 말만', I.fxColor, d.subKey === '노랑') +
-      card('vp-subKey', '초록', '초록', '*별표*로 감싼 말만', I.fxColor, d.subKey === '초록'), '대본에서 강조할 말을 *별표*로 감싸면 그 말만 색이 칠해져요. 별표는 화면과 음성에 나오지 않아요.');
+      card('vp-subKey', '초록', '초록', '*별표*로 감싼 말만', I.fxColor, d.subKey === '초록'), '대본에서 강조할 말을 *별표*로 감싸면 그 말만 색이 칠해져요. 별표는 화면과 음성에 나오지 않아요. 제목이 두 줄이면 둘째 줄도 이 색이에요.');
     var style = opts.showStyle ? group('말투', 'vp-style',
       card('vp-style', '', '기본', '', I.flat, true) +
       card('vp-style', '또렷하게', '또렷하게 끝맺기', '', I.short, false) +

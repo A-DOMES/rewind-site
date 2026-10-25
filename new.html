@@ -5113,7 +5113,7 @@
       const r = readProduct({ partial: true, mutate: false}); if (r.err) { review.innerHTML = '<p class="pw-note">' + esc(r.err) + '</p>'; return; }
       const d = r.data;
       const vv = (window.RWVoice && RWVoice.value()) || {};
-      const 자막 = vv.subtitleOff ? '자막 꺼짐' : [(PD_POS_LABEL[d.captionPos] || '아래쪽') + ' 자막', vv.subtitleSize && '크기 ' + vv.subtitleSize, vv.subtitleStyle && ({ '구절형': '한 줄씩', '문장형': '문장째로', '단어형': '한두 단어씩' }[vv.subtitleStyle] || ''), vv.subtitleEffect && vv.subtitleEffect !== '끔' && '강조 ' + vv.subtitleEffect].filter(Boolean).join(' · ');
+      const 자막 = vv.subtitleOff ? '자막 꺼짐' : [(PD_POS_LABEL[d.captionPos] || '아래쪽') + ' 자막', vv.subtitleSize && '크기 ' + vv.subtitleSize, vv.subtitleStyle && ({ '구절형': '한 줄씩', '문장형': '문장째로', '단어형': '한두 단어씩' }[vv.subtitleStyle] || ''), vv.subtitleEffect && vv.subtitleEffect !== '끔' && '강조 ' + vv.subtitleEffect, vv.subtitleKeyColor && '핵심 단어 ' + vv.subtitleKeyColor].filter(Boolean).join(' · ');
       const 세부 = [vv.pitch ? '음높이 ' + (vv.pitch > 0 ? '+' : '') + vv.pitch : '', vv.pause ? '쉼 ' + vv.pause : '', vv.pronounce && vv.pronounce.length ? '발음 사전 ' + vv.pronounce.length + '개' : ''].filter(Boolean).join(' · ') || '기본';
       const row = (k, v, go) => `<div class="pw-row"><span class="pw-k">${k}</span><span class="pw-v">${esc(v)}</span><button type="button" class="pw-fix" data-go="${go}">고치기</button></div>`;
       const 설명 = pdSrcLabel(d);
