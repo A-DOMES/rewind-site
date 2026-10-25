@@ -4008,7 +4008,7 @@
         const d = await res.json().catch(() => null);
         if (!res.ok || !d || d.ok !== true || !Array.isArray(d.matches)) return null;
         return d.matches.filter(v => v && /^[\w-]{11}$/.test(v.id));
-      } catch (e) { return null; }
+      } catch (e) { return null; }   // null = 알아보지 못함(실패), [] = 같은 상품 없음
     },
     구성들: LAYOUT_OPTS, 자막들: CAPTION_OPTS,
     그림: (구성, 자막, 가로, 자동) => phoneSvg(구성, 자막, 자동, 가로),
@@ -4022,7 +4022,15 @@
           videoLength: v.길이분 ? `${v.길이분}분` : '', layout: v.키 === 'short' ? v.구성 : '', captionPos: v.자막 });
         setTimeout(() => { if (window.__pwGo && window.__pwOn && window.__pwOn()) window.__pwGo(v.바로확인 ? 5 : 1, true); }, 90);
       } else openFormFor(v.키, v.주제, '', v.키 === 'prod' ? '한번에 만들기에서 가져온 이름이에요. 정확한 제품명으로 고쳐 주세요.' : '');
-      if (v.참고) setTimeout(() => { const u = document.getElementById('rf-url'); if (u && !u.value) { u.value = 'https://www.youtube.com/watch?v=' + v.참고; u.dispatchEvent(new Event('input', { bubbles: true })); } }, 200);
+      if (v.참고 && /^[\w-]{11}$/.test(v.참고)) {
+        let 시도 = 0; const 넣기 = () => {
+          const u = document.getElementById('rf-url');
+          if (u) { if (!u.value) { u.value = 'https://www.youtube.com/watch?v=' + v.참고; u.dispatchEvent(new Event('input', { bubbles: true })); } return; }
+          if (++시도 < 10) return setTimeout(넣기, 300);
+          const h = document.getElementById('guide-hint'); if (h) h.textContent = '참고 영상 칸을 열지 못했어요. 참고할 영상 주소를 "참고 영상" 칸에 직접 붙여넣어 주세요.';   // 채우지 못했으면 거짓 안내를 두지 않는다
+        };
+        setTimeout(넣기, 200);
+      }
       const 칸 = document.getElementById('df-fields'), 옛 = document.getElementById('guide-hint'); if (옛) 옛.remove();
       if (칸 && v.힌트) { const p = document.createElement('p'); p.className = 'df-hint'; p.id = 'guide-hint'; p.textContent = '한번에 만들기에서 가져왔어요. ' + v.힌트; 칸.insertAdjacentElement('afterbegin', p); }
     }

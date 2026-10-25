@@ -153,23 +153,25 @@
   }
   function 후보칸() {
     if (S.길 !== 'B' || S.유형 !== '상품') return '';
-    if (S.후보 === null) return '<p class="gd-fine">같은 상품의 해외 영상을 찾고 있어요…</p>';
-    if (!S.후보.length) return '<p class="gd-fine">같은 상품의 해외 영상은 아직 없어요. 참고할 영상 주소가 있으면 신청 화면에서 붙여넣어 주세요.</p>';
-    return '<div class="gd-box"><h3>해외에서 이 상품 영상이 인기예요</h3><p class="gd-note">참고할 영상을 하나 골라 주세요. 구성만 참고하고 영상은 쓰지 않아요.</p><div class="gd-vids">' + S.후보.map(후보카드).join('') + '</div></div>';
+    if (S.후보 === null) return '<p class="gd-fine" role="status">같은 상품의 해외 영상을 찾고 있어요…</p>';
+    if (S.후보실패) return '<p class="gd-fine" role="status">같은 상품의 영상을 불러오지 못했어요. 앞 단계로 갔다 오면 다시 찾아요. 참고할 영상 주소가 있으면 신청 화면에서 붙여넣어도 돼요.</p>';
+    if (!S.후보.length) return '<p class="gd-fine" role="status">같은 상품의 해외 영상은 아직 없어요. 참고할 영상 주소가 있으면 신청 화면에서 붙여넣어 주세요.</p>';
+    return '<div class="gd-box"><h3>해외에서 이 상품 영상이 인기예요</h3><p class="gd-note">참고할 영상을 하나 골라 주세요. 구성만 참고하고 영상은 쓰지 않아요. 대본과 장면은 새로 만들어요.</p><div class="gd-vids">' + S.후보.map(후보카드).join('') + '</div></div>';
   }
   function 후보찾기() {
     var api = window.__rwGuideApi, 이름 = S.주제.trim();
     if (S.유형 !== '상품' || 이름.length < 2 || !api || !api.같은상품 || !켜짐() || !정식()) return;
     if (S.후보이름 === 이름) return;
-    S.후보이름 = 이름; S.후보 = null; S.참고 = '';
+    S.후보이름 = 이름; S.후보 = null; S.후보실패 = false; S.참고 = '';
     api.같은상품(이름).then(function (목록) {
       if (S.후보이름 !== 이름) return;   // 그 사이 이름이 바뀌었으면 버린다
+      if (!목록) { S.후보실패 = true; S.후보이름 = ''; }   // 실패는 '없음'과 다르다 · 다음에 다시 시도할 수 있게 비워 둔다
       S.후보 = 목록 || []; if (열림() && S.단계 === 2) 그리기();
     });
   }
   function 단계2() {
     var B열림 = !!(window.RWFlags && window.RWFlags.has('참고영상')) && 정식();
-    var 추천B = B열림 && S.유형 === '상품' && !!S.후보 && S.후보.some(function (v) { return v.k >= 2; });
+    var 추천B = B열림 && S.유형 === '상품' && !!S.후보 && S.후보.some(function (v) { return v.k >= 3; });
     return '<div class="gd-title"><h2>재료는 어떻게 할까요</h2><p>가진 것에 맞춰 길을 하나 골라 주세요. 나중에 바꿀 수 있어요.</p></div>' +
       '<div class="gd-chip">주제 <b>' + esc(S.주제.trim()) + '</b></div>' +
       '<div class="gd-cards">' + 길카드('A', true, false) + 길카드('B', B열림, 추천B) + 길카드('C', false, false) + '</div>' + 후보칸() +
