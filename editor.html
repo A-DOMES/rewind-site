@@ -9,8 +9,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
-<script src="./assets/thumb-render.js"></script>
-<script src="./assets/thumb-templates.js"></script>
+<script src="./assets/thumb-stickers.js?v=20261025"></script>
+<script src="./assets/thumb-render.js?v=20261025"></script>
+<script src="./assets/thumb-templates.js?v=20261025"></script>
 <script src="./assets/thumb-cutout.js"></script>
 <script src="./assets/thumb-help.js"></script>
 <style>
@@ -260,6 +261,8 @@
   .pc-item canvas { display: block; width: 100%; height: 100%; }
   .dz-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
   .dz-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 10px 4px; min-height: 66px; border: 1px solid var(--line-strong); border-radius: 12px; background: transparent; color: var(--ink-dim); font-size: .8rem; cursor: pointer; }
+  .dz-stk .dz-btn { font-size: .74rem; }
+  .dz-btn canvas { width: 34px; height: 34px; }
   .dz-btn svg { width: 34px; height: 34px; overflow: visible; }
   .dz-btn:hover:not(:disabled) { border-color: var(--amber); color: var(--ink); }
   .dz-btn:disabled { opacity: .5; cursor: default; }
@@ -567,6 +570,9 @@
           <button type="button" class="dz-btn" data-kind="별"><svg viewBox="0 0 34 34"><path d="M17 3.5l4 8.2 9 1.2-6.6 6.2 1.7 8.9L17 23.5l-8.1 4.5 1.7-8.9L4 12.9l9-1.2z" fill="#FFE14D" stroke="#111" stroke-width="1.6" stroke-linejoin="round"/></svg>별</button>
           <button type="button" class="dz-btn" data-kind="번쩍"><svg viewBox="0 0 34 34"><path d="M17 2l3 8 7-5-2 8.5 8 .5-7 4.5 5 6.5-8-1.5-1 8-5-6-5 6-1-8-8 1.5 5-6.5-7-4.5 8-.5L7 5l7 5z" fill="#FFE14D" stroke="#111" stroke-width="1.4" stroke-linejoin="round"/></svg>번쩍</button>
         </div>
+      </div>
+      <div class="cardx"><div class="cx-h">스티커 넣기 <small>눌러서 넣고 끌어서 옮겨요</small></div>
+        <div class="dz-grid dz-stk" id="dz-stk"></div>
       </div>
       <p class="hint" id="dz-hint">도형을 넣거나 화면의 도형을 누르면 여기서 꾸밀 수 있어요.</p>
       <div class="cardx" id="dz-edit" hidden>
@@ -1008,8 +1014,21 @@
     const 장 = 현재();
     변경(() => {
       if (!Array.isArray(장.도형)) 장.도형 = [];
-      장.도형.push(R.도형만들기(종류, 상태.설계.캔버스, 장.도형.length));
+      const 새 = R.도형만들기(종류, 상태.설계.캔버스, 장.도형.length);
+      if (!새) return;   // 모르는 종류(예: 옛 스크립트가 캐시된 경우)는 넣지 않는다
+      장.도형.push(새);
       상태.도형 = 장.도형.length - 1; 상태.선택 = false;
+    });
+  }
+  // 스티커 버튼: 실제로 그려질 모양을 작은 캔버스에 미리 그려 둔다 (thumb-stickers.js 의 틀 목록으로 자동 생성)
+  function 스티커버튼만들기() {
+    const 칸 = $('dz-stk'); if (!칸) return;
+    const 틀 = (window.RewindStickers || {}).틀 || {};
+    칸.innerHTML = Object.keys(틀).map(k => `<button type="button" class="dz-btn" data-kind="${k}" aria-label="${틀[k].이름} 스티커 넣기"><canvas width="68" height="68"></canvas>${틀[k].이름}</button>`).join('');
+    칸.querySelectorAll('button').forEach(b => {
+      const c = b.querySelector('canvas'), x = c.getContext('2d'), t = 틀[b.dataset.kind], 큼 = 52, 비 = t.비율[0] / t.비율[1];
+      const d = { 종류: b.dataset.kind, cx: 34, cy: 34, w: 비 >= 1 ? 큼 : 큼 * 비, h: 비 >= 1 ? 큼 / 비 : 큼, 회전: 0, 채움: t.채움, 테두리색: t.테두리색, 테두리: 2, 투명: 100 };
+      R.도형그리기(x, d);
     });
   }
   function 도형복제() {
@@ -2078,7 +2097,9 @@
     $('dz-hint').hidden = !!d; $('dz-edit').hidden = !d;
     if (!d) return;
     const 선 = d.종류 === '직선', 사진 = d.종류 === '사진';
-    $('dz-name').textContent = 사진 ? '오려낸 사진' : R.도형틀[d.종류].이름;
+    $('dz-name').textContent = 사진 ? '오려낸 사진' : ((R.도형틀[d.종류] || {}).이름 || '');
+    const 스티커 = !!(R.도형틀[d.종류] && R.도형틀[d.종류].스티커), 없음단추 = $('sw-dfill').querySelector('.sw-none');
+    if (없음단추) 없음단추.style.display = 스티커 ? 'none' : '';   // 스티커는 주된 색이 필요해서 '채움 없음'이 없다
     $('dz-fill-wrap').hidden = 선 || 사진;
     $('dz-line-lbl').textContent = 선 ? '색' : (사진 ? '윤곽선 색' : '테두리 색');
     $('dz-width-lbl').textContent = 선 ? '굵기' : (사진 ? '윤곽선 두께' : '테두리 두께');
@@ -2360,7 +2381,8 @@
     $('pc-file').addEventListener('click', () => $('pc-input').click());
     $('pc-input').addEventListener('change', e => { const f = e.target.files[0]; e.target.value = ''; if (f) 사진오려내기파일(f); });
     $('pc-bg').addEventListener('click', 배경오려내기);
-    document.querySelectorAll('#dz-add .dz-btn').forEach(b => b.addEventListener('click', () => 도형추가(b.dataset.kind)));
+    try { 스티커버튼만들기(); } catch (e) { console.warn('스티커 버튼을 만들지 못했어요', e); }
+    document.querySelectorAll('#dz-add .dz-btn, #dz-stk .dz-btn').forEach(b => b.addEventListener('click', () => 도형추가(b.dataset.kind)));
     $('sw-dfill').innerHTML = 도형색들.map(c => `<button type="button" data-c="${c}" style="background:${c}" aria-label="채움 색 ${도형색이름[c] || ''}"></button>`).join('')
       + '<button type="button" class="sw-none" data-none="1" aria-label="채움 없음" title="채움 없음"></button>'
       + '<label class="sw-pick" title="다른 색 고르기"><input type="color" id="c-dfill" aria-label="채움 색 직접 고르기"></label>';

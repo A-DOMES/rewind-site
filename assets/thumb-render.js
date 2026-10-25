@@ -160,6 +160,10 @@
     번쩍: { 이름: '번쩍', 비율: [0.38, 0.38], 채움: '#FFE14D', 테두리색: '#111111', 테두리비율: 0.009, 층: '앞' }
   };
 
+  // 스티커(thumb-stickers.js)도 도형의 한 종류로 같은 틀 목록에 넣는다
+  const 스티커 = global.RewindStickers || { 틀: {}, 모양: {} };
+  Object.assign(도형틀, 스티커.틀);
+
   // 새 도형: 틀 크기의 짧은 쪽을 기준으로 크기·두께를 정한다. 순번만큼 살짝 비켜 놓아 겹쳐 쌓이지 않게 한다
   function 도형만들기(종류, 캔버스, 순번) {
     const t = 도형틀[종류]; if (!t) return null;
@@ -285,6 +289,19 @@
     ctx.translate(d.cx, d.cy);
     if (d.회전) ctx.rotate(d.회전 * Math.PI / 180);
     ctx.globalAlpha = 범위((Number(d.투명) || 100) / 100, 0.1, 1);
+    if (스티커.모양[d.종류]) {
+      const 알파 = ctx.globalAlpha;
+      if (알파 < 1 && ctx.getTransform) {   // 겹쳐 그린 부분(윤곽선·눈·입)이 비쳐 보이지 않게: 불투명하게 따로 그린 뒤 한 번에 투명도를 준다
+        const 임시 = document.createElement('canvas'); 임시.width = ctx.canvas.width; 임시.height = ctx.canvas.height;
+        const t = 임시.getContext('2d'); t.setTransform(ctx.getTransform()); t.lineJoin = 'round'; t.lineCap = 'round';
+        스티커.모양[d.종류](t, d, d.w / 2, d.h / 2);
+        ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(임시, 0, 0);
+      } else {
+        ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+        스티커.모양[d.종류](ctx, d, d.w / 2, d.h / 2);
+      }
+      ctx.restore(); return;
+    }
     도형경로(ctx, d);
     ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.miterLimit = 2;
     if (d.채움 && d.종류 !== '직선') { ctx.fillStyle = d.채움; ctx.fill(); }
@@ -302,6 +319,7 @@
   // 점 p(틀 좌표)가 도형을 눌렀는지. 속이 빈 동그라미·네모·직선은 선 근처만 눌린 것으로 본다(안쪽을 끌면 배경이 움직이게)
   function 도형맞음(d, p, 여유) {
     if (d.종류 === '사진') return 사진맞음(d, p, 여유);
+    if (!d.종류) return false;
     const q = 점회전(p, { x: d.cx, y: d.cy }, -(d.회전 || 0)), x = q.x - d.cx, y = q.y - d.cy, e = 여유 || 0;
     const a = d.w / 2, b = d.h / 2, 띠 = Math.max((d.테두리 || 0) / 2, 8) + e;
     if (d.종류 === '직선') return Math.abs(x) <= a + e && Math.abs(y) <= Math.max((d.테두리 || 2) / 2, 8) + e;
