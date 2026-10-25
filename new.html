@@ -1635,6 +1635,8 @@
 <script src="./assets/voice-panel.js"></script>
 <script src="./assets/voice-catalog.js?v=20261025"></script>
 <script src="./assets/voice-picker.js?v=20261025"></script>
+<link rel="stylesheet" href="./assets/guide.css?v=20261025">
+<script src="./assets/guide.js?v=20261025"></script>
 <script src="./assets/rw-consent.js"></script>
 </head>
 <body>
@@ -3994,6 +3996,25 @@
   }
 
   // ===== 영상 종류(일반 / 수면음악 / 야담) 선택 - 직접 설정하기 =====
+  /* 한번에 만들기(assets/guide.js)가 부르는 입구: 고른 값을 직접 설정하기 폼의 칸에 채워 준다. 신청·가격·검증은 기존 폼이 그대로 한다 */
+  window.__rwGuideApi = {
+    상품열림: () => !!PRODUCT_READY(),
+    구성들: LAYOUT_OPTS, 자막들: CAPTION_OPTS,
+    그림: (구성, 자막, 가로, 자동) => phoneSvg(구성, 자막, 자동, 가로),
+    적용(v) {
+      if (v.키 === 'short' || v.키 === 'long') {
+        const c = window.RWVoiceCatalog && v.목소리 ? RWVoiceCatalog.찾기(v.목소리) : null;
+        const 열려있음 = document.getElementById('split-row')?.classList.contains('split-active') && document.getElementById('df-fields') && 현재종류() === '일반' && document.getElementById('df-form')?.value === v.폼;
+        const 옛소리 = window.__rwVP && __rwVP.쇼츠 && !v.목소리 ? __rwVP.쇼츠.값() : '';   // 고르지 않았으면 이미 골라 둔 목소리를 지우지 않는다
+        dfMode = 'topic'; dfPreType = '일반'; dfPreForm = v.폼; if (!열려있음) showDirectForm();
+        fillGeneralForm({ form: v.폼, topic: v.주제, voiceId: v.목소리 || 옛소리 || '', voiceGender: c ? (c.성별 === '여' ? '여성' : '남성') : '', voiceAge: v.목소리 ? voiceAgeOf(v.목소리) : '',
+          videoLength: v.길이분 ? `${v.길이분}분` : '', layout: v.키 === 'short' ? v.구성 : '', captionPos: v.자막 });
+        setTimeout(() => { if (window.__pwGo && window.__pwOn && window.__pwOn()) window.__pwGo(v.바로확인 ? 5 : 1, true); }, 90);
+      } else openFormFor(v.키, v.주제, '', v.키 === 'prod' ? '한번에 만들기에서 가져온 이름이에요. 정확한 제품명으로 고쳐 주세요.' : '');
+      const 칸 = document.getElementById('df-fields'), 옛 = document.getElementById('guide-hint'); if (옛) 옛.remove();
+      if (칸 && v.힌트) { const p = document.createElement('p'); p.className = 'df-hint'; p.id = 'guide-hint'; p.textContent = '한번에 만들기에서 가져왔어요. ' + v.힌트; 칸.insertAdjacentElement('afterbegin', p); }
+    }
+  };
   window.__rwGoYadam = function () { dfPreType = '야담'; showDirectForm(); };
   window.__rwGoGen = function (form) { dfPreType = '일반'; dfPreForm = form === '롱폼' ? '롱폼' : '쇼츠'; showDirectForm(); setTimeout(() => { if (window.__pwGo && window.__pwOn && window.__pwOn()) window.__pwGo(1, true); }, 80); };   // 쇼츠·롱폼 대본으로 바로 만들기 (내용 단계로)
   let dfPreForm = null;
@@ -5842,9 +5863,10 @@
     const closeMore = () => { more.classList.remove('open'); const m = nav.querySelector('[data-go="more"]'); if (m) m.setAttribute('aria-expanded', 'false'); };
     const press = (id) => { const el = document.getElementById(id); if (el) el.click(); };
     const mark = () => {
+      const guide = document.body.classList.contains('guide-open');
       const hub = document.body.classList.contains('topic-open');
-      const open = document.getElementById('split-row')?.classList.contains('split-active') && !hub;
-      nav.querySelectorAll('[data-go]').forEach(b => b.classList.toggle('is-on', (b.dataset.go === 'direct' && open) || (b.dataset.go === 'topic' && hub)));
+      const open = document.getElementById('split-row')?.classList.contains('split-active') && !hub && !guide;
+      nav.querySelectorAll('[data-go]').forEach(b => b.classList.toggle('is-on', (b.dataset.go === 'direct' && open) || (b.dataset.go === 'topic' && hub && !guide) || (b.dataset.go === 'guide' && guide)));
     };
     const go = (what) => {
       if (what === 'theme') { if (window.rwTheme) window.rwTheme.cycle(); return; }   // 색을 돌려 보는 동안 메뉴는 열어 둔다
@@ -5852,6 +5874,7 @@
       if (what === 'home') { location.href = './index.html'; return; }
       else if (what === 'direct') press('to-direct-form');
       else if (what === 'topic') press('to-topic-finder');
+      else if (what === 'guide') press('to-guide');
       else if (what === 'calendar') press('to-calendar');
       else if (what === 'script') press('to-longscript');
       else if (what === 'price') press('to-price-table');
