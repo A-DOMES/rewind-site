@@ -15,16 +15,41 @@
     'Gothic A1': { css: "'Gothic A1'", weight: '900', 이름: '고딕 A1 블랙', 분류: '굵고 강하게' },
     'Do Hyeon': { css: "'Do Hyeon'", weight: '400', 이름: '도현', 분류: '친근하게' },
     'Jua': { css: "'Jua'", weight: '400', 이름: '주아', 분류: '친근하게' },
+    'Single Day': { css: "'Single Day'", weight: '400', 이름: '싱글데이', 분류: '친근하게', 주소: 'Single+Day' },
+    'Cute Font': { css: "'Cute Font'", weight: '400', 이름: '귀여운 글씨', 분류: '친근하게', 주소: 'Cute+Font' },
+    'Hi Melody': { css: "'Hi Melody'", weight: '400', 이름: '하이멜로디', 분류: '친근하게', 주소: 'Hi+Melody' },
+    'Sunflower': { css: "'Sunflower'", weight: '700', 이름: '해바라기', 분류: '친근하게', 주소: 'Sunflower:wght@700' },
     'Nanum Brush Script': { css: "'Nanum Brush Script'", weight: '400', 이름: '나눔 붓글씨', 분류: '손글씨' },
     'East Sea Dokdo': { css: "'East Sea Dokdo'", weight: '400', 이름: '동해독도', 분류: '손글씨' },
+    'Dokdo': { css: "'Dokdo'", weight: '400', 이름: '독도', 분류: '손글씨', 주소: 'Dokdo' },
+    'Gaegu': { css: "'Gaegu'", weight: '700', 이름: '개구', 분류: '손글씨', 주소: 'Gaegu:wght@700' },
+    'Gamja Flower': { css: "'Gamja Flower'", weight: '400', 이름: '감자꽃', 분류: '손글씨', 주소: 'Gamja+Flower' },
     'Noto Serif KR': { css: "'Noto Serif KR'", weight: '900', 이름: '노토 세리프 굵게', 분류: '진지·고급' },
     'Song Myung': { css: "'Song Myung'", weight: '400', 이름: '송명', 분류: '진지·고급' },
+    'Stylish': { css: "'Stylish'", weight: '400', 이름: '스타일리시', 분류: '진지·고급', 주소: 'Stylish' },
     'Yeon Sung': { css: "'Yeon Sung'", weight: '400', 이름: '연성', 분류: '레트로' },
-    'Gugi': { css: "'Gugi'", weight: '400', 이름: '구기', 분류: '레트로' }
+    'Gugi': { css: "'Gugi'", weight: '400', 이름: '구기', 분류: '레트로' },
+    'Kirang Haerang': { css: "'Kirang Haerang'", weight: '400', 이름: '기랑해랑', 분류: '레트로', 주소: 'Kirang+Haerang' },
+    'Black And White Picture': { css: "'Black And White Picture'", weight: '400', 이름: '흑백사진', 분류: '레트로', 주소: 'Black+And+White+Picture' }
   };
   const 글꼴주소 = 'https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Do+Hyeon&family=Jua&family=Noto+Sans+KR:wght@900'
     + '&family=Bagel+Fat+One&family=Gasoek+One&family=Gothic+A1:wght@900&family=Nanum+Brush+Script&family=East+Sea+Dokdo'
     + '&family=Noto+Serif+KR:wght@900&family=Song+Myung&family=Yeon+Sung&family=Gugi&display=swap';
+
+  // 나중에 더한 글꼴(주소 값이 있는 것)은 글꼴마다 따로 불러온다 — 한 글꼴 이름이 틀려도 다른 글꼴이 같이 무너지지 않게
+  const 글꼴링크 = {};   // 글꼴 키 → 글꼴 CSS 가 도착(또는 실패)하면 끝나는 약속. 도착하기 전에는 글꼴을 받으려 해도 빈 손으로 끝나서 기다려야 한다
+  function 추가글꼴불러오기() {
+    Object.entries(글꼴목록).forEach(([키, f]) => {
+      if (!f.주소 || 글꼴링크[키]) return;
+      글꼴링크[키] = new Promise(끝 => {
+        const l = document.createElement('link');
+        l.rel = 'stylesheet'; l.href = `https://fonts.googleapis.com/css2?family=${f.주소}&display=swap`; l.setAttribute('data-rw-thumb-font', 키);
+        l.onload = l.onerror = () => 끝();
+        setTimeout(끝, 5000);   // 망이 막혀도 편집 창이 멈추지 않게
+        document.head.appendChild(l);
+      });
+    });
+  }
 
   // 쓸글꼴(글꼴 키 배열)을 주면 그 글꼴만 기다리고 나머지는 뒤에서 받는다. 안 주면 전부 기다린다(예전 동작)
   function 글꼴준비(쓸글꼴) {
@@ -33,9 +58,11 @@
       l.rel = 'stylesheet'; l.href = 글꼴주소; l.setAttribute('data-rw-thumb-fonts', '1');
       document.head.appendChild(l);
     }
+    추가글꼴불러오기();
     if (!document.fonts || !document.fonts.load) return Promise.resolve();
     const 샘플 = '가나다 ABC 123';
-    const 받기 = f => document.fonts.load(`${f.weight} 64px ${f.css}`, 샘플).catch(() => null);
+    const 키로 = new Map(Object.entries(글꼴목록).map(([k, f]) => [f, k]));
+    const 받기 = f => Promise.resolve(글꼴링크[키로.get(f)]).then(() => document.fonts.load(`${f.weight} 64px ${f.css}`, 샘플)).catch(() => null);
     const 전부 = Object.values(글꼴목록);
     const 대상 = Array.isArray(쓸글꼴) ? [...new Set(['Black Han Sans', ...쓸글꼴])].map(k => 글꼴목록[k]).filter(Boolean) : 전부;
     전부.filter(f => !대상.includes(f)).forEach(받기);
