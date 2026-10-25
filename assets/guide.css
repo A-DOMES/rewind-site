@@ -83,3 +83,12 @@ body.guide-open .split-row, body.guide-open #topic-hub, body.guide-open #script-
 #guide-hub .gd-vid img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: var(--r-sm, 8px); background: var(--bg-input); }
 #guide-hub .gd-vt { font-size: var(--fs-sm, .85rem); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 #guide-hub .gd-vm { font-size: .75rem; color: var(--ink-dim); }
+/* 마우스를 올리면 바로 반응 (선택된 것은 그대로 · 준비 중인 카드는 반응 없음) */
+@media (hover: hover) {
+  #guide-hub .gd-seg button:hover, #guide-hub .gd-card:not(:disabled):hover, #guide-hub .gd-o:hover, #guide-hub .gd-vid:hover { border-color: var(--accent); background: var(--accent-soft); transform: translateY(-1px); box-shadow: var(--sh-card); }
+  #guide-hub .gd-btn:not(:disabled):hover { filter: brightness(1.08); }
+  #guide-hub .gd-btn2:hover, #guide-hub .gd-st:hover { border-color: var(--accent); color: var(--ink); }
+  #guide-hub .gd-link:hover { text-decoration-thickness: 2px; }
+  #guide-hub .gd-steps button:hover i { border-color: var(--accent); }
+}
+@media (prefers-reduced-motion: no-preference) { #guide-hub .gd-seg button, #guide-hub .gd-card, #guide-hub .gd-o, #guide-hub .gd-vid { transition: border-color .15s, background-color .15s, transform .15s, box-shadow .15s; } }
