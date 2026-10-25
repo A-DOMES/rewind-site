@@ -385,6 +385,7 @@
   .video-frame.is-vertical { width: min(100%, 360px); aspect-ratio: 9 / 16; }
   .video-frame.is-wide { width: 100%; aspect-ratio: 16 / 9; }
   .video-frame iframe, .video-frame video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; max-height: none; margin: 0; border-radius: 0; object-fit: contain; background: #000; }
+  .plat-note { margin: 10px 0 0; text-align: center; font-size: 0.86rem; color: var(--muted, #8a8f98); }
   .video-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
   .video-note { margin: 14px 0 0 !important; font-size: 0.82rem !important; color: var(--ink-faint) !important; line-height: 1.6; }
 
@@ -751,10 +752,12 @@
         <div class="video-actions">
           <a class="btn-primary" href="${escapeHtml(url)}" target="_blank" rel="noopener" ${ytMatch ? '' : `data-dl="${escapeHtml(파일이름(p.title, '영상', url, 'mp4'))}"`}>${ytMatch ? '유튜브에서 보기' : '영상 다운로드'}</a>
         </div>
+        ${세로 ? '<p class="plat-note">세로(9:16) 영상이라 유튜브 쇼츠 · 인스타그램 릴스 · 틱톡에 같은 파일로 올릴 수 있어요.</p>' : '<p class="plat-note">가로(16:9) 영상은 인스타그램 릴스 · 틱톡에 올리면 위아래에 검은 띠가 생겨요.</p>'}
         ${thumbnailPicker(p)}
         <details class="pre-check"><summary>올리기 전에 확인할 것</summary><ul>
           <li>유튜브가 "변경되거나 합성된 콘텐츠"인지 물으면 안내에 맞게 답해 주세요. 이 영상에는 AI 목소리·화면이 쓰였을 수 있어요.</li>
           <li>광고·제휴 링크가 있으면 "유료 프로모션 포함"을 체크하고 설명란에 광고임을 적어 주세요.</li>
+          <li>인스타그램·틱톡에 올릴 때도 AI로 만든 콘텐츠 표시 항목이 있으면 켜 주세요.</li>
           <li>제품·사실 설명이 실제와 같은지 확인해 주세요. 건강·미용 제품은 치료·예방·개선 같은 효능 표현을 빼 주세요.</li>
         </ul></details>
         ${ytMatch ? '' : 보관안내(p)}`;
