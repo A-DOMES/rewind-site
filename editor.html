@@ -2980,6 +2980,23 @@ function 저장하기() {
 
 /* ---------- 로그인 ---------- */
 
+// 구글에서 새 로그인 열쇠(토큰)를 받았을 때: 처음이면 편집기를 열고, 편집 중이면 화면은 그대로 두고 열쇠만 바꾼다
+function 토큰받음(r) {
+  const 정보 = decodeJwt(r.credential);
+  if (!정보) return;
+  sessionStorage.setItem('rw_id_token', r.credential);
+  if (상태.설계) { 상태.idToken = r.credential; 토큰갱신예약(정보.exp); return; }
+  시작(r.credential);
+}
+function 구글토큰받기설정() { google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, auto_select: true, callback: 토큰받음 }); }
+let 토큰갱신타이머 = null;
+// 로그인은 약 1시간 유효: 끝나기 5분 전에 조용히 새로 받아 둔다 (오래 편집해도 저장·받기가 막히지 않게)
+function 토큰갱신예약(만료초) {
+  if (토큰갱신타이머) clearTimeout(토큰갱신타이머);
+  if (!만료초) return;
+  토큰갱신타이머 = setTimeout(() => { try { google.accounts.id.prompt(); } catch (e) {} }, Math.max(5000, 만료초 * 1000 - Date.now() - 5 * 60 * 1000));
+}
+
 function 로그인() {
   화면('scr-login');
 
@@ -2997,17 +3014,7 @@ function 로그인() {
       client_id: GOOGLE_CLIENT_ID,
       auto_select: true,
 
-      callback: r => {
-
-        if (!decodeJwt(r.credential)) return;
-
-        sessionStorage.setItem(
-          'rw_id_token',
-          r.credential
-        );
-
-        시작(r.credential);
-      }
+      callback: 토큰받음
     });
 
 
@@ -3043,6 +3050,9 @@ if (
   정보.exp > Date.now() / 1000 + 120
 ) {
   시작(저장토큰);
+  토큰갱신예약(정보.exp);
+  // 갱신 요청을 받을 수 있게 구글 설정을 한 번 해 둔다
+  const 설정대기 = setInterval(() => { if (window.google && google.accounts && google.accounts.id) { clearInterval(설정대기); 구글토큰받기설정(); } }, 300);
 } else {
   로그인();
 }

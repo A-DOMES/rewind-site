@@ -575,12 +575,21 @@
     document.getElementById('account-avatar').alt = profile.name || '';
   }
 
+  // 로그인(구글 토큰)은 약 1시간 유효하다. 끝나기 5분 전에 조용히 새로 받아 둔다 (구글에 로그인돼 있으면 클릭 없이 갱신됨)
+  let __refreshTimer = null;
+  function scheduleTokenRefresh(expSeconds) {
+    if (__refreshTimer) clearTimeout(__refreshTimer);
+    if (!expSeconds) return;
+    __refreshTimer = setTimeout(() => { try { google.accounts.id.prompt(); } catch (e) { /* 다음에 다시 시도됨 */ } }, Math.max(5000, expSeconds * 1000 - Date.now() - 5 * 60 * 1000));
+  }
+
   window.handleGoogleSignIn = function (response) {
     const data = decodeJwt(response.credential);
     if (!data) return;
     sessionStorage.setItem('rw_id_token', response.credential);
     showSignedIn(data);
     loadProjects(response.credential);
+    scheduleTokenRefresh(data.exp);
   };
 
   // [신규] 실시간 갱신: 진행 중인 프로젝트가 있으면 15초마다 조용히 목록을 다시 불러온다.
@@ -804,7 +813,7 @@
 
   function init() {
     if (window.google && google.accounts && google.accounts.id) {
-      google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: window.handleGoogleSignIn });
+      google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: window.handleGoogleSignIn, auto_select: true });
       google.accounts.id.renderButton(document.getElementById('gsi-area'), { theme: 'filled_black', size: 'large', text: 'continue_with', shape: 'pill' });
 
       const saved = sessionStorage.getItem('rw_id_token');
@@ -813,6 +822,7 @@
         if (profile) {
           showSignedIn(profile);
           loadProjects(saved);
+          scheduleTokenRefresh(profile.exp);
           return;
         }
       }
