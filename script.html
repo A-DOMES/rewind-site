@@ -1,6 +1,7 @@
 <title>대본 작업실</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600&display=swap">
 <script src="./theme.js"></script>
+<script src="./assets/script-guard.js?v=20261025"></script>
 <style>
 :root{
   --bg:#f6f1e9;--raised:#fffdf9;--input:#efe8dc;--line:#e3d9c8;--line2:#cbbda6;--side:#efe8dc;
@@ -380,6 +381,12 @@ h4 b{color:var(--amber);margin-left:2px}
 .vfpick .vfc button small{font-size:.78rem;line-height:1.45;color:var(--faint,var(--dim));font-weight:400}
 .vfpick .vfc button:disabled{opacity:.45;cursor:default}
 @media (max-width:420px){.vfpick .vfc{grid-template-columns:1fr}}
+.guardnote{margin:0 0 10px;padding:10px 14px;border-radius:12px;background:var(--wash);color:var(--dim);font-size:.84rem;line-height:1.55}
+.guardbox{padding:12px 14px;border-radius:12px;margin-bottom:10px;font-size:.88rem;line-height:1.55;background:var(--green-wash);color:var(--ink)}
+.guardbox.warn{background:var(--wash)}.guardbox.stop{background:var(--err-wash);color:var(--err)}
+.guardbox ul{margin:6px 0 0;padding-left:18px}.guardbox li small{color:var(--dim)}
+.guardbox label{display:flex;gap:8px;align-items:flex-start;margin-top:10px;font-weight:600;color:var(--ink);cursor:pointer}
+.guardbox small.fine{display:block;margin-top:6px;color:var(--dim)}
 .copynote{margin:8px 0 2px;font-size:.8rem;line-height:1.5;color:var(--faint,var(--dim))}
 .toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 22px;border-radius:999px;z-index:50;opacity:0;pointer-events:none;transition:opacity .2s;font-size:.88rem;max-width:90%;text-align:center}
 .toast.show{opacity:1}
@@ -573,7 +580,7 @@ h4 b{color:var(--amber);font-size:1rem;margin-left:0}
           <div class="dz" id="dz" data-path="paste">
             <h3 id="dzH">대본을 붙여넣거나 파일을 끌어다 놓으세요</h3>
             <p id="dzP">다른 AI로 쓴 글, 시나리오, 자막 파일도 괜찮아요.<br>대본 형식은 자동으로 맞춰 드려요.</p>
-            <div class="topicbar" id="topicBar" hidden><label for="topicIn">주제 <small id="topicSm"></small></label><input type="text" id="topicIn" maxlength="120" autocomplete="off"></div><div class="scrcard" id="scrCard" hidden></div><div class="paths" role="tablist"><button type="button" data-p="paste" class="on"><span class="pi"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 11h6M9 15h4"/></svg></span><b>붙여넣기 · 파일</b><small id="pSub1">이미 쓴 대본이 있어요</small></button><button type="button" data-p="ai" id="aiTab"><span class="pi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg></span><b>AI로 쓰기</b><small id="pSub2">여기서 바로 Claude가 대본을 써 드려요</small><em id="aiTabNote" hidden>로그인 후</em></button><button type="button" data-p="other"><span class="pi"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></span><b>다른 AI로 쓰기</b><small>요청문을 복사해 내가 쓰는 AI에 붙여넣어요</small></button></div>
+            <p class="guardnote" id="guardNote" hidden>건강식품·화장품·의료·의약품 관련 대본은 치료·예방·효능을 단정하는 표현을 쓸 수 없어요. 확정하기 전에 이 표현이 있는지 확인해요. 영상 내용의 책임은 올리는 분께 있어요.</p><div class="topicbar" id="topicBar" hidden><label for="topicIn">주제 <small id="topicSm"></small></label><input type="text" id="topicIn" maxlength="120" autocomplete="off"></div><div class="scrcard" id="scrCard" hidden></div><div class="paths" role="tablist"><button type="button" data-p="paste" class="on"><span class="pi"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 11h6M9 15h4"/></svg></span><b>붙여넣기 · 파일</b><small id="pSub1">이미 쓴 대본이 있어요</small></button><button type="button" data-p="ai" id="aiTab"><span class="pi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg></span><b>AI로 쓰기</b><small id="pSub2">여기서 바로 Claude가 대본을 써 드려요</small><em id="aiTabNote" hidden>로그인 후</em></button><button type="button" data-p="other"><span class="pi"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></span><b>다른 AI로 쓰기</b><small>요청문을 복사해 내가 쓰는 AI에 붙여넣어요</small></button></div>
             <div class="aisoon" id="aiSoon"></div>
             <div class="askai"><div id="briefHead"></div><div class="brief" id="brief"></div><div class="reqs copyreqs"><button type="button" id="copyAsk" class="main">대본 요청문 복사 (대본만)</button><button type="button" id="copyAskFull" class="main">대본+인트로 요청문 복사</button></div><div class="steps" id="askSteps"></div><div class="aigo" id="aiGo"><label class="aiintro" id="aiIntroWrap"><input type="checkbox" id="aiIntro" checked> 인트로도 함께 만들기</label><label class="aimetaw" id="aiMetaWrap" style="display:none"><input type="checkbox" id="aiMeta" checked> 유튜브 설명·태그도 함께 만들기</label><p class="aimeta-note" id="aiMetaNote" hidden>영상을 올릴 때 쓰는 설명란 글과 태그를 대본과 같이 써 드려요. 추가 포인트는 없어요. 끄면 영상을 만들 때 자동으로 만든 기본 설명과 태그가 들어가요. 만든 뒤에는 제목 아래 '유튜브 설명·태그'에서 고칠 수 있어요.</p><div class="aiest" id="aiEst"></div><div class="reqs"><button type="button" id="aiRun" class="main">대본 만들기</button></div><div class="aiprog" id="aiProg" hidden></div></div></div>
             <textarea id="pasteBox" placeholder="여기에 붙여넣기 (Ctrl+V)" aria-label="대본 붙여넣기"></textarea>
@@ -623,6 +630,7 @@ h4 b{color:var(--amber);font-size:1rem;margin-left:0}
   <div class="note" id="okNote"></div>
   <dl class="sum" id="oksum"></dl>
   <div class="vfpick" id="okvf" hidden><b class="vfh">영상 형태</b><div class="vfc" role="group" aria-label="영상 형태"></div></div>
+  <div class="guardbox" id="okguard" hidden></div>
   <div class="warnbox" id="okwarn" hidden></div>
   <p class="copynote">다른 사람이 쓴 글을 허락 없이 영상으로 만들면 저작권법과 유튜브 정책 위반이 될 수 있어요. 대본의 책임은 신청하는 분께 있어요.</p>
   <div class="d-f" style="padding:14px 0 0;border:0">
@@ -1010,6 +1018,7 @@ function init(o){
   cfg.kind=o.kind==='mood'?'mood':(o.kind==='gen'?'gen':'yadam');
   cfg.form=o.form==='롱폼'?'롱폼':'쇼츠';   /* 일반 영상(gen)의 형태 */
   PACE=cfg.kind==='gen'?360:350;
+  (function(){var g=document.getElementById('guardNote');if(g)g.hidden=cfg.kind!=='gen'})();
   cfg.type=cfg.kind==='gen'?(cfg.form==='쇼츠'?'short':'long'):((o.type==='short'||cfg.kind==='mood')?'short':'long');
   cfg.src=o.src==='mine'?'mine':'ai';
   cfg.mode=o.mode==='review'?'review':'pre';
@@ -1553,7 +1562,7 @@ $('approve').onclick=function(){
   else if(review&&s.hasT&&!s.ok){w.hidden=false;w.textContent='대본 길이가 주문과 달라서 제작 포인트가 '+sgn(prod-prodPrice(cfg.target))+' 바뀌어요. 이대로 진행하면 새 포인트로 제작해요.'}
   else if(!review&&prod>balance){w.hidden=false;w.textContent='제작에는 '+P(prod)+'가 필요해요. 신청 전에 '+P(prod-balance)+'를 더 충전해야 해요.'}
   else w.hidden=true;
-  $('okyes').disabled=false;
+  renderGuard();
   $('ok').classList.add('show');$('scrim').classList.add('show');
 };
 var INTRO_TEXT='아래에 붙여넣는 야담 대본을 읽고, 대본 맨 앞에 붙일 인트로 문구만 써 주세요.\n\n규칙:\n- 출력은 첫 줄 [인트로] 한 줄과 그 아래 인트로 문장뿐이에요. 인사, 설명, 후속 제안은 쓰지 마세요.\n- 대본에서 가장 궁금증을 끄는 장면(긴장되는 순간, 반전의 실마리)을 예고하듯 써 주세요. 결말과 반전의 정답은 밝히지 마세요.\n- 길이는 제가 말하는 초에 맞추세요. 1초는 공백을 뺀 약 6자예요. 10초는 약 60자, 15초는 약 90자, 20초는 약 120자, 30초는 약 180자예요. 말하지 않으면 10초로 쓰세요.\n- 성우가 그대로 읽는 문장으로만 쓰세요. 굵은 글씨, 별표, 이모지, 목록 기호는 쓰지 마세요.\n- 대본 문장을 그대로 베끼지 말고, 인트로용으로 짧게 다시 쓰세요. 실존 인물은 쓰지 마세요.\n\n이 요청문 뒤에 제가 대본을 붙이고 \"인트로 15초\"처럼 말할 거예요.';
@@ -1836,9 +1845,34 @@ $('addIntro').onclick=function(){$('introText').value='';$('intro').classList.ad
 $('introNo').onclick=closeAll;
 $('introYes').onclick=function(){var v=$('introText').value;if(!v.trim()){toast('붙여넣을 인트로가 아직 없어요');return}if(addIntro(v))closeAll()};
 $('okno').onclick=closeAll;
+/* ---------- 대본 정책 검사 (확정 창) ---------- */
+var guardRes=null,guardAck=false;
+function guardText(){return ch.filter(function(c){return !c.off}).map(function(c){return c.text}).join('\n')}
+function guardState(){return guardRes?{verdict:guardRes.판정,rules:guardRes.규칙,ack:guardRes.판정==='경고'&&guardAck,at:new Date().toISOString()}:undefined}
+function guardLines(arr){return '<ul>'+arr.slice(0,5).map(function(x){return '<li>'+esc(x.문장)+' <small>('+esc(x.말)+')</small></li>'}).join('')+(arr.length>5?'<li><small>그 밖에 '+(arr.length-5)+'곳</small></li>':'')+'</ul>'}
+function renderGuard(){
+  var box=$('okguard');guardRes=null;guardAck=false;
+  if(cfg.kind!=='gen'||!window.RWScriptGuard){box.hidden=true;$('okyes').disabled=false;return}
+  guardRes=RWScriptGuard.검사(guardText());box.hidden=false;
+  if(guardRes.판정==='차단'){
+    box.className='guardbox stop';
+    box.innerHTML='<b>아래 문장은 효능을 단정하고 있어서 영상으로 만들 수 없어요.</b>'+guardLines(guardRes.차단)+'<small class="fine">문장을 고친 후 다시 확인해 주세요.</small>';
+    $('okyes').disabled=true;
+  }else if(guardRes.판정==='경고'){
+    box.className='guardbox warn';
+    box.innerHTML='<b>아래 표현은 효능으로 오해될 수 있어요.</b>'+guardLines(guardRes.경고)+'<small class="fine">고치거나, 확인 후 그대로 진행할 수 있어요. 진행하면 확인 기록이 남아요.</small><label><input type="checkbox" id="guardAck"> 확인했고 그대로 진행할게요</label>';
+    $('okyes').disabled=true;
+    $('guardAck').onchange=function(){guardAck=this.checked;$('okyes').disabled=!guardAck};
+  }else{
+    box.className='guardbox';
+    box.innerHTML='정책에 위반된 표현은 발견되지 않았어요. <small class="fine">자동 확인이라 모든 표현을 잡지는 못해요. 영상 내용의 책임은 올리는 분께 있어요.</small>';
+    $('okyes').disabled=false;
+  }
+}
 $('okyes').onclick=function(){
+  if($('okyes').disabled)return;
   var s=stats();closeAll();
-  tell({type:cfg.mode==='review'?'rw-studio-approve':'rw-script-confirm',scriptId:'S-'+Date.now().toString(36),title:title,kind:cfg.kind,form:cfg.kind==='gen'?cfg.form:'',occ:cfg.kind==='mood'?occName():'',type2:cfg.type,src:cfg.src,imported:imported,chapters:ch.filter(function(c){return !c.off}).map(function(c){return{title:c.title,text:c.text}}),chars:s.n,minutes:Math.round(s.m*10)/10,prod:s.prod,narrate:(cfg.kind==='gen'&&cfg.form==='롱폼'&&cfg.mode!=='review')?(okVf==='read'):undefined,meta:(cfg.mode==='review'||okVf==='read')?undefined:metaOut()});
+  tell({guard:guardState(),type:cfg.mode==='review'?'rw-studio-approve':'rw-script-confirm',scriptId:'S-'+Date.now().toString(36),title:title,kind:cfg.kind,form:cfg.kind==='gen'?cfg.form:'',occ:cfg.kind==='mood'?occName():'',type2:cfg.type,src:cfg.src,imported:imported,chapters:ch.filter(function(c){return !c.off}).map(function(c){return{title:c.title,text:c.text}}),chars:s.n,minutes:Math.round(s.m*10)/10,prod:s.prod,narrate:(cfg.kind==='gen'&&cfg.form==='롱폼'&&cfg.mode!=='review')?(okVf==='read'):undefined,meta:(cfg.mode==='review'||okVf==='read')?undefined:metaOut()});
   toast(inFrame?'대본을 확정했어요':'시안 화면이라 실제로 확정되지는 않아요');
 };
 
