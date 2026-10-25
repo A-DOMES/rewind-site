@@ -9,14 +9,14 @@
 
   // 종류별 처음 값. 빈 칸이면 서버가 기본값을 쓰므로, 상품쇼츠 말고는 지금 동작과 같다
   var KIND_DEFAULT = {
-    '상품쇼츠': { speed: 1.12, tone: '보통', pause: '짧게', subSize: '보통', subStyle: '구절형', subFx: '끔', subPos: '하단' },
+    '상품쇼츠': { speed: 1.12, tone: '보통', pause: '짧게', subSize: '보통', subStyle: '구절형', subFx: '끔', subKey: '끔', subPos: '하단' },
     // 그 밖의 종류: 아무것도 고르지 않은 상태가 처음 값이다(= 영상에 맞게 자동). 직접 건드린 것만 접수로 보낸다
-    '_': { speed: 1.0, tone: '', pause: '', subSize: '', subStyle: '', subFx: '', subPos: '' }
+    '_': { speed: 1.0, tone: '', pause: '', subSize: '', subStyle: '', subFx: '', subKey: '', subPos: '' }
   };
   // 종류별로 가리는 항목 (그 종류의 렌더링이 지원하지 않거나, 이미 다른 칸이 있는 것)
   //  쇼츠: JSON2Video 가 쉼·자막 크기·끊기·켜고 끄기를 지원하지 않고, 자막 위치는 기존 칸이 있다
   //  야담: 자막을 끄는 기능이 없다 / 분위기 영상: 기분·읽는 속도·자막 구성(그림+음성)은 기존 칸이 이미 있다
-  var KIND_HIDE = { '상품쇼츠': [], '쇼츠': ['pause', 'subOn', 'subPos', 'subSize', 'subStyle', 'subFx'], '야담': ['subOn', 'subStyle', 'subFx'], '수면음악': ['speed', 'tone', 'subOn', 'subStyle', 'subFx'] };
+  var KIND_HIDE = { '상품쇼츠': [], '쇼츠': ['pause', 'subOn', 'subPos', 'subSize', 'subStyle', 'subFx', 'subKey'], '야담': ['subOn', 'subStyle', 'subFx', 'subKey'], '수면음악': ['speed', 'tone', 'subOn', 'subStyle', 'subFx', 'subKey'] };
   // 야담·수면음악 렌더링은 자막 방식·강조와 '아주 크게'를 아직 넘기지 않는다(화면 비율에 맞게 자동). 넘기게 되면 위 목록과 여기서 뺀다
   var KIND_NO_XL = ['야담', '수면음악'];
   var SPEED_MIN = 0.7, SPEED_MAX = 1.5;
@@ -141,6 +141,11 @@
       card('vp-subFx', '색', '색', '읽는 말만 노랗게', I.fxColor, d.subFx === '색') +
       card('vp-subFx', '커짐', '커짐', '읽는 말이 살짝 커져요', I.fxGrow, d.subFx === '커짐') +
       card('vp-subFx', '색+커짐', '색+커짐', '둘 다', I.fxBoth, d.subFx === '색+커짐'), '말하는 순간과 조금 어긋날 수 있어요. 어색하면 없음으로 두세요.');
+    var subKey = group('핵심 단어 색', 'vp-subKey',
+      card('vp-subKey', '끔', '없음', '', I.capOn, d.subKey === '끔') +
+      card('vp-subKey', '분홍', '분홍', '*별표*로 감싼 말만', I.fxColor, d.subKey === '분홍') +
+      card('vp-subKey', '노랑', '노랑', '*별표*로 감싼 말만', I.fxColor, d.subKey === '노랑') +
+      card('vp-subKey', '초록', '초록', '*별표*로 감싼 말만', I.fxColor, d.subKey === '초록'), '대본에서 강조할 말을 *별표*로 감싸면 그 말만 색이 칠해져요. 별표는 화면과 음성에 나오지 않아요.');
     var style = opts.showStyle ? group('말투', 'vp-style',
       card('vp-style', '', '기본', '', I.flat, true) +
       card('vp-style', '또렷하게', '또렷하게 끝맺기', '', I.short, false) +
@@ -156,7 +161,7 @@
       '<div class="vp-play" data-vp="preview"><button type="button" class="vp-btn" id="vp-preview" disabled>' + svg(I.play, true) + '미리 듣기</button><span class="vp-note" id="vp-preview-note">미리 듣기는 곧 열려요. 지금은 고른 값대로 만들어요</span></div>' +
       '<details class="vp-more" id="vp-more"><summary><span>자세히 · 음높이, 쉼, 발음 사전, 자막</span><span class="vp-sum" id="vp-sum"></span><span class="vp-chev">' + svg(I.chev) + '</span></summary><div class="vp-body">' +
       '<div class="df-field vp-speed" data-vp="pitch"><div class="vp-row"><label for="vp-pitch">음높이</label><span class="vp-now" id="vp-pitch-now"></span></div><input class="vp-range" id="vp-pitch" type="range" min="' + PITCH_MIN + '" max="' + PITCH_MAX + '" step="1" value="0"><div class="vp-pitch-l" aria-hidden="true"><span>낮게</span><span>기본</span><span>높게</span></div></div>' +
-      style + pause + subOn + subPos + subSize + subStyle + subFx +
+      style + pause + subOn + subPos + subSize + subStyle + subFx + subKey +
       '<div class="df-field" data-vp="dict"><label>발음 사전 <span class="opt">선택 · 최대 ' + DICT_MAX + '개</span></label><p class="df-hint" style="margin:0 0 8px">제품명·영어 이름처럼 잘못 읽는 말을 알려 주세요. 자막에는 원래 글자가 그대로 나와요.</p><div class="vp-dict" id="vp-dict"></div></div>' +
       '</div></details>' +
       '<p class="vp-ai">AI 목소리가 들어간 영상은 유튜브에 올릴 때 "변경된 콘텐츠" 표시 안내를 확인해 주세요.</p></section>';
@@ -194,6 +199,7 @@
     if (vis('subSize') && sends('subSize') && checked('vp-subSize')) extra++;
     if (vis('subStyle') && sends('subStyle') && checked('vp-subStyle')) extra++;
     if (vis('subFx') && sends('subFx') && checked('vp-subFx')) extra++;
+    if (vis('subKey') && sends('subKey') && checked('vp-subKey')) extra++;
     if (vis('dict') && dictPairs().length) extra++;
     if (kindCur !== '상품쇼츠' && extra) parts.push('자세히 ' + extra + '개');
     return parts.length ? parts.join(' · ') : '기본 설정';
@@ -209,7 +215,7 @@
     var p = pitchValue(); $('vp-pitch-now').textContent = p === 0 ? '기본' : (p > 0 ? '+' + p : String(p));
     if ($('vp-sum')) $('vp-sum').textContent = summary();
     var off = vis('subOn') && checked('vp-subOn') === '끄기';
-    ['vp-subPos', 'vp-subSize', 'vp-subStyle', 'vp-subFx'].forEach(function (n) { document.querySelectorAll('input[name="' + n + '"]').forEach(function (i) { i.disabled = off; }); var g = document.getElementById(n + '-l'); if (g && g.parentNode) g.parentNode.style.opacity = off ? '.45' : ''; });
+    ['vp-subPos', 'vp-subSize', 'vp-subStyle', 'vp-subFx', 'vp-subKey'].forEach(function (n) { document.querySelectorAll('input[name="' + n + '"]').forEach(function (i) { i.disabled = off; }); var g = document.getElementById(n + '-l'); if (g && g.parentNode) g.parentNode.style.opacity = off ? '.45' : ''; });
     if (typeof opts.onChange === 'function') opts.onChange(value());
   }
 
@@ -265,6 +271,7 @@
     if (vis('subSize') && sends('subSize')) { var sz = checked('vp-subSize'); if (sz) v.subtitleSize = sz; }
     if (vis('subStyle') && sends('subStyle')) { var ss = checked('vp-subStyle'); if (ss) v.subtitleStyle = ss; }
     if (vis('subFx') && sends('subFx')) { var sf = checked('vp-subFx'); if (sf) v.subtitleEffect = sf; }
+    if (vis('subKey') && sends('subKey')) { var sk = checked('vp-subKey'); if (sk) v.subtitleKeyColor = sk; }
     if (vis('subOn')) v.subtitleOff = checked('vp-subOn') === '끄기';
     if (vis('style') && sends('style')) { var st = checked('vp-style'); if (st) v.style = st; }
     if (vis('dict')) { var pairs = dictPairs(); if (pairs.length) v.pronounce = pairs; }
@@ -281,13 +288,13 @@
     document.querySelectorAll('input[name="vp-subSize"][value="아주크게"]').forEach(function (i) { var l = i.closest('label'); if (l) l.hidden = noXl; if (noXl && i.checked) { i.checked = false; delete touched.subSize; } });
     document.querySelectorAll('[data-vp]').forEach(function (e) { e.hidden = hide.indexOf(e.getAttribute('data-vp')) >= 0; });
     var more = $('vp-more');
-    if (more) { var anyIn = ['pitch', 'pause', 'subOn', 'subPos', 'subSize', 'subStyle', 'subFx', 'dict'].some(function (n) { return vis(n); }); more.hidden = !anyIn; }
+    if (more) { var anyIn = ['pitch', 'pause', 'subOn', 'subPos', 'subSize', 'subStyle', 'subFx', 'subKey', 'dict'].some(function (n) { return vis(n); }); more.hidden = !anyIn; }
     if ($('vp-speed')) {
       var d = def(kindCur);
       if (!touched.speed) $('vp-speed').value = String(d.speed);
       if (!touched.pitch) $('vp-pitch').value = '0';
       // 직접 건드리지 않은 항목만 이 종류의 처음 값으로 되돌린다 (건드린 것은 그대로)
-      [['tone', d.tone], ['pause', d.pause], ['subSize', d.subSize], ['subStyle', d.subStyle], ['subFx', d.subFx], ['subPos', d.subPos]].forEach(function (g) {
+      [['tone', d.tone], ['pause', d.pause], ['subSize', d.subSize], ['subStyle', d.subStyle], ['subFx', d.subFx], ['subKey', d.subKey], ['subPos', d.subPos]].forEach(function (g) {
         if (touched[g[0]]) return;
         document.querySelectorAll('input[name="vp-' + g[0] + '"]').forEach(function (i) { i.checked = !!g[1] && i.value === g[1]; });
       });
