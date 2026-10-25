@@ -1633,6 +1633,8 @@
 </style>
 <script src="./theme.js"></script>
 <script src="./assets/voice-panel.js"></script>
+<script src="./assets/voice-catalog.js?v=20261025"></script>
+<script src="./assets/voice-picker.js?v=20261025"></script>
 <script src="./assets/rw-consent.js"></script>
 </head>
 <body>
@@ -3210,6 +3212,7 @@
       if (answers.mediaNote) payload.mediaNote = answers.mediaNote;
       if (answers.voiceGender) payload.voiceGender = answers.voiceGender;
       if (answers.voiceAge) payload.voiceAge = answers.voiceAge;
+      if (answers.voiceId) payload.voiceId = answers.voiceId;
     } else {
       payload.topic = answers.topic || '';
       payload.form = answers.form || '쇼츠';
@@ -3246,6 +3249,7 @@
       if (answers.tempo) payload.tempo = answers.tempo;
       if (answers.voiceGender) payload.voiceGender = answers.voiceGender;
       if (answers.voiceAge) payload.voiceAge = answers.voiceAge;
+      if (answers.voiceId) payload.voiceId = answers.voiceId;
       if (answers.directorNote) payload.directorNote = answers.directorNote;
       if (answers.style) payload.style = answers.style;
       // [캐릭터 통일 체크는 없앴다] 상품 고정은 상품쇼츠의 상품 이미지로 한다. characterUse 는 보내지 않는다.
@@ -3280,7 +3284,7 @@
       if (answers.soundRequest) payload.soundRequest = answers.soundRequest;
       if (answers.sceneSeconds) payload.sceneSeconds = answers.sceneSeconds;
       if (answers.soundMode) payload.soundMode = answers.soundMode;
-      if (answers.narration) { payload.narration = answers.narration; if (answers.voiceGender) payload.voiceGender = answers.voiceGender; if (answers.voiceTone) payload.voiceTone = answers.voiceTone; if (answers.voiceSpeed) payload.voiceSpeed = answers.voiceSpeed; if (answers.voiceUrl) { payload.voiceUrl = answers.voiceUrl; payload.voiceRights = answers.voiceRights === true; } }
+      if (answers.narration) { payload.narration = answers.narration; if (answers.voiceGender) payload.voiceGender = answers.voiceGender; if (answers.voiceId) { payload.voiceId = answers.voiceId; if (answers.voiceAge) payload.voiceAge = answers.voiceAge; } if (answers.voiceTone) payload.voiceTone = answers.voiceTone; if (answers.voiceSpeed) payload.voiceSpeed = answers.voiceSpeed; if (answers.voiceUrl) { payload.voiceUrl = answers.voiceUrl; payload.voiceRights = answers.voiceRights === true; } }
       if (answers.musicFolderUrl) { payload.musicFolderUrl = answers.musicFolderUrl; payload.musicRights = answers.musicRights === true; }
       delete payload.motion;
     }
@@ -3793,7 +3797,7 @@
   // 챗봇으로 만든 일반 영상 신청은 칸이 없으니 answers 의 값을 새 단계 화면의 칸에 채워서 연다 (신청 데이터는 칸에서 다시 읽어 만든다)
   let dfRender = 0, answersFormRender = -1, answersFormSig = '', stampPending = false;
   // 신청 내용이 단계 화면 칸에서 나왔음을 기록한다(검증을 통과해 answers 가 새로 만들어진 뒤에만). 그 뒤 챗봇이 값을 바꾸면 서명이 달라져 칸을 다시 채운다
-  const SIG_KEYS = ['topic','form','style','directorNote','hookText','characterUse','productLink','productImageUrl','target','voiceGender','voiceAge','tempo','videoLength','sceneCount','motion','thumbnail','layout','captionPos','videoType','genScriptId','narrate'];
+  const SIG_KEYS = ['topic','form','style','directorNote','hookText','characterUse','productLink','productImageUrl','target','voiceGender','voiceAge','voiceId','tempo','videoLength','sceneCount','motion','thumbnail','layout','captionPos','videoType','genScriptId','narrate'];
   const sigOf = a => JSON.stringify(SIG_KEYS.map(k => a[k] === undefined ? null : a[k]));
   function stampForm() { answersFormRender = dfRender; answersFormSig = sigOf(answers); }
   function fillGeneralForm(a) {
@@ -3810,7 +3814,7 @@
     const http = s => /^https?:\/\/\S+$/i.test(String(s || '').trim());
     if (http(a.productLink)) setVal('df-productLink', a.productLink);
     if (http(a.productImageUrl)) setVal('df-productImageUrl', a.productImageUrl);
-    setSel('df-target', a.target); setSel('df-voiceGender', a.voiceGender); setSel('df-voiceAge', a.voiceAge); setSel('df-tempo', a.tempo);
+    setSel('df-target', a.target); setSel('df-voiceGender', a.voiceGender); setSel('df-voiceAge', a.voiceAge); if (window.__rwVP && __rwVP.쇼츠) __rwVP.쇼츠.값설정(a.voiceId || ''); setSel('df-tempo', a.tempo);
     // 길이: "90초"·"2분" 같은 글도 분 단위 숫자로 바꿔 넣는다
     { const m = String(a.videoLength || '').match(/(\d+(?:\.\d+)?)\s*(초|분)?/); if (m) { const v = m[2] === '초' ? Number(m[1]) / 60 : Number(m[1]); if (v > 0) setVal('df-videoLength', String(Math.round(v * 100) / 100)); } }
     if (a.sceneCount) setVal('df-sceneCount', a.sceneCount);
@@ -4048,11 +4052,48 @@
     분위기카드맞춤();
   });
   document.addEventListener('input', e => { if (e.target && e.target.id === 'df-style') 분위기카드맞춤(); });
+  /* ---------- 목소리 고르기 (assets/voice-catalog.js · voice-picker.js) ----------
+     고객이 고른 목소리 ID 는 voiceId 로 보낸다. 예전 칸(쇼츠·상품쇼츠 df-voiceGender/df-voiceAge, 야담 df-yvoice, 분위기 df-mgender)은 숨겨 두고
+     값만 맞춰 채운다 → 시트의 Voice·VoiceAge 를 읽는 다른 곳은 그대로 동작한다. '자동 추천'이면 voiceId 는 비고 예전 방식(성별·나이대)으로 고른다. */
+  window.__rwVP = window.__rwVP || {};
+  const 목소리나이칸 = { 청년: '10~20대', 성인: '30~40대', 중장년: '50~60대' };
+  function voiceAgeOf(id) { const v = window.RWVoiceCatalog && RWVoiceCatalog.찾기(id); return v ? (목소리나이칸[v.나이] || '') : ''; }
+  function 목소리고르기만들기() {
+    if (!window.RWVoicePicker || !window.RWVoiceCatalog) return;   // 파일을 못 불러오면 예전 선택칸이 그대로 보인다
+    const 성별말 = g => (g === '여' ? '여성' : '남성');
+    const 만들기 = (키, 숨길, 종류, 성별, 동기) => {
+      if (!숨길 || !숨길.parentNode) return;
+      if (__rwVP[키]) __rwVP[키].소리멈춤();
+      const 박스 = document.createElement('div'); 박스.className = 'df-vpbox'; 박스.style.marginTop = '8px';
+      숨길.style.display = 'none'; 숨길.insertAdjacentElement('beforebegin', 박스);
+      __rwVP[키] = RWVoicePicker.mount(박스, { 종류, 성별, 바뀜: id => 동기(id, null), 성별바뀜: g => 동기(null, g) });
+    };
+    // 쇼츠·상품쇼츠
+    const sg = document.getElementById('df-voiceGender'), sa = document.getElementById('df-voiceAge');
+    if (sg && sa) 만들기('쇼츠', sg.closest('.df-grid2'), 현재종류() === '상품쇼츠' ? '상품쇼츠' : '쇼츠', sg.value === '여성' ? '여' : '남', (id, g) => {
+      if (g) sg.value = 성별말(g);
+      if (id !== null) { const v = RWVoiceCatalog.찾기(id); if (v) sg.value = 성별말(v.성별); sa.value = voiceAgeOf(id); }
+    });
+    // 야담 이야기꾼
+    const yv = document.getElementById('df-yvoice');
+    if (yv) 만들기('야담', yv, '야담', yv.value === '여성' ? '여' : '남', (id, g) => {
+      if (g) yv.value = 성별말(g);
+      if (id) { const v = RWVoiceCatalog.찾기(id); if (v) yv.value = 성별말(v.성별); }
+    });
+    // 분위기 영상(AI 목소리로 읽기)
+    const mg = document.querySelector('input[name="df-mgender"]');
+    if (mg) 만들기('분위기', mg.closest('.df-chipset'), '분위기', document.querySelector('input[name="df-mgender"]:checked')?.value === '남성' ? '남' : '여', (id, g) => {
+      const 정함 = x => { const r = document.querySelector(`input[name="df-mgender"][value="${성별말(x)}"]`); if (r) r.checked = true; };
+      if (g) 정함(g);
+      if (id) { const v = RWVoiceCatalog.찾기(id); if (v) 정함(v.성별); }
+    });
+  }
   function 목소리카드보이기() {   분위기카드맞춤();   // 종류별로 카드를 보일지, 어떤 항목을 가릴지 정한다 (분위기 영상은 AI 목소리로 읽을 때만)
     const 종류 = 현재종류();
     const 보임 = 종류 === '상품쇼츠' || 종류 === '일반' || 종류 === '야담' || (종류 === '수면음악' && 낭독중());
     document.querySelectorAll('#df-fields .df-voicesec').forEach(el => el.classList.toggle('df-hide', !보임));
     if (window.RWVoice && 보임) RWVoice.setKind(종류 === '일반' ? '쇼츠' : 종류);
+    if (window.__rwVP && __rwVP.쇼츠 && (종류 === '일반' || 종류 === '상품쇼츠')) __rwVP.쇼츠.종류설정(종류 === '일반' ? '쇼츠' : '상품쇼츠');
     const t = document.getElementById('df-tempo');
     if (t && t.parentNode) t.parentNode.classList.toggle('df-hide', 종류 === '상품쇼츠' || 종류 === '일반');   // 말하기 속도는 카드의 슬라이더가 대신한다
   }
@@ -5457,6 +5498,7 @@
 
     if (!isMedia) { fieldsEl.insertAdjacentHTML('beforeend', window.RWVoice ? RWVoice.sectionHtml({ kind: '상품쇼츠', cls: 'df-voicesec df-hide' }) : ''); setupLayoutPicker(); setupMotionPicker(); setupLengthChips(); setupProduct(); setupLongform(); if (window.RWVoice) { RWVoice.init(fieldsEl); const vs = fieldsEl.querySelector('.df-voicesec'); if (vs) vs.insertAdjacentHTML('beforeend', '<p class="df-hint df-prod pd-sndnote df-hide">음높이 · 쉼 · 발음 사전은 다음 단계(꾸미기)에서 정할 수 있어요.</p>'); } }
     setupWizard(wrap, isMedia);
+    목소리고르기만들기();
     wrap.addEventListener('input', updatePrice);
     wrap.addEventListener('change', updatePrice);
     updatePrice();
@@ -5486,6 +5528,7 @@
         if (sr) { answers.scriptId = sr.id; answers.scriptTitle = 대본제목(sr); }
         if (val('df-style')) answers.style = val('df-style');
         answers.voiceGender = val('df-yvoice') || '남성';
+        if (window.__rwVP && __rwVP.야담 && __rwVP.야담.값()) { answers.voiceId = __rwVP.야담.값(); answers.voiceAge = voiceAgeOf(answers.voiceId); }
         answers.yadamKind = 야담형식();
         목소리카드담기();
         if (answers.yadamKind === 'long') answers.introSeconds = 인트로초();
@@ -5521,7 +5564,7 @@
         if (val('df-style')) answers.style = val('df-style');
         answers.soundMode = 소리;
         if (말 === '목소리') 목소리카드담기();
-        if (말 !== '없음') { answers.narration = 말; if (말 === '목소리') { const v = 목소리값(); answers.voiceGender = v.성별; answers.voiceTone = v.기분; answers.voiceSpeed = v.속도; } if (대본) { answers.scriptId = 대본.id; answers.scriptTitle = 대본.title; } if (말 === '내목소리') { answers.voiceUrl = val('df-voiceUrl'); answers.voiceRights = true; } }
+        if (말 !== '없음') { answers.narration = 말; if (말 === '목소리') { const v = 목소리값(); answers.voiceGender = v.성별; answers.voiceTone = v.기분; answers.voiceSpeed = v.속도; if (window.__rwVP && __rwVP.분위기 && __rwVP.분위기.값()) { answers.voiceId = __rwVP.분위기.값(); answers.voiceAge = voiceAgeOf(answers.voiceId); } } if (대본) { answers.scriptId = 대본.id; answers.scriptTitle = 대본.title; } if (말 === '내목소리') { answers.voiceUrl = val('df-voiceUrl'); answers.voiceRights = true; } }
         if (소리 === '자동' && val('df-soundRequest')) answers.soundRequest = val('df-soundRequest');
         if (val('df-sceneSeconds') && answers.screenMode === '전환') answers.sceneSeconds = val('df-sceneSeconds');
         if (현재구성() === '그림+음성') answers.subtitles = '끄기';
@@ -5588,6 +5631,7 @@
       }
       if (val('df-voiceGender')) answers.voiceGender = val('df-voiceGender');
       if (val('df-voiceAge')) answers.voiceAge = val('df-voiceAge');
+      if (window.__rwVP && __rwVP.쇼츠 && __rwVP.쇼츠.값()) answers.voiceId = __rwVP.쇼츠.값();
       // [영상 제작 방식] 정식 모드에서만 보낸다(체험판은 서버가 항상 이미지 중심으로 만든다). '자동'은 혼합으로 확정해서 보여준다.
       if (!isMedia && planMode === 'paid') answers.motion = answers.productShort ? pdMotion() : answers.narrate ? '이미지 중심' : motionOf(현재움직임() === '자동' ? '혼합' : 현재움직임());
       // 폼에서 길이를 비워뒀으면 화면에 보여준 기본 길이로 확정해서 보낸다 (챗봇이 길이를 다시 묻지 않게, 요금과 대본 길이도 같아짐)

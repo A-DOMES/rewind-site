@@ -1,7 +1,8 @@
 /* 목소리 고르기 화면 (고객용) — assets/voice-catalog.js 의 목록을 읽어 카드로 보여 준다.
  * 사용: RWVoicePicker.mount(요소, { 종류: '쇼츠', 성별: '남', 값: '', 바뀜: id => {} })
  *   값 ''(빈 문자열) = "자동 추천"(영상 종류와 성별에 어울리는 목소리를 시스템이 고름). 아니면 고른 음성ID.
- * 돌려주는 것: { 값(), 성별설정(g), 종류설정(k), 소리멈춤() }  — 화면을 닫을 때 소리멈춤()을 부른다.
+ *   성별바뀜: g => {}  성별 칸을 눌렀을 때 ('남'|'여'). 고른 목소리와 성별이 다르면 값은 자동으로 되돌아가고 바뀜('')이 먼저 불린다.
+ * 돌려주는 것: { 값(), 실제값(), 값설정(id), 성별설정(g), 종류설정(k), 소리멈춤() }  — 화면을 닫을 때 소리멈춤()을 부른다.
  * 색·크기는 사이트의 변수(--ink, --line, --accent …)를 쓰고 없으면 기본값으로 보인다. */
 (function (global) {
   'use strict';
@@ -52,7 +53,7 @@
       a.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); 고름(''); } });
       el.appendChild(a);
       const 성 = document.createElement('div'); 성.className = 'vp-row'; 성.setAttribute('role', 'group'); 성.setAttribute('aria-label', '성별');
-      [['남', '남자'], ['여', '여자']].forEach(([k, t]) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'vp-chip'; b.textContent = t; b.setAttribute('aria-pressed', String(상태.성별 === k)); b.addEventListener('click', () => { 상태.성별 = k; 그리기(); }); 성.appendChild(b); });
+      [['남', '남자'], ['여', '여자']].forEach(([k, t]) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'vp-chip'; b.textContent = t; b.setAttribute('aria-pressed', String(상태.성별 === k)); b.addEventListener('click', () => { 상태.성별 = k; const 지금 = C.찾기(상태.값); if (지금 && 지금.성별 !== k) { 상태.값 = ''; if (옵션.바뀜) 옵션.바뀜(''); } if (옵션.성별바뀜) 옵션.성별바뀜(k); 그리기(); }); 성.appendChild(b); });
       el.appendChild(성);
       const 분 = document.createElement('div'); 분.className = 'vp-row'; 분.setAttribute('role', 'group'); 분.setAttribute('aria-label', '분위기');
       칩들.forEach(([k, t]) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'vp-chip'; b.textContent = t; b.setAttribute('aria-pressed', String(상태.분위기 === k)); b.addEventListener('click', () => { 상태.분위기 = k; 그리기(); }); 분.appendChild(b); });
@@ -73,6 +74,7 @@
     return {
       값: () => 상태.값,
       실제값: () => 상태.값 || C.추천값(상태.종류, 상태.성별),
+      값설정(id) { const v = C.찾기(id); 상태.값 = v ? v.id : ''; if (v) 상태.성별 = v.성별; 그리기(); },
       성별설정(g) { 상태.성별 = g === '여' ? '여' : '남'; 그리기(); },
       종류설정(k) { 상태.종류 = k || '쇼츠'; 그리기(); },
       소리멈춤
