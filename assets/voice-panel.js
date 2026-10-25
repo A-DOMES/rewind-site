@@ -16,7 +16,9 @@
   // 종류별로 가리는 항목 (그 종류의 렌더링이 지원하지 않거나, 이미 다른 칸이 있는 것)
   //  쇼츠: JSON2Video 가 쉼·자막 크기·끊기·켜고 끄기를 지원하지 않고, 자막 위치는 기존 칸이 있다
   //  야담: 자막을 끄는 기능이 없다 / 분위기 영상: 기분·읽는 속도·자막 구성(그림+음성)은 기존 칸이 이미 있다
-  var KIND_HIDE = { '상품쇼츠': [], '쇼츠': ['pause', 'subOn', 'subPos', 'subSize', 'subStyle', 'subFx'], '야담': ['subOn'], '수면음악': ['speed', 'tone', 'subOn'] };
+  var KIND_HIDE = { '상품쇼츠': [], '쇼츠': ['pause', 'subOn', 'subPos', 'subSize', 'subStyle', 'subFx'], '야담': ['subOn', 'subStyle', 'subFx'], '수면음악': ['speed', 'tone', 'subOn', 'subStyle', 'subFx'] };
+  // 야담·수면음악 렌더링은 자막 방식·강조와 '아주 크게'를 아직 넘기지 않는다(화면 비율에 맞게 자동). 넘기게 되면 위 목록과 여기서 뺀다
+  var KIND_NO_XL = ['야담', '수면음악'];
   var SPEED_MIN = 0.7, SPEED_MAX = 1.5;
   var TICKS = [{ v: 0.85, short: '느림', name: '느리게' }, { v: 1.0, short: '보통', name: '보통' }, { v: 1.12, short: '조금빠름', name: '조금 빠르게' }, { v: 1.3, short: '빠름', name: '빠르게' }];
   var PITCH_MIN = -6, PITCH_MAX = 6;
@@ -275,6 +277,8 @@
   function setKind(kind) {
     kindCur = KIND_HIDE[kind] ? kind : '쇼츠';
     var hide = KIND_HIDE[kindCur] || [];
+    var noXl = KIND_NO_XL.indexOf(kindCur) >= 0;
+    document.querySelectorAll('input[name="vp-subSize"][value="아주크게"]').forEach(function (i) { var l = i.closest('label'); if (l) l.hidden = noXl; if (noXl && i.checked) { i.checked = false; delete touched.subSize; } });
     document.querySelectorAll('[data-vp]').forEach(function (e) { e.hidden = hide.indexOf(e.getAttribute('data-vp')) >= 0; });
     var more = $('vp-more');
     if (more) { var anyIn = ['pitch', 'pause', 'subOn', 'subPos', 'subSize', 'subStyle', 'subFx', 'dict'].some(function (n) { return vis(n); }); more.hidden = !anyIn; }
