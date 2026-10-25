@@ -245,6 +245,8 @@
   .sel b.rot::before { content: ''; position: absolute; left: 50%; top: 100%; width: 1.5px; height: 12px; margin-left: -.75px; background: var(--amber); }
   .sel b.rot::after { content: ''; position: absolute; inset: -9px; }
   .tpl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 10px; }
+  .tpl-h { grid-column: 1 / -1; margin-top: 6px; font-size: .78rem; font-weight: 700; color: var(--ink-dim); }
+  .tpl-h:first-child { margin-top: 0; }
   .tpl-btn { padding: 6px; border: 2px solid transparent; border-radius: 12px; background: var(--bg-raised); cursor: pointer; }
   .tpl-btn:hover:not(:disabled) { border-color: var(--amber); }
   .tpl-btn canvas { display: block; margin: 0 auto; border-radius: 8px; background: #000; }
@@ -2041,7 +2043,8 @@
     템플릿카드서명 = 서명;
     const dpr = Math.min(2, window.devicePixelRatio || 1), sc = Math.min(112 / W, 150 / H), cw = Math.round(W * sc), ch = Math.round(H * sc), 새로 = !칸.children.length;
     if (새로) {
-      칸.innerHTML = T.목록.map(t => `<button type="button" class="tpl-btn" data-tpl="${t.id}" aria-label="${t.이름} 템플릿 적용"><canvas></canvas><span>${t.이름}</span></button>`).join('');
+      let 지난묶음 = '';
+      칸.innerHTML = T.목록.map(t => (t.묶음 && t.묶음 !== 지난묶음 ? `<div class="tpl-h">${지난묶음 = t.묶음}</div>` : '') + `<button type="button" class="tpl-btn" data-tpl="${t.id}" aria-label="${t.이름} 템플릿 적용"><canvas></canvas><span>${t.이름}</span></button>`).join('');
       칸.querySelectorAll('button').forEach(b => b.addEventListener('click', () => 템플릿적용(b.dataset.tpl)));
     }
     칸.querySelectorAll('button').forEach(b => {
