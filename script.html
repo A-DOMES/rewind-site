@@ -1848,19 +1848,16 @@ $('okno').onclick=closeAll;
 /* ---------- 대본 정책 검사 (확정 창) ---------- */
 var guardRes=null,guardAck=false;
 function guardText(){return ch.filter(function(c){return !c.off}).map(function(c){return c.text}).join('\n')}
-function guardState(){return guardRes?{verdict:guardRes.판정,rules:guardRes.규칙,ack:guardRes.판정==='경고'&&guardAck,at:new Date().toISOString()}:undefined}
+function guardState(){return guardRes?{verdict:guardRes.판정,rules:guardRes.규칙,strong:guardRes.차단.length,ack:guardRes.판정!=='통과'&&guardAck,at:new Date().toISOString()}:undefined}
 function guardLines(arr){return '<ul>'+arr.slice(0,5).map(function(x){return '<li>'+esc(x.문장)+' <small>('+esc(x.말)+')</small></li>'}).join('')+(arr.length>5?'<li><small>그 밖에 '+(arr.length-5)+'곳</small></li>':'')+'</ul>'}
 function renderGuard(){
   var box=$('okguard');guardRes=null;guardAck=false;
   if(cfg.kind!=='gen'||!window.RWScriptGuard){box.hidden=true;$('okyes').disabled=false;return}
   guardRes=RWScriptGuard.검사(guardText());box.hidden=false;
-  if(guardRes.판정==='차단'){
-    box.className='guardbox stop';
-    box.innerHTML='<b>아래 문장은 효능을 단정하고 있어서 영상으로 만들 수 없어요.</b>'+guardLines(guardRes.차단)+'<small class="fine">문장을 고친 후 다시 확인해 주세요.</small>';
-    $('okyes').disabled=true;
-  }else if(guardRes.판정==='경고'){
+  if(guardRes.판정!=='통과'){
+    var strong=guardRes.차단.length>0;
     box.className='guardbox warn';
-    box.innerHTML='<b>아래 표현은 효능으로 오해될 수 있어요.</b>'+guardLines(guardRes.경고)+'<small class="fine">고치거나, 확인 후 그대로 진행할 수 있어요. 진행하면 확인 기록이 남아요.</small><label><input type="checkbox" id="guardAck"> 확인했고 그대로 진행할게요</label>';
+    box.innerHTML='<b>'+(strong?'아래 문장은 효능을 단정하는 것으로 보여요.':'아래 표현은 효능으로 오해될 수 있어요.')+'</b>'+guardLines(guardRes.차단.concat(guardRes.경고))+'<small class="fine">효능을 주장하는 문장이면 영상으로 만들 수 없어요. 반박·인용·반어로 쓴 문장이면 그대로 진행할 수 있어요. 진행하면 확인 기록이 남고, 신청할 때 한 번 더 확인해요.</small><label><input type="checkbox" id="guardAck"> 효능을 주장하려는 문장이 아니에요</label>';
     $('okyes').disabled=true;
     $('guardAck').onchange=function(){guardAck=this.checked;$('okyes').disabled=!guardAck};
   }else{
