@@ -9,14 +9,14 @@
 
   // 종류별 처음 값. 빈 칸이면 서버가 기본값을 쓰므로, 상품쇼츠 말고는 지금 동작과 같다
   var KIND_DEFAULT = {
-    '상품쇼츠': { speed: 1.12, tone: '보통', pause: '짧게', subSize: '크게', subBreak: '짧게', subPos: '하단' },
+    '상품쇼츠': { speed: 1.12, tone: '보통', pause: '짧게', subSize: '크게', subStyle: '구절형', subFx: '끔', subPos: '하단' },
     // 그 밖의 종류: 아무것도 고르지 않은 상태가 처음 값이다(= 영상에 맞게 자동). 직접 건드린 것만 접수로 보낸다
-    '_': { speed: 1.0, tone: '', pause: '', subSize: '', subBreak: '', subPos: '' }
+    '_': { speed: 1.0, tone: '', pause: '', subSize: '', subStyle: '', subFx: '', subPos: '' }
   };
   // 종류별로 가리는 항목 (그 종류의 렌더링이 지원하지 않거나, 이미 다른 칸이 있는 것)
   //  쇼츠: JSON2Video 가 쉼·자막 크기·끊기·켜고 끄기를 지원하지 않고, 자막 위치는 기존 칸이 있다
   //  야담: 자막을 끄는 기능이 없다 / 분위기 영상: 기분·읽는 속도·자막 구성(그림+음성)은 기존 칸이 이미 있다
-  var KIND_HIDE = { '상품쇼츠': [], '쇼츠': ['pause', 'subOn', 'subPos', 'subSize', 'subBreak'], '야담': ['subOn'], '수면음악': ['speed', 'tone', 'subOn'] };
+  var KIND_HIDE = { '상품쇼츠': [], '쇼츠': ['pause', 'subOn', 'subPos', 'subSize', 'subStyle', 'subFx'], '야담': ['subOn'], '수면음악': ['speed', 'tone', 'subOn'] };
   var SPEED_MIN = 0.7, SPEED_MAX = 1.5;
   var TICKS = [{ v: 0.85, short: '느림', name: '느리게' }, { v: 1.0, short: '보통', name: '보통' }, { v: 1.12, short: '조금빠름', name: '조금 빠르게' }, { v: 1.3, short: '빠름', name: '빠르게' }];
   var PITCH_MIN = -6, PITCH_MAX = 6;
@@ -42,6 +42,10 @@
     sizeL: '<path d="M5 19 12 3l7 16M7.5 14h9"/>',
     brkShort: '<path d="M5 8h8M5 12h14M5 16h10"/>',
     brkSent: '<path d="M4 9h16M4 15h12"/>',
+    brkWord: '<path d="M7 12h4M13 12h4"/><path d="M9 8v8"/>',
+    fxColor: '<path d="M5 17 12 5l7 12"/><path d="M8 13h8" stroke-width="3"/>',
+    fxGrow: '<path d="M6 18 12 6l6 12M9 14h6"/><path d="M3 9V3h6"/>',
+    fxBoth: '<path d="M5 18 12 5l7 13M8.5 14h7"/><circle cx="19" cy="5" r="2"/>',
     play: 'M8 5v14l11-7z',
     chev: '<path d="m6 9 6 6 6-6"/>',
     plus: '<path d="M12 5v14M5 12h14"/>'
@@ -124,10 +128,17 @@
     var subSize = group('자막 크기', 'vp-subSize',
       card('vp-subSize', '작게', '작게', '', I.sizeS, d.subSize === '작게') +
       card('vp-subSize', '보통', '보통', '', I.sizeM, d.subSize === '보통') +
-      card('vp-subSize', '크게', '크게', '', I.sizeL, d.subSize === '크게'));
-    var subBreak = group('자막 끊기', 'vp-subBreak',
-      card('vp-subBreak', '짧게', '짧게 끊기', '한 번에 12~14자 안팎', I.brkShort, d.subBreak === '짧게') +
-      card('vp-subBreak', '문장', '문장 단위', '한 번에 길게 보여요', I.brkSent, d.subBreak === '문장'));
+      card('vp-subSize', '크게', '크게', '', I.sizeL, d.subSize === '크게') +
+      card('vp-subSize', '아주크게', '아주 크게', '잘 안 보이는 분도 편해요', I.sizeL, d.subSize === '아주크게'));
+    var subStyle = group('자막 방식', 'vp-subStyle',
+      card('vp-subStyle', '구절형', '한 줄씩', '한 줄에 알맞게, 말 흐름대로', I.brkShort, d.subStyle === '구절형') +
+      card('vp-subStyle', '문장형', '문장째로', '문장 하나를 통째로, 최대 두 줄', I.brkSent, d.subStyle === '문장형') +
+      card('vp-subStyle', '단어형', '한두 단어씩', '큰 글씨가 빠르게 바뀌어요', I.brkWord, d.subStyle === '단어형'), '고르지 않으면 가로 영상은 문장째로, 세로 영상은 한 줄씩 나와요.');
+    var subFx = group('읽는 말 강조', 'vp-subFx',
+      card('vp-subFx', '끔', '없음', '', I.capOn, d.subFx === '끔') +
+      card('vp-subFx', '색', '색', '읽는 말만 노랗게', I.fxColor, d.subFx === '색') +
+      card('vp-subFx', '커짐', '커짐', '읽는 말이 살짝 커져요', I.fxGrow, d.subFx === '커짐') +
+      card('vp-subFx', '색+커짐', '색+커짐', '둘 다', I.fxBoth, d.subFx === '색+커짐'), '말하는 순간과 조금 어긋날 수 있어요. 어색하면 없음으로 두세요.');
     var style = opts.showStyle ? group('말투', 'vp-style',
       card('vp-style', '', '기본', '', I.flat, true) +
       card('vp-style', '또렷하게', '또렷하게 끝맺기', '', I.short, false) +
@@ -143,7 +154,7 @@
       '<div class="vp-play" data-vp="preview"><button type="button" class="vp-btn" id="vp-preview" disabled>' + svg(I.play, true) + '미리 듣기</button><span class="vp-note" id="vp-preview-note">미리 듣기는 곧 열려요. 지금은 고른 값대로 만들어요</span></div>' +
       '<details class="vp-more" id="vp-more"><summary><span>자세히 · 음높이, 쉼, 발음 사전, 자막</span><span class="vp-sum" id="vp-sum"></span><span class="vp-chev">' + svg(I.chev) + '</span></summary><div class="vp-body">' +
       '<div class="df-field vp-speed" data-vp="pitch"><div class="vp-row"><label for="vp-pitch">음높이</label><span class="vp-now" id="vp-pitch-now"></span></div><input class="vp-range" id="vp-pitch" type="range" min="' + PITCH_MIN + '" max="' + PITCH_MAX + '" step="1" value="0"><div class="vp-pitch-l" aria-hidden="true"><span>낮게</span><span>기본</span><span>높게</span></div></div>' +
-      style + pause + subOn + subPos + subSize + subBreak +
+      style + pause + subOn + subPos + subSize + subStyle + subFx +
       '<div class="df-field" data-vp="dict"><label>발음 사전 <span class="opt">선택 · 최대 ' + DICT_MAX + '개</span></label><p class="df-hint" style="margin:0 0 8px">제품명·영어 이름처럼 잘못 읽는 말을 알려 주세요. 자막에는 원래 글자가 그대로 나와요.</p><div class="vp-dict" id="vp-dict"></div></div>' +
       '</div></details>' +
       '<p class="vp-ai">AI 목소리가 들어간 영상은 유튜브에 올릴 때 "변경된 콘텐츠" 표시 안내를 확인해 주세요.</p></section>';
@@ -179,7 +190,8 @@
     if (vis('pitch') && sends('pitch')) extra++;
     if (vis('pause') && sends('pause') && checked('vp-pause')) extra++;
     if (vis('subSize') && sends('subSize') && checked('vp-subSize')) extra++;
-    if (vis('subBreak') && sends('subBreak') && checked('vp-subBreak')) extra++;
+    if (vis('subStyle') && sends('subStyle') && checked('vp-subStyle')) extra++;
+    if (vis('subFx') && sends('subFx') && checked('vp-subFx')) extra++;
     if (vis('dict') && dictPairs().length) extra++;
     if (kindCur !== '상품쇼츠' && extra) parts.push('자세히 ' + extra + '개');
     return parts.length ? parts.join(' · ') : '기본 설정';
@@ -195,7 +207,7 @@
     var p = pitchValue(); $('vp-pitch-now').textContent = p === 0 ? '기본' : (p > 0 ? '+' + p : String(p));
     if ($('vp-sum')) $('vp-sum').textContent = summary();
     var off = vis('subOn') && checked('vp-subOn') === '끄기';
-    ['vp-subPos', 'vp-subSize', 'vp-subBreak'].forEach(function (n) { document.querySelectorAll('input[name="' + n + '"]').forEach(function (i) { i.disabled = off; }); var g = document.getElementById(n + '-l'); if (g && g.parentNode) g.parentNode.style.opacity = off ? '.45' : ''; });
+    ['vp-subPos', 'vp-subSize', 'vp-subStyle', 'vp-subFx'].forEach(function (n) { document.querySelectorAll('input[name="' + n + '"]').forEach(function (i) { i.disabled = off; }); var g = document.getElementById(n + '-l'); if (g && g.parentNode) g.parentNode.style.opacity = off ? '.45' : ''; });
     if (typeof opts.onChange === 'function') opts.onChange(value());
   }
 
@@ -249,7 +261,8 @@
     if (vis('tone')) { var t = checked('vp-tone'); if (t && sends('tone')) v.tone = t; else if (all) v.tone = '보통'; }
     if (vis('pause') && sends('pause')) { var pz = checked('vp-pause'); if (pz) v.pause = pz; }
     if (vis('subSize') && sends('subSize')) { var sz = checked('vp-subSize'); if (sz) v.subtitleSize = sz; }
-    if (vis('subBreak') && sends('subBreak')) { var bk = checked('vp-subBreak'); if (bk) v.subtitleBreak = bk; }
+    if (vis('subStyle') && sends('subStyle')) { var ss = checked('vp-subStyle'); if (ss) v.subtitleStyle = ss; }
+    if (vis('subFx') && sends('subFx')) { var sf = checked('vp-subFx'); if (sf) v.subtitleEffect = sf; }
     if (vis('subOn')) v.subtitleOff = checked('vp-subOn') === '끄기';
     if (vis('style') && sends('style')) { var st = checked('vp-style'); if (st) v.style = st; }
     if (vis('dict')) { var pairs = dictPairs(); if (pairs.length) v.pronounce = pairs; }
@@ -264,13 +277,13 @@
     var hide = KIND_HIDE[kindCur] || [];
     document.querySelectorAll('[data-vp]').forEach(function (e) { e.hidden = hide.indexOf(e.getAttribute('data-vp')) >= 0; });
     var more = $('vp-more');
-    if (more) { var anyIn = ['pitch', 'pause', 'subOn', 'subPos', 'subSize', 'subBreak', 'dict'].some(function (n) { return vis(n); }); more.hidden = !anyIn; }
+    if (more) { var anyIn = ['pitch', 'pause', 'subOn', 'subPos', 'subSize', 'subStyle', 'subFx', 'dict'].some(function (n) { return vis(n); }); more.hidden = !anyIn; }
     if ($('vp-speed')) {
       var d = def(kindCur);
       if (!touched.speed) $('vp-speed').value = String(d.speed);
       if (!touched.pitch) $('vp-pitch').value = '0';
       // 직접 건드리지 않은 항목만 이 종류의 처음 값으로 되돌린다 (건드린 것은 그대로)
-      [['tone', d.tone], ['pause', d.pause], ['subSize', d.subSize], ['subBreak', d.subBreak], ['subPos', d.subPos]].forEach(function (g) {
+      [['tone', d.tone], ['pause', d.pause], ['subSize', d.subSize], ['subStyle', d.subStyle], ['subFx', d.subFx], ['subPos', d.subPos]].forEach(function (g) {
         if (touched[g[0]]) return;
         document.querySelectorAll('input[name="vp-' + g[0] + '"]').forEach(function (i) { i.checked = !!g[1] && i.value === g[1]; });
       });

@@ -1298,7 +1298,7 @@
   .pd-pv small { font-size: .78rem; color: var(--ink-dim); text-align: center; line-height: 1.4; }
   .pd-sub { margin: 22px 0 0; padding-top: 14px; border-top: 1px solid var(--line); font-size: .86rem; font-weight: 700; color: var(--ink); }
   .pd-vpslot .vp-body { display: flex; flex-direction: column; padding: 0; border: 0; }
-  .pd-vpslot [data-vp="subOn"] { order: 1; } .pd-vpslot [data-vp="subPos"] { order: 2; } .pd-vpslot [data-vp="subSize"] { order: 3; } .pd-vpslot [data-vp="subBreak"] { order: 4; }
+  .pd-vpslot [data-vp="subOn"] { order: 1; } .pd-vpslot [data-vp="subPos"] { order: 2; } .pd-vpslot [data-vp="subSize"] { order: 3; } .pd-vpslot [data-vp="subStyle"] { order: 4; } .pd-vpslot [data-vp="subFx"] { order: 5; }
   .pd-vpslot [data-vp="pitch"] { order: 6; } .pd-vpslot [data-vp="style"] { order: 7; } .pd-vpslot [data-vp="pause"] { order: 8; } .pd-vpslot [data-vp="dict"] { order: 9; }
   .pd-vpslot [data-vp="subOn"]::before, .pd-vpslot [data-vp="pitch"]::before { display: block; margin: 0 0 12px; padding-top: 14px; border-top: 1px solid var(--line); font-size: .86rem; font-weight: 700; color: var(--ink); }
   .pd-vpslot [data-vp="subOn"]::before { content: "자막 설정"; }
@@ -1309,6 +1309,7 @@
   .pd-vpslot .vp-poslp .ccard .ci { width: auto; height: auto; background: none; margin: 0; }
   .pd-vpslot .vp-poslp .ccard .ci svg { width: 40px; height: 71px; fill: none; stroke: none; stroke-width: 0; }
   .pd-vpslot [data-vp="subPos"] .df-comp { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .pd-vpslot [data-vp="subStyle"] .df-comp { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .pd-dlg { border: 1px solid var(--line); border-radius: 16px; padding: 0; background: var(--bg); color: var(--ink); width: min(92vw, 420px); max-height: 92vh; }
   .pd-dlg::backdrop { background: rgba(0, 0, 0, .6); }
   .pd-dlg-in { position: relative; padding: 18px 18px 16px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
@@ -3903,6 +3904,10 @@
   }
   function phoneSvg(layout, pos, auto, 가로) {
     if (가로) return screenSvg(layout, pos, auto);
+    if (layout === '가운데영상형') {   // 위 문구, 가운데 칸에만 영상, 뒤는 흐리게, 자막은 칸 안
+      const bt = 24, bh = 26, y = pos === '상단' ? bt + 3 : pos === '가운데' ? bt + bh / 2 - 4.5 : bt + bh - 12;
+      return `<svg viewBox="0 0 45 80" aria-hidden="true"><rect x="0.5" y="0.5" width="44" height="79" rx="7" fill="#3a3129" stroke="#5a4e42"/><rect x="3" y="3" width="39" height="74" rx="3" fill="#2f2822"/><rect x="10" y="9" width="25" height="3" rx="1.5" fill="#FFF200"/><rect x="14" y="14" width="17" height="3" rx="1.5" fill="#FFF200"/><rect x="3" y="${bt}" width="39" height="${bh}" fill="#4d4238"/><path d="M8 ${bt + 20} l9-9 7 6 5-4 9 7" fill="none" stroke="#6b5d4f" stroke-width="2" stroke-linejoin="round"/><rect x="9" y="${y}" width="27" height="2.8" rx="1.4" fill="#fff"/><rect x="3" y="62" width="39" height="15" fill="#000" opacity=".34"/></svg>`;
+    }
     const 제목 = layout === '제목고정형';
     const 띠 = layout === '자막바형';
     const top = 제목 ? 16 : 0;
@@ -4349,9 +4354,9 @@
     '혼합': '사진 장면의 약 1/3(첫 장면 포함)을 AI 영상으로 움직이고, 나머지는 사진 그대로 써요.',
     '모두 영상': '모든 사진을 AI 영상으로 움직여요. 요즘 쇼츠 느낌 그대로예요.'
   };
-  const PD_LAYOUTS = [['자동', '기본 · 전체화면형'], ['제목고정형', '제목이 위에 고정'], ['전체화면형', '장면을 가득'], ['자막바형', '아래 띠에 큰 자막']];
-  const PD_LAYOUT_READY = { '자동': true, '전체화면형': true, '제목고정형': true, '자막바형': true };
-  const PD_LAYOUT_DESC = { '자동': '고르지 않으면 장면을 화면 가득 보여 주는 전체화면형으로 만들어요.', '전체화면형': '장면을 화면 가득 보여 줘요.', '제목고정형': '위에 어두운 띠를 깔고 그 안에 위쪽 문구를 넣어요.', '자막바형': '자막 뒤에 주황 띠가 깔려요. 띠 위치는 고른 자막 위치를 따라가요.' };
+  const PD_LAYOUTS = [['자동', '기본 · 전체화면형'], ['제목고정형', '제목이 위에 고정'], ['전체화면형', '장면을 가득'], ['자막바형', '아래 띠에 큰 자막'], ['가운데영상형', '영상은 가운데에만']];
+  const PD_LAYOUT_READY = { '자동': true, '전체화면형': true, '제목고정형': true, '자막바형': true, '가운데영상형': true };
+  const PD_LAYOUT_DESC = { '자동': '고르지 않으면 장면을 화면 가득 보여 주는 전체화면형으로 만들어요.', '전체화면형': '장면을 화면 가득 보여 줘요.', '제목고정형': '위에 어두운 띠를 깔고 그 안에 위쪽 문구를 넣어요.', '자막바형': '자막 뒤에 주황 띠가 깔려요. 띠 위치는 고른 자막 위치를 따라가요.', '가운데영상형': '위에는 문구, 영상·사진은 가운데에만 나오고 뒤는 흐리게 채워요. 자막은 영상 안에서 위·가운데·아래로 정해요.' };
   const PD_POS_LABEL = { '상단': '위쪽', '가운데': '가운데', '하단': '아래쪽' };
   const pdMotion = () => (document.querySelector('input[name="pd-motion"]:checked') || {}).value || '이미지 중심';
   function pdMotionHtml() {
@@ -4379,21 +4384,24 @@
     const split2 = t => { const ch = Array.from(t); let best = -1, d = 1e9; ch.forEach((c, i) => { if (c === ' ' && Math.abs(i - (ch.length - i - 1)) < d) { d = Math.abs(i - (ch.length - i - 1)); best = i; } }); const m = best > 0 ? best : Math.ceil(ch.length / 2); return [ch.slice(0, m).join('').trim(), ch.slice(best > 0 ? m + 1 : m).join('').trim()]; };
     const hookLines = (() => { const t = Array.from(hook || '가나다라마바사아자 차카타파하가나').join(''); if (Array.from(t).length <= 10) return [t]; const ch = Array.from(t); let best = -1, d = 1e9; ch.forEach((c, i) => { const r = ch.length - i - 1; if (c === ' ' && i >= 1 && r >= 1 && i <= 10 && r <= 10 && Math.abs(i - r) < d) { d = Math.abs(i - r); best = i; } }); if (best > 0) return [ch.slice(0, best).join(''), ch.slice(best + 1).join('')]; const m = Math.ceil(ch.length / 2); return [ch.slice(0, m).join('').trim(), ch.slice(m).join('').trim()]; })();
     const hPitch = Math.min(W * 0.115, W * 0.84 / Math.max(...hookLines.map(lw)));
-    const hTop = band ? Y + (band - hookLines.length * hPitch) / 2 : Y + H * 0.065, hBottom = band ? Y + band : hTop + hookLines.length * hPitch + hPitch * 0.07;
+    const center = lay === '가운데영상형', hTop = band ? Y + (band - hookLines.length * hPitch) / 2 : Y + H * (center ? 0.123 : 0.065), hBottom = band ? Y + band : hTop + hookLines.length * hPitch + hPitch * 0.07;
     let g = `<rect x="0.5" y="0.5" width="89" height="159" rx="10" fill="#3a3129" stroke="#5a4e42"/><rect x="${X}" y="${Y + band}" width="${W}" height="${H - band}" rx="6" fill="#4d4238"/>`;
     g += `<path d="M9 ${Y + band + (H - band) * 0.66} l22-22 16 14 14-10 24 18" fill="none" stroke="#6b5d4f" stroke-width="3" stroke-linejoin="round"/>`;
+    const bxTop = Math.max(Y + H * 0.235, hBottom + H * 0.012), bxH = H * 0.317;   // 가운데영상형: 영상 칸(16:9 예시)
+    if (center) g += `<rect x="${X}" y="${Y}" width="${W}" height="${H}" rx="6" fill="#2f2822"/><rect x="${X}" y="${bxTop}" width="${W}" height="${bxH}" fill="#4d4238"/><path d="M9 ${bxTop + bxH * 0.8} l22-14 16 10 14-8 24 12" fill="none" stroke="#6b5d4f" stroke-width="3" stroke-linejoin="round"/>`;
     g += `<rect x="${X}" y="${safeB}" width="${W}" height="${Y + H - safeB}" fill="#000" opacity=".34"/><line x1="${X}" x2="${X + W}" y1="${safeB}" y2="${safeB}" stroke="#e8dfd0" stroke-opacity=".5" stroke-dasharray="2 2" stroke-width=".6"/>`;
     g += `<text x="${X + 4}" y="${safeB + 8}" font-size="3.6" fill="#e8dfd0" fill-opacity=".8" font-family="inherit">앱 제목·버튼 자리</text>` + [78, 91, 104].map(y => `<circle cx="79" cy="${y}" r="3.2" fill="#e8dfd0" fill-opacity=".4"/>`).join('');
     if (band) g += `<rect x="${X}" y="${Y}" width="${W}" height="${band}" rx="6" fill="#15110e"/>`;
     if (hook) hookLines.forEach((l, i) => { g += `<text x="45" y="${hTop + hPitch * (i + 0.8)}" text-anchor="middle" font-size="${hPitch * 0.65}" font-weight="800" fill="#FFF200" stroke="#000" stroke-width="${hPitch * 0.14}" paint-order="stroke" font-family="inherit">${pdEsc(l)}</text>`; });
     else g += `<text x="45" y="${hTop + hPitch * 0.8}" text-anchor="middle" font-size="3.8" fill="#e8dfd0" fill-opacity=".75" font-family="inherit">위쪽 문구 · 비우면 AI가 만들어요</text>`;
     if (!st.off) {
-      const cPitch = W * ({ '작게': 0.048, '보통': 0.058, '크게': 0.072 }[st.size] || 0.072), sample = st.brk === '문장' ? '자막은 이렇게 한 문장씩 이어서 나와요 정말요' : '자막은 이렇게 나와요';
-      const lines = lw(sample) * cPitch > W * 0.76 ? split2(sample) : [sample];
+      const cPitch = W * ({ '작게': 0.048, '보통': 0.058, '크게': 0.072, '아주크게': 0.09 }[st.size] || 0.072) * 1.333 * (st.sub === '단어형' ? 1.2 : 1), sample = st.sub === '문장형' ? '자막은 이렇게 문장 하나를 통째로 보여 줘요' : st.sub === '단어형' ? '이렇게 한두 단어' : '이렇게 한 줄로 나와요';
+      const lines = st.sub === '문장형' && lw(sample) * cPitch > W * 0.76 ? split2(sample) : [sample];
       const bar = lay === '자막바형', pad = bar ? cPitch * 0.45 : 0, bh = lines.length * cPitch + 2 * pad;
       const limit = hBottom + H * 0.025;
       let y = st.pos === '상단' ? Math.max(Y + H * 0.12, limit) : st.pos === '가운데' ? Y + H / 2 - bh / 2 : safeB - (bar ? 1.8 : 0.5) - bh;
-      y = Math.max(y, limit);
+      if (center) y = st.pos === '상단' ? bxTop + bxH * 0.05 : st.pos === '가운데' ? bxTop + bxH / 2 - bh / 2 : Math.min(bxTop + bxH * 0.95 - bh, safeB - bh);
+      else y = Math.max(y, limit);
       if (bar) g += `<rect x="${X}" y="${y}" width="${W}" height="${bh}" fill="#e2a23c"/>`;
       lines.forEach((l, i) => { g += `<text x="45" y="${y + pad + cPitch * (i + 0.8)}" text-anchor="middle" font-size="${cPitch * 0.65}" font-weight="700" fill="${bar ? '#1a1410' : '#fff'}"${bar ? '' : ` stroke="#000" stroke-width="${cPitch * 0.18}" paint-order="stroke"`} font-family="inherit">${pdEsc(l)}</text>`; });
     }
@@ -4812,7 +4820,7 @@
     const pv = document.getElementById('pd-pv'), hook = document.getElementById('pd-hook'), hookN = document.getElementById('pd-hook-n'), lay = document.getElementById('pd-layout'), note = document.getElementById('pd-layout-note'), hookNote = document.getElementById('pd-hookshow-note');
     if (!pv || !hook) return;
     const val = n => (document.querySelector(`input[name="${n}"]:checked`) || {}).value || '';
-    const state = () => ({ layout: val('pd-layout') || '자동', hook: hook.value, hookShow: val('pd-hookshow') || 'all', pos: val('vp-subPos') || '하단', size: val('vp-subSize') || '크게', brk: val('vp-subBreak') || '짧게', off: val('vp-subOn') === '끄기' });
+    const state = () => ({ layout: val('pd-layout') || '자동', hook: hook.value, hookShow: val('pd-hookshow') || 'all', pos: val('vp-subPos') || '하단', size: val('vp-subSize') || '크게', sub: val('vp-subStyle') || '구절형', off: val('vp-subOn') === '끄기' });
     let lastPos = '하단';
     function draw() {
       const st = state();
@@ -5105,13 +5113,13 @@
       const r = readProduct({ partial: true, mutate: false}); if (r.err) { review.innerHTML = '<p class="pw-note">' + esc(r.err) + '</p>'; return; }
       const d = r.data;
       const vv = (window.RWVoice && RWVoice.value()) || {};
-      const 자막 = vv.subtitleOff ? '자막 꺼짐' : [(PD_POS_LABEL[d.captionPos] || '아래쪽') + ' 자막', vv.subtitleSize && '크기 ' + vv.subtitleSize, vv.subtitleBreak && (vv.subtitleBreak === '문장' ? '문장 단위' : '짧게 끊기')].filter(Boolean).join(' · ');
+      const 자막 = vv.subtitleOff ? '자막 꺼짐' : [(PD_POS_LABEL[d.captionPos] || '아래쪽') + ' 자막', vv.subtitleSize && '크기 ' + vv.subtitleSize, vv.subtitleStyle && ({ '구절형': '한 줄씩', '문장형': '문장째로', '단어형': '한두 단어씩' }[vv.subtitleStyle] || ''), vv.subtitleEffect && vv.subtitleEffect !== '끔' && '강조 ' + vv.subtitleEffect].filter(Boolean).join(' · ');
       const 세부 = [vv.pitch ? '음높이 ' + (vv.pitch > 0 ? '+' : '') + vv.pitch : '', vv.pause ? '쉼 ' + vv.pause : '', vv.pronounce && vv.pronounce.length ? '발음 사전 ' + vv.pronounce.length + '개' : ''].filter(Boolean).join(' · ') || '기본';
       const row = (k, v, go) => `<div class="pw-row"><span class="pw-k">${k}</span><span class="pw-v">${esc(v)}</span><button type="button" class="pw-fix" data-go="${go}">고치기</button></div>`;
       const 설명 = pdSrcLabel(d);
       const 링크 = d.link ? (PD_SELLER_LABEL[d.seller] + ' · ' + d.link.slice(0, 50)) : '없음';
       const 광고 = (d.seller === 'affiliate' || (d.link && pdLooksAffiliate(d.link))) ? ' 제휴 링크라서 설명란 맨 앞과 고정 댓글에 광고 안내 문구가 들어가요. 유튜브에 올릴 때 "유료 프로모션 포함"도 체크해 주세요.' : (d.link ? ' 링크는 설명란과 고정 댓글에 들어가요.' : '');
-      const 미리 = pdPvSvg({ layout: d.layout, hook: d.hook, hookShow: d.hookShow, pos: d.captionPos || '하단', size: vv.subtitleSize || '크게', brk: vv.subtitleBreak || '짧게', off: !!vv.subtitleOff });
+      const 미리 = pdPvSvg({ layout: d.layout, hook: d.hook, hookShow: d.hookShow, pos: d.captionPos || '하단', size: vv.subtitleSize || '크게', sub: vv.subtitleStyle || '구절형', off: !!vv.subtitleOff });
       review.innerHTML = `<div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg></span><div><h3 data-n="${LAST + 1}">이대로 만들까요?</h3><p>고칠 곳이 있으면 "고치기"를 눌러 돌아가세요. 고른 내용은 그대로 남아 있어요</p></div></div>` +
         `<div class="pw-pv" role="img" aria-label="고른 화면 모양 미리보기">${미리}<small>고른 화면 모양이에요</small></div>` +
         row('제품', d.name, 1) + row('제품 내용', 설명, 1) + row('링크·판매', 링크, 1) + row('사진·영상', pdMediaSummary(d), 2) + row('영상 길이', pdLenLabel(d.sec), 2) + row('영상 제작 방식', d.motion, 2) + (window.RWVoice ? row('목소리', RWVoice.summary(), 3) : '') + row('화면 구성', d.layout === '자동' ? '자동 (전체화면형)' : d.layout, 4) + row('위쪽 문구', (d.hook || 'AI가 만들어요') + (d.hookShow === '3s' ? ' · 처음 3초만' : ' · 계속 보이기'), 4) + (window.RWVoice ? row('자막', 자막, 4) + row('목소리 세부', 세부, 4) : '') +
