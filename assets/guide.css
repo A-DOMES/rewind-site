@@ -77,3 +77,9 @@ body.guide-open .split-row, body.guide-open #topic-hub, body.guide-open #script-
 #guide-hub .gd-btn2 { min-height: 48px; padding: 0 22px; border-radius: var(--r-md); border: 1px solid var(--line); background: none; color: var(--ink-dim); font: inherit; font-size: var(--fs-sm, .95rem); cursor: pointer; }
 @media (max-width: 520px) { #guide-hub .gd-two { width: 100%; flex-direction: column-reverse; } #guide-hub .gd-two > * { width: 100%; } #guide-hub .gd-opts { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (prefers-reduced-motion: no-preference) { #guide-hub .gd-card, #guide-hub .gd-o, #guide-hub .gd-seg button { transition: border-color .15s, background-color .15s; } }
+#guide-hub .gd-vids { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: var(--sp-3, 12px); }
+#guide-hub .gd-vid { font: inherit; color: var(--ink); text-align: left; cursor: pointer; background: var(--bg-raised); border: 1.5px solid var(--line); border-radius: var(--r-md); padding: 8px; display: grid; gap: 6px; align-content: start; }
+#guide-hub .gd-vid.on { border-color: var(--accent); background: var(--accent-soft); }
+#guide-hub .gd-vid img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: var(--r-sm, 8px); background: var(--bg-input); }
+#guide-hub .gd-vt { font-size: var(--fs-sm, .85rem); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+#guide-hub .gd-vm { font-size: .75rem; color: var(--ink-dim); }

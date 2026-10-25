@@ -30,7 +30,7 @@
   var 허브 = null, 사이드 = null, 모바일 = null, 소리판 = null;
   var S = 새상태();
 
-  function 새상태() { return { 단계: 1, 주제: '', 유형: '상품', 길: '', 종류: '', 종류직접: false, 구성: '자동', 자막: '자동', 길이칸: 2, 길이만짐: false, 목소리: '', 성별: '남' }; }
+  function 새상태() { return { 단계: 1, 주제: '', 유형: '상품', 길: '', 종류: '', 종류직접: false, 후보: null, 후보이름: '', 참고: '', 구성: '자동', 자막: '자동', 길이칸: 2, 길이만짐: false, 목소리: '', 성별: '남' }; }
   function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function 켜짐() { return !!(window.RWFlags && window.RWFlags.has(기능)); }
   function 종류열림(k) {
@@ -139,14 +139,40 @@
   function 길카드(키, 열림, 추천) {
     var g = 길들[키];
     return '<button type="button" aria-pressed="' + (S.길 === 키) + '" class="gd-card' + (S.길 === 키 ? ' on' : '') + (추천 ? ' rec' : '') + '" data-길="' + 키 + '"' + (열림 ? '' : ' disabled') + '>' +
-      (추천 ? '<span class="gd-tag">추천</span>' : (열림 ? '' : '<span class="gd-tag soon">준비 중</span>')) +
+      (추천 ? '<span class="gd-tag">추천</span>' : (열림 ? '' : '<span class="gd-tag soon">' + (키 === 'B' && !정식() && window.RWFlags && window.RWFlags.has('참고영상') ? '정식 회원용' : '준비 중') + '</span>')) +
       '<h3>' + g.이름 + '</h3><p>' + g.설명 + '</p><span class="gd-need">' + g.준비 + '</span></button>';
   }
+  function 정식() { return !!(window.__rwGuideApi && window.__rwGuideApi.정식회원 && window.__rwGuideApi.정식회원()); }
+  function 국숫자(n) { return n >= 1e8 ? (n / 1e8).toFixed(1) + '억' : n >= 1e4 ? Math.round(n / 1e4) + '만' : String(Math.round(n)); }
+  function 후보카드(v) {
+    var 켬 = S.참고 === v.id, 초 = +v.sec || 0;
+    return '<button type="button" aria-pressed="' + 켬 + '" class="gd-vid' + (켬 ? ' on' : '') + '" data-참고="' + esc(v.id) + '">' +
+      '<img src="https://i.ytimg.com/vi/' + encodeURIComponent(v.id) + '/mqdefault.jpg" alt="" loading="lazy" referrerpolicy="no-referrer">' +
+      '<span class="gd-vt">' + esc(v.tr || v.t) + '</span>' +
+      '<span class="gd-vm">' + esc(v.cc) + ' · ' + (초 ? (초 < 60 ? 초 + '초' : Math.floor(초 / 60) + '분 ' + (초 % 60) + '초') + ' · ' : '') + '조회 ' + 국숫자(+v.v || 0) + '</span></button>';
+  }
+  function 후보칸() {
+    if (S.길 !== 'B' || S.유형 !== '상품') return '';
+    if (S.후보 === null) return '<p class="gd-fine">같은 상품의 해외 영상을 찾고 있어요…</p>';
+    if (!S.후보.length) return '<p class="gd-fine">같은 상품의 해외 영상은 아직 없어요. 참고할 영상 주소가 있으면 신청 화면에서 붙여넣어 주세요.</p>';
+    return '<div class="gd-box"><h3>해외에서 이 상품 영상이 인기예요</h3><p class="gd-note">참고할 영상을 하나 골라 주세요. 구성만 참고하고 영상은 쓰지 않아요.</p><div class="gd-vids">' + S.후보.map(후보카드).join('') + '</div></div>';
+  }
+  function 후보찾기() {
+    var api = window.__rwGuideApi, 이름 = S.주제.trim();
+    if (S.유형 !== '상품' || 이름.length < 2 || !api || !api.같은상품 || !켜짐() || !정식()) return;
+    if (S.후보이름 === 이름) return;
+    S.후보이름 = 이름; S.후보 = null; S.참고 = '';
+    api.같은상품(이름).then(function (목록) {
+      if (S.후보이름 !== 이름) return;   // 그 사이 이름이 바뀌었으면 버린다
+      S.후보 = 목록 || []; if (열림() && S.단계 === 2) 그리기();
+    });
+  }
   function 단계2() {
-    var B열림 = !!(window.RWFlags && window.RWFlags.has('참고영상'));
+    var B열림 = !!(window.RWFlags && window.RWFlags.has('참고영상')) && 정식();
+    var 추천B = B열림 && S.유형 === '상품' && !!S.후보 && S.후보.some(function (v) { return v.k >= 2; });
     return '<div class="gd-title"><h2>재료는 어떻게 할까요</h2><p>가진 것에 맞춰 길을 하나 골라 주세요. 나중에 바꿀 수 있어요.</p></div>' +
       '<div class="gd-chip">주제 <b>' + esc(S.주제.trim()) + '</b></div>' +
-      '<div class="gd-cards">' + 길카드('A', true, false) + 길카드('B', B열림, false) + 길카드('C', false, false) + '</div>' +
+      '<div class="gd-cards">' + 길카드('A', true, false) + 길카드('B', B열림, 추천B) + 길카드('C', false, false) + '</div>' + 후보칸() +
       '<button type="button" class="gd-link' + (S.길 === 'none' ? ' on' : '') + '" data-길="none">재료 없이 AI가 알아서 만들어 주세요</button>' +
       '<p class="gd-fine">남의 영상을 그대로 쓰지 않아요. 구성만 참고하고 대본과 장면은 새로 만들어요.</p>' +
       단추줄('다음', !S.길);
@@ -220,7 +246,7 @@
   }
 
   /* ───── 동작 ───── */
-  function 이동(n) { S.단계 = Math.max(1, Math.min(5, n)); 그리기(true); }
+  function 이동(n) { S.단계 = Math.max(1, Math.min(5, n)); if (S.단계 === 2) 후보찾기(); 그리기(true); }
   function 다음검사() {
     if (S.단계 === 1) return !!S.주제.trim();
     if (S.단계 === 2) return !!S.길;
@@ -243,6 +269,7 @@
     var d = b.dataset;
     if (d.go) { 이동(+d.go); return; }
     if (d.유형) { if (S.유형 !== d.유형) { S.유형 = d.유형; if (!S.종류직접) S.종류 = ''; 그리기(); } return; }
+    if (d.참고) { S.참고 = S.참고 === d.참고 ? '' : d.참고; 그리기(); return; }
     if (d.길) { S.길 = d.길; if (S.종류 && 지금종류() && !길에맞음(지금종류())) S.종류 = ''; 그리기(); return; }
     if (d.종류) { if (S.종류 !== d.종류) { var 옛폼 = 폼형태(); S.종류 = d.종류; if (폼형태() !== 옛폼) S.길이칸 = 가운데칸(); } S.종류직접 = true; 그리기(); return; }
     if (d.구성) { S.구성 = d.구성; 그리기(); return; }
@@ -259,8 +286,8 @@
   function 적용(바로확인) {
     var api = window.__rwGuideApi, k = 지금종류();
     if (!api || !k) return;
-    var 힌트 = S.길 === 'B' ? 길들.B.힌트 : (S.길 === 'A' && k.이름 === '상품쇼츠' ? 길들.A.힌트.replace('아래 칸에', '아래 "내 사진·영상" 칸에') : '');
-    var 값 = { 주제: S.주제.trim(), 종류: k.이름, 키: k.키, 폼: k.폼, 길: S.길, 힌트: 힌트, 바로확인: !!바로확인 && S.길 !== 'B' };   // 참고 영상 칸은 앞 단계에 있어서 따라 만들기는 확인 단계로 건너뛰지 않는다
+    var 힌트 = S.길 === 'B' ? (S.참고 && k.이름 === '쇼츠' ? '고른 참고 영상을 "참고 영상" 칸에 넣어 뒀어요. "이 영상으로 분석하기"를 눌러 주세요.' : 길들.B.힌트) : (S.길 === 'A' && k.이름 === '상품쇼츠' ? 길들.A.힌트.replace('아래 칸에', '아래 "내 사진·영상" 칸에') : '');
+    var 값 = { 주제: S.주제.trim(), 종류: k.이름, 키: k.키, 폼: k.폼, 길: S.길, 참고: S.길 === 'B' && k.이름 === '쇼츠' ? S.참고 : '', 힌트: 힌트, 바로확인: !!바로확인 && S.길 !== 'B' };   // 참고 영상 칸은 앞 단계에 있어서 따라 만들기는 확인 단계로 건너뛰지 않는다
     if (세부설정종류()) { 값.구성 = k.이름 === '쇼츠' ? S.구성 : ''; 값.자막 = S.자막; 값.길이분 = 길이분(); 값.목소리 = S.목소리; }
     닫기();
     api.적용(값);

@@ -3999,6 +3999,17 @@
   /* 한번에 만들기(assets/guide.js)가 부르는 입구: 고른 값을 직접 설정하기 폼의 칸에 채워 준다. 신청·가격·검증은 기존 폼이 그대로 한다 */
   window.__rwGuideApi = {
     상품열림: () => !!PRODUCT_READY(),
+    정식회원: () => planMode === 'paid',   // 참고 영상 칸은 정식 회원에게만 보인다
+    // 같은 상품 해외 인기 영상 후보 (워크플로우 order-match). 실패·권한 없음이면 null
+    async 같은상품(이름) {
+      try {
+        if (!googleIdToken) return null;
+        const res = await fetch('https://bald-buffalo.pikapod.net/webhook/order-match', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idToken: googleIdToken, name: String(이름 || '').slice(0, 100) }) });
+        const d = await res.json().catch(() => null);
+        if (!res.ok || !d || d.ok !== true || !Array.isArray(d.matches)) return null;
+        return d.matches.filter(v => v && /^[\w-]{11}$/.test(v.id));
+      } catch (e) { return null; }
+    },
     구성들: LAYOUT_OPTS, 자막들: CAPTION_OPTS,
     그림: (구성, 자막, 가로, 자동) => phoneSvg(구성, 자막, 자동, 가로),
     적용(v) {
@@ -4011,6 +4022,7 @@
           videoLength: v.길이분 ? `${v.길이분}분` : '', layout: v.키 === 'short' ? v.구성 : '', captionPos: v.자막 });
         setTimeout(() => { if (window.__pwGo && window.__pwOn && window.__pwOn()) window.__pwGo(v.바로확인 ? 5 : 1, true); }, 90);
       } else openFormFor(v.키, v.주제, '', v.키 === 'prod' ? '한번에 만들기에서 가져온 이름이에요. 정확한 제품명으로 고쳐 주세요.' : '');
+      if (v.참고) setTimeout(() => { const u = document.getElementById('rf-url'); if (u && !u.value) { u.value = 'https://www.youtube.com/watch?v=' + v.참고; u.dispatchEvent(new Event('input', { bubbles: true })); } }, 200);
       const 칸 = document.getElementById('df-fields'), 옛 = document.getElementById('guide-hint'); if (옛) 옛.remove();
       if (칸 && v.힌트) { const p = document.createElement('p'); p.className = 'df-hint'; p.id = 'guide-hint'; p.textContent = '한번에 만들기에서 가져왔어요. ' + v.힌트; 칸.insertAdjacentElement('afterbegin', p); }
     }
