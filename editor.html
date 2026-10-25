@@ -11,6 +11,7 @@
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="./assets/thumb-render.js"></script>
 <script src="./assets/thumb-templates.js"></script>
+<script src="./assets/thumb-cutout.js"></script>
 <script src="./assets/thumb-help.js"></script>
 <style>
   :root {
@@ -249,6 +250,12 @@
   .tpl-btn canvas { display: block; margin: 0 auto; border-radius: 8px; background: #000; }
   .tpl-btn span { display: block; padding: 6px 0 2px; font-size: .8rem; color: var(--ink-dim); text-align: center; }
   .tpl-btn:disabled { opacity: .5; cursor: default; }
+  .pc-btns { display: flex; gap: 8px; }
+  .pc-btns .btn { flex: 1; min-width: 0; }
+  .pc-list { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+  .pc-item { flex: none; width: 64px; height: 64px; padding: 4px; border-radius: 10px; border: 1px solid var(--line-strong); cursor: pointer;
+    background: repeating-conic-gradient(var(--bg-input) 0% 25%, var(--bg-raised) 0% 50%) 50% / 12px 12px; }
+  .pc-item canvas { display: block; width: 100%; height: 100%; }
   .dz-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
   .dz-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 10px 4px; min-height: 66px; border: 1px solid var(--line-strong); border-radius: 12px; background: transparent; color: var(--ink-dim); font-size: .8rem; cursor: pointer; }
   .dz-btn svg { width: 34px; height: 34px; overflow: visible; }
@@ -448,7 +455,7 @@
     <button class="tab" role="tab" data-tab="style"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg>글씨<span class="t-long"> 꾸미기</span></button>
     <button class="tab" role="tab" data-tab="bg"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 15l5-5 5 5 3-3 5 5"/></svg>배경<span class="t-long"> 장면</span></button>
     <button class="tab" role="tab" data-tab="color"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4v16M5.1 8l13.8 8M5.1 16l13.8-8"/></svg>보정</button>
-    <button class="tab" role="tab" data-tab="shape" aria-selected="false"><svg class="i" viewBox="0 0 24 24"><path d="M12 3.5l2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 17.2 6.6 20.2l1.1-6.1L3.2 9.9l6.1-.8z"/></svg>도형</button>
+    <button class="tab" role="tab" data-tab="shape" aria-selected="false"><svg class="i" viewBox="0 0 24 24"><path d="M12 3.5l2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 17.2 6.6 20.2l1.1-6.1L3.2 9.9l6.1-.8z"/></svg>사진·도형</button>
     <button class="tab" role="tab" data-tab="tpl" aria-selected="false"><svg class="i" viewBox="0 0 24 24"><rect x="3.5" y="4" width="17" height="16" rx="2"/><path d="M3.5 10h17M10 10v10"/></svg>템플릿</button>
     <button class="tab help-tab" id="b-help" aria-pressed="false" aria-controls="chat"><svg class="i" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.4"/><circle cx="12" cy="14.6" r=".4" fill="currentColor"/></svg>도움말</button>
   </nav>
@@ -537,9 +544,18 @@
     </section>
 
 
-    <!-- 도형 (화살표·동그라미·네모·직선·별·번쩍) -->
+    <!-- 사진·도형 (오려낸 사진 + 화살표·동그라미·네모·직선·별·번쩍) -->
     <section class="pane" data-pane="shape" hidden>
-      <div><h2>도형</h2><p class="sub">눌러서 넣고, 끌어서 옮기세요. 모서리를 끌면 크기가, 위쪽 동그라미를 끌면 방향이 바뀌어요.</p></div>
+      <div><h2>사진·도형</h2><p class="sub">눌러서 넣고, 끌어서 옮기세요. 모서리를 끌면 크기가, 위쪽 동그라미를 끌면 방향이 바뀌어요.</p></div>
+      <div class="cardx" id="pc-card"><div class="cx-h">사진 오려내기 <small>사람·제품만 남겨요</small></div>
+        <div class="pc-btns">
+          <button type="button" class="btn" id="pc-file"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M21 16l-5-5-8 8"/></svg>사진 고르기</button>
+          <button type="button" class="btn" id="pc-bg">지금 배경에서</button>
+        </div>
+        <input type="file" id="pc-input" accept="image/*" hidden>
+        <div class="pc-list" id="pc-list" hidden></div>
+        <p class="hint">사진은 서버로 보내지 않고 이 기기에서만 처리해요. 처음에는 AI 모델(약 55MB)을 받느라 조금 걸려요. 같은 기기에서는 보통 다시 받지 않아요. 오려낸 사진은 화면을 새로 고치면 사라져요.</p>
+      </div>
       <div class="cardx"><div class="cx-h">도형 넣기</div>
         <div class="dz-grid" id="dz-add">
           <button type="button" class="dz-btn" data-kind="화살표"><svg viewBox="0 0 34 34"><path d="M3 12.5h15V5l13 12-13 12v-7.5H3z" fill="#FF3B30" stroke="#111" stroke-width="1.6" stroke-linejoin="round"/></svg>화살표</button>
@@ -565,7 +581,7 @@
 
     <!-- 템플릿 -->
     <section class="pane" data-pane="tpl" hidden>
-      <div><h2>템플릿</h2><p class="sub">누르면 글씨 모양과 아래 그늘이 바뀌고, 넣어 둔 도형은 템플릿의 도형으로 바뀌어요. 내 문구와 배경 사진은 그대로예요.</p></div>
+      <div><h2>템플릿</h2><p class="sub">누르면 글씨 모양과 아래 그늘이 바뀌고, 넣어 둔 도형은 템플릿의 도형으로 바뀌어요(오려낸 사진은 그대로). 내 문구와 배경 사진은 그대로예요.</p></div>
       <div class="tpl-grid" id="tpl-grid" role="group" aria-label="템플릿 목록"></div>
       <p class="hint">마음에 안 들면 화면 아래의 되돌리기(↶)로 취소할 수 있어요.</p>
     </section>
@@ -696,7 +712,7 @@
   const 상태 = {
     idToken: '', id: '', 제목: '', 설계: null, 자동본: null, 저장본: '', 장: 0, 상자: 0, 도형: -1, 탭: 'text', 선택: false,
     수정횟수: 0, 최대: 10, 유튜브교체: false, 이미지: {}, 기록: [], 되돌림: [], 가이드: true,
-    기한: null, 기한지남: false, 저장모양: '', 원모양: '', 사진최대: 3, 저장된지문: [], 사진열림: false, 캡처최대: 5, 캡처횟수: 0, 글자지움최대: 3, 글자지움횟수: 0, 재료: {}
+    기한: null, 기한지남: false, 저장모양: '', 원모양: '', 사진최대: 3, 저장된지문: [], 조각: [], 조각지문: [], 사진열림: false, 캡처최대: 5, 캡처횟수: 0, 글자지움최대: 3, 글자지움횟수: 0, 재료: {}
   };
 
   /* ---------- 공통 ---------- */
@@ -1030,6 +1046,80 @@
     d.w = Math.max(8, Math.round(d.w * k)); d.테두리 = Math.max(d.종류 === '직선' ? 2 : 0, Math.round((d.테두리 || 0) * k));
     d.h = d.종류 === '직선' ? d.테두리 : Math.max(8, Math.round(d.h * k));
   }
+  /* ---------- 사진 오려내기 (이 기기 안에서만 처리. 서버로 보내지 않는다. 계산은 assets/thumb-cutout.js) ---------- */
+  const 최대조각 = 8;
+  let 조각처리중 = false;
+  function 조각목록그리기() {
+    const el = $('pc-list'); if (!el) return;
+    const 목록 = 상태.조각.filter(id => R.조각찾기(id));
+    el.hidden = !목록.length;
+    if (el.children.length === 목록.length && [...el.children].every((b, i) => b.dataset.id === 목록[i])) return;
+    el.innerHTML = '';
+    목록.forEach(id => {
+      const c = R.조각찾기(id), b = document.createElement('button'), k = document.createElement('canvas');
+      b.type = 'button'; b.className = 'pc-item'; b.dataset.id = id; b.title = '눌러서 이 썸네일에 한 번 더 넣기'; b.setAttribute('aria-label', '오려낸 사진을 이 썸네일에 넣기');
+      k.width = 112; k.height = 112; const x = k.getContext('2d'), z = Math.min(112 / c.width, 112 / c.height);
+      x.imageSmoothingQuality = 'high'; x.drawImage(c, (112 - c.width * z) / 2, (112 - c.height * z) / 2, c.width * z, c.height * z);
+      b.appendChild(k); b.addEventListener('click', () => 조각넣기(id)); el.appendChild(b);
+    });
+  }
+  function 조각넣기(id) {
+    if (잠김()) return;
+    if (도형들().length >= 최대도형) return 알림(`사진·도형은 한 장에 ${최대도형}개까지 넣을 수 있어요.`);
+    const 장 = 현재();
+    변경(() => {
+      const d = R.사진조각만들기(id, 상태.설계.캔버스, (장.도형 || []).length); if (!d) return;
+      if (!Array.isArray(장.도형)) 장.도형 = [];
+      장.도형.push(d); 상태.도형 = 장.도형.length - 1; 상태.선택 = false;
+    });
+  }
+  // 오려낸 사진은 최대 최대조각개까지 기억한다. 넘치면 어느 썸네일에서도 쓰지 않는 가장 오래된 것부터 지운다
+  function 조각자리만들기() {
+    if (상태.조각.length < 최대조각) return true;
+    // 지금 썸네일뿐 아니라 되돌리기·다시하기 기록에 든 것도 쓰는 것으로 본다 (되돌렸을 때 그림이 없어지지 않게)
+    const 쓰는 = new Set(상태.설계.장면.flatMap(s => (s.도형 || []).filter(d => d.종류 === '사진').map(d => d.사진)));
+    [...상태.기록, ...상태.되돌림].forEach(h => String(h.장면 || '').replace(/"사진":"([^"]+)"/g, (m, id) => { 쓰는.add(id); return m; }));
+    const 옛 = 상태.조각.find(id => !쓰는.has(id));
+    if (!옛) return false;
+    R.조각지우기(옛); 상태.조각 = 상태.조각.filter(id => id !== 옛); return true;
+  }
+  async function 사진오려내기(원본, 지문) {
+    if (잠김()) return;
+    if (조각처리중) return 알림('지금 사진을 오려내는 중이에요. 끝난 뒤에 다시 눌러 주세요.');
+    if (!window.RewindCutout) return 안내창('오려내기를 쓸 수 없어요', '필요한 파일을 불러오지 못했어요. 화면을 새로 고친 뒤 다시 해 보세요.');
+    if (도형들().length >= 최대도형) return 알림(`사진·도형은 한 장에 ${최대도형}개까지 넣을 수 있어요.`);
+    if (!조각자리만들기()) return 안내창('오려낸 사진이 너무 많아요', `오려낸 사진은 최대 ${최대조각}개까지 쓸 수 있어요. 썸네일에서 안 쓰는 사진이 없어요. 하나를 지운 뒤 다시 해 보세요.`);
+    조각처리중 = true;
+    작업창열기('사진을 오려내는 중이에요', '준비하는 중이에요');
+    let 결과 = null, 실패 = null;
+    try { 결과 = await window.RewindCutout.오려내기(원본, { 진행: 글 => 작업단계(글) }); }
+    catch (e) { 실패 = e; }
+    작업창닫기(); 조각처리중 = false;
+    if (실패) return 안내창('오려내지 못했어요', (실패.message || '알 수 없는 문제가 생겼어요.') + ' 같은 사진은 다시 해 봐도 돼요.');
+    if (!결과) return 안내창('오려낼 대상을 찾지 못했어요', '사람이나 제품이 또렷하게 보이는 사진으로 해 보세요. 배경과 색이 비슷하거나, 사진 전체가 하나의 물건이면 어려워요.');
+    const id = 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+    R.조각등록(id, 결과); 상태.조각.push(id);
+    if (지문 && !상태.조각지문.includes(지문)) 상태.조각지문.push(지문);
+    조각넣기(id);
+    알림('오려냈어요. 끌어서 옮기고, 모서리로 크기를 바꾸세요. 뒤에 있는 배경은 "배경"에서 바꿀 수 있어요.');
+  }
+  async function 사진오려내기파일(file) {
+    if (!file || !/^image\//.test(file.type)) return 알림('이미지 파일을 골라주세요.');
+    if (file.size > 20 * 1024 * 1024) return 알림('사진이 너무 커요. 20MB 이하로 골라주세요.');
+    if (!상태.사진열림) return 안내창('썸네일을 한 번 저장하면 열려요', '내 사진은 영상 장면으로 먼저 완성본을 저장한 뒤에 쓸 수 있어요. "지금 배경에서"는 지금 바로 쓸 수 있어요.');
+    const buf = await file.arrayBuffer();
+    const 지문 = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', buf))).map(b => b.toString(16).padStart(2, '0')).join('');
+    if (!쓰는지문().has(지문) && 쓰는지문().size >= 상태.사진최대) return 알림(`내 사진은 영상 하나에 ${상태.사진최대}장까지 쓸 수 있어요. 이미 쓴 사진은 다시 골라도 괜찮아요.`);
+    const url = URL.createObjectURL(new Blob([buf], { type: file.type }));
+    const img = await new Promise(ok => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => ok(null); i.src = url; });
+    if (!img) { URL.revokeObjectURL(url); return 알림('사진을 열지 못했어요. 다른 사진을 골라주세요.'); }
+    try { await 사진오려내기(img, 지문); } finally { URL.revokeObjectURL(url); }
+  }
+  function 배경오려내기() {
+    const img = 배경이미지(현재());
+    if (!img) return 알림('먼저 "배경"에서 배경 장면을 골라 주세요.');
+    return 사진오려내기(img, '');
+  }
   function 얼굴영역(장) { return (장.얼굴 || []).map(f => R.영역변환(상태.설계, 장, 배경이미지(장), f)); }
   const 겹침 = (a, f) => Math.max(0, Math.min(a.x + a.w, f.x + f.w) - Math.max(a.x, f.x)) * Math.max(0, Math.min(a.y + a.h, f.y + f.h) - Math.max(a.y, f.y)) > 0;
   const 넘침 = (a, W, H) => a.x < -1 || a.x + a.w > W + 1 || a.y < 0 || a.y + a.h > H;
@@ -1072,7 +1162,7 @@
       const d = 고른도형, 선 = d.종류 === '직선', 잠금 = 잠김();
       const bw = d.w * s, bh = 선 ? Math.max(d.h * s, 8) : d.h * s;
       const 자리 = { nw: 'left:-6px;top:-6px', n: 'left:calc(50% - 5px);top:-6px', ne: 'right:-6px;top:-6px', e: 'right:-6px;top:calc(50% - 5px)', se: 'right:-6px;bottom:-6px', s: 'left:calc(50% - 5px);bottom:-6px', sw: 'left:-6px;bottom:-6px', w: 'left:-6px;top:calc(50% - 5px)' };
-      const 작음 = Math.min(bw, bh) < 56, 키들 = 선 ? ['w', 'e'] : (작음 ? ['nw', 'ne', 'se', 'sw'] : Object.keys(자리));
+      const 작음 = Math.min(bw, bh) < 56, 키들 = 선 ? ['w', 'e'] : ((작음 || d.종류 === '사진') ? ['nw', 'ne', 'se', 'sw'] : Object.keys(자리));   // 사진은 모서리만(가로세로 비율 그대로)
       const 손 = 잠금 ? '' : 키들.map(k => `<i data-h="${k}" style="${자리[k]}"></i>`).join('') + '<b class="rot" data-h="rot" title="끌면 돌아가요"></b>';
       html += `<div class="sel on${작음 ? ' small' : ''}" style="left:${(d.cx * s - bw / 2).toFixed(1)}px;top:${(d.cy * s - bh / 2).toFixed(1)}px;width:${bw.toFixed(1)}px;height:${bh.toFixed(1)}px${d.회전 ? `;transform:rotate(${d.회전}deg)` : ''}">${손}</div>`;
       if (!잠금) {
@@ -1179,6 +1269,7 @@
   function 문제목록() {
     const 장 = 현재(), { w: W, h: H } = 상태.설계.캔버스, out = [];
     if (사진없음(장)) out.push({ 종류: '사진', 막음: true, 글: '이 썸네일은 내 사진을 썼어요. "내 사진"에서 같은 사진을 다시 골라야 받을 수 있어요.' });
+    if ((장.도형 || []).some(d => d.종류 === '사진' && !R.조각찾기(d.사진))) out.push({ 종류: '사진조각', 막음: true, 글: '오려낸 사진의 그림이 사라진 도형이 있어요. 그 자리를 눌러 지우거나 사진을 다시 오려 주세요.' });
     const 모음 = 상자들(), 영역들 = 모음.map(b => 바깥(상자영역(b))), 얼굴 = 얼굴영역(장);
     const 이름 = i => 모음.length > 1 ? `글씨 상자 ${i + 1}` : '글씨';
     if (!영역들[0]) out.push({ 종류: '빈문구', 막음: true, 글: '첫 번째 문구가 비어 있어요. 한 줄 이상 적어주세요.' });
@@ -1318,6 +1409,7 @@
   function 쓰는지문() {
     const 모음 = new Set(상태.저장된지문);
     상태.설계.장면.forEach(s => { if (내사진장(s) && s.배경.지문) 모음.add(s.배경.지문); });
+    상태.조각지문.forEach(h => 모음.add(h));   // 오려내기에 쓴 사진도 같은 장수 제한에 센다
     return 모음;
   }
   async function 사진고르기(file) {
@@ -1974,14 +2066,15 @@
 
   /* ---------- 도형 패널 (고른 도형의 색·두께·투명도·회전·순서) ---------- */
   function 도형패널() {
+    조각목록그리기();
     const d = 도형();
     $('dz-hint').hidden = !!d; $('dz-edit').hidden = !d;
     if (!d) return;
-    const 선 = d.종류 === '직선';
-    $('dz-name').textContent = R.도형틀[d.종류].이름;
-    $('dz-fill-wrap').hidden = 선;
-    $('dz-line-lbl').textContent = 선 ? '색' : '테두리 색';
-    $('dz-width-lbl').textContent = 선 ? '굵기' : '테두리 두께';
+    const 선 = d.종류 === '직선', 사진 = d.종류 === '사진';
+    $('dz-name').textContent = 사진 ? '오려낸 사진' : R.도형틀[d.종류].이름;
+    $('dz-fill-wrap').hidden = 선 || 사진;
+    $('dz-line-lbl').textContent = 선 ? '색' : (사진 ? '윤곽선 색' : '테두리 색');
+    $('dz-width-lbl').textContent = 선 ? '굵기' : (사진 ? '윤곽선 두께' : '테두리 두께');
     const 같음 = (a, b) => String(a || '').toUpperCase() === String(b || '').toUpperCase();
     $('sw-dfill').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(same채움(x, d))));
     $('sw-dline').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(같음(x.dataset.c, d.테두리색))));
@@ -2257,6 +2350,9 @@
     슬라이더('r-outline', v => { 상자().블록.테두리 = v; });
     슬라이더('r-trot', v => { const bl = 상자().블록; if (v) bl.회전 = v; else delete bl.회전; });
     // 도형: 넣기 · 색 · 두께 · 투명도 · 회전 · 순서 · 복제 · 지우기
+    $('pc-file').addEventListener('click', () => $('pc-input').click());
+    $('pc-input').addEventListener('change', e => { const f = e.target.files[0]; e.target.value = ''; if (f) 사진오려내기파일(f); });
+    $('pc-bg').addEventListener('click', 배경오려내기);
     document.querySelectorAll('#dz-add .dz-btn').forEach(b => b.addEventListener('click', () => 도형추가(b.dataset.kind)));
     $('sw-dfill').innerHTML = 도형색들.map(c => `<button type="button" data-c="${c}" style="background:${c}" aria-label="채움 색 ${도형색이름[c] || ''}"></button>`).join('')
       + '<button type="button" class="sw-none" data-none="1" aria-label="채움 없음" title="채움 없음"></button>'
@@ -2409,7 +2505,7 @@
         }
       }, 'drag-' + 끌기.종류 + (끌기.상자 ?? 끌기.i ?? ''));
     });
-    // 선택이 바뀌면 오른쪽 패널도 맞춘다. 도형을 고르면 (넓은 화면에서만) "도형" 탭을 열어 바로 꾸밀 수 있게 한다
+    // 선택이 바뀌면 오른쪽 패널도 맞춘다. 도형을 고르면 (넓은 화면에서만) "사진·도형" 탭을 열어 바로 꾸밀 수 있게 한다
     const 글선택 = i => { const 바뀜 = 상태.상자 !== i || 상태.도형 !== -1; 상태.상자 = i; 상태.선택 = true; 상태.도형 = -1; if (바뀜) 입력반영(); };
     const 도형선택 = i => { const 바뀜 = 상태.도형 !== i || 상태.선택; 상태.도형 = i; 상태.선택 = false; if (바뀜) 입력반영(); if (window.innerWidth > 900 && 상태.탭 !== 'shape') 탭열기('shape'); };
     fr.addEventListener('pointerdown', e => {

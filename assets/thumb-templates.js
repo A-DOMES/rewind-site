@@ -40,6 +40,7 @@
     const t = 찾기(id);
     if (!t || !장 || !장.블록) return false;
     const { w: W, h: H } = 설계.캔버스, 기준 = Math.min(W, H), 세로 = W < H;
+    const 사진들 = (장.도형 || []).filter(x => x && x.종류 === '사진');   // 오려낸 사진은 템플릿이 건드리지 않는다
     const b = 장.블록, 줄수 = Math.max(1, ((장.문구 && 장.문구.줄) || []).length), 돌림 = t.회전 || 0;
     const 글자기준 = 세로 ? W * 0.16 : H * 0.17;   // 폭·높이 한도에 맞춰 줄어든다. 틀마다 k 로 크기를 조금씩 다르게
     const 크기 = Math.max(24, Math.round(글자기준 * t.k));
@@ -113,7 +114,8 @@
         만들기('화살표', { cx: Math.round(끝.c.x), cy: Math.round(끝.c.y), w: 길이, h: 높, 회전: 끝.deg, 채움: 빨강, 테두리색: 검정, 테두리: Math.max(3, Math.round(기준 * 0.011)) });
       }
     }
-    if (도형.length) 장.도형 = 도형; else delete 장.도형;
+    const 전부 = [...사진들, ...도형];
+    if (전부.length) 장.도형 = 전부; else delete 장.도형;
     return true;
   }
 

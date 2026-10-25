@@ -207,8 +207,80 @@
     }
   }
 
+  /* ---------- 오려낸 사진 (도형의 한 종류: { 종류:'사진', 사진: 조각번호, cx, cy, w, h, 회전, 테두리색(윤곽선), 테두리(윤곽 굵기 px), 투명, 층 })
+   * 그림 자체는 이 기기 메모리에만 있다(서버로 보내지 않는다): 조각등록(번호, 캔버스)으로 넣어 두고 번호로 불러 쓴다. */
+  const 조각들 = new Map(), 윤곽캐시 = new Map(), 알파캐시 = new WeakMap();
+  function 조각등록(번호, 캔버스) { 조각들.set(번호, 캔버스); }
+  const 조각찾기 = 번호 => 조각들.get(번호) || null;
+  function 조각지우기(번호) { const c = 조각들.get(번호); 조각들.delete(번호); [...윤곽캐시.keys()].forEach(k => { if (k.startsWith(번호 + '|')) 윤곽캐시.delete(k); }); if (c) 알파캐시.delete(c); }
+  // 새 오려낸 사진: 틀 높이의 70% 안, 너비의 60% 안으로 맞춰 오른쪽에 놓는다 (글씨는 아래쪽·왼쪽에 놓이는 일이 많다). 윤곽선은 흰색
+  function 사진조각만들기(번호, 틀, 순번) {
+    const c = 조각찾기(번호); if (!c) return null;
+    const W = 틀.w, H = 틀.h, 기준 = Math.min(W, H), k = Math.min(H * 0.7 / c.height, W * 0.6 / c.width), 비껴 = ((순번 || 0) % 6) * 기준 * 0.035;
+    return { 종류: '사진', 사진: 번호, cx: Math.round(W * 0.68 + 비껴), cy: Math.round(H * 0.5 + 비껴), w: Math.round(c.width * k), h: Math.round(c.height * k), 회전: 0,
+      채움: '', 테두리색: '#FFFFFF', 테두리: Math.max(2, Math.round(기준 * 0.01)), 투명: 100, 층: '뒤' };
+  }
+  // 윤곽선 + 사진을 합친 그림. 화면에 실제로 찍히는 크기(배율)에 맞춰 2의 거듭제곱 해상도로 만들어, 크기를 끌어 바꾸는 동안에도 거의 다시 만들지 않는다
+  function 사진합성(d, c, 배율) {
+    const 긴 = Math.max(d.w, d.h), 필요 = 긴 * 범위(배율 || 1, 0.05, 4);
+    let 기준 = 128; while (기준 < 필요 && 기준 < 2048) 기준 *= 2;
+    const 단위 = 긴 / 기준;                               // 합성 그림의 1픽셀 = 틀 좌표 몇 칸
+    const rb = Math.min(Math.round(기준 * 0.5), Math.max(0, Math.round((d.테두리 || 0) / 단위))), 색 = d.테두리색 || '#FFFFFF';
+    const 키 = `${d.사진}|${기준}|${rb}|${색}|${Math.round(d.w * 10 / 긴)}|${Math.round(d.h * 10 / 긴)}`;
+    let 합 = 윤곽캐시.get(키);
+    if (!합) {
+      const iw = Math.max(1, Math.round(d.w / 단위)), ih = Math.max(1, Math.round(d.h / 단위));
+      합 = document.createElement('canvas'); 합.width = iw + rb * 2; 합.height = ih + rb * 2;
+      const x = 합.getContext('2d'); x.imageSmoothingQuality = 'high';
+      if (rb > 0) {
+        const 모양 = document.createElement('canvas'); 모양.width = 합.width; 모양.height = 합.height;
+        const m = 모양.getContext('2d'); m.imageSmoothingQuality = 'high'; m.drawImage(c, rb, rb, iw, ih); m.globalCompositeOperation = 'source-in'; m.fillStyle = 색; m.fillRect(0, 0, 모양.width, 모양.height);
+        // 반지름 1/3·2/3·1 세 겹으로 둥글게 찍는다 (가는 머리카락·손가락 둘레에도 틈이 없게). 굵을수록 촘촘히
+        const 칸 = Math.min(56, Math.max(16, Math.ceil(rb * 2.2)));
+        for (let ring = 1; ring <= 3; ring++) for (let i = 0; i < 칸; i++) { const a = (i + (ring % 2) * 0.5) / 칸 * Math.PI * 2, rr = rb * ring / 3; x.drawImage(모양, Math.cos(a) * rr, Math.sin(a) * rr); }
+      }
+      x.drawImage(c, rb, rb, iw, ih);
+      윤곽캐시.set(키, 합);
+      while (윤곽캐시.size > 16) { const 옛 = 윤곽캐시.keys().next().value, 그림 = 윤곽캐시.get(옛); 윤곽캐시.delete(옛); 그림.width = 0; 그림.height = 0; }
+    }
+    return { 합, 단위, rb, iw: 합.width - rb * 2, ih: 합.height - rb * 2 };
+  }
+  function 사진그리기(ctx, d) {
+    const c = 조각찾기(d.사진); if (!c) return;
+    const t = ctx.getTransform ? ctx.getTransform() : null, 배율 = t ? Math.hypot(t.a, t.b) : 1;
+    const { 합, rb, iw, ih } = 사진합성(d, c, 배율), ux = d.w / iw, uy = d.h / ih;   // 합성 그림 1픽셀 = 틀 좌표 ux × uy
+    ctx.save();
+    ctx.translate(d.cx, d.cy);
+    if (d.회전) ctx.rotate(d.회전 * Math.PI / 180);
+    ctx.globalAlpha = 범위((Number(d.투명) || 100) / 100, 0.1, 1);
+    ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(합, -d.w / 2 - rb * ux, -d.h / 2 - rb * uy, 합.width * ux, 합.height * uy);
+    ctx.restore();
+  }
+  // 사진은 그림이 있는 곳만 눌린 것으로 본다 (투명한 곳을 끌면 배경이 움직이게). 가는 팔·손가락도 잡히도록 주변 몇 칸까지 본다
+  function 사진맞음(d, p, 여유) {
+    const c = 조각찾기(d.사진);
+    if (!c) { const q = 점회전(p, { x: d.cx, y: d.cy }, -(d.회전 || 0)); return Math.abs(q.x - d.cx) <= d.w / 2 + (여유 || 0) && Math.abs(q.y - d.cy) <= d.h / 2 + (여유 || 0); }   // 그림이 사라진 도형도 눌러서 지울 수 있게
+    let 표 = 알파캐시.get(c);
+    if (!표) {
+      const k = Math.min(1, 96 / Math.max(c.width, c.height)), aw = Math.max(1, Math.round(c.width * k)), ah = Math.max(1, Math.round(c.height * k));
+      const t = document.createElement('canvas'); t.width = aw; t.height = ah; const x = t.getContext('2d', { willReadFrequently: true }); x.drawImage(c, 0, 0, aw, ah);
+      표 = { aw, ah, a: x.getImageData(0, 0, aw, ah).data }; 알파캐시.set(c, 표);
+    }
+    const q = 점회전(p, { x: d.cx, y: d.cy }, -(d.회전 || 0)), u = (q.x - d.cx) / d.w + 0.5, v = (q.y - d.cy) / d.h + 0.5;
+    const 반 = Math.ceil(((여유 || 0) + (d.테두리 || 0)) / Math.max(1, d.w) * 표.aw) + 1;
+    if (u < -0.2 || u > 1.2 || v < -0.2 || v > 1.2) return false;
+    const cx = Math.round(u * 표.aw), cy = Math.round(v * 표.ah);
+    for (let dy = -반; dy <= 반; dy++) for (let dx = -반; dx <= 반; dx++) {
+      const X = cx + dx, Y = cy + dy; if (X < 0 || Y < 0 || X >= 표.aw || Y >= 표.ah) continue;
+      if (표.a[(Y * 표.aw + X) * 4 + 3] > 40) return true;
+    }
+    return false;
+  }
+
   function 도형그리기(ctx, d) {
     if (!d || !(d.w > 0)) return;
+    if (d.종류 === '사진') return 사진그리기(ctx, d);
     ctx.save();
     ctx.translate(d.cx, d.cy);
     if (d.회전) ctx.rotate(d.회전 * Math.PI / 180);
@@ -229,6 +301,7 @@
 
   // 점 p(틀 좌표)가 도형을 눌렀는지. 속이 빈 동그라미·네모·직선은 선 근처만 눌린 것으로 본다(안쪽을 끌면 배경이 움직이게)
   function 도형맞음(d, p, 여유) {
+    if (d.종류 === '사진') return 사진맞음(d, p, 여유);
     const q = 점회전(p, { x: d.cx, y: d.cy }, -(d.회전 || 0)), x = q.x - d.cx, y = q.y - d.cy, e = 여유 || 0;
     const a = d.w / 2, b = d.h / 2, 띠 = Math.max((d.테두리 || 0) / 2, 8) + e;
     if (d.종류 === '직선') return Math.abs(x) <= a + e && Math.abs(y) <= Math.max((d.테두리 || 2) / 2, 8) + e;
@@ -583,6 +656,6 @@
 
   function 범위(v, a, b) { return Math.min(b, Math.max(a, isFinite(v) ? v : a)); }
 
-  global.RewindThumb = { 도형틀, 도형만들기, 도형그리기, 도형맞음, 점회전, 글꼴목록, 글꼴준비, 이미지불러오기, 배경주소, 배경배치, 영역변환, 그리기, 줄너비, 상자목록, 상자글씨, 블록에서글씨, 블록채우기, 파일로,
+  global.RewindThumb = { 도형틀, 도형만들기, 도형그리기, 도형맞음, 조각등록, 조각찾기, 조각지우기, 사진조각만들기, 점회전, 글꼴목록, 글꼴준비, 이미지불러오기, 배경주소, 배경배치, 영역변환, 그리기, 줄너비, 상자목록, 상자글씨, 블록에서글씨, 블록채우기, 파일로,
     보정키, 보정프리셋, 보정값, 보정이미지, 곡선표 };
 })(window);
