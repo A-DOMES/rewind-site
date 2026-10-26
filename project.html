@@ -172,6 +172,8 @@
   .review-actions button { flex: 1; min-width: 120px; padding: 11px; border-radius: 8px; font-size: 0.86rem; cursor: pointer; font-family: inherit; }
   .rv-approve { background: var(--amber); color: var(--on-amber); border: none; font-weight: 600; }
   .rv-save { background: var(--bg-input); color: var(--ink-dim); border: 1px solid var(--line); }
+  .rv-cancel { background: none; color: var(--ink-faint, #888); border: 1px solid var(--line); font-weight: 500 !important; }
+  .rv-cancel:hover { color: var(--err); border-color: var(--err); background: color-mix(in srgb, var(--err) 8%, transparent); }
   .rv-retry { background: none; color: var(--err); border: 1px solid var(--err); }
   .review-status { text-align: center; font-size: 0.82rem; margin-top: 10px; min-height: 1.2em; }
   /* [대본 읽기·비교] 소리 내어 읽듯 한 문장씩 줄을 바꿔 보여준다 */
@@ -940,6 +942,7 @@
         </div>` : ''}
         <div class="review-actions">
           ${재작성가능 ? `<button class="rv-retry" id="rv-retry">${p.ownScript ? '↻ 같은 대본으로 장면 다시 만들기' : '↻ 처음부터 다시 만들어줘'}</button>` : ''}
+          <button class="rv-cancel" id="rv-cancel" type="button">그만두기</button>
           <button class="rv-approve" id="rv-approve">✓ 이대로 정식 제작 시작</button>
         </div>
         ${재작성가능 ? '' : '<p class="review-status" style="color:var(--ink-faint);">이미 한 번 다시 만들어보셨어요 - 이번엔 이대로 승인해주세요.</p>'}
@@ -955,6 +958,7 @@
         </div>
         <div class="review-actions">
           <button class="rv-retry" id="rv-retry">↻ 다시 만들어줘</button>
+          <button class="rv-cancel" id="rv-cancel" type="button">그만두기</button>
           <button class="rv-approve" id="rv-approve">✓ 이대로 승인</button>
         </div>
         <p class="review-status" id="rv-status"></p>`;
@@ -1014,6 +1018,7 @@
         ${정식 ? `<button class="rv-alt" id="rv-alt" ${남은 ? '' : 'disabled'}>↻ 새 버전 받아보기 ${남은 ? `(남은 ${남은}회)` : '(모두 사용)'}</button>`
                : (재작성가능 ? '<button class="rv-retry" id="rv-retry">↻ 다시 만들어줘</button>' : '')}
         <button class="rv-save" id="rv-edit">✎ 직접 고치기</button>
+        <button class="rv-cancel" id="rv-cancel" type="button">그만두기</button>
         <button class="rv-approve" id="rv-approve">✓ ${alt && 대본보기탭 === 'alt' ? '지금 대본으로 승인' : '이 대본으로 승인'}</button>
       </div>
       ${!정식 && !재작성가능 ? '<p class="review-status" style="color:var(--ink-faint);">이미 한 번 다시 만들어보셨어요 - 이번엔 이대로 승인하시거나 직접 고쳐주세요.</p>' : ''}
@@ -1208,6 +1213,21 @@
   async function sendAgentMessage(text) {
     const input = document.getElementById('agent-text-field');
     const row = document.getElementById('agent-input-row');
+    // [취소] 제작을 시작하기 전(대본·장면 확인 단계)에만 취소할 수 있다. AI에 보내지 않고, 환불 안내가 들어 있는 삭제 확인 창을 열어 한 번 더 확인받는다
+    if (currentProject && window.RewindDelete && /^\s*(취소|그만)|(취소|그만)\s*(해\s*줘|해\s*주세요|할래|할게|하고\s*싶)/.test(text)) {
+      const 상태 = currentProject.원래상태 || currentProject.status;
+      if (['대본검수대기', '검수 대기'].indexOf(상태) >= 0) {
+        addAgentMsg('user', text); input.value = ''; input.style.height = 'auto';
+        addAgentMsg('bot', '제작을 시작하기 전이라 취소할 수 있어요. 확인 창을 열었어요. 창에서 "삭제하기"를 누르면 취소돼요.');
+        window.RewindDelete.ask({ id: currentProject.id, title: currentProject.title, status: 상태, token: () => window.__rwToken && window.__rwToken(), onDone: () => { location.href = './dashboard.html'; } });
+        return;
+      }
+      if (!window.RewindDelete.canDelete(상태)) {
+        addAgentMsg('user', text); input.value = ''; input.style.height = 'auto';
+        addAgentMsg('bot', '지금은 취소할 수 없는 단계예요.');
+        return;
+      }
+    }
     addAgentMsg('user', text);
     agentHistory.push({ role: 'user', text });
     input.value = '';
@@ -1397,6 +1417,13 @@
 <script src="./assets/fail-reason.js"></script>
 <script src="./assets/project-delete.js"></script>
 <script>
+  // 승인 화면의 '그만두기': 제작이 시작되기 전(대본·장면 확인 단계)에만 보이는 화면이라, 기존 삭제 창(환불 안내 포함)을 그대로 쓴다
+  document.addEventListener('click', e => {
+    if (!e.target.closest || !e.target.closest('.rv-cancel')) return;
+    const p = window.__rwCurrentProject && window.__rwCurrentProject();
+    if (!p || !window.RewindDelete) return;
+    window.RewindDelete.ask({ id: p.id, title: p.title, status: p.원래상태 || p.status, token: () => window.__rwToken && window.__rwToken(), onDone: () => { location.href = './dashboard.html'; } });
+  });
   document.getElementById('proj-delete').addEventListener('click', () => {
     const p = window.__rwCurrentProject && window.__rwCurrentProject();
     if (!p || !window.RewindDelete) return;

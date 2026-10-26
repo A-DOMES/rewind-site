@@ -2277,6 +2277,7 @@
     }
   }
 
+  let 취소확인대기 = false;
   async function sendMessage(text, opts) {
     const 검사 = (opts && opts.raw) ? '' : text;   // raw: 사이트가 먼저 가로채는 말(가격·수면·초기화 등) 검사를 건너뛰고 곧바로 상담으로 보낸다
     // [화면 초기화 감지] "화면 지워줘", "처음부터 다시" 같은 요청은 AI에 보내지 않고
@@ -2290,6 +2291,17 @@
     }
     if (초기화패턴.test(검사)) {
       startFreshChat(true);
+      return;
+    }
+    // [취소] "취소해줘", "그만할래": 작성 중이던 신청을 지운다. 되돌릴 수 없어서 한 번 더 묻고, 확인하면 처음으로 돌아간다(아직 접수 전이라 포인트는 쓰이지 않았다)
+    if (취소확인대기) {
+      취소확인대기 = false;
+      if (/^\s*(네|예|응|어|그래|맞아|ㅇㅇ|취소\s*(해|할게|할래))/.test(검사)) { addMsg('user', text); startFreshChat(true); return; }
+    }
+    if ((mode || history.length || Object.keys(answers).length) && /^\s*(취소|그만)|(취소|그만)\s*(해\s*줘|해\s*주세요|할래|할게|하고\s*싶)/.test(검사)) {
+      addMsg('user', text);
+      addMsg('bot', '지금까지 작성한 내용을 모두 지우고 처음으로 돌아갈까요? 아직 접수 전이라 포인트는 쓰이지 않아요. 취소하시려면 <b>네, 취소할게요</b>라고 답해 주세요.');
+      취소확인대기 = true;
       return;
     }
     // [요금 질문] "얼마예요?", "요금표 보여줘", "2분짜리 모두 영상이면 가격은?" → 서버를 거치지 않고 정확한 요금표 카드로 바로 답한다.
@@ -3185,6 +3197,11 @@
       actions.appendChild(stepBtn);
     }
     actions.appendChild(editBtn);
+    // 아직 접수 전이라 시트에 아무것도 없다: 확인만 하고 처음 화면으로 돌아간다
+    const cancelBtn = document.createElement('button');
+    cancelBtn.className = 'btn-line-sm'; cancelBtn.type = 'button'; cancelBtn.textContent = '신청 취소';
+    cancelBtn.addEventListener('click', () => { if (confirm('작성한 내용을 모두 지우고 처음으로 돌아갈까요?\n(아직 접수 전이라 포인트는 쓰이지 않아요)')) location.href = './new.html'; });
+    actions.appendChild(cancelBtn);
     composer.appendChild(actions);
 
     const consentBox = consentWrap.querySelector('#terms-consent');
