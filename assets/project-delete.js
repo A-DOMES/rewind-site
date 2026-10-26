@@ -2,7 +2,7 @@
 (function () {
   const URL_DELETE = 'https://bald-buffalo.pikapod.net/webhook/project-delete';
   // 서버가 시트를 잡고 도는 단계: 이 동안은 삭제할 수 없다 (서버에서도 한 번 더 막는다)
-  const 만드는중 = ['기획', '장면구성대기', '장면구성중', '검수완료', '제작 중', '분석중'];
+  const 만드는중 = ['기획', '장면구성대기', '장면구성중', '검수완료', '제작 중', '분석중', '부분실패'];   // 부분실패 = 자동 재시도 대기 중(서버 프로젝트_삭제 ACTIVE 와 같게 유지)
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
   function 스타일() {
@@ -42,13 +42,13 @@
     const 안내 = 포인트안내(opts.status);
     const ov = document.createElement('div'); ov.className = 'rwdel-ov'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true');
     ov.innerHTML = `<div class="rwdel-box">
-      <h3>이 프로젝트를 삭제할까요?</h3>
+      <h3>${opts.cancel ? '이 프로젝트를 그만둘까요?' : '이 프로젝트를 삭제할까요?'}</h3>
       <div class="nm">${esc(opts.title || '주제 준비 중')}</div>
       <p>삭제하면 되돌릴 수 없어요. 내 프로젝트 목록에서 바로 사라져요.</p>
       ${안내 ? `<p class="rwdel-pt">${esc(안내)}</p>` : ''}
       <p>이미 기기에 받아 둔 영상·썸네일, 유튜브에 올린 영상은 지워지지 않아요.</p>
       <div class="err" id="rwdel-err" role="alert"></div>
-      <div class="rwdel-row"><button type="button" id="rwdel-no">취소</button><button type="button" class="danger" id="rwdel-yes">삭제하기</button></div>
+      <div class="rwdel-row"><button type="button" id="rwdel-no">돌아가기</button><button type="button" class="danger" id="rwdel-yes">${opts.cancel ? '그만두기' : '삭제하기'}</button></div>
     </div>`;
     document.body.appendChild(ov);
     const yes = ov.querySelector('#rwdel-yes'), no = ov.querySelector('#rwdel-no'), err = ov.querySelector('#rwdel-err');
@@ -60,7 +60,7 @@
     no.focus();
     yes.addEventListener('click', async () => {
       if (yes.disabled) return;
-      yes.disabled = no.disabled = true; yes.textContent = '삭제하는 중…'; err.textContent = '';
+      yes.disabled = no.disabled = true; yes.textContent = opts.cancel ? '그만두는 중…' : '삭제하는 중…'; err.textContent = '';
       try {
         const token = typeof opts.token === 'function' ? opts.token() : opts.token;
         const ctl = new AbortController(); const timer = setTimeout(() => ctl.abort(), 30000);
@@ -71,7 +71,7 @@
           const 돌려줌 = Number(data.refunded) > 0 ? Number(data.refunded) : 0;
           if (돌려줌) {   // 환불 결과를 잠깐 보여 준 뒤 닫는다 (시각은 포인트 내역에도 남는다)
             const 지금 = new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', hour12: false });
-            ov.querySelector('.rwdel-box').innerHTML = `<h3>삭제했어요</h3><p class="rwdel-pt">포인트 ${돌려줌.toLocaleString('ko-KR')}P가 돌아왔어요.</p><p>${esc(지금)}</p>`;
+            ov.querySelector('.rwdel-box').innerHTML = `<h3>${opts.cancel ? '그만뒀어요' : '삭제했어요'}</h3><p class="rwdel-pt">포인트 ${돌려줌.toLocaleString('ko-KR')}P가 돌아왔어요.</p><p>${esc(지금)}</p>`;
             setTimeout(() => { 닫기(); if (opts.onDone) opts.onDone(data); }, 1800);
           } else { 닫기(); if (opts.onDone) opts.onDone(data); }
           return;
@@ -81,7 +81,7 @@
       } catch (e) {
         err.textContent = e && e.name === 'AbortError' ? '서버 응답이 늦어요. 잠시 뒤 다시 시도해 주세요. (삭제되지 않았을 수 있어요)' : '연결에 실패했어요. 인터넷을 확인하고 다시 시도해 주세요.';
       }
-      yes.disabled = no.disabled = false; yes.textContent = '다시 삭제하기';
+      yes.disabled = no.disabled = false; yes.textContent = opts.cancel ? '다시 그만두기' : '다시 삭제하기';
     });
   }
 
