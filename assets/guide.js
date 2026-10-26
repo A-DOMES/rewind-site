@@ -30,7 +30,7 @@
   var 허브 = null, 사이드 = null, 모바일 = null, 소리판 = null;
   var S = 새상태();
 
-  function 새상태() { return { 단계: 1, 주제: '', 유형: '상품', 길: '', 종류: '', 종류직접: false, 후보: null, 후보이름: '', 참고: '', 구성: '자동', 자막: '자동', 길이칸: 2, 길이만짐: false, 목소리: '', 성별: '남' }; }
+  function 새상태() { return { 단계: 1, 주제: '', 유형: '상품', 길: '', 종류: '', 종류직접: false, 후보: null, 후보이름: '', 참고: '', 구성: '자동', 자막: '자동', compose: null, 길이칸: 2, 길이만짐: false, 목소리: '', 성별: '남' }; }
   function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function 켜짐() { return !!(window.RWFlags && window.RWFlags.has(기능)); }
   function 종류열림(k) {
@@ -223,9 +223,9 @@
     var k = 지금종류(), 상세 = 설정종류(), 화면설정 = 세부설정종류();
     return '<div class="gd-title"><h2>이대로 만들까요</h2><p>' + (상세 ? '신청 화면에서 포인트를 확인하고 마지막으로 눌러 주세요.' : '신청 화면으로 이동해 이어서 정해요.') + '</p></div>' +
       '<div class="gd-box big">' + 요약줄('주제', S.주제.trim()) + 요약줄('재료', S.길 === 'none' ? '재료 없이 AI로' : (길들[S.길] ? 길들[S.길].이름 : '')) +
-      요약줄('영상 종류', k ? k.이름 : '') + (상세 ? 요약줄('길이', 길이말(길이분())) + (!화면설정 ? '' : 요약줄('화면 구성', k.이름 === '쇼츠' ? (S.구성 === '자동' ? '제목고정형 (추천)' : S.구성) : '전체화면') + 요약줄('자막 위치', S.자막 === '자동' ? '하단 (추천)' : S.자막)) + 요약줄('목소리', S.목소리 ? (window.RWVoiceCatalog && RWVoiceCatalog.이름 ? RWVoiceCatalog.이름(S.목소리) : '직접 고름') : '추천') : '') + '</div>' +
+      요약줄('영상 종류', k ? k.이름 : '') + (상세 ? 요약줄('길이', 길이말(길이분())) + (!화면설정 ? '' : 요약줄('화면 구성', k.이름 === '쇼츠' ? (S.구성 === '자동' ? '제목고정형 (추천)' : S.구성) : '전체화면') + 요약줄('자막 위치', S.자막 === '자동' ? '하단 (추천)' : S.자막) + (k.이름 === '쇼츠' && window.RWCompose ? 요약줄('모양', RWCompose.요약(S.compose)) : '')) + 요약줄('목소리', S.목소리 ? (window.RWVoiceCatalog && RWVoiceCatalog.이름 ? RWVoiceCatalog.이름(S.목소리) : '직접 고름') : '추천') : '') + '</div>' +
       '<div class="gd-foot"><button type="button" class="gd-btn2" data-act="prev">이전</button>' + (상세 ?
-      '<span class="gd-two"><button type="button" class="gd-btn2" data-act="detail">더 자세히 설정하기</button><button type="button" class="gd-btn" data-act="make">이대로 만들기</button></span>' :
+      '<span class="gd-two">' + (k.이름 === '쇼츠' && window.RWCompose ? '<button type="button" class="gd-btn2" data-act="compose">모양 바꾸기</button>' : '') + '<button type="button" class="gd-btn2" data-act="detail">더 자세히 설정하기</button><button type="button" class="gd-btn" data-act="make">이대로 만들기</button></span>' :
       '<button type="button" class="gd-btn" data-act="detail">신청 화면으로 가기</button>') + '</div>';
   }
   function 그리기(맨위) {
@@ -282,6 +282,11 @@
       case 'prev': 이동(S.단계 - 1); break;
       case 'next': if (다음검사()) 이동(S.단계 + 1); break;
       case 'finder': 닫기(); var f = document.getElementById('to-topic-finder'); if (f) f.click(); break;
+      case 'compose': if (window.RWCompose) {
+        var 거꾸로 = { '하단': '아래', '가운데': '가운데', '상단': '위', '자동': '아래' }, 정방향 = { '아래': '하단', '가운데': '가운데', '위': '상단' };
+        RWCompose.open({ 종류: '쇼츠', 화면: '세로', 값: S.compose || {}, 자막위치: 거꾸로[S.자막] || '아래', 샘플: S.주제.trim().slice(0, 30),
+          onDone: function (res) { S.compose = Object.keys(res.compose).length ? res.compose : null; if (res.초기화) { S.구성 = '자동'; S.자막 = '자동'; } else { if (res.화면구성) S.구성 = res.화면구성; if (S.compose || res.위치바뀜) S.자막 = 정방향[res.자막위치]; } 그리기(); } });
+      } break;
       case 'make': 적용(true); break;
       case 'detail': 적용(false); break;
     }
@@ -291,7 +296,7 @@
     if (!api || !k) return;
     var 힌트 = S.길 === 'B' ? (S.참고 && k.이름 === '쇼츠' ? '고른 참고 영상을 "참고 영상" 칸에 넣어 뒀어요. "이 영상으로 분석하기"를 눌러 주세요.' : 길들.B.힌트) : (S.길 === 'A' && k.이름 === '상품쇼츠' ? 길들.A.힌트.replace('아래 칸에', '아래 "내 사진·영상" 칸에') : '');
     var 값 = { 주제: S.주제.trim(), 종류: k.이름, 키: k.키, 폼: k.폼, 길: S.길, 참고: S.길 === 'B' && k.이름 === '쇼츠' ? S.참고 : '', 힌트: 힌트, 바로확인: !!바로확인 && S.길 !== 'B' };   // 참고 영상 칸은 앞 단계에 있어서 따라 만들기는 확인 단계로 건너뛰지 않는다
-    if (설정종류()) { 값.구성 = k.이름 === '쇼츠' ? S.구성 : ''; 값.자막 = S.자막; 값.길이분 = 길이분(); 값.목소리 = S.목소리; }
+    if (설정종류()) { 값.구성 = k.이름 === '쇼츠' ? S.구성 : ''; 값.자막 = S.자막; 값.compose = k.이름 === '쇼츠' ? S.compose : null; 값.길이분 = 길이분(); 값.목소리 = S.목소리; }
     닫기();
     api.적용(값);
   }

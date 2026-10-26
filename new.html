@@ -2170,6 +2170,7 @@
   let mode = null;
   let answers = {};
   let mediaExtra = null;   // 일반 쇼츠 '내 사진·영상': { media, people } (상담 챗봇에는 보내지 않는다)
+  let composeKind = '';   // composeState 가 어느 폼에서 만들어졌는지('일반'|'상품'): 다른 폼으로 바꾸면 보내지 않는다
   let composeState = null;   // 영상 꾸미기(RWCompose)에서 고른 값. 건드린 것만 들어 있고, 비어 있으면 보내지 않는다(productExtra처럼 챗봇에는 보내지 않고 접수 때 합친다)
   let productExtra = null;   // 상품쇼츠: 사진·영상 목록, 설명·후기, 판매 유형, 권리·사람 확인 (상담 챗봇에는 보내지 않는다)
   let history = [];
@@ -2232,10 +2233,10 @@
 
   const CHAT_STATE_KEY = 'rw_new_chat_state';
   function saveChatState() {
-    try { sessionStorage.setItem(CHAT_STATE_KEY, JSON.stringify({ history, answers, mode, productExtra, mediaExtra, composeState })); } catch (e) {}
+    try { sessionStorage.setItem(CHAT_STATE_KEY, JSON.stringify({ history, answers, mode, productExtra, mediaExtra, composeState, composeKind })); } catch (e) {}
   }
   function clearChatState() {
-    productExtra = null; mediaExtra = null; composeState = null;
+    productExtra = null; mediaExtra = null; composeState = null; composeKind = '';
     try { sessionStorage.removeItem(CHAT_STATE_KEY); } catch (e) {}
   }
   function loadChatState() {
@@ -3264,7 +3265,7 @@
       if (planMode === 'paid' && /^(true|예|네|응|yes|y|1|원해요|만들어)/i.test(String(answers.thumbnail ?? '').trim())) payload.thumbnail = 'TRUE';
       if (answers.layout && answers.layout !== '자동') payload.layout = answers.layout;
       if (answers.captionPos && answers.captionPos !== '자동') payload.captionPos = answers.captionPos;
-      if (composeState && Object.keys(composeState).length && answers.form !== '롱폼' && !answers.videoType && !answers.productShort) payload.compose = composeState;   // 영상 꾸미기: 건드린 값만. 롱폼·상품쇼츠(S5b)·야담류는 아직 보내지 않는다
+      if (composeState && Object.keys(composeState).length && answers.form !== '롱폼' && !answers.videoType && composeKind === (answers.productShort ? '상품' : '일반')) payload.compose = composeState;   // 영상 꾸미기: 건드린 값만. 롱폼·상품쇼츠(S5b)·야담류는 아직 보내지 않는다
       if (planMode === 'paid' && MOTION_RATE[answers.motion]) payload.motion = answers.motion;
       if (answers.productShort && productExtra) {   // 상품쇼츠는 입력 화면에서 읽어 둔 값이 기준이다 (챗봇이 돌려준 값으로 바뀌지 않게)
         const pe = productExtra;
@@ -3367,7 +3368,7 @@
   function resetChat() {
     const saved = loadChatState();
     if (saved && Array.isArray(saved.history) && saved.history.length > 0) {
-      history = saved.history; answers = saved.answers || {}; mode = saved.mode || null; productExtra = saved.productExtra || null; mediaExtra = saved.mediaExtra || null; composeState = saved.composeState || null;
+      history = saved.history; answers = saved.answers || {}; mode = saved.mode || null; productExtra = saved.productExtra || null; mediaExtra = saved.mediaExtra || null; composeState = saved.composeState || null; composeKind = saved.composeKind || (saved.composeState ? '일반' : '');
       chatLog.innerHTML = '';
       chatLog.appendChild(exampleRow);
       exampleRow.style.display = 'none';
@@ -3835,19 +3836,21 @@
   // 영상 꾸미기: 버튼은 폼이 다시 그려질 때마다 새로 생기므로 문서 전체에서 받는다
   if (window.RWCompose) RWCompose.불러오기();
   document.addEventListener('click', ev => {
-    const b = ev.target.closest && ev.target.closest('#df-compose-open'); if (!b || !window.RWCompose) return;
-    const sum = document.getElementById('df-compose-sum');
-    if (document.getElementById('df-form')?.value === '롱폼') { if (sum) sum.textContent = '롱폼은 지금은 기본 모양으로 만들어져요'; return; }
+    const b = ev.target.closest && ev.target.closest('#df-compose-open, #pd-compose-open'); if (!b || !window.RWCompose) return;
+    const 상품 = b.id === 'pd-compose-open', 이름들 = 상품 ? { 구성: 'pd-layout', 자막: 'vp-subPos', 요약: 'pd-compose-sum' } : { 구성: 'df-layout', 자막: 'df-captionPos', 요약: 'df-compose-sum' };
+    const sum = document.getElementById(이름들.요약), 종류표 = 상품 ? '상품' : '일반';
+    if (!상품 && document.getElementById('df-form')?.value === '롱폼') { if (sum) sum.textContent = '롱폼은 지금은 기본 모양으로 만들어져요'; return; }
     const POS = { '위': '상단', '가운데': '가운데', '아래': '하단' }, 거꾸로 = { '상단': '위', '가운데': '가운데', '하단': '아래' };
-    const 지금 = document.querySelector('input[name="df-captionPos"]:checked')?.value;
-    RWCompose.open({ 종류: '쇼츠', 화면: '세로', 값: composeState || {}, 자막위치: 거꾸로[지금] || '아래', 샘플: document.getElementById('df-hookText')?.value || '',
+    const 지금 = document.querySelector(`input[name="${이름들.자막}"]:checked`)?.value;
+    const 값 = composeKind === 종류표 && composeState ? composeState : {};   // 다른 폼에서 만든 값은 이어받지 않는다
+    RWCompose.open({ 종류: 상품 ? '상품쇼츠' : '쇼츠', 화면: '세로', 값, 자막위치: 거꾸로[지금] || '아래', 샘플: document.getElementById(상품 ? 'pd-hook' : 'df-hookText')?.value || '',
       onDone: res => {
-        composeState = Object.keys(res.compose).length ? res.compose : null;
+        composeState = Object.keys(res.compose).length ? res.compose : null; composeKind = composeState ? 종류표 : '';
         const 고르기 = (name, v) => { const r = [...document.querySelectorAll(`input[name="${name}"]`)].find(x => x.value === v); if (r && !r.disabled) { r.checked = true; r.dispatchEvent(new Event('change', { bubbles: true })); } };
-        if (res.초기화) { 고르기('df-layout', '자동'); 고르기('df-captionPos', '자동'); }   // '처음 모양으로': 템플릿이 맞춰 둔 화면 구성·자막 위치도 되돌린다
+        if (res.초기화) { if (!상품) { 고르기(이름들.구성, '자동'); 고르기(이름들.자막, '자동'); } }   // 상품쇼츠는 '자동'이 따로 없어 그대로 둔다
         else {
-          if (res.화면구성) 고르기('df-layout', res.화면구성);
-          if (composeState || res.위치바뀜) 고르기('df-captionPos', POS[res.자막위치]);
+          if (res.화면구성) 고르기(이름들.구성, res.화면구성);
+          if (composeState || res.위치바뀜) 고르기(이름들.자막, POS[res.자막위치]);
         }
         if (sum) sum.textContent = RWCompose.요약(composeState);
         saveChatState();
@@ -4051,6 +4054,8 @@
         dfMode = 'topic'; dfPreType = '일반'; dfPreForm = v.폼; if (!열려있음) showDirectForm();
         fillGeneralForm({ form: v.폼, topic: v.주제, voiceId: v.목소리 || 옛소리 || '', voiceGender: c ? (c.성별 === '여' ? '여성' : '남성') : '', voiceAge: v.목소리 ? voiceAgeOf(v.목소리) : '',
           videoLength: v.길이분 ? `${v.길이분}분` : '', layout: v.키 === 'short' ? v.구성 : '', captionPos: v.자막 });
+        composeState = v.compose && Object.keys(v.compose).length ? v.compose : null; composeKind = composeState ? '일반' : '';   // 한번에 만들기에서 고른 모양
+        const 요 = document.getElementById('df-compose-sum'); if (요 && window.RWCompose) 요.textContent = RWCompose.요약(composeState);
         setTimeout(() => { if (window.__pwGo && window.__pwOn && window.__pwOn()) window.__pwGo(v.바로확인 ? 5 : 1, true); }, 90);
       } else openFormFor(v.키, v.주제, '', v.키 === 'prod' ? '한번에 만들기에서 가져온 이름이에요. 정확한 제품명으로 고쳐 주세요.' : '');
       if (v.키 === 'prod') setTimeout(() => {   // 길이(초)와 목소리를 상품쇼츠 폼에 채운다
@@ -4491,6 +4496,7 @@
           <div class="df-field"><label id="pd-layout-l">화면 구성</label><div class="lp-grid pd-layout" id="pd-layout" role="radiogroup" aria-labelledby="pd-layout-l">${pdLayoutHtml('하단')}</div><p class="df-hint" id="pd-layout-note" aria-live="polite"></p></div>
           <div class="df-field"><label for="pd-hook">위쪽 문구 <span class="opt">선택 · 18자까지</span></label><input type="text" id="pd-hook" maxlength="18" autocomplete="off" placeholder="예: 세탁 코스 고민 끝!"><p class="df-hint"><span id="pd-hook-n">0</span>/18자 · 영상 맨 위에 나오는 한 줄이에요. 비워 두면 AI가 만들어요. 가격·할인·"최고"·"1위" 같은 표현은 쓸 수 없어요.</p></div>
           <div class="df-field"><label id="pd-hookshow-l">문구가 보이는 시간</label><div class="df-chipset pd-two pd-hookshow" id="pd-hookshow" role="radiogroup" aria-labelledby="pd-hookshow-l"><label><input type="radio" name="pd-hookshow" value="all" checked><span class="tcard"><b>계속 보이기</b><small>영상 내내 위에 떠 있어요</small></span></label><label><input type="radio" name="pd-hookshow" value="3s"><span class="tcard"><b>처음 3초만</b><small>시작에 보였다 사라져요</small></span></label></div><p class="df-hint" id="pd-hookshow-note" aria-live="polite"></p></div>
+          <div class="df-field"><label>영상 꾸미기 <span class="opt">선택 · 글자 모양·크기·줄</span></label><div class="cz-open"><span class="cz-sum" id="pd-compose-sum" aria-live="polite">${(window.RWCompose ? RWCompose.요약(composeKind === '상품' ? composeState : null) : '기본 모양 (바꾸지 않았어요)').replace(/[<>&]/g, '')}</span><button type="button" class="cz-btn" id="pd-compose-open">꾸미기</button></div></div>
           <div class="pd-vpslot" id="pd-vp-slot"></div>
         </div>
         <aside class="pd-pv" aria-label="영상 미리보기"><button type="button" class="pd-pvbtn" id="pd-pv" aria-label="미리보기 크게 보기"></button><small>눌러서 크게 보기</small></aside>
