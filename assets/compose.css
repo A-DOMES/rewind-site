@@ -63,3 +63,4 @@
 .cz-entry-txt .cz-sum { color: var(--ink); font-size: var(--fs-sm); overflow-wrap: anywhere; }
 .cz-entry .cz-btn { flex: none; min-height: 44px; }
 @media (max-width: 480px) { .cz-entry { flex-wrap: wrap; } .cz-entry .cz-btn { width: 100%; } }
+label.cz-chip { display: inline-flex; align-items: center; }
