@@ -193,7 +193,7 @@
       var c1b = 카드('제목 설정', '위쪽 문구의 띠와 글자'); var 제목행들 = [];
       function 제목슬라이더(이름, 키, 기본, 변환, 역변환, 띠만) {
         var r = el('div', 'cz-row'); r.appendChild(el('label', '', 이름)); var sl = el('input'); sl.type = 'range'; sl.min = -50; sl.max = 50; sl.step = 1; sl.setAttribute('aria-label', '제목 ' + 이름 + ' (가운데가 기본)');
-        sl.addEventListener('input', function () { 선택[키] = 변환(Number(sl.value)); 갱신(); }); r.appendChild(sl); c1b.appendChild(r);
+        sl.addEventListener('input', function () { if (Number(sl.value) === 0) delete 선택[키]; else 선택[키] = 변환(Number(sl.value)); 갱신(); }); r.appendChild(sl); c1b.appendChild(r);   // 가운데(0)는 건드리지 않은 것과 같다
         눌림목록.push(function () { var v = 합치기(선택, 종류).값[키]; sl.value = String(v === undefined ? 0 : Math.round(수(역변환(v), -50, 50, 0))); });
         제목행들.push({ r: r, 띠만: !!띠만 });
       }
