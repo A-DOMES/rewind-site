@@ -53,7 +53,7 @@
   function 합치기(선택, 종류) {
     var t = (템플릿목록 || []).find(function (x) { return x.id === 선택.템플릿 && (!종류 || x.종류.indexOf(종류) >= 0); });
     var 값 = Object.assign({}, 기본, 현재가로 ? { 줄길이: 0.88 } : {}, t ? t.기본 : {});
-    ['자막모양', '글꼴', '자막크기', '줄수', '줄길이', '핵심색', '자막거리', '자막가로', '자막끄기', '제목높이', '제목크기', '제목위', '제목가로', '읽는효과', '읽는색'].forEach(function (k) { if (선택[k] !== undefined) 값[k] = 선택[k]; });
+    ['자막모양', '글꼴', '자막크기', '줄수', '줄길이', '핵심색', '자막거리', '자막가로', '자막끄기', '제목높이', '제목크기', '제목위', '제목세로', '제목가로', '제목띠색', '제목글자색', '읽는효과', '읽는색'].forEach(function (k) { if (선택[k] !== undefined) 값[k] = 선택[k]; });
     if (t && t.허용스타일 && t.허용스타일.indexOf(값.자막모양) < 0) 값.자막모양 = t.기본.자막모양;
     return { 값: 값, 템플릿: t || null };
   }
@@ -68,7 +68,7 @@
     if (선택.자막모양) 조각.push((모양들.find(function (x) { return x[0] === 선택.자막모양; }) || [0, 선택.자막모양])[1]);
     if (선택.자막크기) 조각.push('크기 ' + 선택.자막크기);
     if (선택.읽는효과 && 선택.읽는효과 !== '끔') 조각.push('읽는 글자 ' + 선택.읽는효과);
-    if (선택.제목높이 !== undefined || 선택.제목크기 !== undefined || 선택.제목위 !== undefined || 선택.제목가로 !== undefined) 조각.push('제목 모양 바꿈');
+    if (선택.제목높이 !== undefined || 선택.제목크기 !== undefined || 선택.제목위 !== undefined || 선택.제목세로 !== undefined || 선택.제목가로 !== undefined || 선택.제목띠색 !== undefined || 선택.제목글자색 !== undefined) 조각.push('제목 모양 바꿈');
     if (선택.줄수) 조각.push(선택.줄수 + '줄');
     if (선택.자막위치 && 선택.자막위치 !== '아래') 조각.push('자막 ' + 선택.자막위치);
     if (선택.자막끄기) 조각.push('자막 끄기');
@@ -96,7 +96,7 @@
     var x = el('button', 'cz-x', '×'); x.type = 'button'; x.setAttribute('aria-label', '닫기'); head.appendChild(ht); head.appendChild(x);
     var pv = el('div', 'cz-pv'); var phone = el('div', 'cz-phone' + (가로 ? ' cz-wide' : '')); var bg = el('div', 'cz-bg'); phone.appendChild(bg);
     var gbox = el('div'); gbox.style.cssText = 'position:absolute;inset:0'; phone.appendChild(gbox);
-    var ttl = el('div'); ttl.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:18.4%;background:#15110e;display:none;overflow:hidden'; var ttx = el('div'); ttx.style.cssText = 'position:absolute;transform:translateX(-50%);text-align:center;font-weight:800;white-space:pre'; ttl.appendChild(ttx); phone.appendChild(ttl);
+    var ttl = el('div'); ttl.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:18.4%;background:#15110e;display:none;overflow:hidden'; var ttx = el('div'); ttx.style.cssText = 'position:absolute;transform:translateX(-50%);text-align:center;font-weight:800;white-space:pre'; phone.appendChild(ttl); phone.appendChild(ttx);
     var 띠손잡이 = el('div', 'cz-bandh'); 띠손잡이.style.display = 'none'; phone.appendChild(띠손잡이);
     var ctr = el('div', 'cz-ctr'); ctr.style.display = 'none'; phone.insertBefore(ctr, gbox);
     var sub = el('div', 'cz-sub'); phone.appendChild(sub); var blk = el('div'); blk.style.cssText = 'position:absolute;inset:0;pointer-events:none'; phone.appendChild(blk);
@@ -112,13 +112,13 @@
       var m = 합치기(선택, 종류), v = m.값;
       var 제목형 = !가로 && 화면 === '제목고정형', 띠형 = !가로 && 화면 === '자막바형', 가운데형 = !가로 && 화면 === '가운데영상형';
       ttl.style.display = 제목형 || 가운데형 ? 'block' : 'none';
-      var 줄들 = 제목줄(문구샘플), 상자 = RWLayout.제목상자(W, H, { 줄수: 줄들.length, 최대폭: Math.max.apply(null, 줄들.map(제목폭).concat([1])), 띠: 제목형, 높이: v.제목높이, 크기: v.제목크기, 위: v.제목위, 가로: v.제목가로 });
-      ttl.style.background = 가운데형 ? 'transparent' : '#15110e'; ttl.style.height = 가운데형 ? '20%' : (상자.띠 / H * 100) + '%';
-      ttx.textContent = 줄들.join('\n'); ttx.style.color = 가운데형 ? '#fff' : '#ffe600'; ttx.style.textShadow = 가운데형 ? '0 1px 4px rgba(0,0,0,.8)' : 'none';
-      제목상태 = { 상자: 상자, 제목형: 제목형, 폭: Math.max.apply(null, 줄들.map(제목폭).concat([1])) * 상자.크기 };
+      var 줄들 = 제목줄(문구샘플), 상자 = RWLayout.제목상자(W, H, { 줄수: 줄들.length, 최대폭: Math.max.apply(null, 줄들.map(제목폭).concat([1])), 띠: 제목형, 높이: v.제목높이, 크기: v.제목크기, 위: v.제목위, 세로: v.제목세로, 가로: v.제목가로 });
+      ttl.style.background = 가운데형 ? 'transparent' : (헥스.test(v.제목띠색 || '') ? v.제목띠색 : '#15110e'); ttl.style.height = 가운데형 ? '20%' : (상자.띠 / H * 100) + '%';
+      ttx.textContent = 줄들.join('\n'); ttx.style.display = 제목형 || 가운데형 ? 'block' : 'none'; ttx.style.color = 헥스.test(v.제목글자색 || '') ? v.제목글자색 : (가운데형 ? '#fff' : '#fff200'); ttx.style.textShadow = 가운데형 ? '0 1px 4px rgba(0,0,0,.8)' : 'none';
+      제목상태 = { 세로범위: 제목형 ? [(상자.높이 / 2 - Math.round(상자.크기 * 0.18)) / H, (상자.띠 - 상자.높이 / 2 + Math.round(상자.크기 * 0.18)) / H] : [(H * 0.133 + 상자.높이 / 2) / H, (H * 0.133 + 상자.높이 / 2) / H], 상자: 상자, 제목형: 제목형, 기본세로: 제목형 ? 상자.띠 / 2 / H : (H * 0.133 + 상자.높이 / 2) / H, 폭: Math.max.apply(null, 줄들.map(제목폭).concat([1])) * 상자.크기 };
       띠손잡이.style.display = 제목형 ? 'block' : 'none'; 띠손잡이.style.top = (상자.띠 / H * 100) + '%';
       ttx.style.fontSize = (상자.크기 * 0.66 / W * 100) + 'cqw'; ttx.style.lineHeight = (상자.크기 / W * 100) + 'cqw';   // ASS 의 크기는 줄 높이, 한글 폭은 그 0.66배(서버 render.js 글자폭과 같음)
-       ttx.style.left = (상자.x / W * 100) + '%'; ttx.style.top = ((제목형 ? 상자.위 : H * 0.133) / H * 100) + '%';
+       ttx.style.left = (상자.x / W * 100) + '%'; ttx.style.top = ((상자.위 !== null ? 상자.위 : H * 0.133) / H * 100) + '%';
       ctr.style.display = 가운데형 ? 'block' : 'none'; bg.style.filter = 가운데형 ? 'blur(5px) brightness(.7)' : ''; bg.style.transform = 가운데형 ? 'scale(1.12)' : '';
       var box = RWLayout.자막상자(W, H, { 위치: 자막위치, 크기: v.자막크기 * Math.min(W, H) / 1080, 줄수: v.줄수, 줄길이: v.줄길이, 거리: v.자막거리, 가로: v.자막가로, 안전영역: !가로 });
       sub.style.cssText = 'left:' + ((box.x + box.w / 2) / W * 100) + '%;top:' + (box.y / H * 100) + '%;width:' + (box.w / W * 100) + '%;height:' + (box.h / H * 100) + '%;font-size:' + (v.자막크기 * 0.8 / 1080 * 100 * (가로 ? 0.5625 : 1)) + 'cqw;display:' + (v.자막끄기 ? 'none' : 'flex') + ';flex-direction:column;justify-content:flex-end;overflow:hidden;';   // 줄 칸을 잡고 글은 아래 칸부터 채운다
@@ -180,7 +180,8 @@
       요소.addEventListener('keydown', function (e) { var d = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[e.key]; if (!d) return; e.preventDefault(); e.stopPropagation(); 이동(d[0] * 0.01, d[1] * 0.01); 끌기정리(); 블록다시(); 갱신(); var 다시찾기 = dlg.querySelector('[aria-label="' + 이름 + ' (끌거나 방향키로 옮겨요)"]'); if (다시찾기 && document.activeElement !== 다시찾기) 다시찾기.focus(); });   // 다시 그려진 요소로 포커스를 돌려 방향키를 이어서 누를 수 있게
     }
     function 끌기정리() {   // 끌기가 끝나면 값을 반올림하고, 기본값과 같으면 지워서 건드리지 않은 것으로 되돌린다
-      [['제목위', 0.5, 100], ['제목가로', 0.5, 100], ['자막가로', 0.5, 100], ['제목높이', 0.184, 1000]].forEach(function (k) { var x = 선택[k[0]]; if (x === undefined) return; x = Math.round(x * k[2]) / k[2]; if (Math.abs(x - k[1]) < (k[0] === '제목높이' ? 0.003 : 0.005)) delete 선택[k[0]]; else 선택[k[0]] = x; });
+      [['제목가로', 0.5, 100], ['자막가로', 0.5, 100], ['제목높이', 0.184, 1000]].forEach(function (k) { var x = 선택[k[0]]; if (x === undefined) return; x = Math.round(x * k[2]) / k[2]; if (Math.abs(x - k[1]) < (k[0] === '제목높이' ? 0.003 : 0.005)) delete 선택[k[0]]; else 선택[k[0]] = x; });
+      if (선택.제목세로 !== undefined && 제목상태) { var 세 = Math.round(선택.제목세로 * 1000) / 1000; if (Math.abs(세 - 제목상태.기본세로) < 0.004) delete 선택.제목세로; else 선택.제목세로 = 세; }
       if (선택.자막거리 !== undefined) { var 기본 = 자막위치 === '위' ? (가로 ? 0.07 : 0.13) : (가로 ? 0.07 : 0.22), d = Math.round(선택.자막거리 * 100) / 100; if (Math.abs(d - 기본) < 0.005) delete 선택.자막거리; else 선택.자막거리 = d; }
       블록목록().forEach(function (b) { b.위치.가로 = Math.round(b.위치.가로 * 100) / 100; b.위치.거리 = Math.round(b.위치.거리 * 100) / 100; });
     }
@@ -192,7 +193,7 @@
     }
     function 제목이동(dx, dy) {
       var v = 합치기(선택, 종류).값, t = 제목상태; if (!t) return;
-      var 남는 = t.상자.띠 - t.상자.높이; if (t.제목형 && 남는 > 0) 선택.제목위 = 한계((v.제목위 !== undefined ? v.제목위 : 0.5) + dy * H / 남는, 0, 1);
+      var 지금 = v.제목세로 !== undefined ? v.제목세로 : t.기본세로; 선택.제목세로 = 한계(지금 + dy, t.세로범위[0], t.세로범위[1]); delete 선택.제목위;   // 글자는 띠 안(맨 위 ~ 맨 아래)에서 자유롭게 옮긴다
       var 반폭 = 한계((t.폭 / 2 + W * 0.02) / W, 0, 0.5); 선택.제목가로 = 한계((v.제목가로 !== undefined ? v.제목가로 : 0.5) + dx, 반폭, 1 - 반폭);
     }
     function 띠이동(dx, dy) { var v = 합치기(선택, 종류).값, h = 한계((v.제목높이 !== undefined ? v.제목높이 : 0.184) + dy, 0.1, 0.3); 선택.제목높이 = h; }
@@ -254,9 +255,23 @@
       var 높이식 = 선형(0.184, 0.084, 0.116), 크기식 = 선형(1, 0.5, 0.3);
       제목슬라이더('띠 높이', '제목높이', 0.184, 높이식[0], 높이식[1], true);
       제목슬라이더('글자 크기', '제목크기', 1, 크기식[0], 크기식[1]);
-      제목슬라이더('위·아래', '제목위', 0.5, function (v) { return Math.round((0.5 + v / 100) * 100) / 100; }, function (x) { return (x - 0.5) * 100; }, true);
+      var 세로범위 = function () { return 제목상태 ? 제목상태.세로범위 : [0.02, 0.17]; };
+      var 기본세로 = function () { return 제목상태 ? 제목상태.기본세로 : 0.09; };
+      제목슬라이더('위·아래', '제목세로', 0.09, function (v) { var g = 기본세로(), r = 세로범위(); return Math.round((v < 0 ? g - (g - r[0]) * (-v / 50) : g + (r[1] - g) * (v / 50)) * 1000) / 1000; }, function (x) { var g = 기본세로(), r = 세로범위(); return (x - g) / (((x < g ? g - r[0] : r[1] - g) / 50) || 1); });
       제목슬라이더('왼쪽·오른쪽', '제목가로', 0.5, function (v) { return Math.round((0.5 + v / 100) * 100) / 100; }, function (x) { return (x - 0.5) * 100; });
-      c1b.appendChild(el('p', 'cz-hint', '띠 높이를 바꾸면 글자가 띠에 맞춰져요. 글자는 띠 밖으로 나가지 않아요'));
+      function 색행(이름, 키, 목록, 기본색, 띠만) {
+        var r = el('div', 'cz-row'); r.appendChild(el('label', '', 이름)); var 칸 = el('div', 'cz-chips'); r.appendChild(칸); c1b.appendChild(r);
+        var 지금 = function () { var x = 합치기(선택, 종류).값[키]; return (헥스.test(x || '') ? x : 기본색).toLowerCase(); };
+        목록.forEach(function (c) { var b = el('button', 'cz-chip'); b.type = 'button'; b.title = c[0]; var d = el('span'); d.style.cssText = 'display:inline-block;width:.9em;height:.9em;border-radius:50%;margin-right:.35em;vertical-align:-.1em;border:1px solid #8886;background:' + c[1]; b.appendChild(d); b.appendChild(document.createTextNode(c[0]));
+          b.addEventListener('click', function () { if (c[1].toLowerCase() === 기본색.toLowerCase()) delete 선택[키]; else 선택[키] = c[1].toUpperCase(); 갱신(); }); 칸.appendChild(b); 눌림목록.push(function () { b.setAttribute('aria-pressed', String(지금() === c[1].toLowerCase())); }); });
+        var 직접 = el('label', 'cz-chip'); 직접.style.cursor = 'pointer'; 직접.appendChild(document.createTextNode('직접 고르기 ')); var 입 = el('input'); 입.type = 'color'; 입.value = 지금(); 입.setAttribute('aria-label', '제목 ' + 이름 + ' 직접 고르기'); 입.style.cssText = 'width:1.6em;height:1.2em;padding:0;border:0;background:none;vertical-align:middle;cursor:pointer';
+        입.addEventListener('input', function () { 선택[키] = 입.value.toUpperCase(); 갱신(); }); 직접.appendChild(입); 칸.appendChild(직접);
+        눌림목록.push(function () { 직접.setAttribute('aria-pressed', String(!목록.some(function (c) { return c[1].toLowerCase() === 지금(); }))); if (document.activeElement !== 입) 입.value = 지금(); });
+        제목행들.push({ r: r, 띠만: !!띠만 });
+      }
+      색행('띠 색', '제목띠색', [['검정', '#15110e'], ['남색', '#14213d'], ['진초록', '#12372a'], ['자주', '#3b1d3a'], ['빨강', '#8b1e1e'], ['크림', '#f5f1e8'], ['노랑', '#ffd60a']], '#15110e', true);
+      색행('글자 색', '제목글자색', [['노랑', '#fff200'], ['흰색', '#ffffff'], ['검정', '#111111'], ['하늘', '#4dc3ff'], ['분홍', '#ff4d8d'], ['초록', '#2ee6a6']], '#fff200', false);
+      c1b.appendChild(el('p', 'cz-hint', '띠 높이를 바꾸면 글자가 띠에 맞춰져요. 글자는 띠 아래 화면 위로도 옮길 수 있어요'));
       눌림목록.push(function () { var 보임 = !가로 && (화면 === '제목고정형' || 화면 === '가운데영상형'); c1b.style.display = 보임 ? '' : 'none'; 제목행들.forEach(function (h) { h.r.style.display = h.띠만 && 화면 !== '제목고정형' ? 'none' : ''; }); });
       var c2 = 카드('자막 글자 모양');
       var gm = el('div', 'cz-grid'); c2.appendChild(gm);
