@@ -17,6 +17,7 @@
   }
   var 글꼴들 = [['Noto Sans CJK KR', '고딕', "'Noto Sans KR','Noto Sans CJK KR',sans-serif"], ['Noto Serif KR', '명조', "'Noto Serif KR','Noto Serif CJK KR',serif"], ['Black Han Sans', '굵은 제목', "'Black Han Sans','Noto Sans KR',sans-serif"], ['Do Hyeon', '도현체', "'Do Hyeon','Noto Sans KR',sans-serif"], ['Jua', '주아체', "'Jua','Noto Sans KR',sans-serif"], ['Gowun Batang', '고운바탕', "'Gowun Batang','Noto Serif KR',serif"]];
   var 핵심들 = [['없음', '없음', ''], ['분홍', '분홍', '#ff4d8d'], ['노랑', '노랑', '#ffe14d'], ['초록', '초록', '#2ee6a6'], ['하늘', '하늘', '#4dc3ff'], ['주황', '주황', '#ff9a3d'], ['보라', '보라', '#b58cff'], ['빨강', '빨강', '#ff4d4d'], ['연두', '연두', '#9be83d'], ['민트', '민트', '#4dffe0'], ['흰색', '흰색', '#ffffff']];   // 앞의 세 가지가 기본. 서버 핵심색표와 같은 이름·색(site_sync_test)
+  var 읽는효과들 = [['끔', '끔'], ['색', '색칠'], ['색+커짐', '색칠 + 커짐'], ['색+튀어오름', '색칠 + 튀어오름']];   // 서버 render.js 효과목록과 같은 이름
   var 헥스 = /^#[0-9a-f]{6}$/i;
   function 밝기(h) { var n = parseInt(h.slice(1), 16), f = function (v) { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }; return 0.2126 * f(n >> 16 & 255) + 0.7152 * f(n >> 8 & 255) + 0.0722 * f(n & 255); }
   var 위치들 = [['위', '위'], ['가운데', '가운데'], ['아래', '아래']];
@@ -52,7 +53,7 @@
   function 합치기(선택, 종류) {
     var t = (템플릿목록 || []).find(function (x) { return x.id === 선택.템플릿 && (!종류 || x.종류.indexOf(종류) >= 0); });
     var 값 = Object.assign({}, 기본, 현재가로 ? { 줄길이: 0.88 } : {}, t ? t.기본 : {});
-    ['자막모양', '글꼴', '자막크기', '줄수', '줄길이', '핵심색', '자막거리', '자막가로', '자막끄기', '제목높이', '제목크기', '제목위', '제목가로'].forEach(function (k) { if (선택[k] !== undefined) 값[k] = 선택[k]; });
+    ['자막모양', '글꼴', '자막크기', '줄수', '줄길이', '핵심색', '자막거리', '자막가로', '자막끄기', '제목높이', '제목크기', '제목위', '제목가로', '읽는효과', '읽는색'].forEach(function (k) { if (선택[k] !== undefined) 값[k] = 선택[k]; });
     if (t && t.허용스타일 && t.허용스타일.indexOf(값.자막모양) < 0) 값.자막모양 = t.기본.자막모양;
     return { 값: 값, 템플릿: t || null };
   }
@@ -66,6 +67,7 @@
     if (선택.템플릿) 조각.push(t ? t.이름 : '템플릿');
     if (선택.자막모양) 조각.push((모양들.find(function (x) { return x[0] === 선택.자막모양; }) || [0, 선택.자막모양])[1]);
     if (선택.자막크기) 조각.push('크기 ' + 선택.자막크기);
+    if (선택.읽는효과 && 선택.읽는효과 !== '끔') 조각.push('읽는 글자 ' + 선택.읽는효과);
     if (선택.제목높이 !== undefined || 선택.제목크기 !== undefined || 선택.제목위 !== undefined || 선택.제목가로 !== undefined) 조각.push('제목 모양 바꿈');
     if (선택.줄수) 조각.push(선택.줄수 + '줄');
     if (선택.자막위치 && 선택.자막위치 !== '아래') 조각.push('자막 ' + 선택.자막위치);
@@ -98,6 +100,7 @@
     var ctr = el('div', 'cz-ctr'); ctr.style.display = 'none'; phone.insertBefore(ctr, gbox);
     var sub = el('div', 'cz-sub'); phone.appendChild(sub); var blk = el('div'); blk.style.cssText = 'position:absolute;inset:0;pointer-events:none'; phone.appendChild(blk);
     var tools = el('div', 'cz-pvtools'); var gl = el('label'); var gc = el('input'); gc.type = 'checkbox'; gc.checked = true; gl.appendChild(gc); gl.appendChild(document.createTextNode(' 유튜브가 쓰는 자리 점선으로 보기')); tools.appendChild(gl);
+    var 다시 = el('button', 'cz-btn'); 다시.type = 'button'; 다시.textContent = '▶ 읽는 효과 다시 보기'; 다시.style.cssText = 'min-height:44px;display:none'; tools.appendChild(다시);
     var warn = el('ul', 'cz-warn'); warn.setAttribute('aria-live', 'polite');
     pv.appendChild(phone); pv.appendChild(tools); pv.appendChild(warn); pv.appendChild(el('p', 'cz-note', '실제 영상은 조금 다를 수 있어요. 점선 자리를 침범해도 만들 수 있어요.'));
     var body = el('div', 'cz-body');
@@ -125,7 +128,7 @@
       sub.textContent = ''; var 글줄 = el('div'); 글줄.style.cssText = 'display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:' + v.줄수 + ';overflow:hidden;width:fit-content;align-self:center;max-width:100%;background:' + (띠형 ? '#e2a23c' : (겉.bg || 'none')) + (띠형 ? ';color:#1a1410;-webkit-text-stroke:0;padding:.3em .6em;width:100%' : ''); sub.appendChild(글줄);
       var 핵 = 핵심들.find(function (h) { return h[0] === v.핵심색; }), 핵색 = 헥스.test(v.핵심색) ? v.핵심색 : (핵 && 핵[2]);
       var 줄 = 샘플.split(/(\s+)/); var 강조 = false;
-      줄.forEach(function (w, i) { var s = el('span', '', w); if (핵색 && i === 2) s.style.color = 핵색; 글줄.appendChild(s); });
+      var 단어칸 = []; 줄.forEach(function (w, i) { var s = el('span', '', w); if (핵색 && i === 2) s.style.color = 핵색; 글줄.appendChild(s); if (w.trim()) 단어칸.push({ s: s, 처음색: s.style.color }); }); 읽는단어 = 단어칸;
       gbox.textContent = '';
       if (가이드켜짐) RWLayout.가이드(W, H).forEach(function (g) { var d = el('div', 'cz-g'); d.style.cssText = 'left:' + (g.x / W * 100) + '%;top:' + (g.y / H * 100) + '%;width:' + (g.w / W * 100) + '%;height:' + (g.h / H * 100) + '%'; d.appendChild(el('span', '', g.이름)); gbox.appendChild(d); });
       blk.textContent = '';
@@ -157,7 +160,21 @@
       });
       return 결과;
     }
-    function 갱신() { 그리기미리보기(); 눌림갱신(); }
+    var 읽는단어 = [], 읽는타이머 = [];
+    function 읽기멈춤() { 읽는타이머.forEach(clearTimeout); 읽는타이머 = []; }
+    function 읽기재생() {   // 읽는 글자 효과 미리보기: 샘플 문장을 단어마다 차례로 칠한다. 한 번 보여 주고 멈춘다
+      읽기멈춤(); var v = 합치기(선택, 종류).값, 효과 = v.읽는효과 || '끔'; 읽는단어.forEach(function (d) { d.s.style.color = d.처음색; d.s.style.transform = ''; d.s.style.display = ''; });
+      if (효과 === '끔') return;
+      var 색 = 헥스.test(v.읽는색 || '') ? v.읽는색 : ((핵심들.find(function (h) { return h[0] === v.읽는색; }) || [])[2] || '#ffe14d');
+      var 움직임 = !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches), 한단어 = 380;
+      읽는단어.forEach(function (d, i) {
+        읽는타이머.push(setTimeout(function () { d.s.style.color = 색; if (움직임 && 효과.indexOf('커') >= 0) { d.s.style.display = 'inline-block'; d.s.style.transform = 'scale(1.12)'; } if (움직임 && 효과.indexOf('튀') >= 0) { d.s.style.display = 'inline-block'; d.s.style.transformOrigin = '50% 100%'; d.s.style.transform = 'scale(1.04,1.24)'; } }, 250 + i * 한단어));
+        읽는타이머.push(setTimeout(function () { d.s.style.color = d.처음색; d.s.style.transform = ''; }, 250 + (i + 1) * 한단어));
+      });
+    }
+    var 지난읽기 = '';
+    function 갱신() { 그리기미리보기(); 눌림갱신(); var v = 합치기(선택, 종류).값, 서명 = (v.읽는효과 || '') + '|' + (v.읽는색 || ''); if (서명 !== 지난읽기) { 지난읽기 = 서명; 읽기재생(); } }   // 효과·색을 바꾼 순간에만 처음부터 한 번 재생
+    다시.addEventListener('click', 읽기재생);
     var 눌림목록 = [];
     function 눌림갱신() { 눌림목록.forEach(function (f) { f(); }); }
 
@@ -217,6 +234,16 @@
       var 직접색 = el('label', 'cz-chip'); 직접색.style.cursor = 'pointer'; 직접색.appendChild(document.createTextNode('직접 고르기 ')); var ci = el('input'); ci.type = 'color'; ci.value = '#ff4d8d'; ci.setAttribute('aria-label', '단어 색 직접 고르기'); ci.style.cssText = 'width:1.6em;height:1.2em;padding:0;border:0;background:none;vertical-align:middle;cursor:pointer'; 직접색.appendChild(ci);
       ci.addEventListener('input', function () { 선택.핵심색 = ci.value.toUpperCase(); 갱신(); }); cw.appendChild(직접색); 눌림목록.push(function () { 직접색.setAttribute('aria-pressed', String(헥스.test(현재핵()))); if (헥스.test(현재핵())) ci.value = 현재핵().toLowerCase(); });
       c2.appendChild(el('p', 'cz-hint', '대본에서 중요한 단어에 이 색이 칠해져요'));
+      var c2b = 카드('읽는 글자 효과', '목소리가 읽는 단어를 색으로 칠해요');
+      var 효과줄 = el('div', 'cz-chips'); c2b.appendChild(효과줄);
+      칩묶음(효과줄, 읽는효과들, function () { return 합치기(선택, 종류).값.읽는효과 || '끔'; }, function (v) { 선택.읽는효과 = v; }, '읽는 글자 효과');   // '끔'도 값으로 보낸다(바깥 자막 효과 설정보다 꾸미기에서 고른 것이 우선)
+      var 색줄 = el('div', 'cz-row'); 색줄.appendChild(el('label', '', '칠하는 색')); var 색들 = el('div', 'cz-chips'); 색줄.appendChild(색들); c2b.appendChild(색줄);
+      var 현재색 = function () { return 합치기(선택, 종류).값.읽는색 || '노랑'; };
+      핵심들.filter(function (h) { return h[2] && h[0] !== '흰색'; }).forEach(function (h) { var b = el('button', 'cz-chip');   // 흰색은 글자가 원래 흰색이라 칠해도 안 보여 뺀다
+ b.type = 'button'; b.title = h[1]; var d = el('span'); d.style.cssText = 'display:inline-block;width:.9em;height:.9em;border-radius:50%;margin-right:.35em;vertical-align:-.1em;border:1px solid #0004;background:' + h[2]; b.appendChild(d); b.appendChild(document.createTextNode(h[1])); b.addEventListener('click', function () { 선택.읽는색 = h[0]; 갱신(); }); 색들.appendChild(b); 눌림목록.push(function () { b.setAttribute('aria-pressed', String(현재색() === h[0])); }); });
+      var 읽직접 = el('label', 'cz-chip'); 읽직접.style.cursor = 'pointer'; 읽직접.appendChild(document.createTextNode('직접 고르기 ')); var 읽입 = el('input'); 읽입.type = 'color'; 읽입.value = '#ffe14d'; 읽입.setAttribute('aria-label', '읽는 글자 색 직접 고르기'); 읽입.style.cssText = 'width:1.6em;height:1.2em;padding:0;border:0;background:none;vertical-align:middle;cursor:pointer';
+      읽입.addEventListener('input', function () { 선택.읽는색 = 읽입.value.toUpperCase(); 갱신(); }); 읽직접.appendChild(읽입); 색들.appendChild(읽직접); 눌림목록.push(function () { 읽직접.setAttribute('aria-pressed', String(헥스.test(현재색()))); 색줄.style.display = (합치기(선택, 종류).값.읽는효과 || '끔') === '끔' ? 'none' : ''; 다시.style.display = (합치기(선택, 종류).값.읽는효과 || '끔') === '끔' ? 'none' : ''; });
+      c2b.appendChild(el('p', 'cz-hint', '왼쪽 미리보기에서 바로 확인해요. 실제 영상은 목소리 속도에 맞춰 조금 달라질 수 있어요'));
       var c3 = 카드('자막 크기와 줄', '가운데가 기본이에요');
       // 크기: 숫자 + 슬라이더(가운데=기본 77, 오른쪽=크게)
       var rs = el('div', 'cz-row'); rs.appendChild(el('label', '', '글자 크기')); var sl = el('input'); sl.type = 'range'; sl.min = -50; sl.max = 50; sl.step = 1; sl.setAttribute('aria-label', '글자 크기 (가운데가 기본)'); var nm = el('input'); nm.type = 'number'; nm.min = 20; nm.max = 200; nm.setAttribute('aria-label', '글자 크기 숫자'); rs.appendChild(sl); rs.appendChild(nm); c3.appendChild(rs);
@@ -275,7 +302,7 @@
       블록그리기();
     }
 
-    function 닫기(결과) { document.removeEventListener('keydown', 키); document.body.style.overflow = 이전스크롤; ov.remove(); if (이전포커스 && 이전포커스.focus) 이전포커스.focus(); if (결과 && typeof opt.onDone === 'function') opt.onDone(결과); }
+    function 닫기(결과) { 읽기멈춤(); document.removeEventListener('keydown', 키); document.body.style.overflow = 이전스크롤; ov.remove(); if (이전포커스 && 이전포커스.focus) 이전포커스.focus(); if (결과 && typeof opt.onDone === 'function') opt.onDone(결과); }
     function 키(e) {
       if (e.key === 'Escape') { e.preventDefault(); 닫기(null); return; }
       if (e.key !== 'Tab') return;
