@@ -41,5 +41,22 @@ function 겹침비(a, b) {
   const 작은 = Math.min(a.w * a.h, b.w * b.h);
   return 작은 > 0 ? (ox * oy) / 작은 : 0;
 }
-const 내보내기 = { 가이드, 자막상자, 블록상자, 겹침비, 줄높이비 };
+// 화면 위 제목 상자. 서버(ASS)와 사이트 미리보기가 같은 식을 쓴다. 옵션: { 줄수, 최대폭(글자 크기 1일 때 가장 넓은 줄의 폭), 띠(제목고정형이면 true), 높이(띠 높이, 화면 높이 비율 0.1~0.3, 없으면 0.184),
+// 크기(맞춰진 크기에 곱하는 배율 0.5~1.3), 위(띠 안 세로 자리 0~1, 0.5 = 한가운데), 가로(글자 가운데 x 비율 0~1, 없으면 가운데) }. 아무 값도 없으면 예전과 똑같은 결과다
+function 제목상자(w, h, 옵션) {
+  const o = 옵션 || {}, 줄수 = Math.max(1, Math.round(o.줄수) || 1), 최대 = Math.max(0.5, Number(o.최대폭) || 1);
+  const 높이값 = o.띠 && Number(o.높이) >= 0.1 && Number(o.높이) <= 0.3 ? Number(o.높이) : null;
+  const 띠 = o.띠 ? Math.round(h * (높이값 || 0.184)) : 0;
+  let 크기 = Math.floor(Math.min(w * (높이값 ? 0.16 : 0.115), w * 0.84 / 최대));
+  if (띠 && 높이값) 크기 = Math.min(크기, Math.floor(띠 * 0.78 / 줄수));   // 띠 높이에 글자를 맞춘다
+  const 배율 = Number(o.크기) >= 0.5 && Number(o.크기) <= 1.3 ? Number(o.크기) : 1;
+  if (배율 !== 1) { 크기 = Math.floor(크기 * 배율); 크기 = Math.min(크기, Math.floor(w * 0.94 / 최대)); if (띠) 크기 = Math.min(크기, Math.floor(띠 * 0.96 / 줄수)); }
+  크기 = Math.max(12, 크기);
+  const 높이 = 줄수 * 크기, 비 = Number(o.위) >= 0 && Number(o.위) <= 1 ? Number(o.위) : 0.5;
+  const 위 = 띠 ? Math.round(Math.max(0, 띠 - 높이) * 비) : null;
+  const 폭 = 최대 * 크기, 가운데 = Number(o.가로) >= 0 && Number(o.가로) <= 1 ? Number(o.가로) : null;
+  const x = 가운데 === null ? Math.round(w / 2) : Math.round(Math.min(Math.max(가운데 * w, 폭 / 2 + w * 0.02), w - 폭 / 2 - w * 0.02));
+  return { 띠, 크기, 높이, 위, x };
+}
+const 내보내기 = { 가이드, 자막상자, 블록상자, 겹침비, 줄높이비, 제목상자 };
 if (typeof module !== 'undefined' && module.exports) module.exports = 내보내기; else this.RWLayout = 내보내기;   // 서버(require)와 브라우저(<script>)가 같은 파일을 쓴다
