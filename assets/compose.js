@@ -4,12 +4,13 @@
  */
 (function () {
   'use strict';
-  var VER = '?v=20261027';
+  var VER = '?v=20261028';
   var 기본 = { 자막모양: '굵은흰', 글꼴: 'Noto Sans CJK KR', 자막크기: 77, 줄수: 1, 줄길이: 0.76, 핵심색: '없음' };
   var 모양들 = [['굵은흰', '굵은 흰색'], ['굵은노랑', '굵은 노랑'], ['차분흰', '차분한 흰색'], ['뉴스박스', '뉴스 박스']];
   var 글꼴들 = [['Noto Sans CJK KR', '고딕', "'Noto Sans KR','Noto Sans CJK KR',sans-serif"], ['Noto Serif KR', '명조', "'Noto Serif KR','Noto Serif CJK KR',serif"], ['Black Han Sans', '굵은 제목', "'Black Han Sans','Noto Sans KR',sans-serif"]];
   var 핵심들 = [['없음', '없음', ''], ['분홍', '분홍', '#ff4d8d'], ['노랑', '노랑', '#ffe14d'], ['초록', '초록', '#2ee6a6']];
   var 위치들 = [['위', '위'], ['가운데', '가운데'], ['아래', '아래']];
+  var 화면설명 = { '자동': '알아서 정해 줘요', '제목고정형': '제목이 위에 고정', '전체화면형': '장면을 화면 가득', '자막바형': '아래 띠에 큰 자막', '가운데영상형': '가운데에 영상 (상품쇼츠)' };
   var 샘플기본 = '보기보다 훨씬 많이 들어가요. 하루 종일 들고 다녀도 어깨가 편해요';
   var 템플릿목록 = null, 불러옴 = null;
 
@@ -30,9 +31,11 @@
     return { 값: 값, 템플릿: t || null };
   }
 
-  function 요약(선택) {
-    선택 = 선택 || {};
+  function 요약(선택, 보조) {
+    선택 = 선택 || {}; 보조 = 보조 || {};
     var 조각 = [];
+    if (보조.화면구성 && 보조.화면구성 !== '자동') 조각.push(보조.화면구성.replace('형', ''));
+    if (보조.자막위치 && 보조.자막위치 !== '하단' && 보조.자막위치 !== '자동') 조각.push('자막 ' + 보조.자막위치);
     var t = (템플릿목록 || []).find(function (x) { return x.id === 선택.템플릿; });
     if (선택.템플릿) 조각.push(t ? t.이름 : '템플릿');
     if (선택.자막모양) 조각.push(선택.자막모양 === '뉴스박스' ? '뉴스 박스' : 선택.자막모양);
@@ -47,6 +50,8 @@
   function open(opt) {
     opt = opt || {};
     var 종류 = opt.종류 || '쇼츠', 가로 = opt.화면 === '가로';
+    var 화면목록 = Array.isArray(opt.화면목록) && opt.화면목록.length ? opt.화면목록 : [{ 값: '자동' }], 화면 = opt.화면구성 || 화면목록[0].값, 문구샘플 = String(opt.문구 || '').trim() || '화면 위 제목 문구';
+    function 화면가능(v) { return 화면목록.some(function (x) { return x.값 === v && !x.꺼짐; }); }
     var 선택 = Object.assign({}, opt.값 || {}); var 자막위치 = opt.자막위치 || '아래'; var 처음위치 = 자막위치, 위치바꿈 = false, 초기화함 = false; var 가이드켜짐 = true;
     var 샘플 = String(opt.샘플 || '').trim() || 샘플기본;
     var 이전포커스 = document.activeElement;
@@ -58,6 +63,7 @@
     var x = el('button', 'cz-x', '×'); x.type = 'button'; x.setAttribute('aria-label', '닫기'); head.appendChild(ht); head.appendChild(x);
     var pv = el('div', 'cz-pv'); var phone = el('div', 'cz-phone' + (가로 ? ' cz-wide' : '')); var bg = el('div', 'cz-bg'); phone.appendChild(bg);
     var gbox = el('div'); gbox.style.cssText = 'position:absolute;inset:0'; phone.appendChild(gbox);
+    var ttl = el('div'); ttl.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:16%;background:#15110e;color:#ffe600;display:none;align-items:center;justify-content:center;text-align:center;font-weight:800;font-size:3.6cqw;padding:0 8%;box-sizing:border-box'; phone.appendChild(ttl);
     var sub = el('div', 'cz-sub'); phone.appendChild(sub); var blk = el('div'); blk.style.cssText = 'position:absolute;inset:0;pointer-events:none'; phone.appendChild(blk);
     var tools = el('div', 'cz-pvtools'); var gl = el('label'); var gc = el('input'); gc.type = 'checkbox'; gc.checked = true; gl.appendChild(gc); gl.appendChild(document.createTextNode(' 유튜브가 쓰는 자리 점선으로 보기')); tools.appendChild(gl);
     var warn = el('ul', 'cz-warn'); warn.setAttribute('aria-live', 'polite');
@@ -68,13 +74,16 @@
 
     function 그리기미리보기() {
       var m = 합치기(선택, 종류), v = m.값;
+      var 제목형 = !가로 && (화면 === '제목고정형' || 화면 === '자동' && 종류 !== '상품쇼츠'), 띠형 = !가로 && 화면 === '자막바형';
+      ttl.style.display = 제목형 ? 'flex' : 'none'; ttl.textContent = 문구샘플;
       var box = RWLayout.자막상자(W, H, { 위치: 자막위치, 크기: v.자막크기 * Math.min(W, H) / 1080, 줄수: v.줄수, 줄길이: v.줄길이, 거리: v.자막거리, 가로: v.자막가로, 안전영역: !가로 });
       sub.style.cssText = 'left:' + ((box.x + box.w / 2) / W * 100) + '%;top:' + (box.y / H * 100) + '%;width:' + (box.w / W * 100) + '%;height:' + (box.h / H * 100) + '%;font-size:' + (v.자막크기 * 0.8 / 1080 * 100 * (가로 ? 0.5625 : 1)) + 'cqw;display:' + (v.자막끄기 ? 'none' : 'flex') + ';flex-direction:column;justify-content:flex-end;overflow:hidden;';   // 줄 칸을 잡고 글은 아래 칸부터 채운다
       sub.style.fontFamily = (글꼴들.find(function (g) { return g[0] === v.글꼴; }) || 글꼴들[0])[2];
       sub.style.fontWeight = v.자막모양 === '차분흰' || v.글꼴 === 'Black Han Sans' ? '500' : '800';
       sub.style.color = v.자막모양 === '굵은노랑' ? '#ffe600' : '#fff';
       sub.style.webkitTextStroke = v.자막모양 === '뉴스박스' ? '0' : (v.자막모양 === '차분흰' ? '0.5px #000' : '1.2px #000'); sub.style.paintOrder = 'stroke fill';
-      sub.textContent = ''; var 글줄 = el('div'); 글줄.style.cssText = 'display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:' + v.줄수 + ';overflow:hidden;width:fit-content;align-self:center;max-width:100%;background:' + (v.자막모양 === '뉴스박스' ? 'rgba(0,0,0,.75)' : 'none'); sub.appendChild(글줄);
+      if (띠형) { v = Object.assign({}, v, { 자막모양: '굵은흰' }); }
+      sub.textContent = ''; var 글줄 = el('div'); 글줄.style.cssText = 'display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:' + v.줄수 + ';overflow:hidden;width:fit-content;align-self:center;max-width:100%;background:' + (띠형 ? '#e2a23c' : v.자막모양 === '뉴스박스' ? 'rgba(0,0,0,.75)' : 'none') + (띠형 ? ';color:#1a1410;-webkit-text-stroke:0;padding:.3em .6em;width:100%' : ''); sub.appendChild(글줄);
       var 핵 = 핵심들.find(function (h) { return h[0] === v.핵심색; });
       var 줄 = 샘플.split(/(\s+)/); var 강조 = false;
       줄.forEach(function (w, i) { var s = el('span', '', w); if (핵 && 핵[2] && i === 2) s.style.color = 핵[2]; 글줄.appendChild(s); });
@@ -127,10 +136,16 @@
       직접.addEventListener('click', function () { delete 선택.템플릿; 갱신(); }); g.appendChild(직접); 눌림목록.push(function () { 직접.setAttribute('aria-pressed', String(!선택.템플릿)); });
       (템플릿목록 || []).filter(function (t) { return t.종류.indexOf(종류) >= 0; }).forEach(function (t) {
         var b = el('button', 'cz-opt'); b.type = 'button'; b.appendChild(el('b', '', t.이름)); var s = el('span', 'cz-sample', '가나다'); s.style.color = t.기본.자막모양 === '굵은노랑' ? '#ffe600' : 'var(--ink)'; b.appendChild(s); b.appendChild(el('small', '', t.설명));
-        b.addEventListener('click', function () { 선택.템플릿 = t.id; ['자막모양', '글꼴', '자막크기', '줄수', '줄길이', '핵심색'].forEach(function (k) { delete 선택[k]; }); if (!위치바꿈) 자막위치 = t.자막위치 || 자막위치; 갱신(); });
+        b.addEventListener('click', function () { 선택.템플릿 = t.id; if (화면가능(t.화면구성)) 화면 = t.화면구성; ['자막모양', '글꼴', '자막크기', '줄수', '줄길이', '핵심색'].forEach(function (k) { delete 선택[k]; }); if (!위치바꿈) 자막위치 = t.자막위치 || 자막위치; 갱신(); });
         g.appendChild(b); 눌림목록.push(function () { b.setAttribute('aria-pressed', String(선택.템플릿 === t.id)); });
       });
-      var c2 = 카드('2. 글자 모양');
+      var c2a = 카드('2. 화면 구성', 가로 ? '가로 영상은 장면을 화면 가득 보여줘요' : '제목·자막이 놓이는 틀');
+      화면목록.forEach(function (it) {
+        var b = el('button', 'cz-chip', it.값 === '자동' ? '자동' : it.값.replace('형', '')); b.type = 'button'; b.title = 화면설명[it.값] || ''; b.disabled = !!it.꺼짐; b.style.opacity = it.꺼짐 ? '.5' : '';
+        b.addEventListener('click', function () { 화면 = it.값; 갱신(); }); 눌림목록.push(function () { b.setAttribute('aria-pressed', String(화면 === it.값)); });
+        var 칸 = el('div'); 칸.style.cssText = 'display:inline-grid;gap:2px;margin:0 8px 8px 0;justify-items:start'; 칸.appendChild(b); 칸.appendChild(el('small', 'cz-hint', 화면설명[it.값] || '')); c2a.appendChild(칸);
+      });
+      var c2 = 카드('3. 글자 모양');
       var gm = el('div', 'cz-grid'); c2.appendChild(gm);
       모양들.forEach(function (m) { var b = el('button', 'cz-opt'); b.type = 'button'; var s = el('span', 'cz-sample', '가나다'); s.style.fontWeight = m[0] === '차분흰' ? '500' : '800'; s.style.color = m[0] === '굵은노랑' ? '#ffe600' : 'var(--ink)'; if (m[0] === '뉴스박스') { s.style.background = '#000a'; s.style.padding = '0 6px'; s.style.borderRadius = '4px'; } b.appendChild(s); b.appendChild(el('small', '', m[1]));
         b.addEventListener('click', function () { 선택.자막모양 = m[0]; 갱신(); }); gm.appendChild(b); 눌림목록.push(function () { b.setAttribute('aria-pressed', String(합치기(선택, 종류).값.자막모양 === m[0])); }); });
@@ -139,7 +154,7 @@
       var r2 = el('div', 'cz-row'); r2.appendChild(el('label', '', '단어 색')); c2.appendChild(r2); var cw = el('div', 'cz-chips'); r2.appendChild(cw);
       칩묶음(cw, 핵심들, function () { return 합치기(선택, 종류).값.핵심색; }, function (v) { 선택.핵심색 = v; }, '핵심 단어 색');
       c2.appendChild(el('p', 'cz-hint', '대본에서 중요한 단어에 이 색이 칠해져요'));
-      var c3 = 카드('3. 크기와 줄', '가운데가 기본이에요');
+      var c3 = 카드('4. 크기와 줄', '가운데가 기본이에요');
       // 크기: 숫자 + 슬라이더(가운데=기본 77, 오른쪽=크게)
       var rs = el('div', 'cz-row'); rs.appendChild(el('label', '', '글자 크기')); var sl = el('input'); sl.type = 'range'; sl.min = -50; sl.max = 50; sl.step = 1; sl.setAttribute('aria-label', '글자 크기 (가운데가 기본)'); var nm = el('input'); nm.type = 'number'; nm.min = 20; nm.max = 200; nm.setAttribute('aria-label', '글자 크기 숫자'); rs.appendChild(sl); rs.appendChild(nm); c3.appendChild(rs);
       sl.addEventListener('input', function () { 선택.자막크기 = Math.round(수(기준값().자막크기 + Number(sl.value) * 0.84, 20, 200, 77)); 갱신(); });
@@ -153,7 +168,7 @@
       nw.addEventListener('input', function () { if (nw.value !== '') { 선택.줄길이 = Math.round(수(nw.value, 50, 100, 76)) / 100; 그리기미리보기(); sw.value = String(수((선택.줄길이 - 기준값().줄길이) / 0.0048, -50, 50, 0)); } });
       nw.addEventListener('change', 갱신);
       눌림목록.push(function () { var l = 합치기(선택, 종류).값.줄길이; sw.value = String(수((l - 기준값().줄길이) / 0.0048, -50, 50, 0)); if (document.activeElement !== nw) nw.value = String(Math.round(l * 100)); });
-      var c4 = 카드('4. 자막 위치', '자막이 나올 자리');
+      var c4 = 카드('5. 자막 위치', '자막이 나올 자리');
       var rp = el('div', 'cz-chips'); c4.appendChild(rp);
       칩묶음(rp, 위치들, function () { return 자막위치; }, function (v) { 자막위치 = v; 위치바꿈 = true; }, '자막 위치');
       function 자막슬라이더(이름, 키, 읽기, 쓰기, 최소, 최대, 보임) {
@@ -167,7 +182,7 @@
       var rk = el('div', 'cz-row'); rk.appendChild(el('label', '', '자막')); var ck = el('div', 'cz-chips'); rk.appendChild(ck); c4.appendChild(rk);
       [[false, '보이기'], [true, '끄기']].forEach(function (it) { var b = el('button', 'cz-chip', it[1]); b.type = 'button'; b.addEventListener('click', function () { if (it[0]) 선택.자막끄기 = true; else delete 선택.자막끄기; 갱신(); }); ck.appendChild(b); 눌림목록.push(function () { b.setAttribute('aria-pressed', String(!!선택.자막끄기 === it[0])); }); });
       c4.appendChild(el('p', 'cz-hint', '자막을 끄면 목소리만 나오고 고정 글자는 그대로 보여요'));
-      var c5 = 카드('5. 고정 글자', '영상 내내 보이는 글 · 최대 4개 (선택)');
+      var c5 = 카드('6. 고정 글자', '영상 내내 보이는 글 · 최대 4개 (선택)');
       var 목록칸 = el('div'); 목록칸.style.cssText = 'display:grid;gap:12px'; c5.appendChild(목록칸);
       var 추가 = el('button', 'cz-btn', '+ 글자 추가'); 추가.type = 'button'; c5.appendChild(추가);
       function 블록그리기() {
@@ -204,11 +219,11 @@
     x.addEventListener('click', function () { 닫기(null); });
     ov.addEventListener('mousedown', function (e) { if (e.target === ov) 닫기(null); });
     gc.addEventListener('change', function () { 가이드켜짐 = gc.checked; 그리기미리보기(); });
-    reset.addEventListener('click', function () { 선택 = {}; 자막위치 = '아래'; 위치바꿈 = false; 초기화함 = true; 갱신(); });
+    reset.addEventListener('click', function () { 선택 = {}; 화면 = 화면목록[0].값; 자막위치 = '아래'; 위치바꿈 = false; 초기화함 = true; 갱신(); });
     function 적용상태() { var 막힘 = 블록검사().some(Boolean); ok.disabled = 막힘; ok.style.opacity = 막힘 ? '.5' : ''; ok.title = 막힘 ? '고정 글자의 쓸 수 없는 표현을 먼저 고쳐 주세요' : ''; }
     ok.addEventListener('click', function () { if (ok.disabled) return;
       if (선택.블록) { 선택.블록 = 선택.블록.filter(function (b) { return String(b.글 || '').trim(); }).map(function (b) { return { 글: String(b.글).trim(), 위치: b.위치, 크기: b.크기, 모양: b.모양, 글꼴: b.글꼴 }; }); if (!선택.블록.length) delete 선택.블록; }
-      var m = 합치기(선택, 종류); 닫기({ compose: Object.assign({}, 선택), 자막위치: 자막위치, 화면구성: m.템플릿 ? m.템플릿.화면구성 : null, 위치바뀜: 자막위치 !== 처음위치, 초기화: 초기화함 && !Object.keys(선택).length && 자막위치 === '아래' }); });
+      var m = 합치기(선택, 종류); 닫기({ compose: Object.assign({}, 선택), 자막위치: 자막위치, 화면구성: 화면, 위치바뀜: 자막위치 !== 처음위치, 초기화: 초기화함 && !Object.keys(선택).length && 자막위치 === '아래' }); });
     document.addEventListener('keydown', 키);
     var 이전스크롤 = document.body.style.overflow; document.body.style.overflow = 'hidden'; dlg.tabIndex = -1;
     document.body.appendChild(ov); dlg.focus();
