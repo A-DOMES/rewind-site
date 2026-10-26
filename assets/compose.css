@@ -1,0 +1,54 @@
+/* 영상 꾸미기(RWCompose) — 사이트 테마 토큰만 쓴다 */
+.cz-ov { position: fixed; inset: 0; z-index: 1000; background: color-mix(in srgb, var(--bg) 82%, transparent); display: flex; align-items: stretch; justify-content: center; }
+.cz-dlg { width: min(1180px, 100%); max-height: 100%; min-height: 0; margin: auto; background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-lg); display: grid; grid-template-columns: minmax(300px, 380px) 1fr; grid-template-rows: auto 1fr auto; overflow: hidden; box-shadow: var(--sh-pop); }
+.cz-head { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); padding: var(--sp-3) var(--sp-4); border-bottom: 1px solid var(--line); }
+.cz-head h2 { margin: 0; font-size: var(--fs-md); }
+.cz-head small { color: var(--ink-dim); display: block; font-size: var(--fs-xs); }
+.cz-x { min-width: 44px; min-height: 44px; border: 1px solid var(--line); background: var(--bg-raised); color: var(--ink); border-radius: var(--r-md); cursor: pointer; font-size: 1.2rem; }
+.cz-pv { padding: var(--sp-4); display: flex; flex-direction: column; align-items: center; gap: var(--sp-3); background: var(--bg-raised); border-right: 1px solid var(--line); overflow: auto; }
+.cz-phone { position: relative; width: 216px; aspect-ratio: 9 / 16; border: 2px solid var(--line); border-radius: 22px; overflow: hidden; background: #000; flex: none; container-type: inline-size; }
+.cz-phone.cz-wide { aspect-ratio: 16 / 9; width: 100%; max-width: 340px; border-radius: 12px; }
+.cz-bg { position: absolute; inset: 0; background: linear-gradient(135deg, #3b4a63, #8c6a4a); }
+.cz-g { position: absolute; border: 1.5px dashed rgba(255,255,255,.6); box-sizing: border-box; pointer-events: none; }
+.cz-g span { position: absolute; left: 3px; top: 1px; font-size: 8px; background: rgba(0,0,0,.65); color: #fff; padding: 0 3px; border-radius: 2px; white-space: nowrap; }
+.cz-sub { position: absolute; transform: translateX(-50%); text-align: center; line-height: 1.15; word-break: keep-all; }
+.cz-pvtools { display: flex; flex-wrap: wrap; gap: var(--sp-2); align-items: center; justify-content: center; font-size: var(--fs-xs); color: var(--ink-dim); }
+.cz-warn { margin: 0; padding: 0; list-style: none; width: 100%; font-size: var(--fs-xs); color: var(--ink-dim); display: grid; gap: var(--sp-1); }
+.cz-warn li { border-left: 3px solid var(--gold); padding-left: var(--sp-2); }
+.cz-note { font-size: var(--fs-2xs); color: var(--ink-faint); text-align: center; margin: 0; }
+.cz-body { overflow: auto; padding: var(--sp-4); display: grid; gap: var(--sp-4); align-content: start; }
+.cz-card { background: var(--bg-raised); border: 1px solid var(--line); border-radius: var(--r-lg); padding: var(--sp-4); display: grid; gap: var(--sp-3); }
+.cz-card h3 { margin: 0; font-size: var(--fs-base); }
+.cz-card h3 small { font-weight: 400; color: var(--ink-dim); margin-left: var(--sp-2); }
+.cz-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--sp-3); }
+.cz-opt { position: relative; display: grid; gap: var(--sp-1); align-content: start; text-align: left; min-height: 44px; padding: var(--sp-3); background: var(--bg-input); border: 2px solid var(--line); border-radius: var(--r-md); color: var(--ink); cursor: pointer; font: inherit; transition: transform .12s, border-color .12s; }
+.cz-opt:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--gold) 60%, var(--line)); }
+.cz-opt[aria-pressed="true"] { border-color: var(--gold); background: var(--accent-soft); }
+.cz-opt[aria-pressed="true"]::after { content: "✓"; position: absolute; right: 8px; top: 6px; color: var(--gold); font-weight: 700; }
+.cz-opt b { font-size: var(--fs-sm); } .cz-opt small { color: var(--ink-dim); font-size: var(--fs-xs); }
+.cz-sample { font-size: 1.15rem; font-weight: 800; }
+.cz-row { display: flex; align-items: center; gap: var(--sp-3); flex-wrap: wrap; }
+.cz-row label { min-width: 5.5em; color: var(--ink-dim); font-size: var(--fs-sm); }
+.cz-row input[type=range] { flex: 1 1 160px; min-height: 44px; accent-color: var(--gold); }
+.cz-row input[type=number] { width: 5.5em; min-height: 44px; background: var(--bg-input); color: var(--ink); border: 1px solid var(--line); border-radius: var(--r-md); padding: 0 var(--sp-2); }
+.cz-chips { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+.cz-chip { min-height: 44px; padding: 0 var(--sp-4); background: var(--bg-input); color: var(--ink); border: 2px solid var(--line); border-radius: var(--r-pill); cursor: pointer; font: inherit; transition: border-color .12s; }
+.cz-chip:hover { border-color: color-mix(in srgb, var(--gold) 60%, var(--line)); }
+.cz-chip[aria-pressed="true"] { border-color: var(--gold); background: var(--accent-soft); }
+.cz-foot { grid-column: 1 / -1; display: flex; gap: var(--sp-3); justify-content: flex-end; align-items: center; padding: var(--sp-3) var(--sp-4); border-top: 1px solid var(--line); background: var(--bg); }
+.cz-btn { min-height: 48px; padding: 0 var(--sp-5); border-radius: var(--r-md); border: 1px solid var(--line); background: transparent; color: var(--ink); cursor: pointer; font: inherit; }
+.cz-btn:hover { border-color: var(--gold); }
+.cz-btn.cz-main { background: var(--gold); color: var(--on-gold); border-color: var(--gold); font-weight: 700; }
+.cz-hint { color: var(--ink-dim); font-size: var(--fs-xs); margin: 0; }
+.cz-open { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); flex-wrap: wrap; }
+.cz-open .cz-sum { color: var(--ink-dim); font-size: var(--fs-sm); }
+.cz-ov :focus-visible, .cz-open :focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+@media (max-width: 760px) {
+  .cz-dlg { grid-template-columns: 1fr; grid-template-rows: auto auto minmax(0, 1fr) auto; border-radius: 0; height: 100%; }
+  .cz-pv { overflow: visible; border-right: 0; border-bottom: 1px solid var(--line); padding: var(--sp-2) var(--sp-3); }
+  .cz-phone { width: 128px; }
+  .cz-pv .cz-note, .cz-pv .cz-warn { display: none; }
+  .cz-ov.cz-showwarn .cz-pv .cz-warn { display: grid; }
+  .cz-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (prefers-reduced-motion: reduce) { .cz-opt, .cz-chip { transition: none; } .cz-opt:hover { transform: none; } }
