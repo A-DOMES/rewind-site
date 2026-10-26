@@ -51,3 +51,15 @@
   .cz-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (prefers-reduced-motion: reduce) { .cz-opt, .cz-chip { transition: none; } .cz-opt:hover { transform: none; } }
+
+/* 입구 카드: 화면 꾸미기 안에서 눈에 띄게 */
+.cz-entry { display: flex; align-items: center; gap: var(--sp-3); padding: var(--sp-4); border: 1px solid var(--line); border-left: 4px solid var(--gold); border-radius: var(--r-lg); background: var(--bg-raised); transition: border-color .15s, background .15s, transform .15s; }
+.cz-entry:hover, .cz-entry:focus-within { border-color: var(--gold); background: var(--bg-input, var(--bg-raised)); }
+.cz-entry-ico { flex: none; width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: color-mix(in srgb, var(--gold) 16%, transparent); }
+.cz-entry-ico svg { width: 26px; height: 26px; fill: none; stroke: var(--gold); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.cz-entry-txt { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.cz-entry-txt b { font-size: var(--fs-base); }
+.cz-entry-txt small { color: var(--ink-dim); font-size: var(--fs-sm); }
+.cz-entry-txt .cz-sum { color: var(--ink); font-size: var(--fs-sm); overflow-wrap: anywhere; }
+.cz-entry .cz-btn { flex: none; min-height: 44px; }
+@media (max-width: 480px) { .cz-entry { flex-wrap: wrap; } .cz-entry .cz-btn { width: 100%; } }
