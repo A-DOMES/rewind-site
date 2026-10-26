@@ -1638,10 +1638,10 @@
 <script src="./assets/voice-picker.js?v=20261025"></script>
 <link rel="stylesheet" href="./assets/guide.css?v=20261025">
 <script src="./assets/guide.js?v=20261025"></script>
-<link rel="stylesheet" href="./assets/compose.css?v=20261027">
+<link rel="stylesheet" href="./assets/compose.css?v=20261029">
 <script src="./assets/shared/layout.js?v=20261027"></script>
 <script src="./assets/shared/phrase.js?v=20261026"></script>
-<script src="./assets/compose.js?v=20261028"></script>
+<script src="./assets/compose.js?v=20261029"></script>
 <script src="./assets/rw-consent.js"></script>
 </head>
 <body>
@@ -2172,10 +2172,16 @@
   let answers = {};
   let mediaExtra = null;   // 일반 쇼츠 '내 사진·영상': { media, people } (상담 챗봇에는 보내지 않는다)
   let composeKind = '';   // composeState 가 어느 폼에서 만들어졌는지('일반'|'상품'): 다른 폼으로 바꾸면 보내지 않는다
-  function composeSumText(상품, 상태) {   // 입구 카드 요약: 꾸미기에서 고른 값 + 화면 구성·자막 위치(라디오에 저장)
+  function composeSumText(상품, 상태) {   // 입구 카드 요약: 꾸미기에서 고른 값 + 화면 구성·자막 위치(라디오에 저장). 상품이 문자열('야담'·'수면음악')이면 라디오 없이 값만
     if (!window.RWCompose) return '기본 모양 (바꾸지 않았어요)';
+    if (typeof 상품 === 'string' && 상품 !== '') return RWCompose.요약(상태);
     const 값 = n => (document.querySelector(`input[name="${n}"]:checked`) || {}).value || '';
     return RWCompose.요약(상태, { 화면구성: 값(상품 ? 'pd-layout' : 'df-layout'), 자막위치: 값(상품 ? 'vp-subPos' : 'df-captionPos') });
+  }
+  const COMPOSE_ICON = '<i class="cz-entry-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 11h10M7 15h5"/><path d="M17.5 14.2l.6 1.2 1.2.6-1.2.6-.6 1.2-.6-1.2-1.2-.6 1.2-.6z"/></svg></i>';
+  function composeEntryHtml(pre, kind) {   // 야담('yd')·수면음악('sl')용 입구 카드. 값은 composeState 에 종류(kind)와 함께 저장된다
+    const 상태 = composeKind === kind ? composeState : null;
+    return `<div class="df-field" data-pw="4"><div class="cz-entry">${COMPOSE_ICON}<div class="cz-entry-txt"><b>영상 꾸미기</b><small>자막 모양 · 자막 자리 · 고정 글자</small><span class="cz-sum" id="${pre}-compose-sum" aria-live="polite">${composeSumText(kind, 상태).replace(/[<>&]/g, '')}</span></div><button type="button" class="cz-btn" id="${pre}-compose-open">꾸미기</button></div></div>`;
   }
   let composeState = null;   // 영상 꾸미기(RWCompose)에서 고른 값. 건드린 것만 들어 있고, 비어 있으면 보내지 않는다(productExtra처럼 챗봇에는 보내지 않고 접수 때 합친다)
   let productExtra = null;   // 상품쇼츠: 사진·영상 목록, 설명·후기, 판매 유형, 권리·사람 확인 (상담 챗봇에는 보내지 않는다)
@@ -3271,7 +3277,7 @@
       if (planMode === 'paid' && /^(true|예|네|응|yes|y|1|원해요|만들어)/i.test(String(answers.thumbnail ?? '').trim())) payload.thumbnail = 'TRUE';
       if (answers.layout && answers.layout !== '자동') payload.layout = answers.layout;
       if (answers.captionPos && answers.captionPos !== '자동') payload.captionPos = answers.captionPos;
-      if (composeState && Object.keys(composeState).length && answers.form !== '롱폼' && !answers.videoType && composeKind === (answers.productShort ? '상품' : '일반')) payload.compose = composeState;   // 영상 꾸미기: 건드린 값만. 롱폼·상품쇼츠(S5b)·야담류는 아직 보내지 않는다
+      if (composeState && Object.keys(composeState).length && ((answers.form !== '롱폼' && !answers.videoType && composeKind === (answers.productShort ? '상품' : '일반')) || (['야담', '수면음악'].includes(answers.videoType) && composeKind === answers.videoType))) payload.compose = composeState;   // 영상 꾸미기: 건드린 값만. 롱폼·상품쇼츠(S5b)·야담류는 아직 보내지 않는다
       if (planMode === 'paid' && MOTION_RATE[answers.motion]) payload.motion = answers.motion;
       if (answers.productShort && productExtra) {   // 상품쇼츠는 입력 화면에서 읽어 둔 값이 기준이다 (챗봇이 돌려준 값으로 바뀌지 않게)
         const pe = productExtra;
@@ -3842,6 +3848,14 @@
   // 영상 꾸미기: 버튼은 폼이 다시 그려질 때마다 새로 생기므로 문서 전체에서 받는다
   if (window.RWCompose) RWCompose.불러오기();
   document.addEventListener('click', ev => {
+    const 긴 = ev.target.closest && ev.target.closest('#yd-compose-open, #sl-compose-open');
+    if (긴 && window.RWCompose) {   // 야담·수면음악(분위기): 가로 16:9. 자막 자리는 꾸미기가 정한다(별도 선택 칸 없음)
+      const 이름 = 긴.id === 'yd-compose-open' ? '야담' : '수면음악', 합 = document.getElementById(긴.id.replace('open', 'sum'));
+      const 값 = composeKind === 이름 && composeState ? composeState : {}, 위 = 값.자막위치 || '아래';
+      RWCompose.open({ 종류: 이름 === '야담' ? '야담' : '수면', 화면: '가로', 화면목록: [{ 값: '전체화면형' }], 화면구성: '전체화면형', 값, 자막위치: 위, 자막위치저장: true, 샘플: document.getElementById('df-topic')?.value || '',
+        onDone: res => { const c = Object.assign({}, res.compose); if (res.자막위치 && res.자막위치 !== '아래') c.자막위치 = res.자막위치; composeState = Object.keys(c).length ? c : null; composeKind = composeState ? 이름 : ''; if (합) 합.textContent = composeSumText(이름, composeState); saveChatState(); } });
+      return;
+    }
     const b = ev.target.closest && ev.target.closest('#df-compose-open, #pd-compose-open'); if (!b || !window.RWCompose) return;
     const 상품 = b.id === 'pd-compose-open', 이름들 = 상품 ? { 구성: 'pd-layout', 자막: 'vp-subPos', 요약: 'pd-compose-sum' } : { 구성: 'df-layout', 자막: 'df-captionPos', 요약: 'df-compose-sum' };
     const sum = document.getElementById(이름들.요약), 종류표 = 상품 ? '상품' : '일반';
@@ -4306,7 +4320,7 @@
         </div>
         <div class="df-subfield" id="df-pc-field" hidden><label>사진은 몇 장 쓸까요 <span class="opt">자동이 가장 좋아요</span></label>
           <div class="df-chipset" id="df-pc-chips" role="radiogroup" aria-label="사진 장수"></div><p class="df-hint" id="df-pc-note"></p></div></div>
-    <p class="df-hint df-hide" id="mo-nosound" data-pw="4">이 영상 구성은 소리를 따로 정하지 않아요. 다음 단계로 넘어가 주세요.</p></section>`;
+    <p class="df-hint df-hide" id="mo-nosound" data-pw="4">이 영상 구성은 소리를 따로 정하지 않아요. 다음 단계로 넘어가 주세요.</p>${composeEntryHtml('sl', '수면음악')}</section>`;
   }
   function yadamSectionHtml() {
     const tier = t => `<label><input type="radio" name="df-ytier" value="${t}"${t === '표준형' ? ' checked' : ''}><span class="tcard"><b>${t}${t === '표준형' ? ' · 추천' : ''}</b><small><span class="yts" data-t="${t}"></span><br><span class="ytp" data-t="${t}"></span></small></span></label>`;
@@ -4327,7 +4341,7 @@
       <div class="df-field" data-pw="3"><label>품질 등급</label><div class="df-chipset" role="radiogroup" aria-label="품질 등급">${tier('경제형')}${tier('표준형')}${tier('고급형')}</div></div>
       <div class="df-field" data-pw="4"><label>이야기꾼 목소리</label><select id="df-yvoice"><option value="남성">남성 · 차분한 이야기꾼</option><option value="여성">여성 · 부드러운 이야기꾼</option></select></div>
       <p class="df-hint" data-pw="2">이야기는 조선 배경의 창작 이야기나 널리 알려진 민담으로 만들어요. 실존 인물·실제 사건은 넣지 않아요. 자막이 함께 들어가고, 분위기 있는 국악풍 배경음악이 작게 깔려요.</p>
-    </section>`;
+    ${composeEntryHtml('yd', '야담')}</section>`;
   }
   // ===== 상품쇼츠: 고객이 올린 사진·영상으로 만드는 제품 소개 세로 쇼츠 =====
   // 고객 공개 전에는 사장님 시험용: 주소에 ?prod=1 이 있거나 window.__rwProdReady=true 일 때만 열린다. 시험을 통과하면 이 함수를 true 로 바꾼다.

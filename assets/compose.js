@@ -4,7 +4,7 @@
  */
 (function () {
   'use strict';
-  var VER = '?v=20261028';
+  var VER = '?v=20261029';
   var 기본 = { 자막모양: '굵은흰', 글꼴: 'Noto Sans CJK KR', 자막크기: 77, 줄수: 1, 줄길이: 0.76, 핵심색: '없음' };
   var 모양들 = [['굵은흰', '굵은 흰색'], ['굵은노랑', '굵은 노랑'], ['차분흰', '차분한 흰색'], ['뉴스박스', '뉴스 박스']];
   var 글꼴들 = [['Noto Sans CJK KR', '고딕', "'Noto Sans KR','Noto Sans CJK KR',sans-serif"], ['Noto Serif KR', '명조', "'Noto Serif KR','Noto Serif CJK KR',serif"], ['Black Han Sans', '굵은 제목', "'Black Han Sans','Noto Sans KR',sans-serif"]];
@@ -16,16 +16,18 @@
 
   function 템플릿불러오기() {
     if (불러옴) return 불러옴;
-    불러옴 = fetch('./assets/shared/templates-shorts.json' + VER).then(function (r) { return r.ok ? r.json() : []; }).catch(function () { return []; }).then(function (t) { return (템플릿목록 = Array.isArray(t) ? t : []); });
+    var 읽기 = function (f) { return fetch('./assets/shared/' + f + VER).then(function (r) { return r.ok ? r.json() : []; }).catch(function () { return []; }); };
+    불러옴 = Promise.all([읽기('templates-shorts.json'), 읽기('templates-long.json')]).then(function (t) { return (템플릿목록 = [].concat(Array.isArray(t[0]) ? t[0] : [], Array.isArray(t[1]) ? t[1] : [])); });
     return 불러옴;
   }
   function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
   var 수 = function (x, a, b, d) { x = Number(x); return Number.isFinite(x) ? Math.min(b, Math.max(a, x)) : d; };
 
   // 고른 값 + 템플릿 기본 + 기본값 → 실제로 보이는 값
+  var 현재가로 = false;   // 가로 영상은 줄 길이 기본이 화면 폭의 88%(서버와 같음)
   function 합치기(선택, 종류) {
     var t = (템플릿목록 || []).find(function (x) { return x.id === 선택.템플릿 && (!종류 || x.종류.indexOf(종류) >= 0); });
-    var 값 = Object.assign({}, 기본, t ? t.기본 : {});
+    var 값 = Object.assign({}, 기본, 현재가로 ? { 줄길이: 0.88 } : {}, t ? t.기본 : {});
     ['자막모양', '글꼴', '자막크기', '줄수', '줄길이', '핵심색', '자막거리', '자막가로', '자막끄기'].forEach(function (k) { if (선택[k] !== undefined) 값[k] = 선택[k]; });
     if (t && t.허용스타일 && t.허용스타일.indexOf(값.자막모양) < 0) 값.자막모양 = t.기본.자막모양;
     return { 값: 값, 템플릿: t || null };
@@ -41,6 +43,7 @@
     if (선택.자막모양) 조각.push(선택.자막모양 === '뉴스박스' ? '뉴스 박스' : 선택.자막모양);
     if (선택.자막크기) 조각.push('크기 ' + 선택.자막크기);
     if (선택.줄수) 조각.push(선택.줄수 + '줄');
+    if (선택.자막위치 && 선택.자막위치 !== '아래') 조각.push('자막 ' + 선택.자막위치);
     if (선택.자막끄기) 조각.push('자막 끄기');
     else if (선택.자막거리 !== undefined || 선택.자막가로 !== undefined) 조각.push('자막 자리 바꿈');
     if (선택.블록 && 선택.블록.length) 조각.push('고정 글자 ' + 선택.블록.length + '개');
@@ -49,7 +52,7 @@
 
   function open(opt) {
     opt = opt || {};
-    var 종류 = opt.종류 || '쇼츠', 가로 = opt.화면 === '가로';
+    var 종류 = opt.종류 || '쇼츠', 가로 = opt.화면 === '가로'; 현재가로 = 가로;
     var 화면목록 = Array.isArray(opt.화면목록) && opt.화면목록.length ? opt.화면목록 : [{ 값: '자동' }], 화면 = opt.화면구성 || 화면목록[0].값, 문구샘플 = String(opt.문구 || '').trim() || '화면 위 제목 문구';
     function 화면가능(v) { return 화면목록.some(function (x) { return x.값 === v && !x.꺼짐; }); }
     var 선택 = Object.assign({}, opt.값 || {}); var 자막위치 = opt.자막위치 || '아래'; var 처음위치 = 자막위치, 위치바꿈 = false, 초기화함 = false; var 가이드켜짐 = true;
