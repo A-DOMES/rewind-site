@@ -97,12 +97,13 @@
     var pv = el('div', 'cz-pv'); var phone = el('div', 'cz-phone' + (가로 ? ' cz-wide' : '')); var bg = el('div', 'cz-bg'); phone.appendChild(bg);
     var gbox = el('div'); gbox.style.cssText = 'position:absolute;inset:0'; phone.appendChild(gbox);
     var ttl = el('div'); ttl.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:18.4%;background:#15110e;display:none;overflow:hidden'; var ttx = el('div'); ttx.style.cssText = 'position:absolute;transform:translateX(-50%);text-align:center;font-weight:800;white-space:pre'; ttl.appendChild(ttx); phone.appendChild(ttl);
+    var 띠손잡이 = el('div', 'cz-bandh'); 띠손잡이.style.display = 'none'; phone.appendChild(띠손잡이);
     var ctr = el('div', 'cz-ctr'); ctr.style.display = 'none'; phone.insertBefore(ctr, gbox);
     var sub = el('div', 'cz-sub'); phone.appendChild(sub); var blk = el('div'); blk.style.cssText = 'position:absolute;inset:0;pointer-events:none'; phone.appendChild(blk);
     var tools = el('div', 'cz-pvtools'); var gl = el('label'); var gc = el('input'); gc.type = 'checkbox'; gc.checked = true; gl.appendChild(gc); gl.appendChild(document.createTextNode(' 유튜브가 쓰는 자리 점선으로 보기')); tools.appendChild(gl);
     var 다시 = el('button', 'cz-btn'); 다시.type = 'button'; 다시.textContent = '▶ 읽는 효과 다시 보기'; 다시.style.cssText = 'min-height:44px;display:none'; tools.appendChild(다시);
     var warn = el('ul', 'cz-warn'); warn.setAttribute('aria-live', 'polite');
-    pv.appendChild(phone); pv.appendChild(tools); pv.appendChild(warn); pv.appendChild(el('p', 'cz-note', '실제 영상은 조금 다를 수 있어요. 점선 자리를 침범해도 만들 수 있어요.'));
+    pv.appendChild(phone); pv.appendChild(tools); pv.appendChild(warn); pv.appendChild(el('p', 'cz-note', '실제 영상은 조금 다를 수 있어요. 점선 자리를 침범해도 만들 수 있어요.')); pv.appendChild(el('p', 'cz-note', '제목·자막·고정 글자를 끌어서 옮길 수 있어요. 제목 띠 아래쪽 손잡이를 끌면 높이가 바뀌어요.'));
     var body = el('div', 'cz-body');
     var foot = el('div', 'cz-foot'); var reset = el('button', 'cz-btn', '처음 모양으로'); reset.type = 'button'; var ok = el('button', 'cz-btn cz-main', '적용하기'); ok.type = 'button'; foot.appendChild(reset); foot.appendChild(ok);
     dlg.appendChild(head); dlg.appendChild(pv); dlg.appendChild(body); dlg.appendChild(foot); ov.appendChild(dlg);
@@ -114,6 +115,8 @@
       var 줄들 = 제목줄(문구샘플), 상자 = RWLayout.제목상자(W, H, { 줄수: 줄들.length, 최대폭: Math.max.apply(null, 줄들.map(제목폭).concat([1])), 띠: 제목형, 높이: v.제목높이, 크기: v.제목크기, 위: v.제목위, 가로: v.제목가로 });
       ttl.style.background = 가운데형 ? 'transparent' : '#15110e'; ttl.style.height = 가운데형 ? '20%' : (상자.띠 / H * 100) + '%';
       ttx.textContent = 줄들.join('\n'); ttx.style.color = 가운데형 ? '#fff' : '#ffe600'; ttx.style.textShadow = 가운데형 ? '0 1px 4px rgba(0,0,0,.8)' : 'none';
+      제목상태 = { 상자: 상자, 제목형: 제목형, 폭: Math.max.apply(null, 줄들.map(제목폭).concat([1])) * 상자.크기 };
+      띠손잡이.style.display = 제목형 ? 'block' : 'none'; 띠손잡이.style.top = (상자.띠 / H * 100) + '%';
       ttx.style.fontSize = (상자.크기 * 0.66 / W * 100) + 'cqw'; ttx.style.lineHeight = (상자.크기 / W * 100) + 'cqw';   // ASS 의 크기는 줄 높이, 한글 폭은 그 0.66배(서버 render.js 글자폭과 같음)
        ttx.style.left = (상자.x / W * 100) + '%'; ttx.style.top = ((제목형 ? 상자.위 : H * 0.133) / H * 100) + '%';
       ctr.style.display = 가운데형 ? 'block' : 'none'; bg.style.filter = 가운데형 ? 'blur(5px) brightness(.7)' : ''; bg.style.transform = 가운데형 ? 'scale(1.12)' : '';
@@ -138,6 +141,7 @@
         var px = b.크기 * Math.min(W, H) / 1080, bs = RWLayout.블록상자(W, H, b.위치, px, Math.max(1, Math.ceil([].concat(글자).join('').length * 0.66 * px / (W * 0.9))));
         var d = el('div', 'cz-sub', 글자); d.style.cssText = 'left:' + (bs.cx / W * 100) + '%;top:' + (bs.y / H * 100) + '%;width:' + (bs.w / W * 100) + '%;font-size:' + (b.크기 * 0.8 / 1080 * 100 * (가로 ? 0.5625 : 1)) + 'cqw;font-weight:' + 모양겉(b.모양).w + ';color:' + (헥스.test(b.색 || '') ? b.색 : 모양겉(b.모양).c) + ';-webkit-text-stroke:' + 모양겉(b.모양).s + ';paint-order:stroke fill;text-shadow:' + (모양겉(b.모양).sh || 'none') + ';background:' + (모양겉(b.모양).bg || 'none') + ';font-family:' + (글꼴들.find(function (g) { return g[0] === b.글꼴; }) || 글꼴들[0])[2];
         blk.appendChild(d);
+        끌기(d, function (dx, dy) { b.위치.가로 = 한계(b.위치.가로 + dx, 0, 1); if (b.위치.기준 !== '가운데') b.위치.거리 = 한계(b.위치.거리 + (b.위치.기준 === '위' ? dy : -dy), 0, 0.45); }, '고정 글자 ' + (i + 1));
         if (RWLayout.가이드(W, H).some(function (g) { return RWLayout.겹침비(bs, g) > 0.1; })) 블록경고.push('고정 글자 ' + (i + 1) + '번이 유튜브가 쓰는 자리와 겹쳐요. 그대로 만들 수 있어요');
       });
       warn.textContent = '';
@@ -160,6 +164,38 @@
       });
       return 결과;
     }
+    var 블록다시 = function () {};   // 만들기() 안의 블록그리기를 가리킨다
+    var 제목상태 = null;   // 마지막으로 그린 제목 상자(끌기가 쓴다)
+    var 한계 = function (x, a, b) { return Math.min(b, Math.max(a, x)); }, 둘째 = function (x) { return Math.round(x * 100) / 100; };
+    // 미리보기 끌기: 눌러서 끌면 오른쪽 슬라이더와 같은 값이 바뀐다. 방향키로도 움직인다. 끄는 동안 요소가 다시 그려져도 이어지도록 문서에서 움직임을 듣는다
+    function 끌기(요소, 이동, 이름) {
+      요소.classList.add('cz-drag'); 요소.tabIndex = 0; 요소.setAttribute('role', 'button'); 요소.setAttribute('aria-label', 이름 + ' (끌거나 방향키로 옮겨요)'); 요소.style.pointerEvents = 'auto';
+      요소.addEventListener('pointerdown', function (e) {
+        if (e.button !== undefined && e.button !== 0) return; e.preventDefault(); var 이전x = e.clientX, 이전y = e.clientY; phone.classList.add('cz-dragging');
+        function 움직임(m) { var r = phone.getBoundingClientRect(); 이동((m.clientX - 이전x) / r.width, (m.clientY - 이전y) / r.height); 이전x = m.clientX; 이전y = m.clientY; 그리기미리보기(); 눌림갱신(); }
+        function 끝() { document.removeEventListener('pointermove', 움직임); document.removeEventListener('pointerup', 끝); document.removeEventListener('pointercancel', 끝); phone.classList.remove('cz-dragging'); 끌기중단 = null; 끌기정리(); 블록다시(); 갱신(); }
+        끌기중단 = function () { document.removeEventListener('pointermove', 움직임); document.removeEventListener('pointerup', 끝); document.removeEventListener('pointercancel', 끝); 끌기중단 = null; };
+        document.addEventListener('pointermove', 움직임); document.addEventListener('pointerup', 끝); document.addEventListener('pointercancel', 끝);
+      });
+      요소.addEventListener('keydown', function (e) { var d = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[e.key]; if (!d) return; e.preventDefault(); e.stopPropagation(); 이동(d[0] * 0.01, d[1] * 0.01); 끌기정리(); 블록다시(); 갱신(); var 다시찾기 = dlg.querySelector('[aria-label="' + 이름 + ' (끌거나 방향키로 옮겨요)"]'); if (다시찾기 && document.activeElement !== 다시찾기) 다시찾기.focus(); });   // 다시 그려진 요소로 포커스를 돌려 방향키를 이어서 누를 수 있게
+    }
+    function 끌기정리() {   // 끌기가 끝나면 값을 반올림하고, 기본값과 같으면 지워서 건드리지 않은 것으로 되돌린다
+      [['제목위', 0.5, 100], ['제목가로', 0.5, 100], ['자막가로', 0.5, 100], ['제목높이', 0.184, 1000]].forEach(function (k) { var x = 선택[k[0]]; if (x === undefined) return; x = Math.round(x * k[2]) / k[2]; if (Math.abs(x - k[1]) < (k[0] === '제목높이' ? 0.003 : 0.005)) delete 선택[k[0]]; else 선택[k[0]] = x; });
+      if (선택.자막거리 !== undefined) { var 기본 = 자막위치 === '위' ? (가로 ? 0.07 : 0.13) : (가로 ? 0.07 : 0.22), d = Math.round(선택.자막거리 * 100) / 100; if (Math.abs(d - 기본) < 0.005) delete 선택.자막거리; else 선택.자막거리 = d; }
+      블록목록().forEach(function (b) { b.위치.가로 = Math.round(b.위치.가로 * 100) / 100; b.위치.거리 = Math.round(b.위치.거리 * 100) / 100; });
+    }
+    var 끌기중단 = null;
+    function 자막이동(dx, dy) {
+      var v = 합치기(선택, 종류).값; if (v.자막끄기) return;
+      if (자막위치 !== '가운데') { var 기준 = 자막위치 === '위' ? (가로 ? 0.07 : 0.13) : (가로 ? 0.07 : 0.22), d = v.자막거리 !== undefined ? v.자막거리 : 기준; 선택.자막거리 = 한계(d + (자막위치 === '위' ? dy : -dy), 0, 0.45); }
+      var 반 = 한계((v.줄길이 || 0.76) / 2, 0.25, 0.5); 선택.자막가로 = 한계((v.자막가로 !== undefined ? v.자막가로 : 0.5) + dx, 반, 1 - 반);   // 자막 상자는 화면 안에 갇히므로 갈 수 있는 범위만 쓴다
+    }
+    function 제목이동(dx, dy) {
+      var v = 합치기(선택, 종류).값, t = 제목상태; if (!t) return;
+      var 남는 = t.상자.띠 - t.상자.높이; if (t.제목형 && 남는 > 0) 선택.제목위 = 한계((v.제목위 !== undefined ? v.제목위 : 0.5) + dy * H / 남는, 0, 1);
+      var 반폭 = 한계((t.폭 / 2 + W * 0.02) / W, 0, 0.5); 선택.제목가로 = 한계((v.제목가로 !== undefined ? v.제목가로 : 0.5) + dx, 반폭, 1 - 반폭);
+    }
+    function 띠이동(dx, dy) { var v = 합치기(선택, 종류).값, h = 한계((v.제목높이 !== undefined ? v.제목높이 : 0.184) + dy, 0.1, 0.3); 선택.제목높이 = h; }
     var 읽는단어 = [], 읽는타이머 = [];
     function 읽기멈춤() { 읽는타이머.forEach(clearTimeout); 읽는타이머 = []; }
     function 읽기재생() {   // 읽는 글자 효과 미리보기: 샘플 문장을 단어마다 차례로 칠한다. 한 번 보여 주고 멈춘다
@@ -300,9 +336,11 @@
       }
       추가.addEventListener('click', function () { if (블록목록().length >= 4) return; 블록목록().push({ 글: '', 위치: { 기준: '위', 거리: 0.15, 가로: 0.5 }, 크기: 60, 모양: '굵은흰', 글꼴: 'Noto Sans CJK KR' }); 블록그리기(); 갱신(); 적용상태(); });
       블록그리기();
+      블록다시 = 블록그리기;
+      끌기(ttx, 제목이동, '제목 글자'); 끌기(sub, 자막이동, '자막'); 끌기(띠손잡이, 띠이동, '제목 띠 높이');
     }
 
-    function 닫기(결과) { 읽기멈춤(); document.removeEventListener('keydown', 키); document.body.style.overflow = 이전스크롤; ov.remove(); if (이전포커스 && 이전포커스.focus) 이전포커스.focus(); if (결과 && typeof opt.onDone === 'function') opt.onDone(결과); }
+    function 닫기(결과) { 읽기멈춤(); if (끌기중단) 끌기중단(); document.removeEventListener('keydown', 키); document.body.style.overflow = 이전스크롤; ov.remove(); if (이전포커스 && 이전포커스.focus) 이전포커스.focus(); if (결과 && typeof opt.onDone === 'function') opt.onDone(결과); }
     function 키(e) {
       if (e.key === 'Escape') { e.preventDefault(); 닫기(null); return; }
       if (e.key !== 'Tab') return;

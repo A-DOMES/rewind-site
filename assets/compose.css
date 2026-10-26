@@ -71,6 +71,13 @@
 .cz-ctr { position: absolute; left: 0; width: 100%; top: 23.5%; height: 36%; background: linear-gradient(135deg, #3b4a63, #8c6a4a); box-shadow: 0 0 0 1px rgba(255,255,255,.18); pointer-events: none; }
 @media (prefers-reduced-motion: reduce) { .cz-lay-b { transition: none; } .cz-lay-b:hover { transform: none; } }
 @media (max-width: 760px) { .cz-lay-b small { display: none; } }
+/* 미리보기 끌기 */
+.cz-drag { cursor: grab; touch-action: none; outline: 1.5px dashed transparent; outline-offset: 2px; transition: outline-color .12s; }
+.cz-drag:hover, .cz-drag:focus-visible { outline-color: var(--gold); }
+.cz-dragging, .cz-dragging .cz-drag { cursor: grabbing; }
+.cz-bandh { position: absolute; left: 50%; width: 38%; height: 22px; transform: translate(-50%, -50%); cursor: ns-resize; border-radius: 99px; background: transparent; z-index: 3; }
+.cz-bandh::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 4px; margin-top: -2px; border-radius: 99px; background: var(--gold); opacity: .55; transition: opacity .12s; }
+.cz-bandh:hover::after, .cz-bandh:focus-visible::after { opacity: 1; }
 /* 입구 카드: 화면 꾸미기 안에서 눈에 띄게 */
 .cz-entry { display: flex; align-items: center; gap: var(--sp-3); padding: var(--sp-4); border: 1px solid var(--line); border-left: 4px solid var(--gold); border-radius: var(--r-lg); background: var(--bg-raised); transition: border-color .15s, background .15s, transform .15s; }
 .cz-entry:hover, .cz-entry:focus-within { border-color: var(--gold); background: var(--bg-input, var(--bg-raised)); }
