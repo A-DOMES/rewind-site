@@ -5,10 +5,10 @@
 (function () {
   'use strict';
   var VER = '?v=20261026';
-  var 기본 = { 자막모양: '굵은흰', 글꼴: 'Noto Sans CJK KR', 자막크기: 77, 줄수: 1, 줄길이: 0.76, 핵심색: '' };
+  var 기본 = { 자막모양: '굵은흰', 글꼴: 'Noto Sans CJK KR', 자막크기: 77, 줄수: 1, 줄길이: 0.76, 핵심색: '없음' };
   var 모양들 = [['굵은흰', '굵은 흰색'], ['굵은노랑', '굵은 노랑'], ['차분흰', '차분한 흰색'], ['뉴스박스', '뉴스 박스']];
   var 글꼴들 = [['Noto Sans CJK KR', '고딕', "'Noto Sans KR','Noto Sans CJK KR',sans-serif"], ['Noto Serif KR', '명조', "'Noto Serif KR','Noto Serif CJK KR',serif"], ['Black Han Sans', '굵은 제목', "'Black Han Sans','Noto Sans KR',sans-serif"]];
-  var 핵심들 = [['', '없음', ''], ['분홍', '분홍', '#ff4d8d'], ['노랑', '노랑', '#ffe14d'], ['초록', '초록', '#2ee6a6']];
+  var 핵심들 = [['없음', '없음', ''], ['분홍', '분홍', '#ff4d8d'], ['노랑', '노랑', '#ffe14d'], ['초록', '초록', '#2ee6a6']];
   var 위치들 = [['위', '위'], ['가운데', '가운데'], ['아래', '아래']];
   var 샘플기본 = '보기보다 훨씬 많이 들어가요. 하루 종일 들고 다녀도 어깨가 편해요';
   var 템플릿목록 = null, 불러옴 = null;
@@ -44,7 +44,7 @@
   function open(opt) {
     opt = opt || {};
     var 종류 = opt.종류 || '쇼츠', 가로 = opt.화면 === '가로';
-    var 선택 = Object.assign({}, opt.값 || {}); var 자막위치 = opt.자막위치 || '아래'; var 가이드켜짐 = true;
+    var 선택 = Object.assign({}, opt.값 || {}); var 자막위치 = opt.자막위치 || '아래'; var 처음위치 = 자막위치, 위치바꿈 = false, 초기화함 = false; var 가이드켜짐 = true;
     var 샘플 = String(opt.샘플 || '').trim() || 샘플기본;
     var 이전포커스 = document.activeElement;
     var W = 가로 ? 1920 : 1080, H = 가로 ? 1080 : 1920;
@@ -85,6 +85,7 @@
       if (겹친.length) 글.push('자막이 유튜브가 쓰는 자리(' + 겹친.join('·') + ')와 겹쳐요. 그대로 만들 수 있어요');
       글.forEach(function (t) { warn.appendChild(el('li', '', t)); });
     }
+    function 기준값() { return 합치기({ 템플릿: 선택.템플릿 }, 종류).값; }   // 슬라이더 가운데 = 템플릿(없으면 기본) 값
     function 갱신() { 그리기미리보기(); 눌림갱신(); }
     var 눌림목록 = [];
     function 눌림갱신() { 눌림목록.forEach(function (f) { f(); }); }
@@ -104,7 +105,7 @@
       직접.addEventListener('click', function () { delete 선택.템플릿; 갱신(); }); g.appendChild(직접); 눌림목록.push(function () { 직접.setAttribute('aria-pressed', String(!선택.템플릿)); });
       (템플릿목록 || []).filter(function (t) { return t.종류.indexOf(종류) >= 0; }).forEach(function (t) {
         var b = el('button', 'cz-opt'); b.type = 'button'; b.appendChild(el('b', '', t.이름)); var s = el('span', 'cz-sample', '가나다'); s.style.color = t.기본.자막모양 === '굵은노랑' ? '#ffe600' : 'var(--ink)'; b.appendChild(s); b.appendChild(el('small', '', t.설명));
-        b.addEventListener('click', function () { 선택.템플릿 = t.id; ['자막모양', '글꼴', '자막크기', '줄수', '줄길이', '핵심색'].forEach(function (k) { delete 선택[k]; }); 자막위치 = t.자막위치 || 자막위치; 화면구성 = t.화면구성; 갱신(); });
+        b.addEventListener('click', function () { 선택.템플릿 = t.id; ['자막모양', '글꼴', '자막크기', '줄수', '줄길이', '핵심색'].forEach(function (k) { delete 선택[k]; }); if (!위치바꿈) 자막위치 = t.자막위치 || 자막위치; 갱신(); });
         g.appendChild(b); 눌림목록.push(function () { b.setAttribute('aria-pressed', String(선택.템플릿 === t.id)); });
       });
       var c2 = 카드('2. 글자 모양');
@@ -119,24 +120,23 @@
       var c3 = 카드('3. 크기와 줄', '가운데가 기본이에요');
       // 크기: 숫자 + 슬라이더(가운데=기본 77, 오른쪽=크게)
       var rs = el('div', 'cz-row'); rs.appendChild(el('label', '', '글자 크기')); var sl = el('input'); sl.type = 'range'; sl.min = -50; sl.max = 50; sl.step = 1; sl.setAttribute('aria-label', '글자 크기 (가운데가 기본)'); var nm = el('input'); nm.type = 'number'; nm.min = 20; nm.max = 200; nm.setAttribute('aria-label', '글자 크기 숫자'); rs.appendChild(sl); rs.appendChild(nm); c3.appendChild(rs);
-      sl.addEventListener('input', function () { 선택.자막크기 = Math.round(77 + Number(sl.value) * 0.84); 갱신(); });
-      nm.addEventListener('input', function () { if (nm.value !== '') { 선택.자막크기 = Math.round(수(nm.value, 20, 200, 77)); 그리기미리보기(); sl.value = String(수((선택.자막크기 - 77) / 0.84, -50, 50, 0)); } });
+      sl.addEventListener('input', function () { 선택.자막크기 = Math.round(수(기준값().자막크기 + Number(sl.value) * 0.84, 20, 200, 77)); 갱신(); });
+      nm.addEventListener('input', function () { if (nm.value !== '') { 선택.자막크기 = Math.round(수(nm.value, 20, 200, 77)); 그리기미리보기(); sl.value = String(수((선택.자막크기 - 기준값().자막크기) / 0.84, -50, 50, 0)); } });
       nm.addEventListener('change', 갱신);
-      눌림목록.push(function () { var s = 합치기(선택, 종류).값.자막크기; sl.value = String(수((s - 77) / 0.84, -50, 50, 0)); if (document.activeElement !== nm) nm.value = String(s); });
+      눌림목록.push(function () { var s = 합치기(선택, 종류).값.자막크기; sl.value = String(수((s - 기준값().자막크기) / 0.84, -50, 50, 0)); if (document.activeElement !== nm) nm.value = String(s); });
       var rl = el('div', 'cz-row'); rl.appendChild(el('label', '', '줄 수')); var cl = el('div', 'cz-chips'); rl.appendChild(cl); c3.appendChild(rl);
       칩묶음(cl, [[1, '1줄'], [2, '2줄'], [3, '3줄']], function () { return 합치기(선택, 종류).값.줄수; }, function (v) { 선택.줄수 = v; }, '줄 수');
       var rw = el('div', 'cz-row'); rw.appendChild(el('label', '', '한 줄 길이')); var sw = el('input'); sw.type = 'range'; sw.min = -50; sw.max = 50; sw.step = 1; sw.setAttribute('aria-label', '한 줄 길이 (가운데가 기본)'); var nw = el('input'); nw.type = 'number'; nw.min = 50; nw.max = 100; nw.setAttribute('aria-label', '한 줄 길이 (화면 폭의 %)'); rw.appendChild(sw); rw.appendChild(nw); rw.appendChild(el('span', 'cz-hint', '% (화면 폭)')); c3.appendChild(rw);
-      sw.addEventListener('input', function () { 선택.줄길이 = Math.round((0.76 + Number(sw.value) * 0.0048) * 100) / 100; 갱신(); });
-      nw.addEventListener('input', function () { if (nw.value !== '') { 선택.줄길이 = Math.round(수(nw.value, 50, 100, 76)) / 100; 그리기미리보기(); sw.value = String(수((선택.줄길이 - 0.76) / 0.0048, -50, 50, 0)); } });
+      sw.addEventListener('input', function () { 선택.줄길이 = Math.round(수(기준값().줄길이 + Number(sw.value) * 0.0048, 0.5, 1, 0.76) * 100) / 100; 갱신(); });
+      nw.addEventListener('input', function () { if (nw.value !== '') { 선택.줄길이 = Math.round(수(nw.value, 50, 100, 76)) / 100; 그리기미리보기(); sw.value = String(수((선택.줄길이 - 기준값().줄길이) / 0.0048, -50, 50, 0)); } });
       nw.addEventListener('change', 갱신);
-      눌림목록.push(function () { var l = 합치기(선택, 종류).값.줄길이; sw.value = String(수((l - 0.76) / 0.0048, -50, 50, 0)); if (document.activeElement !== nw) nw.value = String(Math.round(l * 100)); });
+      눌림목록.push(function () { var l = 합치기(선택, 종류).값.줄길이; sw.value = String(수((l - 기준값().줄길이) / 0.0048, -50, 50, 0)); if (document.activeElement !== nw) nw.value = String(Math.round(l * 100)); });
       var c4 = 카드('4. 자막 위치');
       var rp = el('div', 'cz-chips'); c4.appendChild(rp);
-      칩묶음(rp, 위치들, function () { return 자막위치; }, function (v) { 자막위치 = v; }, '자막 위치');
+      칩묶음(rp, 위치들, function () { return 자막위치; }, function (v) { 자막위치 = v; 위치바꿈 = true; }, '자막 위치');
     }
 
-    var 화면구성 = null;
-    function 닫기(결과) { document.removeEventListener('keydown', 키); ov.remove(); if (이전포커스 && 이전포커스.focus) 이전포커스.focus(); if (결과 && typeof opt.onDone === 'function') opt.onDone(결과); }
+    function 닫기(결과) { document.removeEventListener('keydown', 키); document.body.style.overflow = 이전스크롤; ov.remove(); if (이전포커스 && 이전포커스.focus) 이전포커스.focus(); if (결과 && typeof opt.onDone === 'function') opt.onDone(결과); }
     function 키(e) {
       if (e.key === 'Escape') { e.preventDefault(); 닫기(null); return; }
       if (e.key !== 'Tab') return;
@@ -147,10 +147,11 @@
     x.addEventListener('click', function () { 닫기(null); });
     ov.addEventListener('mousedown', function (e) { if (e.target === ov) 닫기(null); });
     gc.addEventListener('change', function () { 가이드켜짐 = gc.checked; 그리기미리보기(); });
-    reset.addEventListener('click', function () { 선택 = {}; 화면구성 = null; 자막위치 = '아래'; 갱신(); });
-    ok.addEventListener('click', function () { var m = 합치기(선택, 종류); 닫기({ compose: Object.assign({}, 선택), 자막위치: 자막위치, 화면구성: m.템플릿 ? m.템플릿.화면구성 : null }); });
+    reset.addEventListener('click', function () { 선택 = {}; 자막위치 = '아래'; 위치바꿈 = false; 초기화함 = true; 갱신(); });
+    ok.addEventListener('click', function () { var m = 합치기(선택, 종류); 닫기({ compose: Object.assign({}, 선택), 자막위치: 자막위치, 화면구성: m.템플릿 ? m.템플릿.화면구성 : null, 위치바뀜: 자막위치 !== 처음위치, 초기화: 초기화함 && !Object.keys(선택).length && 자막위치 === '아래' }); });
     document.addEventListener('keydown', 키);
-    document.body.appendChild(ov);
+    var 이전스크롤 = document.body.style.overflow; document.body.style.overflow = 'hidden'; dlg.tabIndex = -1;
+    document.body.appendChild(ov); dlg.focus();
     템플릿불러오기().then(function () { 만들기(); 갱신(); x.focus(); });
   }
 

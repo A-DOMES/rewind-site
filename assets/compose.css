@@ -47,8 +47,7 @@
   .cz-dlg { grid-template-columns: 1fr; grid-template-rows: auto auto minmax(0, 1fr) auto; border-radius: 0; height: 100%; }
   .cz-pv { overflow: visible; border-right: 0; border-bottom: 1px solid var(--line); padding: var(--sp-2) var(--sp-3); }
   .cz-phone { width: 128px; }
-  .cz-pv .cz-note, .cz-pv .cz-warn { display: none; }
-  .cz-ov.cz-showwarn .cz-pv .cz-warn { display: grid; }
+  .cz-pv .cz-note { display: none; }
   .cz-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (prefers-reduced-motion: reduce) { .cz-opt, .cz-chip { transition: none; } .cz-opt:hover { transform: none; } }

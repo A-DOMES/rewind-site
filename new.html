@@ -3843,8 +3843,12 @@
     RWCompose.open({ 종류: '쇼츠', 화면: '세로', 값: composeState || {}, 자막위치: 거꾸로[지금] || '아래', 샘플: document.getElementById('df-hookText')?.value || '',
       onDone: res => {
         composeState = Object.keys(res.compose).length ? res.compose : null;
-        if (res.화면구성) { const r = [...document.querySelectorAll('input[name="df-layout"]')].find(x => x.value === res.화면구성); if (r && !r.disabled) { r.checked = true; r.dispatchEvent(new Event('change', { bubbles: true })); } }
-        if (composeState) { const r = [...document.querySelectorAll('input[name="df-captionPos"]')].find(x => x.value === POS[res.자막위치]); if (r && !r.disabled) { r.checked = true; r.dispatchEvent(new Event('change', { bubbles: true })); } }
+        const 고르기 = (name, v) => { const r = [...document.querySelectorAll(`input[name="${name}"]`)].find(x => x.value === v); if (r && !r.disabled) { r.checked = true; r.dispatchEvent(new Event('change', { bubbles: true })); } };
+        if (res.초기화) { 고르기('df-layout', '자동'); 고르기('df-captionPos', '자동'); }   // '처음 모양으로': 템플릿이 맞춰 둔 화면 구성·자막 위치도 되돌린다
+        else {
+          if (res.화면구성) 고르기('df-layout', res.화면구성);
+          if (composeState || res.위치바뀜) 고르기('df-captionPos', POS[res.자막위치]);
+        }
         if (sum) sum.textContent = RWCompose.요약(composeState);
         saveChatState();
       } });
