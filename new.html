@@ -611,7 +611,7 @@
   /* ===== 디자인 v2 (필름 스튜디오) — 기존 규칙 위에 덮어쓰는 층. 아래만 지우면 이전 디자인으로 돌아감 ===== */
   :root, :root:not([data-theme="__v2"]), :root[data-theme] {
     color-scheme: dark;
-    --bg: #171412; --bg-raised: #1f1b18; --bg-input: #221d19; --line: #3a332c; --film: #0f0d0b;
+    --bg: #000000; --bg-raised: #14110f; --bg-input: #1a1613; --line: #3a332c; --film: #000000;
     --ink: #fbf7f0; --ink-dim: #e0d7c8; --ink-faint: #b1a695;
     --amber: #e2a23c; --amber-dim: #5a4222; --amber-wash: #251d14; --olive: #c9a86a; --on-amber: #1a1410;
     --gold: #e2a23c; --gold-dim: #5a4222; --on-gold: #1a1410;
@@ -1631,6 +1631,32 @@
   .example-row .example-chip:hover { background: color-mix(in srgb, var(--ink) 4%, var(--bg-raised)); border-color: var(--c); transform: none; }
   @media (max-width: 520px) { .example-row { grid-template-columns: repeat(2, minmax(0, 1fr)); } .example-row .example-chip { padding: var(--sp-2) var(--sp-3); } }
   #topic-hub .tf-sub { text-wrap: balance; }   /* 한 글자만 다음 줄로 남지 않게 */
+
+  /* ===== 진행 단계 바 + 1단계(종류) 새 모양 (2026-10-28) =====
+     값은 여기서만 고친다. 바는 모든 단계가 같이 쓰고, 카드 모양은 1단계(data-pwstep="0")에만 먼저 적용한다. */
+  :root { --nw-a: #5b8cff; --nw-b: #9a6bff; --nw-edge: rgba(140,160,255,.30); --nw-glow: rgba(90,130,255,.55); --nw-card: linear-gradient(160deg, rgba(34,46,104,.55), rgba(18,14,38,.75)); }
+  .pw-bar { border-radius: 18px; border: 1px solid var(--nw-edge); background: var(--nw-card); box-shadow: 0 8px 28px rgba(60,80,200,.14); }
+  .pw-title { padding: 14px 16px 2px; }
+  .pw-title b { font-size: 1rem; }
+  .pw-holes { background: repeating-linear-gradient(90deg, rgba(140,160,255,.22) 0 10px, transparent 10px 22px); }
+  .pw-st { border-radius: 14px; border: 1px solid var(--nw-edge); background: rgba(255,255,255,.03); transition: transform .15s, box-shadow .15s, border-color .15s; }
+  .pw-st.done:hover, .pw-st.redo:hover { transform: translateY(-2px); border-color: var(--nw-a); box-shadow: 0 0 14px var(--nw-glow); filter: none; }
+  .pw-st.done { background: rgba(91,140,255,.14); border-color: rgba(91,140,255,.55); }
+  .pw-st.cur { background: linear-gradient(160deg, rgba(91,140,255,.30), rgba(154,107,255,.22)); border-color: #9bb8ff; color: #fff; box-shadow: 0 0 0 2px rgba(120,160,255,.30), 0 0 24px var(--nw-glow); }
+  #df-fields.pw-on[data-pwstep="0"] > .df-sec.pw-cur { border-radius: 22px; border: 1px solid var(--nw-edge); background: var(--nw-card); padding: 20px 18px 10px; box-shadow: 0 10px 30px rgba(60,80,200,.12); }
+  #df-fields.pw-on[data-pwstep="0"] .df-sec-ico { border-radius: 12px; background: rgba(91,140,255,.16); }
+  #df-fields.pw-on[data-pwstep="0"] .df-sec-head h3 { font-size: 1.15rem; }
+  #df-fields.pw-on[data-pwstep="0"] .df-types .tcard { border-radius: 16px; border: 1px solid rgba(154,107,255,.45); background: linear-gradient(160deg, rgba(30,44,110,.65), rgba(20,18,52,.8)); padding: 13px 16px; transition: transform .15s, box-shadow .15s, border-color .15s; }
+  #df-fields.pw-on[data-pwstep="0"] .df-types .tcard:hover { transform: translateY(-2px); border-color: var(--nw-a); box-shadow: 0 0 16px var(--nw-glow); }
+  #df-fields.pw-on[data-pwstep="0"] .df-types .tcard .ti { background: rgba(255,255,255,.07); color: #ffd58a; }
+  #df-fields.pw-on[data-pwstep="0"] .df-types input:checked + .tcard { border-color: #8fb0ff; background: linear-gradient(160deg, rgba(50,80,200,.55), rgba(36,26,90,.8)); box-shadow: 0 0 0 1px #8fb0ff, 0 0 22px var(--nw-glow); }
+  #df-fields.pw-on[data-pwstep="0"] .df-types input:checked + .tcard .ti { background: linear-gradient(160deg, var(--nw-a), var(--nw-b)); color: #fff; }
+  #df-fields.pw-on[data-pwstep="0"] .df-chipset .tcard { border-radius: 16px; border: 1px solid rgba(154,107,255,.45); background: linear-gradient(160deg, rgba(30,44,110,.65), rgba(20,18,52,.8)); transition: transform .15s, box-shadow .15s, border-color .15s; }
+  #df-fields.pw-on[data-pwstep="0"] .df-chipset .tcard:hover { transform: translateY(-2px); border-color: var(--nw-a); box-shadow: 0 0 16px var(--nw-glow); }
+  #df-fields.pw-on[data-pwstep="0"] .df-chipset input:checked + .tcard { border-color: #8fb0ff; background: linear-gradient(160deg, rgba(50,80,200,.55), rgba(36,26,90,.8)); box-shadow: 0 0 0 1px #8fb0ff, 0 0 22px var(--nw-glow); }
+  .pw-nav .pw-next:not(.is-blocked) { flex: 0 0 auto; min-width: 150px; border-radius: 999px; padding: 13px 26px; font-size: .98rem; font-weight: 700; color: #fff; background: linear-gradient(90deg, var(--nw-a), var(--nw-b)); box-shadow: 0 0 22px var(--nw-glow); transition: transform .15s, box-shadow .15s; }
+  .pw-nav .pw-next:not(.is-blocked):hover { transform: translateY(-2px); box-shadow: 0 0 30px var(--nw-glow); }
+  @media (prefers-reduced-motion: reduce) { .pw-st, #df-fields .tcard, .pw-nav .pw-next { transition: none; } }
 </style>
 <script src="./theme.js"></script>
 <script src="./assets/voice-panel.js"></script>
