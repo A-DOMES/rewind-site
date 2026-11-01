@@ -1702,9 +1702,6 @@
   .direct-form-inner > h2 { font-size: 1.9rem; position: relative; display: inline-block; }
   .direct-form-inner > h2::after { content: ""; position: absolute; right: -30px; top: -8px; width: 26px; height: 26px; background: no-repeat center / contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23cfe0ff' d='M12 0c.8 6.6 3.2 9.2 12 12-8.8 2.8-11.2 5.4-12 12-.8-6.6-3.2-9.2-12-12 8.8-2.8 11.2-5.4 12-12z'/%3E%3C/svg%3E"); filter: drop-shadow(0 0 6px rgba(150,190,255,.9)); }
   #df-fields > .sc-card.gn-script > h4 { color: #ffd58a; font-size: 1.1rem; }
-  #df-fields > .sc-card.gn-script button { border-radius: 999px; border: 1px solid rgba(170,120,255,.7); background: linear-gradient(160deg, rgba(24,56,160,.7), rgba(30,16,76,.85)); color: #fff; padding: 12px 18px; font-weight: 600; transition: box-shadow .15s, transform .15s; }
-  #df-fields > .sc-card.gn-script button:hover { transform: translateY(-2px); box-shadow: 0 0 14px var(--nw-glow); }
-  #df-fields > .sc-card.gn-script button[aria-pressed="true"], #df-fields > .sc-card.gn-script button.on, #df-fields > .sc-card.gn-script button.active, #df-fields > .sc-card.gn-script button.sel { border-color: #ffb347; color: #ffd58a; box-shadow: 0 0 0 1px #ffb347, 0 0 22px rgba(255,170,60,.55); }
   .df-price .amt .val { color: #ffd58a; font-size: 2rem; text-shadow: 0 0 14px rgba(255,180,70,.5); }
   .df-price { text-align: center; }
   /* 색 정리: 큰 틀(카드·바·입력)은 어두운 회색 유리, 파랑은 선택지·선택 표시에만 쓴다 */
@@ -1721,9 +1718,6 @@
   @media (max-width: 640px) { .pw-st { min-height: 88px; } .pw-st svg { width: 32px; height: 32px; } }
   .df-tab { background: linear-gradient(160deg, rgba(88,52,170,.55), rgba(40,22,86,.8)); }
   .df-tab.active { background: linear-gradient(160deg, rgba(36,84,220,.75), rgba(26,50,140,.8)); }
-  #df-fields.pw-on[data-pwstep="2"] > .sc-card.gn-script { display: grid; grid-template-columns: auto auto 1fr; gap: 10px; align-items: center; }
-  #df-fields > .sc-card.gn-script > h4, #df-fields > .sc-card.gn-script > p, #df-fields > .sc-card.gn-script > :not(button) { grid-column: 1 / -1; }
-  #df-fields > .sc-card.gn-script button { white-space: nowrap; padding: 10px 14px; font-size: .9rem; background: var(--nw-opt); }
   /* 종류 카드 4개: 한 가지 색(--kc)으로 통일. 마우스를 올리면 밝아지며 살짝 올라온다 */
   #df-fields.pw-on .df-types label:nth-child(1) { --kc: 70,120,255; }
   #df-fields.pw-on .df-types label:nth-child(2) { --kc: 70,120,255; }
@@ -1734,6 +1728,12 @@
   #df-fields.pw-on .df-types .tcard .ti { background: rgba(var(--kc),.28); color: #fff; }
   #df-fields.pw-on .df-types input:checked + .tcard { background: linear-gradient(160deg, rgba(var(--kc),.78), rgba(24,18,60,.94) 85%); border-color: rgb(var(--kc)); box-shadow: 0 0 0 1px rgb(var(--kc)), 0 0 30px rgba(var(--kc),.8); }
   #df-fields.pw-on .df-types input:checked + .tcard .ti { background: rgb(var(--kc)); color: #fff; }
+  /* 대본 카드: 선택지 3개를 같은 크기의 네모 카드로 한 줄에 */
+  #df-fields > .sc-card.gn-script .sc-opts { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 10px; }
+  #df-fields > .sc-card.gn-script .sc-opts button { border-radius: 14px; border: 1px solid rgba(170,120,255,.6); background: var(--nw-opt); color: #fff; padding: 14px 8px; min-height: 64px; font-size: .9rem; font-weight: 600; line-height: 1.35; text-align: center; word-break: keep-all; transition: box-shadow .15s, transform .15s, filter .15s; }
+  #df-fields > .sc-card.gn-script .sc-opts button:hover { transform: translateY(-3px); filter: brightness(1.2); box-shadow: 0 0 16px var(--nw-glow); }
+  #df-fields > .sc-card.gn-script .sc-opts button[aria-pressed="true"] { border-color: #ffb347; color: #ffd58a; box-shadow: 0 0 0 1px #ffb347, 0 0 22px rgba(255,170,60,.5); }
+  #df-fields > .sc-card.gn-script .sc-hint { background: rgba(255,179,71,.14); color: #ffd58a; border: 1px solid rgba(255,179,71,.4); }
 @media (prefers-reduced-motion: reduce) { .pw-st, #df-fields .tcard, .pw-nav .pw-next { transition: none; } }
 </style>
 <script src="./theme.js"></script>
