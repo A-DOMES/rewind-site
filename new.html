@@ -1259,9 +1259,9 @@
   #df-fields.pw-on[data-pwstep="3"] .df-sleep > [data-pw="3"], #df-fields.pw-on[data-pwstep="3"] .df-yadam > [data-pw="3"],
   #df-fields.pw-on[data-pwstep="4"] .df-sleep > [data-pw="4"], #df-fields.pw-on[data-pwstep="4"] .df-yadam > [data-pw="4"] { display: block; }
   #df-fields.pw-on > .sc-card { display: none; }
-  #df-fields.pw-on[data-pwstep="2"] > .sc-card { display: flex; }
+  #df-fields.pw-on[data-pwstep="2"] > .sc-card:not(.gn-script) { display: flex; }
+  #df-fields.pw-on.pw-gn[data-pwstep="5"] > .sc-card.gn-script { display: flex; }   /* 쇼츠·롱폼은 대본이 5단계(소리 뒤) */
   /* 대본 방식(내 대본·보관함)을 고르는 중에는 대본 카드만 보인다 — 주제·분위기·연출 칸은 대본을 고른 뒤 */
-  #df-fields.pw-on.gn-pick-script[data-pwstep="2"] > .df-sec { display: none !important; }
   #df-fields.pw-on > .df-sec { display: none; }
   #df-fields.pw-on > .df-sec.pw-cur { display: block; }
   #df-fields.pw-on .df-sec-head h3::before { content: attr(data-n); }
@@ -4119,7 +4119,7 @@
   });
   function editInSteps() {
     const kind = answers.productShort ? '상품쇼츠' : answers.videoType === '수면음악' ? '수면음악' : answers.videoType === '야담' ? '야담' : '일반';
-    const last = (kind === '수면음악' || kind === '야담') ? 4 : 5;   // 마지막(확인) 단계 번호
+    const last = (kind === '수면음악' || kind === '야담') ? 4 : kind === '일반' ? 6 : 5;   // 마지막(확인) 단계 번호
     const sameForm = answersFormRender === dfRender && answersFormSig === sigOf(answers) && !!document.getElementById('df-fields');
     if (sameForm) {
       document.getElementById('split-row').classList.add('split-active'); document.getElementById('direct-form-wrap').style.display = 'flex';
@@ -4317,7 +4317,7 @@
           videoLength: v.길이분 ? `${v.길이분}분` : '', layout: v.키 === 'short' ? v.구성 : '', captionPos: v.자막 });
         composeState = v.compose && Object.keys(v.compose).length ? v.compose : null; composeKind = composeState ? '일반' : '';   // 한번에 만들기에서 고른 모양
         const 요 = document.getElementById('df-compose-sum'); if (요 && window.RWCompose) 요.textContent = composeSumText(false, composeState);
-        setTimeout(() => { if (window.__pwGo && window.__pwOn && window.__pwOn()) window.__pwGo(v.바로확인 ? 5 : 1, true); }, 90);
+        setTimeout(() => { if (window.__pwGo && window.__pwOn && window.__pwOn()) window.__pwGo(v.바로확인 ? (window.__pwLast ? window.__pwLast() : 5) : 1, true); }, 90);
       } else openFormFor(v.키, v.주제, '', v.키 === 'prod' ? '한번에 만들기에서 가져온 이름이에요. 정확한 제품명으로 고쳐 주세요.' : '');
       if (v.키 === 'prod') setTimeout(() => {   // 길이(초)와 목소리를 상품쇼츠 폼에 채운다
         const L = document.getElementById('df-prodLen'); if (L && v.길이분) { L.value = String(Math.max(30, Math.min(180, Math.round(v.길이분 * 60)))); L.dispatchEvent(new Event('input', { bubbles: true })); L.dispatchEvent(new Event('change', { bubbles: true })); }
@@ -5293,14 +5293,15 @@
   // 앞 단계 값을 고쳐서 뒤 단계가 맞지 않게 되면 그 단계는 '다시 확인'으로 바뀌고, 고칠 때까지 뒤 단계로 갈 수 없다.
   const PW_NAMES = ['종류', '내용', '화면·길이', '소리', '꾸미기', '확인'];
   const PW_TODO = ['어떤 영상을 만들지 골라 주세요', '제품 이름과 내용을 적어 주세요', '사진·영상, 길이, 영상 제작 방식을 정해 주세요', '목소리를 정해 주세요', '화면 모양과 자막을 확인해 주세요 (그대로 두어도 돼요)', '내용을 확인하고 신청해 주세요'];
-  const PW_TODO_GN = ['쇼츠와 롱폼 중에서 골라 주세요', '무엇에 대한 영상인지 적어 주세요', '영상 길이와 영상 제작 방식을 정해 주세요', '목소리를 정해 주세요 (그대로 두어도 돼요)', '상단 문구, 화면 구성, 자막 위치를 정해 주세요 (그대로 두어도 돼요)', '내용을 확인하고 신청해 주세요'];
+  const PW_TODO_GN = ['쇼츠와 롱폼 중에서 골라 주세요', '무엇에 대한 영상인지 적어 주세요', '영상 길이와 영상 제작 방식을 정해 주세요', '목소리를 정해 주세요 (그대로 두어도 돼요)', '대본을 정해 주세요 (AI에게 맡겨도 돼요)', '상단 문구, 화면 구성, 자막 위치를 정해 주세요 (그대로 두어도 돼요)', '내용을 확인하고 신청해 주세요'];
+  const PW_NAMES_GN = ['종류', '내용', '화면·길이', '소리', '대본', '꾸미기', '확인'];   // 쇼츠·롱폼: 소리(길이·속도)가 정해진 뒤에 대본을 만들고, 그 제목이 꾸미기로 이어진다
   const PW_NAMES_LONG = ['종류', '내용', '화면·길이', '소리', '확인'];   // 분위기 영상·야담: 꾸미기 단계가 없다
   const PW_TODO_MO = ['어떤 영상인지 골라 주세요', '이야기·분위기와 영상 구성을 정해 주세요', '영상 길이와 그림 방식을 정해 주세요', '소리를 정해 주세요 (그대로 두어도 돼요)', '내용을 확인하고 신청해 주세요'];
   const PW_TODO_YD = ['어떤 영상인지 골라 주세요', '이야기 소재나 내 대본을 정해 주세요', '방식과 길이, 품질을 정해 주세요', '이야기꾼 목소리를 정해 주세요', '내용을 확인하고 신청해 주세요'];
   const PW_TITLES = {   // 한 카드를 단계마다 다른 제목으로 보여 준다 (카드 하나에 여러 단계 내용이 들어 있어서)
     '수면음악': { 2: ['영상 구성', '무엇을 담을지 골라 주세요. 고른 것에 맞춰 필요한 칸만 보여요'], 3: ['길이와 그림', '길이, 품질, 그림이 보이는 방식을 정해 주세요'], 4: ['소리', '소리와 목소리를 정해 주세요'] },
     '야담': { 2: ['이야기 소재', '소재 예시로 시작해 볼 수 있어요'], 3: ['방식과 길이', '방식, 길이, 품질을 정해 주세요'], 4: ['이야기꾼 목소리', '목소리를 골라 주세요'] } };
-  const PW_ICON = ['M4 5h12v10H4z M7 5v10 M13 5v10 M4 8h3 M4 12h3 M13 8h3 M13 12h3', 'M4 16l1-4 8-8 3 3-8 8z M12 5l3 3', 'M3 4h14v12H3z M3 14l4-4 3 3 3-3 4 4 M13 7.5h.01', 'M4 8v4h3l4 3V5L7 8z M14 7a4 4 0 010 6', 'M10 3l1.8 4.2L16 9l-4.2 1.8L10 15l-1.8-4.2L4 9l4.2-1.8z', 'M4 10.5l4 4 8-9'];
+  const PW_ICON = ['M4 5h12v10H4z M7 5v10 M13 5v10 M4 8h3 M4 12h3 M13 8h3 M13 12h3', 'M4 16l1-4 8-8 3 3-8 8z M12 5l3 3', 'M3 4h14v12H3z M3 14l4-4 3 3 3-3 4 4 M13 7.5h.01', 'M4 8v4h3l4 3V5L7 8z M14 7a4 4 0 010 6', 'M10 3l1.8 4.2L16 9l-4.2 1.8L10 15l-1.8-4.2L4 9l4.2-1.8z', 'M4 10.5l4 4 8-9', 'M5 3h7l3 3v11H5z M8 9h4 M8 12h4'];
   const PW_OK = 'M4 10.5l4 4 8-9', PW_LOCK = 'M5 9h10v7H5z M7 9V7a3 3 0 016 0v2';
   function setupWizard(wrap, isMedia) {
     window.__pwRefresh = null; window.__pwGo = null; window.__pwOn = null;
@@ -5323,17 +5324,17 @@
     let LAST = PW_NAMES.length - 1;   // 마지막(확인) 단계 번호 (분위기·야담은 5단계라 render 에서 맞춘다)
     const GN = () => 현재종류() === '일반';
     const MO = () => 현재종류() === '수면음악', YD = () => 현재종류() === '야담', LONGK = () => MO() || YD();
-    const namesOf = () => LONGK() ? PW_NAMES_LONG : PW_NAMES;
-    const iconOf = i => PW_ICON[PW_NAMES.indexOf(namesOf()[i])];
+    const namesOf = () => LONGK() ? PW_NAMES_LONG : GN() ? PW_NAMES_GN : PW_NAMES;
+    const iconOf = i => { const n = namesOf()[i]; return n === '대본' ? PW_ICON[6] : PW_ICON[PW_NAMES.indexOf(n)]; };
     const on = () => 현재종류() === '상품쇼츠' || ((GN() || LONGK()) && PRODUCT_READY());   // 일반 영상도 같은 단계 화면 (상품쇼츠와 같은 열쇠 ?prod=1 뒤에서만)
     const gnForm = () => fields.querySelector('.gn-formsec');
     const todoOf = i => (GN() ? PW_TODO_GN : MO() ? PW_TODO_MO : YD() ? PW_TODO_YD : PW_TODO)[i];
     const typeSec = () => { const t = document.getElementById('df-types'); return t ? t.closest('.df-sec') : null; };
     const q = sel => fields.querySelector(sel);
-    const secsGn = () => [[typeSec(), gnForm()], [q('.gn-content'), q('.df-extra')], [q('.gn-mymedia'), q('.gn-screen')], [q('.df-voicesec'), q('.df-gender')], [q('.gn-style'), q('.gn-thumb')], [review]];
+    const secsGn = () => [[typeSec(), gnForm()], [q('.gn-content'), q('.df-extra')], [q('.gn-mymedia'), q('.gn-screen')], [q('.df-voicesec'), q('.df-gender')], [q('.sc-card.gn-script')], [q('.gn-style'), q('.gn-thumb')], [review]];
     const secsLong = () => [[typeSec()], [q('.sc-card:not(.gn-script)'), q('.gn-content'), q(MO() ? '.df-sleep' : '.df-yadam')], [q(MO() ? '.df-sleep' : '.df-yadam')], [q(MO() ? '.df-sleep' : '.df-yadam'), q('.df-voicesec')], [review]];   // 같은 카드(.df-sleep/.df-yadam)가 2·3·4단계에 모두 들어가고, 안의 블록은 data-pw 로 단계별로 나뉜다
     const secs = () => LONGK() ? secsLong() : GN() ? secsGn() : [[typeSec()], [q('.pd-content'), q('.df-extra')], [q('.pd-media')], [q('.df-voicesec'), q('.df-gender')], [q('.pd-style')], [review, q('.pd-agree')]];   // 한 단계에 섹션이 둘 이상일 수 있다 (기존 옵션을 숨기지 않으려고)
-    const PARTS_PD = { 1: 'content', 2: 'media', 4: 'style', 5: 'agree' }, PARTS_GN = { 0: 'kind', 1: 'content', 2: 'screen', 4: 'style' }, PARTS_MO = { 1: 'content', 3: 'sound' }, PARTS_YD = { 1: 'content', 2: 'screen' };
+    const PARTS_PD = { 1: 'content', 2: 'media', 4: 'style', 5: 'agree' }, PARTS_GN = { 0: 'kind', 1: 'content', 2: 'screen', 5: 'style' }, PARTS_MO = { 1: 'content', 3: 'sound' }, PARTS_YD = { 1: 'content', 2: 'screen' };
     const partsOf = () => MO() ? PARTS_MO : YD() ? PARTS_YD : GN() ? PARTS_GN : PARTS_PD;
     const readerOf = () => MO() ? readMood() : YD() ? readYadam() : GN() ? readGeneral() : readProduct({ mutate: false });
     const showErr = (m, focusEl) => {
@@ -5393,11 +5394,11 @@
       const 썸네일 = paid ? (document.getElementById('df-thumbnail')?.checked ? 'AI 썸네일 3장 함께 만들기' : '만들지 않음') : '체험판은 제공하지 않아요';
       const 광고 = d.link && pdLooksAffiliate(d.link) ? ' 제휴 링크라서 설명란 맨 앞에 광고 안내 문구가 들어가요. 유튜브에 올릴 때 "유료 프로모션 포함"도 체크해 주세요.' : '';
       review.innerHTML = `<div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg></span><div><h3 data-n="${LAST + 1}">이대로 만들까요?</h3><p>고칠 곳이 있으면 "고치기"를 눌러 그 단계로 돌아가세요</p></div></div>` +
-        row('영상 형태', 롱폼 ? '롱폼 · 가로 16:9' : '쇼츠 · 세로 9:16', 0) + 참고줄 + (d.script ? row('내 대본', d.script.title + ' · ' + ((window.__rwGenChars ? window.__rwGenChars(d.script) : Number(d.script.chars)) || 0).toLocaleString('ko-KR') + '자', 1) : '') + row('주제', d.topic || (d.script ? '대본 제목을 써요' : '아직 비어 있어요'), 1) +
+        row('영상 형태', 롱폼 ? '롱폼 · 가로 16:9' : '쇼츠 · 세로 9:16', 0) + 참고줄 + (d.script ? row('내 대본', d.script.title + ' · ' + ((window.__rwGenChars ? window.__rwGenChars(d.script) : Number(d.script.chars)) || 0).toLocaleString('ko-KR') + '자', 4) : '') + row('주제', d.topic || (d.script ? '대본 제목을 써요' : '아직 비어 있어요'), 1) +
         (gv('df-style') ? row('만드는 방향', gv('df-style'), 1) : '') + (document.getElementById('df-characterUse')?.checked ? row('캐릭터', '영상 내내 같은 캐릭터', 1) : '') +
         (gv('df-directorNote') ? row('꼭 넣을 연출', gv('df-directorNote'), 1) : '') + row('내 사진·영상', (d.media && d.media.length) ? pdMediaSummary({ media: d.media }) + ' · 올린 순서대로 장면에 써요' : 'AI가 장면 그림을 만들어요', 2) +
         row('영상 길이', lenLabel(분) + (parseFloat(d.len) > 0 ? '' : ' (기본)'), 2) + row('영상 제작 방식', 움직임 + (paid ? '' : ' (체험판)'), 2) +
-        row('목소리', 목소리, 3) + row('화면 꾸미기', 꾸밈, 4) + row('썸네일', 썸네일, 4) +
+        row('목소리', 목소리, 3) + row('화면 꾸미기', 꾸밈, 5) + row('썸네일', 썸네일, 5) +
         `<p class="pw-note">AI 목소리가 들어간 영상은 유튜브에 올릴 때 "변경된 콘텐츠" 표시를 확인해 주세요.${(!d.narrate && 움직임 !== '이미지 중심') ? esc(' AI 영상 장면이 있어서 "합성된 콘텐츠"로도 표시해야 하고, 완성된 영상에서 제품 모양·글자가 실제와 같은지 꼭 확인해 주세요.') : ''}${esc(광고)}</p>`;
     }
     function buildReview() {
@@ -5505,7 +5506,7 @@
       lastKind = 현재종류();   // 종류를 바꿨다가 돌아오면 처음부터 (필수 항목 검사를 건너뛰지 않게)
       { const dt = fields.querySelector('.gn-more'); if (dt) { if (!active) dt.open = true; else if (!wasActive) dt.open = false; } }   // 단계 화면에서는 '더 세밀하게'를 접어 두고, 예전 화면에서는 늘 펼쳐 둔다
       wasActive = active;
-      fields.classList.toggle('pw-on', active);
+      fields.classList.toggle('pw-on', active); fields.classList.toggle('pw-gn', active && GN());
       bar.hidden = nav.hidden = hint.hidden = !active;
       review.classList.toggle('df-hide', !active);
       { const gf = gnForm(); if (gf) { gf.classList.toggle('df-hide', !(active && GN())); const sel = document.getElementById('df-form'), want = sel && sel.value === '롱폼' ? '롱폼' : '쇼츠'; const rd = gf.querySelector(`input[name="gn-form"][value="${want}"]`); if (rd) rd.checked = true; } }
@@ -5559,6 +5560,7 @@
     fields.addEventListener('change', () => soon(false));
     window.__pwRefresh = render;
     window.__pwOn = on;
+    window.__pwLast = () => LAST;
     window.__pwGo = go;
     render();
   }
@@ -5939,7 +5941,7 @@
           if (window.RWVoice && RWVoice.value()) { answers.voice = RWVoice.value(); answers.voiceSummary = RWVoice.summary(); }   // 목소리·자막 카드 값 (접수 v3.26 body.voice)
         } else {
         productExtra = null;
-        if (window.__pwOn && window.__pwOn()) { const gr = readGeneral(); if (gr.err) { window.__pwGo(gr.part === 'kind' ? 0 : gr.part === 'content' ? 1 : gr.part === 'screen' ? 2 : 4); pdShowErr(gr.err, gr.el); return; } }   // 단계 화면에서는 막힌 칸이 있는 단계로 돌아가 알려 준다
+        if (window.__pwOn && window.__pwOn()) { const gr = readGeneral(); if (gr.err) { window.__pwGo(gr.part === 'kind' ? 0 : gr.part === 'content' ? 1 : gr.part === 'screen' ? 2 : 5); pdShowErr(gr.err, gr.el); return; } }   // 단계 화면에서는 막힌 칸이 있는 단계로 돌아가 알려 준다
         const gsr = (window.__rwGenScript && window.__rwGenLib) ? window.__rwGenLib().find(x => x.id === window.__rwGenScript.id && x.chapters && x.chapters.length) : null;
         { const gr2 = (window.__pwOn && window.__pwOn()) ? readGeneral() : null; mediaExtra = (gr2 && gr2.data && gr2.data.media && gr2.data.media.length && gsr) ? { media: gr2.data.media, people: gr2.data.people === true } : null; }   // 내 사진·영상(검사는 위 readGeneral 에서 끝났다)
         if (window.__rwGenScript && !gsr) { alert('선택한 대본을 이 브라우저 보관함에서 찾지 못했어요. 대본을 다시 불러와 주세요.'); return; }
@@ -6459,7 +6461,7 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
     host.className='sc-card gn-script';
     var nt=note;note='';
     host.innerHTML='<h4>대본</h4><div class="sc-opts"><button type="button" data-m="skip" aria-pressed="'+(mode==='skip')+'">주제만 적으면 AI가 써 줘요</button><button type="button" data-m="mine" aria-pressed="'+(mode==='mine')+'">내 대본</button>'+(L.length?'<button type="button" data-m="lib" aria-pressed="'+(mode==='lib')+'">보관함에서 불러오기</button>':'')+'</div>'+
-    '<p class="sc-note">'+({skip:'아래 주제를 바탕으로 AI가 '+f+' 대본을 써서 영상으로 만들어요. 만들기 전에 대본을 먼저 보고 고치고 싶다면 "내 대본"을 골라 주세요.',mine:'왼쪽 <b>대본 만들기</b>와 같은 작업실에서 '+f+' 대본을 쓰고 고쳐요. 대본은 이 브라우저에 보관돼요.',lib:'확정해 둔 '+f+' 대본을 골라요.'})[mode]+(mode==='skip'&&f==='롱폼'?' 이야기·해설처럼 길게 듣는 영상은 "내 대본"을 고르면 낭독형으로도 만들 수 있어요.':'')+(nt?' <b>'+esc(nt)+'</b>':'')+'</p>'+
+    '<p class="sc-note">'+({skip:'앞에서 적은 주제를 바탕으로 AI가 '+f+' 대본을 써서 영상으로 만들어요. 만들기 전에 대본을 먼저 보고 고치고 싶다면 "내 대본"을 골라 주세요.',mine:'왼쪽 <b>대본 만들기</b>와 같은 작업실에서 '+f+' 대본을 쓰고 고쳐요. 대본은 이 브라우저에 보관돼요.',lib:'확정해 둔 '+f+' 대본을 골라요.'})[mode]+(mode==='skip'&&f==='롱폼'?' 이야기·해설처럼 길게 듣는 영상은 "내 대본"을 고르면 낭독형으로도 만들 수 있어요.':'')+(nt?' <b>'+esc(nt)+'</b>':'')+'</p>'+
     (L.length&&mode==='skip'?'<button type="button" class="sc-hint" data-m="lib">저장해 둔 '+f+' 대본이 '+L.length+'개 있어요 · 눌러서 불러오기</button>':'')+
     (mode==='skip'?'':mode==='lib'?'<div class="sh-lib">'+L.slice(0,5).map(function(y,i){return'<div class="sh-item"><span>'+esc(y.title)+' <small>'+(f==='롱폼'&&typeof y.narrate==='boolean'?(y.narrate?'낭독형 · ':'AI 영상형 · '):'')+lenText(y)+'</small></span><button type="button" data-use="'+i+'">이 대본 쓰기</button></div>'}).join('')+'</div>':'<button type="button" class="sc-act" id="gs-open">'+f+' 대본 만들기</button>');
     host.querySelectorAll('[data-m]').forEach(function(b){b.onclick=function(){mode=b.dataset.m;render();redraw()}});
