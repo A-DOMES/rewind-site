@@ -1,6 +1,6 @@
 /* 로그인 화면 왼쪽 소개 슬라이드 (new / dashboard / project / new-studio-preview 공통)
    내용은 gate-slides.js 의 SLIDES 표 한 곳에서 고친다. 색은 페이지의 --amber 를 따르고 없으면 기본값. */
-.gate-show { position: relative; background: #0f0d0b; color: #f2e9da; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; gap: 20px; padding: calc(28px + env(safe-area-inset-top, 0px)) clamp(24px, 4vw, 56px) 44px; min-height: 100%; }
+.gate-show { position: relative; background: #000000; color: #f2e9da; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; gap: 20px; padding: calc(28px + env(safe-area-inset-top, 0px)) clamp(24px, 4vw, 56px) 44px; min-height: 100%; }
 .gate-show::before, .gate-show::after { content: ""; position: absolute; top: 0; bottom: 0; width: 10px; background: repeating-linear-gradient(to bottom, #221d19 0 12px, transparent 12px 26px); }
 .gate-show::before { left: 14px; } .gate-show::after { right: 14px; }
 .gs-wrap { position: relative; flex: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 20px; min-height: 0; }
@@ -32,7 +32,7 @@
 .gs-phone em { position: absolute; left: 22px; bottom: 22px; font-style: normal; font-size: .74rem; font-weight: 700; padding: 5px 10px; border-radius: 99px; color: #f2e9da; background: rgba(15,13,11,.72); }
 
 /* 틀 3: 목록 카드 */
-.gs-list { width: min(520px, 100%); background: #1a1612; border: 1px solid #2e2822; border-radius: 20px; padding: 18px 18px 8px; }
+.gs-list { width: min(520px, 100%); background: #0d0d0d; border: 1px solid #2e2822; border-radius: 20px; padding: 18px 18px 8px; }
 .gs-list h3 { margin: 0 0 8px; padding: 0 4px; font-size: .9rem; font-weight: 600; color: #9a8f80; }
 .gs-row { display: flex; align-items: center; gap: 12px; padding: 13px 4px; border-top: 1px solid #2a241e; font-size: 1.08rem; line-height: 1.4; color: #f2e9da; }
 .gs-row:first-of-type { border-top: 0; }
@@ -45,7 +45,7 @@
 .gs-rail::before { content: ""; position: absolute; left: 7px; right: 7px; top: 14px; height: 3px; border-radius: 2px; background: linear-gradient(90deg, #5b4a2c, var(--amber, #e2a23c)); }
 .gs-rail ol { position: relative; list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); }
 .gs-rail li { display: flex; flex-direction: column; gap: 10px; font-size: .88rem; line-height: 1.35; color: #cfc4b2; }
-.gs-rail li::before { content: ""; width: 14px; height: 14px; border-radius: 50%; background: #0f0d0b; border: 3px solid var(--amber, #e2a23c); }
+.gs-rail li::before { content: ""; width: 14px; height: 14px; border-radius: 50%; background: #000000; border: 3px solid var(--amber, #e2a23c); }
 .gs-rail li b { display: block; font-size: 1.05rem; color: #f2e9da; }
 .gs-rail li:last-child { align-items: flex-end; text-align: right; }
 .gs-rail li:nth-child(2), .gs-rail li:nth-child(3) { align-items: center; text-align: center; }
