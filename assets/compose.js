@@ -53,7 +53,7 @@
   function 합치기(선택, 종류) {
     var t = (템플릿목록 || []).find(function (x) { return x.id === 선택.템플릿 && (!종류 || x.종류.indexOf(종류) >= 0); });
     var 값 = Object.assign({}, 기본, 현재가로 ? { 줄길이: 0.88 } : {}, t ? t.기본 : {});
-    ['자막모양', '글꼴', '자막크기', '줄수', '줄길이', '핵심색', '자막거리', '자막가로', '자막끄기', '제목높이', '제목크기', '제목위', '제목세로', '제목가로', '제목띠색', '제목글자색', '읽는효과', '읽는색'].forEach(function (k) { if (선택[k] !== undefined) 값[k] = 선택[k]; });
+    ['자막모양', '글꼴', '자막크기', '줄수', '줄길이', '핵심색', '자막거리', '자막가로', '자막끄기', '제목높이', '제목크기', '제목위', '제목세로', '제목가로', '제목띠색', '제목글자색', '가운데색', '읽는효과', '읽는색'].forEach(function (k) { if (선택[k] !== undefined) 값[k] = 선택[k]; });
     if (t && t.허용스타일 && t.허용스타일.indexOf(값.자막모양) < 0) 값.자막모양 = t.기본.자막모양;
     return { 값: 값, 템플릿: t || null };
   }
@@ -68,7 +68,7 @@
     if (선택.자막모양) 조각.push((모양들.find(function (x) { return x[0] === 선택.자막모양; }) || [0, 선택.자막모양])[1]);
     if (선택.자막크기) 조각.push('크기 ' + 선택.자막크기);
     if (선택.읽는효과 && 선택.읽는효과 !== '끔') 조각.push('읽는 글자 ' + 선택.읽는효과);
-    if (선택.제목높이 !== undefined || 선택.제목크기 !== undefined || 선택.제목위 !== undefined || 선택.제목세로 !== undefined || 선택.제목가로 !== undefined || 선택.제목띠색 !== undefined || 선택.제목글자색 !== undefined) 조각.push('제목 모양 바꿈');
+    if (선택.제목높이 !== undefined || 선택.제목크기 !== undefined || 선택.제목위 !== undefined || 선택.제목세로 !== undefined || 선택.제목가로 !== undefined || 선택.제목띠색 !== undefined || 선택.가운데색 !== undefined || 선택.제목글자색 !== undefined) 조각.push('제목 모양 바꿈');
     if (선택.줄수) 조각.push(선택.줄수 + '줄');
     if (선택.자막위치 && 선택.자막위치 !== '아래') 조각.push('자막 ' + 선택.자막위치);
     if (선택.자막끄기) 조각.push('자막 끄기');
@@ -119,7 +119,7 @@
       띠손잡이.style.display = 제목형 ? 'block' : 'none'; 띠손잡이.style.top = (상자.띠 / H * 100) + '%';
       ttx.style.fontSize = (상자.크기 * 0.66 / W * 100) + 'cqw'; ttx.style.lineHeight = (상자.크기 / W * 100) + 'cqw';   // ASS 의 크기는 줄 높이, 한글 폭은 그 0.66배(서버 render.js 글자폭과 같음)
        ttx.style.left = (상자.x / W * 100) + '%'; ttx.style.top = ((상자.위 !== null ? 상자.위 : H * 0.133) / H * 100) + '%';
-      ctr.style.display = 가운데형 ? 'block' : 'none'; bg.style.filter = 가운데형 ? 'blur(5px) brightness(.7)' : ''; bg.style.transform = 가운데형 ? 'scale(1.12)' : '';
+      ctr.style.display = 가운데형 ? 'block' : 'none'; var 띠 = 가운데형 && 헥스.test(v.가운데색 || '') ? v.가운데색 : ''; bg.style.filter = 가운데형 && !띠 ? 'blur(5px) brightness(.7)' : ''; bg.style.visibility = 띠 ? 'hidden' : ''; phone.style.background = 띠 || ''; bg.style.transform = 가운데형 ? 'scale(1.12)' : '';
       var box = RWLayout.자막상자(W, H, { 위치: 자막위치, 크기: v.자막크기 * Math.min(W, H) / 1080, 줄수: v.줄수, 줄길이: v.줄길이, 거리: v.자막거리, 가로: v.자막가로, 안전영역: !가로 });
       sub.style.cssText = 'left:' + ((box.x + box.w / 2) / W * 100) + '%;top:' + (box.y / H * 100) + '%;width:' + (box.w / W * 100) + '%;height:' + (box.h / H * 100) + '%;font-size:' + (v.자막크기 * 0.8 / 1080 * 100 * (가로 ? 0.5625 : 1)) + 'cqw;display:' + (v.자막끄기 ? 'none' : 'flex') + ';flex-direction:column;justify-content:flex-end;overflow:hidden;';   // 줄 칸을 잡고 글은 아래 칸부터 채운다
       sub.style.fontFamily = (글꼴들.find(function (g) { return g[0] === v.글꼴; }) || 글꼴들[0])[2];
@@ -262,17 +262,18 @@
       function 색행(이름, 키, 목록, 기본색, 띠만) {
         var r = el('div', 'cz-row'); r.appendChild(el('label', '', 이름)); var 칸 = el('div', 'cz-chips'); r.appendChild(칸); c1b.appendChild(r);
         var 지금 = function () { var x = 합치기(선택, 종류).값[키]; return (헥스.test(x || '') ? x : 기본색).toLowerCase(); };
-        목록.forEach(function (c) { var b = el('button', 'cz-chip'); b.type = 'button'; b.title = c[0]; var d = el('span'); d.style.cssText = 'display:inline-block;width:.9em;height:.9em;border-radius:50%;margin-right:.35em;vertical-align:-.1em;border:1px solid #8886;background:' + c[1]; b.appendChild(d); b.appendChild(document.createTextNode(c[0]));
+        목록.forEach(function (c) { var b = el('button', 'cz-chip'); b.type = 'button'; b.title = c[0]; var d = el('span'); d.style.cssText = 'display:inline-block;width:.9em;height:.9em;border-radius:50%;margin-right:.35em;vertical-align:-.1em;border:1px solid #8886;background:' + (c[1] || 'linear-gradient(135deg,#888,#ddd)'); b.appendChild(d); b.appendChild(document.createTextNode(c[0]));
           b.addEventListener('click', function () { if (c[1].toLowerCase() === 기본색.toLowerCase()) delete 선택[키]; else 선택[키] = c[1].toUpperCase(); 갱신(); }); 칸.appendChild(b); 눌림목록.push(function () { b.setAttribute('aria-pressed', String(지금() === c[1].toLowerCase())); }); });
-        var 직접 = el('label', 'cz-chip'); 직접.style.cursor = 'pointer'; 직접.appendChild(document.createTextNode('직접 고르기 ')); var 입 = el('input'); 입.type = 'color'; 입.value = 지금(); 입.setAttribute('aria-label', '제목 ' + 이름 + ' 직접 고르기'); 입.style.cssText = 'width:1.6em;height:1.2em;padding:0;border:0;background:none;vertical-align:middle;cursor:pointer';
+        var 직접 = el('label', 'cz-chip'); 직접.style.cursor = 'pointer'; 직접.appendChild(document.createTextNode('직접 고르기 ')); var 입 = el('input'); 입.type = 'color'; 입.value = 지금() || '#000000'; 입.setAttribute('aria-label', '제목 ' + 이름 + ' 직접 고르기'); 입.style.cssText = 'width:1.6em;height:1.2em;padding:0;border:0;background:none;vertical-align:middle;cursor:pointer';
         입.addEventListener('input', function () { 선택[키] = 입.value.toUpperCase(); 갱신(); }); 직접.appendChild(입); 칸.appendChild(직접);
-        눌림목록.push(function () { 직접.setAttribute('aria-pressed', String(!목록.some(function (c) { return c[1].toLowerCase() === 지금(); }))); if (document.activeElement !== 입) 입.value = 지금(); });
-        제목행들.push({ r: r, 띠만: !!띠만 });
+        눌림목록.push(function () { 직접.setAttribute('aria-pressed', String(!목록.some(function (c) { return c[1].toLowerCase() === 지금(); }))); if (document.activeElement !== 입) 입.value = 지금() || '#000000'; });
+        제목행들.push({ r: r, 띠만: 띠만 });
       }
       색행('띠 색', '제목띠색', [['검정', '#15110e'], ['남색', '#14213d'], ['진초록', '#12372a'], ['자주', '#3b1d3a'], ['빨강', '#8b1e1e'], ['크림', '#f5f1e8'], ['노랑', '#ffd60a']], '#15110e', true);
+      색행('위·아래 빈 곳', '가운데색', [['흐리게', ''], ['검정', '#000000'], ['남색', '#14213d'], ['진초록', '#12372a'], ['자주', '#3b1d3a'], ['빨강', '#8b1e1e'], ['크림', '#f5f1e8']], '', '가운데');
       색행('글자 색', '제목글자색', [['노랑', '#fff200'], ['흰색', '#ffffff'], ['검정', '#111111'], ['하늘', '#4dc3ff'], ['분홍', '#ff4d8d'], ['초록', '#2ee6a6']], '#fff200', false);
       c1b.appendChild(el('p', 'cz-hint', '띠 높이를 바꾸면 글자가 띠에 맞춰져요. 글자는 띠 아래 화면 위로도 옮길 수 있어요'));
-      눌림목록.push(function () { var 보임 = !가로 && (화면 === '제목고정형' || 화면 === '가운데영상형'); c1b.style.display = 보임 ? '' : 'none'; 제목행들.forEach(function (h) { h.r.style.display = h.띠만 && 화면 !== '제목고정형' ? 'none' : ''; }); });
+      눌림목록.push(function () { var 보임 = !가로 && (화면 === '제목고정형' || 화면 === '가운데영상형'); c1b.style.display = 보임 ? '' : 'none'; 제목행들.forEach(function (h) { h.r.style.display = (h.띠만 === '가운데' ? 화면 !== '가운데영상형' : h.띠만 && 화면 !== '제목고정형') ? 'none' : ''; }); });
       var c2 = 카드('자막 글자 모양');
       var gm = el('div', 'cz-grid'); c2.appendChild(gm);
       모양들.forEach(function (m) { var b = el('button', 'cz-opt'); b.type = 'button'; var s = el('span', 'cz-sample', '가나다'); s.style.fontWeight = String(m[2].w); s.style.color = m[2].c === '#fff' ? 'var(--ink)' : m[2].c; s.style.textShadow = m[2].c === '#fff' ? 'none' : '0 0 1px #0006'; if (m[2].bg) { s.style.background = m[2].bg === 'rgba(0,0,0,.75)' ? '#000a' : m[2].bg; s.style.color = m[2].bg === 'rgba(0,0,0,.75)' ? '#fff' : m[2].c; s.style.padding = '0 6px'; s.style.borderRadius = '4px'; } b.appendChild(s); b.appendChild(el('small', '', m[1]));
