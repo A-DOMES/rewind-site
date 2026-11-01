@@ -1257,7 +1257,8 @@
   #df-fields.pw-on .df-sleep > [data-pw], #df-fields.pw-on .df-yadam > [data-pw] { display: none; }
   #df-fields.pw-on[data-pwstep="2"] .df-sleep > [data-pw="2"], #df-fields.pw-on[data-pwstep="2"] .df-yadam > [data-pw="2"],
   #df-fields.pw-on[data-pwstep="3"] .df-sleep > [data-pw="3"], #df-fields.pw-on[data-pwstep="3"] .df-yadam > [data-pw="3"],
-  #df-fields.pw-on[data-pwstep="4"] .df-sleep > [data-pw="4"], #df-fields.pw-on[data-pwstep="4"] .df-yadam > [data-pw="4"] { display: block; }
+  #df-fields.pw-on[data-pwstep="4"] .df-sleep > [data-pw="4"], #df-fields.pw-on[data-pwstep="4"] .df-yadam > [data-pw="4"],
+  #df-fields.pw-on[data-pwstep="5"] .df-sleep > [data-pw="5"], #df-fields.pw-on[data-pwstep="5"] .df-yadam > [data-pw="5"] { display: block; }
   #df-fields.pw-on > .sc-card { display: none; }
   #df-fields.pw-on:not(.pw-gn)[data-pwstep="4"] > .sc-card:not(.gn-script) { display: flex; }   /* 분위기·야담은 이야기·대본이 4단계(길이·소리 뒤) */
   #df-fields.pw-on.pw-gn[data-pwstep="4"] > .sc-card.gn-script { display: flex; }   /* 쇼츠·롱폼은 대본이 4단계(소리 뒤, 주제·스타일·연출과 같은 화면) */
@@ -2406,7 +2407,7 @@
   const COMPOSE_ICON = '<i class="cz-entry-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 11h10M7 15h5"/><path d="M17.5 14.2l.6 1.2 1.2.6-1.2.6-.6 1.2-.6-1.2-1.2-.6 1.2-.6z"/></svg></i>';
   function composeEntryHtml(pre, kind) {   // 야담('yd')·수면음악('sl')용 입구 카드. 값은 composeState 에 종류(kind)와 함께 저장된다
     const 상태 = composeKind === kind ? composeState : null;
-    return `<div class="df-field" data-pw="3"><div class="cz-entry">${COMPOSE_ICON}<div class="cz-entry-txt"><b>영상 꾸미기</b><small>자막 모양 · 자막 자리 · 고정 글자</small><span class="cz-sum" id="${pre}-compose-sum" aria-live="polite">${composeSumText(kind, 상태).replace(/[<>&]/g, '')}</span></div><button type="button" class="cz-btn" id="${pre}-compose-open">꾸미기</button></div></div>`;
+    return `<div class="df-field" data-pw="5"><div class="cz-entry">${COMPOSE_ICON}<div class="cz-entry-txt"><b>영상 꾸미기</b><small>자막 모양 · 자막 자리 · 고정 글자</small><span class="cz-sum" id="${pre}-compose-sum" aria-live="polite">${composeSumText(kind, 상태).replace(/[<>&]/g, '')}</span></div><button type="button" class="cz-btn" id="${pre}-compose-open">꾸미기</button></div></div>`;
   }
   let composeState = null;   // 영상 꾸미기(RWCompose)에서 고른 값. 건드린 것만 들어 있고, 비어 있으면 보내지 않는다(productExtra처럼 챗봇에는 보내지 않고 접수 때 합친다)
   let productExtra = null;   // 상품쇼츠: 사진·영상 목록, 설명·후기, 판매 유형, 권리·사람 확인 (상담 챗봇에는 보내지 않는다)
@@ -5297,12 +5298,12 @@
   const PW_TODO = ['어떤 영상을 만들지 골라 주세요', '제품 이름과 내용을 적어 주세요', '사진·영상, 길이, 영상 제작 방식을 정해 주세요', '목소리를 정해 주세요', '화면 모양과 자막을 확인해 주세요 (그대로 두어도 돼요)', '내용을 확인하고 신청해 주세요'];
   const PW_TODO_GN = ['쇼츠와 롱폼 중에서 골라 주세요', '영상 길이와 영상 제작 방식을 정해 주세요', '목소리를 정해 주세요 (그대로 두어도 돼요)', '무엇에 대한 영상인지 적고, 대본을 정해 주세요 (AI에게 맡겨도 돼요)', '상단 문구, 화면 구성, 자막 위치를 정해 주세요 (그대로 두어도 돼요)', '내용을 확인하고 신청해 주세요'];
   const PW_NAMES_GN = ['종류', '화면·길이', '소리', '대본', '꾸미기', '확인'];   // 쇼츠·롱폼: 소리(길이·속도)가 정해진 뒤에 대본을 만들고, 그 제목이 꾸미기로 이어진다
-  const PW_NAMES_LONG = ['종류', '화면·길이', '소리', '내용', '확인'];   // 분위기 영상·야담: 꾸미기 단계가 없다
-  const PW_TODO_MO = ['어떤 영상인지 골라 주세요', '영상 구성과 길이·그림 방식을 정해 주세요', '소리를 정해 주세요 (그대로 두어도 돼요)', '이야기·분위기를 정해 주세요', '내용을 확인하고 신청해 주세요'];
-  const PW_TODO_YD = ['어떤 영상인지 골라 주세요', '방식과 길이, 품질을 정해 주세요', '이야기꾼 목소리를 정해 주세요', '이야기 소재나 내 대본을 정해 주세요', '내용을 확인하고 신청해 주세요'];
+  const PW_NAMES_LONG = ['종류', '화면·길이', '소리', '대본', '꾸미기', '확인'];   // 분위기 영상·야담: 꾸미기 단계가 없다
+  const PW_TODO_MO = ['어떤 영상인지 골라 주세요', '영상 구성과 길이·그림 방식을 정해 주세요', '소리를 정해 주세요 (그대로 두어도 돼요)', '이야기·분위기를 정해 주세요', '자막 모양과 자리, 고정 글자를 꾸며 주세요 (그대로 두어도 돼요)', '내용을 확인하고 신청해 주세요'];
+  const PW_TODO_YD = ['어떤 영상인지 골라 주세요', '방식과 길이, 품질을 정해 주세요', '이야기꾼 목소리를 정해 주세요', '이야기 소재나 내 대본을 정해 주세요', '자막 모양과 자리, 고정 글자를 꾸며 주세요 (그대로 두어도 돼요)', '내용을 확인하고 신청해 주세요'];
   const PW_TITLES = {   // 한 카드를 단계마다 다른 제목으로 보여 준다 (카드 하나에 여러 단계 내용이 들어 있어서)
-    '수면음악': { 2: ['영상 구성과 길이', '무엇을 담을지, 길이와 그림 방식을 정해 주세요. 고른 것에 맞춰 필요한 칸만 보여요'], 3: ['소리', '소리와 목소리를 정해 주세요'] },
-    '야담': { 2: ['방식과 길이', '방식, 길이, 품질을 정해 주세요'], 3: ['이야기꾼 목소리', '목소리를 골라 주세요'], 4: ['이야기 소재', '소재 예시로 시작해 볼 수 있어요'] } };
+    '수면음악': { 2: ['영상 구성과 길이', '무엇을 담을지, 길이와 그림 방식을 정해 주세요. 고른 것에 맞춰 필요한 칸만 보여요'], 3: ['소리', '소리와 목소리를 정해 주세요'], 5: ['영상 꾸미기', '자막 모양·자리·고정 글자를 정해요. 그대로 두어도 괜찮아요'] },
+    '야담': { 2: ['방식과 길이', '방식, 길이, 품질을 정해 주세요'], 3: ['이야기꾼 목소리', '목소리를 골라 주세요'], 4: ['이야기 소재', '소재 예시로 시작해 볼 수 있어요'], 5: ['영상 꾸미기', '자막 모양·자리·고정 글자를 정해요. 그대로 두어도 괜찮아요'] } };
   const PW_ICON = ['M4 5h12v10H4z M7 5v10 M13 5v10 M4 8h3 M4 12h3 M13 8h3 M13 12h3', 'M4 16l1-4 8-8 3 3-8 8z M12 5l3 3', 'M3 4h14v12H3z M3 14l4-4 3 3 3-3 4 4 M13 7.5h.01', 'M4 8v4h3l4 3V5L7 8z M14 7a4 4 0 010 6', 'M10 3l1.8 4.2L16 9l-4.2 1.8L10 15l-1.8-4.2L4 9l4.2-1.8z', 'M4 10.5l4 4 8-9', 'M5 3h7l3 3v11H5z M8 9h4 M8 12h4'];
   const PW_OK = 'M4 10.5l4 4 8-9', PW_LOCK = 'M5 9h10v7H5z M7 9V7a3 3 0 016 0v2';
   function setupWizard(wrap, isMedia) {
@@ -5337,7 +5338,7 @@
     const q = sel => fields.querySelector(sel);
     const secsGn = () => [[typeSec(), gnForm()], [q('.gn-screen')], [q('.df-voicesec'), q('.df-gender')], [q('.sc-card.gn-script'), q('.gn-content'), q('.gn-mymedia'), q('.df-extra')], [q('.gn-style'), q('.gn-thumb')], [review]];
     window.__pwContent = () => (GN() || LONGK()) ? 3 : 1;   // 주제·이야기를 적는 단계(쇼츠·롱폼·야담·분위기는 4단계, 상품쇼츠는 2단계)
-    const secsLong = () => [[typeSec()], [q(MO() ? '.df-sleep' : '.df-yadam')], [q(MO() ? '.df-sleep' : '.df-yadam'), q('.df-voicesec')], [q('.sc-card:not(.gn-script)'), q('.gn-content'), MO() ? null : q('.df-yadam')], [review]];   // 같은 카드(.df-sleep/.df-yadam)가 2·3·4단계에 모두 들어가고, 안의 블록은 data-pw 로 단계별로 나뉜다
+    const secsLong = () => [[typeSec()], [q(MO() ? '.df-sleep' : '.df-yadam')], [q(MO() ? '.df-sleep' : '.df-yadam'), q('.df-voicesec')], [q('.sc-card:not(.gn-script)'), q('.gn-content'), MO() ? null : q('.df-yadam')], [q(MO() ? '.df-sleep' : '.df-yadam')], [review]];   // 같은 카드(.df-sleep/.df-yadam)가 2·3·4단계에 모두 들어가고, 안의 블록은 data-pw 로 단계별로 나뉜다
     const secs = () => LONGK() ? secsLong() : GN() ? secsGn() : [[typeSec(), refSec], [q('.pd-content'), q('.df-extra')], [q('.pd-media')], [q('.df-voicesec'), q('.df-gender')], [q('.pd-style')], [review, q('.pd-agree')]];   // 한 단계에 섹션이 둘 이상일 수 있다 (기존 옵션을 숨기지 않으려고)
     const PARTS_PD = { 1: 'content', 2: 'media', 4: 'style', 5: 'agree' }, PARTS_GN = { 0: 'kind', 1: 'screen', 3: 'content', 4: 'style' }, PARTS_MO = { 1: 'screen', 2: 'sound', 3: 'content' }, PARTS_YD = { 1: 'screen', 3: 'content' };
     const partsOf = () => MO() ? PARTS_MO : YD() ? PARTS_YD : GN() ? PARTS_GN : PARTS_PD;
@@ -5372,13 +5373,13 @@
         const 소리칸 = !document.getElementById('df-snd-field').classList.contains('df-hide');
         review.innerHTML = head + row('영상 구성', lab('df-comp'), 1) + row('이야기·분위기', gv('df-topic') || (대본 ? 대본제목(대본) : '아직 비어 있어요'), 3) +
           (읽기 && 대본 ? row('읽을 대본', 대본.title, 3) : '') + (말 === '내목소리' ? row('내 목소리 녹음', gv('df-voiceUrl').slice(0, 60) || '아직 비어 있어요', 1) : '') + row('영상 길이', 길이, 1) + row('품질 등급', lab('df-tier'), 1) + row('화면 움직임', lab('df-smode'), 1) + row('그림 방식', lab('df-img'), 1) +
-          (소리칸 ? row('소리', 소리이름[현재소리()] || 현재소리(), 2) : '') + (말 === '목소리' && window.RWVoice ? row('목소리', RWVoice.summary() || '기본', 2) : '') +
+          (소리칸 ? row('소리', 소리이름[현재소리()] || 현재소리(), 2) : '') + (말 === '목소리' && window.RWVoice ? row('목소리', RWVoice.summary() || '기본', 2) : '') + row('영상 꾸미기', (document.getElementById((MO() ? 'sl' : 'yd') + '-compose-sum') || {}).textContent || '기본 모양', 4) +
           `<p class="pw-note">${planMode === 'paid' ? '' : '체험판은 3분 길이로 만들어요. '}AI 목소리나 AI 그림이 들어간 영상은 유튜브에 올릴 때 "변경된 콘텐츠" 표시를 확인해 주세요.${대본 && 대본.occ === '부고·추모' && 읽기 ? esc(' 부고·추모 영상이라 신청 직전에 성함·일시·장소를 한 번 더 확인해요.') : ''}</p>`;
       } else {
         const sr = (window.__rwScript && window.__rwScript.src === 'ready') ? window.__rwScript : null, long = 야담형식() === 'long';
         const 분 = planMode === 'paid' ? 롱폼길이분() : 3;
         review.innerHTML = head + row('이야기', sr ? 대본제목(sr) + ' (내 대본)' : (gv('df-topic') || '아직 비어 있어요'), 3) +
-          row('영상 길이', planMode !== 'paid' ? '3분 (체험판)' : sr ? '대본 길이에 맞춰요 (약 ' + 분표시(sr.minutes) + ')' : 분표시(분), 1) + (long ? row('인트로 길이', 인트로초() > 0 ? 인트로초() + '초' : '없음', 1) : '') + row('품질 등급', lab('df-ytier'), 1) + row('이야기꾼 목소리', gv('df-yvoice'), 2) +
+          row('영상 길이', planMode !== 'paid' ? '3분 (체험판)' : sr ? '대본 길이에 맞춰요 (약 ' + 분표시(sr.minutes) + ')' : 분표시(분), 1) + (long ? row('인트로 길이', 인트로초() > 0 ? 인트로초() + '초' : '없음', 1) : '') + row('품질 등급', lab('df-ytier'), 1) + row('이야기꾼 목소리', gv('df-yvoice'), 2) + row('영상 꾸미기', (document.getElementById((MO() ? 'sl' : 'yd') + '-compose-sum') || {}).textContent || '기본 모양', 4) +
           `<p class="pw-note">AI 목소리와 AI 그림${long ? '·AI 영상 인트로' : ''}이 들어간 영상이에요. 유튜브에 올릴 때 "변경된 콘텐츠"(합성 콘텐츠) 표시를 확인해 주세요. 이야기는 창작이며 실존 인물·실제 사건은 넣지 않아요.</p>`;
       }
     }
