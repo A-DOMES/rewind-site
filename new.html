@@ -1825,6 +1825,13 @@
   #df-fields.pw-on[data-pwstep="4"] .df-comp input:checked + .ccard { background: linear-gradient(160deg, rgba(var(--ca),.55), rgba(var(--cb),.4)); border-color: #fff; box-shadow: 0 0 0 1px rgba(255,255,255,.5), 0 0 22px rgba(var(--ca),.8); }
   #df-fields.pw-on[data-pwstep="4"] .vp-more { background: linear-gradient(135deg, rgba(40,48,84,.6), rgba(14,18,40,.9)); border: 1px solid rgba(138,99,224,.45); border-radius: 14px; }
   #df-fields.pw-on[data-pwstep="4"] .vp-btn { background: transparent; border: 1.5px dashed rgba(170,120,255,.7); color: #fff; border-radius: 999px; }
+  /* 4단계 목소리 목록: 항상 2열, 높이를 제한해 안에서 스크롤 (그림처럼 단순한 둥근 재생 단추) */
+  #df-fields.pw-on[data-pwstep="4"] .rwvp .vp-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); max-height: 330px; overflow-y: auto; align-content: start; grid-auto-rows: max-content; padding: 4px 6px 4px 2px; scrollbar-width: thin; scrollbar-color: #5b6aa8 transparent; }
+  #df-fields.pw-on[data-pwstep="4"] .vp-card { padding: 10px 12px; gap: 10px; min-height: 0; }
+  #df-fields.pw-on[data-pwstep="4"] .vp-card[aria-pressed="true"]::after { display: none; }
+  #df-fields.pw-on[data-pwstep="4"] .vp-card small { display: block; margin: 2px 0 0; padding: 0; background: none; color: #aab3d8; }
+  #df-fields.pw-on[data-pwstep="4"] .vp-play { background: rgba(255,255,255,.06); border: 1.5px solid rgba(255,255,255,.55); box-shadow: none; }
+  #df-fields.pw-on[data-pwstep="4"] .vp-card[aria-pressed="true"] .vp-play, #df-fields.pw-on[data-pwstep="4"] .vp-auto .vp-play { border-color: #ffb347; color: #ffd58a; background: rgba(255,179,71,.12); }
 @media (prefers-reduced-motion: reduce) { .pw-st, #df-fields .tcard, .pw-nav .pw-next { transition: none; } }
 </style>
 <script src="./theme.js"></script>
