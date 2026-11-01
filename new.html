@@ -1707,6 +1707,23 @@
   #df-fields > .sc-card.gn-script button[aria-pressed="true"], #df-fields > .sc-card.gn-script button.on, #df-fields > .sc-card.gn-script button.active, #df-fields > .sc-card.gn-script button.sel { border-color: #ffb347; color: #ffd58a; box-shadow: 0 0 0 1px #ffb347, 0 0 22px rgba(255,170,60,.55); }
   .df-price .amt .val { color: #ffd58a; font-size: 2rem; text-shadow: 0 0 14px rgba(255,180,70,.5); }
   .df-price { text-align: center; }
+  /* 색 정리: 큰 틀(카드·바·입력)은 어두운 회색 유리, 파랑은 선택지·선택 표시에만 쓴다 */
+  :root { --nw-card: linear-gradient(160deg, rgba(44,48,64,.88), rgba(17,18,26,.94)); --nw-edge: rgba(160,170,210,.28); --nw-opt: linear-gradient(160deg, rgba(24,52,140,.85), rgba(30,22,80,.92)); }
+  #df-fields .df-field input:not([type=radio]):not([type=checkbox]):not([type=range]), #df-fields .df-field textarea, #df-fields .df-field select, #df-fields .rf-in { background: rgba(12,14,28,.85); border: 1px solid rgba(125,115,235,.7); }
+  #df-fields .mood-card { background: linear-gradient(160deg, rgba(48,52,68,.95), rgba(26,28,40,.95)); border: 1px solid rgba(160,170,210,.25); border-left-width: 4px; }
+  #df-fields.pw-on .df-types .tcard, #df-fields.pw-on .df-chipset .tcard, #df-fields .lp-opt .tcard, #df-fields .df-comp .ccard { background: var(--nw-opt); border-color: rgba(170,120,255,.6); }
+  #df-fields.pw-on .df-types input:checked + .tcard, #df-fields.pw-on .df-chipset input:checked + .tcard { background: linear-gradient(160deg, rgba(36,84,220,.9), rgba(52,30,130,.92)); }
+  .pw-st { background: rgba(255,255,255,.05); }
+  .pw-st.done { background: rgba(255,255,255,.08); border-color: rgba(160,170,210,.5); }
+  .pw-st.cur { background: linear-gradient(160deg, rgba(36,84,220,.45), rgba(20,22,60,.8)); }
+  .pw-st { min-height: 92px; }
+  .pw-st svg { width: 36px; height: 36px; }
+  @media (max-width: 640px) { .pw-st { min-height: 88px; } .pw-st svg { width: 32px; height: 32px; } }
+  .df-tab { background: linear-gradient(160deg, rgba(88,52,170,.55), rgba(40,22,86,.8)); }
+  .df-tab.active { background: linear-gradient(160deg, rgba(36,84,220,.75), rgba(26,50,140,.8)); }
+  #df-fields > .sc-card.gn-script { display: grid; grid-template-columns: auto auto 1fr; gap: 10px; align-items: center; }
+  #df-fields > .sc-card.gn-script > h4, #df-fields > .sc-card.gn-script > p, #df-fields > .sc-card.gn-script > :not(button) { grid-column: 1 / -1; }
+  #df-fields > .sc-card.gn-script button { white-space: nowrap; padding: 10px 14px; font-size: .9rem; background: var(--nw-opt); }
 @media (prefers-reduced-motion: reduce) { .pw-st, #df-fields .tcard, .pw-nav .pw-next { transition: none; } }
 </style>
 <script src="./theme.js"></script>
