@@ -53,7 +53,7 @@
   function 합치기(선택, 종류) {
     var t = (템플릿목록 || []).find(function (x) { return x.id === 선택.템플릿 && (!종류 || x.종류.indexOf(종류) >= 0); });
     var 값 = Object.assign({}, 기본, 현재가로 ? { 줄길이: 0.88 } : {}, t ? t.기본 : {});
-    ['자막모양', '글꼴', '자막크기', '줄수', '줄길이', '핵심색', '자막거리', '자막가로', '자막끄기', '제목높이', '제목크기', '제목위', '제목세로', '제목가로', '제목띠색', '제목글자색', '가운데색', '읽는효과', '읽는색'].forEach(function (k) { if (선택[k] !== undefined) 값[k] = 선택[k]; });
+    ['자막모양', '글꼴', '자막크기', '줄수', '줄길이', '핵심색', '자막거리', '자막가로', '자막끄기', '제목높이', '제목크기', '제목위', '제목세로', '제목가로', '제목띠색', '제목글자색', '가운데색', '가운데아래', '읽는효과', '읽는색'].forEach(function (k) { if (선택[k] !== undefined) 값[k] = 선택[k]; });
     if (t && t.허용스타일 && t.허용스타일.indexOf(값.자막모양) < 0) 값.자막모양 = t.기본.자막모양;
     return { 값: 값, 템플릿: t || null };
   }
@@ -68,7 +68,7 @@
     if (선택.자막모양) 조각.push((모양들.find(function (x) { return x[0] === 선택.자막모양; }) || [0, 선택.자막모양])[1]);
     if (선택.자막크기) 조각.push('크기 ' + 선택.자막크기);
     if (선택.읽는효과 && 선택.읽는효과 !== '끔') 조각.push('읽는 글자 ' + 선택.읽는효과);
-    if (선택.제목높이 !== undefined || 선택.제목크기 !== undefined || 선택.제목위 !== undefined || 선택.제목세로 !== undefined || 선택.제목가로 !== undefined || 선택.제목띠색 !== undefined || 선택.가운데색 !== undefined || 선택.제목글자색 !== undefined) 조각.push('제목 모양 바꿈');
+    if (선택.제목높이 !== undefined || 선택.제목크기 !== undefined || 선택.제목위 !== undefined || 선택.제목세로 !== undefined || 선택.제목가로 !== undefined || 선택.제목띠색 !== undefined || 선택.가운데색 !== undefined || 선택.가운데아래 !== undefined || 선택.제목글자색 !== undefined) 조각.push('제목 모양 바꿈');
     if (선택.줄수) 조각.push(선택.줄수 + '줄');
     if (선택.자막위치 && 선택.자막위치 !== '아래') 조각.push('자막 ' + 선택.자막위치);
     if (선택.자막끄기) 조각.push('자막 끄기');
@@ -99,6 +99,7 @@
     var ttl = el('div'); ttl.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:18.4%;background:#15110e;display:none;overflow:hidden'; var ttx = el('div'); ttx.style.cssText = 'position:absolute;transform:translateX(-50%);text-align:center;font-weight:800;white-space:pre'; phone.appendChild(ttl); phone.appendChild(ttx);
     var 띠손잡이 = el('div', 'cz-bandh'); 띠손잡이.style.display = 'none'; phone.appendChild(띠손잡이);
     var ctr = el('div', 'cz-ctr'); ctr.style.display = 'none'; phone.insertBefore(ctr, gbox);
+    var 칸손잡이 = el('div', 'cz-bandh'); 칸손잡이.style.display = 'none'; phone.appendChild(칸손잡이); var 칸상태 = { 위: 0.235, 아래: 0.595 };
     var sub = el('div', 'cz-sub'); phone.appendChild(sub); var blk = el('div'); blk.style.cssText = 'position:absolute;inset:0;pointer-events:none'; phone.appendChild(blk);
     var tools = el('div', 'cz-pvtools'); var gl = el('label'); var gc = el('input'); gc.type = 'checkbox'; gc.checked = true; gl.appendChild(gc); gl.appendChild(document.createTextNode(' 유튜브가 쓰는 자리 점선으로 보기')); tools.appendChild(gl);
     var 다시 = el('button', 'cz-btn'); 다시.type = 'button'; 다시.textContent = '▶ 읽는 효과 다시 보기'; 다시.style.cssText = 'min-height:44px;display:none'; tools.appendChild(다시);
@@ -119,6 +120,11 @@
       띠손잡이.style.display = 제목형 ? 'block' : 'none'; 띠손잡이.style.top = (상자.띠 / H * 100) + '%';
       ttx.style.fontSize = (상자.크기 * 0.66 / W * 100) + 'cqw'; ttx.style.lineHeight = (상자.크기 / W * 100) + 'cqw';   // ASS 의 크기는 줄 높이, 한글 폭은 그 0.66배(서버 render.js 글자폭과 같음)
        ttx.style.left = (상자.x / W * 100) + '%'; ttx.style.top = ((상자.위 !== null ? 상자.위 : H * 0.133) / H * 100) + '%';
+      if (가운데형) {   // 영상 칸: 위는 문구 아래(서버와 같은 식), 아래 끝은 꾸미기에서 정한 값(없으면 예전 크기)
+        var 위비 = Math.max(0.235, (상자.위 !== null ? 상자.위 : H * 0.133) / H + (상자.높이 + 상자.크기 * 0.07) / H + 0.012), 아래비 = typeof v.가운데아래 === 'number' ? Math.max(위비 + 0.12, Math.min(0.9, v.가운데아래)) : 위비 + 0.36;
+        칸상태 = { 위: 위비, 아래: 아래비 }; ctr.style.top = (위비 * 100) + '%'; ctr.style.height = ((아래비 - 위비) * 100) + '%'; 칸손잡이.style.top = (아래비 * 100) + '%';
+      }
+      칸손잡이.style.display = 가운데형 ? 'block' : 'none';
       ctr.style.display = 가운데형 ? 'block' : 'none'; var 띠 = 가운데형 && 헥스.test(v.가운데색 || '') ? v.가운데색 : ''; bg.style.filter = 가운데형 && !띠 ? 'blur(5px) brightness(.7)' : ''; bg.style.visibility = 띠 ? 'hidden' : ''; phone.style.background = 띠 || ''; bg.style.transform = 가운데형 ? 'scale(1.12)' : '';
       var box = RWLayout.자막상자(W, H, { 위치: 자막위치, 크기: v.자막크기 * Math.min(W, H) / 1080, 줄수: v.줄수, 줄길이: v.줄길이, 거리: v.자막거리, 가로: v.자막가로, 안전영역: !가로 });
       sub.style.cssText = 'left:' + ((box.x + box.w / 2) / W * 100) + '%;top:' + (box.y / H * 100) + '%;width:' + (box.w / W * 100) + '%;height:' + (box.h / H * 100) + '%;font-size:' + (v.자막크기 * 0.8 / 1080 * 100 * (가로 ? 0.5625 : 1)) + 'cqw;display:' + (v.자막끄기 ? 'none' : 'flex') + ';flex-direction:column;justify-content:flex-end;overflow:hidden;';   // 줄 칸을 잡고 글은 아래 칸부터 채운다
@@ -196,6 +202,7 @@
       var 지금 = v.제목세로 !== undefined ? v.제목세로 : t.기본세로; 선택.제목세로 = 한계(지금 + dy, t.세로범위[0], t.세로범위[1]); delete 선택.제목위;   // 글자는 띠 안(맨 위 ~ 맨 아래)에서 자유롭게 옮긴다
       var 반폭 = 한계((t.폭 / 2 + W * 0.02) / W, 0, 0.5); 선택.제목가로 = 한계((v.제목가로 !== undefined ? v.제목가로 : 0.5) + dx, 반폭, 1 - 반폭);
     }
+    function 칸이동(dx, dy) { var v = 합치기(선택, 종류).값; 선택.가운데아래 = Math.round(한계((typeof v.가운데아래 === 'number' ? Math.max(칸상태.위 + 0.12, v.가운데아래) : 칸상태.아래) + dy, 칸상태.위 + 0.12, 0.9) * 1000) / 1000; }
     function 띠이동(dx, dy) { var v = 합치기(선택, 종류).값, h = 한계((v.제목높이 !== undefined ? v.제목높이 : 0.184) + dy, 0.1, 0.3); 선택.제목높이 = h; }
     var 읽는단어 = [], 읽는타이머 = [];
     function 읽기멈춤() { 읽는타이머.forEach(clearTimeout); 읽는타이머 = []; }
@@ -353,7 +360,7 @@
       추가.addEventListener('click', function () { if (블록목록().length >= 4) return; 블록목록().push({ 글: '', 위치: { 기준: '위', 거리: 0.15, 가로: 0.5 }, 크기: 60, 모양: '굵은흰', 글꼴: 'Noto Sans CJK KR' }); 블록그리기(); 갱신(); 적용상태(); });
       블록그리기();
       블록다시 = 블록그리기;
-      끌기(ttx, 제목이동, '제목 글자'); 끌기(sub, 자막이동, '자막'); 끌기(띠손잡이, 띠이동, '제목 띠 높이');
+      끌기(ttx, 제목이동, '제목 글자'); 끌기(sub, 자막이동, '자막'); 끌기(띠손잡이, 띠이동, '제목 띠 높이'); 끌기(칸손잡이, 칸이동, '영상 칸 아래 끝');
     }
 
     function 닫기(결과) { 읽기멈춤(); if (끌기중단) 끌기중단(); document.removeEventListener('keydown', 키); document.body.style.overflow = 이전스크롤; ov.remove(); if (이전포커스 && 이전포커스.focus) 이전포커스.focus(); if (결과 && typeof opt.onDone === 'function') opt.onDone(결과); }
