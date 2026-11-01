@@ -79,8 +79,10 @@
     new MutationObserver(function () { if (열림() && (document.body.classList.contains('topic-open') || document.body.classList.contains('studio-open'))) 닫기(); })
       .observe(document.body, { attributes: true, attributeFilter: ['class'] });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && 열림() && S.단계 > 1 && !e.isComposing && !e.defaultPrevented) { 이동(S.단계 - 1); } });
-    document.addEventListener('rw-flags', 동기);
-    동기();
+    // 기능공개는 서버에서 받아 와야 알 수 있어서 메뉴가 늦게 뜬다. 지난번 결과를 이 브라우저에 기억해 두었다가 먼저 보여 주고, 서버 답이 오면 바로잡는다.
+    document.addEventListener('rw-flags', function () { try { localStorage.setItem('rw_guide_on', 켜짐() ? '1' : '0'); } catch (e) {} 동기(); });
+    var 기억 = false; try { 기억 = localStorage.getItem('rw_guide_on') === '1'; } catch (e) {}
+    if (기억) { if (사이드) 사이드.hidden = false; if (모바일) 모바일.hidden = false; } else 동기();
   }
   function 동기() {
     var on = 켜짐();
