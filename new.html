@@ -5022,7 +5022,8 @@
     document.querySelectorAll('#df-fields [aria-invalid]').forEach(e => e.removeAttribute('aria-invalid'));
     if (!msg) return;
     { const dt = el && el.closest && el.closest('details'); if (dt) dt.open = true; }   // 접힌 칸의 오류는 펼쳐서 보여 준다
-    const host = (el && el.closest('.df-field, .pimg-card')) || document.querySelector('#df-fields .pw-cur') || document.querySelector('.df-prod');
+    let host = (el && el.closest('.df-field, .pimg-card')) || document.querySelector('#df-fields .pw-cur') || document.querySelector('.df-prod');
+    if (host.classList.contains('pimg-card')) host = host.querySelector('.pimg-body') || host;   // 카드는 가로 배치라 오류 문구를 카드에 직접 붙이면 입력 칸이 찌그러진다
     const p = document.createElement('p'); p.className = 'pd-err'; p.id = 'pd-err'; p.setAttribute('role', 'alert'); p.textContent = msg;
     host.appendChild(p);
     if (el) { el.setAttribute('aria-invalid', 'true'); el.setAttribute('aria-describedby', 'pd-err'); try { el.focus({ preventScroll: true }); } catch (e) {} }
