@@ -158,12 +158,12 @@
       '<input class="vp-range" id="vp-speed" type="range" min="' + SPEED_MIN + '" max="' + SPEED_MAX + '" step="0.01" value="' + d.speed + '"><div class="vp-ticks" aria-hidden="true">' + tickHtml + '</div>' +
       '<p class="df-hint" id="vp-speed-hint"></p></div>' +
       tone +
-      '<div class="vp-play" data-vp="preview"><button type="button" class="vp-btn" id="vp-preview" disabled>' + svg(I.play, true) + '미리 듣기</button><span class="vp-note" id="vp-preview-note">미리 듣기는 곧 열려요. 지금은 고른 값대로 만들어요</span></div>' +
       '<details class="vp-more" id="vp-more"><summary><span>자세히 · 음높이, 쉼, 발음 사전, 자막</span><span class="vp-sum" id="vp-sum"></span><span class="vp-chev">' + svg(I.chev) + '</span></summary><div class="vp-body">' +
       '<div class="df-field vp-speed" data-vp="pitch"><div class="vp-row"><label for="vp-pitch">음높이</label><span class="vp-now" id="vp-pitch-now"></span></div><input class="vp-range" id="vp-pitch" type="range" min="' + PITCH_MIN + '" max="' + PITCH_MAX + '" step="1" value="0"><div class="vp-pitch-l" aria-hidden="true"><span>낮게</span><span>기본</span><span>높게</span></div></div>' +
       style + pause + subOn + subPos + subSize + subStyle + subFx + subKey +
       '<div class="df-field" data-vp="dict"><label>발음 사전 <span class="opt">선택 · 최대 ' + DICT_MAX + '개</span></label><p class="df-hint" style="margin:0 0 8px">제품명·영어 이름처럼 잘못 읽는 말을 알려 주세요. 자막에는 원래 글자가 그대로 나와요.</p><div class="vp-dict" id="vp-dict"></div></div>' +
       '</div></details>' +
+      '<div class="vp-play" data-vp="preview"><div class="vp-pv-txt"><b>최종 미리 듣기</b><small>위에서 고른 목소리·속도·분위기와 자세히 설정까지 모두 적용해서, 실제 영상에서 들릴 소리를 미리 들어봐요</small></div><button type="button" class="vp-btn" id="vp-preview" disabled>' + svg(I.play, true) + '미리 듣기</button><span class="vp-note" id="vp-preview-note">미리 듣기는 곧 열려요. 지금은 고른 값대로 만들어요</span></div>' +
       '<p class="vp-ai">AI 목소리가 들어간 영상은 유튜브에 올릴 때 "변경된 콘텐츠" 표시 안내를 확인해 주세요.</p></section>';
   }
 
