@@ -222,7 +222,12 @@
     var 눌림목록 = [];
     function 눌림갱신() { 눌림목록.forEach(function (f) { f(); }); }
 
-    function 카드(제목, 작은글) { var c = el('section', 'cz-card'); var h = el('h3', '', 제목); if (작은글) h.appendChild(el('small', '', 작은글)); c.appendChild(h); body.appendChild(c); return c; }
+    var 카드그림 = { '모양 고르기': 'M12 3l1.8 4.6L18.5 9l-4.7 1.4L12 15l-1.8-4.6L5.5 9l4.7-1.4zM18 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z', '제목 설정': 'M5 6h14M12 6v13M9 19h6', '자막 글자 모양': 'M4 7h16v10H4zM8 12h8M10 15h4', '읽는 글자 효과': 'M4 18l5-5 4 4 7-9M4 6h6', '자막 크기와 줄': 'M5 7h14M5 12h10M5 17h14', '자막 위치': 'M12 21s-6-5.2-6-10a6 6 0 0112 0c0 4.8-6 10-6 10zM12 11.5a1.8 1.8 0 100-3.6 1.8 1.8 0 000 3.6z', '고정 글자': 'M9 4h6l-1 6 3 3H7l3-3zM12 13v7' };
+    function 카드(제목, 작은글) {
+      var c = el('section', 'cz-card'); var top = el('div', 'cz-ch'); var ic = el('i', 'cz-ico'); ic.setAttribute('aria-hidden', 'true');
+      ic.innerHTML = '<svg viewBox="0 0 24 24"><path d="' + (카드그림[제목] || 'M5 12h14') + '"/></svg>'; top.appendChild(ic);
+      var h = el('h3', '', 제목); if (작은글) h.appendChild(el('small', '', 작은글)); top.appendChild(h); c.appendChild(top); body.appendChild(c); return c;
+    }
     function 칩묶음(c, 목록, 읽기, 쓰기, 이름) {
       var wrap = el('div', 'cz-chips'); wrap.setAttribute('role', 'group'); wrap.setAttribute('aria-label', 이름);
       목록.forEach(function (it) { var b = el('button', 'cz-chip', it[1]); b.type = 'button'; b.addEventListener('click', function () { 쓰기(it[0]); 갱신(); }); wrap.appendChild(b); 눌림목록.push(function () { b.setAttribute('aria-pressed', String(읽기() === it[0])); }); });

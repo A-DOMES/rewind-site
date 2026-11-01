@@ -90,3 +90,32 @@
 .cz-entry .cz-btn { flex: none; min-height: 44px; }
 @media (max-width: 480px) { .cz-entry { flex-wrap: wrap; } .cz-entry .cz-btn { width: 100%; } }
 label.cz-chip { display: inline-flex; align-items: center; }
+
+/* ── 2026-11-01 재디자인: 신청 화면과 같은 말(검정 바탕·파랑 보라 빛·아이콘 머리글·명함 카드) ── */
+.cz-dlg { background: #000; border-color: var(--nw-edge, rgba(140,160,255,.3)); border-radius: 22px; box-shadow: 0 0 40px rgba(60,90,220,.25); }
+.cz-head, .cz-foot { background: #05060c; border-color: var(--nw-edge, var(--line)); }
+.cz-pv { background: radial-gradient(120% 80% at 50% 0%, #10142e, #05060c 70%); border-right-color: var(--nw-edge, var(--line)); }
+.cz-phone { border-color: rgba(140,160,255,.45); box-shadow: 0 0 28px rgba(80,110,255,.28); }
+.cz-card { background: var(--nw-card, var(--bg-raised)); border: 1px solid var(--nw-edge, var(--line)); border-radius: 18px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.4); }
+.cz-ch { display: flex; align-items: center; gap: var(--sp-3); }
+.cz-ch h3 { display: flex; flex-direction: column; gap: 2px; font-size: 1.02rem; }
+.cz-ch h3 small { margin: 0; font-size: var(--fs-xs); }
+.cz-ico { flex: none; width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center; background: linear-gradient(160deg, rgba(91,140,255,.35), rgba(154,107,255,.3)); border: 1px solid var(--nw-edge, var(--line)); }
+.cz-ico svg { width: 20px; height: 20px; fill: none; stroke: #cfe0ff; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.cz-opt, .cz-chip { background: rgba(255,255,255,.04); border-color: rgba(160,170,210,.28); }
+.cz-opt:hover, .cz-chip:hover { border-color: #7d9dff; background: rgba(91,140,255,.12); box-shadow: 0 0 14px rgba(90,130,255,.25); }
+.cz-opt[aria-pressed="true"], .cz-chip[aria-pressed="true"] { border-color: #7d9dff; background: var(--nw-opt, linear-gradient(160deg, rgba(24,52,140,.85), rgba(30,22,80,.92))); box-shadow: 0 0 16px rgba(90,130,255,.4); }
+.cz-opt[aria-pressed="true"]::after { color: #cfe0ff; }
+.cz-row input[type=range] { accent-color: #7d9dff; }
+.cz-row label { font-weight: 600; }
+.cz-btn.cz-main { background: linear-gradient(90deg, var(--nw-a, #5b8cff), var(--nw-b, #9a6bff)); border: 0; color: #fff; font-weight: 700; border-radius: 999px; box-shadow: 0 0 22px var(--nw-glow, rgba(90,130,255,.55)); }
+.cz-btn { border-radius: 999px; }
+.cz-btn:hover { border-color: #7d9dff; }
+.cz-ov :focus-visible { outline-color: #9db6ff; }
+.cz-lay-b { background: rgba(255,255,255,.04); border-color: rgba(160,170,210,.28); }
+.cz-lay-b:hover:not(:disabled) { border-color: #7d9dff; background: rgba(91,140,255,.12); box-shadow: 0 0 14px rgba(90,130,255,.25); }
+.cz-lay-b[aria-pressed="true"] { border-color: #7d9dff; background: var(--nw-opt, linear-gradient(160deg, rgba(24,52,140,.85), rgba(30,22,80,.92))); box-shadow: 0 0 16px rgba(90,130,255,.4); }
+.cz-entry { border-left-color: #7d9dff; background: var(--nw-card, var(--bg-raised)); border-color: var(--nw-edge, var(--line)); border-radius: 16px; }
+.cz-entry:hover, .cz-entry:focus-within { border-color: #7d9dff; box-shadow: 0 0 14px rgba(90,130,255,.25); }
+.cz-entry-ico svg { stroke: #cfe0ff; }
+.cz-entry-ico { background: linear-gradient(160deg, rgba(91,140,255,.35), rgba(154,107,255,.3)); }
