@@ -1734,16 +1734,15 @@
   #df-fields > .sc-card.gn-script .sc-opts button:hover { transform: translateY(-3px); filter: brightness(1.2); box-shadow: 0 0 16px var(--nw-glow); }
   #df-fields > .sc-card.gn-script .sc-opts button[aria-pressed="true"] { border-color: #ffb347; color: #ffd58a; box-shadow: 0 0 0 1px #ffb347, 0 0 22px rgba(255,170,60,.5); }
   #df-fields > .sc-card.gn-script .sc-hint { background: rgba(255,179,71,.14); color: #ffd58a; border: 1px solid rgba(255,179,71,.4); }
-  /* 카드마다 이웃한 두 색을 섞는다: --ca → --cb (rgb 숫자). 종류=파랑→남보라 / 모양=보라→자홍 / 대본=청록→파랑 */
-  #df-fields.pw-on .df-types { --ca: 70,120,255; --cb: 110,80,230; }
-  #df-fields.pw-on #gn-forms { --ca: 150,90,255; --cb: 230,80,190; }
-  #df-fields > .sc-card.gn-script .sc-opts { --ca: 30,175,190; --cb: 60,110,240; }
-  #df-fields.pw-on .df-types .tcard, #df-fields.pw-on .gn-formsec .df-chipset .tcard, #df-fields > .sc-card.gn-script .sc-opts button { background: linear-gradient(135deg, rgba(var(--ca),.55), rgba(var(--cb),.45) 70%, rgba(18,16,44,.9)); border: 1px solid rgba(var(--ca),.85); color: #fff; }
-  #df-fields.pw-on .df-types .tcard:hover, #df-fields.pw-on .gn-formsec .df-chipset .tcard:hover, #df-fields > .sc-card.gn-script .sc-opts button:hover { border-color: rgb(var(--cb)); box-shadow: 0 0 18px rgba(var(--ca),.6), 0 0 26px rgba(var(--cb),.4); filter: brightness(1.22); transform: translateY(-3px); }
-  #df-fields.pw-on .df-types input:checked + .tcard, #df-fields.pw-on .gn-formsec .df-chipset input:checked + .tcard { background: linear-gradient(135deg, rgba(var(--ca),.9), rgba(var(--cb),.8)); border-color: #fff; box-shadow: 0 0 0 1px rgba(255,255,255,.55), 0 0 22px rgba(var(--ca),.8), 0 0 34px rgba(var(--cb),.6); }
-  #df-fields.pw-on .df-types .tcard .ti, #df-fields.pw-on .gn-formsec .df-chipset .tcard .ti { background: rgba(255,255,255,.14); color: #fff; }
-  #df-fields.pw-on .df-types input:checked + .tcard .ti, #df-fields.pw-on .gn-formsec .df-chipset input:checked + .tcard .ti { background: rgba(255,255,255,.28); }
-  #df-fields > .sc-card.gn-script .sc-opts button[aria-pressed="true"] { background: linear-gradient(135deg, rgba(var(--ca),.9), rgba(var(--cb),.8)); border-color: #fff; color: #fff; box-shadow: 0 0 0 1px rgba(255,255,255,.55), 0 0 22px rgba(var(--ca),.8), 0 0 34px rgba(var(--cb),.6); }
+  /* 중후한 색(B안): 카드마다 어두운 두 색을 섞고, 선택 표시는 모두 금색 테두리·빛. --a→--b 바탕, --ei 평소 테두리 */
+  #df-fields.pw-on .df-types { --a: #27406b; --b: #172540; --ei: #4b6aa0; }
+  #df-fields.pw-on #gn-forms { --a: #4a3a22; --b: #2a2114; --ei: #6b5836; }
+  #df-fields > .sc-card.gn-script .sc-opts { --a: #1f4f4a; --b: #13312e; --ei: #3d7d75; }
+  #df-fields.pw-on .df-types .tcard, #df-fields > .sc-card.gn-script .sc-opts button { background: linear-gradient(135deg, var(--a), var(--b)); border: 1px solid var(--ei); color: #fff; }
+  #df-fields.pw-on .df-types .tcard:hover, #df-fields > .sc-card.gn-script .sc-opts button:hover { border-color: #e0c27a; box-shadow: 0 0 14px rgba(201,164,92,.45); filter: brightness(1.25); transform: translateY(-3px); }
+  #df-fields.pw-on .df-types input:checked + .tcard, #df-fields > .sc-card.gn-script .sc-opts button[aria-pressed="true"] { background: linear-gradient(135deg, var(--a), var(--b)); border-color: #c9a45c; color: #fff; box-shadow: 0 0 0 1px #c9a45c, 0 0 22px rgba(201,164,92,.6); filter: brightness(1.15); }
+  #df-fields.pw-on .df-types .tcard .ti { background: rgba(255,255,255,.1); color: #e8d9b0; }
+  #df-fields.pw-on .df-types input:checked + .tcard .ti { background: #c9a45c; color: #1a1408; }
 @media (prefers-reduced-motion: reduce) { .pw-st, #df-fields .tcard, .pw-nav .pw-next { transition: none; } }
 </style>
 <script src="./theme.js"></script>
