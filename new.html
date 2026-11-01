@@ -1799,6 +1799,32 @@
   #df-fields.pw-on #df-motion .lp-opt.is-off .lp-card { opacity: .6; }
   #df-fields.pw-on .len-chips .len-chip.on { border: 1.5px solid #ffb347; color: #ffd58a; box-shadow: 0 0 14px rgba(255,170,60,.45); }
   #df-fields.pw-on .len-chips .len-chip:hover { filter: brightness(1.25); transform: translateY(-2px); }
+  /* 4단계(소리): 그림 기준 — 목소리 카드는 유리 + 둥근 재생 단추, 고르면 금색 + 체크, 분위기 카드는 색 테두리 */
+  #df-fields.pw-on[data-pwstep="4"] .vp-auto, #df-fields.pw-on[data-pwstep="4"] .vp-card { background: linear-gradient(135deg, rgba(48,58,98,.75), rgba(18,22,48,.92)); border: 1.5px solid rgba(138,99,224,.45); border-radius: 14px; color: #fff; position: relative; transition: transform .15s, box-shadow .15s, filter .15s, border-color .15s; }
+  #df-fields.pw-on[data-pwstep="4"] .vp-auto { border-color: rgba(255,179,71,.55); }
+  #df-fields.pw-on[data-pwstep="4"] .vp-auto:hover, #df-fields.pw-on[data-pwstep="4"] .vp-card:hover { transform: translateY(-3px); filter: brightness(1.25); box-shadow: 0 0 16px rgba(130,110,255,.5); }
+  #df-fields.pw-on[data-pwstep="4"] .vp-auto[aria-pressed="true"], #df-fields.pw-on[data-pwstep="4"] .vp-card[aria-pressed="true"] { border-color: #ffb347; background: linear-gradient(135deg, rgba(120,84,24,.55), rgba(40,30,16,.92)); box-shadow: 0 0 0 1px #ffb347, 0 0 22px rgba(255,170,60,.5); }
+  #df-fields.pw-on[data-pwstep="4"] .vp-card[aria-pressed="true"]::after { content: "✓"; position: absolute; top: 8px; right: 10px; width: 20px; height: 20px; border-radius: 50%; background: #ffb347; color: #2a1a00; font-size: .8rem; font-weight: 900; display: grid; place-items: center; }
+  #df-fields.pw-on[data-pwstep="4"] .vp-card small { display: inline-block; margin-top: 3px; padding: 1px 8px; border-radius: 999px; background: rgba(255,255,255,.1); color: #d6dcff; }
+  #df-fields.pw-on[data-pwstep="4"] .vp-play { background: linear-gradient(135deg, #4a78f0, #7a3fd8); border: 1.5px solid rgba(255,255,255,.55); color: #fff; box-shadow: 0 0 12px rgba(110,110,255,.45); }
+  #df-fields.pw-on[data-pwstep="4"] .vp-play:hover { filter: brightness(1.25); transform: scale(1.08); }
+  #df-fields.pw-on[data-pwstep="4"] .vp-chip { background: linear-gradient(135deg, rgba(52,62,100,.7), rgba(22,26,52,.9)); border: 1px solid rgba(138,99,224,.45); color: #fff; transition: transform .15s, filter .15s, box-shadow .15s; }
+  #df-fields.pw-on[data-pwstep="4"] .vp-chip:hover { filter: brightness(1.25); transform: translateY(-2px); }
+  #df-fields.pw-on[data-pwstep="4"] .vp-chip[aria-pressed="true"] { background: linear-gradient(135deg, #e8a840, #c07f20); border-color: #ffd58a; color: #2a1a00; font-weight: 700; box-shadow: 0 0 14px rgba(255,170,60,.5); }
+  #df-fields.pw-on[data-pwstep="4"] .vp-now { color: #ffb347; font-weight: 700; }
+  #df-fields.pw-on[data-pwstep="4"] .vp-range { accent-color: #ffb347; }
+  #df-fields.pw-on[data-pwstep="4"] .df-comp { --ca: 70,150,255; --cb: 110,80,230; }
+  #df-fields.pw-on[data-pwstep="4"] .df-comp label:nth-child(1) { --ca: 70,150,255; --cb: 60,100,220; }
+  #df-fields.pw-on[data-pwstep="4"] .df-comp label:nth-child(2) { --ca: 150,90,240; --cb: 90,70,220; }
+  #df-fields.pw-on[data-pwstep="4"] .df-comp label:nth-child(3) { --ca: 240,110,80; --cb: 180,70,90; }
+  #df-fields.pw-on[data-pwstep="4"] .df-comp label:nth-child(4) { --ca: 70,150,255; --cb: 100,90,230; }
+  #df-fields.pw-on[data-pwstep="4"] .df-comp label:nth-child(5) { --ca: 230,170,60; --cb: 190,120,40; }
+  #df-fields.pw-on[data-pwstep="4"] .df-comp .ccard { background: linear-gradient(160deg, rgba(var(--ca),.28), rgba(14,18,40,.95)); border: 2px solid rgba(var(--ca),.9); border-radius: 14px; color: #fff; transition: transform .15s, box-shadow .15s, filter .15s; }
+  #df-fields.pw-on[data-pwstep="4"] .df-comp .ccard .ci { background: rgba(var(--ca),.3); color: #fff; }
+  #df-fields.pw-on[data-pwstep="4"] .df-comp label:hover .ccard { transform: translateY(-3px); filter: brightness(1.25); box-shadow: 0 0 16px rgba(var(--ca),.6); }
+  #df-fields.pw-on[data-pwstep="4"] .df-comp input:checked + .ccard { background: linear-gradient(160deg, rgba(var(--ca),.55), rgba(var(--cb),.4)); border-color: #fff; box-shadow: 0 0 0 1px rgba(255,255,255,.5), 0 0 22px rgba(var(--ca),.8); }
+  #df-fields.pw-on[data-pwstep="4"] .vp-more { background: linear-gradient(135deg, rgba(40,48,84,.6), rgba(14,18,40,.9)); border: 1px solid rgba(138,99,224,.45); border-radius: 14px; }
+  #df-fields.pw-on[data-pwstep="4"] .vp-btn { background: transparent; border: 1.5px dashed rgba(170,120,255,.7); color: #fff; border-radius: 999px; }
 @media (prefers-reduced-motion: reduce) { .pw-st, #df-fields .tcard, .pw-nav .pw-next { transition: none; } }
 </style>
 <script src="./theme.js"></script>
