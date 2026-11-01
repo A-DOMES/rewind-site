@@ -1853,6 +1853,8 @@
   #df-fields.pw-on .vp-play[data-vp="preview"] .vp-btn { width: 100%; justify-content: center; min-height: 52px; font-size: 1.05rem; border-radius: 14px; background: linear-gradient(90deg, #7a2fd0, #3a72e8); border: 1.5px solid rgba(255,255,255,.6); color: #fff; }
   #df-fields.pw-on .vp-play[data-vp="preview"] .vp-btn:disabled { background: transparent; border: 1.5px dashed rgba(170,120,255,.7); color: #fff; }
   #df-fields.pw-on .vp-play[data-vp="preview"] .vp-note { text-align: center; color: #aab3d8; }
+  #df-fields .rf-applied { margin: 6px 0 0; font-size: .86rem; color: #ffd98a; }
+  #df-fields .rf-ap-sound, #df-fields .rf-ap-screen { color: #ffd98a; margin: 4px 0 8px; }
 @media (prefers-reduced-motion: reduce) { .pw-st, #df-fields .tcard, .pw-nav .pw-next { transition: none; } }
 </style>
 <script src="./theme.js"></script>
@@ -4833,7 +4835,7 @@
     else if (!topic && !script && !gsel) add('content', '주제', '어떤 영상인지 주제를 적어 주세요.', g('df-topic'));
     // 참고 영상: 분석이 끝나기 전에 넘어가면 참고가 빠지므로 잠깐 기다리게 한다(참고 없이 계속하기도 가능)
     const rfs = (window.RWReference && RWReference.state) ? RWReference.state() : null;
-    if (rfs && rfs.visible && form === '쇼츠' && rfs.phase === 'wait') add('kind', '참고 영상 분석(끝나면 다음으로)', '영상 구성을 살펴보는 중이에요. 끝나면 다음으로 넘어갈 수 있어요. 기다리기 어려우면 "참고 없이 계속하기"를 눌러 주세요.', document.querySelector('.rf-box'));
+    if (rfs && rfs.visible && rfs.phase === 'wait') add('kind', '참고 영상 분석(끝나면 다음으로)', '영상 구성을 살펴보는 중이에요. 끝나면 다음으로 넘어갈 수 있어요. 기다리기 어려우면 "참고 없이 계속하기"를 눌러 주세요.', document.querySelector('.rf-box'));
     // 내 사진·영상(선택, 일반 쇼츠만): 넣었으면 내 대본이 있어야 하고, 사용 권리·사람 여부를 확인받는다
     const mmSec = document.querySelector('#df-fields .gn-mymedia');
     let mm = { media: [], people: false };
@@ -5385,7 +5387,7 @@
       const row = (k, v, go) => `<div class="pw-row"><span class="pw-k">${k}</span><span class="pw-v">${esc(v)}</span><button type="button" class="pw-fix" data-go="${go}">고치기</button></div>`;
       const 롱폼 = d.form === '롱폼';
       const 참고상태 = (window.RWReference && RWReference.state) ? RWReference.state() : null;   // 참고 영상: 분석이 끝났으면 사실만 적고, 주소만 넣고 분석하지 않았으면 쓰이지 않는다고 알린다
-      const 참고줄 = (!롱폼 && 참고상태 && 참고상태.visible) ? (참고상태.phase === 'done' ? row('참고 영상', '이 영상에 맞춰 만들어요 (화면·자막·말 속도, 직접 고른 값이 먼저)', 0) : (참고상태.urlOk ? row('참고 영상', '주소만 넣고 분석하지 않아서 쓰이지 않아요', 0) : '')) : '';
+      const 참고줄 = (참고상태 && 참고상태.visible) ? (참고상태.phase === 'done' ? row('참고 영상', '이 영상에 맞춰 만들어요 (화면·자막·말 속도, 직접 고른 값이 먼저)', 0) : (참고상태.urlOk ? row('참고 영상', '주소만 넣고 분석하지 않아서 쓰이지 않아요', 0) : '')) : '';
       const 분 = parseFloat(d.len) > 0 ? parseFloat(d.len) : defaultLen(d.form);
       const 움직임 = d.narrate ? '낭독형 (목소리가 읽고 그림이 천천히 바뀜)' : paid ? motionOf(현재움직임() === '자동' ? '혼합' : 현재움직임()) : '이미지 중심';
       const 제품 = [d.link && '링크 ' + d.link.slice(0, 40), d.img && '사진 주소 입력함'].filter(Boolean).join(' · ') || '없음';
@@ -6528,7 +6530,56 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
 })();
 </script>
 <script src="./assets/notice-cards.js"></script>
-<script src="./assets/reference-input.js"></script>
+<script src="./assets/reference-input.js?v=20261101"></script>
 <script src="./assets/gate-slides.js" defer></script>
+<script>
+/* 참고 영상 → 신청 칸 미리 채우기. 분석이 끝나면 서버가 준 값(fill: 확신 있는 것만)을 아직 건드리지 않은 칸에만 넣고, 어디에 넣었는지 알려 준다.
+   직접 고른 값이 항상 먼저다. 영상 길이는 요금이 걸려 있어 바꾸지 않는다. 다른 영상으로 바꾸거나 지우면, 우리가 넣은 값만 되돌린다. */
+(function () {
+  const 자동값 = { layout: '자동', captionPos: '자동' };
+  let 넣음 = {};   // 우리가 넣은 값 { layout, captionPos, speed, voiceGender }
+  const radio = (name) => document.querySelector('input[name="' + name + '"]:checked');
+  const 정하기 = (name, value) => { const r = document.querySelector('input[name="' + name + '"][value="' + value + '"]'); if (!r || r.disabled) return false; r.checked = true; r.dispatchEvent(new Event('change', { bubbles: true })); return true; };
+  const 말속도 = () => document.getElementById('vp-speed');
+  const 성별칸 = () => document.getElementById('df-voiceGender');
+  const 속도말 = v => (v < 1 ? '말 천천히' : '말 빠르게');
+  function 안내(목록, 대상, 클래스) {
+    document.querySelectorAll('#df-fields .' + 클래스).forEach(n => n.remove());
+    if (!목록.length) return;
+    for (const sel of 대상) {
+      const sec = document.querySelector('#df-fields ' + sel); if (!sec) continue;
+      const p = document.createElement('p'); p.className = 'df-hint ' + 클래스; p.textContent = '참고 영상에서 가져왔어요: ' + 목록.join(' · ') + ' (바꿔도 돼요)';
+      const head = sec.querySelector('.df-sec-head'); if (head) head.insertAdjacentElement('afterend', p); else sec.prepend(p);
+    }
+  }
+  function 되돌리기() {
+    if (넣음.layout && radio('df-layout')?.value === 넣음.layout) 정하기('df-layout', 자동값.layout);
+    if (넣음.captionPos && radio('df-captionPos')?.value === 넣음.captionPos) 정하기('df-captionPos', 자동값.captionPos);
+    const sp = 말속도(); if (넣음.speed && sp && Math.abs(parseFloat(sp.value) - 넣음.speed) < 0.001) { sp.value = '1'; sp.dispatchEvent(new Event('input', { bubbles: true })); }
+    const sg = 성별칸(); if (넣음.voiceGender && sg && sg.value === 넣음.voiceGender) { sg.value = ''; if (window.__rwVP && __rwVP.쇼츠) __rwVP.쇼츠.값설정(''); }
+    넣음 = {};
+  }
+  function 채우기(fill) {
+    되돌리기();
+    const 라벨 = [], 롱폼 = (document.getElementById('df-form') || {}).value === '롱폼';
+    if (fill && typeof fill === 'object') {
+      if (!롱폼 && fill.layout === '제목고정형' && (radio('df-layout')?.value || '자동') === '자동' && 정하기('df-layout', '제목고정형')) { 넣음.layout = '제목고정형'; 라벨.push('화면 구성 제목고정형'); }
+      if (['상단', '가운데', '하단'].includes(fill.captionPos) && (radio('df-captionPos')?.value || '자동') === '자동' && 정하기('df-captionPos', fill.captionPos)) { 넣음.captionPos = fill.captionPos; 라벨.push('자막 ' + fill.captionPos); }
+      const sp = 말속도(), v = Number(fill.speed);
+      if (sp && v >= 0.7 && v <= 1.5 && Math.abs(parseFloat(sp.value) - 1) < 0.001) { sp.value = String(v); sp.dispatchEvent(new Event('input', { bubbles: true })); 넣음.speed = v; 라벨.push(속도말(v)); }
+      const sg = 성별칸();
+      if (sg && (fill.voiceGender === '남성' || fill.voiceGender === '여성') && !sg.value && window.__rwVP && __rwVP.쇼츠 && __rwVP.쇼츠.값() === '') {
+        sg.value = fill.voiceGender; __rwVP.쇼츠.성별설정(fill.voiceGender === '여성' ? '여' : '남'); 넣음.voiceGender = fill.voiceGender; 라벨.push(fill.voiceGender + ' 목소리');
+      }
+    }
+    안내(라벨.filter(x => /목소리|말 /.test(x)), ['.df-voicesec'], 'rf-ap-sound');
+    안내(라벨.filter(x => /화면|자막/.test(x)), ['.gn-style'], 'rf-ap-screen');
+    if (window.RWReference && RWReference.setApplied) RWReference.setApplied(라벨);
+    try { if (window.__rwFormRedraw) window.__rwFormRedraw(); } catch (e) { }
+  }
+  document.addEventListener('referencechange', e => 채우기(e.detail && e.detail.fill));
+})();
+</script>
+
 </body>
 </html>
