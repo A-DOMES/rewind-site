@@ -16,7 +16,8 @@
   // 종류별로 가리는 항목 (그 종류의 렌더링이 지원하지 않거나, 이미 다른 칸이 있는 것)
   //  쇼츠: JSON2Video 가 쉼·자막 크기·끊기·켜고 끄기를 지원하지 않고, 자막 위치는 기존 칸이 있다
   //  야담: 자막을 끄는 기능이 없다 / 분위기 영상: 기분·읽는 속도·자막 구성(그림+음성)은 기존 칸이 이미 있다
-  var KIND_HIDE = { '상품쇼츠': [], '쇼츠': ['pause', 'subOn', 'subPos', 'subSize', 'subStyle', 'subFx', 'subKey'], '야담': ['subOn', 'subStyle', 'subFx', 'subKey'], '수면음악': ['speed', 'tone', 'subOn', 'subStyle', 'subFx', 'subKey'] };
+  var SUB_ALL = ['subOn', 'subPos', 'subSize', 'subStyle', 'subFx', 'subKey'];   // 자막 설정은 모든 종류에서 '영상 꾸미기' 창 안에서 한다(미리보기를 보며 고르도록). 여기서는 목소리 설정만
+  var KIND_HIDE = { '상품쇼츠': SUB_ALL.slice(), '쇼츠': ['pause'].concat(SUB_ALL), '야담': SUB_ALL.slice(), '수면음악': ['speed', 'tone'].concat(SUB_ALL) };
   // 야담·수면음악 렌더링은 자막 방식·강조와 '아주 크게'를 아직 넘기지 않는다(화면 비율에 맞게 자동). 넘기게 되면 위 목록과 여기서 뺀다
   var KIND_NO_XL = ['야담', '수면음악'];
   var SPEED_MIN = 0.7, SPEED_MAX = 1.5;
@@ -158,7 +159,7 @@
       '<input class="vp-range" id="vp-speed" type="range" min="' + SPEED_MIN + '" max="' + SPEED_MAX + '" step="0.01" value="' + d.speed + '"><div class="vp-ticks" aria-hidden="true">' + tickHtml + '</div>' +
       '<p class="df-hint" id="vp-speed-hint"></p></div>' +
       tone +
-      '<details class="vp-more" id="vp-more"><summary><span>자세히 · 음높이, 쉼, 발음 사전, 자막</span><span class="vp-sum" id="vp-sum"></span><span class="vp-chev">' + svg(I.chev) + '</span></summary><div class="vp-body">' +
+      '<details class="vp-more" id="vp-more"><summary><span>자세히 · 음높이, 쉼, 발음 사전</span><span class="vp-sum" id="vp-sum"></span><span class="vp-chev">' + svg(I.chev) + '</span></summary><div class="vp-body">' +
       '<div class="df-field vp-speed" data-vp="pitch"><div class="vp-row"><label for="vp-pitch">음높이</label><span class="vp-now" id="vp-pitch-now"></span></div><input class="vp-range" id="vp-pitch" type="range" min="' + PITCH_MIN + '" max="' + PITCH_MAX + '" step="1" value="0"><div class="vp-pitch-l" aria-hidden="true"><span>낮게</span><span>기본</span><span>높게</span></div></div>' +
       style + pause + subOn + subPos + subSize + subStyle + subFx + subKey +
       '<div class="df-field" data-vp="dict"><label>발음 사전 <span class="opt">선택 · 최대 ' + DICT_MAX + '개</span></label><p class="df-hint" style="margin:0 0 8px">제품명·영어 이름처럼 잘못 읽는 말을 알려 주세요. 자막에는 원래 글자가 그대로 나와요.</p><div class="vp-dict" id="vp-dict"></div></div>' +
