@@ -3533,7 +3533,7 @@
       }
     }
     // 참고 영상: 분석 결과 번호만 보낸다(값은 서버가 읽어 적용한다). 정식 모드 일반 쇼츠에서만.
-    if (mode !== 'media' && planMode === 'paid' && !answers.videoType && !answers.productShort && payload.form === '쇼츠') {
+    if (mode !== 'media' && planMode === 'paid') {   // 어떤 종류든 참고 영상 번호는 보낸다(서버가 일반 쇼츠만 값을 채우고, 나머지는 같은 주제 막기·대본 힌트에만 쓴다)
       const rf = document.getElementById('df-referenceId');
       if (rf && rf.value) payload.referenceId = String(rf.value).slice(0, 64);
     }
@@ -5338,7 +5338,7 @@
     const q = sel => fields.querySelector(sel);
     const secsGn = () => [[typeSec(), gnForm()], [q('.gn-screen')], [q('.df-voicesec'), q('.df-gender')], [q('.sc-card.gn-script'), q('.gn-content'), q('.gn-mymedia'), q('.df-extra')], [q('.gn-style'), q('.gn-thumb')], [review]];
     window.__pwContent = () => (GN() || LONGK()) ? 3 : 1;   // 주제·이야기를 적는 단계(쇼츠·롱폼·야담·분위기는 4단계, 상품쇼츠는 2단계)
-    const secsLong = () => [[typeSec()], [q(MO() ? '.df-sleep' : '.df-yadam')], [q(MO() ? '.df-sleep' : '.df-yadam'), q('.df-voicesec')], [q('.sc-card:not(.gn-script)'), q('.gn-content'), MO() ? null : q('.df-yadam')], [q(MO() ? '.df-sleep' : '.df-yadam')], [review]];   // 같은 카드(.df-sleep/.df-yadam)가 2·3·4단계에 모두 들어가고, 안의 블록은 data-pw 로 단계별로 나뉜다
+    const secsLong = () => [[typeSec(), refSec], [q(MO() ? '.df-sleep' : '.df-yadam')], [q(MO() ? '.df-sleep' : '.df-yadam'), q('.df-voicesec')], [q('.sc-card:not(.gn-script)'), q('.gn-content'), MO() ? null : q('.df-yadam')], [q(MO() ? '.df-sleep' : '.df-yadam')], [review]];   // 같은 카드(.df-sleep/.df-yadam)가 2·3·4단계에 모두 들어가고, 안의 블록은 data-pw 로 단계별로 나뉜다
     const secs = () => LONGK() ? secsLong() : GN() ? secsGn() : [[typeSec(), refSec], [q('.pd-content'), q('.df-extra')], [q('.pd-media')], [q('.df-voicesec'), q('.df-gender')], [q('.pd-style')], [review, q('.pd-agree')]];   // 한 단계에 섹션이 둘 이상일 수 있다 (기존 옵션을 숨기지 않으려고)
     const PARTS_PD = { 1: 'content', 2: 'media', 4: 'style', 5: 'agree' }, PARTS_GN = { 0: 'kind', 1: 'screen', 3: 'content', 4: 'style' }, PARTS_MO = { 1: 'screen', 2: 'sound', 3: 'content' }, PARTS_YD = { 1: 'screen', 3: 'content' };
     const partsOf = () => MO() ? PARTS_MO : YD() ? PARTS_YD : GN() ? PARTS_GN : PARTS_PD;
@@ -5532,7 +5532,7 @@
       fields.classList.toggle('pw-on', active); fields.classList.toggle('pw-gn', active && GN());
       bar.hidden = nav.hidden = hint.hidden = !active;
       review.classList.toggle('df-hide', !active);
-      { const 상품 = active && 현재종류() === '상품쇼츠'; refSec.classList.toggle('df-hide', !상품); if (window.RWReference && RWReference.move) { if (상품) RWReference.move(refSec, '상품쇼츠'); else if (gnForm()) RWReference.move(gnForm(), ''); } }
+      { const 자리폼 = { '상품쇼츠': '상품쇼츠', '야담': '야담', '수면음악': '분위기영상' }[현재종류()], 자리 = active && !!자리폼; refSec.classList.toggle('df-hide', !자리); if (window.RWReference && RWReference.move) { if (자리) RWReference.move(refSec, 자리폼); else if (gnForm()) RWReference.move(gnForm(), ''); } }
       { const gf = gnForm(); if (gf) { gf.classList.toggle('df-hide', !(active && GN())); const sel = document.getElementById('df-form'), want = sel && sel.value === '롱폼' ? '롱폼' : '쇼츠'; const rd = gf.querySelector(`input[name="gn-form"][value="${want}"]`); if (rd) rd.checked = true; } }
       const confirmBtn = document.getElementById('df-confirm');
       if (!active) { fields.removeAttribute('data-pwstep'); fields.querySelectorAll('[data-pw-t]').forEach(h => { h.textContent = h.dataset.pwT; }); fields.querySelectorAll('.pw-cur').forEach(e => e.classList.remove('pw-cur')); if (confirmBtn) { confirmBtn.style.display = ''; confirmBtn.removeAttribute('aria-disabled'); confirmBtn.classList.remove('is-blocked'); } return; }
@@ -6535,14 +6535,15 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
 })();
 </script>
 <script src="./assets/notice-cards.js"></script>
-<script src="./assets/reference-input.js?v=20261101b"></script>
+<script src="./assets/reference-input.js?v=20261102"></script>
 <script src="./assets/gate-slides.js" defer></script>
 <script>
 /* 참고 영상 → 신청 칸 미리 채우기. 분석이 끝나면 서버가 준 값(fill: 확신 있는 것만)을 아직 건드리지 않은 칸에만 넣고, 어디에 넣었는지 알려 준다.
    직접 고른 값이 항상 먼저다. 영상 길이는 요금이 걸려 있어 바꾸지 않는다. 다른 영상으로 바꾸거나 지우면, 우리가 넣은 값만 되돌린다. */
 (function () {
   const 상품쇼츠 = () => document.querySelector('input[name="df-type"]:checked')?.value === '상품쇼츠';
-  const 이름 = () => 상품쇼츠() ? { layout: 'pd-layout', cap: 'vp-subPos', 기본속도: 1.12, 기본자막: '하단', 기본구성: '자동' } : { layout: 'df-layout', cap: 'df-captionPos', 기본속도: 1, 기본자막: '자동', 기본구성: '자동' };
+  const 종류 = () => document.querySelector('input[name="df-type"]:checked')?.value || '일반';
+  const 이름 = () => 상품쇼츠() ? { layout: 'pd-layout', cap: 'vp-subPos', 기본속도: 1.12, 기본자막: '하단', 기본구성: '자동' } : (종류() === '야담' || 종류() === '수면음악') ? { layout: '', cap: '', 기본속도: 1, 기본자막: '', 기본구성: '', 종류: 종류() } : { layout: 'df-layout', cap: 'df-captionPos', 기본속도: 1, 기본자막: '자동', 기본구성: '자동' };   // 야담·분위기는 가로라 화면 구성·자막 위치 칸이 없다(자막 자리는 꾸미기 안)
   let 넣음 = {};   // 우리가 넣은 값 { layout, captionPos, speed, voiceGender }
   const radio = (name) => document.querySelector('input[name="' + name + '"]:checked');
   const 정하기 = (name, value) => { const r = document.querySelector('input[name="' + name + '"][value="' + value + '"]'); if (!r || r.disabled) return false; r.checked = true; r.dispatchEvent(new Event('change', { bubbles: true })); return true; };
@@ -6560,10 +6561,10 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
   }
   function 되돌리기() {
     const 쓴 = 넣음.이름 || 이름();
-    if (넣음.layout && radio(쓴.layout)?.value === 넣음.layout) 정하기(쓴.layout, 쓴.기본구성);
-    if (넣음.captionPos && radio(쓴.cap)?.value === 넣음.captionPos) 정하기(쓴.cap, 쓴.기본자막);
+    if (넣음.layout && 쓴.layout && radio(쓴.layout)?.value === 넣음.layout) 정하기(쓴.layout, 쓴.기본구성);
+    if (넣음.captionPos && 쓴.cap && radio(쓴.cap)?.value === 넣음.captionPos) 정하기(쓴.cap, 쓴.기본자막);
     const sp = 말속도(); if (넣음.speed && sp && Math.abs(parseFloat(sp.value) - 넣음.speed) < 0.001) { sp.value = String(쓴.기본속도); sp.dispatchEvent(new Event('input', { bubbles: true })); }
-    const sg = 성별칸(); if (넣음.voiceGender && sg && sg.value === 넣음.voiceGender) { sg.value = ''; if (window.__rwVP && __rwVP.쇼츠) __rwVP.쇼츠.값설정(''); }
+    { const 야 = !!넣음.야담, sg = 야 ? document.getElementById('df-yvoice') : 성별칸(), 고 = window.__rwVP && (야 ? __rwVP.야담 : __rwVP.쇼츠); if (넣음.voiceGender && sg && sg.value === 넣음.voiceGender) { sg.value = 야 ? '남성' : ''; if (고) { 고.값설정(''); if (야) 고.성별설정('남'); } } }
     넣음 = {};
   }
   function 채우기(fill) {
@@ -6571,13 +6572,13 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
     const 라벨 = [], 상품 = 상품쇼츠(), 롱폼 = !상품 && (document.getElementById('df-form') || {}).value === '롱폼', 쓰는 = 이름();
     넣음.이름 = 쓰는;
     if (fill && typeof fill === 'object') {
-      if (!롱폼 && fill.layout === '제목고정형' && (radio(쓰는.layout)?.value || '자동') === '자동' && 정하기(쓰는.layout, '제목고정형')) { 넣음.layout = '제목고정형'; 라벨.push('화면 구성 제목고정형'); }
-      if (['상단', '가운데', '하단'].includes(fill.captionPos) && (radio(쓰는.cap)?.value || 쓰는.기본자막) === 쓰는.기본자막 && fill.captionPos !== 쓰는.기본자막 && 정하기(쓰는.cap, fill.captionPos)) { 넣음.captionPos = fill.captionPos; 라벨.push('자막 ' + fill.captionPos); }
+      if (쓰는.layout && !롱폼 && fill.layout === '제목고정형' && (radio(쓰는.layout)?.value || '자동') === '자동' && 정하기(쓰는.layout, '제목고정형')) { 넣음.layout = '제목고정형'; 라벨.push('화면 구성 제목고정형'); }
+      if (쓰는.cap && ['상단', '가운데', '하단'].includes(fill.captionPos) && (radio(쓰는.cap)?.value || 쓰는.기본자막) === 쓰는.기본자막 && fill.captionPos !== 쓰는.기본자막 && 정하기(쓰는.cap, fill.captionPos)) { 넣음.captionPos = fill.captionPos; 라벨.push('자막 ' + fill.captionPos); }
       const sp = 말속도(), v = Number(fill.speed);
-      if (sp && v >= 0.7 && v <= 1.5 && Math.abs(parseFloat(sp.value) - 쓰는.기본속도) < 0.001) { sp.value = String(v); sp.dispatchEvent(new Event('input', { bubbles: true })); 넣음.speed = v; 라벨.push(속도말(v)); }
-      const sg = 성별칸();
-      if (sg && (fill.voiceGender === '남성' || fill.voiceGender === '여성') && !sg.value && window.__rwVP && __rwVP.쇼츠 && __rwVP.쇼츠.값() === '') {
-        sg.value = fill.voiceGender; __rwVP.쇼츠.성별설정(fill.voiceGender === '여성' ? '여' : '남'); 넣음.voiceGender = fill.voiceGender; 라벨.push(fill.voiceGender + ' 목소리');
+      if (sp && 쓰는.종류 !== '수면음악' && v >= 0.7 && v <= 1.5 && Math.abs(parseFloat(sp.value) - 쓰는.기본속도) < 0.001) { sp.value = String(v); sp.dispatchEvent(new Event('input', { bubbles: true })); 넣음.speed = v; 라벨.push(속도말(v)); }
+      const 야담 = 쓰는.종류 === '야담', sg = 야담 ? document.getElementById('df-yvoice') : 성별칸(), 고르개 = window.__rwVP && (야담 ? __rwVP.야담 : __rwVP.쇼츠);
+      if (쓰는.종류 !== '수면음악' && sg && 고르개 && (fill.voiceGender === '남성' || fill.voiceGender === '여성') && (야담 ? sg.value === '남성' : !sg.value) && 고르개.값() === '') {   // 야담의 기본은 남성이라, 남성이 그대로일 때만 바꾼다
+        sg.value = fill.voiceGender; 고르개.성별설정(fill.voiceGender === '여성' ? '여' : '남'); 넣음.voiceGender = fill.voiceGender; 넣음.야담 = 야담; 라벨.push(fill.voiceGender + ' 목소리');
       }
     }
     안내(라벨.filter(x => /목소리|말 /.test(x)), ['.df-voicesec'], 'rf-ap-sound');

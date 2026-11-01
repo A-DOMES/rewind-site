@@ -95,7 +95,8 @@
       var keep = document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.k : null;
       box.textContent = ''; box.appendChild(hid); box.removeAttribute('hidden');
       var head = el('div', 'rf-head'); head.appendChild(el('h4', '', '참고할 영상이 있나요?')); head.appendChild(el('span', 'rf-tag dim', '선택')); if (opt.preview) head.appendChild(el('span', 'rf-tag', '관리자 미리보기')); box.appendChild(head);
-      box.appendChild(el('p', 'rf-sub', '유튜브 영상 주소를 넣으면 화면·자막·말 속도·장면 길이를 비슷하게 만들어요.'));
+      var 긴 = formName === '야담' || formName === '분위기영상';
+      box.appendChild(el('p', 'rf-sub', 긴 ? '유튜브 영상 주소를 넣으면 이야기 구성과 말 속도·목소리를 참고해요. 같은 주제는 쓸 수 없어요.' : '유튜브 영상 주소를 넣으면 화면·자막·말 속도·장면 길이를 비슷하게 만들어요.'));
       if (S.phase === 'wait') {
         var w = el('div', 'rf-wait'); w.setAttribute('role', 'status'); w.appendChild(el('div', 'rf-spin'));
         var t = el('div'); t.appendChild(el('b', '', '영상 구성을 살펴보고 있어요')); t.appendChild(el('span', '', '약 1분 걸려요. 끝나면 아래 다음 버튼이 켜져요.')); w.appendChild(t); box.appendChild(w);
@@ -106,7 +107,7 @@
         if (S.summary.length) { var cs = el('div', 'rf-chips'); S.summary.forEach(function (x) { cs.appendChild(el('span', 'rf-chip', x)); }); dn.appendChild(cs); }
         var ch = el('button', 'rf-btn', '다른 영상으로 바꾸기'); ch.type = 'button'; ch.dataset.k = 'change'; ch.addEventListener('click', function () { reset(false); var n = box.querySelector('#rf-url'); if (n) n.focus(); host.dispatchEvent(new CustomEvent('referencechange', { bubbles: true, detail: { id: '' } })); });
         if (S.applied.length) { var ap = el('p', 'rf-applied', '이 영상에서 가져와 채웠어요: ' + S.applied.join(' · ') + ' (뒤 단계에서 바꿀 수 있어요)'); ap.setAttribute('role', 'status'); dn.appendChild(ap); }
-        dn.appendChild(ch); var nx = el('p', 'rf-next', '화면·자막·말 속도는 기본으로 이 영상에 맞춰져요(직접 고른 값이 있으면 그 값이 먼저예요). 아래 \'다음\' 버튼을 눌러 이야기(주제나 대본)를 정해 주세요.'); nx.setAttribute('role', 'status'); dn.appendChild(nx); dn.appendChild(el('p', 'rf-fine', '영상 내용은 가져오지 않고 구성만 참고해요. 주제와 대본은 새로 만들어요.')); box.appendChild(dn); return;
+        dn.appendChild(ch); var nx = el('p', 'rf-next', (formName === '야담' || formName === '분위기영상' ? '맞는 값은 기본으로 채워져요(직접 고른 값이 먼저예요). ' : '화면·자막·말 속도는 기본으로 이 영상에 맞춰져요(직접 고른 값이 있으면 그 값이 먼저예요). ') + '아래 \'다음\' 버튼을 눌러 이야기(주제나 대본)를 정해 주세요.'); nx.setAttribute('role', 'status'); dn.appendChild(nx); dn.appendChild(el('p', 'rf-fine', '영상 내용은 가져오지 않고 구성만 참고해요. 주제와 대본은 새로 만들어요.')); box.appendChild(dn); return;
       }
       var row = el('div', 'rf-row'), inp = el('input', 'rf-in'); inp.type = 'url'; inp.inputMode = 'url'; inp.autocomplete = 'off'; inp.spellcheck = false; inp.id = 'rf-url'; inp.dataset.k = 'in';
       inp.placeholder = '유튜브 영상 주소를 붙여 넣으세요'; inp.value = S.url; inp.setAttribute('aria-label', '참고할 유튜브 영상 주소');
