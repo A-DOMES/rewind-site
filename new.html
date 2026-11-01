@@ -5498,6 +5498,21 @@
       const sndHidden = document.getElementById('df-snd-field').classList.contains('df-hide'), vs = q('.df-voicesec'), vsHidden = !vs || vs.classList.contains('df-hide');
       ns.classList.toggle('df-hide', !(MO() && sndHidden && vsHidden));
     }
+    // 대본에서 고른 제목 → 5단계 꾸미기의 "화면 상단 문구"(제목 고정 띠에 쓰이는 글). 직접 고친 문구는 덮어쓰지 않는다
+    function syncHook() {
+      const h = document.getElementById('df-hookText'); if (!h) return;
+      const g = window.__rwGenScript, t = g && g.title ? String(g.title).replace(/\s+/g, ' ').trim() : '';
+      const auto = h.dataset.autoTitle;
+      let note = document.getElementById('df-hook-note');
+      if (!note) { note = document.createElement('p'); note.id = 'df-hook-note'; note.className = 'df-hint'; h.insertAdjacentElement('afterend', note); }
+      if (t && (!h.value.trim() || h.value === auto)) {
+        let v = t.slice(0, 18);
+        if (t.length > 18) { const sp = v.lastIndexOf(' '); if (sp >= 8) v = v.slice(0, sp); }
+        h.value = v; h.dataset.autoTitle = v; h.dispatchEvent(new Event('input', { bubbles: true }));
+        note.textContent = '대본 제목에서 가져왔어요' + (t.length > v.length ? ' (18자까지만 들어가요)' : '') + ' · 마음대로 고칠 수 있어요. 영상 꾸미기의 제목 띠에도 같은 글이 쓰여요.';
+      } else if (!t && auto && h.value === auto) { h.value = ''; delete h.dataset.autoTitle; note.textContent = ''; h.dispatchEvent(new Event('input', { bubbles: true })); }
+      else if (!t || h.value !== auto) note.textContent = '';
+    }
     let lastKind = null;
     function render() {
       const active = on();
@@ -5525,6 +5540,7 @@
         if (T) [q(MO() ? '.df-sleep' : '.df-yadam')].filter(Boolean).forEach(sec => { const h = sec.querySelector('.df-sec-head h3'), pp = sec.querySelector('.df-sec-head p'), tt = T[step + 1]; if (!tt || !h || !pp) return; if (h.dataset.pwT === undefined) { h.dataset.pwT = h.textContent; pp.dataset.pwT = pp.textContent; } h.textContent = tt[0]; pp.textContent = tt[1]; });
         drawNoSound();
       }
+      if (GN() && namesOf()[step] === '꾸미기') syncHook();
       if (step === LAST) buildReview();
       nav.querySelector('.pw-prev').style.visibility = step === 0 ? 'hidden' : '';
       const next = nav.querySelector('.pw-next');
