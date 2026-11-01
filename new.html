@@ -611,7 +611,7 @@
   /* ===== 디자인 v2 (필름 스튜디오) — 기존 규칙 위에 덮어쓰는 층. 아래만 지우면 이전 디자인으로 돌아감 ===== */
   :root, :root:not([data-theme="__v2"]), :root[data-theme] {
     color-scheme: dark;
-    --bg: #000000; --bg-raised: #14110f; --bg-input: #1a1613; --line: #3a332c; --film: #000000;
+    --bg: #000000; --bg-raised: #000000; --bg-input: #0d0d0d; --line: #2e2e2e; --film: #000000;
     --ink: #fbf7f0; --ink-dim: #e0d7c8; --ink-faint: #b1a695;
     --amber: #e2a23c; --amber-dim: #5a4222; --amber-wash: #251d14; --olive: #c9a86a; --on-amber: #1a1410;
     --gold: #e2a23c; --gold-dim: #5a4222; --on-gold: #1a1410;
@@ -977,7 +977,7 @@
   /* 보내기 버튼: 비활성은 회색, 입력하면 앰버 */
   .chat-send-btn:disabled { opacity: 1; background: var(--bg-input); color: var(--ink-faint); }
   /* 대화 아바타: 로고 */
-  .msg.bot .avatar { font-size: 0; background: #0f0d0b url('./리와인드_로고1_512px.png') center / 76% no-repeat; box-shadow: 0 0 0 1px var(--line); }
+  .msg.bot .avatar { font-size: 0; background: #000 url('./리와인드_로고1_512px.png') center / 76% no-repeat; box-shadow: 0 0 0 1px var(--line); }
 
   /* ===== 직접 설정 폼: 섹션 카드 + 섹션별 컬러 아이콘 ===== */
   .df-sec { background: var(--bg-raised); border: 1px solid var(--line); border-radius: 16px; padding: 18px 18px 6px; margin-bottom: 14px; }
@@ -1029,7 +1029,7 @@
   :root[data-theme="light"] .new-chat-btn { background: transparent; color: var(--ink); border: 1px solid var(--line); box-shadow: none; }
   @media (prefers-color-scheme: light) { :root[data-theme="system"] .new-chat-btn { background: transparent; color: var(--ink); border: 1px solid var(--line); box-shadow: none; } }
   .new-chat-btn:hover { border-color: var(--ink-faint); background: var(--bg-raised); }
-  :root[data-theme="dark"] .msg.user .bubble, :root:not([data-theme]) .msg.user .bubble { background: #2a2521; }
+  :root[data-theme="dark"] .msg.user .bubble, :root:not([data-theme]) .msg.user .bubble { background: #1c1c1c; }
 
   /* ===== 첫 화면: 대화 시작 전에는 인사말·입력창·예시를 화면 가운데로 ===== */
   .chat-column.is-fresh { justify-content: center; padding: 0 24px 8vh; }
