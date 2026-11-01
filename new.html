@@ -1724,13 +1724,13 @@
   #df-fields.pw-on[data-pwstep="2"] > .sc-card.gn-script { display: grid; grid-template-columns: auto auto 1fr; gap: 10px; align-items: center; }
   #df-fields > .sc-card.gn-script > h4, #df-fields > .sc-card.gn-script > p, #df-fields > .sc-card.gn-script > :not(button) { grid-column: 1 / -1; }
   #df-fields > .sc-card.gn-script button { white-space: nowrap; padding: 10px 14px; font-size: .9rem; background: var(--nw-opt); }
-  /* 종류 카드 4개: 같은 어두운 바탕에 카드마다 색감만 살짝 다르게 (일반=파랑, 상품=보라, 분위기=청록, 야담=호박빛) */
+  /* 종류 카드 4개: 한 가지 색(--kc)으로 통일. 마우스를 올리면 밝아지며 살짝 올라온다 */
   #df-fields.pw-on .df-types label:nth-child(1) { --kc: 70,120,255; }
-  #df-fields.pw-on .df-types label:nth-child(2) { --kc: 160,95,255; }
-  #df-fields.pw-on .df-types label:nth-child(3) { --kc: 35,170,200; }
-  #df-fields.pw-on .df-types label:nth-child(4) { --kc: 225,140,60; }
+  #df-fields.pw-on .df-types label:nth-child(2) { --kc: 70,120,255; }
+  #df-fields.pw-on .df-types label:nth-child(3) { --kc: 70,120,255; }
+  #df-fields.pw-on .df-types label:nth-child(4) { --kc: 70,120,255; }
   #df-fields.pw-on .df-types .tcard { background: linear-gradient(160deg, rgba(var(--kc),.50), rgba(18,16,44,.92) 78%); border-color: rgba(var(--kc),.8); }
-  #df-fields.pw-on .df-types .tcard:hover { border-color: rgb(var(--kc)); box-shadow: 0 0 16px rgba(var(--kc),.6); }
+  #df-fields.pw-on .df-types .tcard:hover { border-color: rgb(var(--kc)); box-shadow: 0 0 20px rgba(var(--kc),.7); filter: brightness(1.22); transform: translateY(-3px); }
   #df-fields.pw-on .df-types .tcard .ti { background: rgba(var(--kc),.28); color: #fff; }
   #df-fields.pw-on .df-types input:checked + .tcard { background: linear-gradient(160deg, rgba(var(--kc),.78), rgba(24,18,60,.94) 85%); border-color: rgb(var(--kc)); box-shadow: 0 0 0 1px rgb(var(--kc)), 0 0 30px rgba(var(--kc),.8); }
   #df-fields.pw-on .df-types input:checked + .tcard .ti { background: rgb(var(--kc)); color: #fff; }
