@@ -84,6 +84,7 @@
     function 기본화면() { var 후보 = 종류 === '상품쇼츠' ? ['가운데영상형', '제목고정형'] : ['제목고정형']; for (var i = 0; i < 후보.length; i++) if (화면목록.some(function (x) { return x.값 === 후보[i] && !x.꺼짐; })) return 후보[i]; return (화면목록.filter(function (x) { return !x.꺼짐; })[0] || 화면목록[0]).값; }
     var 화면 = 화면목록.some(function (x) { return x.값 === opt.화면구성 && !x.꺼짐; }) ? opt.화면구성 : 기본화면(), 문구샘플 = String(opt.문구 || '').trim() || '화면 위 제목 문구';
     function 화면가능(v) { return 화면목록.some(function (x) { return x.값 === v && !x.꺼짐; }); }
+    var 제작방식 = opt.제작방식 || null, 제작값 = 제작방식 ? 제작방식.값 : '', 제작바꿈 = false;
     var 화면바꿈 = false; var 선택 = Object.assign({}, opt.값 || {}); var 자막위치 = opt.자막위치 || '아래'; var 처음위치 = 자막위치, 위치바꿈 = false, 초기화함 = false; var 가이드켜짐 = true;
     var 샘플 = String(opt.샘플 || '').trim() || 샘플기본; var 자막방식 = ['구절형', '문장형', '단어형'].indexOf(opt.자막방식) >= 0 ? opt.자막방식 : '구절형', 자막방식바꿈 = false; var 문구시간 = opt.문구시간 === '3s' ? '3s' : 'all', 문구시간쓰기 = opt.문구시간 !== undefined;   // 문구가 보이는 시간은 상품쇼츠만(계속 / 처음 3초)
     글꼴불러오기();
@@ -270,6 +271,19 @@
         });
         pv.appendChild(판);
       }
+      // 영상 제작 방식: 화면 구성 아래. 고르면 신청 칸의 제작 방식이 바뀐다 (요금은 분당 포인트로 보여 준다)
+      if (제작방식 && 제작방식.목록 && 제작방식.목록.length) {
+        var 판2 = el('section', 'cz-lay'); 판2.appendChild(el('h3', '', '영상 제작 방식')); var 줄2 = el('div', 'cz-lay-row'); 줄2.style.gridTemplateColumns = 'repeat(' + Math.min(4, 제작방식.목록.length) + ', minmax(0, 1fr))'; 줄2.setAttribute('role', 'group');
+        제작방식.목록.forEach(function (it) {
+          var b = el('button', 'cz-lay-b'); b.type = 'button'; b.disabled = !!it.꺼짐; b.title = it.설명 || '';
+          if (it.그림) { var 그 = el('span', 'cz-lay-pic'); 그.innerHTML = it.그림; b.appendChild(그); }
+          b.appendChild(el('b', '', it.값)); b.appendChild(el('small', '', it.부제 || '')); if (it.요금) b.appendChild(el('small', '', it.요금));
+          b.addEventListener('click', function () { 제작값 = it.값; 제작바꿈 = true; 갱신(); }); 눌림목록.push(function () { b.setAttribute('aria-pressed', String(제작값 === it.값)); }); 줄2.appendChild(b);
+        });
+        판2.appendChild(줄2); var 안내2 = el('p', 'cz-mnote'); 판2.appendChild(안내2);
+        눌림목록.push(function () { var it = 제작방식.목록.filter(function (x) { return x.값 === 제작값; })[0]; 안내2.textContent = it ? (it.설명 || '') : ''; });
+        pv.appendChild(판2);
+      }
       // 제목 설정: 위쪽 제목 띠(제목고정형)·제목 글자(제목고정형·가운데영상형). 슬라이더는 모두 가운데가 기본이다
       var c1b = 카드('제목 설정', '위쪽 문구의 띠와 글자'); var 제목행들 = [];
       function 제목슬라이더(이름, 키, 기본, 변환, 역변환, 띠만) {
@@ -411,7 +425,7 @@
     function 적용상태() { var 막힘 = 블록검사().some(Boolean); ok.disabled = 막힘; ok.style.opacity = 막힘 ? '.5' : ''; ok.title = 막힘 ? '고정 글자의 쓸 수 없는 표현을 먼저 고쳐 주세요' : ''; }
     ok.addEventListener('click', function () { if (ok.disabled) return;
       if (선택.블록) { 선택.블록 = 선택.블록.filter(function (b) { return String(b.글 || '').trim(); }).map(function (b) { return Object.assign({ 글: String(b.글).trim(), 위치: b.위치, 크기: b.크기, 모양: b.모양, 글꼴: b.글꼴 }, 헥스.test(b.색 || '') ? { 색: b.색 } : {}); }); if (!선택.블록.length) delete 선택.블록; }
-      var m = 합치기(선택, 종류); 닫기({ compose: Object.assign({}, 선택), 문구시간: 문구시간쓰기 ? 문구시간 : undefined, 자막방식: opt.자막방식 !== undefined ? 자막방식 : undefined, 자막위치: 자막위치, 화면구성: 화면바꿈 ? 화면 : (opt.화면구성 || 화면), 위치바뀜: 자막위치 !== 처음위치, 초기화: 초기화함 && !Object.keys(선택).length && 자막위치 === '아래' }); });
+      var m = 합치기(선택, 종류); 닫기({ compose: Object.assign({}, 선택), 문구시간: 문구시간쓰기 ? 문구시간 : undefined, 자막방식: opt.자막방식 !== undefined ? 자막방식 : undefined, 자막위치: 자막위치, 화면구성: 화면바꿈 ? 화면 : (opt.화면구성 || 화면), 제작방식: 제작바꿈 ? 제작값 : undefined, 위치바뀜: 자막위치 !== 처음위치, 초기화: 초기화함 && !Object.keys(선택).length && 자막위치 === '아래' }); });
     document.addEventListener('keydown', 키);
     var 이전스크롤 = document.body.style.overflow; document.body.style.overflow = 'hidden'; dlg.tabIndex = -1;
     document.body.appendChild(ov); dlg.focus();
