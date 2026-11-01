@@ -1875,16 +1875,16 @@
 @media (prefers-reduced-motion: reduce) { .pw-st, #df-fields .tcard, .pw-nav .pw-next { transition: none; } }
 </style>
 <script src="./theme.js"></script>
-<script src="./assets/voice-panel.js?v=20261102a"></script>
+<script src="./assets/voice-panel.js?v=20261102b"></script>
 <script src="./assets/media-input.js?v=20261102"></script>
 <script src="./assets/voice-catalog.js?v=20261025"></script>
 <script src="./assets/voice-picker.js?v=20261025"></script>
 <link rel="stylesheet" href="./assets/guide.css?v=20261025">
 <script src="./assets/guide.js?v=20261101"></script>
-<link rel="stylesheet" href="./assets/compose.css?v=20261101b">
+<link rel="stylesheet" href="./assets/compose.css?v=20261102b">
 <script src="./assets/shared/layout.js?v=20261027"></script>
 <script src="./assets/shared/phrase.js?v=20261026"></script>
-<script src="./assets/compose.js?v=20261102a"></script>
+<script src="./assets/compose.js?v=20261102b"></script>
 <script src="./assets/rw-consent.js"></script>
 </head>
 <body>
@@ -4125,10 +4125,11 @@
     const 지금 = document.querySelector(`input[name="${이름들.자막}"]:checked`)?.value;
     const 값 = composeKind === 종류표 && composeState ? composeState : {};   // 다른 폼에서 만든 값은 이어받지 않는다
     const 화면목록 = [...document.querySelectorAll(`input[name="${이름들.구성}"]`)].map(x => ({ 값: x.value, 꺼짐: x.disabled })), 화면구성 = ((document.querySelector(`input[name="${이름들.구성}"]:checked`) || {}).value === '자동' && 상품) ? '전체화면형' : (document.querySelector(`input[name="${이름들.구성}"]:checked`) || {}).value;   // 상품쇼츠의 자동은 전체화면형
-    RWCompose.open({ 종류: 상품 ? '상품쇼츠' : '쇼츠', 화면: '세로', 화면목록, 화면구성, 문구시간: 상품 ? ((document.querySelector('input[name="pd-hookshow"]:checked') || {}).value || 'all') : undefined, 문구: document.getElementById('df-hookText')?.value || '', 값, 자막위치: 거꾸로[지금] || '아래', 샘플: document.getElementById('df-hookText')?.value || '',
+    RWCompose.open({ 종류: 상품 ? '상품쇼츠' : '쇼츠', 화면: '세로', 화면목록, 화면구성, 문구시간: 상품 ? ((document.querySelector('input[name="pd-hookshow"]:checked') || {}).value || 'all') : undefined, 자막방식: (상품 && window.RWVoice) ? (RWVoice.getExtra().subtitleStyle || '구절형') : undefined, 문구: document.getElementById('df-hookText')?.value || '', 값, 자막위치: 거꾸로[지금] || '아래', 샘플: document.getElementById('df-hookText')?.value || '',
       onDone: res => {
         composeState = Object.keys(res.compose).length ? res.compose : null; composeKind = composeState ? 종류표 : '';
         const 고르기 = (name, v) => { const r = [...document.querySelectorAll(`input[name="${name}"]`)].find(x => x.value === v); if (r && !r.disabled) { r.checked = true; r.dispatchEvent(new Event('change', { bubbles: true })); } };
+        if (상품 && window.RWVoice && res.자막방식) RWVoice.setExtra(Object.assign({}, RWVoice.getExtra(), { subtitleStyle: res.자막방식 }));
         if (상품 && res.문구시간) { const hs = document.querySelector(`input[name="pd-hookshow"][value="${res.문구시간}"]`); if (hs) { hs.checked = true; hs.dispatchEvent(new Event('change', { bubbles: true })); } }
         if (res.초기화) { 고르기(이름들.구성, '자동'); if (!상품) 고르기(이름들.자막, '자동'); }   // 상품쇼츠의 자막 위치는 '자동'이 따로 없어 그대로 둔다
         else {
@@ -4246,7 +4247,7 @@
     const 현재자막 = () => document.querySelector('input[name="df-captionPos"]:checked')?.value || '자동';
     const 가로형 = () => !!formSel && formSel.value === '롱폼';
     function drawLayout(selected) {
-      const 옵션 = LAYOUT_OPTS.concat(현재종류() === '상품쇼츠' ? [['가운데영상형', '영상은 가운데에만']] : []);   // 가운데영상형은 상품쇼츠에서만
+      const 옵션 = LAYOUT_OPTS.concat([['가운데영상형', '영상은 가운데에만']]);   // 쇼츠 · 상품쇼츠 모두 고를 수 있다(롱폼은 아래에서 막힌다)
       if (!옵션.some(([v]) => v === selected)) selected = '자동';
       layBox.innerHTML = 옵션.map(([v, sub]) => opt('df-layout', v, sub, phoneSvg(v === '자동' ? '제목고정형' : v, 현재자막() === '자동' ? '하단' : 현재자막(), v === '자동', 가로형()), v === selected)).join('');
     }

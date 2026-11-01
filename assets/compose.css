@@ -119,3 +119,14 @@ label.cz-chip { display: inline-flex; align-items: center; }
 .cz-entry:hover, .cz-entry:focus-within { border-color: #7d9dff; box-shadow: 0 0 14px rgba(90,130,255,.25); }
 .cz-entry-ico svg { stroke: #cfe0ff; }
 .cz-entry-ico { background: linear-gradient(160deg, rgba(91,140,255,.35), rgba(154,107,255,.3)); }
+
+/* 영상 꾸미기: 편집기 패널식 — 카드 머리를 눌러 접고 펴기, 슬라이더 숫자·되돌리기 */
+.cz-ch { cursor: pointer; }
+.cz-ch:focus-visible { outline: 2px solid var(--amber, #e2a23c); outline-offset: 2px; border-radius: 10px; }
+.cz-chev { margin-left: auto; color: var(--ink-dim); font-size: 1.2rem; line-height: 1; transition: transform .15s; }
+.cz-card.cz-fold .cz-chev { transform: rotate(-90deg); }
+.cz-card.cz-fold > :not(.cz-ch) { display: none !important; }
+.cz-card.cz-fold { gap: 0; }
+.cz-val { min-width: 3.2ch; text-align: right; font-variant-numeric: tabular-nums; font-size: .82rem; font-weight: 700; color: #9db4ff; }
+.cz-rst { width: 30px; height: 30px; flex: none; border: 1px solid var(--line); border-radius: 8px; background: transparent; color: var(--ink-dim); font-size: .95rem; cursor: pointer; }
+.cz-rst:hover, .cz-rst:focus-visible { color: var(--ink); border-color: #7d9dff; }

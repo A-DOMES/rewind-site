@@ -262,6 +262,9 @@
   }
 
   /* 접수(body.voice)로 보낼 값. 서버가 한 번 더 검사하고 범위를 맞춘다 */
+  var extra = {};   // 영상 꾸미기 창에서 고른 값(자막 방식). 상품쇼츠만 접수로 보낸다
+  function setExtra(o) { extra = o || {}; }
+  function getExtra() { return extra; }
   function value() {
     if (!$('vp-speed')) return null;
     var v = {}, all = kindCur === '상품쇼츠';
@@ -276,6 +279,7 @@
     if (vis('subOn')) v.subtitleOff = checked('vp-subOn') === '끄기';
     if (vis('style') && sends('style')) { var st = checked('vp-style'); if (st) v.style = st; }
     if (vis('dict')) { var pairs = dictPairs(); if (pairs.length) v.pronounce = pairs; }
+    if (all && ['구절형', '문장형', '단어형'].indexOf(extra.subtitleStyle) >= 0) v.subtitleStyle = extra.subtitleStyle;
     return Object.keys(v).length ? v : null;
   }
   // 자막 위치는 기존 접수 항목(captionPos: 하단·가운데·상단)으로 보낸다. 자막을 끄면 보낼 것이 없다
@@ -341,7 +345,7 @@
 
   window.RWVoice = {
     setKind: setKind,
-    sectionHtml: sectionHtml, init: init, detach: detach, attach: attach, value: value, summary: summary, captionPos: captionPos,
+    sectionHtml: sectionHtml, init: init, setExtra: setExtra, getExtra: getExtra, detach: detach, attach: attach, value: value, summary: summary, captionPos: captionPos,
     defaults: def, previewReady: false
   };
 })();

@@ -85,7 +85,7 @@
     var 화면 = 화면목록.some(function (x) { return x.값 === opt.화면구성 && !x.꺼짐; }) ? opt.화면구성 : 기본화면(), 문구샘플 = String(opt.문구 || '').trim() || '화면 위 제목 문구';
     function 화면가능(v) { return 화면목록.some(function (x) { return x.값 === v && !x.꺼짐; }); }
     var 화면바꿈 = false; var 선택 = Object.assign({}, opt.값 || {}); var 자막위치 = opt.자막위치 || '아래'; var 처음위치 = 자막위치, 위치바꿈 = false, 초기화함 = false; var 가이드켜짐 = true;
-    var 샘플 = String(opt.샘플 || '').trim() || 샘플기본; var 문구시간 = opt.문구시간 === '3s' ? '3s' : 'all', 문구시간쓰기 = opt.문구시간 !== undefined;   // 문구가 보이는 시간은 상품쇼츠만(계속 / 처음 3초)
+    var 샘플 = String(opt.샘플 || '').trim() || 샘플기본; var 자막방식 = ['구절형', '문장형', '단어형'].indexOf(opt.자막방식) >= 0 ? opt.자막방식 : '구절형', 자막방식바꿈 = false; var 문구시간 = opt.문구시간 === '3s' ? '3s' : 'all', 문구시간쓰기 = opt.문구시간 !== undefined;   // 문구가 보이는 시간은 상품쇼츠만(계속 / 처음 3초)
     글꼴불러오기();
     var 이전포커스 = document.activeElement;
     var W = 가로 ? 1920 : 1080, H = 가로 ? 1080 : 1920;
@@ -220,13 +220,28 @@
     function 갱신() { 그리기미리보기(); 눌림갱신(); var v = 합치기(선택, 종류).값, 서명 = (v.읽는효과 || '') + '|' + (v.읽는색 || ''); if (서명 !== 지난읽기) { 지난읽기 = 서명; 읽기재생(); } }   // 효과·색을 바꾼 순간에만 처음부터 한 번 재생
     다시.addEventListener('click', 읽기재생);
     var 눌림목록 = [];
-    function 눌림갱신() { 눌림목록.forEach(function (f) { f(); }); }
+    function 눌림갱신() { 눌림목록.forEach(function (f) { f(); }); 값표시(); }
+    function 값표시() {   // 슬라이더마다 숫자와 '처음 값으로' 버튼을 붙인다(가운데가 기본). 되돌리기는 건드리지 않은 상태로 돌아간다
+      body.querySelectorAll('.cz-row input[type=range]').forEach(function (sl) {
+        if (!sl.__o) {
+          var o = el('output', 'cz-val'), b = el('button', 'cz-rst', '↺'); b.type = 'button'; b.title = '처음 값으로'; b.setAttribute('aria-label', '처음 값으로 되돌리기');
+          b.addEventListener('click', function () { if (sl.__reset) sl.__reset(); else { sl.value = '0'; sl.dispatchEvent(new Event('input', { bubbles: true })); sl.dispatchEvent(new Event('change', { bubbles: true })); } });
+          sl.parentNode.appendChild(o); sl.parentNode.appendChild(b); sl.__o = o;
+          sl.addEventListener('input', function () { var v = Number(sl.value); o.textContent = Number(sl.min) < 0 ? (v > 0 ? '+' : '') + v : String(v); });
+        }
+        var v = Number(sl.value); sl.__o.textContent = Number(sl.min) < 0 ? (v > 0 ? '+' : '') + v : String(v);
+      });
+    }
 
     var 카드그림 = { '모양 고르기': 'M12 3l1.8 4.6L18.5 9l-4.7 1.4L12 15l-1.8-4.6L5.5 9l4.7-1.4zM18 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z', '제목 설정': 'M5 6h14M12 6v13M9 19h6', '자막 글자 모양': 'M4 7h16v10H4zM8 12h8M10 15h4', '읽는 글자 효과': 'M4 18l5-5 4 4 7-9M4 6h6', '자막 크기와 줄': 'M5 7h14M5 12h10M5 17h14', '자막 위치': 'M12 21s-6-5.2-6-10a6 6 0 0112 0c0 4.8-6 10-6 10zM12 11.5a1.8 1.8 0 100-3.6 1.8 1.8 0 000 3.6z', '고정 글자': 'M9 4h6l-1 6 3 3H7l3-3zM12 13v7' };
     function 카드(제목, 작은글) {
       var c = el('section', 'cz-card'); var top = el('div', 'cz-ch'); var ic = el('i', 'cz-ico'); ic.setAttribute('aria-hidden', 'true');
       ic.innerHTML = '<svg viewBox="0 0 24 24"><path d="' + (카드그림[제목] || 'M5 12h14') + '"/></svg>'; top.appendChild(ic);
-      var h = el('h3', '', 제목); if (작은글) h.appendChild(el('small', '', 작은글)); top.appendChild(h); c.appendChild(top); body.appendChild(c); return c;
+      var h = el('h3', '', 제목); if (작은글) h.appendChild(el('small', '', 작은글)); top.appendChild(h);
+      var 화살 = el('span', 'cz-chev', '⌄'); 화살.setAttribute('aria-hidden', 'true'); top.appendChild(화살); top.setAttribute('role', 'button'); top.tabIndex = 0; top.setAttribute('aria-expanded', 'true'); top.title = '눌러서 접고 펴기';   // 카드 머리를 누르면 접힌다(편집기 패널처럼)
+      var 접기 = function () { var 닫음 = c.classList.toggle('cz-fold'); top.setAttribute('aria-expanded', String(!닫음)); };
+      top.addEventListener('click', 접기); top.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); 접기(); } });
+      c.appendChild(top); body.appendChild(c); return c;
     }
     function 칩묶음(c, 목록, 읽기, 쓰기, 이름) {
       var wrap = el('div', 'cz-chips'); wrap.setAttribute('role', 'group'); wrap.setAttribute('aria-label', 이름);
@@ -293,6 +308,12 @@
         var 시간글 = el('p', 'cz-hint', ''); c1c.appendChild(시간글);
         눌림목록.push(function () { var 띠 = 화면 === '제목고정형'; if (띠 && 문구시간 === '3s') 문구시간 = 'all'; 시간글.textContent = 띠 ? '제목고정형은 위 띠가 계속 있어서 문구도 계속 보여요.' : (문구시간 === '3s' ? '영상이 시작하고 3초 동안 보이다 서서히 사라져요.' : ''); });
       }
+      if (opt.자막방식 !== undefined) {   // 자막 방식은 상품쇼츠만(렌더 서버가 한 줄씩·문장째·한두 단어씩을 그린다)
+        var c1d = 카드('자막 방식', '한 번에 나오는 글자 양');
+        var 방식줄 = el('div', 'cz-chips'); c1d.appendChild(방식줄);
+        칩묶음(방식줄, [['구절형', '한 줄씩'], ['문장형', '문장째로'], ['단어형', '한두 단어씩']], function () { return 자막방식; }, function (v) { 자막방식 = v; 자막방식바꿈 = true; }, '자막 방식');
+        c1d.appendChild(el('p', 'cz-hint', '고르지 않으면 한 줄씩 나와요. 한두 단어씩은 큰 글씨가 빠르게 바뀌어요'));
+      }
       var c2 = 카드('자막 글자 모양');
       var gm = el('div', 'cz-grid'); c2.appendChild(gm);
       모양들.forEach(function (m) { var b = el('button', 'cz-opt'); b.type = 'button'; var s = el('span', 'cz-sample', '가나다'); s.style.fontWeight = String(m[2].w); s.style.color = m[2].c === '#fff' ? 'var(--ink)' : m[2].c; s.style.textShadow = m[2].c === '#fff' ? 'none' : '0 0 1px #0006'; if (m[2].bg) { s.style.background = m[2].bg === 'rgba(0,0,0,.75)' ? '#000a' : m[2].bg; s.style.color = m[2].bg === 'rgba(0,0,0,.75)' ? '#fff' : m[2].c; s.style.padding = '0 6px'; s.style.borderRadius = '4px'; } b.appendChild(s); b.appendChild(el('small', '', m[1]));
@@ -334,7 +355,7 @@
       칩묶음(rp, 위치들, function () { return 자막위치; }, function (v) { 자막위치 = v; 위치바꿈 = true; }, '자막 위치');
       function 자막슬라이더(이름, 키, 읽기, 쓰기, 최소, 최대, 보임) {
         var r = el('div', 'cz-row'); r.appendChild(el('label', '', 이름)); var sl = el('input'); sl.type = 'range'; sl.min = 최소; sl.max = 최대; sl.setAttribute('aria-label', '자막 ' + 이름);
-        sl.addEventListener('input', function () { 쓰기(Number(sl.value)); 그리기미리보기(); }); r.appendChild(sl); c4.appendChild(r);
+        sl.addEventListener('input', function () { 쓰기(Number(sl.value)); 그리기미리보기(); }); sl.__reset = function () { delete 선택[키]; 갱신(); }; r.appendChild(sl); c4.appendChild(r);
         눌림목록.push(function () { sl.value = String(읽기()); r.style.display = 보임 && !보임() ? 'none' : ''; sl.disabled = !!합치기(선택, 종류).값.자막끄기; });
       }
       var 기본거리 = function () { return Math.round((자막위치 === '위' ? (가로 ? 0.07 : 0.13) : (가로 ? 0.07 : 0.22)) * 100); };
@@ -390,7 +411,7 @@
     function 적용상태() { var 막힘 = 블록검사().some(Boolean); ok.disabled = 막힘; ok.style.opacity = 막힘 ? '.5' : ''; ok.title = 막힘 ? '고정 글자의 쓸 수 없는 표현을 먼저 고쳐 주세요' : ''; }
     ok.addEventListener('click', function () { if (ok.disabled) return;
       if (선택.블록) { 선택.블록 = 선택.블록.filter(function (b) { return String(b.글 || '').trim(); }).map(function (b) { return Object.assign({ 글: String(b.글).trim(), 위치: b.위치, 크기: b.크기, 모양: b.모양, 글꼴: b.글꼴 }, 헥스.test(b.색 || '') ? { 색: b.색 } : {}); }); if (!선택.블록.length) delete 선택.블록; }
-      var m = 합치기(선택, 종류); 닫기({ compose: Object.assign({}, 선택), 문구시간: 문구시간쓰기 ? 문구시간 : undefined, 자막위치: 자막위치, 화면구성: 화면바꿈 ? 화면 : (opt.화면구성 || 화면), 위치바뀜: 자막위치 !== 처음위치, 초기화: 초기화함 && !Object.keys(선택).length && 자막위치 === '아래' }); });
+      var m = 합치기(선택, 종류); 닫기({ compose: Object.assign({}, 선택), 문구시간: 문구시간쓰기 ? 문구시간 : undefined, 자막방식: opt.자막방식 !== undefined ? 자막방식 : undefined, 자막위치: 자막위치, 화면구성: 화면바꿈 ? 화면 : (opt.화면구성 || 화면), 위치바뀜: 자막위치 !== 처음위치, 초기화: 초기화함 && !Object.keys(선택).length && 자막위치 === '아래' }); });
     document.addEventListener('keydown', 키);
     var 이전스크롤 = document.body.style.overflow; document.body.style.overflow = 'hidden'; dlg.tabIndex = -1;
     document.body.appendChild(ov); dlg.focus();
