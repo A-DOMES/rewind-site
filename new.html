@@ -1204,11 +1204,11 @@
   #df-fields.pw-on .df-sec-head h3[data-n=""]::before { display: none; }
   @media (max-width: 640px) {
     .pw-frames { display: flex; gap: 5px; padding: 0 8px; }
-    .pw-fr { flex: 1 1 38px; min-width: 38px; }
-    .pw-fr.cur { flex: 2.6 1 0; min-width: 76px; }
+    .pw-fr { flex: 1 1 0; min-width: 0; }
+    .pw-st b { font-size: .7rem; letter-spacing: -.03em; }
+    .pw-st small { font-size: .62rem; }
     .pw-holes { margin: 5px 8px; height: 6px; }
     .pw-st { min-height: 58px; padding: 6px 2px; }
-    .pw-fr:not(.cur) .pw-st b, .pw-fr:not(.cur) .pw-st small { display: none; }
     .pw-fr.cur .pw-st small { font-size: .7rem; }
   }
   .pw-nav .pw-next.is-blocked, #df-confirm.is-blocked { background: var(--line); color: var(--ink-dim); border: 1px solid var(--line-strong, var(--line)); }
@@ -1634,7 +1634,7 @@
 
   /* ===== 진행 단계 바 + 1단계(종류) 새 모양 (2026-10-28) =====
      값은 여기서만 고친다. 바는 모든 단계가 같이 쓰고, 카드 모양은 모든 단계가 같이 쓴다(통일). */
-  :root { --nw-a: #5b8cff; --nw-b: #9a6bff; --nw-edge: rgba(140,160,255,.30); --nw-glow: rgba(90,130,255,.55); --nw-card: linear-gradient(160deg, rgba(34,46,104,.55), rgba(18,14,38,.75)); }
+  :root { --nw-a: #5b8cff; --nw-b: #9a6bff; --nw-edge: rgba(140,160,255,.30); --nw-glow: rgba(90,130,255,.55); --nw-card: linear-gradient(160deg, rgba(26,54,150,.62), rgba(22,14,58,.85)); }
   .pw-bar { border-radius: 18px; border: 1px solid var(--nw-edge); background: var(--nw-card); box-shadow: 0 8px 28px rgba(60,80,200,.14); }
   .pw-title { padding: 14px 16px 2px; }
   .pw-title b { font-size: 1rem; }
@@ -1646,14 +1646,14 @@
   #df-fields.pw-on > .df-sec.pw-cur { border-radius: 22px; border: 1px solid var(--nw-edge); background: var(--nw-card); padding: 20px 18px 10px; box-shadow: 0 10px 30px rgba(60,80,200,.12); }
   #df-fields.pw-on .df-sec-ico { border-radius: 12px; background: rgba(91,140,255,.16); }
   #df-fields.pw-on .df-sec-head h3 { font-size: 1.15rem; }
-  #df-fields.pw-on .df-types .tcard { border-radius: 16px; border: 1px solid rgba(154,107,255,.45); background: linear-gradient(160deg, rgba(30,44,110,.65), rgba(20,18,52,.8)); padding: 13px 16px; transition: transform .15s, box-shadow .15s, border-color .15s; }
+  #df-fields.pw-on .df-types .tcard { border-radius: 16px; border: 1px solid rgba(170,120,255,.75); background: linear-gradient(160deg, rgba(24,56,160,.8), rgba(30,16,76,.92)); padding: 13px 16px; transition: transform .15s, box-shadow .15s, border-color .15s; }
   #df-fields.pw-on .df-types .tcard:hover { transform: translateY(-2px); border-color: var(--nw-a); box-shadow: 0 0 16px var(--nw-glow); }
   #df-fields.pw-on .df-types .tcard .ti { background: rgba(255,255,255,.07); color: #ffd58a; }
-  #df-fields.pw-on .df-types input:checked + .tcard { border-color: #8fb0ff; background: linear-gradient(160deg, rgba(50,80,200,.55), rgba(36,26,90,.8)); box-shadow: 0 0 0 1px #8fb0ff, 0 0 22px var(--nw-glow); }
+  #df-fields.pw-on .df-types input:checked + .tcard { border-color: #8fb0ff; background: linear-gradient(160deg, rgba(40,90,230,.85), rgba(60,30,140,.9)); box-shadow: 0 0 0 1px #9bb8ff, 0 0 30px rgba(90,140,255,.8); }
   #df-fields.pw-on .df-types input:checked + .tcard .ti { background: linear-gradient(160deg, var(--nw-a), var(--nw-b)); color: #fff; }
-  #df-fields.pw-on .df-chipset .tcard { border-radius: 16px; border: 1px solid rgba(154,107,255,.45); background: linear-gradient(160deg, rgba(30,44,110,.65), rgba(20,18,52,.8)); transition: transform .15s, box-shadow .15s, border-color .15s; }
+  #df-fields.pw-on .df-chipset .tcard { border-radius: 16px; border: 1px solid rgba(170,120,255,.75); background: linear-gradient(160deg, rgba(24,56,160,.8), rgba(30,16,76,.92)); transition: transform .15s, box-shadow .15s, border-color .15s; }
   #df-fields.pw-on .df-chipset .tcard:hover { transform: translateY(-2px); border-color: var(--nw-a); box-shadow: 0 0 16px var(--nw-glow); }
-  #df-fields.pw-on .df-chipset input:checked + .tcard { border-color: #8fb0ff; background: linear-gradient(160deg, rgba(50,80,200,.55), rgba(36,26,90,.8)); box-shadow: 0 0 0 1px #8fb0ff, 0 0 22px var(--nw-glow); }
+  #df-fields.pw-on .df-chipset input:checked + .tcard { border-color: #8fb0ff; background: linear-gradient(160deg, rgba(40,90,230,.85), rgba(60,30,140,.9)); box-shadow: 0 0 0 1px #9bb8ff, 0 0 30px rgba(90,140,255,.8); }
   .pw-nav .pw-next:not(.is-blocked) { flex: 0 0 auto; min-width: 150px; border-radius: 999px; padding: 13px 26px; font-size: .98rem; font-weight: 700; color: #fff; background: linear-gradient(90deg, var(--nw-a), var(--nw-b)); box-shadow: 0 0 22px var(--nw-glow); transition: transform .15s, box-shadow .15s; }
   .pw-nav .pw-next:not(.is-blocked):hover { transform: translateY(-2px); box-shadow: 0 0 30px var(--nw-glow); }
   /* 위쪽 탭(주제로 만들기 / 내 드라이브 자료로)·제목 글자 색 */
@@ -1689,6 +1689,24 @@
   #df-fields .df-field .req { background: rgba(255,179,71,.18); color: #ffd58a; border: 1px solid rgba(255,179,71,.5); }
   .pw-nav .pw-prev { border-radius: 999px; border: 1px solid var(--nw-edge); background: rgba(255,255,255,.06); color: #fff; padding: 12px 24px; }
   .pw-nav .pw-prev:hover { border-color: var(--nw-a); box-shadow: 0 0 14px var(--nw-glow); }
+  /* 그림에 맞춘 추가 (진행 바 이름·아이콘·현재 표시, 안내 줄, 대본 알약, 제목 장식, 가격) */
+  .pw-fr { position: relative; }
+  .pw-fr.cur::before { content: ""; position: absolute; top: -9px; left: 50%; width: 22px; height: 6px; margin-left: -11px; border-radius: 4px; background: #9bd0ff; box-shadow: 0 0 10px 2px rgba(120,180,255,.9); z-index: 1; }
+  .pw-st.todo { color: #8f98bd; }
+  .pw-st.todo svg { opacity: .55; }
+  .pw-st.done svg { color: #9bb8ff; }
+  .pw-st b { color: inherit; }
+  .pw-st.cur b, .pw-st.done b { color: #fff; }
+  .pw-hint b { color: #ffb347; }
+  .pw-hint .pw-left { color: #ff8a6b; font-weight: 600; }
+  .direct-form-inner > h2 { font-size: 1.9rem; position: relative; display: inline-block; }
+  .direct-form-inner > h2::after { content: ""; position: absolute; right: -30px; top: -8px; width: 26px; height: 26px; background: no-repeat center / contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23cfe0ff' d='M12 0c.8 6.6 3.2 9.2 12 12-8.8 2.8-11.2 5.4-12 12-.8-6.6-3.2-9.2-12-12 8.8-2.8 11.2-5.4 12-12z'/%3E%3C/svg%3E"); filter: drop-shadow(0 0 6px rgba(150,190,255,.9)); }
+  #df-fields > .sc-card.gn-script > h4 { color: #ffd58a; font-size: 1.1rem; }
+  #df-fields > .sc-card.gn-script button { border-radius: 999px; border: 1px solid rgba(170,120,255,.7); background: linear-gradient(160deg, rgba(24,56,160,.7), rgba(30,16,76,.85)); color: #fff; padding: 12px 18px; font-weight: 600; transition: box-shadow .15s, transform .15s; }
+  #df-fields > .sc-card.gn-script button:hover { transform: translateY(-2px); box-shadow: 0 0 14px var(--nw-glow); }
+  #df-fields > .sc-card.gn-script button[aria-pressed="true"], #df-fields > .sc-card.gn-script button.on, #df-fields > .sc-card.gn-script button.active, #df-fields > .sc-card.gn-script button.sel { border-color: #ffb347; color: #ffd58a; box-shadow: 0 0 0 1px #ffb347, 0 0 22px rgba(255,170,60,.55); }
+  .df-price .amt .val { color: #ffd58a; font-size: 2rem; text-shadow: 0 0 14px rgba(255,180,70,.5); }
+  .df-price { text-align: center; }
 @media (prefers-reduced-motion: reduce) { .pw-st, #df-fields .tcard, .pw-nav .pw-next { transition: none; } }
 </style>
 <script src="./theme.js"></script>
@@ -5268,7 +5286,7 @@
       if (pos && pos.dataset.h !== posHtml) { pos.dataset.h = posHtml; pos.innerHTML = posHtml; }
       bar.querySelectorAll('.pw-fr').forEach((li, i) => {
         const st = stateOf(i), btn = li.firstChild;
-        const ic = st === 'todo' ? PW_LOCK : st === 'done' ? PW_OK : iconOf(i);
+        const ic = iconOf(i) || PW_ICON[i] || PW_ICON[0];
         const go = st === 'done' || st === 'redo';
         const cls = 'pw-st ' + st; if (btn.className !== cls) { btn.className = cls; li.className = 'pw-fr ' + st; }
         if (go || st === 'cur') { btn.removeAttribute('tabindex'); btn.removeAttribute('aria-disabled'); } else { btn.tabIndex = -1; btn.setAttribute('aria-disabled', 'true'); }
