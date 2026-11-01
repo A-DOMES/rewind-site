@@ -5330,12 +5330,14 @@
     const iconOf = i => { const n = namesOf()[i]; return n === '대본' ? PW_ICON[6] : PW_ICON[PW_NAMES.indexOf(n)]; };
     const on = () => 현재종류() === '상품쇼츠' || ((GN() || LONGK()) && PRODUCT_READY());   // 일반 영상도 같은 단계 화면 (상품쇼츠와 같은 열쇠 ?prod=1 뒤에서만)
     const gnForm = () => fields.querySelector('.gn-formsec');
+    const refSec = document.createElement('section'); refSec.className = 'df-sec pd-refsec df-hide'; refSec.style.setProperty('--c', '#74b6ff');   // 상품쇼츠의 참고 영상 자리(칸은 하나이고, 종류에 따라 이 자리와 쇼츠·롱폼 자리 사이를 옮겨 다닌다)
+    { const gf0 = gnForm(); if (gf0) gf0.insertAdjacentElement('afterend', refSec); }
     const todoOf = i => (GN() ? PW_TODO_GN : MO() ? PW_TODO_MO : YD() ? PW_TODO_YD : PW_TODO)[i];
     const typeSec = () => { const t = document.getElementById('df-types'); return t ? t.closest('.df-sec') : null; };
     const q = sel => fields.querySelector(sel);
     const secsGn = () => [[typeSec(), gnForm()], [q('.gn-screen')], [q('.df-voicesec'), q('.df-gender')], [q('.sc-card.gn-script'), q('.gn-content'), q('.gn-mymedia'), q('.df-extra')], [q('.gn-style'), q('.gn-thumb')], [review]];
     const secsLong = () => [[typeSec()], [q('.sc-card:not(.gn-script)'), q('.gn-content'), q(MO() ? '.df-sleep' : '.df-yadam')], [q(MO() ? '.df-sleep' : '.df-yadam')], [q(MO() ? '.df-sleep' : '.df-yadam'), q('.df-voicesec')], [review]];   // 같은 카드(.df-sleep/.df-yadam)가 2·3·4단계에 모두 들어가고, 안의 블록은 data-pw 로 단계별로 나뉜다
-    const secs = () => LONGK() ? secsLong() : GN() ? secsGn() : [[typeSec()], [q('.pd-content'), q('.df-extra')], [q('.pd-media')], [q('.df-voicesec'), q('.df-gender')], [q('.pd-style')], [review, q('.pd-agree')]];   // 한 단계에 섹션이 둘 이상일 수 있다 (기존 옵션을 숨기지 않으려고)
+    const secs = () => LONGK() ? secsLong() : GN() ? secsGn() : [[typeSec(), refSec], [q('.pd-content'), q('.df-extra')], [q('.pd-media')], [q('.df-voicesec'), q('.df-gender')], [q('.pd-style')], [review, q('.pd-agree')]];   // 한 단계에 섹션이 둘 이상일 수 있다 (기존 옵션을 숨기지 않으려고)
     const PARTS_PD = { 1: 'content', 2: 'media', 4: 'style', 5: 'agree' }, PARTS_GN = { 0: 'kind', 1: 'screen', 3: 'content', 4: 'style' }, PARTS_MO = { 1: 'content', 3: 'sound' }, PARTS_YD = { 1: 'content', 2: 'screen' };
     const partsOf = () => MO() ? PARTS_MO : YD() ? PARTS_YD : GN() ? PARTS_GN : PARTS_PD;
     const readerOf = () => MO() ? readMood() : YD() ? readYadam() : GN() ? readGeneral() : readProduct({ mutate: false });
@@ -5528,6 +5530,7 @@
       fields.classList.toggle('pw-on', active); fields.classList.toggle('pw-gn', active && GN());
       bar.hidden = nav.hidden = hint.hidden = !active;
       review.classList.toggle('df-hide', !active);
+      { const 상품 = active && 현재종류() === '상품쇼츠'; refSec.classList.toggle('df-hide', !상품); if (window.RWReference && RWReference.move) { if (상품) RWReference.move(refSec, '상품쇼츠'); else if (gnForm()) RWReference.move(gnForm(), ''); } }
       { const gf = gnForm(); if (gf) { gf.classList.toggle('df-hide', !(active && GN())); const sel = document.getElementById('df-form'), want = sel && sel.value === '롱폼' ? '롱폼' : '쇼츠'; const rd = gf.querySelector(`input[name="gn-form"][value="${want}"]`); if (rd) rd.checked = true; } }
       const confirmBtn = document.getElementById('df-confirm');
       if (!active) { fields.removeAttribute('data-pwstep'); fields.querySelectorAll('[data-pw-t]').forEach(h => { h.textContent = h.dataset.pwT; }); fields.querySelectorAll('.pw-cur').forEach(e => e.classList.remove('pw-cur')); if (confirmBtn) { confirmBtn.style.display = ''; confirmBtn.removeAttribute('aria-disabled'); confirmBtn.classList.remove('is-blocked'); } return; }
@@ -6530,13 +6533,14 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
 })();
 </script>
 <script src="./assets/notice-cards.js"></script>
-<script src="./assets/reference-input.js?v=20261101"></script>
+<script src="./assets/reference-input.js?v=20261101b"></script>
 <script src="./assets/gate-slides.js" defer></script>
 <script>
 /* 참고 영상 → 신청 칸 미리 채우기. 분석이 끝나면 서버가 준 값(fill: 확신 있는 것만)을 아직 건드리지 않은 칸에만 넣고, 어디에 넣었는지 알려 준다.
    직접 고른 값이 항상 먼저다. 영상 길이는 요금이 걸려 있어 바꾸지 않는다. 다른 영상으로 바꾸거나 지우면, 우리가 넣은 값만 되돌린다. */
 (function () {
-  const 자동값 = { layout: '자동', captionPos: '자동' };
+  const 상품쇼츠 = () => document.querySelector('input[name="df-type"]:checked')?.value === '상품쇼츠';
+  const 이름 = () => 상품쇼츠() ? { layout: 'pd-layout', cap: 'vp-subPos', 기본속도: 1.12, 기본자막: '하단', 기본구성: '자동' } : { layout: 'df-layout', cap: 'df-captionPos', 기본속도: 1, 기본자막: '자동', 기본구성: '자동' };
   let 넣음 = {};   // 우리가 넣은 값 { layout, captionPos, speed, voiceGender }
   const radio = (name) => document.querySelector('input[name="' + name + '"]:checked');
   const 정하기 = (name, value) => { const r = document.querySelector('input[name="' + name + '"][value="' + value + '"]'); if (!r || r.disabled) return false; r.checked = true; r.dispatchEvent(new Event('change', { bubbles: true })); return true; };
@@ -6553,27 +6557,29 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
     }
   }
   function 되돌리기() {
-    if (넣음.layout && radio('df-layout')?.value === 넣음.layout) 정하기('df-layout', 자동값.layout);
-    if (넣음.captionPos && radio('df-captionPos')?.value === 넣음.captionPos) 정하기('df-captionPos', 자동값.captionPos);
-    const sp = 말속도(); if (넣음.speed && sp && Math.abs(parseFloat(sp.value) - 넣음.speed) < 0.001) { sp.value = '1'; sp.dispatchEvent(new Event('input', { bubbles: true })); }
+    const 쓴 = 넣음.이름 || 이름();
+    if (넣음.layout && radio(쓴.layout)?.value === 넣음.layout) 정하기(쓴.layout, 쓴.기본구성);
+    if (넣음.captionPos && radio(쓴.cap)?.value === 넣음.captionPos) 정하기(쓴.cap, 쓴.기본자막);
+    const sp = 말속도(); if (넣음.speed && sp && Math.abs(parseFloat(sp.value) - 넣음.speed) < 0.001) { sp.value = String(쓴.기본속도); sp.dispatchEvent(new Event('input', { bubbles: true })); }
     const sg = 성별칸(); if (넣음.voiceGender && sg && sg.value === 넣음.voiceGender) { sg.value = ''; if (window.__rwVP && __rwVP.쇼츠) __rwVP.쇼츠.값설정(''); }
     넣음 = {};
   }
   function 채우기(fill) {
     되돌리기();
-    const 라벨 = [], 롱폼 = (document.getElementById('df-form') || {}).value === '롱폼';
+    const 라벨 = [], 상품 = 상품쇼츠(), 롱폼 = !상품 && (document.getElementById('df-form') || {}).value === '롱폼', 쓰는 = 이름();
+    넣음.이름 = 쓰는;
     if (fill && typeof fill === 'object') {
-      if (!롱폼 && fill.layout === '제목고정형' && (radio('df-layout')?.value || '자동') === '자동' && 정하기('df-layout', '제목고정형')) { 넣음.layout = '제목고정형'; 라벨.push('화면 구성 제목고정형'); }
-      if (['상단', '가운데', '하단'].includes(fill.captionPos) && (radio('df-captionPos')?.value || '자동') === '자동' && 정하기('df-captionPos', fill.captionPos)) { 넣음.captionPos = fill.captionPos; 라벨.push('자막 ' + fill.captionPos); }
+      if (!롱폼 && fill.layout === '제목고정형' && (radio(쓰는.layout)?.value || '자동') === '자동' && 정하기(쓰는.layout, '제목고정형')) { 넣음.layout = '제목고정형'; 라벨.push('화면 구성 제목고정형'); }
+      if (['상단', '가운데', '하단'].includes(fill.captionPos) && (radio(쓰는.cap)?.value || 쓰는.기본자막) === 쓰는.기본자막 && fill.captionPos !== 쓰는.기본자막 && 정하기(쓰는.cap, fill.captionPos)) { 넣음.captionPos = fill.captionPos; 라벨.push('자막 ' + fill.captionPos); }
       const sp = 말속도(), v = Number(fill.speed);
-      if (sp && v >= 0.7 && v <= 1.5 && Math.abs(parseFloat(sp.value) - 1) < 0.001) { sp.value = String(v); sp.dispatchEvent(new Event('input', { bubbles: true })); 넣음.speed = v; 라벨.push(속도말(v)); }
+      if (sp && v >= 0.7 && v <= 1.5 && Math.abs(parseFloat(sp.value) - 쓰는.기본속도) < 0.001) { sp.value = String(v); sp.dispatchEvent(new Event('input', { bubbles: true })); 넣음.speed = v; 라벨.push(속도말(v)); }
       const sg = 성별칸();
       if (sg && (fill.voiceGender === '남성' || fill.voiceGender === '여성') && !sg.value && window.__rwVP && __rwVP.쇼츠 && __rwVP.쇼츠.값() === '') {
         sg.value = fill.voiceGender; __rwVP.쇼츠.성별설정(fill.voiceGender === '여성' ? '여' : '남'); 넣음.voiceGender = fill.voiceGender; 라벨.push(fill.voiceGender + ' 목소리');
       }
     }
     안내(라벨.filter(x => /목소리|말 /.test(x)), ['.df-voicesec'], 'rf-ap-sound');
-    안내(라벨.filter(x => /화면|자막/.test(x)), ['.gn-style'], 'rf-ap-screen');
+    안내(라벨.filter(x => /화면|자막/.test(x)), [상품 ? '.pd-style' : '.gn-style'], 'rf-ap-screen');
     if (window.RWReference && RWReference.setApplied) RWReference.setApplied(라벨);
     try { if (window.__rwFormRedraw) window.__rwFormRedraw(); } catch (e) { }
   }

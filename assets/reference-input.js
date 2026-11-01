@@ -48,13 +48,13 @@
     return m && /^[\w-]{11}$/.test(m[1]) ? 'ok' : 'bad';
   }
   function mount(opt) {
-    var host = opt && opt.host; if (!host || host.querySelector('.rf-box')) return;
+    var host = opt && opt.host, formName = ''; if (!host || host.querySelector('.rf-box')) return;
     if (!document.getElementById('rf-style')) { var st = el('style'); st.id = 'rf-style'; st.textContent = CSS; document.head.appendChild(st); }
     var box = el('div', 'rf-box df-hide'), hid = el('input'); hid.type = 'hidden'; hid.id = 'df-referenceId'; box.appendChild(hid);
     host.appendChild(box);
     var S = { phase: 'idle', url: '', msg: '', summary: [], fill: null, applied: [], timer: null, paid: false, run: 0 };
     var ping = function () { try { if (window.__rwFormRedraw) window.__rwFormRedraw(); } catch (e) { } };   // 상태가 바뀌면 신청 화면의 '다음' 버튼·안내를 다시 계산하게 한다
-    var formOf = function () { var f = document.getElementById('df-form'); return f && f.value === '롱폼' ? '롱폼' : '쇼츠'; };
+    var formOf = function () { if (formName) return formName; var f = document.getElementById('df-form'); return f && f.value === '롱폼' ? '롱폼' : '쇼츠'; };
     var open = function () { return !!(window.RWFlags && window.RWFlags.has && window.RWFlags.has('참고영상')); };
     var token = function () { return typeof opt.getToken === 'function' ? opt.getToken() : ''; };
     var post = function (b) { var ac = typeof AbortController === 'function' ? new AbortController() : null, tm = ac ? setTimeout(function () { ac.abort(); }, 20000) : 0; return fetch(URL_, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(b), signal: ac ? ac.signal : undefined }).then(function (r) { clearTimeout(tm); return r; }, function (e) { clearTimeout(tm); throw e; }).then(function (r) { return r.json().catch(function () { return null; }).then(function (d) { return { ok: r.ok, d: d }; }); }); };
@@ -130,10 +130,12 @@
     var onChange = function () { if (!box.isConnected) { document.removeEventListener('change', onChange); return; } sync(); };
     document.addEventListener('change', onChange);
     var ticks = 0, timer = setInterval(function () { ticks++; if (!box.isConnected) { clearInterval(timer); return; } sync(); if (open() || ticks > 30) clearInterval(timer); }, 1000);
+    box.__rfMove = function (h, name) { if (!h || (h === host && (name || '') === formName)) return; host = h; formName = name || ''; h.appendChild(box); reset(false); sync(); document.dispatchEvent(new CustomEvent('referencechange', { detail: { id: '' } })); };
     box.__rfDraw = draw; current = { box: box, S: S }; sync();
   }
   // 지금 칸의 상태: 보이는지, 분석 중인지, 끝났는지, 올바른 주소가 들어 있는지
   function state() { var c = current; if (!c || !c.box.isConnected) return { visible: false, phase: 'idle', urlOk: false, url: '' }; return { visible: !c.box.classList.contains('df-hide'), phase: c.S.phase, urlOk: checkUrl(c.S.url) === 'ok', url: c.S.url.trim() }; }
   function setApplied(list) { var c = current; if (!c || !c.box.isConnected) return; c.S.applied = Array.isArray(list) ? list.slice(0, 6).map(String) : []; if (c.S.phase === 'done' && c.box.__rfDraw) c.box.__rfDraw(); }
-  window.RWReference = { mount: mount, checkUrl: checkUrl, state: state, setApplied: setApplied };
+  function move(h, name) { var c = current; if (c && c.box.isConnected && c.box.__rfMove) c.box.__rfMove(h, name); }   // 같은 칸을 다른 종류의 자리로 옮긴다(분석 결과는 비우고 다시 시작)
+  window.RWReference = { move: move, mount: mount, checkUrl: checkUrl, state: state, setApplied: setApplied };
 })();
