@@ -235,11 +235,40 @@
     add.hidden = n >= DICT_MAX;
   }
 
+  // 목소리 미리 듣기: 고른 목소리·속도·음높이·분위기로 짧은 문장을 읽어 들려준다 (서버가 계정당 하루 횟수를 제한한다)
+  var PREVIEW_API = 'https://a-domes--rewind-render-upload-api.modal.run/preview', host = null, pvAudio = null;
+  function setHost(h) { host = h || null; var b = $('vp-preview'); if (b) bindPreview(); }
+  function bindPreview() {
+    var b = $('vp-preview'), note = $('vp-preview-note'); if (!b || b.dataset.bound) return;
+    if (!host) return;   // 바깥에서 로그인·성별 정보를 알려 주기 전에는 막아 둔다
+    b.dataset.bound = '1';
+    b.disabled = false; if (note) note.textContent = '고른 목소리로 짧은 문장을 읽어 줘요 · 하루 30번까지';
+    var label = b.lastChild;
+    b.addEventListener('click', function () {
+      var token = host.token && host.token();
+      if (!token) { if (note) note.textContent = '로그인한 뒤에 들어 볼 수 있어요'; return; }
+      if (pvAudio) { try { pvAudio.pause(); } catch (e) {} pvAudio = null; }
+      b.disabled = true; if (note) note.textContent = '목소리를 만드는 중이에요… (몇 초 걸려요)';
+      var body = { idToken: token, speed: speedValue(), pitch: pitchValue(), tone: checked('vp-tone') || '보통', voiceId: host.voiceId ? host.voiceId() : '', gender: host.gender ? host.gender() : '', age: host.age ? host.age() : '', text: host.text ? host.text() : '' };
+      fetch(PREVIEW_API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+        .then(function (r) { return r.json().catch(function () { return null; }).then(function (d) { return { ok: r.ok, d: d }; }); })
+        .then(function (r) {
+          if (!r.ok || !r.d || !r.d.url) throw new Error((r.d && r.d.오류) || '목소리를 만들지 못했어요. 잠시 뒤 다시 눌러 주세요');
+          pvAudio = new Audio(r.d.url); pvAudio.onended = function () { if (note) note.textContent = '다시 들으려면 눌러 주세요 · 오늘 ' + r.d.남은횟수 + '번 남았어요'; };
+          if (note) note.textContent = '재생 중이에요';
+          return pvAudio.play();
+        })
+        .catch(function (e) { if (note) note.textContent = (e && e.message) || '재생하지 못했어요. 다시 눌러 주세요'; })
+        .then(function () { b.disabled = false; });
+    });
+  }
+
   function init(el) {
     root = el || document;
     injectCss();
     var list = $('vp-dict'); if (!list || list.dataset.ready) return;
     list.dataset.ready = '1';
+    bindPreview();
     touched = {}; touchedAny = false;      // 새로 그린 화면이므로 건드린 기록도 처음부터
     var add = document.createElement('button'); add.type = 'button'; add.className = 'vp-add'; add.innerHTML = svg(I.plus) + '단어 추가';
     list.appendChild(add);
@@ -344,8 +373,8 @@
   }
 
   window.RWVoice = {
-    setKind: setKind,
+    setKind: setKind, setHost: setHost,
     sectionHtml: sectionHtml, init: init, setExtra: setExtra, getExtra: getExtra, detach: detach, attach: attach, value: value, summary: summary, captionPos: captionPos,
-    defaults: def, previewReady: false
+    defaults: def, previewReady: true
   };
 })();
