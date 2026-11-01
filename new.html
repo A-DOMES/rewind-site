@@ -1856,6 +1856,17 @@
   #df-fields.pw-on .vp-play[data-vp="preview"] .vp-note { text-align: center; color: #aab3d8; }
   #df-fields .rf-applied { margin: 6px 0 0; font-size: .86rem; color: #ffd98a; }
   #df-fields .rf-ap-sound, #df-fields .rf-ap-screen { color: #ffd98a; margin: 4px 0 8px; }
+  /* 명함카드: 길이·제작 방식·품질 (모든 종류 공통) */
+  #df-fields.pw-on .nc-card { background: var(--nw-card, rgba(255,255,255,.04)); border: 1px solid var(--nw-edge, var(--line)); border-radius: 16px; padding: 14px 16px 16px; margin: 12px 0; box-shadow: inset 0 0 0 1px rgba(0,0,0,.35); border-top-width: 1px; }
+  #df-fields.pw-on .nc-card.df-blk { padding-top: 14px; }
+  #df-fields.pw-on .nc-card > label, #df-fields.pw-on .nc-card > .df-h { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 1.02rem; font-weight: 700; margin: 0 0 12px; }
+  #df-fields.pw-on .nc-card > label .opt { font-weight: 400; font-size: .82rem; }
+  .nc-ico { flex: none; width: 34px; height: 34px; border-radius: 11px; display: grid; place-items: center; background: linear-gradient(160deg, rgba(91,140,255,.35), rgba(154,107,255,.3)); border: 1px solid var(--nw-edge, var(--line)); }
+  .nc-ico svg { width: 19px; height: 19px; fill: none; stroke: #cfe0ff; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  #df-fields.pw-on .nc-card.nc-open { margin-bottom: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 0; border-bottom-style: dashed; }
+  #df-fields.pw-on .nc-card.nc-join { margin-top: 0; border-top: 0; border-top-left-radius: 0; border-top-right-radius: 0; padding-top: 4px; }
+  #df-fields.pw-on .nc-card.nc-join > label { font-size: .92rem; }
+  #df-fields.pw-on .nc-card .pimg-url { min-height: 52px; font-size: 1rem; padding: 0 14px; }
 @media (prefers-reduced-motion: reduce) { .pw-st, #df-fields .tcard, .pw-nav .pw-next { transition: none; } }
 </style>
 <script src="./theme.js"></script>
@@ -5338,6 +5349,26 @@
     const q = sel => fields.querySelector(sel);
     const secsGn = () => [[typeSec(), gnForm()], [q('.gn-screen')], [q('.df-voicesec'), q('.df-gender')], [q('.sc-card.gn-script'), q('.gn-content'), q('.gn-mymedia'), q('.df-extra')], [q('.gn-style'), q('.gn-thumb')], [review]];
     window.__pwContent = () => (GN() || LONGK()) ? 3 : 1;   // 주제·이야기를 적는 단계(쇼츠·롱폼·야담·분위기는 4단계, 상품쇼츠는 2단계)
+    // 길이·제작 방식·품질을 모든 종류에서 같은 명함카드로 보이게 한다(칸은 그대로 두고 class·아이콘만 붙인다 — 다른 코드가 칸의 자리를 찾기 때문에 감싸지 않는다)
+    const NC_ICO = { clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>', film: '<rect x="4" y="5" width="16" height="14" rx="2"/><path d="M8 5v14M16 5v14M4 10h4M4 14h4M16 10h4M16 14h4"/>', star: '<path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.5 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z"/>', motion: '<path d="M3 12c3-6 6-6 9 0s6 6 9 0"/>', image: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="M4 18l5-5 4 4 3-3 4 4"/>' };
+    const NC_KEYS = [['영상 길이', 'clock'], ['직접 넣기', 'join'], ['인트로 영상', 'film'], ['품질 등급', 'star'], ['영상 제작 방식', 'motion'], ['화면 움직임', 'motion'], ['그림 방식', 'image'], ['사진·영상', 'image']];
+    function cardify() {
+      ['.gn-screen', '.pd-media', '.df-yadam', '.df-sleep'].forEach(sel => {
+        const sec = q(sel); if (!sec) return;
+        let prev = null;
+        [...sec.children].forEach(f => {
+          if (!f.classList.contains('df-field')) { prev = null; return; }
+          const lab = f.querySelector(':scope > label, :scope > .df-h'), t = (lab ? lab.textContent : '').trim(), hit = NC_KEYS.find(([k]) => t.startsWith(k));
+          if (!hit) { prev = null; return; }
+          if (!f.classList.contains('nc-card')) {
+            f.classList.add('nc-card');
+            if (hit[1] !== 'join' && lab && lab.tagName === 'LABEL' && !lab.querySelector('.nc-ico')) { const i = document.createElement('i'); i.className = 'nc-ico'; i.setAttribute('aria-hidden', 'true'); i.innerHTML = '<svg viewBox="0 0 24 24">' + NC_ICO[hit[1]] + '</svg>'; lab.prepend(i); }
+          }
+          if (hit[1] === 'join' && prev) { f.classList.add('nc-join'); prev.classList.add('nc-open'); }
+          prev = hit[1] === 'join' ? null : f;
+        });
+      });
+    }
     const secsLong = () => [[typeSec(), refSec], [q(MO() ? '.df-sleep' : '.df-yadam')], [q(MO() ? '.df-sleep' : '.df-yadam'), q('.df-voicesec')], [q('.sc-card:not(.gn-script)'), q('.gn-content'), MO() ? null : q('.df-yadam')], [q(MO() ? '.df-sleep' : '.df-yadam')], [review]];   // 같은 카드(.df-sleep/.df-yadam)가 2·3·4단계에 모두 들어가고, 안의 블록은 data-pw 로 단계별로 나뉜다
     const secs = () => LONGK() ? secsLong() : GN() ? secsGn() : [[typeSec(), refSec], [q('.pd-content'), q('.df-extra')], [q('.pd-media')], [q('.df-voicesec'), q('.df-gender')], [q('.pd-style')], [review, q('.pd-agree')]];   // 한 단계에 섹션이 둘 이상일 수 있다 (기존 옵션을 숨기지 않으려고)
     const PARTS_PD = { 1: 'content', 2: 'media', 4: 'style', 5: 'agree' }, PARTS_GN = { 0: 'kind', 1: 'screen', 3: 'content', 4: 'style' }, PARTS_MO = { 1: 'screen', 2: 'sound', 3: 'content' }, PARTS_YD = { 1: 'screen', 3: 'content' };
@@ -5529,6 +5560,7 @@
       lastKind = 현재종류();   // 종류를 바꿨다가 돌아오면 처음부터 (필수 항목 검사를 건너뛰지 않게)
       { const dt = fields.querySelector('.gn-more'); if (dt) { if (!active) dt.open = true; else if (!wasActive) dt.open = false; } }   // 단계 화면에서는 '더 세밀하게'를 접어 두고, 예전 화면에서는 늘 펼쳐 둔다
       wasActive = active;
+      if (active) cardify();
       fields.classList.toggle('pw-on', active); fields.classList.toggle('pw-gn', active && GN());
       bar.hidden = nav.hidden = hint.hidden = !active;
       review.classList.toggle('df-hide', !active);
