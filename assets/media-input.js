@@ -201,9 +201,11 @@
         var st = c.querySelector('.pimg-state'); st.className = 'pimg-state'; st.textContent = '올렸어요';
         inp.dispatchEvent(new Event('input', { bubbles: true }));   // 사진 주소 칸과 같은 길로 미리보기·확인 칸이 따라온다
         host.changed();
-      }, function () {
+      }, function (err) {
         if (tries < LIMITS.putTries) return one(c, it, tries + 1);
-        fail(c, '올리지 못했어요. 인터넷을 확인하고 다시 시도해 주세요.');
+        var why = String((err && err.message) || ''); try { console.warn('[올리기 실패]', why); } catch (x) {}
+        // 'network' = 브라우저가 저장소 답을 받지 못함(저장소가 이 사이트를 허용하지 않을 때도 이렇게 보인다), 'http 403' = 서명 주소가 맞지 않음
+        fail(c, why === 'network' ? '올리지 못했어요. 인터넷을 확인하고 다시 시도해 주세요. 계속 안 되면 저장소 설정 문제일 수 있어요. (오류: 연결 거부)' : why.indexOf('http ') === 0 ? '올리지 못했어요. 저장소가 파일을 받지 않았어요. (오류: ' + why.slice(5) + ')' : '올리지 못했어요. 인터넷을 확인하고 다시 시도해 주세요.');
       });
     }
     list.addEventListener('click', function (e) {
