@@ -13,13 +13,13 @@
   var LIMITS = { longSide: 2048, quality: 0.88, maxMB: 20, batch: 30, putTries: 2, conc: 3 };
   var OK_TYPE = { 'image/jpeg': 1, 'image/png': 1, 'image/webp': 1 };
   var CSS = ''
-    + '.mm-bar{display:flex;align-items:center;gap:var(--sp-3,12px);flex-wrap:wrap;margin:0 0 var(--sp-3,12px);padding:var(--sp-3,12px);border:1px dashed var(--line);border-radius:var(--r-lg,14px);background:var(--bg-raised,transparent)}'
-    + '.mm-bar.mm-over{border-color:var(--accent,#e2a23c);background:color-mix(in srgb,var(--accent,#e2a23c) 10%,transparent)}'
-    + '.mm-pick{min-height:48px;padding:0 var(--sp-4,16px);border-radius:var(--r-md,10px);border:1px solid var(--accent,#e2a23c);background:var(--accent,#e2a23c);color:var(--on-gold,#1a1306);font:inherit;font-weight:600;cursor:pointer}'
+    + '.mm-card{margin:0 0 var(--sp-3,12px)}.mm-card.mm-over{border-color:var(--accent,#e2a23c)!important;box-shadow:0 0 0 2px color-mix(in srgb,var(--accent,#e2a23c) 40%,transparent)}'
+    + '.mm-card .pimg-top{margin-bottom:2px}'
+    + '.mm-pick{min-height:38px;padding:0 var(--sp-3,12px);border-radius:var(--r-pill,999px);border:1px solid var(--accent,#e2a23c);background:var(--accent,#e2a23c);color:var(--on-gold,#1a1306);font:inherit;font-weight:600;font-size:.88rem;cursor:pointer}'
     + '.mm-pick:hover,.mm-pick:focus-visible{filter:brightness(1.08)}.mm-pick:disabled{opacity:.45;cursor:not-allowed}'
-    + '.mm-hint{flex:1;min-width:140px;color:var(--ink-dim);font-size:var(--fs-sm,.88rem)}'
-    + '.mm-count{width:100%;margin:0;color:var(--ink-faint);font-size:var(--fs-xs,.78rem)}'
-    + '.mm-note{margin:0 0 var(--sp-3,12px);color:var(--ink-faint);font-size:var(--fs-xs,.78rem)}'
+    + '.mm-hint{margin:0;color:var(--ink-faint);font-size:var(--fs-xs,.8rem)}'
+    + '.mm-count{margin:2px 0 0;color:var(--ink-faint);font-size:var(--fs-xs,.8rem)}'
+    + '.mm-how{margin:0 0 var(--sp-3,12px)}'
     + '.mm-msg{margin:0 0 var(--sp-3,12px);font-size:var(--fs-sm,.88rem);color:var(--err,#d4663f)}.mm-msg:empty{display:none}'
     + '.pimg-card[data-src="pc"] .pimg-url,.pimg-card[data-src="pc"] .pm-type,.pimg-card[data-src="pc"] .pm-range{display:none}'
     + '.pimg-name{display:block;font-size:.9rem;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}'
@@ -102,12 +102,15 @@
     if (!list || list.__mmMounted) return; list.__mmMounted = true;
     injectCss();
     var pcOn = !!host.pc;
-    var bar = pcOn ? el('<div class="mm-bar"><button type="button" class="mm-pick">내 컴퓨터에서 사진 고르기</button><span class="mm-hint">사진을 여기로 끌어다 놓아도 돼요. JPG·PNG·WEBP</span><p class="mm-count" aria-live="polite"></p><input type="file" class="mm-file" multiple accept="image/jpeg,image/png,image/webp" hidden></div>') : null;
-    var note = !pcOn ? null : el('<p class="mm-note">내 컴퓨터에서 올린 사진은 영상 제작에만 쓰고, 제작이 끝나면 지워요. 올리는 사진은 본인 것이어야 하고 책임은 올린 분에게 있어요. 영상은 구글 드라이브 주소로 넣어 주세요.</p>');
+    var ICO = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V5"/><path d="M7.5 9.5L12 5l4.5 4.5"/><path d="M4 15v3.5A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5V15"/></svg>';
+    // 주소 카드(사진·영상 1)와 같은 명함카드 모양. 안내 글은 접어 두어 화면이 빽빽하지 않게 한다
+    var bar = pcOn ? el('<div class="pimg-card mm-card"><span class="pimg-th">' + ICO + '</span><div class="pimg-body"><div class="pimg-top"><b>내 컴퓨터에서 올리기</b><button type="button" class="mm-pick">사진 고르기</button></div><p class="mm-hint">사진을 여기로 끌어다 놓아도 돼요</p><p class="mm-count" aria-live="polite"></p><input type="file" class="mm-file" multiple accept="image/jpeg,image/png,image/webp" hidden></div></div>') : null;
+    var note = !pcOn ? null : el('<details class="pd-how mm-how"><summary>내 컴퓨터에서 올릴 때 알아 두세요</summary><ul><li>JPG·PNG·WEBP 사진만 올릴 수 있어요. 영상은 구글 드라이브 주소로 넣어 주세요.</li><li>올린 사진은 영상 제작에만 쓰고, 제작이 끝나면 지워요.</li><li>올리는 사진은 본인 것이어야 하고, 책임은 올린 분에게 있어요.</li></ul></details>');
     var msg = !pcOn ? null : el('<p class="mm-msg" role="status"></p>');
     var say = function (t) { if (msg) msg.textContent = t || ''; };
     if (pcOn) {
-      list.parentNode.insertBefore(bar, list); list.parentNode.insertBefore(note, list); list.parentNode.insertBefore(msg, list);
+      list.parentNode.insertBefore(bar, list); list.parentNode.insertBefore(msg, list); list.parentNode.insertBefore(note, list);
+      var drive = list.parentNode.querySelector('.pd-how:not(.mm-how)'); if (drive) list.parentNode.insertBefore(drive, list);   // '드라이브로 올리는 방법'은 주소 카드 바로 위로(컴퓨터 올리기 → 주소 순서)
       var file = bar.querySelector('.mm-file'), pick = bar.querySelector('.mm-pick');
       pick.addEventListener('click', function () { file.click(); });
       file.addEventListener('change', function () { take(Array.prototype.slice.call(file.files)); file.value = ''; });

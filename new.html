@@ -178,7 +178,7 @@
   .pd-len small { color: var(--ink-faint); }
   .pd-how { margin-top: 6px; font-size: .82rem; color: var(--ink-dim); }
   .pd-how summary { cursor: pointer; min-height: 32px; display: flex; align-items: center; color: var(--ink-dim); }
-  .pd-how ol { margin: 4px 0 8px; padding-left: 20px; line-height: 1.7; }
+  .pd-how ol, .pd-how ul { margin: 4px 0 8px; padding-left: 20px; line-height: 1.7; }
   .pd-srcbox { margin-top: 10px; }
   .pd-src small { line-height: 1.4; }
   .pd-more { margin-top: 16px; border-top: 1px solid var(--line); padding-top: 4px; }
@@ -5171,7 +5171,7 @@
   // 일반 쇼츠 '내 사진·영상': 드라이브 안내 복사, 주소가 하나라도 있으면 권리·사람 확인 칸을 보여 준다
   function setupMyMedia() {
     const sec = document.querySelector('#df-fields .gn-mymedia'), list = document.getElementById('df-gimgs'); if (!sec || !list) return;
-    const how = document.querySelector('#df-fields .pd-media .pd-how'); if (how && !sec.querySelector('.pd-how')) list.parentNode.insertBefore(how.cloneNode(true), list);
+    const how = document.querySelector('#df-fields .pd-media .pd-how:not(.mm-how)'); if (how && !sec.querySelector('.pd-how:not(.mm-how)')) list.parentNode.insertBefore(how.cloneNode(true), list);
     const agree = document.getElementById('df-gmm-agree');
     const sync = () => { const any = [...list.querySelectorAll('.pimg-url')].some(i => i.value.trim()); agree.classList.toggle('df-hide', !any); };
     list.addEventListener('input', () => { sync(); pdShowErr(''); });
