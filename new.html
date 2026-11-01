@@ -4317,7 +4317,7 @@
           videoLength: v.길이분 ? `${v.길이분}분` : '', layout: v.키 === 'short' ? v.구성 : '', captionPos: v.자막 });
         composeState = v.compose && Object.keys(v.compose).length ? v.compose : null; composeKind = composeState ? '일반' : '';   // 한번에 만들기에서 고른 모양
         const 요 = document.getElementById('df-compose-sum'); if (요 && window.RWCompose) 요.textContent = composeSumText(false, composeState);
-        setTimeout(() => { if (window.__pwGo && window.__pwOn && window.__pwOn()) window.__pwGo(v.바로확인 ? (window.__pwLast ? window.__pwLast() : 5) : 1, true); }, 90);
+        setTimeout(() => { if (window.__pwGo && window.__pwOn && window.__pwOn()) window.__pwGo(v.바로확인 ? (window.__pwLast ? window.__pwLast() : 5) : 3, true); }, 90);
       } else openFormFor(v.키, v.주제, '', v.키 === 'prod' ? '한번에 만들기에서 가져온 이름이에요. 정확한 제품명으로 고쳐 주세요.' : '');
       if (v.키 === 'prod') setTimeout(() => {   // 길이(초)와 목소리를 상품쇼츠 폼에 채운다
         const L = document.getElementById('df-prodLen'); if (L && v.길이분) { L.value = String(Math.max(30, Math.min(180, Math.round(v.길이분 * 60)))); L.dispatchEvent(new Event('input', { bubbles: true })); L.dispatchEvent(new Event('change', { bubbles: true })); }
@@ -4337,7 +4337,7 @@
     }
   };
   window.__rwGoYadam = function () { dfPreType = '야담'; showDirectForm(); };
-  window.__rwGoGen = function (form) { dfPreType = '일반'; dfPreForm = form === '롱폼' ? '롱폼' : '쇼츠'; showDirectForm(); setTimeout(() => { if (window.__pwGo && window.__pwOn && window.__pwOn()) window.__pwGo(1, true); }, 80); };   // 쇼츠·롱폼 대본으로 바로 만들기 (내용 단계로)
+  window.__rwGoGen = function (form) { dfPreType = '일반'; dfPreForm = form === '롱폼' ? '롱폼' : '쇼츠'; showDirectForm(); setTimeout(() => { if (window.__pwGo && window.__pwOn && window.__pwOn()) window.__pwGo(3, true); }, 80); };   // 쇼츠·롱폼 대본으로 바로 만들기 (대본 단계로)
   let dfPreForm = null;
   if (NARRATION_READY) window.__rwGoMood = function () { dfPreType = '수면음악'; dfPreNar = '목소리'; showDirectForm(); };   // 분위기 영상 대본으로 바로 만들기 (직접 설정하기가 아직 안 열려 있어도 동작)
   let dfPreNar = null;
