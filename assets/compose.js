@@ -232,12 +232,12 @@
     var 제목상태 = null;   // 마지막으로 그린 제목 상자(끌기가 쓴다)
     var 한계 = function (x, a, b) { return Math.min(b, Math.max(a, x)); }, 둘째 = function (x) { return Math.round(x * 100) / 100; };
     // 미리보기 끌기: 눌러서 끌면 오른쪽 슬라이더와 같은 값이 바뀐다. 방향키로도 움직인다. 끄는 동안 요소가 다시 그려져도 이어지도록 문서에서 움직임을 듣는다
-    function 끌기(요소, 이동, 이름) {
+    function 끌기(요소, 이동, 이름, 눌림) {   // 눌림: 끌지 않고 눌렀다 뗀(클릭) 때 부르는 함수. 움직임이 문턱(5px) 아래면 값은 하나도 바꾸지 않는다
       요소.classList.add('cz-drag'); 요소.tabIndex = 0; 요소.setAttribute('role', 'button'); 요소.setAttribute('aria-label', 이름 + ' (끌거나 방향키로 옮겨요)'); 요소.style.pointerEvents = 'auto';
       요소.addEventListener('pointerdown', function (e) {
-        if (e.button !== undefined && e.button !== 0) return; e.preventDefault(); var 이전x = e.clientX, 이전y = e.clientY; phone.classList.add('cz-dragging');
-        function 움직임(m) { var r = phone.getBoundingClientRect(); 이동((m.clientX - 이전x) / r.width, (m.clientY - 이전y) / r.height); 이전x = m.clientX; 이전y = m.clientY; 그리기미리보기(); 눌림갱신(); }
-        function 끝() { document.removeEventListener('pointermove', 움직임); document.removeEventListener('pointerup', 끝); document.removeEventListener('pointercancel', 끝); phone.classList.remove('cz-dragging'); 끌기중단 = null; 끌기정리(); 블록다시(); 갱신(); }
+        if (e.button !== undefined && e.button !== 0) return; e.preventDefault(); var 이전x = e.clientX, 이전y = e.clientY, 시작x = e.clientX, 시작y = e.clientY, 움직였음 = false;
+        function 움직임(m) { if (!움직였음) { if (Math.abs(m.clientX - 시작x) < 5 && Math.abs(m.clientY - 시작y) < 5) return; 움직였음 = true; phone.classList.add('cz-dragging'); } var r = phone.getBoundingClientRect(); 이동((m.clientX - 이전x) / r.width, (m.clientY - 이전y) / r.height); 이전x = m.clientX; 이전y = m.clientY; 그리기미리보기(); 눌림갱신(); }
+        function 끝() { document.removeEventListener('pointermove', 움직임); document.removeEventListener('pointerup', 끝); document.removeEventListener('pointercancel', 끝); phone.classList.remove('cz-dragging'); 끌기중단 = null; if (!움직였음) { if (눌림) 눌림(요소, 'click'); return; } 끌기정리(); 블록다시(); 갱신(); }
         끌기중단 = function () { document.removeEventListener('pointermove', 움직임); document.removeEventListener('pointerup', 끝); document.removeEventListener('pointercancel', 끝); 끌기중단 = null; };
         document.addEventListener('pointermove', 움직임); document.addEventListener('pointerup', 끝); document.addEventListener('pointercancel', 끝);
       });
