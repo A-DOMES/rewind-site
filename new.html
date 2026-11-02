@@ -486,6 +486,8 @@
   #df-len-chips.gn-lk{pointer-events:none;opacity:.45}
   #df-videoLength.gn-lk{opacity:.6;cursor:not-allowed}
   .gn-len2.gn-lk{opacity:.5}
+  .gs-warn{margin:10px 0 0;padding:10px 12px;border-radius:10px;border:1px solid color-mix(in srgb,var(--amber,#e2a23c) 55%,var(--line,#333));background:color-mix(in srgb,var(--amber,#e2a23c) 10%,transparent);color:var(--ink);font-size:.88rem;line-height:1.5}
+  .gs-warn-b{border:0;background:none;padding:0;color:var(--amber,#e2a23c);font:inherit;font-weight:700;text-decoration:underline;cursor:pointer}
   .sc-card .sc-hint{align-self:flex-start;border:0;background:var(--amber-wash);color:var(--amber);border-radius:10px;padding:9px 14px;font:inherit;font-size:.86rem;font-weight:600;cursor:pointer;text-align:left}
   .sh-steps{margin:0;padding:0;list-style:none;display:grid;gap:8px;counter-reset:st}
   .sh-steps li{counter-increment:st;display:flex;gap:10px;align-items:flex-start;font-size:.9rem;color:var(--ink)}
@@ -6494,7 +6496,7 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
     if(opt){if(!opt.narrate)return minOf(x);var sp=opt.paid&&opt.speed>0?Math.min(2,Math.max(0.5,Math.round(opt.speed*100)/100)):1;return Math.max(0.25,Math.round(charsOf(x)/360/sp*10)/10)}
     var g=window.__rwGenScript;if(window.__rwNarrateOn&&window.__rwNarrateOn()&&g&&x&&g.id===x.id)return Math.max(0.25,Math.round(charsOf(x)/360/narSpeed()*10)/10);return minOf(x)}
   window.__rwNarSpeed=narSpeed;
-  document.addEventListener('input',function(e){if(e.target&&e.target.id==='vp-speed'&&window.__rwNarrateOn&&window.__rwNarrateOn())lock(true)});
+  document.addEventListener('input',function(e){if(e.target&&e.target.id==='vp-speed'){if(window.__rwNarrateOn&&window.__rwNarrateOn())lock(true);else if(window.__rwGenScript)render()}});
   function lenText(x){if(x.form==='롱폼')return '약 '+(Math.round((x.chars||0)/360*10)/10)+'분';var sec=Math.round(minOf(x)*60);return '약 '+(sec<60?sec+'초':(sec%60?Math.floor(sec/60)+'분 '+(sec%60)+'초':(sec/60)+'분'))}
   function kindVal(){return (document.querySelector('input[name="df-type"]:checked')||{}).value}
   function isProd(){return kindVal()==='상품쇼츠'}   /* 상품쇼츠도 같은 대본 카드를 쓴다(소리 뒤 5단계). 형태는 늘 쇼츠, 길이 칸만 상품쇼츠 것(df-prodLen)을 잠근다 */
@@ -6543,6 +6545,11 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
       host.querySelectorAll('[data-art]').forEach(function(b){b.onclick=function(){g.art=b.dataset.art;render();redraw()}});
       host.querySelector('#gs-edit').onclick=function(){var y=(window.__rwGenLib?window.__rwGenLib():[]).filter(function(z){return z.id===g.id})[0];window.__rwOpenStudio('long','mine',y?{title:y.title,chapters:y.chapters,meta:y.meta}:null,'gen',f,f==='롱폼'?g.mode==='read':undefined)};
       host.querySelector('#gs-clear').onclick=function(){drop();note='';render();redraw()};
+      /* 말 속도를 바꾸면 같은 대본이라도 영상 길이가 달라진다 (글자 수 ÷ 초당 6.05자 ÷ 속도). 크게 어긋나면 알려 준다 */
+      if(f==='쇼츠'&&g.mode!=='read'){var spv=window.RWVoice&&RWVoice.value&&RWVoice.value(),sp=spv&&spv.speed>0?spv.speed:(isProd()?1.12:1),base=minOf(x)*60,expS=charsOf(x)/(6.05*sp);
+        if(base>0&&Math.abs(expS-base)/base>0.12){var fs=function(t){t=Math.round(t);return t<60?t+'초':(t%60?Math.floor(t/60)+'분 '+(t%60)+'초':(t/60)+'분')};
+          host.insertAdjacentHTML('beforeend','<p class="gs-warn" role="note">말 속도 ×'+(Math.round(sp*100)/100)+'로 읽으면 영상 길이가 약 <b>'+fs(expS)+'</b>쯤 돼요. 이 대본은 보통 속도로 약 '+fs(base)+' 분량이에요. 길이를 맞추고 싶다면 <button type="button" class="gs-warn-b" id="gs-warn-edit">대본 고치기</button>에서 글자 수를 조절하거나 말 속도를 바꿔 주세요.</p>');
+          var we=host.querySelector('#gs-warn-edit'),ge=host.querySelector('#gs-edit');if(we&&ge)we.onclick=function(){ge.click()}}}
       lock(true);return;
     }
     lock(false);
