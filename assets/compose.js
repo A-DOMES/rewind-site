@@ -39,7 +39,7 @@
     var 상태 = { h: 0, s: 0, v: 1 }, 지금hex = '#FFFFFF', 박 = el('div', 'cz-cw'), 링 = el('div', 'cz-cw-ring'), 그늘 = el('i', 'cz-cw-shade'), 점 = el('i', 'cz-cw-dot');
     링.tabIndex = 0; 링.setAttribute('role', 'application'); 링.setAttribute('aria-label', 옵션.이름 + ' 색상과 채도 (화살표로 움직여요)'); 링.appendChild(그늘); 링.appendChild(점);
     var 줄 = el('div', 'cz-cw-side'), 막 = el('input', 'cz-cw-v'); 막.type = 'range'; 막.min = 0; 막.max = 100; 막.setAttribute('aria-label', 옵션.이름 + ' 밝기');
-    var 입줄 = el('label', 'cz-cw-hexrow'); 입줄.appendChild(el('span', '', 'HEX')); var 입 = el('input', 'cz-cw-hex'); 입.type = 'text'; 입.maxLength = 7; 입.spellcheck = false; 입.setAttribute('aria-label', 옵션.이름 + ' 색 코드 (#RRGGBB)'); 입줄.appendChild(입);
+    var 입줄 = el('label', 'cz-cw-hexrow'); 입줄.appendChild(el('span', '', 'HEX')); var 입 = el('input', 'cz-cw-hex'); 입.type = 'text'; 입.maxLength = 7; 입.spellcheck = false; 입.setAttribute('aria-label', 옵션.이름 + ' 코드 (#RRGGBB)'); 입줄.appendChild(입);
     var 기 = el('button', 'cz-btn cz-cw-rst', '기본으로'); 기.type = 'button'; 줄.appendChild(막); 줄.appendChild(입줄); 줄.appendChild(기); 박.appendChild(링); 박.appendChild(줄);
     function 그리기() {
       var rad = 링.clientWidth / 2 || 56, a = 상태.h * Math.PI / 180; 점.style.left = (50 + 50 * 상태.s * Math.sin(a)) + '%'; 점.style.top = (50 - 50 * 상태.s * Math.cos(a)) + '%';
@@ -56,9 +56,14 @@
       if (바뀜) { e.preventDefault(); e.stopPropagation(); 내보내기(); }
     });
     막.addEventListener('input', function () { 상태.v = Number(막.value) / 100; 내보내기(); });
-    입.addEventListener('input', function () { var h = 정리hex(입.value); if (!h) { 입.classList.add('cz-bad'); return; } 입.classList.remove('cz-bad'); 상태 = hex로hsv(h, 상태); 지금hex = h; 그리기(); 옵션.쓰기(h); });
+    function 입력반영(h) { 입.classList.remove('cz-bad'); 상태 = hex로hsv(h, 상태); 지금hex = h; 그리기(); 옵션.쓰기(h); }
+    입.addEventListener('input', function () {   // 6자리가 다 찼을 때만 반영한다(치는 중간값이 미리보기에서 번쩍이지 않게). 3자리 줄임(#fa0)은 Enter·칸을 벗어날 때 반영
+      var 원 = 입.value.trim().replace(/^#/, ''), h = 원.length === 6 ? 정리hex(원) : ''; if (h) { 입력반영(h); return; }
+      입.classList.toggle('cz-bad', !/^[0-9a-f]{0,6}$/i.test(원) || 원.length > 6);
+    });
+    입.addEventListener('keydown', function (e) { if (e.key === 'Enter') { var h = 정리hex(입.value); if (h) { e.preventDefault(); 입력반영(h); } else 입.classList.add('cz-bad'); } });
     입.addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.stopPropagation(); 입.value = 지금hex; 입.classList.remove('cz-bad'); 입.blur(); } });
-    입.addEventListener('blur', function () { 입.value = 지금hex; 입.classList.remove('cz-bad'); });
+    입.addEventListener('blur', function () { var h = 정리hex(입.value); if (h && h !== 지금hex) 입력반영(h); 입.value = 지금hex; 입.classList.remove('cz-bad'); });
     기.addEventListener('click', function () { 옵션.기본으로(); });
     function 맞추기(hex) { var h = 정리hex(hex); if (!h) return; if (h !== 지금hex) { 상태 = hex로hsv(h, 상태); 지금hex = h; } 그리기(); }
     그리기(); return { box: 박, 맞추기: 맞추기 };
@@ -247,12 +252,14 @@
     function 선택이름() { return 고름 ? 대상표[고름.종류].이름 + (고름.종류 === '블록' ? ' ' + (고름.번호 + 1) : '') : ''; }
     function 선택하기(종류, 번호) {
       var t = 대상표[종류]; if (!t || !t.가능(번호)) return;
+      var 라벨 = document.activeElement && document.activeElement.getAttribute && document.activeElement.getAttribute('aria-label');
       고름 = { 종류: 종류, 번호: 번호 || 0 }; 탭이동(t.탭); t.열기(번호); 선택바갱신(); 그리기미리보기();
+      if (라벨 && (!document.activeElement || document.activeElement === document.body)) { var 다시 = dlg.querySelector('[aria-label="' + 라벨 + '"]'); if (다시) 다시.focus(); }   // 미리보기를 다시 그리면 포커스를 잃으므로 같은 요소로 되돌린다
       if (선택알림) 선택알림.textContent = '선택: ' + 선택이름();
     }
     function 선택풀기() { if (!고름) return false; 고름 = null; 선택바갱신(); 그리기미리보기(); if (선택알림) 선택알림.textContent = '선택을 풀었어요'; return true; }
     function 선택바갱신() {   // 없어진 대상(구성 전환·블록 삭제)을 고르고 있으면 풀고, 칩의 보임·눌림을 맞춘다
-      if (고름 && !대상표[고름.종류].가능(고름.번호)) { 고름 = null; 선택클래스(); }
+      if (고름 && !대상표[고름.종류].가능(고름.번호)) { 고름 = null; 선택클래스(); if (선택알림) 선택알림.textContent = '선택을 풀었어요'; }
       Object.keys(선택줄칩).forEach(function (k) { if (k === '__해제') return; var c = 선택줄칩[k], 종류 = c.dataset.종류, 번호 = Number(c.dataset.번호 || 0), 가능 = 대상표[종류].가능(번호); c.style.display = 가능 ? '' : 'none'; c.setAttribute('aria-pressed', String(!!고름 && 고름.종류 === 종류 && 고름.번호 === 번호)); });
       if (선택줄칩.__해제) 선택줄칩.__해제.style.display = 고름 ? '' : 'none';
     }
@@ -267,7 +274,7 @@
       요소.addEventListener('pointerdown', function (e) {
         if (e.button !== undefined && e.button !== 0) return; e.preventDefault(); var 이전x = e.clientX, 이전y = e.clientY, 시작x = e.clientX, 시작y = e.clientY, 움직였음 = false;
         function 움직임(m) { if (!움직였음) { if (Math.abs(m.clientX - 시작x) < 5 && Math.abs(m.clientY - 시작y) < 5) return; 움직였음 = true; phone.classList.add('cz-dragging'); } var r = phone.getBoundingClientRect(); 이동((m.clientX - 이전x) / r.width, (m.clientY - 이전y) / r.height); 이전x = m.clientX; 이전y = m.clientY; 그리기미리보기(); 눌림갱신(); }
-        function 끝() { document.removeEventListener('pointermove', 움직임); document.removeEventListener('pointerup', 끝); document.removeEventListener('pointercancel', 끝); phone.classList.remove('cz-dragging'); 끌기중단 = null; if (!움직였음) { if (눌림) 눌림(요소, 'click'); return; } 끌기정리(); 블록다시(); 갱신(); }
+        function 끝(ev) { document.removeEventListener('pointermove', 움직임); document.removeEventListener('pointerup', 끝); document.removeEventListener('pointercancel', 끝); phone.classList.remove('cz-dragging'); 끌기중단 = null; if (!움직였음) { if (눌림 && !(ev && ev.type === 'pointercancel')) 눌림(요소, 'click'); return; } 끌기정리(); 블록다시(); 갱신(); }
         끌기중단 = function () { document.removeEventListener('pointermove', 움직임); document.removeEventListener('pointerup', 끝); document.removeEventListener('pointercancel', 끝); 끌기중단 = null; };
         document.addEventListener('pointermove', 움직임); document.addEventListener('pointerup', 끝); document.addEventListener('pointercancel', 끝);
       });
@@ -548,7 +555,7 @@
           블휠열기[i] = function () { 블휠칸.hidden = false; 직접.setAttribute('aria-expanded', 'true'); 블휠.맞추기(헥스.test(b.색 || '') ? b.색 : '#FFFFFF'); 블휠칸.scrollIntoView({ block: 'nearest' }); };
           직접.addEventListener('click', function () { 블휠칸.hidden = !블휠칸.hidden; 직접.setAttribute('aria-expanded', String(!블휠칸.hidden)); if (!블휠칸.hidden) 블휠.맞추기(헥스.test(b.색 || '') ? b.색 : '#FFFFFF'); });
           칸.appendChild(r3);
-          var 삭 = el('button', 'cz-btn', '이 글자 지우기'); 삭.type = 'button'; 삭.addEventListener('click', function () { 블록목록().splice(i, 1); 블록그리기(); 갱신(); 적용상태(); }); 칸.appendChild(삭);
+          var 삭 = el('button', 'cz-btn', '이 글자 지우기'); 삭.type = 'button'; 삭.addEventListener('click', function () { 블록목록().splice(i, 1); if (고름 && 고름.종류 === '블록') { if (고름.번호 === i) { 고름 = null; if (선택알림) 선택알림.textContent = '선택을 풀었어요'; } else if (고름.번호 > i) 고름.번호--; } 블록그리기(); 갱신(); 적용상태(); }); 칸.appendChild(삭);
           목록칸.appendChild(칸);
         });
       }
@@ -597,7 +604,7 @@
     x.addEventListener('click', function () { 닫기(null); });
     ov.addEventListener('mousedown', function (e) { if (e.target === ov) 닫기(null); });
     gc.addEventListener('change', function () { 가이드켜짐 = gc.checked; 그리기미리보기(); });
-    reset.addEventListener('click', function () { 고름 = null; 선택 = {}; 화면 = 기본화면(); 화면바꿈 = false; 자막위치 = '아래'; 위치바꿈 = false; 초기화함 = true; 갱신(); });
+    reset.addEventListener('click', function () { 고름 = null; 선택 = {}; 화면 = 기본화면(); 화면바꿈 = false; 자막위치 = '아래'; 위치바꿈 = false; 초기화함 = true; 블록다시(); 갱신(); });
     function 적용상태() { var 막힘 = 블록검사().some(Boolean); ok.disabled = 막힘; ok.style.opacity = 막힘 ? '.5' : ''; ok.title = 막힘 ? '고정 글자의 쓸 수 없는 표현을 먼저 고쳐 주세요' : ''; }
     ok.addEventListener('click', function () { if (ok.disabled) return;
       if (선택.블록) { 선택.블록 = 선택.블록.filter(function (b) { return String(b.글 || '').trim(); }).map(function (b) { return Object.assign({ 글: String(b.글).trim(), 위치: b.위치, 크기: b.크기, 모양: b.모양, 글꼴: b.글꼴 }, 헥스.test(b.색 || '') ? { 색: b.색 } : {}); }); if (!선택.블록.length) delete 선택.블록; }

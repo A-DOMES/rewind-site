@@ -291,4 +291,3 @@ label.cz-chip { display: inline-flex; align-items: center; }
 .cz-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .cz-phone .cz-sel { outline: 2px solid var(--rz-ac, #e2a23c); outline-offset: -2px; box-shadow: 0 0 0 1px #000; }
 .cz-phone.cz-sel-out { box-shadow: inset 0 0 0 3px var(--rz-ac, #e2a23c); }
-.cz-phone [data-블록], .cz-phone .cz-drag { cursor: pointer; }
