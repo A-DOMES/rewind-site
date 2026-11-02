@@ -205,7 +205,7 @@
         var px = b.크기 * Math.min(W, H) / 1080, bs = RWLayout.블록상자(W, H, b.위치, px, Math.max(1, Math.ceil([].concat(글자).join('').length * 0.66 * px / (W * 0.9))));
         var d = el('div', 'cz-sub', 글자); d.style.cssText = 'left:' + (bs.cx / W * 100) + '%;top:' + (bs.y / H * 100) + '%;width:' + (bs.w / W * 100) + '%;font-size:' + (b.크기 * 0.8 / 1080 * 100 * (가로 ? 0.5625 : 1)) + 'cqw;font-weight:' + 모양겉(b.모양).w + ';color:' + (헥스.test(b.색 || '') ? b.색 : 모양겉(b.모양).c) + ';-webkit-text-stroke:' + 모양겉(b.모양).s + ';paint-order:stroke fill;text-shadow:' + (모양겉(b.모양).sh || 'none') + ';background:' + (모양겉(b.모양).bg || 'none') + ';font-family:' + (글꼴들.find(function (g) { return g[0] === b.글꼴; }) || 글꼴들[0])[2];
         blk.appendChild(d);
-        끌기(d, function (dx, dy) { b.위치.가로 = 한계(b.위치.가로 + dx, 0, 1); if (b.위치.기준 !== '가운데') b.위치.거리 = 한계(b.위치.거리 + (b.위치.기준 === '위' ? dy : -dy), 0, 0.45); }, '고정 글자 ' + (i + 1));
+        d.dataset.블록 = String(i); 끌기(d, function (dx, dy) { b.위치.가로 = 한계(b.위치.가로 + dx, 0, 1); if (b.위치.기준 !== '가운데') b.위치.거리 = 한계(b.위치.거리 + (b.위치.기준 === '위' ? dy : -dy), 0, 0.45); }, '고정 글자 ' + (i + 1), function (n, t) { if (t === 'click') 선택하기('블록', i); });
         if (RWLayout.가이드(W, H).some(function (g) { return RWLayout.겹침비(bs, g) > 0.1; })) 블록경고.push('고정 글자 ' + (i + 1) + '번이 유튜브가 쓰는 자리와 겹쳐요. 그대로 만들 수 있어요');
       });
       warn.textContent = '';
@@ -215,6 +215,7 @@
       var 겹친 = RWLayout.가이드(W, H).filter(function (g) { return RWLayout.겹침비(box, g) > 0.1; }).map(function (g) { return g.이름; });
       if (겹친.length) 글.push('자막이 유튜브가 쓰는 자리(' + 겹친.join('·') + ')와 겹쳐요. 그대로 만들 수 있어요');
       글.forEach(function (t) { warn.appendChild(el('li', '', t)); });
+      선택클래스();
     }
     function 기준값() { return 합치기({ 템플릿: 선택.템플릿 }, 종류).값; }   // 슬라이더 가운데 = 템플릿(없으면 기본) 값
     function 블록목록() { return 선택.블록 || (선택.블록 = []); }
@@ -231,6 +232,35 @@
     var 블록다시 = function () {};   // 만들기() 안의 블록그리기를 가리킨다
     var 제목상태 = null;   // 마지막으로 그린 제목 상자(끌기가 쓴다)
     var 한계 = function (x, a, b) { return Math.min(b, Math.max(a, x)); }, 둘째 = function (x) { return Math.round(x * 100) / 100; };
+    // ---------- 요소 선택 (리졸브에서 컷을 누르면 인스펙터가 따라가듯) ----------
+    // 선택 = { 종류, 번호 }. 미리보기 요소는 값을 바꿀 때마다 다시 그려지므로 요소가 아니라 '이름표'로 기억하고, 그릴 때마다 테두리를 다시 입힌다.
+    // 선택해도 값은 하나도 바뀌지 않는다: 해당 탭으로 옮기고 그 요소의 색 휠을 열어 줄 뿐이다. 모든 설정은 탭에서 그대로 할 수 있다.
+    var 고름 = null, 휠열기 = {}, 블휠열기 = [], 탭이동 = function () {}, 선택줄칩 = {}, 선택알림 = null, 선택알림글 = '';
+    var 띠있음 = function () { return !가로 && (화면 === '제목고정형' || 화면 === '가운데영상형'); };
+    var 대상표 = {
+      '제목띠': { 이름: '제목 띠', 탭: '제목', 가능: function () { return 띠있음(); }, 열기: function () { return 휠열기['제목띠색'] && 휠열기['제목띠색'](); } },
+      '제목글자': { 이름: '제목 글자', 탭: '제목', 가능: function () { return 띠있음(); }, 열기: function () { return 휠열기['제목글자색'] && 휠열기['제목글자색'](); } },
+      '자막': { 이름: '자막', 탭: '자막', 가능: function () { return !v0().자막끄기; }, 열기: function () { return 휠열기['핵심색'] && 휠열기['핵심색'](); } },
+      '블록': { 이름: '고정 글자', 탭: '고정 글자', 가능: function (n) { return n < 블록목록().length; }, 열기: function (n) { return 블휠열기[n] && 블휠열기[n](); } },
+      '바깥': { 이름: '위·아래 빈 곳', 탭: '제목', 가능: function () { return 화면 === '가운데영상형' && !가로; }, 열기: function () { return 휠열기['가운데색'] && 휠열기['가운데색'](); } }
+    };
+    function 선택이름() { return 고름 ? 대상표[고름.종류].이름 + (고름.종류 === '블록' ? ' ' + (고름.번호 + 1) : '') : ''; }
+    function 선택하기(종류, 번호) {
+      var t = 대상표[종류]; if (!t || !t.가능(번호)) return;
+      고름 = { 종류: 종류, 번호: 번호 || 0 }; 탭이동(t.탭); t.열기(번호); 선택바갱신(); 그리기미리보기();
+      if (선택알림) 선택알림.textContent = '선택: ' + 선택이름();
+    }
+    function 선택풀기() { if (!고름) return false; 고름 = null; 선택바갱신(); 그리기미리보기(); if (선택알림) 선택알림.textContent = '선택을 풀었어요'; return true; }
+    function 선택바갱신() {   // 없어진 대상(구성 전환·블록 삭제)을 고르고 있으면 풀고, 칩의 보임·눌림을 맞춘다
+      if (고름 && !대상표[고름.종류].가능(고름.번호)) { 고름 = null; 선택클래스(); }
+      Object.keys(선택줄칩).forEach(function (k) { if (k === '__해제') return; var c = 선택줄칩[k], 종류 = c.dataset.종류, 번호 = Number(c.dataset.번호 || 0), 가능 = 대상표[종류].가능(번호); c.style.display = 가능 ? '' : 'none'; c.setAttribute('aria-pressed', String(!!고름 && 고름.종류 === 종류 && 고름.번호 === 번호)); });
+      if (선택줄칩.__해제) 선택줄칩.__해제.style.display = 고름 ? '' : 'none';
+    }
+    function 선택클래스() {   // 그릴 때마다 호출: 선택한 요소에 주황 테두리 클래스를 다시 입힌다
+      [].forEach.call(phone.querySelectorAll('.cz-sel'), function (n) { n.classList.remove('cz-sel'); }); phone.classList.remove('cz-sel-out'); if (!고름) return;
+      if (고름.종류 === '제목띠') ttl.classList.add('cz-sel'); else if (고름.종류 === '제목글자') ttx.classList.add('cz-sel'); else if (고름.종류 === '자막') sub.classList.add('cz-sel'); else if (고름.종류 === '바깥') phone.classList.add('cz-sel-out');
+      else if (고름.종류 === '블록') { var 대상 = [].slice.call(blk.children).filter(function (n) { return n.dataset.블록 === String(고름.번호); })[0]; if (대상) 대상.classList.add('cz-sel'); }
+    }
     // 미리보기 끌기: 눌러서 끌면 오른쪽 슬라이더와 같은 값이 바뀐다. 방향키로도 움직인다. 끄는 동안 요소가 다시 그려져도 이어지도록 문서에서 움직임을 듣는다
     function 끌기(요소, 이동, 이름, 눌림) {   // 눌림: 끌지 않고 눌렀다 뗀(클릭) 때 부르는 함수. 움직임이 문턱(5px) 아래면 값은 하나도 바꾸지 않는다
       요소.classList.add('cz-drag'); 요소.tabIndex = 0; 요소.setAttribute('role', 'button'); 요소.setAttribute('aria-label', 이름 + ' (끌거나 방향키로 옮겨요)'); 요소.style.pointerEvents = 'auto';
@@ -241,7 +271,7 @@
         끌기중단 = function () { document.removeEventListener('pointermove', 움직임); document.removeEventListener('pointerup', 끝); document.removeEventListener('pointercancel', 끝); 끌기중단 = null; };
         document.addEventListener('pointermove', 움직임); document.addEventListener('pointerup', 끝); document.addEventListener('pointercancel', 끝);
       });
-      요소.addEventListener('keydown', function (e) { var d = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[e.key]; if (!d) return; e.preventDefault(); e.stopPropagation(); 이동(d[0] * 0.01, d[1] * 0.01); 끌기정리(); 블록다시(); 갱신(); var 다시찾기 = dlg.querySelector('[aria-label="' + 이름 + ' (끌거나 방향키로 옮겨요)"]'); if (다시찾기 && document.activeElement !== 다시찾기) 다시찾기.focus(); });   // 다시 그려진 요소로 포커스를 돌려 방향키를 이어서 누를 수 있게
+      요소.addEventListener('keydown', function (e) { if ((e.key === 'Enter' || e.key === ' ') && 눌림) { e.preventDefault(); e.stopPropagation(); 눌림(요소, 'click'); return; } var d = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[e.key]; if (!d) return; e.preventDefault(); e.stopPropagation(); 이동(d[0] * 0.01, d[1] * 0.01); 끌기정리(); 블록다시(); 갱신(); var 다시찾기 = dlg.querySelector('[aria-label="' + 이름 + ' (끌거나 방향키로 옮겨요)"]'); if (다시찾기 && document.activeElement !== 다시찾기) 다시찾기.focus(); });   // 다시 그려진 요소로 포커스를 돌려 방향키를 이어서 누를 수 있게
     }
     function 끌기정리() {   // 끌기가 끝나면 값을 반올림하고, 기본값과 같으면 지워서 건드리지 않은 것으로 되돌린다
       [['제목가로', 0.5, 100], ['자막가로', 0.5, 100], ['제목높이', 0.184, 1000]].forEach(function (k) { var x = 선택[k[0]]; if (x === undefined) return; x = Math.round(x * k[2]) / k[2]; if (Math.abs(x - k[1]) < (k[0] === '제목높이' ? 0.003 : 0.005)) delete 선택[k[0]]; else 선택[k[0]] = x; });
@@ -285,7 +315,7 @@
       if (!sl.__bi) { sl.__bi = 1; sl.addEventListener('input', function () { 채움(sl); }); }
     }
     function 값표시() {   // 슬라이더마다 숫자와 '처음 값으로' 버튼을 붙인다(가운데가 기본). 되돌리기는 건드리지 않은 상태로 돌아간다
-      body.querySelectorAll('.cz-row input[type=range]').forEach(function (sl) {
+      body.querySelectorAll('.cz-row input[type=range]:not(.cz-cw-v)').forEach(function (sl) {   // 색 휠의 밝기 막대는 숫자·되돌리기를 따로 갖는다(휠 안)
         if (!sl.__o) {
           var o = el('output', 'cz-val'), b = el('button', 'cz-rst', '↺'); b.type = 'button'; b.title = '처음 값으로'; b.setAttribute('aria-label', '처음 값으로 되돌리기');
           b.addEventListener('click', function () { if (sl.__reset) sl.__reset(); else { sl.value = '0'; sl.dispatchEvent(new Event('input', { bubbles: true })); sl.dispatchEvent(new Event('change', { bubbles: true })); } });
@@ -413,6 +443,7 @@
         var 휠칸 = el('div', 'cz-cw-wrap'); 휠칸.hidden = true; r.appendChild(휠칸);
         var 휠 = 색휠({ 이름: '제목 ' + 이름, 쓰기: function (hx) { if (기본색 && hx.toLowerCase() === 기본색.toLowerCase()) delete 선택[키]; else 선택[키] = hx; 갱신(); }, 기본으로: function () { delete 선택[키]; 갱신(); } }); 휠칸.appendChild(휠.box);
         직접.addEventListener('click', function () { 휠칸.hidden = !휠칸.hidden; 직접.setAttribute('aria-expanded', String(!휠칸.hidden)); if (!휠칸.hidden) 휠.맞추기(지금() || 기본색 || '#808080'); });
+        휠열기[키] = function () { 휠칸.hidden = false; 직접.setAttribute('aria-expanded', 'true'); 휠.맞추기(지금() || 기본색 || '#808080'); 휠칸.scrollIntoView({ block: 'nearest' }); };
         눌림목록.push(function () { 직접.setAttribute('aria-pressed', String(!목록.some(function (c) { return c[1].toLowerCase() === 지금(); }))); if (!휠칸.hidden) 휠.맞추기(지금() || 기본색 || '#808080'); });
         제목행들.push({ r: r, 띠만: 띠만 });
       }
@@ -446,6 +477,7 @@
       var 직접색 = el('button', 'cz-chip', '직접 고르기'); 직접색.type = 'button'; 직접색.setAttribute('aria-expanded', 'false'); 직접색.dataset.k = '핵심색-직접'; cw.appendChild(직접색);
       var 핵휠칸 = el('div', 'cz-cw-wrap'); 핵휠칸.hidden = true; r2.appendChild(핵휠칸);
       var 핵휠 = 색휠({ 이름: '단어', 쓰기: function (hx) { 선택.핵심색 = hx; 갱신(); }, 기본으로: function () { delete 선택.핵심색; 갱신(); } }); 핵휠칸.appendChild(핵휠.box);
+      휠열기['핵심색'] = function () { 핵휠칸.hidden = false; 직접색.setAttribute('aria-expanded', 'true'); 핵휠.맞추기(이름색(현재핵()) || '#FF4D8D'); 핵휠칸.scrollIntoView({ block: 'nearest' }); };
       직접색.addEventListener('click', function () { 핵휠칸.hidden = !핵휠칸.hidden; 직접색.setAttribute('aria-expanded', String(!핵휠칸.hidden)); if (!핵휠칸.hidden) 핵휠.맞추기(이름색(현재핵()) || '#FF4D8D'); });
       눌림목록.push(function () { 직접색.setAttribute('aria-pressed', String(헥스.test(현재핵()))); if (!핵휠칸.hidden) 핵휠.맞추기(이름색(현재핵()) || '#FF4D8D'); });
       c2.appendChild(el('p', 'cz-hint', '대본에서 중요한 단어에 이 색이 칠해져요'));
@@ -513,6 +545,7 @@
           var 직접 = el('button', 'cz-chip', '직접 고르기'); 직접.type = 'button'; 직접.setAttribute('aria-pressed', String(헥스.test(b.색 || ''))); 직접.setAttribute('aria-expanded', 'false'); 직접.dataset.k = '블록' + (i + 1) + '-색-직접'; 색칸.appendChild(직접);
           var 블휠칸 = el('div', 'cz-cw-wrap'); 블휠칸.hidden = true; r3.appendChild(블휠칸);
           var 블휠 = 색휠({ 이름: '고정 글자 ' + (i + 1), 쓰기: function (hx) { b.색 = hx; 직접.setAttribute('aria-pressed', 'true'); 기본색.setAttribute('aria-pressed', 'false'); 그리기미리보기(); }, 기본으로: function () { delete b.색; 블록그리기(); 그리기미리보기(); } }); 블휠칸.appendChild(블휠.box);
+          블휠열기[i] = function () { 블휠칸.hidden = false; 직접.setAttribute('aria-expanded', 'true'); 블휠.맞추기(헥스.test(b.색 || '') ? b.색 : '#FFFFFF'); 블휠칸.scrollIntoView({ block: 'nearest' }); };
           직접.addEventListener('click', function () { 블휠칸.hidden = !블휠칸.hidden; 직접.setAttribute('aria-expanded', String(!블휠칸.hidden)); if (!블휠칸.hidden) 블휠.맞추기(헥스.test(b.색 || '') ? b.색 : '#FFFFFF'); });
           칸.appendChild(r3);
           var 삭 = el('button', 'cz-btn', '이 글자 지우기'); 삭.type = 'button'; 삭.addEventListener('click', function () { 블록목록().splice(i, 1); 블록그리기(); 갱신(); 적용상태(); }); 칸.appendChild(삭);
@@ -522,30 +555,40 @@
       추가.addEventListener('click', function () { if (블록목록().length >= 4) return; 블록목록().push({ 글: '', 위치: { 기준: '위', 거리: 0.15, 가로: 0.5 }, 크기: 60, 모양: '굵은흰', 글꼴: 'Noto Sans CJK KR' }); 블록그리기(); 갱신(); 적용상태(); });
       블록그리기();
       블록다시 = 블록그리기;
-      끌기(ttx, 제목이동, '제목 글자'); 끌기(sub, 자막이동, '자막'); 끌기(띠손잡이, 띠이동, '제목 띠 높이'); 끌기(칸손잡이, 칸이동, '영상 칸 아래 끝');
+      끌기(ttx, 제목이동, '제목 글자', function (n, t) { if (t === 'click') 선택하기('제목글자'); }); 끌기(sub, 자막이동, '자막', function (n, t) { if (t === 'click') 선택하기('자막'); }); 끌기(띠손잡이, 띠이동, '제목 띠 높이', function (n, t) { if (t === 'click') 선택하기('제목띠'); }); 끌기(칸손잡이, 칸이동, '영상 칸 아래 끝', function (n, t) { if (t === 'click') 선택하기('바깥'); });
+      ttl.addEventListener('click', function () { 선택하기('제목띠'); });   // 띠 빈 곳을 누르면 제목 띠 선택
+      phone.addEventListener('click', function (e) { if (e.target.closest('.cz-drag, .cz-sub') || e.target === ttl) return; var 칸 = 화면 === '가운데영상형' && !가로, r = phone.getBoundingClientRect(), y = (e.clientY - r.top) / r.height; if (칸 && e.target !== ctr && (y > 칸상태.아래 || (y > Math.max(0.235, ttl.getBoundingClientRect().height / r.height) && y < 칸상태.위))) 선택하기('바깥'); else 선택풀기(); });   // 영상 칸 위·아래 빈 곳 = 바깥, 그 밖의 빈 곳 = 선택 풀기
       // 왼쪽 라이브러리(리졸브의 미디어 풀): 화면 구성 · 모양 · 영상 제작 방식. 오른쪽 인스펙터 탭: 제목 · 자막 · 고정 글자
       [판, c1, 판2].forEach(function (c) { if (c) { c.dataset.tab = '*'; c.classList.remove('cz-fold'); var 머리 = c.querySelector('.cz-ch'); if (머리) 머리.setAttribute('aria-expanded', 'true'); lib.appendChild(c); } });
       var 빈탭 = el('p', 'cz-card cz-hintcard', '이 화면 구성에는 위쪽 제목 띠가 없어요. 제목 띠가 필요하면 왼쪽에서 \'제목고정\' 또는 \'가운데영상\'을 골라요.'); 빈탭.dataset.tab = '제목'; body.appendChild(빈탭);
       눌림목록.push(function () { 빈탭.style.display = (띠없음 || 화면 === '제목고정형' || 화면 === '가운데영상형') ? 'none' : ''; });
       var 띠없음 = 가로 || 화면목록.length < 2;   // 화면 구성을 고를 수 없으면(가로·롱폼 세로) 제목 띠도 없다
       var 탭순서 = 띠없음 ? ['자막', '고정 글자'] : ['제목', '자막', '고정 글자'], 있는탭 = 탭순서.filter(function (t) { return body.querySelector('.cz-card[data-tab="' + t + '"]'); });
+      var 머리줄 = el('div', 'cz-bodyhead'); body.insertBefore(머리줄, body.firstChild);   // 탭 + 선택 줄(스크롤해도 위에 붙어 있다)
+      var 선택줄 = el('div', 'cz-selbar'); 선택줄.setAttribute('role', 'group'); 선택줄.setAttribute('aria-label', '꾸밀 요소 고르기 (미리보기를 눌러도 돼요)'); 선택줄.appendChild(el('span', 'cz-selbar-l', '선택'));
+      [['제목띠', '제목 띠', 0], ['제목글자', '제목 글자', 0], ['자막', '자막', 0], ['블록', '고정 글자 1', 0], ['블록', '고정 글자 2', 1], ['블록', '고정 글자 3', 2], ['블록', '고정 글자 4', 3], ['바깥', '빈 곳', 0]].forEach(function (c) {
+        var b = el('button', 'cz-chip', c[1]); b.type = 'button'; b.dataset.종류 = c[0]; b.dataset.번호 = String(c[2]); b.dataset.k = '선택-' + c[0] + (c[0] === '블록' ? (c[2] + 1) : ''); b.setAttribute('aria-pressed', 'false');
+        b.addEventListener('click', function () { if (고름 && 고름.종류 === c[0] && 고름.번호 === c[2]) 선택풀기(); else 선택하기(c[0], c[2]); }); 선택줄칩[c[0] + c[2]] = b; 선택줄.appendChild(b);
+      });
+      var 풀기 = el('button', 'cz-chip cz-selbar-x', '해제'); 풀기.type = 'button'; 풀기.setAttribute('aria-label', '선택 풀기 (Esc)'); 풀기.addEventListener('click', 선택풀기); 선택줄칩.__해제 = 풀기; 선택줄.appendChild(풀기);
+      선택알림 = el('span', 'cz-sr'); 선택알림.setAttribute('aria-live', 'polite'); 선택줄.appendChild(선택알림); 머리줄.appendChild(선택줄); 눌림목록.push(선택바갱신); 선택바갱신();
       if (있는탭.length > 1) {
         var 탭줄 = el('div', 'cz-tabs'); 탭줄.setAttribute('role', 'tablist'); var 탭버튼 = {};
         body.setAttribute('role', 'tabpanel');
-        function 탭보이기(t) { 있는탭.forEach(function (n) { 탭버튼[n].setAttribute('aria-selected', String(n === t)); 탭버튼[n].tabIndex = n === t ? 0 : -1; }); body.setAttribute('aria-labelledby', 탭버튼[t].id); [].forEach.call(body.querySelectorAll('.cz-card'), function (c) { c.classList.toggle('cz-tabhide', c.dataset.tab !== '*' && c.dataset.tab !== t); }); }
+        function 탭보이기(t) { 있는탭.forEach(function (n) { 탭버튼[n].setAttribute('aria-selected', String(n === t)); 탭버튼[n].tabIndex = n === t ? 0 : -1; }); body.setAttribute('aria-labelledby', 탭버튼[t].id); [].forEach.call(body.querySelectorAll('.cz-card[data-tab]'), function (c) { c.classList.toggle('cz-tabhide', c.dataset.tab !== '*' && c.dataset.tab !== t); }); }
         있는탭.forEach(function (t) { var b = el('button', 'cz-tab', t); b.type = 'button'; b.setAttribute('role', 'tab'); b.id = 'cz-tab-' + t.replace(/\s/g, ''); b.setAttribute('aria-controls', 'cz-panel'); b.addEventListener('click', function () { 탭보이기(t); });
           b.addEventListener('keydown', function (e) {   // 좌우 화살표·Home·End 로 탭 이동(선택된 탭만 Tab 키로 닿는다)
             var i = 있는탭.indexOf(t), 다음 = e.key === 'ArrowRight' ? (i + 1) % 있는탭.length : e.key === 'ArrowLeft' ? (i + 있는탭.length - 1) % 있는탭.length : e.key === 'Home' ? 0 : e.key === 'End' ? 있는탭.length - 1 : -1;
             if (다음 < 0) return; e.preventDefault(); 탭보이기(있는탭[다음]); 탭버튼[있는탭[다음]].focus();
           }); 탭버튼[t] = b; 탭줄.appendChild(b); });
         body.id = 'cz-panel';
-        body.insertBefore(탭줄, body.firstChild); 탭보이기(있는탭[0]);
+        머리줄.insertBefore(탭줄, 머리줄.firstChild); 탭보이기(있는탭[0]); 탭이동 = function (t) { if (있는탭.indexOf(t) >= 0) 탭보이기(t); };
       }
       타임라인만들기();
     }
     function 닫기(결과) { 읽기멈춤(); if (끌기중단) 끌기중단(); document.removeEventListener('keydown', 키); document.body.style.overflow = 이전스크롤; ov.remove(); if (이전포커스 && 이전포커스.focus) 이전포커스.focus(); if (결과 && typeof opt.onDone === 'function') opt.onDone(결과); }
     function 키(e) {
-      if (e.key === 'Escape') { e.preventDefault(); 닫기(null); return; }
+      if (e.key === 'Escape') { e.preventDefault(); if (선택풀기()) return; 닫기(null); return; }   // 고른 요소가 있으면 선택만 풀고, 없을 때만 창을 닫는다
       if (e.key !== 'Tab') return;
       var f = [].slice.call(dlg.querySelectorAll('button,input,select,[tabindex]:not([tabindex="-1"])')).filter(function (n) { return !n.disabled && n.offsetParent !== null; });
       if (!f.length) return; var a = f[0], z = f[f.length - 1];
@@ -554,7 +597,7 @@
     x.addEventListener('click', function () { 닫기(null); });
     ov.addEventListener('mousedown', function (e) { if (e.target === ov) 닫기(null); });
     gc.addEventListener('change', function () { 가이드켜짐 = gc.checked; 그리기미리보기(); });
-    reset.addEventListener('click', function () { 선택 = {}; 화면 = 기본화면(); 화면바꿈 = false; 자막위치 = '아래'; 위치바꿈 = false; 초기화함 = true; 갱신(); });
+    reset.addEventListener('click', function () { 고름 = null; 선택 = {}; 화면 = 기본화면(); 화면바꿈 = false; 자막위치 = '아래'; 위치바꿈 = false; 초기화함 = true; 갱신(); });
     function 적용상태() { var 막힘 = 블록검사().some(Boolean); ok.disabled = 막힘; ok.style.opacity = 막힘 ? '.5' : ''; ok.title = 막힘 ? '고정 글자의 쓸 수 없는 표현을 먼저 고쳐 주세요' : ''; }
     ok.addEventListener('click', function () { if (ok.disabled) return;
       if (선택.블록) { 선택.블록 = 선택.블록.filter(function (b) { return String(b.글 || '').trim(); }).map(function (b) { return Object.assign({ 글: String(b.글).trim(), 위치: b.위치, 크기: b.크기, 모양: b.모양, 글꼴: b.글꼴 }, 헥스.test(b.색 || '') ? { 색: b.색 } : {}); }); if (!선택.블록.length) delete 선택.블록; }
