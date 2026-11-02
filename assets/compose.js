@@ -234,9 +234,9 @@
       });
     }
 
-    var 카드그림 = { '모양 고르기': 'M12 3l1.8 4.6L18.5 9l-4.7 1.4L12 15l-1.8-4.6L5.5 9l4.7-1.4zM18 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z', '제목 설정': 'M5 6h14M12 6v13M9 19h6', '자막 글자 모양': 'M4 7h16v10H4zM8 12h8M10 15h4', '읽는 글자 효과': 'M4 18l5-5 4 4 7-9M4 6h6', '자막 크기와 줄': 'M5 7h14M5 12h10M5 17h14', '자막 위치': 'M12 21s-6-5.2-6-10a6 6 0 0112 0c0 4.8-6 10-6 10zM12 11.5a1.8 1.8 0 100-3.6 1.8 1.8 0 000 3.6z', '고정 글자': 'M9 4h6l-1 6 3 3H7l3-3zM12 13v7' };
-    function 카드(제목, 작은글) {
-      var c = el('section', 'cz-card'); var top = el('div', 'cz-ch'); var ic = el('i', 'cz-ico'); ic.setAttribute('aria-hidden', 'true');
+    var 카드그림 = { '화면 구성': 'M7 3h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2zM9 9h6v6H9z', '영상 제작 방식': 'M4 6h16v12H4zM8 6v12M16 6v12M4 10h4M4 14h4M16 10h4M16 14h4', '문구가 보이는 시간': 'M12 7v5l3 2M12 3a9 9 0 100 18 9 9 0 000-18z', '자막 방식': 'M5 7h14M5 12h14M5 17h9', '모양 고르기': 'M12 3l1.8 4.6L18.5 9l-4.7 1.4L12 15l-1.8-4.6L5.5 9l4.7-1.4zM18 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z', '제목 설정': 'M5 6h14M12 6v13M9 19h6', '자막 글자 모양': 'M4 7h16v10H4zM8 12h8M10 15h4', '읽는 글자 효과': 'M4 18l5-5 4 4 7-9M4 6h6', '자막 크기와 줄': 'M5 7h14M5 12h10M5 17h14', '자막 위치': 'M12 21s-6-5.2-6-10a6 6 0 0112 0c0 4.8-6 10-6 10zM12 11.5a1.8 1.8 0 100-3.6 1.8 1.8 0 000 3.6z', '고정 글자': 'M9 4h6l-1 6 3 3H7l3-3zM12 13v7' };
+    function 카드(제목, 작은글, 탭) {
+      var c = el('section', 'cz-card'); c.dataset.tab = 탭 || '*'; /* '*' = 모든 탭에서 보이는 카드(모양 고르기) */ var top = el('div', 'cz-ch'); var ic = el('i', 'cz-ico'); ic.setAttribute('aria-hidden', 'true');
       ic.innerHTML = '<svg viewBox="0 0 24 24"><path d="' + (카드그림[제목] || 'M5 12h14') + '"/></svg>'; top.appendChild(ic);
       var h = el('h3', '', 제목); if (작은글) h.appendChild(el('small', '', 작은글)); top.appendChild(h);
       var 화살 = el('span', 'cz-chev', '⌄'); 화살.setAttribute('aria-hidden', 'true'); top.appendChild(화살); top.setAttribute('role', 'button'); top.tabIndex = 0; top.setAttribute('aria-expanded', 'true'); top.title = '눌러서 접고 펴기';   // 카드 머리를 누르면 접힌다(편집기 패널처럼)
@@ -252,7 +252,10 @@
 
     function 만들기() {
       body.textContent = ''; 눌림목록 = [];
-      var c1 = 카드('모양 고르기', '골라 두면 아래 값이 알맞게 채워져요');
+      var c1 = 카드('모양 고르기', '골라 두면 아래 값이 알맞게 채워져요', '*');
+      c1.classList.add('cz-fold'); c1.querySelector('.cz-ch').setAttribute('aria-expanded', 'false');   // 처음엔 접어 둔다(공간 절약). 머리에 지금 고른 모양이 보인다
+      var 지금모양 = el('b', 'cz-now'); c1.querySelector('.cz-ch h3').appendChild(지금모양);
+      눌림목록.push(function () { var t = (템플릿목록 || []).filter(function (x) { return x.id === 선택.템플릿; })[0]; 지금모양.textContent = t ? '지금: ' + t.이름 : '지금: 직접 꾸미기'; });
       var g = el('div', 'cz-grid'); c1.appendChild(g);
       var 직접 = el('button', 'cz-opt'); 직접.type = 'button'; 직접.appendChild(el('b', '', '직접 꾸미기')); 직접.appendChild(el('small', '', '템플릿 없이 아래에서 하나씩 정해요'));
       직접.addEventListener('click', function () { delete 선택.템플릿; 갱신(); }); g.appendChild(직접); 눌림목록.push(function () { 직접.setAttribute('aria-pressed', String(!선택.템플릿)); });
@@ -262,18 +265,18 @@
         g.appendChild(b); 눌림목록.push(function () { b.setAttribute('aria-pressed', String(선택.템플릿 === t.id)); });
       });
       if (화면목록.length > 1 && !가로) {   // 화면 구성: 미리보기 아래에 그림 카드로 둔다
-        var 판 = el('section', 'cz-lay'); 판.appendChild(el('h3', '', '화면 구성')); var 줄 = el('div', 'cz-lay-row'); 줄.style.gridTemplateColumns = 'repeat(' + Math.min(4, 화면목록.length) + ', minmax(0, 1fr))'; 줄.setAttribute('role', 'group'); 줄.setAttribute('aria-label', '화면 구성'); 판.appendChild(줄);
+        var 판 = 카드('화면 구성', '영상이 놓이는 모양', '화면'); var 줄 = el('div', 'cz-lay-row'); 줄.style.gridTemplateColumns = 'repeat(' + Math.min(4, 화면목록.length) + ', minmax(0, 1fr))'; 줄.setAttribute('role', 'group'); 줄.setAttribute('aria-label', '화면 구성'); 판.appendChild(줄);
         화면목록.forEach(function (it) {
           var b = el('button', 'cz-lay-b'); b.type = 'button'; b.disabled = !!it.꺼짐; b.title = 화면설명[it.값] || '';
           var 그림 = el('span', 'cz-lay-pic'); 그림.innerHTML = '<svg viewBox="0 0 54 96" aria-hidden="true" focusable="false">' + (화면그림[it.값] || '<rect class="ph" width="54" height="96"/>') + '</svg>';
           b.appendChild(그림); b.appendChild(el('b', '', it.값.replace('형', ''))); b.appendChild(el('small', '', 화면설명[it.값] || ''));
           b.addEventListener('click', function () { 화면 = it.값; 화면바꿈 = true; 갱신(); }); 눌림목록.push(function () { b.setAttribute('aria-pressed', String(화면 === it.값)); }); 줄.appendChild(b);
         });
-        pv.appendChild(판);
+        판.appendChild(줄);
       }
       // 영상 제작 방식: 화면 구성 아래. 고르면 신청 칸의 제작 방식이 바뀐다 (요금은 분당 포인트로 보여 준다)
       if (제작방식 && 제작방식.목록 && 제작방식.목록.length) {
-        var 판2 = el('section', 'cz-lay'); 판2.appendChild(el('h3', '', '영상 제작 방식')); var 줄2 = el('div', 'cz-lay-row'); 줄2.style.gridTemplateColumns = 'repeat(' + Math.min(4, 제작방식.목록.length) + ', minmax(0, 1fr))'; 줄2.setAttribute('role', 'group');
+        var 판2 = 카드('영상 제작 방식', '요금이 달라져요', '화면'); var 줄2 = el('div', 'cz-lay-row'); 줄2.style.gridTemplateColumns = 'repeat(' + Math.min(4, 제작방식.목록.length) + ', minmax(0, 1fr))'; 줄2.setAttribute('role', 'group');
         제작방식.목록.forEach(function (it) {
           var b = el('button', 'cz-lay-b'); b.type = 'button'; b.disabled = !!it.꺼짐; b.title = it.설명 || '';
           if (it.그림) { var 그 = el('span', 'cz-lay-pic'); 그.innerHTML = it.그림; b.appendChild(그); }
@@ -282,10 +285,9 @@
         });
         판2.appendChild(줄2); var 안내2 = el('p', 'cz-mnote'); 판2.appendChild(안내2);
         눌림목록.push(function () { var it = 제작방식.목록.filter(function (x) { return x.값 === 제작값; })[0]; 안내2.textContent = it ? (it.설명 || '') : ''; });
-        pv.appendChild(판2);
       }
       // 제목 설정: 위쪽 제목 띠(제목고정형)·제목 글자(제목고정형·가운데영상형). 슬라이더는 모두 가운데가 기본이다
-      var c1b = 카드('제목 설정', '위쪽 문구의 띠와 글자'); var 제목행들 = [];
+      var c1b = 카드('제목 설정', '위쪽 문구의 띠와 글자', '제목'); var 제목행들 = [];
       function 제목슬라이더(이름, 키, 기본, 변환, 역변환, 띠만) {
         var r = el('div', 'cz-row'); r.appendChild(el('label', '', 이름)); var sl = el('input'); sl.type = 'range'; sl.min = -50; sl.max = 50; sl.step = 1; sl.setAttribute('aria-label', '제목 ' + 이름 + ' (가운데가 기본)');
         sl.addEventListener('input', function () { if (Number(sl.value) === 0) delete 선택[키]; else 선택[키] = 변환(Number(sl.value)); 갱신(); }); r.appendChild(sl); c1b.appendChild(r);   // 가운데(0)는 건드리지 않은 것과 같다
@@ -316,19 +318,19 @@
       c1b.appendChild(el('p', 'cz-hint', '띠 높이를 바꾸면 글자가 띠에 맞춰져요. 글자는 띠 아래 화면 위로도 옮길 수 있어요'));
       눌림목록.push(function () { var 보임 = !가로 && (화면 === '제목고정형' || 화면 === '가운데영상형'); c1b.style.display = 보임 ? '' : 'none'; 제목행들.forEach(function (h) { h.r.style.display = (h.띠만 === '가운데' ? 화면 !== '가운데영상형' : h.띠만 && 화면 !== '제목고정형') ? 'none' : ''; }); });
       if (문구시간쓰기) {
-        var c1c = 카드('문구가 보이는 시간', '화면 위쪽 문구가 나오는 시간');
+        var c1c = 카드('문구가 보이는 시간', '화면 위쪽 문구가 나오는 시간', '제목');
         var 시간줄 = el('div', 'cz-chips'); c1c.appendChild(시간줄);
         칩묶음(시간줄, [['all', '계속 보이기'], ['3s', '처음 3초만']], function () { return 문구시간; }, function (v) { if (v === '3s' && 화면 === '제목고정형') return; 문구시간 = v; }, '문구가 보이는 시간');
         var 시간글 = el('p', 'cz-hint', ''); c1c.appendChild(시간글);
         눌림목록.push(function () { var 띠 = 화면 === '제목고정형'; if (띠 && 문구시간 === '3s') 문구시간 = 'all'; 시간글.textContent = 띠 ? '제목고정형은 위 띠가 계속 있어서 문구도 계속 보여요.' : (문구시간 === '3s' ? '영상이 시작하고 3초 동안 보이다 서서히 사라져요.' : ''); });
       }
       if (opt.자막방식 !== undefined) {   // 자막 방식은 상품쇼츠만(렌더 서버가 한 줄씩·문장째·한두 단어씩을 그린다)
-        var c1d = 카드('자막 방식', '한 번에 나오는 글자 양');
+        var c1d = 카드('자막 방식', '한 번에 나오는 글자 양', '자막');
         var 방식줄 = el('div', 'cz-chips'); c1d.appendChild(방식줄);
         칩묶음(방식줄, [['구절형', '한 줄씩'], ['문장형', '문장째로'], ['단어형', '한두 단어씩']], function () { return 자막방식; }, function (v) { 자막방식 = v; 자막방식바꿈 = true; }, '자막 방식');
         c1d.appendChild(el('p', 'cz-hint', '고르지 않으면 한 줄씩 나와요. 한두 단어씩은 큰 글씨가 빠르게 바뀌어요'));
       }
-      var c2 = 카드('자막 글자 모양');
+      var c2 = 카드('자막 글자 모양', undefined, '자막');
       var gm = el('div', 'cz-grid'); c2.appendChild(gm);
       모양들.forEach(function (m) { var b = el('button', 'cz-opt'); b.type = 'button'; var s = el('span', 'cz-sample', '가나다'); s.style.fontWeight = String(m[2].w); s.style.color = m[2].c === '#fff' ? 'var(--ink)' : m[2].c; s.style.textShadow = m[2].c === '#fff' ? 'none' : '0 0 1px #0006'; if (m[2].bg) { s.style.background = m[2].bg === 'rgba(0,0,0,.75)' ? '#000a' : m[2].bg; s.style.color = m[2].bg === 'rgba(0,0,0,.75)' ? '#fff' : m[2].c; s.style.padding = '0 6px'; s.style.borderRadius = '4px'; } b.appendChild(s); b.appendChild(el('small', '', m[1]));
         b.addEventListener('click', function () { 선택.자막모양 = m[0]; 갱신(); }); gm.appendChild(b); 눌림목록.push(function () { b.setAttribute('aria-pressed', String(합치기(선택, 종류).값.자막모양 === m[0])); }); });
@@ -340,7 +342,7 @@
       var 직접색 = el('label', 'cz-chip'); 직접색.style.cursor = 'pointer'; 직접색.appendChild(document.createTextNode('직접 고르기 ')); var ci = el('input'); ci.type = 'color'; ci.value = '#ff4d8d'; ci.setAttribute('aria-label', '단어 색 직접 고르기'); ci.style.cssText = 'width:1.6em;height:1.2em;padding:0;border:0;background:none;vertical-align:middle;cursor:pointer'; 직접색.appendChild(ci);
       ci.addEventListener('input', function () { 선택.핵심색 = ci.value.toUpperCase(); 갱신(); }); cw.appendChild(직접색); 눌림목록.push(function () { 직접색.setAttribute('aria-pressed', String(헥스.test(현재핵()))); if (헥스.test(현재핵())) ci.value = 현재핵().toLowerCase(); });
       c2.appendChild(el('p', 'cz-hint', '대본에서 중요한 단어에 이 색이 칠해져요'));
-      var c2b = 카드('읽는 글자 효과', '목소리가 읽는 단어를 색으로 칠해요');
+      var c2b = 카드('읽는 글자 효과', '목소리가 읽는 단어를 색으로 칠해요', '자막');
       var 효과줄 = el('div', 'cz-chips'); c2b.appendChild(효과줄);
       칩묶음(효과줄, 읽는효과들, function () { return 합치기(선택, 종류).값.읽는효과 || '끔'; }, function (v) { 선택.읽는효과 = v; }, '읽는 글자 효과');   // '끔'도 값으로 보낸다(바깥 자막 효과 설정보다 꾸미기에서 고른 것이 우선)
       var 색줄 = el('div', 'cz-row'); 색줄.appendChild(el('label', '', '칠하는 색')); var 색들 = el('div', 'cz-chips'); 색줄.appendChild(색들); c2b.appendChild(색줄);
@@ -350,7 +352,7 @@
       var 읽직접 = el('label', 'cz-chip'); 읽직접.style.cursor = 'pointer'; 읽직접.appendChild(document.createTextNode('직접 고르기 ')); var 읽입 = el('input'); 읽입.type = 'color'; 읽입.value = '#ffe14d'; 읽입.setAttribute('aria-label', '읽는 글자 색 직접 고르기'); 읽입.style.cssText = 'width:1.6em;height:1.2em;padding:0;border:0;background:none;vertical-align:middle;cursor:pointer';
       읽입.addEventListener('input', function () { 선택.읽는색 = 읽입.value.toUpperCase(); 갱신(); }); 읽직접.appendChild(읽입); 색들.appendChild(읽직접); 눌림목록.push(function () { 읽직접.setAttribute('aria-pressed', String(헥스.test(현재색()))); 색줄.style.display = (합치기(선택, 종류).값.읽는효과 || '끔') === '끔' ? 'none' : ''; 다시.style.display = (합치기(선택, 종류).값.읽는효과 || '끔') === '끔' ? 'none' : ''; });
       c2b.appendChild(el('p', 'cz-hint', '왼쪽 미리보기에서 바로 확인해요. 실제 영상은 목소리 속도에 맞춰 조금 달라질 수 있어요'));
-      var c3 = 카드('자막 크기와 줄', '가운데가 기본이에요');
+      var c3 = 카드('자막 크기와 줄', '가운데가 기본이에요', '자막');
       // 크기: 숫자 + 슬라이더(가운데=기본 77, 오른쪽=크게)
       var rs = el('div', 'cz-row'); rs.appendChild(el('label', '', '글자 크기')); var sl = el('input'); sl.type = 'range'; sl.min = -50; sl.max = 50; sl.step = 1; sl.setAttribute('aria-label', '글자 크기 (가운데가 기본)'); var nm = el('input'); nm.type = 'number'; nm.min = 20; nm.max = 200; nm.setAttribute('aria-label', '글자 크기 숫자'); rs.appendChild(sl); rs.appendChild(nm); c3.appendChild(rs);
       sl.addEventListener('input', function () { 선택.자막크기 = Math.round(수(기준값().자막크기 + Number(sl.value) * 0.84, 20, 200, 77)); 갱신(); });
@@ -364,7 +366,7 @@
       nw.addEventListener('input', function () { if (nw.value !== '') { 선택.줄길이 = Math.round(수(nw.value, 50, 100, 76)) / 100; 그리기미리보기(); sw.value = String(수((선택.줄길이 - 기준값().줄길이) / 0.0048, -50, 50, 0)); } });
       nw.addEventListener('change', 갱신);
       눌림목록.push(function () { var l = 합치기(선택, 종류).값.줄길이; sw.value = String(수((l - 기준값().줄길이) / 0.0048, -50, 50, 0)); if (document.activeElement !== nw) nw.value = String(Math.round(l * 100)); });
-      var c4 = 카드('자막 위치', '자막이 나올 자리');
+      var c4 = 카드('자막 위치', '자막이 나올 자리', '자막');
       var rp = el('div', 'cz-chips'); c4.appendChild(rp);
       칩묶음(rp, 위치들, function () { return 자막위치; }, function (v) { 자막위치 = v; 위치바꿈 = true; }, '자막 위치');
       function 자막슬라이더(이름, 키, 읽기, 쓰기, 최소, 최대, 보임) {
@@ -378,7 +380,7 @@
       var rk = el('div', 'cz-row'); rk.appendChild(el('label', '', '자막')); var ck = el('div', 'cz-chips'); rk.appendChild(ck); c4.appendChild(rk);
       [[false, '보이기'], [true, '끄기']].forEach(function (it) { var b = el('button', 'cz-chip', it[1]); b.type = 'button'; b.addEventListener('click', function () { if (it[0]) 선택.자막끄기 = true; else delete 선택.자막끄기; 갱신(); }); ck.appendChild(b); 눌림목록.push(function () { b.setAttribute('aria-pressed', String(!!선택.자막끄기 === it[0])); }); });
       c4.appendChild(el('p', 'cz-hint', '자막을 끄면 목소리만 나오고 고정 글자는 그대로 보여요'));
-      var c5 = 카드('고정 글자', '영상 내내 보이는 글 · 최대 4개 (선택)');
+      var c5 = 카드('고정 글자', '영상 내내 보이는 글 · 최대 4개 (선택)', '고정 글자');
       var 목록칸 = el('div'); 목록칸.style.cssText = 'display:grid;gap:12px'; c5.appendChild(목록칸);
       var 추가 = el('button', 'cz-btn', '+ 글자 추가'); 추가.type = 'button'; c5.appendChild(추가);
       function 블록그리기() {
@@ -408,6 +410,15 @@
       블록그리기();
       블록다시 = 블록그리기;
       끌기(ttx, 제목이동, '제목 글자'); 끌기(sub, 자막이동, '자막'); 끌기(띠손잡이, 띠이동, '제목 띠 높이'); 끌기(칸손잡이, 칸이동, '영상 칸 아래 끝');
+      // 위쪽 탭(리졸브식): 화면 · 제목 · 자막 · 고정 글자. 모양 고르기 카드는 모든 탭 위에 접힌 채로 있다
+      var 탭순서 = ['화면', '제목', '자막', '고정 글자'], 있는탭 = 탭순서.filter(function (t) { return body.querySelector('.cz-card[data-tab="' + t + '"]'); });
+      if (있는탭.length > 1) {
+        var 탭줄 = el('div', 'cz-tabs'); 탭줄.setAttribute('role', 'tablist'); var 탭버튼 = {};
+        function 탭보이기(t) { 있는탭.forEach(function (n) { 탭버튼[n].setAttribute('aria-selected', String(n === t)); }); [].forEach.call(body.querySelectorAll('.cz-card'), function (c) { c.classList.toggle('cz-tabhide', c.dataset.tab !== '*' && c.dataset.tab !== t); }); }
+        있는탭.forEach(function (t) { var b = el('button', 'cz-tab', t); b.type = 'button'; b.setAttribute('role', 'tab'); b.addEventListener('click', function () { 탭보이기(t); }); 탭버튼[t] = b; 탭줄.appendChild(b); });
+        body.insertBefore(탭줄, body.firstChild); 탭보이기(있는탭[0]);
+        body.insertBefore(c1, 탭줄.nextSibling);   // 모양 고르기는 탭 줄 바로 아래
+      }
     }
 
     function 닫기(결과) { 읽기멈춤(); if (끌기중단) 끌기중단(); document.removeEventListener('keydown', 키); document.body.style.overflow = 이전스크롤; ov.remove(); if (이전포커스 && 이전포커스.focus) 이전포커스.focus(); if (결과 && typeof opt.onDone === 'function') opt.onDone(결과); }
