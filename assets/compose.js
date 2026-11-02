@@ -96,10 +96,12 @@
     var head = el('div', 'cz-head'); var ht = el('div'); var h2 = el('h2', '', '영상 꾸미기'); h2.id = 'cz-title'; ht.appendChild(h2); ht.appendChild(el('small', '', '마음에 드는 모양을 고르고, 필요하면 조금만 고쳐 보세요'));
     var x = el('button', 'cz-x', '×'); x.type = 'button'; x.setAttribute('aria-label', '닫기'); head.appendChild(ht); head.appendChild(x);
     var pv = el('div', 'cz-pv'); var phone = el('div', 'cz-phone' + (가로 ? ' cz-wide' : '')); var bg = el('div', 'cz-bg'); phone.appendChild(bg);
+    var 그림주소 = /^(blob:|https:\/\/|data:image\/)/.test(String(opt.배경그림 || '')) ? String(opt.배경그림).replace(/["\\\n]/g, encodeURIComponent) : '';   // 앞 단계에서 올린 첫 사진(있으면 미리보기 배경)
+    if (그림주소) bg.style.background = '#222 center / cover no-repeat url("' + 그림주소 + '")';
     var gbox = el('div'); gbox.style.cssText = 'position:absolute;inset:0'; phone.appendChild(gbox);
     var ttl = el('div'); ttl.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:18.4%;background:#15110e;display:none;overflow:hidden'; var ttx = el('div'); ttx.style.cssText = 'position:absolute;transform:translateX(-50%);text-align:center;font-weight:800;white-space:pre'; phone.appendChild(ttl); phone.appendChild(ttx);
     var 띠손잡이 = el('div', 'cz-bandh'); 띠손잡이.style.display = 'none'; phone.appendChild(띠손잡이);
-    var ctr = el('div', 'cz-ctr'); ctr.style.display = 'none'; phone.insertBefore(ctr, gbox);
+    var ctr = el('div', 'cz-ctr'); ctr.style.display = 'none'; phone.insertBefore(ctr, gbox); if (그림주소) ctr.style.background = '#222 center / cover no-repeat url("' + 그림주소 + '")';
     var 칸손잡이 = el('div', 'cz-bandh'); 칸손잡이.style.display = 'none'; phone.appendChild(칸손잡이); var 칸상태 = { 위: 0.235, 아래: 0.595 };
     var sub = el('div', 'cz-sub'); phone.appendChild(sub); var blk = el('div'); blk.style.cssText = 'position:absolute;inset:0;pointer-events:none'; phone.appendChild(blk);
     var tools = el('div', 'cz-pvtools'); var gl = el('label'); var gc = el('input'); gc.type = 'checkbox'; gc.checked = true; gl.appendChild(gc); gl.appendChild(document.createTextNode(' 유튜브가 쓰는 자리 점선으로 보기')); tools.appendChild(gl);
