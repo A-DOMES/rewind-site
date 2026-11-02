@@ -154,7 +154,7 @@
       card('vp-style', '여운', '여운 남기기', '', I.long, false), '효과는 미리 듣고 정해 주세요.') : '';
 
     var tickHtml = TICKS.map(function (t) { return '<span data-v="' + t.v + '" style="left:' + ((t.v - SPEED_MIN) / (SPEED_MAX - SPEED_MIN) * 100).toFixed(2) + '%">' + t.short + '</span>'; }).join('');
-    return '<section class="df-sec df-voice ' + cls + '" style="--c:#ff9a78"><div class="df-sec-head"><span class="df-sec-ico">' + svg(I.mic) + '</span><div><h3>목소리와 자막</h3><p>그대로 두어도 영상에 알맞게 맞춰져 있어요. 바꾸고 싶은 것만 골라 주세요</p></div></div>' +
+    return '<section class="df-sec df-voice ' + cls + '" style="--c:#ff9a78"><div class="df-sec-head"><span class="df-sec-ico">' + svg(I.mic) + '</span><div><h3>말 속도와 분위기</h3><p>그대로 두어도 영상에 알맞게 맞춰져 있어요. 바꾸고 싶은 것만 골라 주세요</p></div></div>' +
       '<div class="df-field vp-speed" data-vp="speed"><div class="vp-row"><label for="vp-speed">말 속도</label><span class="vp-now" id="vp-speed-now" aria-live="polite"></span></div>' +
       '<input class="vp-range" id="vp-speed" type="range" min="' + SPEED_MIN + '" max="' + SPEED_MAX + '" step="0.01" value="' + d.speed + '"><div class="vp-ticks" aria-hidden="true">' + tickHtml + '</div>' +
       '<p class="df-hint" id="vp-speed-hint"></p></div>' +

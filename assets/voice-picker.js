@@ -16,6 +16,7 @@
   .rwvp small { color: var(--_dim); font-size: var(--fs-xs,.82rem); }
   .rwvp .vp-row { display: flex; flex-wrap: wrap; gap: 8px; }
   .rwvp .vp-chip { border: 1px solid var(--_line); background: var(--_bg); color: var(--_ink); border-radius: 999px; padding: 6px 14px; font: inherit; font-size: var(--fs-sm,.9rem); cursor: pointer; min-height: 36px; }
+  .rwvp .vp-morebtn { width: 100%; margin-top: 8px; justify-content: center; text-align: center; }
   .rwvp .vp-chip[aria-pressed="true"] { background: var(--_ac); border-color: var(--_ac); color: var(--_on); }
   .rwvp .vp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; }
   .rwvp .vp-card { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--_line); border-radius: var(--r-lg,14px); background: var(--_bg); cursor: pointer; text-align: left; font: inherit; color: inherit; }
@@ -29,7 +30,7 @@
     if (!el || !C) return null;
     if (!document.getElementById('rwvp-css')) { const s = document.createElement('style'); s.id = 'rwvp-css'; s.textContent = 스타일; document.head.appendChild(s); }
     옵션 = 옵션 || {};
-    const 상태 = { 종류: 옵션.종류 || '쇼츠', 성별: 옵션.성별 === '여' ? '여' : '남', 값: 옵션.값 || '', 분위기: 'all', 듣는중: '' };
+    const 상태 = { 펼침: false, 종류: 옵션.종류 || '쇼츠', 성별: 옵션.성별 === '여' ? '여' : '남', 값: 옵션.값 || '', 분위기: 'all', 듣는중: '' };
     const 소리 = new Audio(); 소리.preload = 'none';
     el.classList.add('rwvp');
 
@@ -61,7 +62,9 @@
       const g = document.createElement('div'); g.className = 'vp-grid';
       const 목록 = C.목록.filter(v => v.성별 === 상태.성별 && (상태.분위기 === 'all' || v.분위기 === 상태.분위기));
       if (!목록.length) { const e = document.createElement('div'); e.className = 'vp-empty'; e.textContent = '이 분위기의 목소리는 아직 없어요.'; el.appendChild(e); }
-      목록.forEach(v => {
+      const 처음개수 = 6, 접힘 = 목록.length > 처음개수 && !상태.펼침;   // 처음엔 6개만 보여 주고 '더 보기'로 펼친다(고른 목소리는 항상 보인다)
+      const 고른것 = 목록.find(v => v.id === 상태.값), 앞 = 목록.slice(0, 처음개수), 보임 = 접힘 ? (고른것 && !앞.includes(고른것) ? 앞.concat(고른것) : 앞) : 목록;
+      보임.forEach(v => {
         const c = document.createElement('div'); c.className = 'vp-card'; c.setAttribute('role', 'button'); c.tabIndex = 0; c.setAttribute('aria-pressed', String(상태.값 === v.id));
         c.innerHTML = '<button type="button" class="vp-play" aria-label="' + v.이름 + ' 미리 듣기" aria-pressed="' + (상태.듣는중 === v.id) + '">' + (상태.듣는중 === v.id ? 정지 : 재생) + '</button><div><b>' + v.이름 + '</b><small>' + v.나이대 + '</small></div>';
         c.addEventListener('click', e => { if (e.target.closest('.vp-play')) { 듣기(v); return; } 고름(v.id); });
@@ -69,6 +72,7 @@
         g.appendChild(c);
       });
       el.appendChild(g);
+      if (목록.length > 처음개수) { const m = document.createElement('button'); m.type = 'button'; m.className = 'vp-chip vp-morebtn'; m.setAttribute('aria-expanded', String(!접힘)); m.textContent = 접힘 ? '목소리 ' + (목록.length - 처음개수) + '개 더 보기' : '접기'; m.addEventListener('click', () => { 상태.펼침 = !!접힘; 그리기(); }); el.appendChild(m); }
     }
     그리기();
     return {
