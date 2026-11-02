@@ -92,7 +92,7 @@
   function apply(t) { document.documentElement.setAttribute('data-theme', t); }
 
   /* 가장 먼저(깜빡임 없이) 저장된 선택을 적용 */
-  apply(stored());
+  apply(current());   // 기기 설정 따르기('system')도 실제 밝음/어두움 값으로 적용해, 검정 테마 규칙이 똑같이 걸리게 한다
   injectCss();
 
   function dotStyle(t) { var c = SWATCH[t]; return 'background:linear-gradient(135deg,' + c[0] + ' 52%,' + c[1] + ' 52%)'; }

@@ -69,12 +69,12 @@ html:root[data-theme="dark"] .sidebar .side-item.active .ico svg { stroke: var(-
 html:root[data-theme="dark"] .side-item.soon-btn .ico { opacity: .6; }
 
 /* 3-2. 주제 찾기 */
-html:root[data-theme="dark"] .tf-in { max-width: 920px; padding-top: 48px; gap: 30px; }
-html:root[data-theme="dark"] .tf-in h2 { font-size: 2.05rem; letter-spacing: -.035em; }
+html:root[data-theme="dark"] .tf-in { max-width: 920px; padding-top: clamp(28px, 5vw, 48px); gap: clamp(22px, 3vw, 30px); }
+html:root[data-theme="dark"] .tf-in h2 { font-size: clamp(1.5rem, 4.5vw, 2.05rem); letter-spacing: -.035em; }
 html:root[data-theme="dark"] .tf-sub { color: var(--rw-ink-3); font-size: .98rem; line-height: 1.65; }
 html:root[data-theme="dark"] .tf-card { background: var(--rw-card); border-color: #1f1f23; border-radius: 18px; box-shadow: var(--rw-edge); transition: border-color .18s var(--rw-ease), transform .18s var(--rw-ease), box-shadow .18s var(--rw-ease); }
 html:root[data-theme="dark"] .tf-card:hover, html:root[data-theme="dark"] .tf-card:focus-visible { border-color: #3b3b42; transform: translateY(-2px); box-shadow: var(--rw-lift); }
-html:root[data-theme="dark"] .tf-card:focus-visible { box-shadow: 0 0 0 3px rgba(226, 162, 60, .35); }
+html:root[data-theme="dark"] .tf-card:focus-visible, html:root[data-theme="dark"] .tf-chip:focus-visible { border-color: var(--rw-accent); box-shadow: 0 0 0 3px rgba(226, 162, 60, .7); }
 html:root[data-theme="dark"] .tf-card:active { transform: translateY(0); }
 html:root[data-theme="dark"] .tf-glyph { background: #121214 !important; box-shadow: inset 0 0 0 1px #26262b; border-radius: 14px; }
 html:root[data-theme="dark"] .tf-glyph svg { stroke: var(--rw-accent); }
@@ -109,11 +109,10 @@ html:root[data-theme="dark"] .price-modal .ml-item { background: var(--rw-card);
 html:root[data-theme="dark"] .price-modal .ml-item.mc { background: var(--rw-card); border-color: #232327; box-shadow: var(--rw-edge), inset 0 3px 0 var(--mc); }
 html:root[data-theme="dark"] .price-modal .ml-item.rec { border-color: #4a3818; }
 html:root[data-theme="dark"] .price-modal .ml-item em { color: var(--rw-ink); font-size: 1.05rem; }
-html:root[data-theme="dark"] .price-table th { color: var(--rw-ink-3); border-bottom-color: #1f1f23; }
+html:root[data-theme="dark"] .price-table th:not(.mc) { color: var(--rw-ink-3); border-bottom-color: #1f1f23; }
 html:root[data-theme="dark"] .price-table td { border-bottom-color: #151517; }
 html:root[data-theme="dark"] .price-table td.num { color: var(--rw-ink); }
 html:root[data-theme="dark"] .price-table th.mc { background: #101012; box-shadow: inset 0 3px 0 var(--mc); }
-html:root[data-theme="dark"] .price-table td.mc { background: transparent; }
 html:root[data-theme="dark"] .price-table tbody tr:hover td { background: #0e0e10; }
 html:root[data-theme="dark"] .pm-sec { background: var(--rw-card); border-color: #1f1f23; box-shadow: var(--rw-edge); }
 html:root[data-theme="dark"] .pm-sec .pm-h .hi { background: var(--rw-accent-wash); box-shadow: inset 0 0 0 1px #3a2c12; }
@@ -122,7 +121,7 @@ html:root[data-theme="dark"] .pm-sec .pm-h .hi { background: var(--rw-accent-was
 html:root[data-theme="dark"] header.shell { background: rgba(0, 0, 0, .82); backdrop-filter: blur(10px); border-bottom: 1px solid #141416; }
 html:root[data-theme="dark"] .breadcrumb { color: var(--rw-ink-3); }
 html:root[data-theme="dark"] .crumb-back { background: #0c0c0e; border-color: #26262b; }
-html:root[data-theme="dark"] .page-head h1 { letter-spacing: -.035em; font-size: 2.3rem; }
+html:root[data-theme="dark"] .page-head h1 { letter-spacing: -.035em; font-size: clamp(1.9rem, 3.6vw, 2.5rem); }
 html:root[data-theme="dark"] .page-head p, html:root[data-theme="dark"] .page-head .sub { color: var(--rw-ink-3); }
 html:root[data-theme="dark"] .dash-tabs { border-bottom-color: #1a1a1d; }
 html:root[data-theme="dark"] .dash-tab { color: var(--rw-ink-3); transition: color .15s; }
@@ -133,8 +132,8 @@ html:root[data-theme="dark"] .dash-tab.is-on { color: var(--rw-ink); border-bott
 html:root[data-theme="dark"] .nc { background: var(--rw-card); border: 1px solid #1f1f23; box-shadow: var(--rw-edge); border-radius: 16px; }
 html:root[data-theme="dark"] .nc::before { content: ""; position: absolute; left: 0; top: 14px; bottom: 14px; width: 3px; border-radius: 0 3px 3px 0; background: var(--tone); }
 html:root[data-theme="dark"] .nc-todo { border-color: #3a2c12; background: linear-gradient(180deg, #14100a, #0a0806); }
-html:root[data-theme="dark"] .nc-ico { background: #121214; box-shadow: inset 0 0 0 1px #26262b; }
-html:root[data-theme="dark"] .nc-todo .nc-ico { background: var(--rw-accent); box-shadow: none; }
+html:root[data-theme="dark"] .nc-list .nc-ico { background: #121214; box-shadow: inset 0 0 0 1px #26262b; }
+html:root[data-theme="dark"] .nc-list .nc-todo .nc-ico { background: var(--rw-accent); box-shadow: none; }
 html:root[data-theme="dark"] .nc-btn { border-color: #34343a; color: var(--rw-ink); background: #0e0e10; transition: background-color .15s, border-color .15s; }
 html:root[data-theme="dark"] .nc-btn:hover { background: #17171a; border-color: #4a4a52; }
 html:root[data-theme="dark"] .nc-todo .nc-btn { background: var(--rw-accent); border-color: var(--rw-accent); color: #14100a; }
@@ -157,7 +156,6 @@ html:root[data-theme="dark"] .status-chip { border-left-color: #1a1a1d !importan
 html:root[data-theme="dark"] .reel-arrow { color: var(--rw-ink-3); transition: transform .18s var(--rw-ease), color .18s; }
 html:root[data-theme="dark"] .reel-row:hover .reel-arrow { color: var(--rw-ink); transform: translateX(3px); }
 html:root[data-theme="dark"] .reel-row[data-status="대본검수대기"], html:root[data-theme="dark"] .reel-row[data-status="검수 대기"] { background: linear-gradient(180deg, #14100a, #0a0806); border-color: #3a2c12; }
-html:root[data-theme="dark"] .reel-del { background: transparent; }
 
 /* 3-5. 대본 작업실 (script·longscript): 왼쪽 패널은 검정, 글 쓰는 곳은 카드, 선택은 왼쪽 가는 주황 띠 */
 html:root[data-theme="dark"] .lp { background: #000; border-right-color: #141416; }
@@ -167,6 +165,7 @@ html:root[data-theme="dark"] .demo-side span.si.on { background: #111113; box-sh
 html:root[data-theme="dark"] .sbox { background: #0a0a0b; border-color: #232327; }
 html:root[data-theme="dark"] .sbox:focus-within { border-color: var(--rw-accent); box-shadow: 0 0 0 3px rgba(226, 162, 60, .14); }
 html:root[data-theme="dark"] .rbox input { background: #0a0a0b; border-color: #232327; }
+html:root[data-theme="dark"] .rbox input:focus { border-color: var(--rw-accent); }
 html:root[data-theme="dark"] .tbtn { transition: background-color .15s, color .15s; }
 html:root[data-theme="dark"] .tbtn:hover { background: #111113; color: var(--rw-ink); }
 html:root[data-theme="dark"] .row { transition: background-color .15s; }
@@ -179,8 +178,8 @@ html:root[data-theme="dark"] .num { color: var(--rw-ink-3); }
 html:root[data-theme="dark"] .row.on .num { color: var(--rw-accent); }
 html:root[data-theme="dark"] .add { border-color: #26262b; color: var(--rw-ink-2); }
 html:root[data-theme="dark"] .add:hover { border-color: var(--rw-accent); color: var(--rw-accent); background: transparent; }
-html:root[data-theme="dark"] .tip, html:root[data-theme="dark"] .menu { background: var(--rw-card); border-color: #1f1f23; }
-html:root[data-theme="dark"] .menu { box-shadow: 0 24px 60px -20px rgba(0, 0, 0, .95), var(--rw-edge); }
+html:root[data-theme="dark"] .lp .tip, html:root[data-theme="dark"] .lp .menu { background: var(--rw-card); border-color: #1f1f23; }
+html:root[data-theme="dark"] .lp .menu { box-shadow: 0 24px 60px -20px rgba(0, 0, 0, .95), var(--rw-edge); }
 html:root[data-theme="dark"] .g-track { background: #1a1a1d; }
 html:root[data-theme="dark"] .ttlpick button { background: #0c0c0e; border-color: #1f1f23; }
 html:root[data-theme="dark"] .ttlpick button[aria-pressed=true] { background: var(--rw-accent-wash); border-color: #4a3818; }
@@ -206,8 +205,8 @@ html:root[data-theme="dark"] .chat-send-btn:not(:disabled):hover { background: v
 html:root[data-theme="dark"] .msg.user .bubble { background: #111113; border: 1px solid #1f1f23; }
 
 /* 3-8. 대본 만들기 첫 화면 — 주제 찾기와 같은 폭·제목·카드 */
-html:root[data-theme="dark"] .sh-in { max-width: 920px; padding-top: 48px; gap: 30px; }
-html:root[data-theme="dark"] .sh-in h2 { font-size: 2.05rem; font-weight: 700; letter-spacing: -.035em; line-height: 1.3; }
+html:root[data-theme="dark"] .sh-in { max-width: 920px; padding-top: clamp(28px, 5vw, 48px); gap: clamp(22px, 3vw, 30px); }
+html:root[data-theme="dark"] .sh-in h2 { font-size: clamp(1.5rem, 4.5vw, 2.05rem); font-weight: 700; letter-spacing: -.035em; line-height: 1.3; }
 html:root[data-theme="dark"] .sh-in p.sub { color: var(--rw-ink-3); font-size: .98rem; line-height: 1.65; }
 html:root[data-theme="dark"] .sh-priv, html:root[data-theme="dark"] .sh-item { background: var(--rw-card); border-color: #1f1f23; box-shadow: var(--rw-edge); }
 html:root[data-theme="dark"] .sh-in .pi, html:root[data-theme="dark"] .sh-ic, html:root[data-theme="dark"] .st-i, html:root[data-theme="dark"] .sh-h .hi { background: #121214; box-shadow: inset 0 0 0 1px #26262b; color: var(--rw-accent); }
@@ -230,3 +229,8 @@ html:root[data-theme="dark"] .mobile-nav .is-on { color: var(--rw-ink); }
 html:root[data-theme="dark"] .mobile-nav .is-on svg { background: var(--rw-accent-wash) !important; stroke: var(--rw-accent) !important; box-shadow: inset 0 0 0 1px #3a2c12; }
 html:root[data-theme="dark"] .mobile-more { background: var(--rw-card); border-color: #232327; }
 html:root[data-theme="dark"] .mobile-more .mmi { background: #0e0e10 !important; stroke: var(--rw-ink-2) !important; box-shadow: inset 0 0 0 1px #1f1f23; }
+
+/* 마우스를 올렸을 때 반응(공통 규칙이 페이지의 :hover 를 이기던 곳 보강) */
+html:root[data-theme="dark"] .ttlpick button:hover { border-color: #4a4a52; }
+html:root[data-theme="dark"] .crumb-back:hover { border-color: #4a4a52; }
+html:root[data-theme="dark"] .nc-more:hover { border-color: #4a4a52; }
