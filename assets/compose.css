@@ -307,3 +307,8 @@ label.cz-chip { display: inline-flex; align-items: center; }
 .cz-mini svg .bd { fill: #15110e; } .cz-mini svg .ac { fill: #ffe600; } .cz-mini svg .tx { fill: #fff; }
 .cz-mini svg .bar { fill: #e2a23c; } .cz-mini svg .dk { fill: #1a1410; }
 .cz-mini-s { position: absolute; left: 50%; bottom: 14%; transform: translateX(-50%); font-style: normal; font-size: 8px; line-height: 1.2; padding: 0 2px; white-space: nowrap; }
+
+/* ── 이름·숫자를 끌어 조절 / 눌러서 입력 ── */
+.cz-scrub { cursor: ew-resize; user-select: none; touch-action: none; }
+.cz-val.cz-scrub:hover { color: #fff; text-decoration: underline dotted; }
+.cz-numin { width: 64px; min-height: 30px; padding: 0 6px; box-sizing: border-box; background: var(--rz-p2, #1b1b1f); color: var(--ink); border: 1px solid var(--rz-ac, #f0a030); border-radius: 6px; font: inherit; font-size: .82rem; font-variant-numeric: tabular-nums; text-align: right; }

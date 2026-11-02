@@ -336,11 +336,33 @@
       sl.classList.add('cz-bi'); var p = (Number(sl.value) - a) / (b - a) * 100; sl.style.setProperty('--a', Math.min(50, p) + '%'); sl.style.setProperty('--b', Math.max(50, p) + '%');
       if (!sl.__bi) { sl.__bi = 1; sl.addEventListener('input', function () { 채움(sl); }); }
     }
+    function 숫자다루기(sl, 숫자, 이름, 되돌림) {   // 리졸브처럼: 이름·숫자를 좌우로 끌면 값이 바뀌고, 두 번 누르면 처음 값, 숫자를 한 번 누르면 직접 입력
+      var 바꿈 = function (n) { var a = Number(sl.min), z = Number(sl.max), st = Number(sl.step) || 1; n = Math.min(z, Math.max(a, Math.round(n / st) * st)); if (String(n) === sl.value) return; sl.value = String(n); sl.dispatchEvent(new Event('input', { bubbles: true })); };
+      var 대기 = 0;
+      var 끌기시작 = function (손잡이, 눌러입력) {
+        손잡이.classList.add('cz-scrub'); 손잡이.addEventListener('dblclick', function (e) { e.preventDefault(); clearTimeout(대기); 되돌림(); });
+        손잡이.addEventListener('pointerdown', function (e) {
+          if (e.button) return; var x0 = e.clientX, v0 = Number(sl.value), 움직임 = false, 폭 = Math.max(1, Number(sl.max) - Number(sl.min));
+          var 이동 = function (ev) { var dx = ev.clientX - x0; if (!움직임 && Math.abs(dx) < 4) return; 움직임 = true; 바꿈(v0 + dx * 폭 / 240); };
+          var 끝 = function () { document.removeEventListener('pointermove', 이동); document.removeEventListener('pointerup', 끝); document.removeEventListener('pointercancel', 끝); if (움직임) sl.dispatchEvent(new Event('change', { bubbles: true })); else if (눌러입력) { clearTimeout(대기); 대기 = setTimeout(입력열기, 260); } };
+          document.addEventListener('pointermove', 이동); document.addEventListener('pointerup', 끝); document.addEventListener('pointercancel', 끝);
+        });
+      };
+      var 입력열기 = function () {
+        var i = el('input', 'cz-numin'); i.type = 'number'; i.min = sl.min; i.max = sl.max; i.step = sl.step || '1'; i.value = sl.value; i.setAttribute('aria-label', (이름 ? 이름.textContent : '') + ' 숫자로 입력'); 숫자.style.display = 'none'; 숫자.parentNode.insertBefore(i, 숫자); i.focus(); i.select();
+        var 닫음 = false, 마침 = function (적용) { if (닫음) return; 닫음 = true; if (적용 && i.value !== '' && isFinite(Number(i.value))) { 바꿈(Number(i.value)); sl.dispatchEvent(new Event('change', { bubbles: true })); } i.remove(); 숫자.style.display = ''; };
+        i.addEventListener('keydown', function (e) { e.stopPropagation(); if (e.key === 'Enter') { e.preventDefault(); 마침(true); } else if (e.key === 'Escape') { e.preventDefault(); 마침(false); } });
+        i.addEventListener('blur', function () { 마침(true); });
+      };
+      if (이름) 끌기시작(이름, false); 숫자.tabIndex = 0; 숫자.setAttribute('role', 'button'); 숫자.title = '끌어서 조절 · 눌러서 입력 · 두 번 누르면 처음 값'; 숫자.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); 입력열기(); } }); 끌기시작(숫자, true);
+    }
     function 값표시() {   // 슬라이더마다 숫자와 '처음 값으로' 버튼을 붙인다(가운데가 기본). 되돌리기는 건드리지 않은 상태로 돌아간다
       body.querySelectorAll('.cz-row input[type=range]:not(.cz-cw-v)').forEach(function (sl) {   // 색 휠의 밝기 막대는 숫자·되돌리기를 따로 갖는다(휠 안)
         if (!sl.__o) {
           var o = el('output', 'cz-val'), b = el('button', 'cz-rst', '↺'); b.type = 'button'; b.title = '처음 값으로'; b.setAttribute('aria-label', '처음 값으로 되돌리기');
-          b.addEventListener('click', function () { if (sl.__reset) sl.__reset(); else { sl.value = '0'; sl.dispatchEvent(new Event('input', { bubbles: true })); sl.dispatchEvent(new Event('change', { bubbles: true })); } });
+          var 되돌림 = function () { if (sl.__reset) sl.__reset(); else { sl.value = '0'; sl.dispatchEvent(new Event('input', { bubbles: true })); sl.dispatchEvent(new Event('change', { bubbles: true })); } };
+          b.addEventListener('click', 되돌림);
+          숫자다루기(sl, o, sl.parentNode.querySelector('label'), 되돌림);
           sl.parentNode.appendChild(o); sl.parentNode.appendChild(b); sl.__o = o;
           sl.addEventListener('input', function () { var v = Number(sl.value); o.textContent = Number(sl.min) < 0 ? (v > 0 ? '+' : '') + v : String(v); });
         }
