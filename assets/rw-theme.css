@@ -114,3 +114,70 @@ html:root[data-theme="dark"] .price-table td.mc { background: transparent; }
 html:root[data-theme="dark"] .price-table tbody tr:hover td { background: #0e0e10; }
 html:root[data-theme="dark"] .pm-sec { background: var(--rw-card); border-color: #1f1f23; box-shadow: var(--rw-edge); }
 html:root[data-theme="dark"] .pm-sec .pm-h .hi { background: var(--rw-accent-wash); box-shadow: inset 0 0 0 1px #3a2c12; }
+
+/* 3-4. 내 프로젝트 (dashboard) */
+html:root[data-theme="dark"] header.shell { background: rgba(0, 0, 0, .82); backdrop-filter: blur(10px); border-bottom: 1px solid #141416; }
+html:root[data-theme="dark"] .breadcrumb { color: var(--rw-ink-3); }
+html:root[data-theme="dark"] .crumb-back { background: #0c0c0e; border-color: #26262b; }
+html:root[data-theme="dark"] .page-head h1 { letter-spacing: -.035em; font-size: 2.3rem; }
+html:root[data-theme="dark"] .page-head p, html:root[data-theme="dark"] .page-head .sub { color: var(--rw-ink-3); }
+html:root[data-theme="dark"] .dash-tabs { border-bottom-color: #1a1a1d; }
+html:root[data-theme="dark"] .dash-tab { color: var(--rw-ink-3); transition: color .15s; }
+html:root[data-theme="dark"] .dash-tab:hover { color: var(--rw-ink); }
+html:root[data-theme="dark"] .dash-tab.is-on { color: var(--rw-ink); border-bottom-color: var(--rw-accent); }
+
+/* 알림 카드: 바탕은 모두 같은 검은 카드, 종류는 왼쪽 가는 띠와 아이콘 색으로만 구분 */
+html:root[data-theme="dark"] .nc { background: var(--rw-card); border: 1px solid #1f1f23; box-shadow: var(--rw-edge); border-radius: 16px; }
+html:root[data-theme="dark"] .nc::before { content: ""; position: absolute; left: 0; top: 14px; bottom: 14px; width: 3px; border-radius: 0 3px 3px 0; background: var(--tone); }
+html:root[data-theme="dark"] .nc-todo { border-color: #3a2c12; background: linear-gradient(180deg, #14100a, #0a0806); }
+html:root[data-theme="dark"] .nc-ico { background: #121214; box-shadow: inset 0 0 0 1px #26262b; }
+html:root[data-theme="dark"] .nc-todo .nc-ico { background: var(--rw-accent); box-shadow: none; }
+html:root[data-theme="dark"] .nc-btn { border-color: #34343a; color: var(--rw-ink); background: #0e0e10; transition: background-color .15s, border-color .15s; }
+html:root[data-theme="dark"] .nc-btn:hover { background: #17171a; border-color: #4a4a52; }
+html:root[data-theme="dark"] .nc-todo .nc-btn { background: var(--rw-accent); border-color: var(--rw-accent); color: #14100a; }
+html:root[data-theme="dark"] .nc-todo .nc-btn:hover { background: var(--rw-accent-hi); border-color: var(--rw-accent-hi); filter: none; }
+html:root[data-theme="dark"] .nc-bad .nc-btn { color: var(--rw-ink); }
+html:root[data-theme="dark"] .nc-more { border-color: #26262b; }
+
+/* 요약 칸 */
+html:root[data-theme="dark"] .sum-chip { background: var(--rw-card); border-color: #1f1f23; box-shadow: var(--rw-edge); border-radius: 14px; }
+html:root[data-theme="dark"] .sum-chip span { color: var(--rw-ink-3); }
+html:root[data-theme="dark"] .sum-chip.todo { background: linear-gradient(180deg, #14100a, #0a0806); border-color: #3a2c12; }
+
+/* 프로젝트 줄 */
+html:root[data-theme="dark"] .reel-row { background: var(--rw-card); border-color: #1f1f23; box-shadow: var(--rw-edge); transition: border-color .18s var(--rw-ease), background-color .18s, transform .18s var(--rw-ease), box-shadow .18s; }
+html:root[data-theme="dark"] .reel-row:hover { background: var(--rw-card-hi); border-color: #38383f; transform: translateY(-1px); box-shadow: var(--rw-lift); }
+html:root[data-theme="dark"] .reel-icon { background: #050506; color: var(--rw-ink-3); border-right: 1px solid #141416; }
+html:root[data-theme="dark"] .reel-icon::before, html:root[data-theme="dark"] .reel-icon::after { background: repeating-linear-gradient(to bottom, #1e1e22 0 7px, transparent 7px 15px); }
+html:root[data-theme="dark"] .reel-meta { color: var(--rw-ink-3); }
+html:root[data-theme="dark"] .status-chip { border-left-color: #1a1a1d !important; }
+html:root[data-theme="dark"] .reel-arrow { color: var(--rw-ink-3); transition: transform .18s var(--rw-ease), color .18s; }
+html:root[data-theme="dark"] .reel-row:hover .reel-arrow { color: var(--rw-ink); transform: translateX(3px); }
+html:root[data-theme="dark"] .reel-row[data-status="대본검수대기"], html:root[data-theme="dark"] .reel-row[data-status="검수 대기"] { background: linear-gradient(180deg, #14100a, #0a0806); border-color: #3a2c12; }
+html:root[data-theme="dark"] .reel-del { background: transparent; }
+
+/* 3-5. 대본 작업실 (script·longscript): 왼쪽 패널은 검정, 글 쓰는 곳은 카드, 선택은 왼쪽 가는 주황 띠 */
+html:root[data-theme="dark"] .lp { background: #000; border-right-color: #141416; }
+html:root[data-theme="dark"] .lp-sum { border-top-color: #141416; }
+html:root[data-theme="dark"] .demo-side { background: #000; border-right-color: #141416; }
+html:root[data-theme="dark"] .demo-side span.si.on { background: #111113; box-shadow: inset 0 0 0 1px #1f1f23; }
+html:root[data-theme="dark"] .sbox { background: #0a0a0b; border-color: #232327; }
+html:root[data-theme="dark"] .sbox:focus-within { border-color: var(--rw-accent); box-shadow: 0 0 0 3px rgba(226, 162, 60, .14); }
+html:root[data-theme="dark"] .rbox input { background: #0a0a0b; border-color: #232327; }
+html:root[data-theme="dark"] .tbtn { transition: background-color .15s, color .15s; }
+html:root[data-theme="dark"] .tbtn:hover { background: #111113; color: var(--rw-ink); }
+html:root[data-theme="dark"] .row { transition: background-color .15s; }
+html:root[data-theme="dark"] .row:hover { background: #0e0e10; }
+html:root[data-theme="dark"] .row.on { background: #111113; box-shadow: inset 0 0 0 1px #232327; }
+html:root[data-theme="dark"] .row.on::before { content: ""; position: absolute; left: 0; top: 9px; bottom: 9px; width: 3px; border-radius: 0 3px 3px 0; background: var(--rw-accent); }
+html:root[data-theme="dark"] .row.on .ra { background: linear-gradient(90deg, transparent, #111113 14px); }
+html:root[data-theme="dark"] .row:hover .ra { background: linear-gradient(90deg, transparent, #0e0e10 14px); }
+html:root[data-theme="dark"] .num { color: var(--rw-ink-3); }
+html:root[data-theme="dark"] .row.on .num { color: var(--rw-accent); }
+html:root[data-theme="dark"] .add { border-color: #26262b; color: var(--rw-ink-2); }
+html:root[data-theme="dark"] .add:hover { border-color: var(--rw-accent); color: var(--rw-accent); background: transparent; }
+html:root[data-theme="dark"] .tip, html:root[data-theme="dark"] .menu { background: var(--rw-card); border-color: #1f1f23; }
+html:root[data-theme="dark"] .menu { box-shadow: 0 24px 60px -20px rgba(0, 0, 0, .95), var(--rw-edge); }
+html:root[data-theme="dark"] .g-track { background: #1a1a1d; }
+html:root[data-theme="dark"] .ttlpick button { background: #0c0c0e; border-color: #1f1f23; }
+html:root[data-theme="dark"] .ttlpick button[aria-pressed=true] { background: var(--rw-accent-wash); border-color: #4a3818; }
