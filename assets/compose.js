@@ -256,7 +256,7 @@
     // ===== 타임라인(읽기 전용): 앞 단계에서 정한 길이·사진·소리·자막 방식을 리졸브의 트랙처럼 보여 준다. 길이에 따라 눈금과 트랙이 달라진다 =====
     var 영상종류 = 종류 === '야담' ? '야담' : (종류 === '수면' ? '수면' : '쇼츠');
     var T = opt.타임라인 || {};
-    function 시간글(초) { 초 = Math.round(초); if (초 >= 3600) { var h = Math.floor(초 / 3600), m = Math.round((초 % 3600) / 60); return h + '시간' + (m ? ' ' + m + '분' : ''); } if (초 >= 60) { var mm = Math.floor(초 / 60), ss = 초 % 60; return ss ? mm + ':' + (ss < 10 ? '0' : '') + ss : mm + '분'; } return 초 + '초'; }
+    function 시간글(초) { 초 = Math.round(초); if (초 >= 3600) { var h = Math.floor(초 / 3600), m = Math.round((초 % 3600) / 60); if (m === 60) { h += 1; m = 0; } return h + '시간' + (m ? ' ' + m + '분' : ''); } if (초 >= 60) { var mm = Math.floor(초 / 60), ss = 초 % 60; return ss ? mm + ':' + (ss < 10 ? '0' : '') + ss : mm + '분'; } return 초 + '초'; }
     function 눈금간격(초) { var 후보 = [1, 2, 5, 10, 15, 30, 60, 120, 300, 600, 900, 1800, 3600, 7200]; for (var i = 0; i < 후보.length; i++) if (초 / 후보[i] <= 10) return 후보[i]; return 7200; }
     function 트랙줄(이름, 칸) { var 줄 = el('div', 'cz-trk'); 줄.appendChild(el('span', 'cz-trk-n', 이름)); var 레인 = el('div', 'cz-lane'); 줄.appendChild(레인); tl.appendChild(줄); return 레인; }
     function 조각(레인, 시작, 끝, 길이, 글, 클래스, 배경) { var p = el('i', 'cz-seg' + (클래스 ? ' ' + 클래스 : '')); p.style.left = (시작 / 길이 * 100) + '%'; p.style.width = Math.max(0.3, (끝 - 시작) / 길이 * 100) + '%'; if (글) p.appendChild(el('span', '', 글)); if (배경) p.style.backgroundImage = 'url("' + 배경 + '")'; 레인.appendChild(p); return p; }
@@ -273,8 +273,8 @@
       }
       var 수 = Math.max(1, Number(T.사진수) || Number(T.장면수) || (긴 ? Math.min(24, Math.max(3, Math.round(길이 / 300))) : Math.min(12, Math.max(3, Math.round(길이 / 5))))), 영 = 트랙줄(영상종류 === '쇼츠' ? '영상' : '장면'), 썸 = T.사진 || [];
       for (var i = 0; i < 수; i++) 조각(영, 길이 * i / 수, 길이 * (i + 1) / 수, 길이, 썸[i] ? '' : String(i + 1), 'cz-t-clip', /^(blob:|https:\/\/|data:image\/)/.test(썸[i] || '') ? 썸[i] : '');
-      var 방식 = 자막방식 || '구절형', 자막칸 = 긴 ? 30 : ({ 구절형: 3, 문장형: 5, 단어형: 1.2 }[방식] || 3), 자막수 = Math.min(80, Math.max(1, Math.floor(길이 / 자막칸)));
-      var 자 = 트랙줄('자막'); if (v0().자막끄기) 자.appendChild(el('em', 'cz-empty', '자막 끔')); else for (var j = 0; j < 자막수; j++) 조각(자, 길이 * j / 자막수 + 길이 * 0.004, 길이 * (j + 1) / 자막수 - 길이 * 0.004, 길이, '', 'cz-t-sub');
+      var 방식 = 자막방식 || '구절형', 자막칸 = 긴 ? 30 : ({ 구절형: 3, 문장형: 5, 단어형: 1.2 }[방식] || 3), 자막수 = Math.min(긴 && 수 ? 수 * 4 : 80, Math.max(1, Math.floor(길이 / 자막칸)));
+      var 자 = 트랙줄('자막'); if (v0().자막끄기) 자.appendChild(el('em', 'cz-empty', '자막 끔')); else if (영상종류 === '수면') 자.appendChild(el('em', 'cz-empty', '음악 영상은 자막이 필요할 때만 넣어요')); else for (var j = 0; j < 자막수; j++) 조각(자, 길이 * j / 자막수 + 길이 * 0.004, 길이 * (j + 1) / 자막수 - 길이 * 0.004, 길이, '', 'cz-t-sub');
       var 소 = 트랙줄(영상종류 === '수면' ? '음악' : '소리'); 조각(소, 0, 길이, 길이, (영상종류 === '수면' ? '배경 음악' : '목소리') + (T.소리 ? ' · ' + T.소리 : ''), 'cz-t-wave');
       if (영상종류 === '야담') { var 배 = 트랙줄('배경음'); 조각(배, 0, 길이, 길이, '잔잔한 배경음', 'cz-t-bgm'); }
     }

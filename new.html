@@ -1887,7 +1887,7 @@
 <link rel="stylesheet" href="./assets/compose.css?v=20261102j">
 <script src="./assets/shared/layout.js?v=20261027"></script>
 <script src="./assets/shared/phrase.js?v=20261026"></script>
-<script src="./assets/compose.js?v=20261102m"></script>
+<script src="./assets/compose.js?v=20261102n"></script>
 <script src="./assets/rw-consent.js"></script>
 </head>
 <body>
@@ -4112,10 +4112,10 @@
   // 영상 꾸미기: 버튼은 폼이 다시 그려질 때마다 새로 생기므로 문서 전체에서 받는다
   if (window.RWCompose) RWCompose.불러오기();
   // 꾸미기 타임라인에 넘길 앞 단계 값(읽기 전용): 길이(초)·올린 사진·소리 요약
-  function composeTimeline(상품) {
+  function composeTimeline(상품, 롱) {
     try {
-      const 분 = parseFloat(document.getElementById('df-videoLength')?.value), 초 = 상품 ? parseFloat(document.getElementById('df-prodLen')?.value) : (분 > 0 ? 분 * 60 : 0);
-      const 사진 = [...document.querySelectorAll('.pimg-th img')].map(i => i.src).filter(Boolean);
+      const 분 = 롱 ? Number(롱폼길이분()) : parseFloat(document.getElementById('df-videoLength')?.value), 초 = 상품 ? parseFloat(document.getElementById('df-prodLen')?.value) : (분 > 0 ? 분 * 60 : 0);
+      const 사진 = 롱 ? [] : [...document.querySelectorAll('.pimg-th img')].map(i => i.src).filter(Boolean);   // 야담·수면은 올린 사진이 없다(장면은 AI가 만든다)
       let 소리 = ''; try { if (window.RWVoice && typeof RWVoice.summary === 'function') 소리 = String(RWVoice.summary() || '').slice(0, 30); } catch (e) {}
       return { 길이초: 초 > 0 ? Math.round(초) : 0, 사진, 사진수: 사진.length || undefined, 소리 };
     } catch (e) { return {}; }
@@ -4125,7 +4125,7 @@
     if (긴 && window.RWCompose) {   // 야담·수면음악(분위기): 가로 16:9. 자막 자리는 꾸미기가 정한다(별도 선택 칸 없음)
       const 이름 = 긴.id === 'yd-compose-open' ? '야담' : '수면음악', 합 = document.getElementById(긴.id.replace('open', 'sum'));
       const 값 = composeKind === 이름 && composeState ? composeState : {}, 위 = 값.자막위치 || '아래';
-      RWCompose.open({ 종류: 이름 === '야담' ? '야담' : '수면', 타임라인: composeTimeline(false), 화면: '가로', 화면목록: [{ 값: '전체화면형' }], 화면구성: '전체화면형', 값, 자막위치: 위, 자막위치저장: true, 샘플: document.getElementById('df-topic')?.value || '',
+      RWCompose.open({ 종류: 이름 === '야담' ? '야담' : '수면', 타임라인: composeTimeline(false, true), 화면: '가로', 화면목록: [{ 값: '전체화면형' }], 화면구성: '전체화면형', 값, 자막위치: 위, 자막위치저장: true, 샘플: document.getElementById('df-topic')?.value || '',
         onDone: res => { const c = Object.assign({}, res.compose); if (res.자막위치 && res.자막위치 !== '아래') c.자막위치 = res.자막위치; composeState = Object.keys(c).length ? c : null; composeKind = composeState ? 이름 : ''; if (합) 합.textContent = composeSumText(이름, composeState); saveChatState(); } });
       return;
     }
