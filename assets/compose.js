@@ -419,7 +419,8 @@
         function 탭보이기(t) { 있는탭.forEach(function (n) { 탭버튼[n].setAttribute('aria-selected', String(n === t)); }); [].forEach.call(body.querySelectorAll('.cz-card'), function (c) { c.classList.toggle('cz-tabhide', c.dataset.tab !== '*' && c.dataset.tab !== t); }); }
         있는탭.forEach(function (t) { var b = el('button', 'cz-tab', t); b.type = 'button'; b.setAttribute('role', 'tab'); b.addEventListener('click', function () { 탭보이기(t); }); 탭버튼[t] = b; 탭줄.appendChild(b); });
         body.insertBefore(탭줄, body.firstChild); 탭보이기(있는탭[0]);
-        body.insertBefore(c1, 탭줄.nextSibling);   // 모양 고르기는 탭 줄 바로 아래
+        if (판) { c1.dataset.tab = '화면'; c1.classList.remove('cz-fold'); c1.querySelector('.cz-ch').setAttribute('aria-expanded', 'true'); 판.parentNode.insertBefore(c1, 판.nextSibling); }   // 화면 구성 4칸 바로 아래에 그 구성의 모양을 펼친다
+        else body.insertBefore(c1, 탭줄.nextSibling);   // 화면 구성이 없는 경우(가로 등): 탭 줄 바로 아래에 접어 둔다
       }
     }
 
