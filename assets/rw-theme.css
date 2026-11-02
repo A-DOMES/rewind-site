@@ -1,0 +1,116 @@
+/* 리와인드 공통 디자인 (모든 화면이 마지막에 불러온다)
+   - 검정 테마의 바탕은 순수 검정(#000). 화면마다 따로 있던 갈색빛 검정(#171412, #0c0c0c)을 여기서 하나로 맞춘다.
+   - 색·모서리·그림자·글자 크기는 아래 --rw-* 값만 고치면 된다. 화면별 손질은 이 파일 아래쪽 "화면별" 구역에 모은다.
+   - 주황(amber)은 "선택됨"과 "주요 행동 버튼"에만 쓴다. 나머지는 흑백 단계로 구분한다.
+   - 밝게 테마는 건드리지 않는다(숲·와인은 theme.js 가 따로 정의). */
+
+/* ───────── 1. 토큰 ───────── */
+:root {
+  --rw-r-sm: 8px; --rw-r-md: 12px; --rw-r-lg: 16px; --rw-r-pill: 999px;
+  --rw-fs-xs: .78rem; --rw-fs-sm: .88rem; --rw-fs-base: .96rem; --rw-fs-md: 1.08rem; --rw-fs-lg: 1.35rem; --rw-fs-xl: 1.9rem;
+  --rw-ease: cubic-bezier(.2, .7, .2, 1);
+}
+
+/* 검정 테마 — 두 가지 변수 이름 묶음(--bg-raised 계열 / --raised 계열)을 한꺼번에 정의한다 */
+html:root[data-theme="dark"] {
+  color-scheme: dark;
+  --rw-bg: #000;
+  --rw-s1: #09090a;            /* 카드 바탕 */
+  --rw-s2: #101012;            /* 올라온 카드·입력칸 */
+  --rw-s3: #18181b;            /* 눌림·강조 면 */
+  --rw-line: #1f1f23;          /* 기본 선 */
+  --rw-line-2: #2c2c31;        /* 힘준 선 */
+  --rw-ink: #f4f4f5; --rw-ink-2: #b6b6bd; --rw-ink-3: #7e7e87;
+  --rw-accent: #e2a23c; --rw-accent-hi: #f0b650; --rw-accent-wash: #15110a;
+  --rw-card: linear-gradient(180deg, #0e0e10 0%, #08080a 100%);
+  --rw-card-hi: linear-gradient(180deg, #141417 0%, #0c0c0e 100%);
+  --rw-edge: inset 0 1px 0 rgba(255, 255, 255, .045);
+  --rw-lift: 0 1px 0 rgba(255, 255, 255, .035) inset, 0 14px 30px -18px rgba(0, 0, 0, .95);
+
+  --bg: #000; --bg-raised: #09090a; --bg-input: #101012; --bg-deep: #000; --film: #000; --stage: #050506;
+  --line: #1f1f23; --line-strong: #2c2c31;
+  --ink: #f4f4f5; --ink-dim: #b6b6bd; --ink-faint: #7e7e87;
+  --amber: #e2a23c; --amber-hover: #f0b650; --amber-dim: #4a3818; --amber-wash: #15110a; --on-amber: #14100a;
+  --gold: #e2a23c; --gold-dim: #4a3818; --on-gold: #14100a; --olive: #c9a86a; --focus: #e2a23c;
+  --blue: #86b4f0; --green: #a3cf92; --err: #e88a7a; --ok: #86c872; --done: #86c872;
+  --status-plan: #86b4f0; --status-making: #86b4f0; --status-review: #e2a23c; --status-final: #86b4f0; --status-done: #86c872; --status-error: #e88a7a;
+  --card-shadow: none;
+  /* 대본 작업실(script·longscript)이 쓰는 이름 */
+  --raised: #09090a; --input: #101012; --line2: #2c2c31; --side: #000;
+  --dim: #b6b6bd; --faint: #7e7e87; --wash: #15110a;
+  --err-wash: #1f1210; --green-wash: #101a0e; --shadow: 0 16px 44px rgba(0, 0, 0, .85);
+  --nt-bg: #f4f4f5; --nt-fg: #09090a;
+}
+
+/* ───────── 2. 바탕·글자 기본 ───────── */
+html:root[data-theme="dark"] body { background: #000; color: var(--rw-ink); }
+html:root[data-theme="dark"] ::selection { background: var(--rw-accent); color: #14100a; }
+html:root[data-theme="dark"] :focus-visible { outline-color: var(--rw-accent); }
+html:root[data-theme="dark"] ::-webkit-scrollbar { width: 10px; height: 10px; }
+html:root[data-theme="dark"] ::-webkit-scrollbar-thumb { background: #232327; border-radius: 10px; border: 2px solid #000; }
+html:root[data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: #34343a; }
+html:root[data-theme="dark"] ::-webkit-scrollbar-track { background: transparent; }
+
+/* ═════════ 3. 화면별 (검정 테마) ═════════ */
+/* 3-1. 새로 만들기 화면 공통 틀: 왼쪽 메뉴·위쪽 길잡이 */
+html:root[data-theme="dark"] .sidebar { background: #000; border-right: 1px solid #141416; }
+html:root[data-theme="dark"] .side-item { position: relative; color: var(--rw-ink-2); border-radius: 11px; transition: background-color .15s var(--rw-ease), color .15s var(--rw-ease); }
+html:root[data-theme="dark"] .sidebar .side-item .ico { background: #0e0e10 !important; box-shadow: inset 0 0 0 1px #1f1f23; border-radius: 10px; transition: background-color .15s, box-shadow .15s; }
+html:root[data-theme="dark"] .sidebar .side-item .ico svg { stroke: var(--rw-ink-2) !important; stroke-width: 1.9; transition: stroke .15s; }
+html:root[data-theme="dark"] .side-item:hover { background: #0c0c0e; color: var(--rw-ink); }
+html:root[data-theme="dark"] .sidebar .side-item:hover .ico svg { stroke: var(--rw-ink) !important; }
+html:root[data-theme="dark"] .side-item.active { background: #111113; color: var(--rw-ink); box-shadow: inset 0 0 0 1px #1f1f23; }
+html:root[data-theme="dark"] .side-item.active::before { content: ""; position: absolute; left: -9px; top: 11px; bottom: 11px; width: 3px; border-radius: 3px; background: var(--rw-accent); }
+html:root[data-theme="dark"] .sidebar .side-item.active .ico { background: var(--rw-accent-wash) !important; box-shadow: inset 0 0 0 1px #3a2c12; }
+html:root[data-theme="dark"] .sidebar .side-item.active .ico svg { stroke: var(--rw-accent) !important; }
+html:root[data-theme="dark"] .side-item.soon-btn .ico { opacity: .6; }
+
+/* 3-2. 주제 찾기 */
+html:root[data-theme="dark"] .tf-in { max-width: 920px; padding-top: 48px; gap: 30px; }
+html:root[data-theme="dark"] .tf-in h2 { font-size: 2.05rem; letter-spacing: -.035em; }
+html:root[data-theme="dark"] .tf-sub { color: var(--rw-ink-3); font-size: .98rem; line-height: 1.65; }
+html:root[data-theme="dark"] .tf-card { background: var(--rw-card); border-color: #1f1f23; border-radius: 18px; box-shadow: var(--rw-edge); transition: border-color .18s var(--rw-ease), transform .18s var(--rw-ease), box-shadow .18s var(--rw-ease); }
+html:root[data-theme="dark"] .tf-card:hover, html:root[data-theme="dark"] .tf-card:focus-visible { border-color: #3b3b42; transform: translateY(-2px); box-shadow: var(--rw-lift); }
+html:root[data-theme="dark"] .tf-card:focus-visible { box-shadow: 0 0 0 3px rgba(226, 162, 60, .35); }
+html:root[data-theme="dark"] .tf-card:active { transform: translateY(0); }
+html:root[data-theme="dark"] .tf-glyph { background: #121214 !important; box-shadow: inset 0 0 0 1px #26262b; border-radius: 14px; }
+html:root[data-theme="dark"] .tf-glyph svg { stroke: var(--rw-accent); }
+html:root[data-theme="dark"] .tf-head b { font-size: 1.2rem; }
+html:root[data-theme="dark"] .tf-head small { color: var(--rw-ink-3); }
+html:root[data-theme="dark"] .tf-ex { border-top-color: #1a1a1d; }
+html:root[data-theme="dark"] .tf-ex > span { border-bottom-color: #1a1a1d; color: var(--rw-ink-2); }
+html:root[data-theme="dark"] .tf-ex > span::before { background: #4b4b53; }
+html:root[data-theme="dark"] .tf-go { color: var(--rw-ink); }
+html:root[data-theme="dark"] .tf-card:hover .tf-go { color: var(--rw-accent-hi); }
+html:root[data-theme="dark"] .tf-go small { color: var(--rw-ink-3); }
+html:root[data-theme="dark"] .tf-prod { background: var(--rw-card); border-color: #1f1f23; }
+html:root[data-theme="dark"] .tf-chip { background: var(--rw-card); border-color: #1f1f23; border-radius: 14px; transition: border-color .15s, transform .15s; }
+html:root[data-theme="dark"] .tf-chip:hover, html:root[data-theme="dark"] .tf-chip:focus-visible { border-color: #3b3b42; transform: translateY(-1px); }
+html:root[data-theme="dark"] .tf-chip i { background: #4b4b53; }
+html:root[data-theme="dark"] .tf-chip:hover i { background: var(--rw-accent); }
+html:root[data-theme="dark"] .tf-hot-row { background: #0c0c0e; border-color: #1f1f23; }
+html:root[data-theme="dark"] .tf-badge { border-color: #3a2c12; color: var(--rw-accent); background: var(--rw-accent-wash); }
+
+/* 3-3. 요금 안내 창 */
+html:root[data-theme="dark"] #price-modal-overlay { background: rgba(0, 0, 0, .72); backdrop-filter: blur(6px); }
+html:root[data-theme="dark"] .price-modal { background: linear-gradient(180deg, #0f0f11, #060607); border-color: #232327; box-shadow: 0 40px 90px -30px rgba(0, 0, 0, .95), var(--rw-edge); }
+html:root[data-theme="dark"] .pm-head { border: 0; }
+html:root[data-theme="dark"] .pm-x { border-color: #26262b; background: #0e0e10; }
+html:root[data-theme="dark"] .pm-x:hover { background: #17171a; border-color: #3b3b42; }
+html:root[data-theme="dark"] .pm-tabs { border-bottom-color: #17171a; }
+html:root[data-theme="dark"] .pm-tabs button { border-color: #26262b; background: #0c0c0e; color: var(--rw-ink-2); transition: background-color .15s, color .15s, border-color .15s; }
+html:root[data-theme="dark"] .pm-tabs button:hover { border-color: #3b3b42; color: var(--rw-ink); }
+html:root[data-theme="dark"] .pm-tabs button[aria-selected=true] { background: var(--rw-accent); border-color: var(--rw-accent); color: #14100a; }
+html:root[data-theme="dark"] .price-modal .sub { color: var(--rw-ink-3); }
+html:root[data-theme="dark"] .price-modal .ml-item { background: var(--rw-card); border-color: #1f1f23; box-shadow: var(--rw-edge); }
+html:root[data-theme="dark"] .price-modal .ml-item.mc { background: var(--rw-card); border-color: #232327; box-shadow: var(--rw-edge), inset 0 3px 0 var(--mc); }
+html:root[data-theme="dark"] .price-modal .ml-item.rec { border-color: #4a3818; }
+html:root[data-theme="dark"] .price-modal .ml-item em { color: var(--rw-ink); font-size: 1.05rem; }
+html:root[data-theme="dark"] .price-table th { color: var(--rw-ink-3); border-bottom-color: #1f1f23; }
+html:root[data-theme="dark"] .price-table td { border-bottom-color: #151517; }
+html:root[data-theme="dark"] .price-table td.num { color: var(--rw-ink); }
+html:root[data-theme="dark"] .price-table th.mc { background: #101012; box-shadow: inset 0 3px 0 var(--mc); }
+html:root[data-theme="dark"] .price-table td.mc { background: transparent; }
+html:root[data-theme="dark"] .price-table tbody tr:hover td { background: #0e0e10; }
+html:root[data-theme="dark"] .pm-sec { background: var(--rw-card); border-color: #1f1f23; box-shadow: var(--rw-edge); }
+html:root[data-theme="dark"] .pm-sec .pm-h .hi { background: var(--rw-accent-wash); box-shadow: inset 0 0 0 1px #3a2c12; }
