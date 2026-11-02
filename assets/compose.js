@@ -262,15 +262,17 @@
       (템플릿목록 || []).filter(function (t) { return t.종류.indexOf(종류) >= 0; }).forEach(function (t) {
         var b = el('button', 'cz-opt'); b.type = 'button'; b.appendChild(el('b', '', t.이름)); var s = el('span', 'cz-sample', '가나다'); s.style.color = 모양겉(t.기본.자막모양).c === '#fff' || 모양겉(t.기본.자막모양).bg ? 'var(--ink)' : 모양겉(t.기본.자막모양).c; s.style.fontFamily = (글꼴들.find(function (g) { return g[0] === t.기본.글꼴; }) || 글꼴들[0])[2]; b.appendChild(s); b.appendChild(el('small', '', t.설명));
         b.addEventListener('click', function () { 선택.템플릿 = t.id; if (화면가능(t.화면구성)) { 화면 = t.화면구성; 화면바꿈 = true; } ['자막모양', '글꼴', '자막크기', '줄수', '줄길이', '핵심색'].forEach(function (k) { delete 선택[k]; }); if (!위치바꿈) 자막위치 = t.자막위치 || 자막위치; 갱신(); });
-        g.appendChild(b); 눌림목록.push(function () { b.setAttribute('aria-pressed', String(선택.템플릿 === t.id)); });
+        g.appendChild(b); 눌림목록.push(function () { b.setAttribute('aria-pressed', String(선택.템플릿 === t.id)); b.style.display = (!가로 && 화면목록.length > 1 && (화면 === '자동' ? '전체화면형' : 화면) !== t.화면구성) ? 'none' : ''; });   // 고른 화면 구성의 모양만 보인다
       });
+      var 빈말 = el('p', 'cz-hint', ''); c1.appendChild(빈말);
+      눌림목록.push(function () { var 구성 = 화면 === '자동' ? '전체화면형' : 화면, 있음 = (템플릿목록 || []).some(function (t) { return t.종류.indexOf(종류) >= 0 && t.화면구성 === 구성; }); 빈말.textContent = (!가로 && 화면목록.length > 1) ? (있음 ? '아래 모양은 \'' + 구성.replace('형', '') + '\' 화면 구성 전용이에요. 다른 구성은 위 화면 구성에서 바꿔요' : '이 화면 구성은 준비된 모양이 없어요. 아래에서 직접 꾸며 보세요') : ''; 빈말.style.display = 빈말.textContent ? '' : 'none'; });
       if (화면목록.length > 1 && !가로) {   // 화면 구성: 미리보기 아래에 그림 카드로 둔다
         var 판 = 카드('화면 구성', '영상이 놓이는 모양', '화면'); var 줄 = el('div', 'cz-lay-row'); 줄.style.gridTemplateColumns = 'repeat(' + Math.min(4, 화면목록.length) + ', minmax(0, 1fr))'; 줄.setAttribute('role', 'group'); 줄.setAttribute('aria-label', '화면 구성'); 판.appendChild(줄);
         화면목록.forEach(function (it) {
           var b = el('button', 'cz-lay-b'); b.type = 'button'; b.disabled = !!it.꺼짐; b.title = 화면설명[it.값] || '';
           var 그림 = el('span', 'cz-lay-pic'); 그림.innerHTML = '<svg viewBox="0 0 54 96" aria-hidden="true" focusable="false">' + (화면그림[it.값] || '<rect class="ph" width="54" height="96"/>') + '</svg>';
           b.appendChild(그림); b.appendChild(el('b', '', it.값.replace('형', ''))); b.appendChild(el('small', '', 화면설명[it.값] || ''));
-          b.addEventListener('click', function () { 화면 = it.값; 화면바꿈 = true; 갱신(); }); 눌림목록.push(function () { b.setAttribute('aria-pressed', String(화면 === it.값)); }); 줄.appendChild(b);
+          b.addEventListener('click', function () { 화면 = it.값; 화면바꿈 = true; var 지금t = (템플릿목록 || []).filter(function (x) { return x.id === 선택.템플릿; })[0]; if (지금t && 지금t.화면구성 !== (it.값 === '자동' ? '전체화면형' : it.값)) delete 선택.템플릿; 갱신(); }); 눌림목록.push(function () { b.setAttribute('aria-pressed', String(화면 === it.값)); }); 줄.appendChild(b);
         });
         판.appendChild(줄);
       }
