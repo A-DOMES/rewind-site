@@ -327,7 +327,7 @@
       var 총 = Number(T.길이초) > 0 ? Number(T.길이초) : (영상종류 === '쇼츠' ? 30 : 1800), 훑기 = Math.min(총, 20);   // 긴 영상은 20초에 훑어 본다
       if (머리비 >= 0.999) 위치옮김(0);
       재생중 = true; 재생버튼.textContent = '⏸'; 재생버튼.setAttribute('aria-label', '멈춤'); 재생전 = 0; 읽기재생();
-      var 틱 = function (now) { if (!재생중) return; if (!재생전) 재생전 = now; var 다 = (now - 재생전) / 1000; 재생전 = now; var 다음 = 머리비 + 다 / 훑기; 위치옮김(다음); if (다음 >= 1) { 재생멈춤(); return; } 재생틀 = requestAnimationFrame(틱); };
+      var 틱 = function (now) { if (!재생중) return; if (!재생전) 재생전 = now; var 다 = Math.min(0.1, (now - 재생전) / 1000); 재생전 = now; var 다음 = 머리비 + 다 / 훑기; 위치옮김(다음); if (다음 >= 1) { 재생멈춤(); return; } 재생틀 = requestAnimationFrame(틱); };
       재생틀 = requestAnimationFrame(틱);
     }
     재생버튼.addEventListener('click', function () { if (재생중) 재생멈춤(); else 재생시작(); });
@@ -347,15 +347,15 @@
         손잡이.addEventListener('pointerdown', function (e) {
           if (e.button) return; var x0 = e.clientX, v0 = Number(sl.value), 움직임 = false, 폭 = Math.max(1, Number(sl.max) - Number(sl.min));
           var 이동 = function (ev) { var dx = ev.clientX - x0; if (!움직임 && Math.abs(dx) < 4) return; 움직임 = true; 바꿈(v0 + dx * 폭 / 240); };
-          var 끝 = function () { document.removeEventListener('pointermove', 이동); document.removeEventListener('pointerup', 끝); document.removeEventListener('pointercancel', 끝); if (움직임) sl.dispatchEvent(new Event('change', { bubbles: true })); else if (눌러입력) { clearTimeout(대기); 대기 = setTimeout(입력열기, 260); } };
+          var 끝 = function () { document.removeEventListener('pointermove', 이동); document.removeEventListener('pointerup', 끝); document.removeEventListener('pointercancel', 끝); if (움직임) sl.dispatchEvent(new Event('change', { bubbles: true })); else if (눌러입력) { clearTimeout(대기); 대기 = setTimeout(입력열기, 380); } };
           document.addEventListener('pointermove', 이동); document.addEventListener('pointerup', 끝); document.addEventListener('pointercancel', 끝);
         });
       };
       var 입력열기 = function () {
         var i = el('input', 'cz-numin'); i.type = 'number'; i.min = sl.min; i.max = sl.max; i.step = sl.step || '1'; i.value = sl.value; i.setAttribute('aria-label', (이름 ? 이름.textContent : '') + ' 숫자로 입력'); 숫자.style.display = 'none'; 숫자.parentNode.insertBefore(i, 숫자); i.focus(); i.select();
-        var 닫음 = false, 마침 = function (적용) { if (닫음) return; 닫음 = true; if (적용 && i.value !== '' && isFinite(Number(i.value))) { 바꿈(Number(i.value)); sl.dispatchEvent(new Event('change', { bubbles: true })); } i.remove(); 숫자.style.display = ''; };
+        var 닫음 = false, 마침 = function (적용, 출처) { if (닫음) return; 닫음 = true; if (적용 && i.value !== '' && isFinite(Number(i.value))) { 바꿈(Number(i.value)); sl.dispatchEvent(new Event('change', { bubbles: true })); } i.remove(); 숫자.style.display = ''; if (출처 !== 'blur') 숫자.focus(); };
         i.addEventListener('keydown', function (e) { e.stopPropagation(); if (e.key === 'Enter') { e.preventDefault(); 마침(true); } else if (e.key === 'Escape') { e.preventDefault(); 마침(false); } });
-        i.addEventListener('blur', function () { 마침(true); });
+        i.addEventListener('blur', function () { 마침(true, 'blur'); });
       };
       if (이름) 끌기시작(이름, false); 숫자.tabIndex = 0; 숫자.setAttribute('role', 'button'); 숫자.title = '끌어서 조절 · 눌러서 입력 · 두 번 누르면 처음 값'; 숫자.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); 입력열기(); } }); 끌기시작(숫자, true);
     }
@@ -412,9 +412,11 @@
       };
       위치옮김 = 두는곳;
       var 끌고있음 = false, 위치계산 = function (e) { var r = 눈금.getBoundingClientRect(); 두는곳((e.clientX - r.left) / Math.max(1, r.width)); };
-      tl.addEventListener('pointerdown', function (e) { if (e.target.closest('.cz-trk-n') || e.target.closest('.cz-tl-h')) return; 끌고있음 = true; 위치계산(e); try { tl.setPointerCapture(e.pointerId); } catch (x) {} });
-      tl.addEventListener('pointermove', function (e) { if (끌고있음) 위치계산(e); });
-      tl.addEventListener('pointerup', function () { 끌고있음 = false; }); tl.addEventListener('pointercancel', function () { 끌고있음 = false; });
+      if (tl.__핸들) tl.__핸들.forEach(function (h) { tl.removeEventListener(h[0], h[1]); }); tl.__핸들 = [];   // 다시 그릴 때 옛 핸들러를 걷어낸다(쌓이지 않게)
+      var 달기 = function (t, f) { tl.addEventListener(t, f); tl.__핸들.push([t, f]); };
+      달기('pointerdown', function (e) { if (e.target.closest('.cz-trk-n') || e.target.closest('.cz-tl-h')) return; 끌고있음 = true; 위치계산(e); try { tl.setPointerCapture(e.pointerId); } catch (x) {} });
+      달기('pointermove', function (e) { if (끌고있음) 위치계산(e); });
+      달기('pointerup', function () { 끌고있음 = false; }); 달기('pointercancel', function () { 끌고있음 = false; });
       var 문구있음 = !!String(opt.문구 || '').trim(), 제목끝 = (문구시간쓰기 && 문구시간 === '3s') ? Math.min(3, 길이) : 길이, 구성 = 화면 === '자동' ? '전체화면형' : 화면;
       if (영상종류 === '쇼츠' && !가로) {
         var 제 = 트랙줄('제목'); if (문구있음 || 구성 === '제목고정형' || 구성 === '가운데영상형') 조각(제, 0, 제목끝, 길이, 문구있음 ? String(opt.문구).trim() : '제목', 'cz-t-title'); else 제.appendChild(el('em', 'cz-empty', '제목 없음'));
@@ -596,7 +598,7 @@
           칸.appendChild(입력); 칸.appendChild(문제칸); 문제칸.textContent = 블록검사()[i] || '';
           var r1 = el('div', 'cz-row'); r1.appendChild(el('label', '', '자리')); var c = el('div', 'cz-chips'); r1.appendChild(c); 칸.appendChild(r1);
           [['위', '위'], ['가운데', '가운데'], ['아래', '아래']].forEach(function (it) { var k = el('button', 'cz-chip', it[1]); k.type = 'button'; k.setAttribute('aria-pressed', String(b.위치.기준 === it[0])); k.addEventListener('click', function () { b.위치.기준 = it[0]; 블록그리기(); 그리기미리보기(); }); c.appendChild(k); });
-          function 슬라이더(이름, 읽기, 쓰기, 최소, 최대) { var r = el('div', 'cz-row'); r.appendChild(el('label', '', 이름)); var sl = el('input'); sl.type = 'range'; sl.min = 최소; sl.max = 최대; sl.value = 읽기(); sl.setAttribute('aria-label', '고정 글자 ' + (i + 1) + ' ' + 이름); sl.addEventListener('input', function () { 쓰기(Number(sl.value)); 그리기미리보기(); }); r.appendChild(sl); 칸.appendChild(r); }
+          function 슬라이더(이름, 읽기, 쓰기, 최소, 최대) { var r = el('div', 'cz-row'); r.appendChild(el('label', '', 이름)); var sl = el('input'); sl.type = 'range'; sl.min = 최소; sl.max = 최대; sl.value = 읽기(); var 처음값 = sl.value; sl.__reset = function () { sl.value = 처음값; sl.dispatchEvent(new Event('input', { bubbles: true })); sl.dispatchEvent(new Event('change', { bubbles: true })); }; sl.setAttribute('aria-label', '고정 글자 ' + (i + 1) + ' ' + 이름); sl.addEventListener('input', function () { 쓰기(Number(sl.value)); 그리기미리보기(); }); r.appendChild(sl); 칸.appendChild(r); }
           슬라이더('위·아래 거리', function () { return Math.round(b.위치.거리 * 100); }, function (v) { b.위치.거리 = v / 100; }, 0, 45);
           슬라이더('왼쪽·오른쪽', function () { return Math.round(b.위치.가로 * 100); }, function (v) { b.위치.가로 = v / 100; }, 0, 100);
           var r2 = el('div', 'cz-row'); r2.appendChild(el('label', '', '글자 크기')); var nm = el('input'); nm.type = 'number'; nm.min = 20; nm.max = 200; nm.value = b.크기; nm.setAttribute('aria-label', '고정 글자 ' + (i + 1) + ' 크기'); nm.addEventListener('input', function () { b.크기 = Math.round(수(nm.value, 20, 200, 60)); 그리기미리보기(); }); r2.appendChild(nm);
