@@ -312,3 +312,17 @@ label.cz-chip { display: inline-flex; align-items: center; }
 .cz-scrub { cursor: ew-resize; user-select: none; touch-action: none; }
 .cz-val.cz-scrub:hover { color: #fff; text-decoration: underline dotted; }
 .cz-numin { width: 64px; min-height: 30px; padding: 0 6px; box-sizing: border-box; background: var(--rz-p2, #1b1b1f); color: var(--ink); border: 1px solid var(--rz-ac, #f0a030); border-radius: 6px; font: inherit; font-size: .82rem; font-variant-numeric: tabular-nums; text-align: right; }
+
+/* ── 촘촘한 패널: 마우스로 쓰는 화면에서만(터치는 44px 유지) ── */
+@media (hover: hover) and (pointer: fine) {
+  .cz-body .cz-card, .cz-lib .cz-card { padding: 8px 14px; gap: 6px; }
+  .cz-body .cz-row { gap: 8px; }
+  .cz-body .cz-row label { width: 6.4em; min-width: 6.4em; flex: none; font-size: .8rem; }
+  .cz-body .cz-row input[type=range] { min-height: 26px; }
+  .cz-body .cz-chips { gap: 5px; }
+  .cz-body .cz-chip { min-height: 28px; padding: 0 10px; font-size: .8rem; border-width: 1px; }
+  .cz-body .cz-rst, .cz-body .cz-numin { min-height: 26px; height: 26px; }
+  .cz-body .cz-rst { width: 26px; }
+  .cz-lib .cz-opt { padding: 6px; }
+  .cz-body .cz-hint, .cz-body .cz-note { font-size: .74rem; margin: 0; }
+}
