@@ -107,7 +107,8 @@
     var tools = el('div', 'cz-pvtools'); var gl = el('label'); var gc = el('input'); gc.type = 'checkbox'; gc.checked = true; gl.appendChild(gc); gl.appendChild(document.createTextNode(' 유튜브가 쓰는 자리 점선으로 보기')); tools.appendChild(gl);
     var 다시 = el('button', 'cz-btn'); 다시.type = 'button'; 다시.textContent = '▶ 읽는 효과 다시 보기'; 다시.style.cssText = 'min-height:44px;display:none'; tools.appendChild(다시);
     var warn = el('ul', 'cz-warn'); warn.setAttribute('aria-live', 'polite');
-    pv.appendChild(phone); pv.appendChild(tools); pv.appendChild(warn); pv.appendChild(el('p', 'cz-note', '실제 영상은 조금 다를 수 있어요. 점선 자리를 침범해도 만들 수 있어요.')); pv.appendChild(el('p', 'cz-note', '제목·자막·고정 글자를 끌어서 옮길 수 있어요. 제목 띠 아래쪽 손잡이를 끌면 높이가 바뀌어요.'));
+    var 뷰머리 = el('div', 'cz-vhead'); 뷰머리.appendChild(el('b', '', '미리보기')); 뷰머리.appendChild(el('span', '', 가로 ? '16:9 가로' : '9:16 세로')); pv.appendChild(뷰머리);   // 리졸브의 뷰어 머리줄
+    pv.appendChild(phone); pv.appendChild(tools); pv.appendChild(warn); pv.appendChild(el('p', 'cz-note', '제목·자막·고정 글자는 끌어서 옮길 수 있어요 · 실제 영상은 조금 다를 수 있어요'));
     var body = el('div', 'cz-body');
     var foot = el('div', 'cz-foot'); var reset = el('button', 'cz-btn', '처음 모양으로'); reset.type = 'button'; var ok = el('button', 'cz-btn cz-main', '적용하기'); ok.type = 'button'; foot.appendChild(reset); foot.appendChild(ok);
     dlg.appendChild(head); dlg.appendChild(pv); dlg.appendChild(body); dlg.appendChild(foot); ov.appendChild(dlg);

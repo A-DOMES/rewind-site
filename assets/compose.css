@@ -148,3 +148,37 @@ label.cz-chip { display: inline-flex; align-items: center; }
 @media (max-width: 900px) { .cz-dlg { width: 100%; grid-template-columns: 1fr; } .cz-phone { width: clamp(180px, calc((100vh - 470px) * 0.5625), 400px); } }
 /* 꾸미기 창은 늘 검정 바탕이므로 밝은 테마에서도 글자가 보이게 어두운 테마의 색을 쓴다 */
 .cz-ov { --ink: #f1f3fa; --ink-dim: #aab0c8; --ink-faint: #7c829c; --line: rgba(160,170,210,.28); --bg: #000; --bg-raised: #0b0d1a; --bg-input: #0b0d1a; color: var(--ink); }
+
+/* ===== 리졸브식 정돈(2026-11-02): 왼쪽 뷰어 · 오른쪽 인스펙터(탭) · 얇은 머리줄, 평평한 패널, 촘촘한 줄 =====
+   눌림·잠금·접근성 규칙은 그대로 두고 크기·간격·장식만 바꾼다. 터치 화면(900px 이하)은 위의 큰 칸을 그대로 쓴다. */
+.cz-dlg { border-radius: 14px; box-shadow: 0 0 0 1px #1d2030, 0 24px 60px rgba(0,0,0,.6); background: #000; }
+.cz-head { padding: 8px 16px; background: #0a0a0d; border-bottom: 1px solid #1d2030; }
+.cz-head h2 { font-size: 1rem; letter-spacing: .02em; }
+.cz-head small { display: inline; margin-left: 10px; font-size: var(--fs-xs); }
+.cz-head > div { display: flex; align-items: baseline; }
+.cz-x { min-width: 36px; min-height: 36px; border-radius: 8px; font-size: 1rem; }
+.cz-pv { background: #07070a; gap: 8px; padding: 0 0 10px; border-right: 1px solid #1d2030; justify-content: flex-start; }
+.cz-vhead { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 7px 14px; background: #0f1015; border-bottom: 1px solid #1d2030; font-size: var(--fs-xs); color: var(--ink-dim); letter-spacing: .04em; }
+.cz-vhead b { color: var(--ink); font-weight: 700; }
+.cz-phone { box-shadow: 0 0 0 1px #2a2f4a, 0 10px 30px rgba(0,0,0,.6); border-radius: 14px; border-color: #2a2f4a; }
+.cz-pvtools { width: 100%; justify-content: space-between; padding: 6px 14px; background: #0f1015; border-top: 1px solid #1d2030; border-bottom: 1px solid #1d2030; }
+.cz-pv .cz-note { padding: 0 14px; }
+.cz-warn { padding: 0 14px; }
+.cz-body { padding: 0; gap: 0; background: #0a0a0d; }
+.cz-tabs { margin: 0; padding: 0 8px; min-height: 42px; gap: 2px; border: 0; border-bottom: 1px solid #1d2030; border-radius: 0; background: #0f1015; align-items: flex-end; }
+.cz-tab { min-height: 42px; flex: 0 1 auto; padding: 0 22px; border-radius: 0; font-size: var(--fs-sm); border-bottom: 2px solid transparent; }
+.cz-tab[aria-selected="true"] { background: #0a0a0d; box-shadow: none; border-bottom-color: #7d9dff; color: #fff; }
+.cz-card { margin: 0; padding: 12px 16px; gap: 10px; border: 0; border-bottom: 1px solid #1d2030; border-radius: 0; background: #0a0a0d; box-shadow: none; }
+.cz-card:nth-of-type(even) { background: #0c0c10; }
+.cz-ch h3 { font-size: .95rem; }
+.cz-ch .cz-ico { width: 30px; height: 30px; border-radius: 8px; }
+@media (min-width: 901px) {
+  .cz-dlg { width: min(1680px, 100%); grid-template-columns: minmax(440px, 40%) 1fr; }
+  .cz-phone { width: clamp(220px, calc((100dvh - 250px) * 0.5625), 640px); }
+  .cz-row { gap: 10px; }
+  .cz-row input[type=range] { min-height: 32px; }
+  .cz-chip, .cz-btn { min-height: 38px; }
+  .cz-lay-b { padding: 6px 2px; }
+  .cz-grid { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+  .cz-opt { padding: 10px; border-radius: 10px; }
+}
