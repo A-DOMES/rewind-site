@@ -27,7 +27,7 @@
     '제목고정형': '<rect class="bd" x="0" y="0" width="54" height="19"/><rect class="ac" x="12" y="5" width="30" height="3.2" rx="1.6"/><rect class="ac" x="17" y="11" width="20" height="3.2" rx="1.6"/><rect class="ph" x="0" y="19" width="54" height="77"/><circle class="sn" cx="38" cy="38" r="6"/><path class="hl" d="M0 76 L16 56 L28 68 L38 58 L54 78 L54 96 L0 96Z"/><rect class="tx" x="10" y="56" width="34" height="3.4" rx="1.7"/><rect class="tx" x="15" y="63" width="24" height="3.4" rx="1.7"/>',
     '전체화면형': '<rect class="ph" x="0" y="0" width="54" height="96"/><circle class="sn" cx="38" cy="22" r="7"/><path class="hl" d="M0 70 L16 46 L28 60 L38 48 L54 72 L54 96 L0 96Z"/><rect class="tx" x="10" y="66" width="34" height="3.4" rx="1.7"/><rect class="tx" x="15" y="73" width="24" height="3.4" rx="1.7"/>',
     '자막바형': '<rect class="ph" x="0" y="0" width="54" height="96"/><circle class="sn" cx="38" cy="22" r="7"/><path class="hl" d="M0 70 L16 46 L28 60 L38 48 L54 72 L54 96 L0 96Z"/><rect class="bar" x="0" y="60" width="54" height="22"/><rect class="dk" x="9" y="65" width="36" height="3.4" rx="1.7"/><rect class="dk" x="15" y="72" width="24" height="3.4" rx="1.7"/>',
-    '가운데영상형': '<rect class="ph blur" x="0" y="0" width="54" height="96"/><rect class="ac" x="12" y="6" width="30" height="3.2" rx="1.6"/><rect class="ac" x="17" y="12" width="20" height="3.2" rx="1.6"/><rect class="mid" x="0" y="23" width="54" height="34"/><circle class="sn" cx="38" cy="33" r="5"/><path class="hl" d="M0 57 L14 44 L24 52 L34 45 L54 57Z"/><rect class="tx" x="10" y="46" width="34" height="3.2" rx="1.6"/><rect class="tx" x="15" y="52" width="24" height="3.2" rx="1.6"/>' };
+    '가운데영상형': '<rect class="ph blur" x="0" y="0" width="54" height="96"/><rect class="bd" x="0" y="0" width="54" height="19"/><rect class="ac" x="12" y="5" width="30" height="3.2" rx="1.6"/><rect class="ac" x="17" y="11" width="20" height="3.2" rx="1.6"/><rect class="mid" x="0" y="23" width="54" height="34"/><circle class="sn" cx="38" cy="33" r="5"/><path class="hl" d="M0 57 L14 44 L24 52 L34 45 L54 57Z"/><rect class="tx" x="10" y="46" width="34" height="3.2" rx="1.6"/><rect class="tx" x="15" y="52" width="24" height="3.2" rx="1.6"/>' };
   var 샘플기본 = '보기보다 훨씬 많이 들어가요. 하루 종일 들고 다녀도 어깨가 편해요';
   var 템플릿목록 = null, 불러옴 = null;
   // 제목 줄 나누기·폭 추정: 서버 render.js 의 문구줄(10자 이하 한 줄, 아니면 가운데 공백/반반)·글줄폭과 같은 규칙의 근사
@@ -112,17 +112,17 @@
 
     function 그리기미리보기() {
       var m = 합치기(선택, 종류), v = m.값;
-      var 제목형 = !가로 && 화면 === '제목고정형', 띠형 = !가로 && 화면 === '자막바형', 가운데형 = !가로 && 화면 === '가운데영상형';
+      var 제목형 = !가로 && (화면 === '제목고정형' || 화면 === '가운데영상형'), 띠형 = !가로 && 화면 === '자막바형', 가운데형 = !가로 && 화면 === '가운데영상형';
       ttl.style.display = 제목형 || 가운데형 ? 'block' : 'none';
       var 줄들 = 제목줄(문구샘플), 상자 = RWLayout.제목상자(W, H, { 줄수: 줄들.length, 최대폭: Math.max.apply(null, 줄들.map(제목폭).concat([1])), 띠: 제목형, 높이: v.제목높이, 크기: v.제목크기, 위: v.제목위, 세로: v.제목세로, 가로: v.제목가로 });
-      ttl.style.background = 가운데형 ? 'transparent' : (헥스.test(v.제목띠색 || '') ? v.제목띠색 : '#15110e'); ttl.style.height = 가운데형 ? '20%' : (상자.띠 / H * 100) + '%';
-      ttx.textContent = 줄들.join('\n'); ttx.style.display = 제목형 || 가운데형 ? 'block' : 'none'; ttx.style.color = 헥스.test(v.제목글자색 || '') ? v.제목글자색 : (가운데형 ? '#fff' : '#fff200'); ttx.style.textShadow = 가운데형 ? '0 1px 4px rgba(0,0,0,.8)' : 'none';
+      ttl.style.background = 헥스.test(v.제목띠색 || '') ? v.제목띠색 : '#15110e'; ttl.style.height = (상자.띠 / H * 100) + '%';
+      ttx.textContent = 줄들.join('\n'); ttx.style.display = 제목형 || 가운데형 ? 'block' : 'none'; ttx.style.color = 헥스.test(v.제목글자색 || '') ? v.제목글자색 : '#fff200'; ttx.style.textShadow = 'none';
       제목상태 = { 세로범위: 제목형 ? [(상자.높이 / 2 - Math.round(상자.크기 * 0.18)) / H, (상자.띠 - 상자.높이 / 2 + Math.round(상자.크기 * 0.18)) / H] : [(H * 0.133 + 상자.높이 / 2) / H, (H * 0.133 + 상자.높이 / 2) / H], 상자: 상자, 제목형: 제목형, 기본세로: 제목형 ? 상자.띠 / 2 / H : (H * 0.133 + 상자.높이 / 2) / H, 폭: Math.max.apply(null, 줄들.map(제목폭).concat([1])) * 상자.크기 };
       띠손잡이.style.display = 제목형 ? 'block' : 'none'; 띠손잡이.style.top = (상자.띠 / H * 100) + '%';
       ttx.style.fontSize = (상자.크기 * 0.66 / W * 100) + 'cqw'; ttx.style.lineHeight = (상자.크기 / W * 100) + 'cqw';   // ASS 의 크기는 줄 높이, 한글 폭은 그 0.66배(서버 render.js 글자폭과 같음)
        ttx.style.left = (상자.x / W * 100) + '%'; ttx.style.top = ((상자.위 !== null ? 상자.위 : H * 0.133) / H * 100) + '%';
       if (가운데형) {   // 영상 칸: 위는 문구 아래(서버와 같은 식), 아래 끝은 꾸미기에서 정한 값(없으면 예전 크기)
-        var 위비 = Math.max(0.235, (상자.위 !== null ? 상자.위 : H * 0.133) / H + (상자.높이 + 상자.크기 * 0.07) / H + 0.012), 아래비 = typeof v.가운데아래 === 'number' ? Math.max(위비 + 0.12, Math.min(0.9, v.가운데아래)) : 위비 + 0.36;
+        var 위비 = Math.max(0.235, 상자.띠 / H + 0.012), 아래비 = typeof v.가운데아래 === 'number' ? Math.max(위비 + 0.12, Math.min(0.9, v.가운데아래)) : 위비 + 0.36;
         칸상태 = { 위: 위비, 아래: 아래비 }; ctr.style.top = (위비 * 100) + '%'; ctr.style.height = ((아래비 - 위비) * 100) + '%'; 칸손잡이.style.top = (아래비 * 100) + '%';
       }
       칸손잡이.style.display = 가운데형 ? 'block' : 'none';
@@ -316,7 +316,7 @@
       색행('위·아래 빈 곳', '가운데색', [['흐리게', ''], ['검정', '#000000'], ['남색', '#14213d'], ['진초록', '#12372a'], ['자주', '#3b1d3a'], ['빨강', '#8b1e1e'], ['크림', '#f5f1e8']], '', '가운데');
       색행('글자 색', '제목글자색', [['노랑', '#fff200'], ['흰색', '#ffffff'], ['검정', '#111111'], ['하늘', '#4dc3ff'], ['분홍', '#ff4d8d'], ['초록', '#2ee6a6']], '#fff200', false);
       c1b.appendChild(el('p', 'cz-hint', '띠 높이를 바꾸면 글자가 띠에 맞춰져요. 글자는 띠 아래 화면 위로도 옮길 수 있어요'));
-      눌림목록.push(function () { var 보임 = !가로 && (화면 === '제목고정형' || 화면 === '가운데영상형'); c1b.style.display = 보임 ? '' : 'none'; 제목행들.forEach(function (h) { h.r.style.display = (h.띠만 === '가운데' ? 화면 !== '가운데영상형' : h.띠만 && 화면 !== '제목고정형') ? 'none' : ''; }); });
+      눌림목록.push(function () { var 보임 = !가로 && (화면 === '제목고정형' || 화면 === '가운데영상형'); c1b.style.display = 보임 ? '' : 'none'; 제목행들.forEach(function (h) { h.r.style.display = (h.띠만 === '가운데' && 화면 !== '가운데영상형') ? 'none' : ''; }); });
       if (문구시간쓰기) {
         var c1c = 카드('문구가 보이는 시간', '화면 위쪽 문구가 나오는 시간', '제목');
         var 시간줄 = el('div', 'cz-chips'); c1c.appendChild(시간줄);
