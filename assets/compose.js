@@ -108,7 +108,8 @@
     var tools = el('div', 'cz-pvtools'); var gl = el('label'); var gc = el('input'); gc.type = 'checkbox'; gc.checked = true; gl.appendChild(gc); gl.appendChild(document.createTextNode(' 유튜브가 쓰는 자리 점선으로 보기')); tools.appendChild(gl);
     var 다시 = el('button', 'cz-btn'); 다시.type = 'button'; 다시.textContent = '▶ 읽는 효과 다시 보기'; 다시.style.cssText = 'min-height:44px;display:none'; tools.appendChild(다시);
     var warn = el('ul', 'cz-warn'); warn.setAttribute('aria-live', 'polite');
-    var 뷰머리 = el('div', 'cz-vhead'); 뷰머리.appendChild(el('b', '', '미리보기')); 뷰머리.appendChild(el('span', '', 가로 ? '16:9 가로' : '9:16 세로')); pv.appendChild(뷰머리);   // 리졸브의 뷰어 머리줄
+    var 머리비 = 0, 뷰시각 = el('small', 'cz-vt', '');   // 재생 위치(0~1)와 미리보기 위쪽 줄의 시각 글자
+    var 뷰머리 = el('div', 'cz-vhead'); 뷰머리.appendChild(el('b', '', '미리보기')); var 뷰비 = el('span', '', 가로 ? '16:9 가로' : '9:16 세로'); 뷰비.appendChild(뷰시각); 뷰머리.appendChild(뷰비); pv.appendChild(뷰머리);   // 리졸브의 뷰어 머리줄
     pv.appendChild(phone); pv.appendChild(tools); pv.appendChild(warn); pv.appendChild(el('p', 'cz-note', '제목·자막·고정 글자는 끌어서 옮길 수 있어요 · 실제 영상은 조금 다를 수 있어요'));
     var lib = el('aside', 'cz-lib'); lib.setAttribute('aria-label', '구성과 모양'); var body = el('div', 'cz-body'); var tl = el('section', 'cz-tl'); tl.setAttribute('aria-label', '타임라인(앞 단계에서 정한 값)');
     var foot = el('div', 'cz-foot'); var reset = el('button', 'cz-btn', '처음 모양으로'); reset.type = 'button'; var ok = el('button', 'cz-btn cz-main', '적용하기'); ok.type = 'button'; foot.appendChild(reset); foot.appendChild(ok);
@@ -133,6 +134,11 @@
       ctr.style.display = 가운데형 ? 'block' : 'none'; var 띠 = 가운데형 && 헥스.test(v.가운데색 || '') ? v.가운데색 : ''; bg.style.filter = 가운데형 && !띠 ? 'blur(5px) brightness(.7)' : ''; bg.style.visibility = 띠 ? 'hidden' : ''; phone.style.background = 띠 || ''; bg.style.transform = 가운데형 ? 'scale(1.12)' : '';
       var box = RWLayout.자막상자(W, H, { 위치: 자막위치, 크기: v.자막크기 * Math.min(W, H) / 1080, 줄수: v.줄수, 줄길이: v.줄길이, 거리: v.자막거리, 가로: v.자막가로, 안전영역: !가로 });
       sub.style.cssText = 'left:' + ((box.x + box.w / 2) / W * 100) + '%;top:' + (box.y / H * 100) + '%;width:' + (box.w / W * 100) + '%;height:' + (box.h / H * 100) + '%;font-size:' + (v.자막크기 * 0.8 / 1080 * 100 * (가로 ? 0.5625 : 1)) + 'cqw;display:' + (v.자막끄기 ? 'none' : 'flex') + ';flex-direction:column;justify-content:flex-end;overflow:hidden;';   // 줄 칸을 잡고 글은 아래 칸부터 채운다
+      if (가운데형 && !v.자막끄기) {   // 가운데영상형: 서버(render.js)와 같은 식 — 자막은 영상 칸 안(위·가운데·아래 끝)에 놓이고, 아래는 화면 아래 안전선(78%)을 넘지 않는다
+        var 칸위 = 칸상태.위 * H, 칸아래 = 칸상태.아래 * H, 칸여백 = Math.round((칸아래 - 칸위) * 0.05);
+        var 자막y = 자막위치 === '위' ? 칸위 + 칸여백 : 자막위치 === '가운데' ? 칸위 + (칸아래 - 칸위) / 2 - box.h / 2 : Math.min(칸아래 - 칸여백, H * 0.78) - box.h;
+        sub.style.top = (자막y / H * 100) + '%'; box = Object.assign({}, box, { y: 자막y });
+      }
       sub.style.fontFamily = (글꼴들.find(function (g) { return g[0] === v.글꼴; }) || 글꼴들[0])[2];
       var 겉 = 모양겉(v.자막모양);
       sub.style.fontWeight = 두꺼운글꼴.indexOf(v.글꼴) >= 0 ? '500' : String(겉.w);
@@ -141,10 +147,10 @@
       if (띠형) { v = Object.assign({}, v, { 자막모양: '굵은흰' }); }
       sub.textContent = ''; var 글줄 = el('div'); 글줄.style.cssText = 'display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:' + v.줄수 + ';overflow:hidden;width:fit-content;align-self:center;max-width:100%;background:' + (띠형 ? '#e2a23c' : (겉.bg || 'none')) + (띠형 ? ';color:#1a1410;-webkit-text-stroke:0;padding:.3em .6em;width:100%' : ''); sub.appendChild(글줄);
       var 핵 = 핵심들.find(function (h) { return h[0] === v.핵심색; }), 핵색 = 헥스.test(v.핵심색) ? v.핵심색 : (핵 && 핵[2]);
-      var 줄 = 샘플.split(/(\s+)/); var 강조 = false;
+      var 보임샘플 = (v.줄수 === 1 && /[.!?]/.test(샘플)) ? 샘플.slice(0, 샘플.search(/[.!?]/) + 1) : 샘플; var 줄 = 보임샘플.split(/(\s+)/); var 강조 = false;
       var 단어칸 = []; 줄.forEach(function (w, i) { var s = el('span', '', w); if (핵색 && i === 2) s.style.color = 핵색; 글줄.appendChild(s); if (w.trim()) 단어칸.push({ s: s, 처음색: s.style.color }); }); 읽는단어 = 단어칸;
       gbox.textContent = '';
-      if (가이드켜짐) RWLayout.가이드(W, H).forEach(function (g) { var d = el('div', 'cz-g'); d.style.cssText = 'left:' + (g.x / W * 100) + '%;top:' + (g.y / H * 100) + '%;width:' + (g.w / W * 100) + '%;height:' + (g.h / H * 100) + '%'; d.appendChild(el('span', '', g.이름)); gbox.appendChild(d); });
+      if (가이드켜짐) RWLayout.가이드(W, H).forEach(function (g) { var d = el('div', 'cz-g'); d.style.cssText = 'left:' + (g.x / W * 100) + '%;top:' + (g.y / H * 100) + '%;width:' + (g.w / W * 100) + '%;height:' + (g.h / H * 100) + '%'; if (g.w < g.h * 0.5) d.classList.add('cz-g-v'); d.appendChild(el('span', '', g.이름)); gbox.appendChild(d); });
       blk.textContent = '';
       var 문제들 = 블록검사(), 블록경고 = [];
       블록목록().forEach(function (b, i) {
@@ -199,7 +205,7 @@
     var 끌기중단 = null;
     function 자막이동(dx, dy) {
       var v = 합치기(선택, 종류).값; if (v.자막끄기) return;
-      if (자막위치 !== '가운데') { var 기준 = 자막위치 === '위' ? (가로 ? 0.07 : 0.13) : (가로 ? 0.07 : 0.22), d = v.자막거리 !== undefined ? v.자막거리 : 기준; 선택.자막거리 = 한계(d + (자막위치 === '위' ? dy : -dy), 0, 0.45); }
+      if (자막위치 !== '가운데' && 화면 !== '가운데영상형') { var 기준 = 자막위치 === '위' ? (가로 ? 0.07 : 0.13) : (가로 ? 0.07 : 0.22), d = v.자막거리 !== undefined ? v.자막거리 : 기준; 선택.자막거리 = 한계(d + (자막위치 === '위' ? dy : -dy), 0, 0.45); }
       var 반 = 한계((v.줄길이 || 0.76) / 2, 0.25, 0.5); 선택.자막가로 = 한계((v.자막가로 !== undefined ? v.자막가로 : 0.5) + dx, 반, 1 - 반);   // 자막 상자는 화면 안에 갇히므로 갈 수 있는 범위만 쓴다
     }
     function 제목이동(dx, dy) {
@@ -226,6 +232,11 @@
     다시.addEventListener('click', 읽기재생);
     var 눌림목록 = [];
     function 눌림갱신() { 눌림목록.forEach(function (f) { f(); }); 값표시(); }
+    function 채움(sl) {   // 가운데가 기본인 슬라이더는 가운데에서 좌우로 색이 채워진다(리졸브처럼). 한쪽 끝이 기본인 슬라이더는 그대로 둔다
+      var a = Number(sl.min), b = Number(sl.max); if (!(a === -b || (a === 0 && b === 100))) return;
+      sl.classList.add('cz-bi'); var p = (Number(sl.value) - a) / (b - a) * 100; sl.style.setProperty('--a', Math.min(50, p) + '%'); sl.style.setProperty('--b', Math.max(50, p) + '%');
+      if (!sl.__bi) { sl.__bi = 1; sl.addEventListener('input', function () { 채움(sl); }); }
+    }
     function 값표시() {   // 슬라이더마다 숫자와 '처음 값으로' 버튼을 붙인다(가운데가 기본). 되돌리기는 건드리지 않은 상태로 돌아간다
       body.querySelectorAll('.cz-row input[type=range]').forEach(function (sl) {
         if (!sl.__o) {
@@ -235,6 +246,7 @@
           sl.addEventListener('input', function () { var v = Number(sl.value); o.textContent = Number(sl.min) < 0 ? (v > 0 ? '+' : '') + v : String(v); });
         }
         var v = Number(sl.value); sl.__o.textContent = Number(sl.min) < 0 ? (v > 0 ? '+' : '') + v : String(v);
+        채움(sl);
       });
     }
 
@@ -268,6 +280,15 @@
       var 눈금줄 = el('div', 'cz-trk cz-ruler'); 눈금줄.appendChild(el('span', 'cz-trk-n', '')); var 눈금 = el('div', 'cz-lane'); 눈금줄.appendChild(눈금);
       var 간격 = 눈금간격(길이); for (var t = 0; t <= 길이 + 1e-6; t += 간격) { var k = el('i', 'cz-tick' + (t / 길이 > 0.94 ? ' cz-tick-end' : '')); k.style.left = (t / 길이 * 100) + '%'; k.appendChild(el('span', '', 시간글(t))); 눈금.appendChild(k); }
       var 헤드 = el('i', 'cz-play'); 눈금.appendChild(헤드); tl.appendChild(눈금줄);
+      var 두는곳 = function (f) {   // 재생 위치선: 눈금·트랙을 눌러 옮긴다(리졸브의 플레이헤드). 위치는 다시 그려도 남고, 미리보기 위쪽 줄에 시각·장면이 나온다
+        머리비 = Math.min(1, Math.max(0, f)); 헤드.style.left = (머리비 * 100) + '%';
+        var 초 = 머리비 * 길이, 장 = Math.min(수, Math.floor(머리비 * 수) + 1);
+        뷰시각.textContent = ' · ' + 시간글(초) + (영상종류 === '쇼츠' ? ' · 장면 ' + 장 : '');
+      };
+      var 끌고있음 = false, 위치계산 = function (e) { var r = 눈금.getBoundingClientRect(); 두는곳((e.clientX - r.left) / Math.max(1, r.width)); };
+      tl.addEventListener('pointerdown', function (e) { if (e.target.closest('.cz-trk-n') || e.target.closest('.cz-tl-h')) return; 끌고있음 = true; 위치계산(e); try { tl.setPointerCapture(e.pointerId); } catch (x) {} });
+      tl.addEventListener('pointermove', function (e) { if (끌고있음) 위치계산(e); });
+      tl.addEventListener('pointerup', function () { 끌고있음 = false; }); tl.addEventListener('pointercancel', function () { 끌고있음 = false; });
       var 문구있음 = !!String(opt.문구 || '').trim(), 제목끝 = (문구시간쓰기 && 문구시간 === '3s') ? Math.min(3, 길이) : 길이, 구성 = 화면 === '자동' ? '전체화면형' : 화면;
       if (영상종류 === '쇼츠' && !가로) {
         var 제 = 트랙줄('제목'); if (문구있음 || 구성 === '제목고정형' || 구성 === '가운데영상형') 조각(제, 0, 제목끝, 길이, 문구있음 ? String(opt.문구).trim() : '제목', 'cz-t-title'); else 제.appendChild(el('em', 'cz-empty', '제목 없음'));
@@ -278,6 +299,7 @@
       var 자 = 트랙줄('자막'); if (v0().자막끄기) 자.appendChild(el('em', 'cz-empty', '자막 끔')); else if (영상종류 === '수면') 자.appendChild(el('em', 'cz-empty', '음악 영상은 자막이 필요할 때만 넣어요')); else for (var j = 0; j < 자막수; j++) 조각(자, 길이 * j / 자막수 + 길이 * 0.004, 길이 * (j + 1) / 자막수 - 길이 * 0.004, 길이, '', 'cz-t-sub');
       var 소 = 트랙줄(영상종류 === '수면' ? '음악' : '소리'); 조각(소, 0, 길이, 길이, (영상종류 === '수면' ? '배경 음악' : '목소리') + (T.소리 ? ' · ' + T.소리 : ''), 'cz-t-wave');
       if (영상종류 === '야담') { var 배 = 트랙줄('배경음'); 조각(배, 0, 길이, 길이, '잔잔한 배경음', 'cz-t-bgm'); }
+      두는곳(머리비);
     }
     function v0() { return 합치기(선택, 종류).값; }
     function 타임라인만들기() { 타임라인그리기(); 눌림목록.push(타임라인그리기); }
@@ -295,8 +317,8 @@
         b.addEventListener('click', function () { 선택.템플릿 = t.id; if (화면가능(t.화면구성)) { 화면 = t.화면구성; 화면바꿈 = true; } ['자막모양', '글꼴', '자막크기', '줄수', '줄길이', '핵심색'].forEach(function (k) { delete 선택[k]; }); if (!위치바꿈) 자막위치 = t.자막위치 || 자막위치; 갱신(); });
         g.appendChild(b); 눌림목록.push(function () { b.setAttribute('aria-pressed', String(선택.템플릿 === t.id)); b.style.display = (!가로 && 화면목록.length > 1 && (화면 === '자동' ? '전체화면형' : 화면) !== t.화면구성) ? 'none' : ''; });   // 고른 화면 구성의 모양만 보인다
       });
-      var 빈말 = el('p', 'cz-hint', ''); c1.appendChild(빈말);
-      눌림목록.push(function () { var 구성 = 화면 === '자동' ? '전체화면형' : 화면, 있음 = (템플릿목록 || []).some(function (t) { return t.종류.indexOf(종류) >= 0 && t.화면구성 === 구성; }); 빈말.textContent = (!가로 && 화면목록.length > 1) ? (있음 ? '아래 모양은 \'' + 구성.replace('형', '') + '\' 화면 구성 전용이에요. 다른 구성은 위 화면 구성에서 바꿔요' : '이 화면 구성은 준비된 모양이 없어요. 아래에서 직접 꾸며 보세요') : ''; 빈말.style.display = 빈말.textContent ? '' : 'none'; });
+      var 빈말 = el('p', 'cz-hint', ''); c1.insertBefore(빈말, g);
+      눌림목록.push(function () { var 구성 = 화면 === '자동' ? '전체화면형' : 화면, 있음 = (템플릿목록 || []).some(function (t) { return t.종류.indexOf(종류) >= 0 && t.화면구성 === 구성; }); 빈말.textContent = (!가로 && 화면목록.length > 1) ? (있음 ? '\'' + 구성.replace('형', '') + '\' 구성에 맞는 모양만 보여요' : '이 화면 구성은 준비된 모양이 없어요. 아래에서 직접 꾸며 보세요') : ''; 빈말.style.display = 빈말.textContent ? '' : 'none'; });
       if (화면목록.length > 1 && !가로) {   // 화면 구성: 미리보기 아래에 그림 카드로 둔다
         var 판 = 카드('화면 구성', '영상이 놓이는 모양', '화면'); var 줄 = el('div', 'cz-lay-row'); 줄.style.gridTemplateColumns = 'repeat(' + Math.min(4, 화면목록.length) + ', minmax(0, 1fr))'; 줄.setAttribute('role', 'group'); 줄.setAttribute('aria-label', '화면 구성'); 판.appendChild(줄);
         화면목록.forEach(function (it) {
@@ -408,7 +430,7 @@
         눌림목록.push(function () { sl.value = String(읽기()); r.style.display = 보임 && !보임() ? 'none' : ''; sl.disabled = !!합치기(선택, 종류).값.자막끄기; });
       }
       var 기본거리 = function () { return Math.round((자막위치 === '위' ? (가로 ? 0.07 : 0.13) : (가로 ? 0.07 : 0.22)) * 100); };
-      자막슬라이더('위·아래 거리', '자막거리', function () { return 선택.자막거리 !== undefined ? Math.round(선택.자막거리 * 100) : 기본거리(); }, function (v) { 선택.자막거리 = v / 100; }, 0, 45, function () { return 자막위치 !== '가운데'; });
+      자막슬라이더('위·아래 거리', '자막거리', function () { return 선택.자막거리 !== undefined ? Math.round(선택.자막거리 * 100) : 기본거리(); }, function (v) { 선택.자막거리 = v / 100; }, 0, 45, function () { return 자막위치 !== '가운데' && 화면 !== '가운데영상형'; });
       자막슬라이더('왼쪽·오른쪽', '자막가로', function () { return 선택.자막가로 !== undefined ? Math.round(선택.자막가로 * 100) : 50; }, function (v) { 선택.자막가로 = v / 100; }, 0, 100);
       var rk = el('div', 'cz-row'); rk.appendChild(el('label', '', '자막')); var ck = el('div', 'cz-chips'); rk.appendChild(ck); c4.appendChild(rk);
       [[false, '보이기'], [true, '끄기']].forEach(function (it) { var b = el('button', 'cz-chip', it[1]); b.type = 'button'; b.addEventListener('click', function () { if (it[0]) 선택.자막끄기 = true; else delete 선택.자막끄기; 갱신(); }); ck.appendChild(b); 눌림목록.push(function () { b.setAttribute('aria-pressed', String(!!선택.자막끄기 === it[0])); }); });

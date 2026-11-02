@@ -244,3 +244,21 @@ label.cz-chip { display: inline-flex; align-items: center; }
 .cz-lib, .cz-body { background: linear-gradient(var(--rz-p1) 30%, rgba(13,13,14,0)) 0 0 / 100% 28px no-repeat local, linear-gradient(rgba(13,13,14,0), var(--rz-p1) 70%) 0 100% / 100% 28px no-repeat local, linear-gradient(rgba(0,0,0,.55), rgba(0,0,0,0)) 0 0 / 100% 10px no-repeat scroll, linear-gradient(rgba(0,0,0,0), rgba(0,0,0,.55)) 0 100% / 100% 10px no-repeat scroll, var(--rz-p1); }
 .cz-tab:focus-visible { outline-offset: -3px; }
 @media (min-width: 901px) and (max-height: 680px) { .cz-phone { width: clamp(120px, calc((100dvh - 350px) * 0.5625), 520px); } }
+
+/* 가이드 점선 상자: 좁은 상자의 이름은 세로로, 글자가 폰 밖으로 잘리지 않게 */
+.cz-g { overflow: hidden; }
+.cz-g.cz-g-v span { writing-mode: vertical-rl; left: 50%; top: 4px; transform: translateX(-50%); }
+/* 화면 구성 카드: 글자가 길어도 칸 너비가 같게 */
+.cz-lay-b { grid-template-columns: minmax(0, 1fr); min-width: 0; }
+.cz-lay-b b { max-width: 100%; white-space: nowrap; font-size: 12px; letter-spacing: -.03em; }
+.cz-lay-b small { max-width: 100%; text-align: center; overflow-wrap: anywhere; }
+/* 슬라이더: 가운데가 기본이면 가운데에서 좌우로 채운다 */
+.cz-row input[type=range].cz-bi { -webkit-appearance: none; appearance: none; background: transparent; }
+.cz-bi::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: linear-gradient(to right, #3a3a40 0 var(--a, 50%), var(--rz-ac) var(--a, 50%) var(--b, 50%), #3a3a40 var(--b, 50%) 100%); }
+.cz-bi::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; margin-top: -5px; border-radius: 50%; background: #fff; border: 2px solid var(--rz-ac); }
+.cz-bi::-moz-range-track { height: 4px; border-radius: 2px; background: linear-gradient(to right, #3a3a40 0 var(--a, 50%), var(--rz-ac) var(--a, 50%) var(--b, 50%), #3a3a40 var(--b, 50%) 100%); }
+.cz-bi::-moz-range-thumb { width: 10px; height: 10px; border-radius: 50%; background: #fff; border: 2px solid var(--rz-ac); }
+.cz-bi:focus-visible { outline: 2px solid var(--rz-ac); outline-offset: 3px; }
+.cz-tl { position: relative; touch-action: none; cursor: col-resize; } .cz-tl .cz-tl-h, .cz-tl .cz-trk-n { cursor: default; }
+.cz-play { border-left-width: 2px; z-index: 3; } .cz-play::before { content: ''; position: absolute; left: -6px; top: 0; width: 10px; height: 8px; background: #e5483d; clip-path: polygon(0 0, 100% 0, 50% 100%); }
+.cz-vt { color: var(--rz-ac); font-size: inherit; margin-left: 2px; }
