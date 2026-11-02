@@ -12,7 +12,8 @@
 }
 
 /* 검정 테마 — 두 가지 변수 이름 묶음(--bg-raised 계열 / --raised 계열)을 한꺼번에 정의한다 */
-html:root[data-theme="dark"] {
+html:root[data-theme="dark"],
+html:root[data-theme="dark"] body {   /* body 에도 둔다: 편집기(editor)는 body 에 자기 색을 다시 정해 두었다 */
   color-scheme: dark;
   --rw-bg: #000;
   --rw-s1: #09090a;            /* 카드 바탕 */
@@ -40,6 +41,8 @@ html:root[data-theme="dark"] {
   --dim: #b6b6bd; --faint: #7e7e87; --wash: #15110a;
   --err-wash: #1f1210; --green-wash: #101a0e; --shadow: 0 16px 44px rgba(0, 0, 0, .85);
   --nt-bg: #f4f4f5; --nt-fg: #09090a;
+  /* 편집기(editor)가 쓰는 이름 */
+  --work: #050506; --sel: #15110a;
 }
 
 /* ───────── 2. 바탕·글자 기본 ───────── */
@@ -181,3 +184,11 @@ html:root[data-theme="dark"] .menu { box-shadow: 0 24px 60px -20px rgba(0, 0, 0,
 html:root[data-theme="dark"] .g-track { background: #1a1a1d; }
 html:root[data-theme="dark"] .ttlpick button { background: #0c0c0e; border-color: #1f1f23; }
 html:root[data-theme="dark"] .ttlpick button[aria-pressed=true] { background: var(--rw-accent-wash); border-color: #4a3818; }
+
+/* 3-6. 프로젝트 상세 (project): 카드는 한 톤의 검은 카드, 주황 바탕 카드는 아주 옅게 */
+html:root[data-theme="dark"] .stepper, html:root[data-theme="dark"] .agent-card, html:root[data-theme="dark"] .wait-note { background: var(--rw-card); border-color: #1f1f23; box-shadow: var(--rw-edge); border-radius: 16px; }
+html:root[data-theme="dark"] .review-card, html:root[data-theme="dark"] .video-card, html:root[data-theme="dark"] .upgrade-card { background: var(--rw-card); border-color: #26262b; box-shadow: var(--rw-edge); border-radius: 18px; }
+html:root[data-theme="dark"] .review-scenes, html:root[data-theme="dark"] .sv-alt-box textarea, html:root[data-theme="dark"] .amsg .bubble { background: #0c0c0e; border-color: #1f1f23; }
+html:root[data-theme="dark"] .sv-chip { background: #0c0c0e; border-color: #26262b; transition: border-color .15s, color .15s; }
+html:root[data-theme="dark"] .sv-chip:hover { border-color: #4a4a52; color: var(--rw-ink); }
+html:root[data-theme="dark"] .pre-check { background: #0a0a0b; border-color: #1f1f23; }
