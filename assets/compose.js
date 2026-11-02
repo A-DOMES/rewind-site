@@ -449,8 +449,14 @@
       var 탭순서 = 가로 ? ['자막', '고정 글자'] : ['제목', '자막', '고정 글자'], 있는탭 = 탭순서.filter(function (t) { return body.querySelector('.cz-card[data-tab="' + t + '"]'); });
       if (있는탭.length > 1) {
         var 탭줄 = el('div', 'cz-tabs'); 탭줄.setAttribute('role', 'tablist'); var 탭버튼 = {};
-        function 탭보이기(t) { 있는탭.forEach(function (n) { 탭버튼[n].setAttribute('aria-selected', String(n === t)); }); [].forEach.call(body.querySelectorAll('.cz-card'), function (c) { c.classList.toggle('cz-tabhide', c.dataset.tab !== '*' && c.dataset.tab !== t); }); }
-        있는탭.forEach(function (t) { var b = el('button', 'cz-tab', t); b.type = 'button'; b.setAttribute('role', 'tab'); b.addEventListener('click', function () { 탭보이기(t); }); 탭버튼[t] = b; 탭줄.appendChild(b); });
+        body.setAttribute('role', 'tabpanel');
+        function 탭보이기(t) { 있는탭.forEach(function (n) { 탭버튼[n].setAttribute('aria-selected', String(n === t)); 탭버튼[n].tabIndex = n === t ? 0 : -1; }); body.setAttribute('aria-labelledby', 탭버튼[t].id); [].forEach.call(body.querySelectorAll('.cz-card'), function (c) { c.classList.toggle('cz-tabhide', c.dataset.tab !== '*' && c.dataset.tab !== t); }); }
+        있는탭.forEach(function (t) { var b = el('button', 'cz-tab', t); b.type = 'button'; b.setAttribute('role', 'tab'); b.id = 'cz-tab-' + t.replace(/\s/g, ''); b.setAttribute('aria-controls', 'cz-panel'); b.addEventListener('click', function () { 탭보이기(t); });
+          b.addEventListener('keydown', function (e) {   // 좌우 화살표·Home·End 로 탭 이동(선택된 탭만 Tab 키로 닿는다)
+            var i = 있는탭.indexOf(t), 다음 = e.key === 'ArrowRight' ? (i + 1) % 있는탭.length : e.key === 'ArrowLeft' ? (i + 있는탭.length - 1) % 있는탭.length : e.key === 'Home' ? 0 : e.key === 'End' ? 있는탭.length - 1 : -1;
+            if (다음 < 0) return; e.preventDefault(); 탭보이기(있는탭[다음]); 탭버튼[있는탭[다음]].focus();
+          }); 탭버튼[t] = b; 탭줄.appendChild(b); });
+        body.id = 'cz-panel';
         body.insertBefore(탭줄, body.firstChild); 탭보이기(있는탭[0]);
       }
       타임라인만들기();
