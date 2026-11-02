@@ -262,3 +262,20 @@ label.cz-chip { display: inline-flex; align-items: center; }
 .cz-tl { position: relative; touch-action: none; cursor: col-resize; } .cz-tl .cz-tl-h, .cz-tl .cz-trk-n { cursor: default; }
 .cz-play { border-left-width: 2px; z-index: 3; } .cz-play::before { content: ''; position: absolute; left: -6px; top: 0; width: 10px; height: 8px; background: #e5483d; clip-path: polygon(0 0, 100% 0, 50% 100%); }
 .cz-vt { color: var(--rz-ac); font-size: inherit; margin-left: 2px; }
+
+/* ---------- 색 휠 (리졸브식) ---------- */
+.cz-cw-wrap { width: 100%; }
+.cz-cw { display: flex; gap: 14px; align-items: center; padding: 10px; background: var(--rz-p2, #1b1b1f); border: 1px solid var(--rz-ln, #2a2a2e); border-radius: 4px; }
+.cz-cw-ring { position: relative; flex: 0 0 auto; width: 112px; height: 112px; border-radius: 50%; touch-action: none; cursor: crosshair;
+  background: radial-gradient(circle closest-side, #fff, rgba(255,255,255,0)), conic-gradient(from 0deg, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00); box-shadow: 0 0 0 1px #000, 0 0 0 2px #3a3a40; }
+.cz-cw-ring:focus-visible { outline: 2px solid var(--rz-ac, #e2a23c); outline-offset: 3px; }
+.cz-cw-shade { position: absolute; inset: 0; border-radius: 50%; pointer-events: none; }
+.cz-cw-dot { position: absolute; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px #000, inset 0 0 0 1px #000; pointer-events: none; }
+.cz-cw-side { display: grid; gap: 8px; flex: 1 1 auto; min-width: 0; }
+.cz-cw-v { -webkit-appearance: none; appearance: none; width: 100%; height: 14px; border-radius: 3px; background: linear-gradient(to right, #000, var(--cw, #fff)); box-shadow: 0 0 0 1px #3a3a40; min-height: 0 !important; }
+.cz-cw-v::-webkit-slider-thumb { -webkit-appearance: none; width: 8px; height: 20px; border-radius: 2px; background: #fff; border: 1px solid #000; }
+.cz-cw-v::-moz-range-thumb { width: 8px; height: 20px; border-radius: 2px; background: #fff; border: 1px solid #000; }
+.cz-cw-hexrow { display: flex; align-items: center; gap: 8px; font-size: var(--fs-2xs, .72rem); color: var(--ink-dim); }
+.cz-cw-hex { flex: 1 1 auto; min-width: 0; width: 100%; min-height: 32px; padding: 0 8px; background: #0d0d0f; color: var(--ink); border: 1px solid #3a3a40; border-radius: 3px; font: 600 .82rem ui-monospace, monospace; text-transform: uppercase; }
+.cz-cw-hex.cz-bad { border-color: #e5483d; color: #ff8a80; }
+.cz-cw-rst { min-height: 30px; padding: 0 10px; font-size: .78rem; justify-self: start; }

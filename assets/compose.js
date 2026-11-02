@@ -19,6 +19,53 @@
   var 핵심들 = [['없음', '없음', ''], ['분홍', '분홍', '#ff4d8d'], ['노랑', '노랑', '#ffe14d'], ['초록', '초록', '#2ee6a6'], ['하늘', '하늘', '#4dc3ff'], ['주황', '주황', '#ff9a3d'], ['보라', '보라', '#b58cff'], ['빨강', '빨강', '#ff4d4d'], ['연두', '연두', '#9be83d'], ['민트', '민트', '#4dffe0'], ['흰색', '흰색', '#ffffff']];   // 앞의 세 가지가 기본. 서버 핵심색표와 같은 이름·색(site_sync_test)
   var 읽는효과들 = [['끔', '끔'], ['색', '색칠'], ['색+커짐', '색칠 + 커짐'], ['색+튀어오름', '색칠 + 튀어오름']];   // 서버 render.js 효과목록과 같은 이름
   var 헥스 = /^#[0-9a-f]{6}$/i;
+  // ---------- 색 휠 (리졸브식) ----------
+  // 둘레 각도 = 색상, 중심에서의 거리 = 채도, 아래 막대 = 밝기. 안에서는 HSV 를 들고 있다가 바깥 색이 달라졌을 때만 다시 맞춘다(손잡이가 튀지 않게).
+  // 서버가 받는 값은 #RRGGBB(대문자) 뿐이라 쓰기에는 항상 그 모양만 내보낸다. 잘못 적은 글은 쓰지 않고 칸만 빨갛게 한다.
+  function hsv로hex(h, s, v) {
+    var c = v * s, x = c * (1 - Math.abs((h / 60) % 2 - 1)), m = v - c, r = 0, g = 0, b = 0;
+    if (h < 60) { r = c; g = x; } else if (h < 120) { r = x; g = c; } else if (h < 180) { g = c; b = x; } else if (h < 240) { g = x; b = c; } else if (h < 300) { r = x; b = c; } else { r = c; b = x; }
+    return '#' + [r, g, b].map(function (q) { var n = Math.round((q + m) * 255); return (n < 16 ? '0' : '') + n.toString(16); }).join('').toUpperCase();
+  }
+  function hex로hsv(hex, 앞) {   // 앞 = 이전 {h,s,v}: 무채색이면 색상을 그대로 둔다
+    var n = parseInt(hex.slice(1), 16), r = (n >> 16 & 255) / 255, g = (n >> 8 & 255) / 255, b = (n & 255) / 255, mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn, h = 앞 ? 앞.h : 0;
+    if (d > 0.0001) h = mx === r ? 60 * (((g - b) / d + 6) % 6) : mx === g ? 60 * ((b - r) / d + 2) : 60 * ((r - g) / d + 4);
+    return { h: h, s: mx === 0 ? 0 : d / mx, v: mx };
+  }
+  function 정리hex(t) {   // '#abc'·'abc'·'AABBCC' → '#AABBCC', 아니면 ''
+    t = String(t || '').trim().replace(/^#/, ''); if (/^[0-9a-f]{3}$/i.test(t)) t = t.replace(/(.)/g, '$1$1'); return /^[0-9a-f]{6}$/i.test(t) ? '#' + t.toUpperCase() : '';
+  }
+  function 색휠(옵션) {   // 옵션: { 이름, 쓰기(hex), 기본으로() } → { box, 맞추기(hex) }
+    var 상태 = { h: 0, s: 0, v: 1 }, 지금hex = '#FFFFFF', 박 = el('div', 'cz-cw'), 링 = el('div', 'cz-cw-ring'), 그늘 = el('i', 'cz-cw-shade'), 점 = el('i', 'cz-cw-dot');
+    링.tabIndex = 0; 링.setAttribute('role', 'application'); 링.setAttribute('aria-label', 옵션.이름 + ' 색상과 채도 (화살표로 움직여요)'); 링.appendChild(그늘); 링.appendChild(점);
+    var 줄 = el('div', 'cz-cw-side'), 막 = el('input', 'cz-cw-v'); 막.type = 'range'; 막.min = 0; 막.max = 100; 막.setAttribute('aria-label', 옵션.이름 + ' 밝기');
+    var 입줄 = el('label', 'cz-cw-hexrow'); 입줄.appendChild(el('span', '', 'HEX')); var 입 = el('input', 'cz-cw-hex'); 입.type = 'text'; 입.maxLength = 7; 입.spellcheck = false; 입.setAttribute('aria-label', 옵션.이름 + ' 색 코드 (#RRGGBB)'); 입줄.appendChild(입);
+    var 기 = el('button', 'cz-btn cz-cw-rst', '기본으로'); 기.type = 'button'; 줄.appendChild(막); 줄.appendChild(입줄); 줄.appendChild(기); 박.appendChild(링); 박.appendChild(줄);
+    function 그리기() {
+      var rad = 링.clientWidth / 2 || 56, a = 상태.h * Math.PI / 180; 점.style.left = (50 + 50 * 상태.s * Math.sin(a)) + '%'; 점.style.top = (50 - 50 * 상태.s * Math.cos(a)) + '%';
+      그늘.style.background = 'rgba(0,0,0,' + (1 - 상태.v) + ')'; 막.value = String(Math.round(상태.v * 100)); 막.style.setProperty('--cw', hsv로hex(상태.h, 상태.s, 1));
+      점.style.background = 지금hex; if (document.activeElement !== 입) { 입.value = 지금hex; 입.classList.remove('cz-bad'); }
+    }
+    function 내보내기() { 지금hex = hsv로hex(상태.h, 상태.s, 상태.v); 그리기(); 옵션.쓰기(지금hex); }
+    function 끌기점(e) { var r = 링.getBoundingClientRect(), dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2), 반 = r.width / 2; 상태.s = Math.min(1, Math.sqrt(dx * dx + dy * dy) / 반); if (상태.s > 0.02) 상태.h = (Math.atan2(dx, -dy) * 180 / Math.PI + 360) % 360; 내보내기(); }
+    var 누름 = false; 링.addEventListener('pointerdown', function (e) { 누름 = true; try { 링.setPointerCapture(e.pointerId); } catch (x) {} 링.focus(); 끌기점(e); e.preventDefault(); });
+    링.addEventListener('pointermove', function (e) { if (누름) 끌기점(e); }); 링.addEventListener('pointerup', function () { 누름 = false; }); 링.addEventListener('pointercancel', function () { 누름 = false; });
+    링.addEventListener('keydown', function (e) {
+      var 배 = e.shiftKey ? 5 : 1, 바뀜 = true;
+      if (e.key === 'ArrowLeft') 상태.h = (상태.h - 3 * 배 + 360) % 360; else if (e.key === 'ArrowRight') 상태.h = (상태.h + 3 * 배) % 360; else if (e.key === 'ArrowUp') 상태.s = Math.min(1, 상태.s + 0.03 * 배); else if (e.key === 'ArrowDown') 상태.s = Math.max(0, 상태.s - 0.03 * 배); else 바뀜 = false;
+      if (바뀜) { e.preventDefault(); e.stopPropagation(); 내보내기(); }
+    });
+    막.addEventListener('input', function () { 상태.v = Number(막.value) / 100; 내보내기(); });
+    입.addEventListener('input', function () { var h = 정리hex(입.value); if (!h) { 입.classList.add('cz-bad'); return; } 입.classList.remove('cz-bad'); 상태 = hex로hsv(h, 상태); 지금hex = h; 그리기(); 옵션.쓰기(h); });
+    입.addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.stopPropagation(); 입.value = 지금hex; 입.classList.remove('cz-bad'); 입.blur(); } });
+    입.addEventListener('blur', function () { 입.value = 지금hex; 입.classList.remove('cz-bad'); });
+    기.addEventListener('click', function () { 옵션.기본으로(); });
+    function 맞추기(hex) { var h = 정리hex(hex); if (!h) return; if (h !== 지금hex) { 상태 = hex로hsv(h, 상태); 지금hex = h; } 그리기(); }
+    그리기(); return { box: 박, 맞추기: 맞추기 };
+  }
+  function 이름색(x) {   // 핵심색·읽는색은 '분홍' 같은 이름일 수도 있다 → 보여줄 #색(없으면 '')
+    if (헥스.test(x || '')) return x; var h = 핵심들.filter(function (q) { return q[0] === x; })[0]; return h && h[2] ? h[2] : '';
+  }
   function 밝기(h) { var n = parseInt(h.slice(1), 16), f = function (v) { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }; return 0.2126 * f(n >> 16 & 255) + 0.7152 * f(n >> 8 & 255) + 0.0722 * f(n & 255); }
   var 위치들 = [['위', '위'], ['가운데', '가운데'], ['아래', '아래']];
   var 화면설명 = { '자동': '알아서 정해 줘요', '제목고정형': '위에 제목 띠', '전체화면형': '장면 가득', '자막바형': '아래 띠 자막', '가운데영상형': '가운데 영상' };
@@ -362,9 +409,11 @@
         var 지금 = function () { var x = 합치기(선택, 종류).값[키]; return (헥스.test(x || '') ? x : 기본색).toLowerCase(); };
         목록.forEach(function (c) { var b = el('button', 'cz-chip'); b.type = 'button'; b.title = c[0]; var d = el('span'); d.style.cssText = 'display:inline-block;width:.9em;height:.9em;border-radius:50%;margin-right:.35em;vertical-align:-.1em;border:1px solid #8886;background:' + (c[1] || 'linear-gradient(135deg,#888,#ddd)'); b.appendChild(d); b.appendChild(document.createTextNode(c[0]));
           b.addEventListener('click', function () { if (c[1].toLowerCase() === 기본색.toLowerCase()) delete 선택[키]; else 선택[키] = c[1].toUpperCase(); 갱신(); }); 칸.appendChild(b); 눌림목록.push(function () { b.setAttribute('aria-pressed', String(지금() === c[1].toLowerCase())); }); });
-        var 직접 = el('label', 'cz-chip'); 직접.style.cursor = 'pointer'; 직접.appendChild(document.createTextNode('직접 고르기 ')); var 입 = el('input'); 입.type = 'color'; 입.value = 지금() || '#000000'; 입.setAttribute('aria-label', '제목 ' + 이름 + ' 직접 고르기'); 입.style.cssText = 'width:1.6em;height:1.2em;padding:0;border:0;background:none;vertical-align:middle;cursor:pointer';
-        입.addEventListener('input', function () { 선택[키] = 입.value.toUpperCase(); 갱신(); }); 직접.appendChild(입); 칸.appendChild(직접);
-        눌림목록.push(function () { 직접.setAttribute('aria-pressed', String(!목록.some(function (c) { return c[1].toLowerCase() === 지금(); }))); if (document.activeElement !== 입) 입.value = 지금() || '#000000'; });
+        var 직접 = el('button', 'cz-chip', '직접 고르기'); 직접.type = 'button'; 직접.setAttribute('aria-expanded', 'false'); 직접.dataset.k = 키 + '-직접'; 칸.appendChild(직접);
+        var 휠칸 = el('div', 'cz-cw-wrap'); 휠칸.hidden = true; r.appendChild(휠칸);
+        var 휠 = 색휠({ 이름: '제목 ' + 이름, 쓰기: function (hx) { if (기본색 && hx.toLowerCase() === 기본색.toLowerCase()) delete 선택[키]; else 선택[키] = hx; 갱신(); }, 기본으로: function () { delete 선택[키]; 갱신(); } }); 휠칸.appendChild(휠.box);
+        직접.addEventListener('click', function () { 휠칸.hidden = !휠칸.hidden; 직접.setAttribute('aria-expanded', String(!휠칸.hidden)); if (!휠칸.hidden) 휠.맞추기(지금() || 기본색 || '#808080'); });
+        눌림목록.push(function () { 직접.setAttribute('aria-pressed', String(!목록.some(function (c) { return c[1].toLowerCase() === 지금(); }))); if (!휠칸.hidden) 휠.맞추기(지금() || 기본색 || '#808080'); });
         제목행들.push({ r: r, 띠만: 띠만 });
       }
       색행('띠 색', '제목띠색', [['검정', '#15110e'], ['남색', '#14213d'], ['진초록', '#12372a'], ['자주', '#3b1d3a'], ['빨강', '#8b1e1e'], ['크림', '#f5f1e8'], ['노랑', '#ffd60a']], '#15110e', true);
@@ -394,8 +443,11 @@
       var r2 = el('div', 'cz-row'); r2.appendChild(el('label', '', '단어 색')); c2.appendChild(r2); var cw = el('div', 'cz-chips'); r2.appendChild(cw);
       var 현재핵 = function () { return 합치기(선택, 종류).값.핵심색; };
       핵심들.forEach(function (h) { var b = el('button', 'cz-chip'); b.type = 'button'; b.title = h[1]; if (h[2]) { var d = el('span'); d.style.cssText = 'display:inline-block;width:.9em;height:.9em;border-radius:50%;margin-right:.35em;vertical-align:-.1em;border:1px solid #0004;background:' + h[2]; b.appendChild(d); } b.appendChild(document.createTextNode(h[1])); b.addEventListener('click', function () { 선택.핵심색 = h[0]; 갱신(); }); cw.appendChild(b); 눌림목록.push(function () { b.setAttribute('aria-pressed', String(현재핵() === h[0])); }); });
-      var 직접색 = el('label', 'cz-chip'); 직접색.style.cursor = 'pointer'; 직접색.appendChild(document.createTextNode('직접 고르기 ')); var ci = el('input'); ci.type = 'color'; ci.value = '#ff4d8d'; ci.setAttribute('aria-label', '단어 색 직접 고르기'); ci.style.cssText = 'width:1.6em;height:1.2em;padding:0;border:0;background:none;vertical-align:middle;cursor:pointer'; 직접색.appendChild(ci);
-      ci.addEventListener('input', function () { 선택.핵심색 = ci.value.toUpperCase(); 갱신(); }); cw.appendChild(직접색); 눌림목록.push(function () { 직접색.setAttribute('aria-pressed', String(헥스.test(현재핵()))); if (헥스.test(현재핵())) ci.value = 현재핵().toLowerCase(); });
+      var 직접색 = el('button', 'cz-chip', '직접 고르기'); 직접색.type = 'button'; 직접색.setAttribute('aria-expanded', 'false'); 직접색.dataset.k = '핵심색-직접'; cw.appendChild(직접색);
+      var 핵휠칸 = el('div', 'cz-cw-wrap'); 핵휠칸.hidden = true; r2.appendChild(핵휠칸);
+      var 핵휠 = 색휠({ 이름: '단어', 쓰기: function (hx) { 선택.핵심색 = hx; 갱신(); }, 기본으로: function () { delete 선택.핵심색; 갱신(); } }); 핵휠칸.appendChild(핵휠.box);
+      직접색.addEventListener('click', function () { 핵휠칸.hidden = !핵휠칸.hidden; 직접색.setAttribute('aria-expanded', String(!핵휠칸.hidden)); if (!핵휠칸.hidden) 핵휠.맞추기(이름색(현재핵()) || '#FF4D8D'); });
+      눌림목록.push(function () { 직접색.setAttribute('aria-pressed', String(헥스.test(현재핵()))); if (!핵휠칸.hidden) 핵휠.맞추기(이름색(현재핵()) || '#FF4D8D'); });
       c2.appendChild(el('p', 'cz-hint', '대본에서 중요한 단어에 이 색이 칠해져요'));
       var c2b = 카드('읽는 글자 효과', '목소리가 읽는 단어를 색으로 칠해요', '자막');
       var 효과줄 = el('div', 'cz-chips'); c2b.appendChild(효과줄);
@@ -404,8 +456,11 @@
       var 현재색 = function () { return 합치기(선택, 종류).값.읽는색 || '노랑'; };
       핵심들.filter(function (h) { return h[2] && h[0] !== '흰색'; }).forEach(function (h) { var b = el('button', 'cz-chip');   // 흰색은 글자가 원래 흰색이라 칠해도 안 보여 뺀다
  b.type = 'button'; b.title = h[1]; var d = el('span'); d.style.cssText = 'display:inline-block;width:.9em;height:.9em;border-radius:50%;margin-right:.35em;vertical-align:-.1em;border:1px solid #0004;background:' + h[2]; b.appendChild(d); b.appendChild(document.createTextNode(h[1])); b.addEventListener('click', function () { 선택.읽는색 = h[0]; 갱신(); }); 색들.appendChild(b); 눌림목록.push(function () { b.setAttribute('aria-pressed', String(현재색() === h[0])); }); });
-      var 읽직접 = el('label', 'cz-chip'); 읽직접.style.cursor = 'pointer'; 읽직접.appendChild(document.createTextNode('직접 고르기 ')); var 읽입 = el('input'); 읽입.type = 'color'; 읽입.value = '#ffe14d'; 읽입.setAttribute('aria-label', '읽는 글자 색 직접 고르기'); 읽입.style.cssText = 'width:1.6em;height:1.2em;padding:0;border:0;background:none;vertical-align:middle;cursor:pointer';
-      읽입.addEventListener('input', function () { 선택.읽는색 = 읽입.value.toUpperCase(); 갱신(); }); 읽직접.appendChild(읽입); 색들.appendChild(읽직접); 눌림목록.push(function () { 읽직접.setAttribute('aria-pressed', String(헥스.test(현재색()))); 색줄.style.display = (합치기(선택, 종류).값.읽는효과 || '끔') === '끔' ? 'none' : ''; 다시.style.display = (합치기(선택, 종류).값.읽는효과 || '끔') === '끔' ? 'none' : ''; });
+      var 읽직접 = el('button', 'cz-chip', '직접 고르기'); 읽직접.type = 'button'; 읽직접.setAttribute('aria-expanded', 'false'); 읽직접.dataset.k = '읽는색-직접'; 색들.appendChild(읽직접);
+      var 읽휠칸 = el('div', 'cz-cw-wrap'); 읽휠칸.hidden = true; 색줄.appendChild(읽휠칸);
+      var 읽휠 = 색휠({ 이름: '칠하는', 쓰기: function (hx) { 선택.읽는색 = hx; 갱신(); }, 기본으로: function () { delete 선택.읽는색; 갱신(); } }); 읽휠칸.appendChild(읽휠.box);
+      읽직접.addEventListener('click', function () { 읽휠칸.hidden = !읽휠칸.hidden; 읽직접.setAttribute('aria-expanded', String(!읽휠칸.hidden)); if (!읽휠칸.hidden) 읽휠.맞추기(이름색(현재색()) || '#FFE14D'); });
+      눌림목록.push(function () { 읽직접.setAttribute('aria-pressed', String(헥스.test(현재색()))); if (!읽휠칸.hidden) 읽휠.맞추기(이름색(현재색()) || '#FFE14D'); 색줄.style.display = (합치기(선택, 종류).값.읽는효과 || '끔') === '끔' ? 'none' : ''; 다시.style.display = (합치기(선택, 종류).값.읽는효과 || '끔') === '끔' ? 'none' : ''; });
       c2b.appendChild(el('p', 'cz-hint', '왼쪽 미리보기에서 바로 확인해요. 실제 영상은 목소리 속도에 맞춰 조금 달라질 수 있어요'));
       var c3 = 카드('자막 크기와 줄', '가운데가 기본이에요', '자막');
       // 크기: 숫자 + 슬라이더(가운데=기본 77, 오른쪽=크게)
@@ -455,8 +510,11 @@
           var 모 = el('div', 'cz-chips'); 모양들.forEach(function (m) { var k = el('button', 'cz-chip', m[1]); k.type = 'button'; k.setAttribute('aria-pressed', String(b.모양 === m[0])); k.addEventListener('click', function () { b.모양 = m[0]; 블록그리기(); 그리기미리보기(); }); 모.appendChild(k); }); r2.appendChild(모); 칸.appendChild(r2);
           var r3 = el('div', 'cz-row'); r3.appendChild(el('label', '', '글자 색')); var 색칸 = el('div', 'cz-chips'); r3.appendChild(색칸);
           var 기본색 = el('button', 'cz-chip', '모양 기본'); 기본색.type = 'button'; 기본색.setAttribute('aria-pressed', String(!헥스.test(b.색 || ''))); 기본색.addEventListener('click', function () { delete b.색; 블록그리기(); 그리기미리보기(); }); 색칸.appendChild(기본색);
-          var 직접 = el('label', 'cz-chip'); 직접.style.cursor = 'pointer'; 직접.setAttribute('aria-pressed', String(헥스.test(b.색 || ''))); 직접.appendChild(document.createTextNode('직접 고르기 ')); var 입 = el('input'); 입.type = 'color'; 입.value = 헥스.test(b.색 || '') ? b.색.toLowerCase() : '#ffffff'; 입.setAttribute('aria-label', '고정 글자 ' + (i + 1) + ' 글자 색 직접 고르기'); 입.style.cssText = 'width:1.6em;height:1.2em;padding:0;border:0;background:none;vertical-align:middle;cursor:pointer';
-          입.addEventListener('input', function () { b.색 = 입.value.toUpperCase(); 직접.setAttribute('aria-pressed', 'true'); 기본색.setAttribute('aria-pressed', 'false'); 그리기미리보기(); }); 직접.appendChild(입); 색칸.appendChild(직접); 칸.appendChild(r3);
+          var 직접 = el('button', 'cz-chip', '직접 고르기'); 직접.type = 'button'; 직접.setAttribute('aria-pressed', String(헥스.test(b.색 || ''))); 직접.setAttribute('aria-expanded', 'false'); 직접.dataset.k = '블록' + (i + 1) + '-색-직접'; 색칸.appendChild(직접);
+          var 블휠칸 = el('div', 'cz-cw-wrap'); 블휠칸.hidden = true; r3.appendChild(블휠칸);
+          var 블휠 = 색휠({ 이름: '고정 글자 ' + (i + 1), 쓰기: function (hx) { b.색 = hx; 직접.setAttribute('aria-pressed', 'true'); 기본색.setAttribute('aria-pressed', 'false'); 그리기미리보기(); }, 기본으로: function () { delete b.색; 블록그리기(); 그리기미리보기(); } }); 블휠칸.appendChild(블휠.box);
+          직접.addEventListener('click', function () { 블휠칸.hidden = !블휠칸.hidden; 직접.setAttribute('aria-expanded', String(!블휠칸.hidden)); if (!블휠칸.hidden) 블휠.맞추기(헥스.test(b.색 || '') ? b.색 : '#FFFFFF'); });
+          칸.appendChild(r3);
           var 삭 = el('button', 'cz-btn', '이 글자 지우기'); 삭.type = 'button'; 삭.addEventListener('click', function () { 블록목록().splice(i, 1); 블록그리기(); 갱신(); 적용상태(); }); 칸.appendChild(삭);
           목록칸.appendChild(칸);
         });
