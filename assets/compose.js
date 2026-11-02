@@ -159,8 +159,13 @@
     var sub = el('div', 'cz-sub'); phone.appendChild(sub); var blk = el('div'); blk.style.cssText = 'position:absolute;inset:0;pointer-events:none'; phone.appendChild(blk);
     var tools = el('div', 'cz-pvtools'); var gl = el('label'); var gc = el('input'); gc.type = 'checkbox'; gc.checked = true; gl.appendChild(gc); gl.appendChild(document.createTextNode(' 유튜브가 쓰는 자리 점선으로 보기')); tools.appendChild(gl);
     var 다시 = el('button', 'cz-btn'); 다시.type = 'button'; 다시.textContent = '▶ 읽는 효과 다시 보기'; 다시.style.cssText = 'min-height:44px;display:none'; tools.appendChild(다시);
+    var 재생줄 = el('div', 'cz-tp'); 재생줄.setAttribute('role', 'group'); 재생줄.setAttribute('aria-label', '재생');
+    var 처음버튼 = el('button', 'cz-tpb', '⏮'), 재생버튼 = el('button', 'cz-tpb cz-tpb-main', '▶'), 끝버튼 = el('button', 'cz-tpb', '⏭'), 재생시간 = el('span', 'cz-tpt', '0:00');
+    처음버튼.type = 재생버튼.type = 끝버튼.type = 'button'; 처음버튼.setAttribute('aria-label', '처음으로'); 재생버튼.setAttribute('aria-label', '재생'); 끝버튼.setAttribute('aria-label', '끝으로');
+    재생줄.appendChild(처음버튼); 재생줄.appendChild(재생버튼); 재생줄.appendChild(끝버튼); 재생줄.appendChild(재생시간); tools.insertBefore(재생줄, tools.firstChild);
+    var 위치옮김 = function () {}, 재생중 = false, 재생틀 = 0, 재생전 = 0;
     var warn = el('ul', 'cz-warn'); warn.setAttribute('aria-live', 'polite');
-    var 머리비 = 0, 뷰시각 = el('small', 'cz-vt', '');   // 재생 위치(0~1)와 미리보기 위쪽 줄의 시각 글자
+    var 머리비 = 0, 뷰시각 = el('small', 'cz-vt', ''), 클립목록 = [];   // 재생 위치(0~1)와 미리보기 위쪽 줄의 시각 글자
     var 뷰머리 = el('div', 'cz-vhead'); 뷰머리.appendChild(el('b', '', '미리보기')); var 뷰비 = el('span', '', 가로 ? '16:9 가로' : '9:16 세로'); 뷰비.appendChild(뷰시각); 뷰머리.appendChild(뷰비); pv.appendChild(뷰머리);   // 리졸브의 뷰어 머리줄
     pv.appendChild(phone); pv.appendChild(tools); pv.appendChild(warn); pv.appendChild(el('p', 'cz-note', '제목·자막·고정 글자는 끌어서 옮길 수 있어요 · 실제 영상은 조금 다를 수 있어요'));
     var lib = el('aside', 'cz-lib'); lib.setAttribute('aria-label', '구성과 모양'); var body = el('div', 'cz-body'); var tl = el('section', 'cz-tl'); tl.setAttribute('aria-label', '타임라인(앞 단계에서 정한 값)');
@@ -314,6 +319,16 @@
     var 지난읽기 = '';
     function 갱신() { 그리기미리보기(); 눌림갱신(); var v = 합치기(선택, 종류).값, 서명 = (v.읽는효과 || '') + '|' + (v.읽는색 || ''); if (서명 !== 지난읽기) { 지난읽기 = 서명; 읽기재생(); } }   // 효과·색을 바꾼 순간에만 처음부터 한 번 재생
     다시.addEventListener('click', 읽기재생);
+    function 재생멈춤() { 재생중 = false; if (재생틀) cancelAnimationFrame(재생틀); 재생틀 = 0; 재생버튼.textContent = '▶'; 재생버튼.setAttribute('aria-label', '재생'); }
+    function 재생시작() {
+      var 총 = Number(T.길이초) > 0 ? Number(T.길이초) : (영상종류 === '쇼츠' ? 30 : 1800), 훑기 = Math.min(총, 20);   // 긴 영상은 20초에 훑어 본다
+      if (머리비 >= 0.999) 위치옮김(0);
+      재생중 = true; 재생버튼.textContent = '⏸'; 재생버튼.setAttribute('aria-label', '멈춤'); 재생전 = 0; 읽기재생();
+      var 틱 = function (now) { if (!재생중) return; if (!재생전) 재생전 = now; var 다 = (now - 재생전) / 1000; 재생전 = now; var 다음 = 머리비 + 다 / 훑기; 위치옮김(다음); if (다음 >= 1) { 재생멈춤(); return; } 재생틀 = requestAnimationFrame(틱); };
+      재생틀 = requestAnimationFrame(틱);
+    }
+    재생버튼.addEventListener('click', function () { if (재생중) 재생멈춤(); else 재생시작(); });
+    처음버튼.addEventListener('click', function () { 재생멈춤(); 위치옮김(0); }); 끝버튼.addEventListener('click', function () { 재생멈춤(); 위치옮김(1); });
     var 눌림목록 = [];
     function 눌림갱신() { 눌림목록.forEach(function (f) { f(); }); 값표시(); }
     function 채움(sl) {   // 가운데가 기본인 슬라이더는 가운데에서 좌우로 색이 채워진다(리졸브처럼). 한쪽 끝이 기본인 슬라이더는 그대로 둔다
@@ -367,8 +382,10 @@
       var 두는곳 = function (f) {   // 재생 위치선: 눈금·트랙을 눌러 옮긴다(리졸브의 플레이헤드). 위치는 다시 그려도 남고, 미리보기 위쪽 줄에 시각·장면이 나온다
         머리비 = Math.min(1, Math.max(0, f)); 헤드.style.left = (머리비 * 100) + '%';
         var 초 = 머리비 * 길이, 장 = Math.min(수, Math.floor(머리비 * 수) + 1);
-        뷰시각.textContent = ' · ' + 시간글(초) + (영상종류 === '쇼츠' ? ' · 장면 ' + 장 : '');
+        뷰시각.textContent = ' · ' + 시간글(초) + (영상종류 === '쇼츠' ? ' · 장면 ' + 장 : ''); 재생시간.textContent = 시간글(초) + ' / ' + 시간글(길이);
+        클립목록.forEach(function (c, n) { c.classList.toggle('cz-t-cur', n === 장 - 1); });
       };
+      위치옮김 = 두는곳;
       var 끌고있음 = false, 위치계산 = function (e) { var r = 눈금.getBoundingClientRect(); 두는곳((e.clientX - r.left) / Math.max(1, r.width)); };
       tl.addEventListener('pointerdown', function (e) { if (e.target.closest('.cz-trk-n') || e.target.closest('.cz-tl-h')) return; 끌고있음 = true; 위치계산(e); try { tl.setPointerCapture(e.pointerId); } catch (x) {} });
       tl.addEventListener('pointermove', function (e) { if (끌고있음) 위치계산(e); });
@@ -378,7 +395,7 @@
         var 제 = 트랙줄('제목'); if (문구있음 || 구성 === '제목고정형' || 구성 === '가운데영상형') 조각(제, 0, 제목끝, 길이, 문구있음 ? String(opt.문구).trim() : '제목', 'cz-t-title'); else 제.appendChild(el('em', 'cz-empty', '제목 없음'));
       }
       var 수 = Math.max(1, Number(T.사진수) || Number(T.장면수) || (긴 ? Math.min(24, Math.max(3, Math.round(길이 / 300))) : Math.min(12, Math.max(3, Math.round(길이 / 5))))), 영 = 트랙줄(영상종류 === '쇼츠' ? '영상' : '장면'), 썸 = T.사진 || [];
-      for (var i = 0; i < 수; i++) 조각(영, 길이 * i / 수, 길이 * (i + 1) / 수, 길이, 썸[i] ? '' : String(i + 1), 'cz-t-clip', /^(blob:|https:\/\/|data:image\/)/.test(썸[i] || '') ? 썸[i] : '');
+      클립목록 = []; for (var i = 0; i < 수; i++) 클립목록.push(조각(영, 길이 * i / 수, 길이 * (i + 1) / 수, 길이, 썸[i] ? '' : String(i + 1), 'cz-t-clip', /^(blob:|https:\/\/|data:image\/)/.test(썸[i] || '') ? 썸[i] : ''));
       var 방식 = 자막방식 || '구절형', 자막칸 = 긴 ? 30 : ({ 구절형: 3, 문장형: 5, 단어형: 1.2 }[방식] || 3), 자막수 = Math.min(긴 && 수 ? 수 * 4 : 80, Math.max(1, Math.floor(길이 / 자막칸)));
       var 자 = 트랙줄('자막'); if (v0().자막끄기) 자.appendChild(el('em', 'cz-empty', '자막 끔')); else if (영상종류 === '수면') 자.appendChild(el('em', 'cz-empty', '음악 영상은 자막이 필요할 때만 넣어요')); else for (var j = 0; j < 자막수; j++) 조각(자, 길이 * j / 자막수 + 길이 * 0.004, 길이 * (j + 1) / 자막수 - 길이 * 0.004, 길이, '', 'cz-t-sub');
       var 소 = 트랙줄(영상종류 === '수면' ? '음악' : '소리'); 조각(소, 0, 길이, 길이, (영상종류 === '수면' ? '배경 음악' : '목소리') + (T.소리 ? ' · ' + T.소리 : ''), 'cz-t-wave');
@@ -397,7 +414,7 @@
       var 직접 = el('button', 'cz-opt'); 직접.type = 'button'; 직접.appendChild(el('b', '', '직접 꾸미기')); 직접.appendChild(el('small', '', '템플릿 없이 아래에서 하나씩 정해요'));
       직접.addEventListener('click', function () { delete 선택.템플릿; 갱신(); }); g.appendChild(직접); 눌림목록.push(function () { 직접.setAttribute('aria-pressed', String(!선택.템플릿)); });
       (템플릿목록 || []).filter(function (t) { return t.종류.indexOf(종류) >= 0; }).forEach(function (t) {
-        var b = el('button', 'cz-opt'); b.type = 'button'; b.appendChild(el('b', '', t.이름)); var s = el('span', 'cz-sample', '가나다'); s.style.color = 모양겉(t.기본.자막모양).c === '#fff' || 모양겉(t.기본.자막모양).bg ? 'var(--ink)' : 모양겉(t.기본.자막모양).c; s.style.fontFamily = (글꼴들.find(function (g) { return g[0] === t.기본.글꼴; }) || 글꼴들[0])[2]; b.appendChild(s); b.appendChild(el('small', '', t.설명));
+        var b = el('button', 'cz-opt'); b.type = 'button'; b.appendChild(el('b', '', t.이름)); var 겉 = 모양겉(t.기본.자막모양), 미니 = el('span', 'cz-mini'); 미니.setAttribute('aria-hidden', 'true'); 미니.innerHTML = '<svg viewBox="0 0 54 96" focusable="false">' + (화면그림[t.화면구성] || '<rect class="ph" width="54" height="96"/>') + '</svg>'; var 자막샘플 = el('i', 'cz-mini-s', '가나다'); 자막샘플.style.color = 겉.c || '#fff'; if (겉.bg) 자막샘플.style.background = 겉.bg; 자막샘플.style.fontFamily = (글꼴들.find(function (g) { return g[0] === t.기본.글꼴; }) || 글꼴들[0])[2]; if (겉.s && 겉.s !== '0') 자막샘플.style.webkitTextStroke = '0.4px #000'; 자막샘플.style.fontWeight = String(겉.w || 800); 미니.appendChild(자막샘플); b.insertBefore(미니, b.firstChild); b.appendChild(el('small', '', t.설명));
         b.addEventListener('click', function () { 선택.템플릿 = t.id; if (화면가능(t.화면구성)) { 화면 = t.화면구성; 화면바꿈 = true; } ['자막모양', '글꼴', '자막크기', '줄수', '줄길이', '핵심색'].forEach(function (k) { delete 선택[k]; }); if (!위치바꿈) 자막위치 = t.자막위치 || 자막위치; 갱신(); });
         g.appendChild(b); 눌림목록.push(function () { b.setAttribute('aria-pressed', String(선택.템플릿 === t.id)); b.style.display = (!가로 && 화면목록.length > 1 && (화면 === '자동' ? '전체화면형' : 화면) !== t.화면구성) ? 'none' : ''; });   // 고른 화면 구성의 모양만 보인다
       });
@@ -593,7 +610,7 @@
       }
       타임라인만들기();
     }
-    function 닫기(결과) { 읽기멈춤(); if (끌기중단) 끌기중단(); document.removeEventListener('keydown', 키); document.body.style.overflow = 이전스크롤; ov.remove(); if (이전포커스 && 이전포커스.focus) 이전포커스.focus(); if (결과 && typeof opt.onDone === 'function') opt.onDone(결과); }
+    function 닫기(결과) { 읽기멈춤(); 재생멈춤(); if (끌기중단) 끌기중단(); document.removeEventListener('keydown', 키); document.body.style.overflow = 이전스크롤; ov.remove(); if (이전포커스 && 이전포커스.focus) 이전포커스.focus(); if (결과 && typeof opt.onDone === 'function') opt.onDone(결과); }
     function 키(e) {
       if (e.key === 'Escape') { e.preventDefault(); if (선택풀기()) return; 닫기(null); return; }   // 고른 요소가 있으면 선택만 풀고, 없을 때만 창을 닫는다
       if (e.key !== 'Tab') return;
