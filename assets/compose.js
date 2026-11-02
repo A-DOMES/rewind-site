@@ -105,7 +105,7 @@
   function 합치기(선택, 종류) {
     var t = (템플릿목록 || []).find(function (x) { return x.id === 선택.템플릿 && (!종류 || x.종류.indexOf(종류) >= 0); });
     var 값 = Object.assign({}, 기본, 현재가로 ? { 줄길이: 0.88 } : {}, t ? t.기본 : {});
-    ['자막모양', '글꼴', '자막크기', '줄수', '줄길이', '핵심색', '자막거리', '자막가로', '자막끄기', '제목높이', '제목크기', '제목위', '제목세로', '제목가로', '제목띠색', '제목글자색', '가운데색', '가운데아래', '읽는효과', '읽는색'].forEach(function (k) { if (선택[k] !== undefined) 값[k] = 선택[k]; });
+    ['자막모양', '글꼴', '자막크기', '줄수', '줄길이', '핵심색', '자막색', '자막거리', '자막가로', '자막끄기', '제목높이', '제목크기', '제목위', '제목세로', '제목가로', '제목띠색', '제목글자색', '가운데색', '가운데아래', '읽는효과', '읽는색'].forEach(function (k) { if (선택[k] !== undefined) 값[k] = 선택[k]; });
     if (t && t.허용스타일 && t.허용스타일.indexOf(값.자막모양) < 0) 값.자막모양 = t.기본.자막모양;
     return { 값: 값, 템플릿: t || null };
   }
@@ -197,7 +197,7 @@
         sub.style.top = (자막y / H * 100) + '%'; box = Object.assign({}, box, { y: 자막y });
       }
       sub.style.fontFamily = (글꼴들.find(function (g) { return g[0] === v.글꼴; }) || 글꼴들[0])[2];
-      var 겉 = 모양겉(v.자막모양);
+      var 겉 = 모양겉(v.자막모양); if (헥스.test(v.자막색 || '')) 겉 = Object.assign({}, 겉, { c: v.자막색 });   // 자막 글자색(모양의 색만 덮는다)
       sub.style.fontWeight = 두꺼운글꼴.indexOf(v.글꼴) >= 0 ? '500' : String(겉.w);
       sub.style.color = 겉.c;
       sub.style.webkitTextStroke = 겉.s; sub.style.paintOrder = 'stroke fill'; sub.style.textShadow = 겉.sh || 'none';
@@ -222,6 +222,7 @@
       var 글 = 블록경고;
       if (핵색 && 밝기(핵색) < 0.12) 글.push('단어 색이 어두워서 어두운 장면에서는 잘 안 보일 수 있어요');
       if (v.자막크기 * Math.min(W, H) / 1080 < H * 0.036) 글.push('글자가 작아서 휴대폰에서 읽기 어려울 수 있어요');
+      if (헥스.test(v.자막색 || '') && 겉.bg) { var 박스 = /^#[0-9a-f]{3}$/i.test(겉.bg) ? '#' + 겉.bg.slice(1).replace(/./g, '$&$&') : (/^#[0-9a-f]{6}$/i.test(겉.bg) ? 겉.bg : '#000000'), 큰 = Math.max(밝기(박스), 밝기(v.자막색)) + 0.05, 작 = Math.min(밝기(박스), 밝기(v.자막색)) + 0.05; if (큰 / 작 < 3) 글.push('자막 글자색이 박스 색과 비슷해서 잘 안 보일 수 있어요'); }
       if (제목형 || 가운데형) { var 띠색 = 헥스.test(v.제목띠색 || '') ? v.제목띠색 : '#15110e', 제글색 = 헥스.test(v.제목글자색 || '') ? v.제목글자색 : '#fff200', 밝 = Math.max(밝기(띠색), 밝기(제글색)) + 0.05, 어 = Math.min(밝기(띠색), 밝기(제글색)) + 0.05; if (밝 / 어 < 3) 글.push('제목 글자색과 띠 색이 비슷해서 제목이 잘 안 보일 수 있어요'); }
       if (v.읽는효과 && v.읽는효과 !== '끔') { var 읽색 = 헥스.test(v.읽는색 || '') ? v.읽는색 : ((핵심들.find(function (h) { return h[0] === v.읽는색; }) || [])[2] || ''); if (읽색 && 밝기(읽색) < 0.12) 글.push('읽는 글자 색이 어두워서 어두운 장면에서는 잘 안 보일 수 있어요'); }
       var 겹친 = RWLayout.가이드(W, H).filter(function (g) { return RWLayout.겹침비(box, g) > 0.1; }).map(function (g) { return g.이름; });
@@ -252,7 +253,7 @@
     var 대상표 = {
       '제목띠': { 이름: '제목 띠', 탭: '제목', 가능: function () { return 띠있음(); }, 열기: function () { return 휠열기['제목띠색'] && 휠열기['제목띠색'](); } },
       '제목글자': { 이름: '제목 글자', 탭: '제목', 가능: function () { return 띠있음(); }, 열기: function () { return 휠열기['제목글자색'] && 휠열기['제목글자색'](); } },
-      '자막': { 이름: '자막', 탭: '자막', 가능: function () { return !v0().자막끄기; }, 열기: function () { return 휠열기['핵심색'] && 휠열기['핵심색'](); } },
+      '자막': { 이름: '자막', 탭: '자막', 가능: function () { return !v0().자막끄기; }, 열기: function () { return 휠열기['자막색'] && 휠열기['자막색'](); } },
       '블록': { 이름: '고정 글자', 탭: '고정 글자', 가능: function (n) { return n < 블록목록().length; }, 열기: function (n) { return 블휠열기[n] && 블휠열기[n](); } },
       '바깥': { 이름: '위·아래 빈 곳', 탭: '제목', 가능: function () { return 화면 === '가운데영상형' && !가로; }, 열기: function () { return 휠열기['가운데색'] && 휠열기['가운데색'](); } }
     };
@@ -439,7 +440,7 @@
       직접.addEventListener('click', function () { delete 선택.템플릿; 갱신(); }); g.appendChild(직접); 눌림목록.push(function () { 직접.setAttribute('aria-pressed', String(!선택.템플릿)); });
       (템플릿목록 || []).filter(function (t) { return t.종류.indexOf(종류) >= 0; }).forEach(function (t) {
         var b = el('button', 'cz-opt'); b.type = 'button'; b.appendChild(el('b', '', t.이름)); var 겉 = 모양겉(t.기본.자막모양), 미니 = el('span', 'cz-mini'); 미니.setAttribute('aria-hidden', 'true'); 미니.innerHTML = '<svg viewBox="0 0 54 96" focusable="false">' + (화면그림[t.화면구성] || '<rect class="ph" width="54" height="96"/>') + '</svg>'; var 자막샘플 = el('i', 'cz-mini-s', '가나다'); 자막샘플.style.color = 겉.c || '#fff'; if (겉.bg) 자막샘플.style.background = 겉.bg; 자막샘플.style.fontFamily = (글꼴들.find(function (g) { return g[0] === t.기본.글꼴; }) || 글꼴들[0])[2]; if (겉.s && 겉.s !== '0') 자막샘플.style.webkitTextStroke = '0.4px #000'; 자막샘플.style.fontWeight = String(겉.w || 800); 미니.appendChild(자막샘플); b.insertBefore(미니, b.firstChild); b.appendChild(el('small', '', t.설명));
-        b.addEventListener('click', function () { 선택.템플릿 = t.id; if (화면가능(t.화면구성)) { 화면 = t.화면구성; 화면바꿈 = true; } ['자막모양', '글꼴', '자막크기', '줄수', '줄길이', '핵심색'].forEach(function (k) { delete 선택[k]; }); if (!위치바꿈) 자막위치 = t.자막위치 || 자막위치; 갱신(); });
+        b.addEventListener('click', function () { 선택.템플릿 = t.id; if (화면가능(t.화면구성)) { 화면 = t.화면구성; 화면바꿈 = true; } ['자막모양', '글꼴', '자막크기', '줄수', '줄길이', '핵심색', '자막색'].forEach(function (k) { delete 선택[k]; }); if (!위치바꿈) 자막위치 = t.자막위치 || 자막위치; 갱신(); });
         g.appendChild(b); 눌림목록.push(function () { b.setAttribute('aria-pressed', String(선택.템플릿 === t.id)); b.style.display = (!가로 && 화면목록.length > 1 && (화면 === '자동' ? '전체화면형' : 화면) !== t.화면구성) ? 'none' : ''; });   // 고른 화면 구성의 모양만 보인다
       });
       var 빈말 = el('p', 'cz-hint', ''); c1.insertBefore(빈말, g);
@@ -519,6 +520,18 @@
         b.addEventListener('click', function () { 선택.자막모양 = m[0]; 갱신(); }); gm.appendChild(b); 눌림목록.push(function () { b.setAttribute('aria-pressed', String(합치기(선택, 종류).값.자막모양 === m[0])); }); });
       var r1 = el('div', 'cz-row'); r1.appendChild(el('label', '', '글꼴')); r1.appendChild(Object.assign(el('div', 'cz-chips'), {})); c2.appendChild(r1);
       칩묶음(r1.lastChild, 글꼴들, function () { return 합치기(선택, 종류).값.글꼴; }, function (v) { 선택.글꼴 = v; }, '글꼴');
+      var r1c = el('div', 'cz-row'); r1c.appendChild(el('label', '', '글자 색')); c2.appendChild(r1c); var 자색칸 = el('div', 'cz-chips'); r1c.appendChild(자색칸);
+      var 현재자색 = function () { var x = 합치기(선택, 종류).값.자막색; return 헥스.test(x || '') ? x.toLowerCase() : ''; };
+      [['모양대로', ''], ['흰색', '#ffffff'], ['노랑', '#ffe600'], ['하늘', '#4dc3ff'], ['분홍', '#ff4d8d'], ['초록', '#2ee6a6'], ['검정', '#111111']].forEach(function (c) {
+        var b = el('button', 'cz-chip'); b.type = 'button'; b.title = c[0]; if (c[1]) { var d = el('span'); d.style.cssText = 'display:inline-block;width:.9em;height:.9em;border-radius:50%;margin-right:.35em;vertical-align:-.1em;border:1px solid #8886;background:' + c[1]; b.appendChild(d); } b.appendChild(document.createTextNode(c[0]));
+        b.addEventListener('click', function () { if (c[1]) 선택.자막색 = c[1].toUpperCase(); else delete 선택.자막색; 갱신(); }); 자색칸.appendChild(b); 눌림목록.push(function () { b.setAttribute('aria-pressed', String(현재자색() === c[1])); }); });
+      var 자직접 = el('button', 'cz-chip', '직접 고르기'); 자직접.type = 'button'; 자직접.setAttribute('aria-expanded', 'false'); 자직접.dataset.k = '자막색-직접'; 자색칸.appendChild(자직접);
+      var 자휠칸 = el('div', 'cz-cw-wrap'); 자휠칸.hidden = true; r1c.appendChild(자휠칸);
+      var 자휠 = 색휠({ 이름: '자막 글자', 쓰기: function (hx) { 선택.자막색 = hx; 갱신(); }, 기본으로: function () { delete 선택.자막색; 갱신(); } }); 자휠칸.appendChild(자휠.box);
+      var 자바탕 = function () { return 현재자색() || 모양겉(합치기(선택, 종류).값.자막모양).c.replace(/^#fff$/i, '#FFFFFF'); };
+      휠열기['자막색'] = function () { 자휠칸.hidden = false; 자직접.setAttribute('aria-expanded', 'true'); 자휠.맞추기(자바탕()); 자휠칸.scrollIntoView({ block: 'nearest' }); };
+      자직접.addEventListener('click', function () { 자휠칸.hidden = !자휠칸.hidden; 자직접.setAttribute('aria-expanded', String(!자휠칸.hidden)); if (!자휠칸.hidden) 자휠.맞추기(자바탕()); });
+      눌림목록.push(function () { 자직접.setAttribute('aria-pressed', String(!!현재자색() && ['#ffffff', '#ffe600', '#4dc3ff', '#ff4d8d', '#2ee6a6', '#111111'].indexOf(현재자색()) < 0)); if (!자휠칸.hidden) 자휠.맞추기(자바탕()); });
       var r2 = el('div', 'cz-row'); r2.appendChild(el('label', '', '단어 색')); c2.appendChild(r2); var cw = el('div', 'cz-chips'); r2.appendChild(cw);
       var 현재핵 = function () { return 합치기(선택, 종류).값.핵심색; };
       핵심들.forEach(function (h) { var b = el('button', 'cz-chip'); b.type = 'button'; b.title = h[1]; if (h[2]) { var d = el('span'); d.style.cssText = 'display:inline-block;width:.9em;height:.9em;border-radius:50%;margin-right:.35em;vertical-align:-.1em;border:1px solid #0004;background:' + h[2]; b.appendChild(d); } b.appendChild(document.createTextNode(h[1])); b.addEventListener('click', function () { 선택.핵심색 = h[0]; 갱신(); }); cw.appendChild(b); 눌림목록.push(function () { b.setAttribute('aria-pressed', String(현재핵() === h[0])); }); });
