@@ -1887,7 +1887,7 @@
 <link rel="stylesheet" href="./assets/compose.css?v=20261102e">
 <script src="./assets/shared/layout.js?v=20261027"></script>
 <script src="./assets/shared/phrase.js?v=20261026"></script>
-<script src="./assets/compose.js?v=20261102e"></script>
+<script src="./assets/compose.js?v=20261102f"></script>
 <script src="./assets/rw-consent.js"></script>
 </head>
 <body>
@@ -4227,7 +4227,7 @@
     if (가로) return screenSvg(layout, pos, auto);
     if (layout === '가운데영상형') {   // 위 문구, 가운데 칸에만 영상, 뒤는 흐리게, 자막은 칸 안
       const bt = 24, bh = 26, y = pos === '상단' ? bt + 3 : pos === '가운데' ? bt + bh / 2 - 4.5 : bt + bh - 12;
-      return `<svg viewBox="0 0 45 80" aria-hidden="true"><rect x="0.5" y="0.5" width="44" height="79" rx="7" fill="#3a3129" stroke="#5a4e42"/><rect x="3" y="3" width="39" height="74" rx="3" fill="#2f2822"/><rect x="10" y="9" width="25" height="3" rx="1.5" fill="#FFF200"/><rect x="14" y="14" width="17" height="3" rx="1.5" fill="#FFF200"/><rect x="3" y="${bt}" width="39" height="${bh}" fill="#4d4238"/><path d="M8 ${bt + 20} l9-9 7 6 5-4 9 7" fill="none" stroke="#6b5d4f" stroke-width="2" stroke-linejoin="round"/><rect x="9" y="${y}" width="27" height="2.8" rx="1.4" fill="#fff"/><rect x="3" y="62" width="39" height="15" fill="#000" opacity=".34"/></svg>`;
+      return `<svg viewBox="0 0 45 80" aria-hidden="true"><rect x="0.5" y="0.5" width="44" height="79" rx="7" fill="#3a3129" stroke="#5a4e42"/><rect x="3" y="3" width="39" height="74" rx="3" fill="#2f2822"/><rect x="3" y="3" width="39" height="14" rx="3" fill="#15110e"/><rect x="10" y="6" width="25" height="3" rx="1.5" fill="#FFF200"/><rect x="14" y="11" width="17" height="3" rx="1.5" fill="#FFF200"/><rect x="3" y="${bt}" width="39" height="${bh}" fill="#4d4238"/><path d="M8 ${bt + 20} l9-9 7 6 5-4 9 7" fill="none" stroke="#6b5d4f" stroke-width="2" stroke-linejoin="round"/><rect x="9" y="${y}" width="27" height="2.8" rx="1.4" fill="#fff"/><rect x="3" y="62" width="39" height="15" fill="#000" opacity=".34"/></svg>`;
     }
     const 제목 = layout === '제목고정형';
     const 띠 = layout === '자막바형';
@@ -4707,7 +4707,7 @@
   };
   const PD_LAYOUTS = [['자동', '기본 · 전체화면형'], ['제목고정형', '제목이 위에 고정'], ['전체화면형', '장면을 가득'], ['자막바형', '아래 띠에 큰 자막'], ['가운데영상형', '영상은 가운데에만']];
   const PD_LAYOUT_READY = { '자동': true, '전체화면형': true, '제목고정형': true, '자막바형': true, '가운데영상형': true };
-  const PD_LAYOUT_DESC = { '자동': '고르지 않으면 장면을 화면 가득 보여 주는 전체화면형으로 만들어요.', '전체화면형': '장면을 화면 가득 보여 줘요.', '제목고정형': '위에 어두운 띠를 깔고 그 안에 위쪽 문구를 넣어요.', '자막바형': '자막 뒤에 주황 띠가 깔려요. 띠 위치는 고른 자막 위치를 따라가요.', '가운데영상형': '위에는 문구, 영상·사진은 가운데에만 나오고 뒤는 흐리게 채워요. 자막은 영상 안에서 위·가운데·아래로 정해요.' };
+  const PD_LAYOUT_DESC = { '자동': '고르지 않으면 장면을 화면 가득 보여 주는 전체화면형으로 만들어요.', '전체화면형': '장면을 화면 가득 보여 줘요.', '제목고정형': '위에 어두운 띠를 깔고 그 안에 위쪽 문구를 넣어요.', '자막바형': '자막 뒤에 주황 띠가 깔려요. 띠 위치는 고른 자막 위치를 따라가요.', '가운데영상형': '위에는 제목 띠, 영상·사진은 가운데에만 나오고 뒤는 흐리게 채워요. 자막은 영상 안에서 위·가운데·아래로 정해요.' };
   const PD_POS_LABEL = { '상단': '위쪽', '가운데': '가운데', '하단': '아래쪽' };
   const pdMotion = () => (document.querySelector('input[name="pd-motion"]:checked') || {}).value || '이미지 중심';
   function pdMotionHtml() {
@@ -4722,7 +4722,7 @@
     // 자막은 흰 글씨+검은 테두리(자막바형은 가로 전체 주황 띠+어두운 글씨), 아래 22%는 쇼츠 앱 자리.
     // ASS 의 글자 크기(Fontsize)는 줄 높이라서 한글 한 자 폭은 그 0.65배다 → 그림의 글자 크기 = 줄 높이 × 0.65
     const lay = st.layout === '자동' ? '전체화면형' : st.layout;
-    const X = 4, Y = 4, W = 82, H = 152, band = lay === '제목고정형' ? Math.round(H * 0.184) : 0, safeB = Y + H - H * 0.22, hook = String(st.hook || '').trim();
+    const X = 4, Y = 4, W = 82, H = 152, band = (lay === '제목고정형' || lay === '가운데영상형') ? Math.round(H * 0.184) : 0, safeB = Y + H - H * 0.22, hook = String(st.hook || '').trim();
     const cw = c => /[가-힣ㄱ-ㅎㅏ-ㅣ]/.test(c) ? 0.66 : /[A-Z]/.test(c) ? 0.46 : /[a-z]/.test(c) ? 0.38 : /\d/.test(c) ? 0.42 : c === ' ' ? 0.22 : 0.26;
     const lw = t => Array.from(t).reduce((a, c) => a + cw(c), 0) * 1.06;
     const split2 = t => { const ch = Array.from(t); let best = -1, d = 1e9; ch.forEach((c, i) => { if (c === ' ' && Math.abs(i - (ch.length - i - 1)) < d) { d = Math.abs(i - (ch.length - i - 1)); best = i; } }); const m = best > 0 ? best : Math.ceil(ch.length / 2); return [ch.slice(0, m).join('').trim(), ch.slice(best > 0 ? m + 1 : m).join('').trim()]; };
