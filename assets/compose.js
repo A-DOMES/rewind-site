@@ -109,9 +109,9 @@
     var warn = el('ul', 'cz-warn'); warn.setAttribute('aria-live', 'polite');
     var 뷰머리 = el('div', 'cz-vhead'); 뷰머리.appendChild(el('b', '', '미리보기')); 뷰머리.appendChild(el('span', '', 가로 ? '16:9 가로' : '9:16 세로')); pv.appendChild(뷰머리);   // 리졸브의 뷰어 머리줄
     pv.appendChild(phone); pv.appendChild(tools); pv.appendChild(warn); pv.appendChild(el('p', 'cz-note', '제목·자막·고정 글자는 끌어서 옮길 수 있어요 · 실제 영상은 조금 다를 수 있어요'));
-    var body = el('div', 'cz-body');
+    var lib = el('aside', 'cz-lib'); lib.setAttribute('aria-label', '구성과 모양'); var body = el('div', 'cz-body'); var tl = el('section', 'cz-tl'); tl.setAttribute('aria-label', '타임라인(앞 단계에서 정한 값)');
     var foot = el('div', 'cz-foot'); var reset = el('button', 'cz-btn', '처음 모양으로'); reset.type = 'button'; var ok = el('button', 'cz-btn cz-main', '적용하기'); ok.type = 'button'; foot.appendChild(reset); foot.appendChild(ok);
-    dlg.appendChild(head); dlg.appendChild(pv); dlg.appendChild(body); dlg.appendChild(foot); ov.appendChild(dlg);
+    dlg.appendChild(head); dlg.appendChild(lib); dlg.appendChild(pv); dlg.appendChild(body); dlg.appendChild(tl); dlg.appendChild(foot); ov.appendChild(dlg);
 
     function 그리기미리보기() {
       var m = 합치기(선택, 종류), v = m.값;
@@ -253,8 +253,35 @@
       c.appendChild(wrap);
     }
 
+    // ===== 타임라인(읽기 전용): 앞 단계에서 정한 길이·사진·소리·자막 방식을 리졸브의 트랙처럼 보여 준다. 길이에 따라 눈금과 트랙이 달라진다 =====
+    var 영상종류 = 종류 === '야담' ? '야담' : (종류 === '수면' ? '수면' : '쇼츠');
+    var T = opt.타임라인 || {};
+    function 시간글(초) { 초 = Math.round(초); if (초 >= 3600) { var h = Math.floor(초 / 3600), m = Math.round((초 % 3600) / 60); return h + '시간' + (m ? ' ' + m + '분' : ''); } if (초 >= 60) { var mm = Math.floor(초 / 60), ss = 초 % 60; return ss ? mm + ':' + (ss < 10 ? '0' : '') + ss : mm + '분'; } return 초 + '초'; }
+    function 눈금간격(초) { var 후보 = [1, 2, 5, 10, 15, 30, 60, 120, 300, 600, 900, 1800, 3600, 7200]; for (var i = 0; i < 후보.length; i++) if (초 / 후보[i] <= 10) return 후보[i]; return 7200; }
+    function 트랙줄(이름, 칸) { var 줄 = el('div', 'cz-trk'); 줄.appendChild(el('span', 'cz-trk-n', 이름)); var 레인 = el('div', 'cz-lane'); 줄.appendChild(레인); tl.appendChild(줄); return 레인; }
+    function 조각(레인, 시작, 끝, 길이, 글, 클래스, 배경) { var p = el('i', 'cz-seg' + (클래스 ? ' ' + 클래스 : '')); p.style.left = (시작 / 길이 * 100) + '%'; p.style.width = Math.max(0.3, (끝 - 시작) / 길이 * 100) + '%'; if (글) p.appendChild(el('span', '', 글)); if (배경) p.style.backgroundImage = 'url("' + 배경 + '")'; 레인.appendChild(p); return p; }
+    function 타임라인그리기() {
+      tl.textContent = '';
+      var 길이 = Number(T.길이초) > 0 ? Number(T.길이초) : (영상종류 === '쇼츠' ? 30 : 1800), 긴 = 길이 > 180;
+      var 머리 = el('div', 'cz-tl-h'); 머리.appendChild(el('b', '', '타임라인')); 머리.appendChild(el('span', '', '전체 약 ' + 시간글(길이) + ' · ' + ({ 쇼츠: '쇼츠', 야담: '야담', 수면: '수면음악' }[영상종류]) + (T.장면수 ? ' · 장면 ' + T.장면수 : ''))); tl.appendChild(머리);
+      var 눈금줄 = el('div', 'cz-trk cz-ruler'); 눈금줄.appendChild(el('span', 'cz-trk-n', '')); var 눈금 = el('div', 'cz-lane'); 눈금줄.appendChild(눈금);
+      var 간격 = 눈금간격(길이); for (var t = 0; t <= 길이 + 1e-6; t += 간격) { var k = el('i', 'cz-tick' + (t / 길이 > 0.94 ? ' cz-tick-end' : '')); k.style.left = (t / 길이 * 100) + '%'; k.appendChild(el('span', '', 시간글(t))); 눈금.appendChild(k); }
+      var 헤드 = el('i', 'cz-play'); 눈금.appendChild(헤드); tl.appendChild(눈금줄);
+      var 문구있음 = !!String(opt.문구 || '').trim(), 제목끝 = (문구시간쓰기 && 문구시간 === '3s') ? Math.min(3, 길이) : 길이, 구성 = 화면 === '자동' ? '전체화면형' : 화면;
+      if (영상종류 === '쇼츠' && !가로) {
+        var 제 = 트랙줄('제목'); if (문구있음 || 구성 === '제목고정형' || 구성 === '가운데영상형') 조각(제, 0, 제목끝, 길이, 문구있음 ? String(opt.문구).trim() : '제목', 'cz-t-title'); else 제.appendChild(el('em', 'cz-empty', '제목 없음'));
+      }
+      var 수 = Math.max(1, Number(T.사진수) || Number(T.장면수) || (긴 ? Math.min(24, Math.max(3, Math.round(길이 / 300))) : Math.min(12, Math.max(3, Math.round(길이 / 5))))), 영 = 트랙줄(영상종류 === '쇼츠' ? '영상' : '장면'), 썸 = T.사진 || [];
+      for (var i = 0; i < 수; i++) 조각(영, 길이 * i / 수, 길이 * (i + 1) / 수, 길이, 썸[i] ? '' : String(i + 1), 'cz-t-clip', /^(blob:|https:\/\/|data:image\/)/.test(썸[i] || '') ? 썸[i] : '');
+      var 방식 = 자막방식 || '구절형', 자막칸 = 긴 ? 30 : ({ 구절형: 3, 문장형: 5, 단어형: 1.2 }[방식] || 3), 자막수 = Math.min(80, Math.max(1, Math.floor(길이 / 자막칸)));
+      var 자 = 트랙줄('자막'); if (v0().자막끄기) 자.appendChild(el('em', 'cz-empty', '자막 끔')); else for (var j = 0; j < 자막수; j++) 조각(자, 길이 * j / 자막수 + 길이 * 0.004, 길이 * (j + 1) / 자막수 - 길이 * 0.004, 길이, '', 'cz-t-sub');
+      var 소 = 트랙줄(영상종류 === '수면' ? '음악' : '소리'); 조각(소, 0, 길이, 길이, (영상종류 === '수면' ? '배경 음악' : '목소리') + (T.소리 ? ' · ' + T.소리 : ''), 'cz-t-wave');
+      if (영상종류 === '야담') { var 배 = 트랙줄('배경음'); 조각(배, 0, 길이, 길이, '잔잔한 배경음', 'cz-t-bgm'); }
+    }
+    function v0() { return 합치기(선택, 종류).값; }
+    function 타임라인만들기() { 타임라인그리기(); 눌림목록.push(타임라인그리기); }
     function 만들기() {
-      body.textContent = ''; 눌림목록 = [];
+      body.textContent = ''; lib.textContent = ''; 눌림목록 = [];
       var c1 = 카드('모양 고르기', '골라 두면 아래 값이 알맞게 채워져요', '*');
       c1.classList.add('cz-fold'); c1.querySelector('.cz-ch').setAttribute('aria-expanded', 'false');   // 처음엔 접어 둔다(공간 절약). 머리에 지금 고른 모양이 보인다
       var 지금모양 = el('b', 'cz-now'); c1.querySelector('.cz-ch h3').appendChild(지금모양);
@@ -415,18 +442,19 @@
       블록그리기();
       블록다시 = 블록그리기;
       끌기(ttx, 제목이동, '제목 글자'); 끌기(sub, 자막이동, '자막'); 끌기(띠손잡이, 띠이동, '제목 띠 높이'); 끌기(칸손잡이, 칸이동, '영상 칸 아래 끝');
-      // 위쪽 탭(리졸브식): 화면 · 제목 · 자막 · 고정 글자. 모양 고르기 카드는 모든 탭 위에 접힌 채로 있다
-      var 탭순서 = ['화면', '제목', '자막', '고정 글자'], 있는탭 = 탭순서.filter(function (t) { return body.querySelector('.cz-card[data-tab="' + t + '"]'); });
+      // 왼쪽 라이브러리(리졸브의 미디어 풀): 화면 구성 · 모양 · 영상 제작 방식. 오른쪽 인스펙터 탭: 제목 · 자막 · 고정 글자
+      [판, c1, 판2].forEach(function (c) { if (c) { c.dataset.tab = '*'; c.classList.remove('cz-fold'); var 머리 = c.querySelector('.cz-ch'); if (머리) 머리.setAttribute('aria-expanded', 'true'); lib.appendChild(c); } });
+      var 빈탭 = el('p', 'cz-card cz-hintcard', '이 화면 구성에는 위쪽 제목 띠가 없어요. 제목 띠가 필요하면 왼쪽에서 \'제목고정\' 또는 \'가운데영상\'을 골라요.'); 빈탭.dataset.tab = '제목'; body.appendChild(빈탭);
+      눌림목록.push(function () { 빈탭.style.display = (가로 || 화면 === '제목고정형' || 화면 === '가운데영상형') ? 'none' : ''; });
+      var 탭순서 = 가로 ? ['자막', '고정 글자'] : ['제목', '자막', '고정 글자'], 있는탭 = 탭순서.filter(function (t) { return body.querySelector('.cz-card[data-tab="' + t + '"]'); });
       if (있는탭.length > 1) {
         var 탭줄 = el('div', 'cz-tabs'); 탭줄.setAttribute('role', 'tablist'); var 탭버튼 = {};
         function 탭보이기(t) { 있는탭.forEach(function (n) { 탭버튼[n].setAttribute('aria-selected', String(n === t)); }); [].forEach.call(body.querySelectorAll('.cz-card'), function (c) { c.classList.toggle('cz-tabhide', c.dataset.tab !== '*' && c.dataset.tab !== t); }); }
         있는탭.forEach(function (t) { var b = el('button', 'cz-tab', t); b.type = 'button'; b.setAttribute('role', 'tab'); b.addEventListener('click', function () { 탭보이기(t); }); 탭버튼[t] = b; 탭줄.appendChild(b); });
         body.insertBefore(탭줄, body.firstChild); 탭보이기(있는탭[0]);
-        if (판) { c1.dataset.tab = '화면'; c1.classList.remove('cz-fold'); c1.querySelector('.cz-ch').setAttribute('aria-expanded', 'true'); 판.parentNode.insertBefore(c1, 판.nextSibling); }   // 화면 구성 4칸 바로 아래에 그 구성의 모양을 펼친다
-        else body.insertBefore(c1, 탭줄.nextSibling);   // 화면 구성이 없는 경우(가로 등): 탭 줄 바로 아래에 접어 둔다
       }
+      타임라인만들기();
     }
-
     function 닫기(결과) { 읽기멈춤(); if (끌기중단) 끌기중단(); document.removeEventListener('keydown', 키); document.body.style.overflow = 이전스크롤; ov.remove(); if (이전포커스 && 이전포커스.focus) 이전포커스.focus(); if (결과 && typeof opt.onDone === 'function') opt.onDone(결과); }
     function 키(e) {
       if (e.key === 'Escape') { e.preventDefault(); 닫기(null); return; }
