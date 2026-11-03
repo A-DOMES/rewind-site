@@ -470,3 +470,13 @@ button.cz-pane-l[aria-pressed="true"] { color: var(--rz-ac); }
   .cz-head-acts .cz-btn { white-space: nowrap; }
   .cz-zoom { display: none; }
 }
+
+/* 속성 패널: 장면 설정(움직임·음량) */
+.cz-insp-set { margin-top: 10px; display: flex; flex-direction: column; }
+.cz-insp-sh { font-size: var(--fs-xs, .75rem); color: var(--ink-dim); padding: 4px 0; letter-spacing: .02em; }
+.cz-insp-in { align-items: center; }
+.cz-insp-sel { flex: 1; min-width: 0; max-width: 120px; height: 24px; background: var(--rz-p1); color: var(--ink); border: 1px solid var(--rz-ln); border-radius: 4px; font: inherit; font-size: var(--fs-sm); }
+.cz-insp-rng { flex: 1; min-width: 0; accent-color: var(--rz-ac); }
+.cz-insp-pc { min-width: 3.2em; text-align: right; font-variant-numeric: tabular-nums; }
+.cz-insp-rs { width: 24px; height: 24px; padding: 0; border: 1px solid var(--rz-ln); border-radius: 4px; background: var(--rz-p1); color: var(--ink); cursor: pointer; }
+.cz-insp-rs:disabled { opacity: .3; cursor: default; }

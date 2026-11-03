@@ -149,6 +149,7 @@
     if (선택.자막끄기) 조각.push('자막 끄기');
     else if (선택.자막거리 !== undefined || 선택.자막가로 !== undefined) 조각.push('자막 자리 바꿈');
     if (선택.블록 && 선택.블록.length) 조각.push('문구 ' + 선택.블록.length + '개');
+    if (선택.장면별 && Object.keys(선택.장면별).length) 조각.push('장면 설정 ' + Object.keys(선택.장면별).length + '개');
     return 조각.length ? 조각.join(' · ') : '기본 모양 (바꾸지 않았어요)';
   }
 
@@ -449,6 +450,33 @@
       if (/^(blob:|https:\/\/|data:image\/)/.test(사진 || '')) { var 그림 = el('div', 'cz-insp-img' + (가로 ? '' : ' cz-v')); 그림.style.backgroundImage = 'url("' + String(사진).replace(/["\\\n]/g, encodeURIComponent) + '")'; 몸.appendChild(그림); if (자료 && 자료.이름) 몸.appendChild(el('p', 'cz-insp-name', String(자료.이름))); }
       var 줄들 = [['시작', 분초(시작)], ['끝', 분초(끝)], ['길이', (끝 - 시작).toFixed(1) + 's'], ['소리', T.소리 || (영상종류 === '수면' ? '배경 음악' : '목소리')], ['자막', 영상종류 === '수면' ? '없음' : (v0().자막끄기 ? '끔' : (자막방식 || '구절형'))]];
       줄들.forEach(function (r) { var d = el('div', 'cz-insp-r'); d.appendChild(el('span', '', r[0])); d.appendChild(el('b', '', r[1])); 몸.appendChild(d); });
+      if (영상종류 === '쇼츠') {   // 장면별 설정: 움직임(사진 장면만)·음량. 기본값이면 지워서 건드리지 않은 것으로 둔다
+        var 칸 = el('div', 'cz-insp-set'); 칸.appendChild(el('div', 'cz-insp-sh', '장면 설정'));
+        var 지금 = function () { return (선택.장면별 && 선택.장면별[장]) || {}; };
+        var 쓰기 = function (키, 값) { var 모두 = Object.assign({}, 선택.장면별 || {}), 이것 = Object.assign({}, 모두[장] || {}); if (값 === undefined) delete 이것[키]; else 이것[키] = 값; if (Object.keys(이것).length) 모두[장] = 이것; else delete 모두[장]; if (Object.keys(모두).length) 선택.장면별 = 모두; else delete 선택.장면별; };
+        var 움직임들 = ['줌인', '줌아웃', '왼쪽', '오른쪽', '위', '아래', '없음'];
+        var 되돌림 = function (할일, 켜짐) { var b = el('button', 'cz-insp-rs', '↺'); b.type = 'button'; b.title = '기본값으로'; b.disabled = !켜짐(); b.addEventListener('click', 할일); return b; };
+        if (!(자료 && 자료.영상)) {
+          var 줄1 = el('div', 'cz-insp-r cz-insp-in'); 줄1.appendChild(el('span', '', '움직임'));
+          var 고름1 = el('select', 'cz-insp-sel'); 고름1.setAttribute('aria-label', '움직임');
+          var 기본옵션 = el('option', '', '자동'); 기본옵션.value = ''; 고름1.appendChild(기본옵션);
+          움직임들.forEach(function (m) { var o = el('option', '', m); o.value = m; 고름1.appendChild(o); });
+          고름1.value = 지금().움직임 || '';
+          var 되1 = 되돌림(function () { 쓰기('움직임', undefined); 고름1.value = ''; 되1.disabled = true; }, function () { return !!지금().움직임; });
+          고름1.addEventListener('change', function () { 쓰기('움직임', 고름1.value || undefined); 되1.disabled = !고름1.value; });
+          줄1.appendChild(고름1); 줄1.appendChild(되1); 칸.appendChild(줄1);
+        }
+        var 줄2 = el('div', 'cz-insp-r cz-insp-in'); 줄2.appendChild(el('span', '', '음량'));
+        var 막대 = el('input', 'cz-insp-rng'); 막대.type = 'range'; 막대.min = '-50'; 막대.max = '50'; 막대.step = '1'; 막대.setAttribute('aria-label', '음량');   // 가운데 = 기본(100%), 왼쪽 = 작게(0~100%), 오른쪽 = 크게(~150%)
+        var 값을막대 = function (v) { return v < 1 ? Math.round((v - 1) * 50) : Math.round((v - 1) * 100); };
+        var 막대를값 = function (n) { return n < 0 ? 1 + n / 50 : 1 + n / 100; };
+        var 퍼센트 = el('b', 'cz-insp-pc'); 막대.value = String(지금().음량 !== undefined ? 값을막대(지금().음량) : 0);
+        var 퍼센트갱신 = function () { 퍼센트.textContent = Math.round(막대를값(Number(막대.value)) * 100) + '%'; };
+        var 되2 = 되돌림(function () { 쓰기('음량', undefined); 막대.value = '0'; 퍼센트갱신(); 되2.disabled = true; }, function () { return 지금().음량 !== undefined; });
+        막대.addEventListener('input', function () { var n = Number(막대.value); 쓰기('음량', n === 0 ? undefined : Math.round(막대를값(n) * 100) / 100); 퍼센트갱신(); 되2.disabled = n === 0; });
+        퍼센트갱신(); 줄2.appendChild(막대); 줄2.appendChild(퍼센트); 줄2.appendChild(되2); 칸.appendChild(줄2);
+        몸.appendChild(칸);
+      }
       insp.appendChild(몸);
     }
     var 줌 = 1, 줌단계 = [1, 1.5, 2, 3, 4, 6, 8];   // 타임라인 확대 단계(1 = 한눈에 보기)
