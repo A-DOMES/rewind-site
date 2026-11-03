@@ -659,7 +659,7 @@
         function 그리기() {
           격자.textContent = '';
           수.textContent = 자료.length ? '지금: ' + 자료.length + '개' : '';
-          안내.textContent = 자료.length ? '끌어서 순서를 바꿔요 · 순서가 장면 순서예요 · 올리기와 빼기는 앞의 「화면·길이」 단계에서 해요' : '앞 단계에서 올린 사진·영상이 여기에 모여요. 올리지 않으면 AI가 장면 그림을 만들어요';
+          안내.textContent = 자료.length ? '끌어서 사진 순서를 바꿔요 · 순서가 장면 순서예요 · 올리기와 빼기, 영상·파일은 앞의 「화면·길이」 단계에서 해요' : (Array.isArray(opt.자료) ? '앞 단계에서 올린 사진이 여기에 모여요. 올리지 않으면 AI가 장면 그림을 만들어요' : '이 종류는 AI가 장면 그림을 만들어서 여기에 모이는 자료가 없어요');
           자료.forEach(function (it, i) {
             var t = el('div', 'cz-wb-t'); t.setAttribute('role', 'listitem'); t.tabIndex = 0; t.dataset.i = String(i); t.title = (it.이름 || '') + (it.영상 ? ' (영상)' : '');
             var im = el('span', 'cz-wb-img'); im.style.backgroundImage = 'url("' + String(it.src).replace(/["\\\n]/g, encodeURIComponent) + '")'; t.appendChild(im);
@@ -673,17 +673,17 @@
               var 이동 = function (ev) {
                 if (!끌림 && Math.abs(ev.clientX - 시작x) + Math.abs(ev.clientY - 시작y) < 6) return; 끌림 = true; t.classList.add('cz-wb-drag');
                 var 칸들 = Array.prototype.slice.call(격자.children), 대상 = 칸들.length;
-                for (var k = 0; k < 칸들.length; k++) { var r = 칸들[k].getBoundingClientRect(); if (ev.clientY < r.bottom && ev.clientX < r.right && (ev.clientY >= r.top || k === 0)) { 대상 = (ev.clientX < r.left + r.width / 2 || ev.clientY < r.top) ? k : k + 1; break; } }
-                놓음 = 대상; 칸들.forEach(function (c, k) { c.classList.toggle('cz-wb-before', k === 대상 && k !== i && k !== i + 1); });
+                var 최소 = 1e9; for (var k = 0; k < 칸들.length; k++) { var r = 칸들[k].getBoundingClientRect(), dx = ev.clientX < r.left ? r.left - ev.clientX : ev.clientX > r.right ? ev.clientX - r.right : 0, dy = ev.clientY < r.top ? r.top - ev.clientY : ev.clientY > r.bottom ? ev.clientY - r.bottom : 0, d = dx * dx + dy * dy; if (d < 최소) { 최소 = d; 대상 = ev.clientX < r.left + r.width / 2 ? k : k + 1; } }
+                놓음 = 대상; 칸들.forEach(function (c, k) { c.classList.toggle('cz-wb-before', k === 대상 && k !== i && k !== i + 1); c.classList.toggle('cz-wb-after', 대상 === 칸들.length && k === 칸들.length - 1 && k !== i); });
               };
-              var 끝 = function () { document.removeEventListener('pointermove', 이동); document.removeEventListener('pointerup', 끝); document.removeEventListener('pointercancel', 끝); t.classList.remove('cz-wb-drag'); Array.prototype.forEach.call(격자.children, function (c) { c.classList.remove('cz-wb-before'); }); if (끌림 && 놓음 !== i && 놓음 !== i + 1) 옮기기(i, 놓음 > i ? 놓음 - 1 : 놓음); };
+              var 끝 = function () { document.removeEventListener('pointermove', 이동); document.removeEventListener('pointerup', 끝); document.removeEventListener('pointercancel', 끝); t.classList.remove('cz-wb-drag'); Array.prototype.forEach.call(격자.children, function (c) { c.classList.remove('cz-wb-before'); c.classList.remove('cz-wb-after'); }); if (끌림 && 놓음 !== i && 놓음 !== i + 1) 옮기기(i, 놓음 > i ? 놓음 - 1 : 놓음); };
               document.addEventListener('pointermove', 이동); document.addEventListener('pointerup', 끝); document.addEventListener('pointercancel', 끝);
             });
             격자.appendChild(t);
           });
         }
         function 옮기기(a, b) {
-          if (b < 0 || b >= 자료.length || a === b) return; var it = 자료.splice(a, 1)[0]; 자료.splice(b, 0, it); if (고른 === a) 고른 = b;
+          if (b < 0 || b >= 자료.length || a === b) return; var it = 자료.splice(a, 1)[0]; 자료.splice(b, 0, it); if (고른 === a) 고른 = b; else if (고른 >= 0 && a < b && 고른 > a && 고른 <= b) 고른--; else if (고른 >= 0 && a > b && 고른 >= b && 고른 < a) 고른++;
           if (typeof opt.자료옮김 === 'function') { try { opt.자료옮김(a, b); } catch (x) {} }
           그리기(); var 칸 = 격자.children[b]; if (칸) 칸.focus();
         }

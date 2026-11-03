@@ -440,8 +440,9 @@ label.cz-chip { display: inline-flex; align-items: center; }
 .cz-wb-n { left: 4px; top: 4px; } .cz-wb-v { right: 4px; bottom: 4px; }
 .cz-wb-drag { opacity: .55; cursor: grabbing; }
 .cz-wb-before { box-shadow: -3px 0 0 var(--rz-ac); }
+.cz-wb-after { box-shadow: 3px 0 0 var(--rz-ac); }
 @media (min-width: 901px) {
   .cz-dlg { grid-template-columns: minmax(230px, 20%) minmax(380px, 1fr) minmax(320px, 30%); grid-template-areas: "head head head" "lib pv body" "tl tl tl" "foot foot foot"; }
-  .cz-dlg[data-pg="shape"], .cz-dlg[data-pg="color"] { grid-template-areas: "head head head" "lib pv pv" "col col col" "foot foot foot"; }
+  .cz-dlg[data-pg="shape"] { grid-template-areas: "head head head" "lib pv pv" "col col col" "foot foot foot"; }
 }
 @media (max-width: 900px) { .cz-lib { display: none; } }
