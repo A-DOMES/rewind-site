@@ -448,7 +448,7 @@
       var 빈말 = el('p', 'cz-hint', ''); c1.insertBefore(빈말, g);
       눌림목록.push(function () { var 구성 = 화면 === '자동' ? '전체화면형' : 화면, 있음 = (템플릿목록 || []).some(function (t) { return t.종류.indexOf(종류) >= 0 && t.화면구성 === 구성; }); 빈말.textContent = (!가로 && 화면목록.length > 1) ? (있음 ? '\'' + 구성.replace('형', '') + '\' 구성에 맞는 모양만 보여요' : '이 화면 구성은 준비된 모양이 없어요. 아래에서 직접 꾸며 보세요') : ''; 빈말.style.display = 빈말.textContent ? '' : 'none'; });
       if (화면목록.length > 1 && !가로) {   // 화면 구성: 미리보기 아래에 그림 카드로 둔다
-        var 판 = 카드('화면 구성', '영상이 놓이는 모양', '화면'); var 줄 = el('div', 'cz-lay-row'); 줄.style.gridTemplateColumns = 'repeat(' + Math.min(4, 화면목록.length) + ', minmax(0, 1fr))'; 줄.setAttribute('role', 'group'); 줄.setAttribute('aria-label', '화면 구성'); 판.appendChild(줄);
+        var 판 = 카드('화면 구성', '바꾸기', '화면'); var 줄 = el('div', 'cz-lay-row'); 줄.style.gridTemplateColumns = 'repeat(' + Math.min(4, 화면목록.length) + ', minmax(0, 1fr))'; 줄.setAttribute('role', 'group'); 줄.setAttribute('aria-label', '화면 구성'); 판.appendChild(줄);
         화면목록.forEach(function (it) {
           var b = el('button', 'cz-lay-b'); b.type = 'button'; b.disabled = !!it.꺼짐; b.title = 화면설명[it.값] || '';
           var 그림 = el('span', 'cz-lay-pic'); 그림.innerHTML = '<svg viewBox="0 0 54 96" aria-hidden="true" focusable="false">' + (화면그림[it.값] || '<rect class="ph" width="54" height="96"/>') + '</svg>';
@@ -456,6 +456,8 @@
           b.addEventListener('click', function () { 화면 = it.값; 화면바꿈 = true; var 지금t = (템플릿목록 || []).filter(function (x) { return x.id === 선택.템플릿; })[0]; if (지금t && 지금t.화면구성 !== (it.값 === '자동' ? '전체화면형' : it.값)) delete 선택.템플릿; 갱신(); }); 눌림목록.push(function () { b.setAttribute('aria-pressed', String(화면 === it.값)); }); 줄.appendChild(b);
         });
         판.appendChild(줄);
+        var 지금구성 = el('b', 'cz-now'); 판.querySelector('.cz-ch h3').appendChild(지금구성);   // 접어 두고 머리에 지금 구성만 보인다(템플릿 칸을 넓게)
+        눌림목록.push(function () { 지금구성.textContent = '지금: ' + (화면 === '자동' ? '전체화면형' : 화면).replace('형', ''); });
       }
       // 영상 제작 방식: 화면 구성 아래. 고르면 신청 칸의 제작 방식이 바뀐다 (요금은 분당 포인트로 보여 준다)
       if (제작방식 && 제작방식.목록 && 제작방식.목록.length) {
@@ -622,7 +624,7 @@
       ttl.addEventListener('click', function () { 선택하기('제목띠'); });   // 띠 빈 곳을 누르면 제목 띠 선택
       phone.addEventListener('click', function (e) { if (e.target.closest('.cz-drag, .cz-sub') || e.target === ttl) return; var 칸 = 화면 === '가운데영상형' && !가로, r = phone.getBoundingClientRect(), y = (e.clientY - r.top) / r.height; if (칸 && e.target !== ctr && (y > 칸상태.아래 || (y > Math.max(0.235, ttl.getBoundingClientRect().height / r.height) && y < 칸상태.위))) 선택하기('바깥'); else 선택풀기(); });   // 영상 칸 위·아래 빈 곳 = 바깥, 그 밖의 빈 곳 = 선택 풀기
       // 왼쪽 라이브러리(리졸브의 미디어 풀): 화면 구성 · 모양 · 영상 제작 방식. 오른쪽 인스펙터 탭: 제목 · 자막 · 고정 글자
-      [판, c1, 판2].forEach(function (c) { if (c) { c.dataset.tab = '*'; c.classList.remove('cz-fold'); var 머리 = c.querySelector('.cz-ch'); if (머리) 머리.setAttribute('aria-expanded', 'true'); lib.appendChild(c); } });
+      [판, c1, 판2].forEach(function (c) { if (c) { c.dataset.tab = '*'; if (c !== 판) { c.classList.remove('cz-fold'); var 머리 = c.querySelector('.cz-ch'); if (머리) 머리.setAttribute('aria-expanded', 'true'); } else { c.classList.add('cz-fold'); c.querySelector('.cz-ch').setAttribute('aria-expanded', 'false'); } lib.appendChild(c); } });
       var 빈탭 = el('p', 'cz-card cz-hintcard', '이 화면 구성에는 위쪽 제목 띠가 없어요. 제목 띠가 필요하면 왼쪽에서 \'제목고정\' 또는 \'가운데영상\'을 골라요.'); 빈탭.dataset.tab = '제목'; body.appendChild(빈탭);
       눌림목록.push(function () { 빈탭.style.display = (띠없음 || 화면 === '제목고정형' || 화면 === '가운데영상형') ? 'none' : ''; });
       var 띠없음 = 가로 || 화면목록.length < 2;   // 화면 구성을 고를 수 없으면(가로·롱폼 세로) 제목 띠도 없다
