@@ -43,7 +43,15 @@
       const p = 소리.play(); if (p && p.catch) p.catch(() => { 상태.듣는중 = ''; 그리기(); });
       그리기();
     }
-    function 고름(id) { 상태.값 = id; if (옵션.바뀜) 옵션.바뀜(id); 그리기(); }
+    function 고름(id) {
+      상태.값 = id;
+      // 카드를 다시 만들지 않고 선택 표시만 바꾼다(다시 만들면 마우스를 움직이기 전까지 눌림·강조가 늦게 보인다)
+      const 가려진 = id && !el.querySelector('.vp-card[data-id="' + id + '"]');
+      if (가려진) { if (옵션.바뀜) 옵션.바뀜(id); return 그리기(); }
+      el.querySelectorAll('.vp-card').forEach(c => c.setAttribute('aria-pressed', String(c.dataset.id === id)));
+      const a = el.querySelector('.vp-auto'); if (a) a.setAttribute('aria-pressed', String(!id));
+      if (옵션.바뀜) 옵션.바뀜(id);
+    }
     const 자동 = () => C.찾기(C.추천값(상태.종류, 상태.성별));
     function 그리기() {
       el.innerHTML = '';
@@ -65,7 +73,7 @@
       const 처음개수 = 6, 접힘 = 목록.length > 처음개수 && !상태.펼침;   // 처음엔 6개만 보여 주고 '더 보기'로 펼친다(고른 목소리는 항상 보인다)
       const 고른것 = 목록.find(v => v.id === 상태.값), 앞 = 목록.slice(0, 처음개수), 보임 = 접힘 ? (고른것 && !앞.includes(고른것) ? 앞.concat(고른것) : 앞) : 목록;
       보임.forEach(v => {
-        const c = document.createElement('div'); c.className = 'vp-card'; c.setAttribute('role', 'button'); c.tabIndex = 0; c.setAttribute('aria-pressed', String(상태.값 === v.id));
+        const c = document.createElement('div'); c.className = 'vp-card'; c.dataset.id = v.id; c.setAttribute('role', 'button'); c.tabIndex = 0; c.setAttribute('aria-pressed', String(상태.값 === v.id));
         c.innerHTML = '<button type="button" class="vp-play" aria-label="' + v.이름 + ' 미리 듣기" aria-pressed="' + (상태.듣는중 === v.id) + '">' + (상태.듣는중 === v.id ? 정지 : 재생) + '</button><div><b>' + v.이름 + '</b><small>' + v.나이대 + '</small></div>';
         c.addEventListener('click', e => { if (e.target.closest('.vp-play')) { 듣기(v); return; } 고름(v.id); });
         c.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); 고름(v.id); } });
