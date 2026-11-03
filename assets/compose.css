@@ -137,10 +137,6 @@ label.cz-chip { display: inline-flex; align-items: center; }
 .cz-dlg { width: min(1680px, 100%); grid-template-columns: minmax(520px, 46%) 1fr; }
 .cz-phone { width: clamp(240px, calc((100vh - 300px) * 0.5625), 560px); }
 .cz-phone.cz-wide { max-width: 640px; }
-.cz-tabs { min-height: 58px; flex: none; position: sticky; top: 0; z-index: 3; display: flex; gap: 6px; padding: 6px; margin: 0 0 var(--sp-3); background: #05060c; border: 1px solid var(--nw-edge, var(--line)); border-radius: 14px; overflow-x: auto; }
-.cz-tab { flex: 1 0 auto; min-height: 44px; padding: 0 18px; border: 0; border-radius: 10px; background: transparent; color: var(--ink-dim); font: inherit; font-weight: 700; cursor: pointer; white-space: nowrap; transition: background .12s, color .12s; }
-.cz-tab:hover { color: var(--ink); background: rgba(255,255,255,.06); }
-.cz-tab[aria-selected="true"] { color: #fff; background: linear-gradient(160deg, rgba(24,52,140,.9), rgba(30,22,80,.95)); box-shadow: 0 0 14px rgba(90,130,255,.4), inset 0 0 0 1px #7d9dff; }
 .cz-card.cz-tabhide { display: none !important; }
 .cz-now { margin-top: 2px; font-size: var(--fs-xs); font-weight: 600; color: #9db4ff; }
 .cz-card .cz-lay-row { margin-top: var(--sp-2); }
@@ -167,10 +163,6 @@ label.cz-chip { display: inline-flex; align-items: center; }
 .cz-pvtools { width: 100%; justify-content: space-between; padding: 5px 12px; background: var(--rz-p2); border-top: 1px solid var(--rz-ln); border-bottom: 1px solid var(--rz-ln); box-sizing: border-box; }
 .cz-pv .cz-note, .cz-warn { padding: 0 12px; }
 .cz-body { padding: 0 0 20px; gap: 0; overflow: auto; }
-.cz-tabs { margin: 0; padding: 0 6px; gap: 0; border: 0; border-bottom: 1px solid var(--rz-ln); border-radius: 0; background: var(--rz-p2); min-height: 38px; align-items: flex-end; }
-.cz-tab { flex: 0 1 auto; padding: 0 20px; min-height: 38px; border-radius: 0; font-size: var(--fs-sm); border-bottom: 2px solid transparent; background: transparent; }
-.cz-tab:hover { background: rgba(255,255,255,.05); }
-.cz-tab[aria-selected="true"] { background: var(--rz-p1); color: #fff; box-shadow: none; border-bottom-color: var(--rz-ac); }
 .cz-card, .cz-lib .cz-card { margin: 0; padding: 10px 14px; gap: 9px; border: 0; border-bottom: 1px solid var(--rz-ln); border-radius: 0; background: transparent; box-shadow: none; }
 .cz-ch h3 { font-size: .88rem; }
 .cz-ch h3 small { display: none; }
@@ -218,7 +210,6 @@ label.cz-chip { display: inline-flex; align-items: center; }
   .cz-phone { width: clamp(180px, calc((100dvh - 470px) * 0.5625), 520px); }
   .cz-phone.cz-wide { width: min(94%, calc((100dvh - 470px) * 1.7778)); max-width: none; }
   .cz-x { min-width: 32px; min-height: 32px; font-size: .95rem; }
-  .cz-tabs, .cz-tab { min-height: 38px; }
   .cz-grid { grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 6px; }
   .cz-opt { padding: 8px; }
   .cz-lay-row { gap: 6px; }
@@ -242,7 +233,6 @@ label.cz-chip { display: inline-flex; align-items: center; }
 @media (min-width: 901px) { .cz-phone { width: clamp(180px, calc((100dvh - 410px) * 0.5625), 520px); } }
 /* 스크롤되는 칸은 아래쪽이 더 있다는 것을 그림자로 알려 준다 */
 .cz-lib, .cz-body { background: linear-gradient(var(--rz-p1) 30%, rgba(13,13,14,0)) 0 0 / 100% 28px no-repeat local, linear-gradient(rgba(13,13,14,0), var(--rz-p1) 70%) 0 100% / 100% 28px no-repeat local, linear-gradient(rgba(0,0,0,.55), rgba(0,0,0,0)) 0 0 / 100% 10px no-repeat scroll, linear-gradient(rgba(0,0,0,0), rgba(0,0,0,.55)) 0 100% / 100% 10px no-repeat scroll, var(--rz-p1); }
-.cz-tab:focus-visible { outline-offset: -3px; }
 @media (min-width: 901px) and (max-height: 680px) { .cz-phone { width: clamp(120px, calc((100dvh - 350px) * 0.5625), 520px); } }
 
 /* 가이드 점선 상자: 좁은 상자의 이름은 세로로, 글자가 폰 밖으로 잘리지 않게 */
@@ -282,7 +272,6 @@ label.cz-chip { display: inline-flex; align-items: center; }
 
 /* ---------- 요소 선택 (리졸브: 컷을 누르면 인스펙터가 따라간다) ---------- */
 .cz-bodyhead { position: sticky; top: 0; z-index: 4; background: var(--rz-p2, #1b1b1f); }
-.cz-bodyhead .cz-tabs { position: static; }
 .cz-selbar { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; padding: 5px 8px; border-bottom: 1px solid var(--rz-ln, #2a2a2e); background: var(--rz-p1, #141417); }
 .cz-selbar-l { font-size: var(--fs-2xs, .72rem); color: var(--ink-dim); margin-right: 2px; letter-spacing: .04em; }
 .cz-selbar .cz-chip { min-height: 24px; padding: 0 9px; font-size: .74rem; border-radius: 3px; }
@@ -347,17 +336,6 @@ label.cz-chip { display: inline-flex; align-items: center; }
 .cz-body .cz-row:has(> .cz-chips) > label { text-align: left; width: auto; min-width: 0; flex-basis: 100%; }
 
 /* ===== 리졸브식 인스펙터 2단계(2026-11-03): 아이콘 탭 + 둘째 줄 서류철 탭 ===== */
-.cz-card.cz-subhide { display: none !important; }
-.cz-tab { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 52px; padding: 6px 18px; font-size: .78rem; font-weight: 600; color: var(--ink-faint); }
-.cz-tab svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
-.cz-tab[aria-selected="true"] { color: var(--rz-ac); }
-.cz-tab[aria-selected="true"] svg { stroke: var(--rz-ac); }
-.cz-subtabs { display: flex; gap: 2px; padding: 0 10px; background: var(--rz-p1); border-bottom: 1px solid var(--rz-ln); }
-.cz-subtabs[hidden] { display: none; }
-.cz-subtab { appearance: none; border: 0; background: transparent; color: var(--ink-dim); font: inherit; font-size: .84rem; font-weight: 600; padding: 7px 14px; margin-bottom: -1px; cursor: pointer; border-bottom: 2px solid transparent; transition: color .15s, background-color .15s; }
-.cz-subtab:hover { color: var(--ink); background: rgba(255,255,255,.05); }
-.cz-subtab[aria-selected="true"] { color: #fff; border-bottom-color: var(--rz-ac); }
-.cz-subtab:focus-visible { outline: 2px solid var(--rz-ac); outline-offset: -2px; }
 
 /* RESOLVE step 4: 왼쪽 패널 탭(템플릿 / 장면) */
 .cz-card.cz-libhide { display: none !important; }
@@ -376,17 +354,17 @@ label.cz-chip { display: inline-flex; align-items: center; }
 @media (min-width: 901px) {
 }
 
-/* RESOLVE step 5b: 색 페이지 — 휠 3개를 나란히 */
+/* 색 페이지: 색마다 휠 하나(왼쪽 휠 + 오른쪽 숫자·밝기·HEX). 칸이 많으면 옆으로 넘겨 본다 */
 .cz-colpg { display: none; }
-.cz-dlg[data-pg="color"] .cz-colpg { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 1px; background: var(--rz-ln); border-top: 1px solid var(--rz-ln); overflow: auto; }
-.cz-colpg-c { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 12px 16px; background: var(--rz-p1); min-width: 0; }
+.cz-dlg[data-pg="color"] .cz-colpg { display: flex; gap: 1px; background: var(--rz-ln); overflow: auto; }
+.cz-colpg-c { flex: 1 0 330px; display: flex; flex-direction: column; gap: 6px; padding: 10px 14px; background: var(--rz-p1); min-width: 0; }
 .cz-colpg-c h4 { margin: 0; align-self: flex-start; font-size: var(--fs-xs); font-weight: 700; color: var(--ink); letter-spacing: .03em; }
-.cz-colpg .cz-chips { justify-content: center; }
-.cz-colpg .cz-chip { min-height: 28px; padding: 0 9px; font-size: .74rem; }
-.cz-cw.cz-cw-pg { position: relative; flex-direction: column; width: 100%; max-width: 320px; gap: 8px; background: transparent; border: 0; padding: 0; }
-.cz-cw-pg .cz-cw-ring { width: 130px; height: 130px; }
-.cz-cw-pg .cz-cw-side { width: 100%; }
-.cz-cw-undo { position: absolute; top: 0; right: 0; width: 26px; height: 26px; padding: 0; border: 0; border-radius: 4px; background: transparent; color: var(--ink-faint); font: inherit; font-size: 1rem; line-height: 1; cursor: pointer; }
+.cz-colpg-c .cz-hint { margin: 0; font-size: .74rem; }
+.cz-cw.cz-cw-pg { position: relative; display: grid; grid-template-columns: 116px minmax(0, 1fr); grid-template-areas: "ring nums" "ring side"; column-gap: 14px; row-gap: 8px; align-content: center; background: transparent; border: 0; padding: 0; }
+.cz-cw-pg .cz-cw-ring { grid-area: ring; width: 116px; height: 116px; }
+.cz-cw-pg .cz-cw-nums { grid-area: nums; align-self: end; }
+.cz-cw-pg .cz-cw-side { grid-area: side; align-self: start; }
+.cz-cw-undo { position: absolute; top: -26px; right: 0; width: 26px; height: 26px; padding: 0; border: 0; border-radius: 4px; background: transparent; color: var(--ink-faint); font: inherit; font-size: 1rem; line-height: 1; cursor: pointer; }
 .cz-cw-undo:hover { color: #fff; background: var(--rz-p2); }
 .cz-cw-barrow { display: flex; align-items: center; gap: 6px; }
 .cz-cw-barrow .cz-cw-undo { position: static; flex: 0 0 auto; }
@@ -396,15 +374,7 @@ label.cz-chip { display: inline-flex; align-items: center; }
 .cz-cw-n span:hover { color: #fff; }
 .cz-cw-n input { width: 100%; min-width: 0; min-height: 28px; text-align: center; background: #0d0d0f; color: var(--ink); border: 1px solid #3a3a40; border-radius: 3px; font: inherit; font-size: .82rem; font-variant-numeric: tabular-nums; }
 .cz-cw-n input:focus { outline: 1px solid var(--rz-ac); }
-@media (min-width: 901px) {
-  .cz-dlg[data-pg="color"] { grid-template-rows: auto minmax(0, 1fr) auto auto; grid-template-areas: "head head head" "pv pv pv" "col col col" "foot foot foot"; }
-  .cz-dlg[data-pg="color"] .cz-lib, .cz-dlg[data-pg="color"] .cz-body, .cz-dlg[data-pg="color"] .cz-tl { display: none; }
-  .cz-colpg { grid-area: col; }
-  .cz-dlg[data-pg="color"] .cz-phone { width: clamp(140px, calc((100dvh - 560px) * 0.5625), 520px); }
-}
-@media (max-width: 900px) { .cz-dlg[data-pg="color"] .cz-lib, .cz-dlg[data-pg="color"] .cz-body { display: none; } .cz-dlg[data-pg="color"] .cz-colpg { grid-auto-flow: row; } }
 
-@media (max-width: 900px) { .cz-foot { flex-wrap: wrap; } .cz-pages { flex: 1 1 100%; margin-right: 0; } .cz-page { flex: 1 1 0; justify-content: center; } }
 
 /* 재생 줄은 미리보기 화면 바로 아래 가운데, 점선 보기는 오른쪽 */
 @media (min-width: 901px) {
@@ -420,12 +390,6 @@ label.cz-chip { display: inline-flex; align-items: center; }
 .cz-dlg[data-pg="shape"] .cz-body, .cz-dlg[data-pg="shape"] .cz-tl, .cz-dlg[data-pg="color"] .cz-body, .cz-dlg[data-pg="color"] .cz-tl { display: none; }
 .cz-shapepg .cz-card { margin: 0; border: 0; }
 .cz-shapepg .cz-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
-@media (min-width: 901px) {
-  .cz-dlg { grid-template-columns: minmax(380px, 1fr) minmax(320px, 30%); grid-template-areas: "head head" "pv body" "tl tl" "foot foot"; }
-  .cz-dlg[data-pg="shape"], .cz-dlg[data-pg="color"] { grid-template-rows: auto minmax(0, 1fr) auto auto; grid-template-areas: "head head" "pv pv" "col col" "foot foot"; }
-  .cz-shapepg { grid-area: col; max-height: 300px; overflow: auto; background: var(--rz-p1); border-top: 1px solid var(--rz-ln); }
-  .cz-dlg[data-pg="shape"] .cz-phone { width: clamp(140px, calc((100dvh - 560px) * 0.5625), 520px); }
-}
 
 /* 작업장(왼쪽): 내 사진·영상 */
 .cz-wb { padding: 0 0 12px; border: 0; }
@@ -441,8 +405,23 @@ label.cz-chip { display: inline-flex; align-items: center; }
 .cz-wb-drag { opacity: .55; cursor: grabbing; }
 .cz-wb-before { box-shadow: -3px 0 0 var(--rz-ac); }
 .cz-wb-after { box-shadow: 3px 0 0 var(--rz-ac); }
+/* 아래 칸(독): 페이지 막대 + 타임라인 자리. 막대를 고르면 타임라인 자리에 그 설정이 나타난다. 높이는 --dock-h(손잡이로 조절) */
+.cz-dock { display: flex; flex-direction: column; min-width: 0; min-height: 0; background: var(--rz-p1); border-top: 1px solid var(--rz-ln); }
+.cz-dockgrip { flex: none; height: 10px; display: flex; align-items: center; justify-content: center; background: var(--rz-p2); cursor: ns-resize; touch-action: none; }
+.cz-dockgrip::after { content: ""; width: 44px; height: 3px; border-radius: 2px; background: #3a3a40; transition: background .15s; }
+.cz-dockgrip:hover::after, .cz-dockgrip:focus-visible::after { background: var(--rz-ac); }
+.cz-dockgrip:focus-visible { outline: none; }
+.cz-pages { flex: none; display: flex; gap: 2px; margin: 0; padding: 4px 8px; background: var(--rz-p2); border-bottom: 1px solid var(--rz-ln); overflow-x: auto; }
+.cz-dockbody { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+.cz-dockbody > * { display: none; flex: 1 1 auto; min-height: 0; overflow: auto; border: 0; }
+.cz-dlg[data-pg="tl"] .cz-dockbody > .cz-tl { display: block; }
+.cz-dlg[data-pg="text"] .cz-dockbody > .cz-body { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); align-content: start; align-items: start; gap: 0; padding: 0; }
+.cz-dlg[data-pg="text"] .cz-body > .cz-bodyhead { grid-column: 1 / -1; position: sticky; top: 0; }
+.cz-dlg[data-pg="text"] .cz-body > .cz-card { border-right: 1px solid var(--rz-ln); }
+.cz-dlg[data-pg="shape"] .cz-dockbody > .cz-shapepg { display: block; max-height: none; }
 @media (min-width: 901px) {
-  .cz-dlg { grid-template-columns: minmax(230px, 20%) minmax(380px, 1fr) minmax(320px, 30%); grid-template-areas: "head head head" "lib pv body" "tl tl tl" "foot foot foot"; }
-  .cz-dlg[data-pg="shape"] { grid-template-areas: "head head head" "lib pv pv" "col col col" "foot foot foot"; }
+  .cz-dlg { --dock-h: clamp(220px, 34dvh, 300px); grid-template-columns: minmax(230px, 20%) minmax(380px, 1fr); grid-template-rows: auto minmax(0, 1fr) min(var(--dock-h), 58dvh) auto; grid-template-areas: "head head" "lib pv" "dock dock" "foot foot"; }
+  .cz-dock { grid-area: dock; }
+  .cz-phone { width: clamp(120px, calc((min(100dvh, 940px) - var(--dock-h) - 250px) * 0.5625), 520px); }
 }
-@media (max-width: 900px) { .cz-lib { display: none; } }
+@media (max-width: 900px) { .cz-lib { display: none; } .cz-dockgrip { display: none; } .cz-dockbody > * { overflow: visible; } .cz-dock { min-height: 260px; } }

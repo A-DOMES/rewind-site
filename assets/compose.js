@@ -179,7 +179,7 @@
     var ctr = el('div', 'cz-ctr'); ctr.style.display = 'none'; phone.insertBefore(ctr, gbox); if (그림주소) ctr.style.background = '#222 center / cover no-repeat url("' + 그림주소 + '")';
     var 칸손잡이 = el('div', 'cz-bandh'); 칸손잡이.style.display = 'none'; phone.appendChild(칸손잡이); var 칸상태 = { 위: 0.235, 아래: 0.595 };
     var sub = el('div', 'cz-sub'); phone.appendChild(sub); var blk = el('div'); blk.style.cssText = 'position:absolute;inset:0;pointer-events:none'; phone.appendChild(blk);
-    var tools = el('div', 'cz-pvtools'); var gl = el('label'); var gc = el('input'); gc.type = 'checkbox'; gc.checked = true; gl.appendChild(gc); gl.appendChild(document.createTextNode(' 유튜브가 쓰는 자리 점선으로 보기')); tools.appendChild(gl);
+    var tools = el('div', 'cz-pvtools'); var gl = el('label'); var gc = el('input'); gc.type = 'checkbox'; gc.checked = true; gl.appendChild(gc); gl.appendChild(document.createTextNode(' 점선')); gl.title = '유튜브가 쓰는 자리를 점선으로 보여 줘요'; tools.appendChild(gl);
     var 다시 = el('button', 'cz-btn'); 다시.type = 'button'; 다시.textContent = '▶ 읽는 효과 다시 보기'; 다시.style.cssText = 'min-height:44px;display:none'; tools.appendChild(다시);
     var 재생줄 = el('div', 'cz-tp'); 재생줄.setAttribute('role', 'group'); 재생줄.setAttribute('aria-label', '재생');
     var 처음버튼 = el('button', 'cz-tpb', '⏮'), 재생버튼 = el('button', 'cz-tpb cz-tpb-main', '▶'), 끝버튼 = el('button', 'cz-tpb', '⏭'), 재생시간 = el('span', 'cz-tpt', '0:00');
@@ -192,7 +192,8 @@
     pv.appendChild(phone); pv.appendChild(tools); pv.appendChild(warn); pv.appendChild(el('p', 'cz-note', '제목·자막·고정 글자는 끌어서 옮길 수 있어요 · 실제 영상은 조금 다를 수 있어요'));
     var lib = el('aside', 'cz-lib'); lib.setAttribute('aria-label', '구성과 모양'); var body = el('div', 'cz-body'); var tl = el('section', 'cz-tl'); tl.setAttribute('aria-label', '타임라인(앞 단계에서 정한 값)');
     var foot = el('div', 'cz-foot'); var reset = el('button', 'cz-btn', '처음 모양으로'); reset.type = 'button'; var ok = el('button', 'cz-btn cz-main', '적용하기'); ok.type = 'button'; foot.appendChild(reset); foot.appendChild(ok);
-    dlg.appendChild(head); dlg.appendChild(lib); dlg.appendChild(pv); dlg.appendChild(body); dlg.appendChild(tl); dlg.appendChild(foot); ov.appendChild(dlg);
+    var dock = el('section', 'cz-dock'), 그립 = el('div', 'cz-dockgrip'), 독몸 = el('div', 'cz-dockbody'); 그립.setAttribute('role', 'separator'); 그립.setAttribute('aria-orientation', 'horizontal'); 그립.setAttribute('aria-label', '아래 칸 높이 (끌거나 위·아래 화살표)'); 그립.tabIndex = 0; 독몸.appendChild(body); 독몸.appendChild(tl); dock.appendChild(그립); dock.appendChild(독몸);
+    dlg.appendChild(head); dlg.appendChild(lib); dlg.appendChild(pv); dlg.appendChild(dock); dlg.appendChild(foot); ov.appendChild(dlg);
 
     function 그리기미리보기() {
       var m = 합치기(선택, 종류), v = m.값;
@@ -264,26 +265,26 @@
       });
       return 결과;
     }
-    var 블록다시 = function () {};   // 만들기() 안의 블록그리기를 가리킨다
+    var 블록다시 = function () {}, 블록색다시 = function () {};   // 만들기() 안의 블록그리기를 가리킨다
     var 제목상태 = null;   // 마지막으로 그린 제목 상자(끌기가 쓴다)
     var 한계 = function (x, a, b) { return Math.min(b, Math.max(a, x)); }, 둘째 = function (x) { return Math.round(x * 100) / 100; };
     // ---------- 요소 선택 (리졸브에서 컷을 누르면 인스펙터가 따라가듯) ----------
     // 선택 = { 종류, 번호 }. 미리보기 요소는 값을 바꿀 때마다 다시 그려지므로 요소가 아니라 '이름표'로 기억하고, 그릴 때마다 테두리를 다시 입힌다.
     // 선택해도 값은 하나도 바뀌지 않는다: 해당 탭으로 옮기고 그 요소의 색 휠을 열어 줄 뿐이다. 모든 설정은 탭에서 그대로 할 수 있다.
-    var 고름 = null, 휠열기 = {}, 블휠열기 = [], 탭이동 = function () {}, 선택줄칩 = {}, 선택알림 = null, 선택알림글 = '';
+    var 고름 = null, 탭이동 = function () {}, 선택줄칩 = {}, 선택알림 = null, 선택알림글 = '';
     var 띠있음 = function () { return !가로 && (화면 === '제목고정형' || 화면 === '가운데영상형'); };
     var 대상표 = {
-      '제목띠': { 이름: '제목 띠', 탭: '제목', 가능: function () { return 띠있음(); }, 열기: function () { return 휠열기['제목띠색'] && 휠열기['제목띠색'](); } },
-      '제목글자': { 이름: '제목 글자', 탭: '제목', 가능: function () { return 띠있음(); }, 열기: function () { return 휠열기['제목글자색'] && 휠열기['제목글자색'](); } },
-      '자막': { 이름: '자막', 탭: '자막', 가능: function () { return !v0().자막끄기; }, 열기: function () { return 휠열기['자막색'] && 휠열기['자막색'](); } },
-      '블록': { 이름: '고정 글자', 탭: '고정 글자', 가능: function (n) { return n < 블록목록().length; }, 열기: function (n) { return 블휠열기[n] && 블휠열기[n](); } },
-      '바깥': { 이름: '위·아래 빈 곳', 탭: '제목', 가능: function () { return 화면 === '가운데영상형' && !가로; }, 열기: function () { return 휠열기['가운데색'] && 휠열기['가운데색'](); } }
+      '제목띠': { 이름: '제목 띠', 탭: '제목', 가능: function () { return 띠있음(); } },
+      '제목글자': { 이름: '제목 글자', 탭: '제목', 가능: function () { return 띠있음(); } },
+      '자막': { 이름: '자막', 탭: '자막', 가능: function () { return !v0().자막끄기; } },
+      '블록': { 이름: '고정 글자', 탭: '고정 글자', 가능: function (n) { return n < 블록목록().length; } },
+      '바깥': { 이름: '위·아래 빈 곳', 탭: '제목', 가능: function () { return 화면 === '가운데영상형' && !가로; } }
     };
     function 선택이름() { return 고름 ? 대상표[고름.종류].이름 + (고름.종류 === '블록' ? ' ' + (고름.번호 + 1) : '') : ''; }
     function 선택하기(종류, 번호) {
       var t = 대상표[종류]; if (!t || !t.가능(번호)) return;
       var 라벨 = document.activeElement && document.activeElement.getAttribute && document.activeElement.getAttribute('aria-label');
-      고름 = { 종류: 종류, 번호: 번호 || 0 }; 탭이동(t.탭); t.열기(번호); 선택바갱신(); 그리기미리보기();
+      고름 = { 종류: 종류, 번호: 번호 || 0 }; 탭이동(t.탭); 선택바갱신(); 그리기미리보기();
       if (라벨 && (!document.activeElement || document.activeElement === document.body)) { var 다시 = dlg.querySelector('[aria-label="' + 라벨 + '"]'); if (다시) 다시.focus(); }   // 미리보기를 다시 그리면 포커스를 잃으므로 같은 요소로 되돌린다
       if (선택알림) 선택알림.textContent = '선택: ' + 선택이름();
     }
@@ -509,22 +510,6 @@
       var 기본세로 = function () { return 제목상태 ? 제목상태.기본세로 : 0.09; };
       제목슬라이더('위·아래', '제목세로', 0.09, function (v) { var g = 기본세로(), r = 세로범위(); return Math.round((v < 0 ? g - (g - r[0]) * (-v / 50) : g + (r[1] - g) * (v / 50)) * 1000) / 1000; }, function (x) { var g = 기본세로(), r = 세로범위(); return (x - g) / (((x < g ? g - r[0] : r[1] - g) / 50) || 1); });
       제목슬라이더('왼쪽·오른쪽', '제목가로', 0.5, function (v) { return Math.round((0.5 + v / 100) * 100) / 100; }, function (x) { return (x - 0.5) * 100; });
-      function 색행(이름, 키, 목록, 기본색, 띠만) {
-        var r = el('div', 'cz-row'); r.appendChild(el('label', '', 이름)); var 칸 = el('div', 'cz-chips'); r.appendChild(칸); c1b.appendChild(r);
-        var 지금 = function () { var x = 합치기(선택, 종류).값[키]; return (헥스.test(x || '') ? x : 기본색).toLowerCase(); };
-        목록.forEach(function (c) { var b = el('button', 'cz-chip'); b.type = 'button'; b.title = c[0]; var d = el('span'); d.style.cssText = 'display:inline-block;width:.9em;height:.9em;border-radius:50%;margin-right:.35em;vertical-align:-.1em;border:1px solid #8886;background:' + (c[1] || 'linear-gradient(135deg,#888,#ddd)'); b.appendChild(d); b.appendChild(document.createTextNode(c[0]));
-          b.addEventListener('click', function () { if (c[1].toLowerCase() === 기본색.toLowerCase()) delete 선택[키]; else 선택[키] = c[1].toUpperCase(); 갱신(); }); 칸.appendChild(b); 눌림목록.push(function () { b.setAttribute('aria-pressed', String(지금() === c[1].toLowerCase())); }); });
-        var 직접 = el('button', 'cz-chip', '직접 고르기'); 직접.type = 'button'; 직접.setAttribute('aria-expanded', 'false'); 직접.dataset.k = 키 + '-직접'; 칸.appendChild(직접);
-        var 휠칸 = el('div', 'cz-cw-wrap'); 휠칸.hidden = true; r.appendChild(휠칸);
-        var 휠 = 색휠({ 이름: '제목 ' + 이름, 쓰기: function (hx) { if (기본색 && hx.toLowerCase() === 기본색.toLowerCase()) delete 선택[키]; else 선택[키] = hx; 갱신(); }, 기본으로: function () { delete 선택[키]; 갱신(); } }); 휠칸.appendChild(휠.box);
-        직접.addEventListener('click', function () { 휠칸.hidden = !휠칸.hidden; 직접.setAttribute('aria-expanded', String(!휠칸.hidden)); if (!휠칸.hidden) 휠.맞추기(지금() || 기본색 || '#808080'); });
-        휠열기[키] = function () { 휠칸.hidden = false; 직접.setAttribute('aria-expanded', 'true'); 휠.맞추기(지금() || 기본색 || '#808080'); 휠칸.scrollIntoView({ block: 'nearest' }); };
-        눌림목록.push(function () { 직접.setAttribute('aria-pressed', String(!목록.some(function (c) { return c[1].toLowerCase() === 지금(); }))); if (!휠칸.hidden) 휠.맞추기(지금() || 기본색 || '#808080'); });
-        제목행들.push({ r: r, 띠만: 띠만 });
-      }
-      색행('띠 색', '제목띠색', [['검정', '#15110e'], ['남색', '#14213d'], ['진초록', '#12372a'], ['자주', '#3b1d3a'], ['빨강', '#8b1e1e'], ['크림', '#f5f1e8'], ['노랑', '#ffd60a']], '#15110e', true);
-      색행('위·아래 빈 곳', '가운데색', [['흐리게', ''], ['검정', '#000000'], ['남색', '#14213d'], ['진초록', '#12372a'], ['자주', '#3b1d3a'], ['빨강', '#8b1e1e'], ['크림', '#f5f1e8']], '', '가운데');
-      색행('글자 색', '제목글자색', [['노랑', '#fff200'], ['흰색', '#ffffff'], ['검정', '#111111'], ['하늘', '#4dc3ff'], ['분홍', '#ff4d8d'], ['초록', '#2ee6a6']], '#fff200', false);
       c1b.appendChild(el('p', 'cz-hint', '띠 높이를 바꾸면 글자가 띠에 맞춰져요. 글자는 띠 아래 화면 위로도 옮길 수 있어요'));
       눌림목록.push(function () { var 보임 = !가로 && (화면 === '제목고정형' || 화면 === '가운데영상형'); c1b.style.display = 보임 ? '' : 'none'; 제목행들.forEach(function (h) { h.r.style.display = (h.띠만 === '가운데' && 화면 !== '가운데영상형') ? 'none' : ''; }); });
       if (문구시간쓰기) {
@@ -546,40 +531,10 @@
         b.addEventListener('click', function () { 선택.자막모양 = m[0]; 갱신(); }); gm.appendChild(b); 눌림목록.push(function () { b.setAttribute('aria-pressed', String(합치기(선택, 종류).값.자막모양 === m[0])); }); });
       var r1 = el('div', 'cz-row'); r1.appendChild(el('label', '', '글꼴')); r1.appendChild(Object.assign(el('div', 'cz-chips'), {})); c2.appendChild(r1);
       칩묶음(r1.lastChild, 글꼴들, function () { return 합치기(선택, 종류).값.글꼴; }, function (v) { 선택.글꼴 = v; }, '글꼴');
-      var r1c = el('div', 'cz-row'); r1c.appendChild(el('label', '', '글자 색')); c2.appendChild(r1c); var 자색칸 = el('div', 'cz-chips'); r1c.appendChild(자색칸);
-      var 현재자색 = function () { var x = 합치기(선택, 종류).값.자막색; return 헥스.test(x || '') ? x.toLowerCase() : ''; };
-      [['모양대로', ''], ['흰색', '#ffffff'], ['노랑', '#ffe600'], ['하늘', '#4dc3ff'], ['분홍', '#ff4d8d'], ['초록', '#2ee6a6'], ['검정', '#111111']].forEach(function (c) {
-        var b = el('button', 'cz-chip'); b.type = 'button'; b.title = c[0]; if (c[1]) { var d = el('span'); d.style.cssText = 'display:inline-block;width:.9em;height:.9em;border-radius:50%;margin-right:.35em;vertical-align:-.1em;border:1px solid #8886;background:' + c[1]; b.appendChild(d); } b.appendChild(document.createTextNode(c[0]));
-        b.addEventListener('click', function () { if (c[1]) 선택.자막색 = c[1].toUpperCase(); else delete 선택.자막색; 갱신(); }); 자색칸.appendChild(b); 눌림목록.push(function () { b.setAttribute('aria-pressed', String(현재자색() === c[1])); }); });
-      var 자직접 = el('button', 'cz-chip', '직접 고르기'); 자직접.type = 'button'; 자직접.setAttribute('aria-expanded', 'false'); 자직접.dataset.k = '자막색-직접'; 자색칸.appendChild(자직접);
-      var 자휠칸 = el('div', 'cz-cw-wrap'); 자휠칸.hidden = true; r1c.appendChild(자휠칸);
-      var 자휠 = 색휠({ 이름: '자막 글자', 쓰기: function (hx) { 선택.자막색 = hx; 갱신(); }, 기본으로: function () { delete 선택.자막색; 갱신(); } }); 자휠칸.appendChild(자휠.box);
-      var 자바탕 = function () { return 현재자색() || 모양겉(합치기(선택, 종류).값.자막모양).c.replace(/^#fff$/i, '#FFFFFF'); };
-      휠열기['자막색'] = function () { 자휠칸.hidden = false; 자직접.setAttribute('aria-expanded', 'true'); 자휠.맞추기(자바탕()); 자휠칸.scrollIntoView({ block: 'nearest' }); };
-      자직접.addEventListener('click', function () { 자휠칸.hidden = !자휠칸.hidden; 자직접.setAttribute('aria-expanded', String(!자휠칸.hidden)); if (!자휠칸.hidden) 자휠.맞추기(자바탕()); });
-      눌림목록.push(function () { 자직접.setAttribute('aria-pressed', String(!!현재자색() && ['#ffffff', '#ffe600', '#4dc3ff', '#ff4d8d', '#2ee6a6', '#111111'].indexOf(현재자색()) < 0)); if (!자휠칸.hidden) 자휠.맞추기(자바탕()); });
-      var r2 = el('div', 'cz-row'); r2.appendChild(el('label', '', '단어 색')); c2.appendChild(r2); var cw = el('div', 'cz-chips'); r2.appendChild(cw);
-      var 현재핵 = function () { return 합치기(선택, 종류).값.핵심색; };
-      핵심들.forEach(function (h) { var b = el('button', 'cz-chip'); b.type = 'button'; b.title = h[1]; if (h[2]) { var d = el('span'); d.style.cssText = 'display:inline-block;width:.9em;height:.9em;border-radius:50%;margin-right:.35em;vertical-align:-.1em;border:1px solid #0004;background:' + h[2]; b.appendChild(d); } b.appendChild(document.createTextNode(h[1])); b.addEventListener('click', function () { 선택.핵심색 = h[0]; 갱신(); }); cw.appendChild(b); 눌림목록.push(function () { b.setAttribute('aria-pressed', String(현재핵() === h[0])); }); });
-      var 직접색 = el('button', 'cz-chip', '직접 고르기'); 직접색.type = 'button'; 직접색.setAttribute('aria-expanded', 'false'); 직접색.dataset.k = '핵심색-직접'; cw.appendChild(직접색);
-      var 핵휠칸 = el('div', 'cz-cw-wrap'); 핵휠칸.hidden = true; r2.appendChild(핵휠칸);
-      var 핵휠 = 색휠({ 이름: '단어', 쓰기: function (hx) { 선택.핵심색 = hx; 갱신(); }, 기본으로: function () { delete 선택.핵심색; 갱신(); } }); 핵휠칸.appendChild(핵휠.box);
-      휠열기['핵심색'] = function () { 핵휠칸.hidden = false; 직접색.setAttribute('aria-expanded', 'true'); 핵휠.맞추기(이름색(현재핵()) || '#FF4D8D'); 핵휠칸.scrollIntoView({ block: 'nearest' }); };
-      직접색.addEventListener('click', function () { 핵휠칸.hidden = !핵휠칸.hidden; 직접색.setAttribute('aria-expanded', String(!핵휠칸.hidden)); if (!핵휠칸.hidden) 핵휠.맞추기(이름색(현재핵()) || '#FF4D8D'); });
-      눌림목록.push(function () { 직접색.setAttribute('aria-pressed', String(헥스.test(현재핵()))); if (!핵휠칸.hidden) 핵휠.맞추기(이름색(현재핵()) || '#FF4D8D'); });
-      c2.appendChild(el('p', 'cz-hint', '대본에서 중요한 단어에 이 색이 칠해져요'));
       var c2b = 카드('읽는 글자 효과', '목소리가 읽는 단어를 색으로 칠해요', '자막');
       var 효과줄 = el('div', 'cz-chips'); c2b.appendChild(효과줄);
       칩묶음(효과줄, 읽는효과들, function () { return 합치기(선택, 종류).값.읽는효과 || '끔'; }, function (v) { 선택.읽는효과 = v; }, '읽는 글자 효과');   // '끔'도 값으로 보낸다(바깥 자막 효과 설정보다 꾸미기에서 고른 것이 우선)
-      var 색줄 = el('div', 'cz-row'); 색줄.appendChild(el('label', '', '칠하는 색')); var 색들 = el('div', 'cz-chips'); 색줄.appendChild(색들); c2b.appendChild(색줄);
-      var 현재색 = function () { return 합치기(선택, 종류).값.읽는색 || '노랑'; };
-      핵심들.filter(function (h) { return h[2] && h[0] !== '흰색'; }).forEach(function (h) { var b = el('button', 'cz-chip');   // 흰색은 글자가 원래 흰색이라 칠해도 안 보여 뺀다
- b.type = 'button'; b.title = h[1]; var d = el('span'); d.style.cssText = 'display:inline-block;width:.9em;height:.9em;border-radius:50%;margin-right:.35em;vertical-align:-.1em;border:1px solid #0004;background:' + h[2]; b.appendChild(d); b.appendChild(document.createTextNode(h[1])); b.addEventListener('click', function () { 선택.읽는색 = h[0]; 갱신(); }); 색들.appendChild(b); 눌림목록.push(function () { b.setAttribute('aria-pressed', String(현재색() === h[0])); }); });
-      var 읽직접 = el('button', 'cz-chip', '직접 고르기'); 읽직접.type = 'button'; 읽직접.setAttribute('aria-expanded', 'false'); 읽직접.dataset.k = '읽는색-직접'; 색들.appendChild(읽직접);
-      var 읽휠칸 = el('div', 'cz-cw-wrap'); 읽휠칸.hidden = true; 색줄.appendChild(읽휠칸);
-      var 읽휠 = 색휠({ 이름: '칠하는', 쓰기: function (hx) { 선택.읽는색 = hx; 갱신(); }, 기본으로: function () { delete 선택.읽는색; 갱신(); } }); 읽휠칸.appendChild(읽휠.box);
-      읽직접.addEventListener('click', function () { 읽휠칸.hidden = !읽휠칸.hidden; 읽직접.setAttribute('aria-expanded', String(!읽휠칸.hidden)); if (!읽휠칸.hidden) 읽휠.맞추기(이름색(현재색()) || '#FFE14D'); });
-      눌림목록.push(function () { 읽직접.setAttribute('aria-pressed', String(헥스.test(현재색()))); if (!읽휠칸.hidden) 읽휠.맞추기(이름색(현재색()) || '#FFE14D'); 색줄.style.display = (합치기(선택, 종류).값.읽는효과 || '끔') === '끔' ? 'none' : ''; 다시.style.display = (합치기(선택, 종류).값.읽는효과 || '끔') === '끔' ? 'none' : ''; });
+      눌림목록.push(function () { 다시.style.display = (합치기(선택, 종류).값.읽는효과 || '끔') === '끔' ? 'none' : ''; });
       c2b.appendChild(el('p', 'cz-hint', '왼쪽 미리보기에서 바로 확인해요. 실제 영상은 목소리 속도에 맞춰 조금 달라질 수 있어요'));
       var c3 = 카드('자막 크기와 줄', '가운데가 기본이에요', '자막');
       // 크기: 숫자 + 슬라이더(가운데=기본 77, 오른쪽=크게)
@@ -627,17 +582,10 @@
           슬라이더('왼쪽·오른쪽', function () { return Math.round(b.위치.가로 * 100); }, function (v) { b.위치.가로 = v / 100; }, 0, 100);
           var r2 = el('div', 'cz-row'); r2.appendChild(el('label', '', '글자 크기')); var nm = el('input'); nm.type = 'number'; nm.min = 20; nm.max = 200; nm.value = b.크기; nm.setAttribute('aria-label', '고정 글자 ' + (i + 1) + ' 크기'); nm.addEventListener('input', function () { b.크기 = Math.round(수(nm.value, 20, 200, 60)); 그리기미리보기(); }); r2.appendChild(nm);
           var 모 = el('div', 'cz-chips'); 모양들.forEach(function (m) { var k = el('button', 'cz-chip', m[1]); k.type = 'button'; k.setAttribute('aria-pressed', String(b.모양 === m[0])); k.addEventListener('click', function () { b.모양 = m[0]; 블록그리기(); 그리기미리보기(); }); 모.appendChild(k); }); r2.appendChild(모); 칸.appendChild(r2);
-          var r3 = el('div', 'cz-row'); r3.appendChild(el('label', '', '글자 색')); var 색칸 = el('div', 'cz-chips'); r3.appendChild(색칸);
-          var 기본색 = el('button', 'cz-chip', '모양 기본'); 기본색.type = 'button'; 기본색.setAttribute('aria-pressed', String(!헥스.test(b.색 || ''))); 기본색.addEventListener('click', function () { delete b.색; 블록그리기(); 그리기미리보기(); }); 색칸.appendChild(기본색);
-          var 직접 = el('button', 'cz-chip', '직접 고르기'); 직접.type = 'button'; 직접.setAttribute('aria-pressed', String(헥스.test(b.색 || ''))); 직접.setAttribute('aria-expanded', 'false'); 직접.dataset.k = '블록' + (i + 1) + '-색-직접'; 색칸.appendChild(직접);
-          var 블휠칸 = el('div', 'cz-cw-wrap'); 블휠칸.hidden = true; r3.appendChild(블휠칸);
-          var 블휠 = 색휠({ 이름: '고정 글자 ' + (i + 1), 쓰기: function (hx) { b.색 = hx; 직접.setAttribute('aria-pressed', 'true'); 기본색.setAttribute('aria-pressed', 'false'); 그리기미리보기(); }, 기본으로: function () { delete b.색; 블록그리기(); 그리기미리보기(); } }); 블휠칸.appendChild(블휠.box);
-          블휠열기[i] = function () { 블휠칸.hidden = false; 직접.setAttribute('aria-expanded', 'true'); 블휠.맞추기(헥스.test(b.색 || '') ? b.색 : '#FFFFFF'); 블휠칸.scrollIntoView({ block: 'nearest' }); };
-          직접.addEventListener('click', function () { 블휠칸.hidden = !블휠칸.hidden; 직접.setAttribute('aria-expanded', String(!블휠칸.hidden)); if (!블휠칸.hidden) 블휠.맞추기(헥스.test(b.색 || '') ? b.색 : '#FFFFFF'); });
-          칸.appendChild(r3);
           var 삭 = el('button', 'cz-btn', '이 글자 지우기'); 삭.type = 'button'; 삭.addEventListener('click', function () { 블록목록().splice(i, 1); if (고름 && 고름.종류 === '블록') { if (고름.번호 === i) { 고름 = null; if (선택알림) 선택알림.textContent = '선택을 풀었어요'; } else if (고름.번호 > i) 고름.번호--; } 블록그리기(); 갱신(); 적용상태(); }); 칸.appendChild(삭);
           목록칸.appendChild(칸);
         });
+        블록색다시();
       }
       추가.addEventListener('click', function () { if (블록목록().length >= 4) return; 블록목록().push({ 글: '', 위치: { 기준: '위', 거리: 0.15, 가로: 0.5 }, 크기: 60, 모양: '굵은흰', 글꼴: 'Noto Sans CJK KR' }); 블록그리기(); 갱신(); 적용상태(); });
       블록그리기();
@@ -691,44 +639,42 @@
       })();
       lib.appendChild(작업장);
       var 모양판 = null; if (c1) { c1.dataset.tab = '*'; c1.classList.remove('cz-fold'); var 머리1 = c1.querySelector('.cz-ch'); if (머리1) 머리1.setAttribute('aria-expanded', 'true'); 모양판 = el('section', 'cz-shapepg'); 모양판.setAttribute('aria-label', '모양 고르기'); 모양판.appendChild(c1); }
-      // 아래 페이지 바(리졸브의 페이지): 모양 = 지금 배치 / 장면 = 미리보기를 크게, 왼쪽은 장면 탭
-      var 페이지줄 = el('div', 'cz-pages'); 페이지줄.setAttribute('role', 'tablist'); 페이지줄.setAttribute('aria-label', '작업 화면');
-      var 페이지목록 = [['모양', 'M4 5h7v6H4zM13 5h7v6h-7zM4 13h7v6H4zM13 13h7v6h-7z', 'shape'], ['색', 'M12 3a9 9 0 100 18c1.4 0 2-1 1.6-2-.5-1.2.2-2.5 1.6-2.5H17a4 4 0 004-4c0-5-4-9.5-9-9.5zM7.5 11h.01M10 7.5h.01M14.5 7.5h.01', 'color'], ['글자', 'M5 6h14M12 6v13M9 19h6', 'text']];
-      // 색 페이지(리졸브 컬러 페이지): 제목 띠 색 · 제목 글자색 · 자막 글자색을 휠 3개로 나란히. 값은 꾸미기 안의 같은 칸을 그대로 쓴다(새 기능 없음)
-      var 색판 = el('section', 'cz-colpg'); 색판.setAttribute('aria-label', '색'); var 점칩 = function (hx) { var d = el('span'); d.style.cssText = 'display:inline-block;width:.9em;height:.9em;border-radius:50%;margin-right:.35em;vertical-align:-.1em;border:1px solid #8886;background:' + hx; return d; };
-      function 색칸(이름, 키, 목록, 기본색, 읽기, 쓰기지움, 모양대로) {
+      // 색 페이지(리졸브 컬러 페이지): 색은 전부 여기서 고른다. 칸마다 휠 하나 — 제목 띠 · 제목 글자 · 자막 · 위·아래 빈 곳 · 단어 · 읽는 글자 · 고정 글자(글자마다). 값은 꾸미기 안의 같은 칸을 그대로 쓴다(새 기능 없음)
+      var 색판 = el('section', 'cz-colpg'); 색판.setAttribute('aria-label', '색');
+      function 색칸(이름, 키, 기본색, 읽기, 설명) {   // 기본색과 같은 색을 고르면 '안 고른 것'으로 되돌린다(템플릿·구성이 바뀌어도 따라가도록). ↺ 는 안 고른 상태로
         var 칸 = el('div', 'cz-colpg-c'); 칸.appendChild(el('h4', '', 이름)); var 바탕 = function () { return 읽기() || (typeof 기본색 === 'function' ? 기본색() : 기본색) || '#808080'; };
         var 휠 = 색휠({ 이름: 이름, 페이지형: true, 기본hex: 기본색, 쓰기: function (hx) { 선택[키] = hx; var 기 = typeof 기본색 === 'function' ? 기본색() : 기본색; if (기 && hx.toLowerCase() === String(기).toLowerCase()) delete 선택[키]; 갱신(); }, 기본으로: function () { delete 선택[키]; 갱신(); } });
-        칸.appendChild(휠.box); var 칩줄 = el('div', 'cz-chips'); 칸.appendChild(칩줄);
-        목록.forEach(function (c) { var b = el('button', 'cz-chip'); b.type = 'button'; b.title = c[0]; if (c[1]) b.appendChild(점칩(c[1])); b.appendChild(document.createTextNode(c[0]));
-          b.addEventListener('click', function () { if (!c[1] || (!모양대로 && String(c[1]).toLowerCase() === String(기본색).toLowerCase())) delete 선택[키]; else 선택[키] = c[1].toUpperCase(); 갱신(); }); 칩줄.appendChild(b);
-          눌림목록.push(function () { var 지금 = 읽기(); b.setAttribute('aria-pressed', String(c[1] ? 지금.toLowerCase() === c[1].toLowerCase() : !지금)); }); });
+        칸.appendChild(휠.box); if (설명) 칸.appendChild(el('p', 'cz-hint', 설명));
         눌림목록.push(function () { 휠.맞추기(바탕()); }); 색판.appendChild(칸); return 칸;
       }
       var 값읽기 = function (키, 기본) { return function () { var x = 합치기(선택, 종류).값[키]; return 헥스.test(x || '') ? x : (기본 || ''); }; };
-      var 띠칸 = 색칸('제목 띠 색', '제목띠색', [['검정', '#15110e'], ['남색', '#14213d'], ['진초록', '#12372a'], ['자주', '#3b1d3a'], ['빨강', '#8b1e1e'], ['크림', '#f5f1e8'], ['노랑', '#ffd60a']], '#15110e', 값읽기('제목띠색', '#15110e'));
-      var 제글칸 = 색칸('제목 글자색', '제목글자색', [['노랑', '#fff200'], ['흰색', '#ffffff'], ['검정', '#111111'], ['하늘', '#4dc3ff'], ['분홍', '#ff4d8d'], ['초록', '#2ee6a6']], '#fff200', 값읽기('제목글자색', '#fff200'));
+      var 띠칸 = 색칸('제목 띠 색', '제목띠색', '#15110e', 값읽기('제목띠색', '#15110e'));
+      var 제글칸 = 색칸('제목 글자색', '제목글자색', '#fff200', 값읽기('제목글자색', '#fff200'));
       var 자기본 = function () { return 모양겉(합치기(선택, 종류).값.자막모양).c.replace(/^#fff$/i, '#FFFFFF'); };
-      색칸('자막색', '자막색', [['모양대로', ''], ['흰색', '#ffffff'], ['노랑', '#ffe600'], ['하늘', '#4dc3ff'], ['분홍', '#ff4d8d'], ['초록', '#2ee6a6'], ['검정', '#111111']], 자기본, 값읽기('자막색', ''), null, true);
-      눌림목록.push(function () { var 보임 = !가로 && (화면 === '제목고정형' || 화면 === '가운데영상형'); 띠칸.style.display = 제글칸.style.display = 보임 ? '' : 'none'; });
-      dlg.appendChild(색판); dlg.insertBefore(색판, foot);
-      function 페이지보기(k) { dlg.dataset.pg = k; Array.prototype.forEach.call(페이지줄.children, function (b) { b.setAttribute('aria-selected', String(b.dataset.k === k)); }); if (k === 'color') 눌림갱신(); }
-      페이지목록.filter(function (it) { return 모양판 || it[2] !== 'shape'; }).forEach(function (it) { var b = el('button', 'cz-page'); b.type = 'button'; b.dataset.k = it[2]; b.setAttribute('role', 'tab'); b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="' + it[1] + '"/></svg><span>' + it[0] + '</span>'; b.addEventListener('click', function () { 페이지보기(it[2]); }); 페이지줄.appendChild(b); });
-      foot.insertBefore(페이지줄, foot.firstChild); if (모양판) dlg.insertBefore(모양판, foot); 페이지보기(모양판 ? 'shape' : 'text');
+      색칸('자막 글자색', '자막색', 자기본, 값읽기('자막색', ''));
+      var 빈곳칸 = 색칸('위·아래 빈 곳', '가운데색', '', 값읽기('가운데색', ''), '↺ 로 되돌리면 흐리게 보여요');
+      var 단어칸 = 색칸('단어 색', '핵심색', '', function () { return 이름색(합치기(선택, 종류).값.핵심색) || ''; }, '대본에서 중요한 단어에 칠해져요. ↺ 로 되돌리면 칠하지 않아요');
+      var 읽는칸 = 색칸('읽는 글자 색', '읽는색', '#FFE14D', function () { return 이름색(합치기(선택, 종류).값.읽는색 || '노랑') || '#FFE14D'; }, '읽는 글자 효과를 켰을 때 칠하는 색이에요');
+      var 블록색칸들 = [];   // 고정 글자마다 하나(글자를 더하거나 지우면 다시 만든다)
+      var 블록색맞추기 = function () { 블록색칸들.forEach(function (c) { c.맞추기(); }); };
+      블록색다시 = function () {
+        블록색칸들.forEach(function (c) { if (c.칸.parentNode) c.칸.parentNode.removeChild(c.칸); }); 블록색칸들 = [];
+        블록목록().forEach(function (b, i) {
+          var 칸 = el('div', 'cz-colpg-c'); 칸.appendChild(el('h4', '', '고정 글자 ' + (i + 1) + ' 색')); var 바탕 = function () { return 헥스.test(b.색 || '') ? b.색 : 모양겉(b.모양).c.replace(/^#fff$/i, '#FFFFFF'); };
+          var 휠 = 색휠({ 이름: '고정 글자 ' + (i + 1), 페이지형: true, 기본hex: function () { return 모양겉(b.모양).c.replace(/^#fff$/i, '#FFFFFF'); }, 쓰기: function (hx) { b.색 = hx; 그리기미리보기(); }, 기본으로: function () { delete b.색; 휠.맞추기(바탕()); 그리기미리보기(); } });
+          칸.appendChild(휠.box); 색판.appendChild(칸); 휠.맞추기(바탕()); 블록색칸들.push({ 칸: 칸, 맞추기: function () { 휠.맞추기(바탕()); } });
+        });
+      };
+      눌림목록.push(function () {
+        var 보임 = !가로 && (화면 === '제목고정형' || 화면 === '가운데영상형'), 값 = 합치기(선택, 종류).값;
+        띠칸.style.display = 제글칸.style.display = 보임 ? '' : 'none'; 빈곳칸.style.display = !가로 && 화면 === '가운데영상형' ? '' : 'none'; 읽는칸.style.display = (값.읽는효과 || '끔') === '끔' ? 'none' : ''; 블록색맞추기();
+      });
+      블록색다시();
+      독몸.appendChild(색판);
       var 빈탭 = el('p', 'cz-card cz-hintcard', '이 화면 구성에는 위쪽 제목 띠가 없어요. 제목 띠가 필요하면 앞의 「구성」 단계에서 제목고정이나 가운데영상을 골라요.'); 빈탭.dataset.tab = '제목'; body.appendChild(빈탭);
       눌림목록.push(function () { 빈탭.style.display = (띠없음 || 화면 === '제목고정형' || 화면 === '가운데영상형') ? 'none' : ''; });
       var 띠없음 = 가로 || 화면목록.length < 2;   // 화면 구성을 고를 수 없으면(가로·롱폼 세로) 제목 띠도 없다
       var 탭순서 = 띠없음 ? ['자막', '고정 글자'] : ['제목', '자막', '고정 글자'], 있는탭 = 탭순서.filter(function (t) { return body.querySelector('.cz-card[data-tab="' + t + '"]'); });
-      var 서브표={'제목 설정':'모양','문구가 보이는 시간':'시간','자막 방식':'글자','자막 글자 모양':'글자','읽는 글자 효과':'글자','자막 크기와 줄':'크기·위치','자막 위치':'크기·위치'};   // 둘째 줄 탭(서류철): 카드를 묶는 이름
-      [].forEach.call(body.querySelectorAll('.cz-card[data-tab]'), function (c) { var h = c.querySelector('h3'), n = h && h.firstChild ? h.firstChild.textContent : ''; if (서브표[n]) c.dataset.sub = 서브표[n]; });
-      var 서브줄 = el('div', 'cz-subtabs'); 서브줄.setAttribute('role', 'tablist'); 서브줄.hidden = true; var 서브기억 = {};
-      function 서브보이기(t, s) {
-        var 카드들 = [].slice.call(body.querySelectorAll('.cz-card[data-tab="' + t + '"][data-sub]')), 이름들 = [];
-        카드들.forEach(function (c) { if (이름들.indexOf(c.dataset.sub) < 0) 이름들.push(c.dataset.sub); });
-        [].forEach.call(body.querySelectorAll('.cz-card[data-sub]'), function (c) { c.classList.toggle('cz-subhide', c.dataset.tab !== t || (이름들.length > 1 && c.dataset.sub !== s)); });
-        서브줄.innerHTML = ''; 서브줄.hidden = 이름들.length < 2; if (이름들.length < 2) return;
-        이름들.forEach(function (n) { var b = el('button', 'cz-subtab', n); b.type = 'button'; b.setAttribute('role', 'tab'); b.setAttribute('aria-selected', String(n === s)); b.addEventListener('click', function () { 서브기억[t] = n; 서브보이기(t, n); }); 서브줄.appendChild(b); });
-      }
       var 머리줄 = el('div', 'cz-bodyhead'); body.insertBefore(머리줄, body.firstChild);   // 탭 + 선택 줄(스크롤해도 위에 붙어 있다)
       var 선택줄 = el('div', 'cz-selbar'); 선택줄.setAttribute('role', 'group'); 선택줄.setAttribute('aria-label', '꾸밀 요소 고르기 (미리보기를 눌러도 돼요)'); 선택줄.appendChild(el('span', 'cz-selbar-l', '선택'));
       [['제목띠', '제목 띠', 0], ['제목글자', '제목 글자', 0], ['자막', '자막', 0], ['블록', '고정 글자 1', 0], ['블록', '고정 글자 2', 1], ['블록', '고정 글자 3', 2], ['블록', '고정 글자 4', 3], ['바깥', '빈 곳', 0]].forEach(function (c) {
@@ -737,19 +683,32 @@
       });
       var 풀기 = el('button', 'cz-chip cz-selbar-x', '해제'); 풀기.type = 'button'; 풀기.setAttribute('aria-label', '선택 풀기 (Esc)'); 풀기.addEventListener('click', 선택풀기); 선택줄칩.__해제 = 풀기; 선택줄.appendChild(풀기);
       선택알림 = el('span', 'cz-sr'); 선택알림.setAttribute('aria-live', 'polite'); 선택줄.appendChild(선택알림); 머리줄.appendChild(선택줄); 눌림목록.push(선택바갱신); 선택바갱신();
-      if (있는탭.length > 1) {
-        var 탭줄 = el('div', 'cz-tabs'); 탭줄.setAttribute('role', 'tablist'); var 탭버튼 = {};
-        var 탭그림 = { '제목': 'M5 6h14M12 6v13M9 19h6', '자막': 'M4 6h16v12H4zM8 11h8M8 14.5h5', '고정 글자': 'M12 3v8M8.5 11h7l-1.5 4h-4zM12 15v6' };
-        body.setAttribute('role', 'tabpanel');
-        function 탭보이기(t) { 있는탭.forEach(function (n) { 탭버튼[n].setAttribute('aria-selected', String(n === t)); 탭버튼[n].tabIndex = n === t ? 0 : -1; }); body.setAttribute('aria-labelledby', 탭버튼[t].id); [].forEach.call(body.querySelectorAll('.cz-card[data-tab]'), function (c) { c.classList.toggle('cz-tabhide', c.dataset.tab !== '*' && c.dataset.tab !== t); }); var 이름 = body.querySelector('.cz-card[data-tab="' + t + '"][data-sub]'); 서브보이기(t, 서브기억[t] || (이름 ? 이름.dataset.sub : '')); }
-        있는탭.forEach(function (t) { var b = el('button', 'cz-tab'); b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="' + (탭그림[t] || 'M5 12h14') + '"/></svg>'; b.appendChild(el('span', '', t)); b.type = 'button'; b.setAttribute('role', 'tab'); b.id = 'cz-tab-' + t.replace(/\s/g, ''); b.setAttribute('aria-controls', 'cz-panel'); b.addEventListener('click', function () { 탭보이기(t); });
-          b.addEventListener('keydown', function (e) {   // 좌우 화살표·Home·End 로 탭 이동(선택된 탭만 Tab 키로 닿는다)
-            var i = 있는탭.indexOf(t), 다음 = e.key === 'ArrowRight' ? (i + 1) % 있는탭.length : e.key === 'ArrowLeft' ? (i + 있는탭.length - 1) % 있는탭.length : e.key === 'Home' ? 0 : e.key === 'End' ? 있는탭.length - 1 : -1;
-            if (다음 < 0) return; e.preventDefault(); 탭보이기(있는탭[다음]); 탭버튼[있는탭[다음]].focus();
-          }); 탭버튼[t] = b; 탭줄.appendChild(b); });
-        body.id = 'cz-panel';
-        머리줄.insertBefore(탭줄, 머리줄.firstChild); 머리줄.insertBefore(서브줄, 선택줄); 탭보이기(있는탭[0]); 탭이동 = function (t) { if (있는탭.indexOf(t) >= 0) 탭보이기(t); };
+      body.id = 'cz-panel'; body.setAttribute('role', 'group');
+      function 탭보이기(t) { [].forEach.call(body.querySelectorAll('.cz-card[data-tab]'), function (c) { c.classList.toggle('cz-tabhide', c.dataset.tab !== '*' && c.dataset.tab !== t); }); }
+      // 아래 칸 위쪽의 페이지 막대(리졸브의 페이지): 타임라인 · 제목 · 자막 · 색 · 모양 · 고정 글자. 누르면 타임라인 자리에 그 설정이 나타난다
+      var 페이지줄 = el('div', 'cz-pages'); 페이지줄.setAttribute('role', 'tablist'); 페이지줄.setAttribute('aria-label', '작업 화면');
+      var 쪽그림 = { '타임라인': 'M4 7h16M4 12h10M4 17h13', '제목': 'M5 6h14M12 6v13M9 19h6', '자막': 'M4 6h16v12H4zM8 11h8M8 14.5h5', '색': 'M12 3a9 9 0 100 18c1.4 0 2-1 1.6-2-.5-1.2.2-2.5 1.6-2.5H17a4 4 0 004-4c0-5-4-9.5-9-9.5zM7.5 11h.01M10 7.5h.01M14.5 7.5h.01', '모양': 'M4 5h7v6H4zM13 5h7v6h-7zM4 13h7v6H4zM13 13h7v6h-7z', '고정 글자': 'M12 3v8M8.5 11h7l-1.5 4h-4zM12 15v6' };
+      var 쪽목록 = ['타임라인', '제목', '자막', '색', '모양', '고정 글자'].filter(function (n) { return n === '타임라인' || n === '색' || (n === '모양' ? !!모양판 : 있는탭.indexOf(n) >= 0); });
+      function 페이지보기(k) {
+        var 글자쪽 = 있는탭.indexOf(k) >= 0; dlg.dataset.pg = 글자쪽 ? 'text' : ({ '타임라인': 'tl', '색': 'color', '모양': 'shape' })[k] || 'tl'; if (글자쪽) 탭보이기(k);
+        Array.prototype.forEach.call(페이지줄.children, function (b) { var 선 = b.dataset.k === k; b.setAttribute('aria-selected', String(선)); b.tabIndex = 선 ? 0 : -1; }); if (k === '색') 눌림갱신();
       }
+      쪽목록.forEach(function (n, i) { var b = el('button', 'cz-page'); b.type = 'button'; b.dataset.k = n; b.setAttribute('role', 'tab'); b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="' + 쪽그림[n] + '"/></svg><span>' + n + '</span>';
+        b.addEventListener('click', function () { 페이지보기(n); });
+        b.addEventListener('keydown', function (e) { var 다음 = e.key === 'ArrowRight' ? (i + 1) % 쪽목록.length : e.key === 'ArrowLeft' ? (i + 쪽목록.length - 1) % 쪽목록.length : e.key === 'Home' ? 0 : e.key === 'End' ? 쪽목록.length - 1 : -1; if (다음 < 0) return; e.preventDefault(); 페이지보기(쪽목록[다음]); 페이지줄.children[다음].focus(); });
+        페이지줄.appendChild(b); });
+      dock.insertBefore(페이지줄, 독몸); if (모양판) 독몸.appendChild(모양판);
+      탭이동 = function (t) { var 지금 = dlg.dataset.pg; if (지금 === 'color' || 지금 === 'shape') return; if (있는탭.indexOf(t) >= 0) 페이지보기(t); };   // 미리보기에서 요소를 누르면 그 설정으로(색·모양을 보는 중이면 그대로)
+      페이지보기('타임라인');
+      // 아래 칸 높이 조절: 손잡이를 위로 끌면 페이지 막대와 타임라인(설정)이 함께 커지고, 미리보기는 그만큼만 줄어든다
+      (function () {
+        var 가장 = 190; function 최대() { return Math.max(가장, dlg.clientHeight - head.offsetHeight - foot.offsetHeight - 330); }
+        function 놓기(px) { px = Math.round(Math.max(가장, Math.min(최대(), px))); dlg.style.setProperty('--dock-h', px + 'px'); 그립.setAttribute('aria-valuenow', String(px)); }
+        그립.addEventListener('pointerdown', function (e) { if (e.button) return; e.preventDefault(); var y0 = e.clientY, h0 = dock.offsetHeight; 그립.setPointerCapture(e.pointerId);
+          var 이동 = function (ev) { 놓기(h0 + (y0 - ev.clientY)); }, 끝 = function () { 그립.removeEventListener('pointermove', 이동); 그립.removeEventListener('pointerup', 끝); 그립.removeEventListener('pointercancel', 끝); };
+          그립.addEventListener('pointermove', 이동); 그립.addEventListener('pointerup', 끝); 그립.addEventListener('pointercancel', 끝); });
+        그립.addEventListener('keydown', function (e) { if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return; e.preventDefault(); 놓기(dock.offsetHeight + (e.key === 'ArrowUp' ? 24 : -24)); });
+      })();
       타임라인만들기();
     }
     function 닫기(결과) { 읽기멈춤(); 재생멈춤(); if (끌기중단) 끌기중단(); document.removeEventListener('keydown', 키); document.body.style.overflow = 이전스크롤; ov.remove(); if (이전포커스 && 이전포커스.focus) 이전포커스.focus(); if (결과 && typeof opt.onDone === 'function') opt.onDone(결과); }
