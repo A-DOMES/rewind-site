@@ -407,3 +407,11 @@ label.cz-chip { display: inline-flex; align-items: center; }
 @media (max-width: 900px) { .cz-dlg[data-pg="color"] .cz-lib, .cz-dlg[data-pg="color"] .cz-body { display: none; } .cz-dlg[data-pg="color"] .cz-colpg { grid-auto-flow: row; } }
 
 @media (max-width: 900px) { .cz-foot { flex-wrap: wrap; } .cz-pages { flex: 1 1 100%; margin-right: 0; } .cz-page { flex: 1 1 0; justify-content: center; } }
+
+/* 재생 줄은 미리보기 화면 바로 아래 가운데, 점선 보기는 오른쪽 */
+@media (min-width: 901px) {
+  .cz-pvtools { display: grid; grid-template-columns: 1fr auto 1fr; justify-content: normal; }
+  .cz-pvtools > .cz-tp { grid-column: 2; grid-row: 1; justify-self: center; }
+  .cz-pvtools > label { grid-column: 3; grid-row: 1; justify-self: end; }
+  .cz-pvtools > .cz-btn { grid-column: 1; grid-row: 1; justify-self: start; }
+}
