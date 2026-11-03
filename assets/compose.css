@@ -411,9 +411,9 @@ label.cz-chip { display: inline-flex; align-items: center; }
 .cz-dlg[data-pg="text"] .cz-body > .cz-card { border-right: 1px solid var(--rz-ln); }
 .cz-dlg[data-pg="shape"] .cz-dockbody > .cz-shapepg { display: block; max-height: none; }
 @media (min-width: 901px) {
-  .cz-dlg { --dock-h: clamp(200px, 32dvh, 300px); grid-template-columns: minmax(230px, 20%) minmax(380px, 1fr) minmax(220px, 22%); grid-template-rows: auto minmax(0, 1fr) min(var(--dock-h), 58dvh) auto; grid-template-areas: "head head head" "lib pv insp" "dock dock dock" "foot foot foot"; }
+  .cz-dlg { --dock-h: clamp(190px, 30dvh, 290px); grid-template-columns: minmax(230px, 20%) minmax(380px, 1fr) minmax(220px, 22%); grid-template-rows: auto minmax(0, 1fr) min(var(--dock-h), 58dvh); grid-template-areas: "head head head" "lib pv insp" "dock dock dock"; }
   .cz-dock { grid-area: dock; } .cz-insp { grid-area: insp; }
-  .cz-phone { width: clamp(90px, calc((min(100dvh, 940px) - var(--dock-h) - 250px) * 0.5625), 520px); }
+  .cz-phone { width: clamp(90px, calc((min(100dvh, 940px) - var(--dock-h) - 160px) * 0.5625), 520px); }
 }
 @media (max-width: 900px) { .cz-lib, .cz-insp { display: none; } .cz-dockgrip { display: none; } .cz-dockbody > * { overflow: visible; } .cz-dock { min-height: 260px; } }
 
@@ -436,3 +436,11 @@ label.cz-chip { display: inline-flex; align-items: center; }
 .cz-tbtn:hover:not(:disabled) { border-color: var(--rz-ac); color: #fff; }
 .cz-tbtn:disabled { opacity: .35; cursor: default; }
 .cz-tbtn:focus-visible { outline: 2px solid var(--rz-ac); outline-offset: 1px; }
+
+/* 위쪽 줄 오른쪽: 처음 모양으로 · 적용하기 · 닫기 / 미리보기 머리줄 안내 / 속성 사진 세로 비율 */
+.cz-head > div:first-child { min-width: 0; }
+.cz-head-acts { display: flex; gap: 8px; margin-left: auto; align-items: center; }
+.cz-head-acts .cz-btn { padding: 5px 14px; min-height: 30px; font-size: .95rem; }
+.cz-vnote { flex: 1; min-width: 0; text-align: center; font-weight: 400; color: var(--ink-faint); font-size: var(--fs-2xs); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 10px; }
+.cz-insp-img.cz-v { aspect-ratio: 9 / 16; height: 200px; max-height: none; align-self: flex-start; }
+@media (max-width: 900px) { .cz-vnote { display: none; } .cz-head small { display: none; } .cz-head-acts .cz-btn { padding: 4px 10px; font-size: .85rem; } }

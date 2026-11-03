@@ -188,13 +188,14 @@
     var 위치옮김 = function () {}, 재생중 = false, 재생틀 = 0, 재생전 = 0;
     var warn = el('ul', 'cz-warn'); warn.setAttribute('aria-live', 'polite');
     var 머리비 = 0, 뷰시각 = el('small', 'cz-vt', ''), 클립목록 = [];   // 재생 위치(0~1)와 미리보기 위쪽 줄의 시각 글자
-    var 뷰머리 = el('div', 'cz-vhead'); 뷰머리.appendChild(el('b', '', '미리보기')); var 뷰비 = el('span', '', 가로 ? '16:9 가로' : '9:16 세로'); 뷰비.appendChild(뷰시각); 뷰머리.appendChild(뷰비); pv.appendChild(뷰머리);   // 리졸브의 뷰어 머리줄
-    pv.appendChild(phone); pv.appendChild(tools); pv.appendChild(warn); pv.appendChild(el('p', 'cz-note', '제목·자막·문구는 끌어서 옮길 수 있어요 · 실제 영상은 조금 다를 수 있어요'));
+    var 뷰머리 = el('div', 'cz-vhead'); 뷰머리.appendChild(el('b', '', '미리보기')); var 뷰비 = el('span', '', 가로 ? '16:9 가로' : '9:16 세로'); 뷰비.appendChild(뷰시각); 뷰머리.appendChild(el('span', 'cz-vnote', '제목·자막·문구는 끌어서 옮길 수 있어요 · 실제 영상은 조금 다를 수 있어요')); 뷰머리.appendChild(뷰비); pv.appendChild(뷰머리);   // 리졸브의 뷰어 머리줄
+    pv.appendChild(phone); pv.appendChild(tools); pv.appendChild(warn);
     var lib = el('aside', 'cz-lib'); lib.setAttribute('aria-label', '구성과 모양'); var body = el('div', 'cz-body'); var tl = el('section', 'cz-tl'); tl.setAttribute('aria-label', '타임라인(앞 단계에서 정한 값)');
     var insp = el('aside', 'cz-insp'); insp.setAttribute('aria-label', '속성');   // 오른쪽 속성(Inspector): 재생 위치의 장면 정보(읽기 전용)
-    var foot = el('div', 'cz-foot'); var reset = el('button', 'cz-btn', '처음 모양으로'); reset.type = 'button'; var ok = el('button', 'cz-btn cz-main', '적용하기'); ok.type = 'button'; foot.appendChild(reset); foot.appendChild(ok);
+    var acts = el('div', 'cz-head-acts'); var reset = el('button', 'cz-btn', '처음 모양으로'); reset.type = 'button'; var ok = el('button', 'cz-btn cz-main', '적용하기'); ok.type = 'button'; acts.appendChild(reset); acts.appendChild(ok);   // 위쪽 줄 오른쪽(닫기 왼쪽)
+    head.insertBefore(acts, x);
     var dock = el('section', 'cz-dock'), 그립 = el('div', 'cz-dockgrip'), 독몸 = el('div', 'cz-dockbody'); 그립.setAttribute('role', 'separator'); 그립.setAttribute('aria-orientation', 'horizontal'); 그립.setAttribute('aria-label', '아래 칸 높이 (끌거나 위·아래 화살표)'); 그립.tabIndex = 0; 독몸.appendChild(body); 독몸.appendChild(tl); dock.appendChild(그립); dock.appendChild(독몸);
-    dlg.appendChild(head); dlg.appendChild(lib); dlg.appendChild(pv); dlg.appendChild(insp); dlg.appendChild(dock); dlg.appendChild(foot); ov.appendChild(dlg);
+    dlg.appendChild(head); dlg.appendChild(lib); dlg.appendChild(pv); dlg.appendChild(insp); dlg.appendChild(dock); ov.appendChild(dlg);
 
     function 그리기미리보기() {
       var m = 합치기(선택, 종류), v = m.값;
@@ -426,7 +427,7 @@
       insp.textContent = '';
       var 머리 = el('div', 'cz-insp-h'); 머리.appendChild(el('b', '', '속성')); 머리.appendChild(el('span', '', '장면 ' + 장 + ' / ' + 수)); insp.appendChild(머리);
       var 몸 = el('div', 'cz-insp-b'), 시작 = 길이 * (장 - 1) / 수, 끝 = 길이 * 장 / 수, 사진 = (T.사진 || [])[장 - 1], 자료 = (Array.isArray(opt.자료) ? opt.자료 : [])[장 - 1];
-      if (/^(blob:|https:\/\/|data:image\/)/.test(사진 || '')) { var 그림 = el('div', 'cz-insp-img'); 그림.style.backgroundImage = 'url("' + String(사진).replace(/["\\\n]/g, encodeURIComponent) + '")'; 몸.appendChild(그림); if (자료 && 자료.이름) 몸.appendChild(el('p', 'cz-insp-name', String(자료.이름))); }
+      if (/^(blob:|https:\/\/|data:image\/)/.test(사진 || '')) { var 그림 = el('div', 'cz-insp-img' + (가로 ? '' : ' cz-v')); 그림.style.backgroundImage = 'url("' + String(사진).replace(/["\\\n]/g, encodeURIComponent) + '")'; 몸.appendChild(그림); if (자료 && 자료.이름) 몸.appendChild(el('p', 'cz-insp-name', String(자료.이름))); }
       var 줄들 = [['시작', 분초(시작)], ['끝', 분초(끝)], ['길이', (끝 - 시작).toFixed(1) + 's'], ['소리', T.소리 || (영상종류 === '수면' ? '배경 음악' : '목소리')], ['자막', 영상종류 === '수면' ? '없음' : (v0().자막끄기 ? '끔' : (자막방식 || '구절형'))]];
       줄들.forEach(function (r) { var d = el('div', 'cz-insp-r'); d.appendChild(el('span', '', r[0])); d.appendChild(el('b', '', r[1])); 몸.appendChild(d); });
       insp.appendChild(몸);
@@ -728,7 +729,7 @@
       페이지보기('타임라인');
       // 아래 칸 높이 조절: 손잡이를 위로 끌면 페이지 막대와 타임라인(설정)이 함께 커지고, 미리보기는 그만큼만 줄어든다
       (function () {
-        var 가장 = 190; function 최대() { return Math.max(가장, dlg.clientHeight - head.offsetHeight - foot.offsetHeight - 330); }
+        var 가장 = 190; function 최대() { return Math.max(가장, dlg.clientHeight - head.offsetHeight - 276); }
         function 놓기(px) { px = Math.round(Math.max(가장, Math.min(최대(), px))); dlg.style.setProperty('--dock-h', px + 'px'); 그립.setAttribute('aria-valuenow', String(px)); }
         그립.addEventListener('pointerdown', function (e) { if (e.button) return; e.preventDefault(); var y0 = e.clientY, h0 = dock.offsetHeight; 그립.setPointerCapture(e.pointerId);
           var 이동 = function (ev) { 놓기(h0 + (y0 - ev.clientY)); }, 끝 = function () { 그립.removeEventListener('pointermove', 이동); 그립.removeEventListener('pointerup', 끝); 그립.removeEventListener('pointercancel', 끝); };
