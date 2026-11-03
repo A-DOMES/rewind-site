@@ -460,3 +460,13 @@ button.cz-pane-l[aria-pressed="true"] { color: var(--rz-ac); }
 .cz-stage-w[data-v="편집"] > .cz-pane-r, .cz-stage-w[data-v="결과"] > .cz-pane-e { display: none; }
 @media (max-width: 900px) { .cz-stage:not(.cz-stage-w) .cz-pane-r, .cz-stage:not(.cz-stage-w) .cz-pane-l { display: none; } }
 .cz-stage-w .cz-pane { width: 100%; }
+
+/* 검수 반영: 결과 복제본은 건드릴 수 없게, 휴대폰에서는 위쪽 줄 고정·확대 버튼 숨김 */
+.cz-result .cz-drag, .cz-result [class*="cz-"] { pointer-events: none !important; }
+.cz-result .cz-drag { outline: 0 !important; cursor: default !important; }
+@media (max-width: 900px) {
+  .cz-head { position: sticky; top: 0; z-index: 5; }
+  .cz-head h2 { min-width: 0; white-space: nowrap; }
+  .cz-head-acts .cz-btn { white-space: nowrap; }
+  .cz-zoom { display: none; }
+}

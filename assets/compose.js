@@ -199,12 +199,12 @@
     var 결과폰 = null, 결과예약 = 0;
     function 결과갱신() {
       if (결과예약) return; 결과예약 = requestAnimationFrame(function () {
-        결과예약 = 0; if (가로 && 보기 !== '결과') return;
-        var c = phone.cloneNode(true); c.classList.add('cz-result'); c.classList.remove('cz-sel-out'); c.setAttribute('aria-hidden', 'true'); [].forEach.call(c.querySelectorAll('[id]'), function (n) { n.removeAttribute('id'); });
+        결과예약 = 0; if (가로 && 보기 !== '결과') return; if (!결과칸.offsetParent) return;   // 안 보이는 동안(휴대폰·가로의 편집 탭)은 복제하지 않는다
+        var c = phone.cloneNode(true); c.classList.add('cz-result'); c.classList.remove('cz-sel-out'); c.setAttribute('aria-hidden', 'true'); c.inert = true; [].forEach.call(c.querySelectorAll('[tabindex],[role]'), function (n) { n.removeAttribute('tabindex'); n.removeAttribute('role'); }); [].forEach.call(c.querySelectorAll('[id]'), function (n) { n.removeAttribute('id'); });
         if (결과폰) 결과칸.replaceChild(c, 결과폰); else 결과칸.appendChild(c); 결과폰 = c;
       });
     }
-    try { new MutationObserver(결과갱신).observe(phone, { subtree: true, attributes: true, childList: true, characterData: true }); } catch (x) {}
+    var 결과관찰 = null; try { 결과관찰 = new MutationObserver(결과갱신); 결과관찰.observe(phone, { subtree: true, attributes: true, childList: true, characterData: true }); } catch (x) {}
     결과갱신();
     pv.appendChild(stage); pv.appendChild(tools); pv.appendChild(warn);
     var lib = el('aside', 'cz-lib'); lib.setAttribute('aria-label', '구성과 모양'); var body = el('div', 'cz-body'); var tl = el('section', 'cz-tl'); tl.setAttribute('aria-label', '타임라인(앞 단계에서 정한 값)');
@@ -455,7 +455,7 @@
       tl.textContent = '';
       var 길이 = Number(T.길이초) > 0 ? Number(T.길이초) : (영상종류 === '쇼츠' ? 30 : 1800), 긴 = 길이 > 180;
       var 머리 = el('div', 'cz-tl-h'); 머리.appendChild(el('b', '', '타임라인')); 머리.appendChild(el('span', '', '전체 약 ' + 시간글(길이) + ' · ' + ({ 쇼츠: '쇼츠', 야담: '야담', 수면: '수면음악' }[영상종류]) + (T.장면수 ? ' · 장면 ' + T.장면수 : ''))); var 도구 = el('div', 'cz-tl-tools'); 도구.setAttribute('role', 'toolbar'); 도구.setAttribute('aria-label', '타임라인 도구');
-      [['이전 장면', '⏮', function () { 장면가기(-1); }], ['다음 장면', '⏭', function () { 장면가기(1); }], ['축소', '−', function () { 줌바꿈(-1); }], ['확대', '+', function () { 줌바꿈(1); }]].forEach(function (d) { var b = el('button', 'cz-tbtn', d[1]); b.type = 'button'; b.title = d[0]; b.setAttribute('aria-label', d[0]); b.addEventListener('click', d[2]); if (d[1] === '−') b.disabled = 줌 <= 줌단계[0]; if (d[1] === '+') b.disabled = 줌 >= 줌단계[줌단계.length - 1]; 도구.appendChild(b); });
+      [['이전 장면', '⏮', function () { 장면가기(-1); }], ['다음 장면', '⏭', function () { 장면가기(1); }], ['축소', '−', function () { 줌바꿈(-1); }], ['확대', '+', function () { 줌바꿈(1); }]].forEach(function (d) { var b = el('button', 'cz-tbtn', d[1]); b.type = 'button'; b.title = d[0]; if (d[1] === '−' || d[1] === '+') b.classList.add('cz-zoom'); b.setAttribute('aria-label', d[0]); b.addEventListener('click', d[2]); if (d[1] === '−') b.disabled = 줌 <= 줌단계[0]; if (d[1] === '+') b.disabled = 줌 >= 줌단계[줌단계.length - 1]; 도구.appendChild(b); });
       머리.appendChild(도구); tl.appendChild(머리);
       var 눈금줄 = el('div', 'cz-trk cz-ruler'); 눈금줄.appendChild(el('span', 'cz-trk-n', '')); var 눈금 = el('div', 'cz-lane'); 눈금줄.appendChild(눈금);
       var 간격 = 눈금간격(길이); for (var t = 0; t <= 길이 + 1e-6; t += 간격) { var k = el('i', 'cz-tick' + (t / 길이 > 0.94 ? ' cz-tick-end' : '')); k.style.left = (t / 길이 * 100) + '%'; k.appendChild(el('span', '', 시간글(t))); 눈금.appendChild(k); }
@@ -490,7 +490,7 @@
         두는곳(Math.min(1, Math.max(0, 목표 / 수 + 1e-4)));
       }
       function 줌바꿈(방향) {
-        var k = 줌단계.indexOf(줌) + 방향; if (k < 0 || k >= 줌단계.length) return; 줌 = 줌단계[k]; 타임라인그리기();
+        var k = 줌단계.indexOf(줌) + 방향; if (k < 0 || k >= 줌단계.length) return; 줌 = 줌단계[k]; 타임라인그리기(); var 눌렀던 = tl.querySelector('.cz-tbtn[title="' + (방향 > 0 ? '확대' : '축소') + '"]'); if (눌렀던 && !눌렀던.disabled) 눌렀던.focus(); else { var 짝 = tl.querySelector('.cz-tbtn[title="' + (방향 > 0 ? '축소' : '확대') + '"]'); if (짝) 짝.focus(); }
         tl.scrollLeft = Math.max(0, 머리비 * (tl.scrollWidth - 64) + 64 - tl.clientWidth / 2);   // 재생선이 가운데 오게
       }
     }
@@ -755,7 +755,7 @@
       })();
       타임라인만들기();
     }
-    function 닫기(결과) { 읽기멈춤(); 재생멈춤(); if (끌기중단) 끌기중단(); document.removeEventListener('keydown', 키); document.body.style.overflow = 이전스크롤; ov.remove(); if (이전포커스 && 이전포커스.focus) 이전포커스.focus(); if (결과 && typeof opt.onDone === 'function') opt.onDone(결과); }
+    function 닫기(결과) { if (결과관찰) 결과관찰.disconnect(); if (결과예약) cancelAnimationFrame(결과예약); 읽기멈춤(); 재생멈춤(); if (끌기중단) 끌기중단(); document.removeEventListener('keydown', 키); document.body.style.overflow = 이전스크롤; ov.remove(); if (이전포커스 && 이전포커스.focus) 이전포커스.focus(); if (결과 && typeof opt.onDone === 'function') opt.onDone(결과); }
     function 키(e) {
       if (e.key === 'Escape') { e.preventDefault(); if (선택풀기()) return; 닫기(null); return; }   // 고른 요소가 있으면 선택만 풀고, 없을 때만 창을 닫는다
       if (e.key !== 'Tab') return;
