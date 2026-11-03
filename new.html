@@ -1291,9 +1291,9 @@
   #df-fields.pw-on[data-pwstep="4"] .df-sleep > [data-pw="4"], #df-fields.pw-on[data-pwstep="4"] .df-yadam > [data-pw="4"],
   #df-fields.pw-on[data-pwstep="5"] .df-sleep > [data-pw="5"], #df-fields.pw-on[data-pwstep="5"] .df-yadam > [data-pw="5"] { display: block; }
   #df-fields.pw-on > .sc-card { display: none; }
-  #df-fields.pw-on:not(.pw-gn)[data-pwstep="4"] > .sc-card:not(.gn-script) { display: flex; }   /* 분위기·야담은 이야기·대본이 4단계(길이·소리 뒤) */
-  #df-fields.pw-on.pw-pd[data-pwstep="5"] > .sc-card.gn-script { display: flex; }   /* 상품쇼츠도 대본은 소리 뒤(5단계) */
-  #df-fields.pw-on.pw-gn[data-pwstep="4"] > .sc-card.gn-script { display: flex; }   /* 쇼츠·롱폼은 대본이 4단계(소리 뒤, 주제·스타일·연출과 같은 화면) */
+  #df-fields.pw-on:not(.pw-gn):not(.pw-pd)[data-pwstep="4"] > .sc-card:not(.gn-script) { display: flex; }   /* 분위기·야담은 이야기·대본이 4단계(길이·소리 뒤) */
+  #df-fields.pw-on.pw-pd[data-pwstep="6"] > .sc-card.gn-script { display: flex; }   /* 상품쇼츠도 대본은 소리 뒤(5단계) */
+  #df-fields.pw-on.pw-gn[data-pwstep="5"] > .sc-card.gn-script { display: flex; }   /* 쇼츠·롱폼은 대본이 4단계(소리 뒤, 주제·스타일·연출과 같은 화면) */
   /* 대본 방식(내 대본·보관함)을 고르는 중에는 대본 카드만 보인다 — 주제·분위기·연출 칸은 대본을 고른 뒤 */
   #df-fields.pw-on > .df-sec { display: none; }
   #df-fields.pw-on > .df-sec.pw-cur { display: block; }
@@ -1784,6 +1784,14 @@
   #df-fields.pw-on #gn-forms input:checked + .tcard .ti { background: #c9a45c; color: #1a1408; }
 
   /* ===== 그림 기준 1단계 (2026-11-01): 순검정 바탕 + 어두운 남색 유리 카드 + 보라 테두리 + 파랑 빛 ===== */
+  /* 「구성」 단계: 왼쪽 화면 구성·제작 방식, 오른쪽 고른 구성 미리보기 */
+  .gn-layout .gl-body { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .gn-layout #df-layout { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .gn-layout .lp-card b { white-space: nowrap; font-size: .76rem; }
+  .gn-layout .gl-fields { display: grid; gap: 14px; min-width: 0; }
+  .gn-layout .gl-pv { display: grid; gap: 8px; justify-items: center; text-align: center; font-size: .76rem; color: var(--ink-dim); }
+  .gn-layout .gl-pv[hidden] { display: none; }
+  .gn-layout .gl-pv svg { width: 100%; max-width: 200px; height: auto; border-radius: 10px; }
   #df-fields.pw-on[data-pwstep="1"] > .df-sec.pw-cur { background: linear-gradient(160deg, #1a2347 0%, #10143a 55%, #0b0d24 100%); border: 1px solid rgba(140,150,235,.55); border-radius: 22px; box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 0 26px rgba(80,100,230,.22); position: relative; }
   #df-fields.pw-on[data-pwstep="1"] > .df-sec.pw-cur::after { content: ""; position: absolute; right: -9px; top: -11px; width: 22px; height: 22px; background: no-repeat center / contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23dbe6ff' d='M12 0c.8 6.6 3.2 9.2 12 12-8.8 2.8-11.2 5.4-12 12-.8-6.6-3.2-9.2-12-12 8.8-2.8 11.2-5.4 12-12z'/%3E%3C/svg%3E"); filter: drop-shadow(0 0 6px rgba(160,190,255,.9)); pointer-events: none; }
   #df-fields.pw-on[data-pwstep="1"] .df-types .tcard { background: linear-gradient(135deg, #142a63, #0e1c4c); border: 1.5px solid #8a63e0; box-shadow: 0 0 10px rgba(138,99,224,.32); border-radius: 15px; color: #fff; }
@@ -1925,7 +1933,7 @@
 <link rel="stylesheet" href="./assets/compose.css?v=20261103x">
 <script src="./assets/shared/layout.js?v=20261027"></script>
 <script src="./assets/shared/phrase.js?v=20261026"></script>
-<script src="./assets/compose.js?v=20261103x"></script>
+<script src="./assets/compose.js?v=20261103y"></script>
 <script src="./assets/rw-consent.js"></script>
 <link rel="stylesheet" href="./assets/rw-theme.css?v=20261103n">
 </head>
@@ -5393,18 +5401,18 @@ ${비율칸Html(kind, 상태)}</div>`;
   // 상품쇼츠를 고르면 PC·폰 모두 6단계로 한 단계씩 보여 준다: 종류 → 내용 → 화면·길이 → 소리 → 꾸미기 → 확인. 다른 영상은 지금처럼 한 화면이다.
   // 필수 칸이 비면 "다음"이 막히고(눌러 보면 무엇이 비었는지 알려 준다), 마친 단계는 눌러서 돌아갈 수 있다. 입력한 값은 돌아가도 그대로 남는다(지우지 않고 숨기기만 한다).
   // 앞 단계 값을 고쳐서 뒤 단계가 맞지 않게 되면 그 단계는 '다시 확인'으로 바뀌고, 고칠 때까지 뒤 단계로 갈 수 없다.
-  const PW_NAMES = ['종류', '내용', '화면·길이', '소리', '대본', '꾸미기', '확인'];   // 상품쇼츠: 쇼츠처럼 소리 뒤에 대본을 정한다
-  const PW_ICON_KEYS = ['종류', '내용', '화면·길이', '소리', '꾸미기', '확인'];   // PW_ICON 의 앞 6개가 가리키는 단계 이름('대본' 그림은 PW_ICON[6])
-  const PW_TODO = ['어떤 영상을 만들지 골라 주세요', '제품 이름과 내용을 적어 주세요', '사진·영상, 길이, 영상 제작 방식을 정해 주세요', '목소리를 정해 주세요', '대본을 정해 주세요 (AI에게 맡겨도 돼요)', '화면 모양과 자막을 확인해 주세요 (그대로 두어도 돼요)', '내용을 확인하고 신청해 주세요'];
-  const PW_TODO_GN = ['쇼츠와 롱폼 중에서 골라 주세요', '영상 길이를 정하고, 내 사진·영상이 있으면 넣어 주세요', '목소리를 정해 주세요 (그대로 두어도 돼요)', '무엇에 대한 영상인지 적고, 대본을 정해 주세요 (AI에게 맡겨도 돼요)', '상단 문구, 화면 구성, 자막 위치를 정해 주세요 (그대로 두어도 돼요)', '내용을 확인하고 신청해 주세요'];
-  const PW_NAMES_GN = ['종류', '화면·길이', '소리', '대본', '꾸미기', '확인'];   // 쇼츠·롱폼: 소리(길이·속도)가 정해진 뒤에 대본을 만들고, 그 제목이 꾸미기로 이어진다
+  const PW_NAMES = ['종류', '내용', '화면·길이', '구성', '소리', '대본', '꾸미기', '확인'];   // 상품쇼츠: 쇼츠처럼 소리 뒤에 대본을 정한다
+  const PW_ICON_KEYS = ['종류', '내용', '화면·길이', '소리', '꾸미기', '확인'];   // '구성' 그림은 PW_ICON[7]   // PW_ICON 의 앞 6개가 가리키는 단계 이름('대본' 그림은 PW_ICON[6])
+  const PW_TODO = ['어떤 영상을 만들지 골라 주세요', '제품 이름과 내용을 적어 주세요', '사진·영상과 길이를 정해 주세요', '화면 구성과 영상 제작 방식을 정해 주세요', '목소리를 정해 주세요', '대본을 정해 주세요 (AI에게 맡겨도 돼요)', '화면 모양과 자막을 확인해 주세요 (그대로 두어도 돼요)', '내용을 확인하고 신청해 주세요'];
+  const PW_TODO_GN = ['쇼츠와 롱폼 중에서 골라 주세요', '영상 길이를 정하고, 내 사진·영상이 있으면 넣어 주세요', '화면 구성과 영상 제작 방식을 정해 주세요', '목소리를 정해 주세요 (그대로 두어도 돼요)', '무엇에 대한 영상인지 적고, 대본을 정해 주세요 (AI에게 맡겨도 돼요)', '상단 문구, 화면 구성, 자막 위치를 정해 주세요 (그대로 두어도 돼요)', '내용을 확인하고 신청해 주세요'];
+  const PW_NAMES_GN = ['종류', '화면·길이', '구성', '소리', '대본', '꾸미기', '확인'];   // 쇼츠·롱폼: 소리(길이·속도)가 정해진 뒤에 대본을 만들고, 그 제목이 꾸미기로 이어진다
   const PW_NAMES_LONG = ['종류', '화면·길이', '소리', '대본', '꾸미기', '확인'];   // 분위기 영상·야담: 꾸미기 단계가 없다
   const PW_TODO_MO = ['어떤 영상인지 골라 주세요', '영상 구성과 길이·그림 방식을 정해 주세요', '소리를 정해 주세요 (그대로 두어도 돼요)', '이야기·분위기를 정해 주세요', '자막 모양과 자리, 고정 글자를 꾸며 주세요 (그대로 두어도 돼요)', '내용을 확인하고 신청해 주세요'];
   const PW_TODO_YD = ['어떤 영상인지 골라 주세요', '방식과 길이, 품질을 정해 주세요', '이야기꾼 목소리를 정해 주세요', '이야기 소재나 내 대본을 정해 주세요', '자막 모양과 자리, 고정 글자를 꾸며 주세요 (그대로 두어도 돼요)', '내용을 확인하고 신청해 주세요'];
   const PW_TITLES = {   // 한 카드를 단계마다 다른 제목으로 보여 준다 (카드 하나에 여러 단계 내용이 들어 있어서)
     '수면음악': { 2: ['영상 구성과 길이', '무엇을 담을지, 길이와 그림 방식을 정해 주세요. 고른 것에 맞춰 필요한 칸만 보여요'], 3: ['소리', '소리와 목소리를 정해 주세요'], 5: ['영상 꾸미기', '자막 모양·자리·고정 글자를 정해요. 그대로 두어도 괜찮아요'] },
     '야담': { 2: ['방식과 길이', '방식, 길이, 품질을 정해 주세요'], 3: ['이야기꾼 목소리', '목소리를 골라 주세요'], 4: ['이야기 소재', '소재 예시로 시작해 볼 수 있어요'], 5: ['영상 꾸미기', '자막 모양·자리·고정 글자를 정해요. 그대로 두어도 괜찮아요'] } };
-  const PW_ICON = ['M4 5h12v10H4z M7 5v10 M13 5v10 M4 8h3 M4 12h3 M13 8h3 M13 12h3', 'M4 16l1-4 8-8 3 3-8 8z M12 5l3 3', 'M3 4h14v12H3z M3 14l4-4 3 3 3-3 4 4 M13 7.5h.01', 'M4 8v4h3l4 3V5L7 8z M14 7a4 4 0 010 6', 'M10 3l1.8 4.2L16 9l-4.2 1.8L10 15l-1.8-4.2L4 9l4.2-1.8z', 'M4 10.5l4 4 8-9', 'M5 3h7l3 3v11H5z M8 9h4 M8 12h4'];
+  const PW_ICON = ['M4 5h12v10H4z M7 5v10 M13 5v10 M4 8h3 M4 12h3 M13 8h3 M13 12h3', 'M4 16l1-4 8-8 3 3-8 8z M12 5l3 3', 'M3 4h14v12H3z M3 14l4-4 3 3 3-3 4 4 M13 7.5h.01', 'M4 8v4h3l4 3V5L7 8z M14 7a4 4 0 010 6', 'M10 3l1.8 4.2L16 9l-4.2 1.8L10 15l-1.8-4.2L4 9l4.2-1.8z', 'M4 10.5l4 4 8-9', 'M5 3h7l3 3v11H5z M8 9h4 M8 12h4', 'M5 2.5h10a1.5 1.5 0 011.5 1.5v12A1.5 1.5 0 0115 17.5H5A1.5 1.5 0 013.5 16V4A1.5 1.5 0 015 2.5z M3.5 7.5h13 M3.5 13h13'];
   const PW_OK = 'M4 10.5l4 4 8-9', PW_LOCK = 'M5 9h10v7H5z M7 9V7a3 3 0 016 0v2';
   function setupWizard(wrap, isMedia) {
     window.__pwRefresh = null; window.__pwGo = null; window.__pwOn = null;
@@ -5428,21 +5436,32 @@ ${비율칸Html(kind, 상태)}</div>`;
     const GN = () => 현재종류() === '일반';
     const MO = () => 현재종류() === '수면음악', YD = () => 현재종류() === '야담', LONGK = () => MO() || YD();
     const namesOf = () => LONGK() ? PW_NAMES_LONG : GN() ? PW_NAMES_GN : PW_NAMES;
-    const iconOf = i => { const n = namesOf()[i]; return n === '대본' ? PW_ICON[6] : PW_ICON[PW_ICON_KEYS.indexOf(n)]; };
+    const iconOf = i => { const n = namesOf()[i]; return n === '대본' ? PW_ICON[6] : n === '구성' ? PW_ICON[7] : PW_ICON[PW_ICON_KEYS.indexOf(n)]; };
     const on = () => 현재종류() === '상품쇼츠' || ((GN() || LONGK()) && PRODUCT_READY());   // 일반 영상도 같은 단계 화면 (상품쇼츠와 같은 열쇠 ?prod=1 뒤에서만)
     const gnForm = () => fields.querySelector('.gn-formsec');
     const refSec = document.createElement('section'); refSec.className = 'df-sec pd-refsec df-hide'; refSec.style.setProperty('--c', '#74b6ff');   // 상품쇼츠의 참고 영상 자리(칸은 하나이고, 종류에 따라 이 자리와 쇼츠·롱폼 자리 사이를 옮겨 다닌다)
     { const gf0 = gnForm(); if (gf0) gf0.insertAdjacentElement('afterend', refSec); }
+    // 「구성」 단계(쇼츠·상품쇼츠): 화면 구성과 영상 제작 방식을 꾸미기 창에서 이 단계로 옮겼다. 칸은 그대로(아이디 유지)이고 자리만 옮기며, 고른 구성은 오른쪽 미리보기로 바로 보인다
+    const layoutSec = document.createElement('section'); layoutSec.className = 'df-sec gn-layout df-hide'; layoutSec.style.setProperty('--c', '#b99bff');
+    layoutSec.innerHTML = '<div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M4 9h16M4 16h16"/></svg></span><div><h3>화면 구성</h3><p>영상이 놓이는 모양과 만드는 방식을 정해 주세요. 그대로 두어도 괜찮아요</p></div></div><div class="gl-body"><div class="gl-fields"></div><div class="gl-pv" role="img" aria-label="고른 화면 구성 미리보기"></div></div>';
+    fields.appendChild(layoutSec);
+    { const slot = layoutSec.querySelector('.gl-fields');
+      const mv = (el, cls) => { if (!el) return; el.classList.remove('df-hide'); el.classList.add(cls); slot.appendChild(el); };
+      mv(document.getElementById('df-layout') && document.getElementById('df-layout').closest('.df-field'), 'gl-lay');
+      mv(fields.querySelector('.gn-motion'), 'gl-gn');
+      mv(document.getElementById('pd-motion') && document.getElementById('pd-motion').closest('.df-field'), 'gl-pd'); }
+    const 구성번호 = () => GN() ? 2 : 3;   // 「구성」 단계 번호(0부터)
+    const 새번호 = g => g === 'L' ? 구성번호() : (g >= 구성번호() ? g + 1 : g);   // 예전 번호(구성 단계가 없던 때)로 쓴 곳을 새 번호로 바꾼다
     const todoOf = i => (GN() ? PW_TODO_GN : MO() ? PW_TODO_MO : YD() ? PW_TODO_YD : PW_TODO)[i];
     const typeSec = () => { const t = document.getElementById('df-types'); return t ? t.closest('.df-sec') : null; };
     const q = sel => fields.querySelector(sel);
-    const secsGn = () => [[typeSec(), gnForm()], [q('.gn-screen'), q('.gn-mymedia')], [q('.df-voicesec'), q('.df-gender')], [q('.sc-card.gn-script'), q('.gn-content'), q('.df-extra')], [q('.gn-style'), q('.gn-thumb')], [review]];
+    const secsGn = () => [[typeSec(), gnForm()], [q('.gn-screen'), q('.gn-mymedia')], [layoutSec], [q('.df-voicesec'), q('.df-gender')], [q('.sc-card.gn-script'), q('.gn-content'), q('.df-extra')], [q('.gn-style'), q('.gn-thumb')], [review]];
     window.__pwContent = () => (GN() || LONGK()) ? 3 : 1;   // 주제·이야기를 적는 단계(쇼츠·롱폼·야담·분위기는 4단계, 상품쇼츠는 2단계)
     // 길이·제작 방식·품질을 모든 종류에서 같은 명함카드로 보이게 한다(칸은 그대로 두고 class·아이콘만 붙인다 — 다른 코드가 칸의 자리를 찾기 때문에 감싸지 않는다)
     const NC_ICO = { clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>', film: '<rect x="4" y="5" width="16" height="14" rx="2"/><path d="M8 5v14M16 5v14M4 10h4M4 14h4M16 10h4M16 14h4"/>', star: '<path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.5 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z"/>', motion: '<path d="M3 12c3-6 6-6 9 0s6 6 9 0"/>', image: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="M4 18l5-5 4 4 3-3 4 4"/>' };
     const NC_KEYS = [['영상 길이', 'clock'], ['직접 넣기', 'join'], ['인트로 영상', 'film'], ['품질 등급', 'star'], ['영상 제작 방식', 'motion'], ['화면 움직임', 'motion'], ['그림 방식', 'image'], ['사진·영상', 'image']];
     function cardify() {
-      ['.gn-screen', '.pd-media', '.df-yadam', '.df-sleep'].forEach(sel => {
+      ['.gn-screen', '.gn-layout', '.pd-media', '.df-yadam', '.df-sleep'].forEach(sel => {
         const sec = q(sel); if (!sec) return;
         let prev = null;
         [...sec.children].forEach(f => {
@@ -5459,8 +5478,8 @@ ${비율칸Html(kind, 상태)}</div>`;
       });
     }
     const secsLong = () => [[typeSec(), refSec], [q(MO() ? '.df-sleep' : '.df-yadam')], [q(MO() ? '.df-sleep' : '.df-yadam'), q('.df-voicesec')], [q('.sc-card:not(.gn-script)'), q('.gn-content'), MO() ? null : q('.df-yadam')], [q(MO() ? '.df-sleep' : '.df-yadam')], [review]];   // 같은 카드(.df-sleep/.df-yadam)가 2·3·4단계에 모두 들어가고, 안의 블록은 data-pw 로 단계별로 나뉜다
-    const secs = () => LONGK() ? secsLong() : GN() ? secsGn() : [[typeSec(), refSec], [q('.pd-content'), q('.df-extra')], [q('.pd-media')], [q('.df-voicesec'), q('.df-gender')], [q('.sc-card.gn-script')], [q('.gn-style'), q('.gn-thumb')], [review, q('.pd-agree')]];   // 한 단계에 섹션이 둘 이상일 수 있다 (기존 옵션을 숨기지 않으려고)
-    const PARTS_PD = { 1: 'content', 2: 'media', 4: 'script', 5: 'style', 6: 'agree' }, PARTS_GN = { 0: 'kind', 1: 'screen', 3: 'content', 4: 'style' }, PARTS_MO = { 1: 'screen', 2: 'sound', 3: 'content' }, PARTS_YD = { 1: 'screen', 3: 'content' };
+    const secs = () => LONGK() ? secsLong() : GN() ? secsGn() : [[typeSec(), refSec], [q('.pd-content'), q('.df-extra')], [q('.pd-media')], [layoutSec], [q('.df-voicesec'), q('.df-gender')], [q('.sc-card.gn-script')], [q('.gn-style'), q('.gn-thumb')], [review, q('.pd-agree')]];   // 한 단계에 섹션이 둘 이상일 수 있다 (기존 옵션을 숨기지 않으려고)
+    const PARTS_PD = { 1: 'content', 2: 'media', 5: 'script', 6: 'style', 7: 'agree' }, PARTS_GN = { 0: 'kind', 1: 'screen', 4: 'content', 5: 'style' }, PARTS_MO = { 1: 'screen', 2: 'sound', 3: 'content' }, PARTS_YD = { 1: 'screen', 3: 'content' };
     const partsOf = () => MO() ? PARTS_MO : YD() ? PARTS_YD : GN() ? PARTS_GN : PARTS_PD;
     const readerOf = () => MO() ? readMood() : YD() ? readYadam() : GN() ? readGeneral() : readProduct({ mutate: false });
     const showErr = (m, focusEl) => {
@@ -5508,7 +5527,7 @@ ${비율칸Html(kind, 상태)}</div>`;
       const r = readGeneral(), d = r.data, paid = planMode === 'paid';
       const vv = (window.RWVoice && RWVoice.value()) || {};
       const gv = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
-      const row = (k, v, go) => `<div class="pw-row"><span class="pw-k">${k}</span><span class="pw-v">${esc(v)}</span><button type="button" class="pw-fix" data-go="${go}">고치기</button></div>`;
+      const row = (k, v, go) => `<div class="pw-row"><span class="pw-k">${k}</span><span class="pw-v">${esc(v)}</span><button type="button" class="pw-fix" data-go="${새번호(go)}">고치기</button></div>`;
       const 롱폼 = d.form === '롱폼';
       const 참고상태 = (window.RWReference && RWReference.state) ? RWReference.state() : null;   // 참고 영상: 분석이 끝났으면 사실만 적고, 주소만 넣고 분석하지 않았으면 쓰이지 않는다고 알린다
       const 참고줄 = (참고상태 && 참고상태.visible) ? (참고상태.phase === 'done' ? row('참고 영상', '이 영상에 맞춰 만들어요 (화면·자막·말 속도, 직접 고른 값이 먼저)', 0) : (참고상태.urlOk ? row('참고 영상', '주소만 넣고 분석하지 않아서 쓰이지 않아요', 0) : '')) : '';
@@ -5516,7 +5535,7 @@ ${비율칸Html(kind, 상태)}</div>`;
       const 움직임 = d.narrate ? '낭독형 (목소리가 읽고 그림이 천천히 바뀜)' : paid ? motionOf(현재움직임() === '자동' ? '혼합' : 현재움직임()) : '이미지 중심';
       const 제품 = [d.link && '링크 ' + d.link.slice(0, 40), d.img && '사진 주소 입력함'].filter(Boolean).join(' · ') || '없음';
       const 목소리 = (window.RWVoice && RWVoice.summary()) || [gv('df-voiceGender'), gv('df-voiceAge')].filter(Boolean).join(' · ') || '자동';
-      const 꾸밈 = [gv('df-hookText') ? '문구 "' + gv('df-hookText') + '"' : '문구 자동', 롱폼 ? '' : '화면 구성 ' + (document.querySelector('input[name="df-layout"]:checked')?.value || '자동'), '자막 ' + (document.querySelector('input[name="df-captionPos"]:checked')?.value || '자동')].filter(Boolean).join(' · ');
+      const 꾸밈 = [gv('df-hookText') ? '문구 "' + gv('df-hookText') + '"' : '문구 자동', '자막 ' + (document.querySelector('input[name="df-captionPos"]:checked')?.value || '자동')].filter(Boolean).join(' · ');
       const 썸네일 = paid ? (document.getElementById('df-thumbnail')?.checked ? 'AI 썸네일 3장 함께 만들기' : '만들지 않음') : '체험판은 제공하지 않아요';
       const 광고 = d.link && pdLooksAffiliate(d.link) ? ' 제휴 링크라서 설명란 맨 앞에 광고 안내 문구가 들어가요. 유튜브에 올릴 때 "유료 프로모션 포함"도 체크해 주세요.' : '';
       const 미리 = 롱폼 ? '' : pdPvSvg({ layout: (document.querySelector('input[name="df-layout"]:checked')?.value || '자동') === '자동' ? '전체화면형' : document.querySelector('input[name="df-layout"]:checked').value, hook: gv('df-hookText'), hookShow: 'all', pos: (document.querySelector('input[name="df-captionPos"]:checked')?.value || '자동') === '자동' ? '하단' : document.querySelector('input[name="df-captionPos"]:checked').value, size: vv.subtitleSize || '크게', sub: vv.subtitleStyle || '구절형', off: !!vv.subtitleOff });
@@ -5525,7 +5544,7 @@ ${비율칸Html(kind, 상태)}</div>`;
         row('영상 형태', 롱폼 ? '롱폼 · 가로 16:9' : '쇼츠 · 세로 9:16', 0) + 참고줄 + (d.script ? row('내 대본', d.script.title + ' · ' + ((window.__rwGenChars ? window.__rwGenChars(d.script) : Number(d.script.chars)) || 0).toLocaleString('ko-KR') + '자', 3) : '') + row('주제', d.topic || (d.script ? '대본 제목을 써요' : '아직 비어 있어요'), 3) +
         (gv('df-style') ? row('만드는 방향', gv('df-style'), 3) : '') + (document.getElementById('df-characterUse')?.checked ? row('캐릭터', '영상 내내 같은 캐릭터', 3) : '') +
         (gv('df-directorNote') ? row('꼭 넣을 연출', gv('df-directorNote'), 3) : '') + row('내 사진·영상', (d.media && d.media.length) ? pdMediaSummary({ media: d.media }) + ' · 올린 순서대로 장면에 써요' : 'AI가 장면 그림을 만들어요', 1) +
-        row('영상 길이', lenLabel(분) + (parseFloat(d.len) > 0 ? '' : ' (기본)'), 1) + row('영상 제작 방식', 움직임 + (paid ? '' : ' (체험판)'), 4) +
+        row('영상 길이', lenLabel(분) + (parseFloat(d.len) > 0 ? '' : ' (기본)'), 1) + (롱폼 ? '' : row('화면 구성', document.querySelector('input[name="df-layout"]:checked')?.value || '자동', 'L')) + row('영상 제작 방식', 움직임 + (paid ? '' : ' (체험판)'), 'L') +
         row('목소리', 목소리, 2) + row('화면 꾸미기', 꾸밈, 4) + row('썸네일', 썸네일, 4) +
         `<p class="pw-note">AI 목소리가 들어간 영상은 유튜브에 올릴 때 "변경된 콘텐츠" 표시를 확인해 주세요.${(!d.narrate && 움직임 !== '이미지 중심') ? esc(' AI 영상 장면이 있어서 "합성된 콘텐츠"로도 표시해야 하고, 완성된 영상에서 제품 모양·글자가 실제와 같은지 꼭 확인해 주세요.') : ''}${esc(광고)}</p>`;
     }
@@ -5537,14 +5556,14 @@ ${비율칸Html(kind, 상태)}</div>`;
       const vv = (window.RWVoice && RWVoice.value()) || {};
       const 자막 = vv.subtitleOff ? '자막 꺼짐' : [(PD_POS_LABEL[d.captionPos] || '아래쪽') + ' 자막', vv.subtitleSize && '크기 ' + vv.subtitleSize, vv.subtitleStyle && ({ '구절형': '한 줄씩', '문장형': '문장째로', '단어형': '한두 단어씩' }[vv.subtitleStyle] || ''), vv.subtitleEffect && vv.subtitleEffect !== '끔' && '강조 ' + vv.subtitleEffect, vv.subtitleKeyColor && '핵심 단어 ' + vv.subtitleKeyColor].filter(Boolean).join(' · ');
       const 세부 = [vv.pitch ? '음높이 ' + (vv.pitch > 0 ? '+' : '') + vv.pitch : '', vv.pause ? '쉼 ' + vv.pause : '', vv.pronounce && vv.pronounce.length ? '발음 사전 ' + vv.pronounce.length + '개' : ''].filter(Boolean).join(' · ') || '기본';
-      const row = (k, v, go) => `<div class="pw-row"><span class="pw-k">${k}</span><span class="pw-v">${esc(v)}</span><button type="button" class="pw-fix" data-go="${go}">고치기</button></div>`;
+      const row = (k, v, go) => `<div class="pw-row"><span class="pw-k">${k}</span><span class="pw-v">${esc(v)}</span><button type="button" class="pw-fix" data-go="${새번호(go)}">고치기</button></div>`;
       const 설명 = pdSrcLabel(d);
       const 링크 = d.link ? (PD_SELLER_LABEL[d.seller] + ' · ' + d.link.slice(0, 50)) : '없음';
       const 광고 = (d.seller === 'affiliate' || (d.link && pdLooksAffiliate(d.link))) ? ' 제휴 링크라서 설명란 맨 앞과 고정 댓글에 광고 안내 문구가 들어가요. 유튜브에 올릴 때 "유료 프로모션 포함"도 체크해 주세요.' : (d.link ? ' 링크는 설명란과 고정 댓글에 들어가요.' : '');
       const 미리 = pdPvSvg({ layout: d.layout, hook: d.hook, hookShow: d.hookShow, pos: d.captionPos || '하단', size: vv.subtitleSize || '크게', sub: vv.subtitleStyle || '구절형', off: !!vv.subtitleOff });
       review.innerHTML = `<div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg></span><div><h3 data-n="${LAST + 1}">이대로 만들까요?</h3><p>고칠 곳이 있으면 "고치기"를 눌러 돌아가세요. 고른 내용은 그대로 남아 있어요</p></div></div>` +
         `<div class="pw-pv" role="img" aria-label="고른 화면 모양 미리보기">${미리}<small>고른 화면 모양이에요</small></div>` +
-        row('제품', d.name, 1) + row('제품 내용', 설명, 1) + row('링크·판매', 링크, 1) + row('사진·영상', pdMediaSummary(d), 2) + row('영상 길이', pdLenLabel(d.sec), 2) + row('영상 제작 방식', d.motion, 5) + (window.RWVoice ? row('목소리', RWVoice.summary(), 3) : '') + row('대본', d.script ? ('내 대본 · ' + d.script.title) : 'AI가 제품 내용으로 써요', 4) + row('화면 구성', d.layout === '자동' ? '자동 (전체화면형)' : d.layout, 5) + row('위쪽 문구', (d.hook || 'AI가 만들어요') + (d.hookShow === '3s' ? ' · 처음 3초만' : ' · 계속 보이기'), 5) + row('영상 꾸미기', composeSumText(true, composeKind === '상품' ? composeState : null).replace(/[<>&]/g, ''), 5) + row('썸네일', (planMode === 'paid' ? (document.getElementById('df-thumbnail')?.checked ? 'AI 썸네일 3장 함께 만들기' : '만들지 않음') : '체험판은 제공하지 않아요'), 5) + (window.RWVoice ? row('목소리 세부', 세부, 3) : '') +
+        row('제품', d.name, 1) + row('제품 내용', 설명, 1) + row('링크·판매', 링크, 1) + row('사진·영상', pdMediaSummary(d), 2) + row('영상 길이', pdLenLabel(d.sec), 2) + row('영상 제작 방식', d.motion, 'L') + (window.RWVoice ? row('목소리', RWVoice.summary(), 3) : '') + row('대본', d.script ? ('내 대본 · ' + d.script.title) : 'AI가 제품 내용으로 써요', 4) + row('화면 구성', d.layout === '자동' ? '자동 (전체화면형)' : d.layout, 5) + row('위쪽 문구', (d.hook || 'AI가 만들어요') + (d.hookShow === '3s' ? ' · 처음 3초만' : ' · 계속 보이기'), 5) + row('영상 꾸미기', composeSumText(true, composeKind === '상품' ? composeState : null).replace(/[<>&]/g, ''), 5) + row('썸네일', (planMode === 'paid' ? (document.getElementById('df-thumbnail')?.checked ? 'AI 썸네일 3장 함께 만들기' : '만들지 않음') : '체험판은 제공하지 않아요'), 5) + (window.RWVoice ? row('목소리 세부', 세부, 3) : '') +
         `<p class="pw-note">AI 목소리가 들어간 영상은 유튜브에 올릴 때 "변경된 콘텐츠" 표시를 확인해 주세요.${d.motion !== '이미지 중심' ? esc(' AI 영상 장면이 있어서 "합성된 콘텐츠"로도 표시해야 하고, 완성된 영상에서 제품 모양·글자가 실제와 같은지 꼭 확인해 주세요.') : ''}${esc(광고)}</p>`;
     }
     const filmIcon = d => `<svg viewBox="0 0 20 20" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg>`;
@@ -5584,7 +5603,7 @@ ${비율칸Html(kind, 상태)}</div>`;
       drawBar();
     }
     // 영상 제작 방식: 쇼츠는 영상 꾸미기 창에서 고른다. 꾸미기 창이 없는 롱폼만 이 단계에 보인다
-    const syncMotionHome = () => { const m = fields.querySelector('.gn-motion'), f = document.getElementById('df-form'); if (m && f) m.classList.toggle('df-hide', f.value !== '롱폼'); };
+    const syncMotionHome = () => { const m = fields.querySelector('.gn-motion'); if (m) m.classList.toggle('df-hide', !GN()); };   // 영상 제작 방식은 「구성」 단계에 있다(쇼츠·롱폼 모두)
     fields.addEventListener('change', e => { if (e.target && e.target.id === 'df-form') syncMotionHome(); });
     syncMotionHome();
     // 쇼츠/롱폼 카드: 숨은 형태 칸(df-form)을 바꾸고 알린다 - 길이 칩·요금·기본 길이가 예전과 똑같이 따라간다
@@ -5645,6 +5664,14 @@ ${비율칸Html(kind, 상태)}</div>`;
       } else if (!t && auto && h.value === auto) { h.value = ''; delete h.dataset.autoTitle; note.textContent = ''; h.dispatchEvent(new Event('input', { bubbles: true })); }
       else if (!t || h.value !== auto) note.textContent = '';
     }
+    function drawLayoutPv() {   // 「구성」 단계 오른쪽: 고른 화면 구성을 큰 그림으로 보인다
+      const box = layoutSec.querySelector('.gl-pv'); if (!box) return;
+      const 롱폼 = (document.getElementById('df-form') || {}).value === '롱폼' && GN();
+      box.hidden = 롱폼; if (롱폼) { box.innerHTML = ''; return; }
+      const vv = (window.RWVoice && RWVoice.value()) || {}, lay = (document.querySelector('input[name="df-layout"]:checked') || {}).value || '자동', cap = (document.querySelector('input[name="df-captionPos"]:checked') || {}).value || '자동', hook = ((document.getElementById('df-hookText') || {}).value || '').trim();
+      box.innerHTML = pdPvSvg({ layout: lay === '자동' ? '전체화면형' : lay, hook: hook, hookShow: 'all', pos: cap === '자동' ? '하단' : cap, size: vv.subtitleSize || '크게', sub: vv.subtitleStyle || '구절형', off: !!vv.subtitleOff }) + '<small>고른 화면 구성이에요. 모양·색·글자는 뒤의 꾸미기에서 바꿔요</small>';
+    }
+    layoutSec.addEventListener('change', () => drawLayoutPv());
     let lastKind = null;
     function render() {
       const active = on();
@@ -5656,6 +5683,7 @@ ${비율칸Html(kind, 상태)}</div>`;
       if (active) cardify();
       fields.classList.toggle('pw-on', active); fields.classList.toggle('pw-gn', active && GN()); fields.classList.toggle('pw-pd', active && 현재종류() === '상품쇼츠');
       bar.hidden = nav.hidden = hint.hidden = !active;
+      layoutSec.classList.toggle('df-hide', !active || LONGK()); layoutSec.querySelectorAll('.gl-pd').forEach(e => e.classList.toggle('df-hide', GN())); layoutSec.querySelectorAll('.gl-gn').forEach(e => e.classList.toggle('df-hide', !GN()));
       review.classList.toggle('df-hide', !active);
       { const 자리폼 = { '상품쇼츠': '상품쇼츠', '야담': '야담', '수면음악': '분위기영상' }[현재종류()], 자리 = active && !!자리폼; refSec.classList.toggle('df-hide', !자리); if (window.RWReference && RWReference.move) { if (자리) RWReference.move(refSec, 자리폼); else if (gnForm()) RWReference.move(gnForm(), ''); } }
       { const gf = gnForm(); if (gf) { gf.classList.toggle('df-hide', !(active && GN())); const sel = document.getElementById('df-form'), want = sel && sel.value === '롱폼' ? '롱폼' : '쇼츠'; const rd = gf.querySelector(`input[name="gn-form"][value="${want}"]`); if (rd) rd.checked = true; } }
@@ -5674,6 +5702,7 @@ ${비율칸Html(kind, 상태)}</div>`;
         if (T) [q(MO() ? '.df-sleep' : '.df-yadam')].filter(Boolean).forEach(sec => { const h = sec.querySelector('.df-sec-head h3'), pp = sec.querySelector('.df-sec-head p'), tt = T[step + 1]; if (!tt || !h || !pp) return; if (h.dataset.pwT === undefined) { h.dataset.pwT = h.textContent; pp.dataset.pwT = pp.textContent; } h.textContent = tt[0]; pp.textContent = tt[1]; });
         drawNoSound();
       }
+      if (namesOf()[step] === '구성') drawLayoutPv();
       if (GN() && namesOf()[step] === '꾸미기') syncHook();
       if (step === LAST) buildReview();
       nav.querySelector('.pw-prev').style.visibility = step === 0 ? 'hidden' : '';
@@ -5711,7 +5740,7 @@ ${비율칸Html(kind, 상태)}</div>`;
     window.__pwRefresh = render;
     window.__pwOn = on;
     window.__pwLast = () => LAST;
-    window.__pwGo = go;
+    window.__pwGo = (n, focus) => go(LONGK() ? n : (n >= 구성번호() ? n + 1 : n), focus);   // 밖에서 부르는 곳은 예전 단계 번호(구성 단계가 없던 때)를 쓴다 → 새 번호로 바꿔 준다
     render();
   }
   function applyType() {
