@@ -235,7 +235,7 @@
       };
       document.addEventListener('pointermove', move); document.addEventListener('pointerup', end); document.addEventListener('pointercancel', end);
     });
-    list.__mm = { setCount: function (t) { if (bar) bar.querySelector('.mm-count').textContent = t; }, release: function (c) { if (c.__mm && c.__mm.url) URL.revokeObjectURL(c.__mm.url); } };
+    list.__mm = { changed: function () { host.changed(); }, setCount: function (t) { if (bar) bar.querySelector('.mm-count').textContent = t; }, release: function (c) { if (c.__mm && c.__mm.url) URL.revokeObjectURL(c.__mm.url); } };
   }
 
   window.RWMedia = { mount: mount };

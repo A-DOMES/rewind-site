@@ -648,6 +648,48 @@
       // 왼쪽 라이브러리(리졸브의 미디어 풀): 화면 구성 · 모양 · 영상 제작 방식. 오른쪽 인스펙터 탭: 제목 · 자막 · 고정 글자
       // 화면 구성·영상 제작 방식은 앞의 「구성」 단계로 옮겼다 → 이 창에서는 보이지 않게 떼어 둔다(값은 그대로 들고 있어서 되돌릴 일이 없다). 왼쪽 칸은 비워 둔다
       [판, 판2].forEach(function (c) { if (c && c.parentNode) c.parentNode.removeChild(c); });
+      // 작업장(왼쪽): 앞 단계에서 올린 내 사진·영상을 모아 보여 준다. 누르면 미리보기 배경이 되고, 끌면 순서(= 장면 순서)가 바뀐다. 올리기·지우기는 앞 단계에서 한다
+      var 자료 = (Array.isArray(opt.자료) ? opt.자료 : []).filter(function (x) { return x && x.src; });
+      var 작업장 = el('section', 'cz-card cz-wb'); 작업장.setAttribute('aria-label', '내 사진·영상');
+      (function () {
+        var 머리 = el('div', 'cz-ch cz-wb-h'); var 제 = el('h3', '', '내 사진·영상'); 머리.appendChild(제); var 수 = el('b', 'cz-now', ''); 제.appendChild(수); 작업장.appendChild(머리);
+        var 격자 = el('div', 'cz-wb-grid'); 격자.setAttribute('role', 'list'); var 안내 = el('p', 'cz-hint cz-wb-note', ''); 작업장.appendChild(격자); 작업장.appendChild(안내);
+        var 고른 = -1;
+        function 쓰기그림(src) { var u = /^(blob:|https:\/\/|data:image\/)/.test(String(src || '')) ? String(src).replace(/["\\\n]/g, encodeURIComponent) : ''; if (!u) return; bg.style.background = '#222 center / cover no-repeat url("' + u + '")'; ctr.style.background = '#222 center / cover no-repeat url("' + u + '")'; }
+        function 그리기() {
+          격자.textContent = '';
+          수.textContent = 자료.length ? '지금: ' + 자료.length + '개' : '';
+          안내.textContent = 자료.length ? '끌어서 순서를 바꿔요 · 순서가 장면 순서예요 · 올리기와 빼기는 앞의 「화면·길이」 단계에서 해요' : '앞 단계에서 올린 사진·영상이 여기에 모여요. 올리지 않으면 AI가 장면 그림을 만들어요';
+          자료.forEach(function (it, i) {
+            var t = el('div', 'cz-wb-t'); t.setAttribute('role', 'listitem'); t.tabIndex = 0; t.dataset.i = String(i); t.title = (it.이름 || '') + (it.영상 ? ' (영상)' : '');
+            var im = el('span', 'cz-wb-img'); im.style.backgroundImage = 'url("' + String(it.src).replace(/["\\\n]/g, encodeURIComponent) + '")'; t.appendChild(im);
+            t.appendChild(el('i', 'cz-wb-n', String(i + 1))); if (it.영상) t.appendChild(el('i', 'cz-wb-v', '▶'));
+            if (i === 고른) t.setAttribute('aria-pressed', 'true');
+            t.addEventListener('click', function () { 고른 = i; 쓰기그림(it.src); Array.prototype.forEach.call(격자.children, function (c, k) { c.setAttribute('aria-pressed', String(k === i)); }); });
+            t.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); t.click(); } else if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && e.altKey) { e.preventDefault(); 옮기기(i, i + (e.key === 'ArrowLeft' ? -1 : 1)); } });
+            // 끌어서 순서 바꾸기(마우스·터치): 놓은 자리의 칸 앞으로 들어간다
+            t.addEventListener('pointerdown', function (e) {
+              if (e.button) return; var 시작x = e.clientX, 시작y = e.clientY, 끌림 = false, 놓음 = i;
+              var 이동 = function (ev) {
+                if (!끌림 && Math.abs(ev.clientX - 시작x) + Math.abs(ev.clientY - 시작y) < 6) return; 끌림 = true; t.classList.add('cz-wb-drag');
+                var 칸들 = Array.prototype.slice.call(격자.children), 대상 = 칸들.length;
+                for (var k = 0; k < 칸들.length; k++) { var r = 칸들[k].getBoundingClientRect(); if (ev.clientY < r.bottom && ev.clientX < r.right && (ev.clientY >= r.top || k === 0)) { 대상 = (ev.clientX < r.left + r.width / 2 || ev.clientY < r.top) ? k : k + 1; break; } }
+                놓음 = 대상; 칸들.forEach(function (c, k) { c.classList.toggle('cz-wb-before', k === 대상 && k !== i && k !== i + 1); });
+              };
+              var 끝 = function () { document.removeEventListener('pointermove', 이동); document.removeEventListener('pointerup', 끝); document.removeEventListener('pointercancel', 끝); t.classList.remove('cz-wb-drag'); Array.prototype.forEach.call(격자.children, function (c) { c.classList.remove('cz-wb-before'); }); if (끌림 && 놓음 !== i && 놓음 !== i + 1) 옮기기(i, 놓음 > i ? 놓음 - 1 : 놓음); };
+              document.addEventListener('pointermove', 이동); document.addEventListener('pointerup', 끝); document.addEventListener('pointercancel', 끝);
+            });
+            격자.appendChild(t);
+          });
+        }
+        function 옮기기(a, b) {
+          if (b < 0 || b >= 자료.length || a === b) return; var it = 자료.splice(a, 1)[0]; 자료.splice(b, 0, it); if (고른 === a) 고른 = b;
+          if (typeof opt.자료옮김 === 'function') { try { opt.자료옮김(a, b); } catch (x) {} }
+          그리기(); var 칸 = 격자.children[b]; if (칸) 칸.focus();
+        }
+        그리기();
+      })();
+      lib.appendChild(작업장);
       var 모양판 = null; if (c1) { c1.dataset.tab = '*'; c1.classList.remove('cz-fold'); var 머리1 = c1.querySelector('.cz-ch'); if (머리1) 머리1.setAttribute('aria-expanded', 'true'); 모양판 = el('section', 'cz-shapepg'); 모양판.setAttribute('aria-label', '모양 고르기'); 모양판.appendChild(c1); }
       // 아래 페이지 바(리졸브의 페이지): 모양 = 지금 배치 / 장면 = 미리보기를 크게, 왼쪽은 장면 탭
       var 페이지줄 = el('div', 'cz-pages'); 페이지줄.setAttribute('role', 'tablist'); 페이지줄.setAttribute('aria-label', '작업 화면');

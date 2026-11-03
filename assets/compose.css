@@ -415,7 +415,6 @@ label.cz-chip { display: inline-flex; align-items: center; }
 }
 
 /* 단계 정리(구성 단계로 이사): 왼쪽 칸은 비우고, 페이지 = 모양 / 색 / 글자 */
-.cz-lib { display: none !important; }
 .cz-shapepg { display: none; }
 .cz-dlg[data-pg="shape"] .cz-shapepg { display: block; }
 .cz-dlg[data-pg="shape"] .cz-body, .cz-dlg[data-pg="shape"] .cz-tl, .cz-dlg[data-pg="color"] .cz-body, .cz-dlg[data-pg="color"] .cz-tl { display: none; }
@@ -427,3 +426,22 @@ label.cz-chip { display: inline-flex; align-items: center; }
   .cz-shapepg { grid-area: col; max-height: 300px; overflow: auto; background: var(--rz-p1); border-top: 1px solid var(--rz-ln); }
   .cz-dlg[data-pg="shape"] .cz-phone { width: clamp(140px, calc((100dvh - 560px) * 0.5625), 520px); }
 }
+
+/* 작업장(왼쪽): 내 사진·영상 */
+.cz-wb { padding: 0 0 12px; border: 0; }
+.cz-wb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 8px; }
+.cz-wb-note { margin: 0; }
+.cz-wb-t { position: relative; aspect-ratio: 9 / 16; border: 1px solid var(--rz-ln); border-radius: 6px; overflow: hidden; background: #111; cursor: grab; touch-action: none; user-select: none; }
+.cz-wb-t:hover { border-color: #6a6a74; }
+.cz-wb-t:focus-visible { outline: 2px solid var(--rz-ac); outline-offset: 1px; }
+.cz-wb-t[aria-pressed="true"] { border-color: var(--rz-ac); box-shadow: 0 0 0 1px var(--rz-ac); }
+.cz-wb-img { position: absolute; inset: 0; background: center / cover no-repeat; pointer-events: none; }
+.cz-wb-n, .cz-wb-v { position: absolute; font-style: normal; font-size: .72rem; font-weight: 700; padding: 1px 6px; border-radius: 4px; background: rgba(0,0,0,.65); color: #fff; }
+.cz-wb-n { left: 4px; top: 4px; } .cz-wb-v { right: 4px; bottom: 4px; }
+.cz-wb-drag { opacity: .55; cursor: grabbing; }
+.cz-wb-before { box-shadow: -3px 0 0 var(--rz-ac); }
+@media (min-width: 901px) {
+  .cz-dlg { grid-template-columns: minmax(230px, 20%) minmax(380px, 1fr) minmax(320px, 30%); grid-template-areas: "head head head" "lib pv body" "tl tl tl" "foot foot foot"; }
+  .cz-dlg[data-pg="shape"], .cz-dlg[data-pg="color"] { grid-template-areas: "head head head" "lib pv pv" "col col col" "foot foot foot"; }
+}
+@media (max-width: 900px) { .cz-lib { display: none; } }

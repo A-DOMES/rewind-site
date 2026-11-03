@@ -1925,15 +1925,15 @@
 </style>
 <script src="./theme.js"></script>
 <script src="./assets/voice-panel.js?v=20261102c"></script>
-<script src="./assets/media-input.js?v=20261102b"></script>
+<script src="./assets/media-input.js?v=20261104c"></script>
 <script src="./assets/voice-catalog.js?v=20261025"></script>
 <script src="./assets/voice-picker.js?v=20261025"></script>
 <link rel="stylesheet" href="./assets/guide.css?v=20261025">
 <script src="./assets/guide.js?v=20261101"></script>
-<link rel="stylesheet" href="./assets/compose.css?v=20261103z">
+<link rel="stylesheet" href="./assets/compose.css?v=20261104c">
 <script src="./assets/shared/layout.js?v=20261027"></script>
 <script src="./assets/shared/phrase.js?v=20261026"></script>
-<script src="./assets/compose.js?v=20261104a"></script>
+<script src="./assets/compose.js?v=20261104c"></script>
 <script src="./assets/rw-consent.js"></script>
 <link rel="stylesheet" href="./assets/rw-theme.css?v=20261103n">
 </head>
@@ -4208,7 +4208,12 @@ ${비율칸Html(kind, 상태)}</div>`;
     const 제작방식 = 제작칸.length ? { 값: (제작칸.find(x => x.checked) || {}).value || '', 목록: 제작칸.map(x => { const 이름 = x.value, 기준 = 이름 === '자동' ? '혼합' : 이름, 막힘 = x.disabled; return { 값: 이름, 꺼짐: 막힘, 그림: (x.closest('label').querySelector('svg') || {}).outerHTML || '', 부제: 이름 === '자동' ? '보통 혼합' : '', 요금: MOTION_RATE[기준] ? '분당 ' + MOTION_RATE[기준] + 'P' : '', 설명: (제작설명[이름] || '') + (막힘 ? ' (지금은 고를 수 없어요)' : (기준 !== '이미지 중심' ? ' AI 영상이 들어가면 유튜브에 올릴 때 "합성된 콘텐츠"로 표시해야 해요.' : '')) }; }) } : null;
     const 첫사진 = ([...document.querySelectorAll('.pimg-th img')].map(i => i.src).find(Boolean)) || '';   // 앞 단계에서 올린 첫 사진(없으면 기본 배경)
     const 대본첫줄 = (() => { try { const g = window.__rwGenScript, s = g && window.__rwGenLib && window.__rwGenLib().find(x => x.id === g.id && x.chapters && x.chapters.length), t = (s && s.chapters[0] && s.chapters[0].text) || ''; return t.split(/[.!?。\n]/)[0].trim().slice(0, 40); } catch (e) { return ''; } })();   // 쓰기로 한 대본의 첫 줄
-    RWCompose.open({ 종류: 상품 ? '상품쇼츠' : '쇼츠', 타임라인: composeTimeline(상품), 화면: '세로', 배경그림: 첫사진, 화면목록, 화면구성, 제작방식, 문구시간: 상품 ? ((document.querySelector('input[name="pd-hookshow"]:checked') || {}).value || 'all') : undefined, 자막방식: (상품 && window.RWVoice) ? (RWVoice.getExtra().subtitleStyle || '구절형') : undefined, 문구: document.getElementById('df-hookText')?.value || '', 값, 자막위치: 거꾸로[지금] || '아래', 샘플: 대본첫줄 || document.getElementById('df-hookText')?.value || '',
+    // 작업장(왼쪽): 앞 단계에서 올린 사진·영상 목록과 순서 바꾸기(원래 목록의 카드 순서를 그대로 옮긴다)
+    const 자료목록 = document.getElementById(상품 ? 'df-pimgs' : 'df-gimgs');
+    const 자료카드 = () => 자료목록 ? [...자료목록.querySelectorAll('.pimg-card')].filter(c => c.querySelector('.pimg-th img')) : [];
+    const 자료 = 자료카드().map(c => ({ src: c.querySelector('.pimg-th img').src, 영상: c.dataset.type === 'video', 이름: ((c.querySelector('.pimg-name') || {}).textContent || '').trim() }));
+    const 자료옮김 = (a, b) => { const u = 자료카드(), c = u[a]; if (!c) return; u.splice(a, 1); const ref = u[b] || null; if (ref) 자료목록.insertBefore(c, ref); else { const last = u[u.length - 1]; last ? 자료목록.insertBefore(c, last.nextSibling) : 자료목록.appendChild(c); } if (자료목록.__mm && 자료목록.__mm.changed) 자료목록.__mm.changed(); };
+    RWCompose.open({ 종류: 상품 ? '상품쇼츠' : '쇼츠', 자료, 자료옮김, 타임라인: composeTimeline(상품), 화면: '세로', 배경그림: 첫사진, 화면목록, 화면구성, 제작방식, 문구시간: 상품 ? ((document.querySelector('input[name="pd-hookshow"]:checked') || {}).value || 'all') : undefined, 자막방식: (상품 && window.RWVoice) ? (RWVoice.getExtra().subtitleStyle || '구절형') : undefined, 문구: document.getElementById('df-hookText')?.value || '', 값, 자막위치: 거꾸로[지금] || '아래', 샘플: 대본첫줄 || document.getElementById('df-hookText')?.value || '',
       onDone: res => {
         composeState = Object.keys(res.compose).length ? res.compose : null; composeKind = composeState ? 종류표 : '';
         const 고르기 = (name, v) => { const r = [...document.querySelectorAll(`input[name="${name}"]`)].find(x => x.value === v); if (r && !r.disabled) { r.checked = true; r.dispatchEvent(new Event('change', { bubbles: true })); } };
