@@ -326,3 +326,22 @@ label.cz-chip { display: inline-flex; align-items: center; }
   .cz-lib .cz-opt { padding: 6px; }
   .cz-body .cz-hint, .cz-body .cz-note { font-size: .74rem; margin: 0; }
 }
+
+/* ===== 리졸브식 인스펙터 1단계(2026-11-03): 구역 머리줄 + 줄 모양(이름 | 슬라이더 | 숫자 칸 | ↺) 통일 ===== */
+.cz-body .cz-card, .cz-lib .cz-card { padding: 0 0 12px; gap: 9px; }
+.cz-body .cz-card > :not(.cz-ch), .cz-lib .cz-card > :not(.cz-ch) { margin-left: 14px; margin-right: 14px; }
+.cz-body .cz-card.cz-fold, .cz-lib .cz-card.cz-fold { padding-bottom: 0; }
+.cz-ch { padding: 8px 14px; background: #101012; border-bottom: 1px solid var(--rz-ln); gap: 8px; user-select: none; transition: background-color .15s; }
+.cz-ch:hover { background: #151518; }
+.cz-card.cz-fold .cz-ch { border-bottom-color: transparent; }
+.cz-ch .cz-chev { order: -1; margin: 0 2px 0 0; font-size: 1rem; color: var(--ink-faint); transform: rotate(0deg); transition: transform .15s; }
+.cz-card.cz-fold .cz-ch .cz-chev { transform: rotate(-90deg); }
+.cz-ch h3 { font-weight: 700; letter-spacing: .01em; }
+.cz-ch .cz-now { margin-left: auto; }
+/* 줄: 이름은 오른쪽 맞춤(슬라이더 바로 옆), 숫자는 테두리 있는 칸, ↺ 는 테두리 없이 */
+.cz-body .cz-row label { text-align: right; color: var(--ink-dim); font-weight: 500; }
+.cz-val { min-width: 4.4ch; padding: 3px 7px; box-sizing: border-box; background: #09090a; border: 1px solid var(--rz-ln); border-radius: 4px; text-align: center; color: var(--ink); font-weight: 600; transition: border-color .15s; }
+.cz-val.cz-scrub:hover { border-color: #5a5a62; color: #fff; text-decoration: none; }
+.cz-rst { border-color: transparent; background: transparent; color: var(--ink-faint); border-radius: 6px; }
+.cz-rst:hover, .cz-rst:focus-visible { background: rgba(255,255,255,.06); border-color: transparent; color: var(--rz-ac); }
+.cz-body .cz-row:has(> .cz-chips) > label { text-align: left; width: auto; min-width: 0; flex-basis: 100%; }
