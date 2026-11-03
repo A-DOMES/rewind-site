@@ -1925,15 +1925,15 @@
 </style>
 <script src="./theme.js"></script>
 <script src="./assets/voice-panel.js?v=20261102c"></script>
-<script src="./assets/media-input.js?v=20261104t"></script>
+<script src="./assets/media-input.js?v=20261104v"></script>
 <script src="./assets/voice-catalog.js?v=20261025"></script>
 <script src="./assets/voice-picker.js?v=20261104a"></script>
 <link rel="stylesheet" href="./assets/guide.css?v=20261025">
 <script src="./assets/guide.js?v=20261101"></script>
-<link rel="stylesheet" href="./assets/compose.css?v=20261104t">
+<link rel="stylesheet" href="./assets/compose.css?v=20261104v">
 <script src="./assets/shared/layout.js?v=20261027"></script>
 <script src="./assets/shared/phrase.js?v=20261026"></script>
-<script src="./assets/compose.js?v=20261104t"></script>
+<script src="./assets/compose.js?v=20261104v"></script>
 <script src="./assets/rw-consent.js"></script>
 <link rel="stylesheet" href="./assets/rw-theme.css?v=20261103n">
 </head>
@@ -4167,10 +4167,15 @@ ${비율칸Html(kind, 상태)}</div>`;
   // 영상 꾸미기: 버튼은 폼이 다시 그려질 때마다 새로 생기므로 문서 전체에서 받는다
   if (window.RWCompose) RWCompose.불러오기();
   // 꾸미기 타임라인에 넘길 앞 단계 값(읽기 전용): 길이(초)·올린 사진·소리 요약
+  // 꾸미기 창이 장면으로 세는 올린 자료: 주소를 적었거나 올린 칸 모두(드라이브 사진·영상은 그림이 없어도 센다). 폴더 칸은 서버가 풀어서 한 칸으로만 센다
+  function 내자료카드(상품) {
+    const 목록 = document.getElementById(상품 ? 'df-pimgs' : 'df-gimgs');
+    return 목록 ? [...목록.querySelectorAll('.pimg-card')].filter(c => c.querySelector('.pimg-th img') || (c.querySelector('.pimg-url') || {}).value?.trim() || c.dataset.src) : [];
+  }
   function composeTimeline(상품, 롱) {
     try {
       const 분 = 롱 ? Number(롱폼길이분()) : parseFloat(document.getElementById('df-videoLength')?.value), 초 = 상품 ? parseFloat(document.getElementById('df-prodLen')?.value) : (분 > 0 ? 분 * 60 : 0);
-      const 사진 = 롱 ? [] : [...document.querySelectorAll('.pimg-th img')].map(i => i.src).filter(Boolean);   // 야담·수면은 올린 사진이 없다(장면은 AI가 만든다)
+      const 사진 = 롱 ? [] : 내자료카드(상품).map(c => ((c.querySelector('.pimg-th img') || {}).src) || '');   // 야담·수면은 올린 사진이 없다(장면은 AI가 만든다)
       let 소리 = ''; try { if (window.RWVoice && typeof RWVoice.summary === 'function') 소리 = String(RWVoice.summary() || '').slice(0, 30); } catch (e) {}
       return { 길이초: 초 > 0 ? Math.round(초) : 0, 사진, 사진수: 사진.length || undefined, 소리 };
     } catch (e) { return {}; }
@@ -4210,8 +4215,8 @@ ${비율칸Html(kind, 상태)}</div>`;
     const 대본첫줄 = (() => { try { const g = window.__rwGenScript, s = g && window.__rwGenLib && window.__rwGenLib().find(x => x.id === g.id && x.chapters && x.chapters.length), t = (s && s.chapters[0] && s.chapters[0].text) || ''; return t.split(/[.!?。\n]/)[0].trim().slice(0, 40); } catch (e) { return ''; } })();   // 쓰기로 한 대본의 첫 줄
     // 작업장(왼쪽): 앞 단계에서 올린 사진·영상 목록과 순서 바꾸기(원래 목록의 카드 순서를 그대로 옮긴다)
     const 자료목록 = document.getElementById(상품 ? 'df-pimgs' : 'df-gimgs');
-    const 자료카드 = () => 자료목록 ? [...자료목록.querySelectorAll('.pimg-card')].filter(c => c.querySelector('.pimg-th img')) : [];
-    const 자료 = 자료카드().map(c => ({ src: c.querySelector('.pimg-th img').src, 영상: c.dataset.type === 'video', 이름: ((c.querySelector('.pimg-name') || {}).textContent || '').trim() }));
+    const 자료카드 = () => 내자료카드(상품);
+    const 자료 = 자료카드().map(c => ({ src: ((c.querySelector('.pimg-th img') || {}).src) || '', 영상: c.dataset.type === 'video', 이름: ((c.querySelector('.pimg-name') || {}).textContent || '').trim() || String((c.querySelector('.pimg-url') || {}).value || '').trim().slice(-24) }));
     const 자료옮김 = (a, b) => { const u = 자료카드(), c = u[a]; if (!c) return; u.splice(a, 1); const ref = u[b] || null; if (ref) 자료목록.insertBefore(c, ref); else { const last = u[u.length - 1]; last ? 자료목록.insertBefore(c, last.nextSibling) : 자료목록.appendChild(c); } if (자료목록.__mm && 자료목록.__mm.changed) 자료목록.__mm.changed(); };
     RWCompose.open({ 종류: 상품 ? '상품쇼츠' : '쇼츠', 자료, 자료옮김, 타임라인: composeTimeline(상품), 화면: '세로', 배경그림: 첫사진, 화면목록, 화면구성, 제작방식, 문구시간: 상품 ? (((document.querySelector('input[name="pd-hookshow"]:checked') || {}).value === '3s') ? ((parseFloat((document.getElementById('pd-hooksec') || {}).value) >= 0 ? parseFloat(document.getElementById('pd-hooksec').value) : 3) + 's') : 'all') : undefined, 자막방식: (상품 && window.RWVoice) ? (RWVoice.getExtra().subtitleStyle || '구절형') : undefined, 문구: document.getElementById('df-hookText')?.value || '', 값, 자막위치: 거꾸로[지금] || '아래', 샘플: 대본첫줄 || document.getElementById('df-hookText')?.value || '',
       onDone: res => {

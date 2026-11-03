@@ -263,7 +263,7 @@
         칸상태 = { 위: 위비, 아래: 아래비 }; ctr.style.top = (위비 * 100) + '%'; ctr.style.height = ((아래비 - 위비) * 100) + '%'; 칸손잡이.style.top = (아래비 * 100) + '%';
       }
       칸손잡이.style.display = 가운데형 ? 'block' : 'none';
-      var 제목칸 = 제목형 && !가운데형 && 문구초값() === null;   // 제목고정형: 사진은 띠 아래부터 화면 맨 아래까지(서버 render.js 의 제목칸모드와 같다). 제목을 처음 몇 초만 보이게 하면 예전처럼 전체에 깔고 띠가 덮는다
+      var 제목칸 = 제목형 && !가운데형;   // 제목고정형: 사진은 띠 아래부터 화면 맨 아래까지(서버 render.js 의 제목칸모드와 같다). 제목을 처음 몇 초만 보이게 하면 예전처럼 전체에 깔고 띠가 덮는다
       bg.style.top = 제목칸 ? (상자.띠 / H * 100) + '%' : ''; bg.style.height = 제목칸 ? ((H - 상자.띠) / H * 100) + '%' : '';
       ctr.style.display = 가운데형 ? 'block' : 'none'; var 띠 = 가운데형 && 헥스.test(v.가운데색 || '') ? v.가운데색 : ''; bg.style.filter = 가운데형 && !띠 ? 'blur(5px) brightness(.7)' : ''; bg.style.visibility = 띠 ? 'hidden' : ''; phone.style.background = 띠 || ''; bg.style.transform = 가운데형 ? 'scale(1.12)' : '';
       var box = RWLayout.자막상자(W, H, { 위치: 자막위치, 크기: v.자막크기 * Math.min(W, H) / 1080, 줄수: v.줄수, 줄길이: v.줄길이, 거리: v.자막거리, 가로: v.자막가로, 안전영역: !가로 });
@@ -481,6 +481,7 @@
       속성키 = 키; insp.textContent = '';
       var 머리 = el('div', 'cz-insp-h'); 머리.appendChild(el('b', '', '속성')); 머리.appendChild(el('span', '', '장면 ' + 장 + ' / ' + 수)); insp.appendChild(머리);
       var 몸 = el('div', 'cz-insp-b'), 시작 = 길이 * (장 - 1) / 수, 끝 = 길이 * 장 / 수, 사진 = (T.사진 || [])[장 - 1], 자료 = (Array.isArray(opt.자료) ? opt.자료 : [])[장 - 1];
+      if (!/^(blob:|https:\/\/|data:image\/)/.test(사진 || '') && 자료) { var 빈 = el('div', 'cz-insp-img cz-insp-ph' + (가로 ? '' : ' cz-v'), 자료.영상 ? '영상' : '사진'); 몸.appendChild(빈); if (자료.이름) 몸.appendChild(el('p', 'cz-insp-name', 자료.이름)); }
       if (/^(blob:|https:\/\/|data:image\/)/.test(사진 || '')) { var 그림 = el('div', 'cz-insp-img' + (가로 ? '' : ' cz-v')); 그림.style.backgroundImage = 'url("' + String(사진).replace(/["\\\n]/g, encodeURIComponent) + '")'; 몸.appendChild(그림); if (자료 && 자료.이름) 몸.appendChild(el('p', 'cz-insp-name', String(자료.이름))); }
       var 줄들 = [['시작', 분초(시작)], ['끝', 분초(끝)], ['길이', (끝 - 시작).toFixed(1) + 's'], ['소리', T.소리 || (영상종류 === '수면' ? '배경 음악' : '목소리')], ['자막', 영상종류 === '수면' ? '없음' : (v0().자막끄기 ? '끔' : (자막방식 || '구절형'))]];
       줄들.forEach(function (r) { var d = el('div', 'cz-insp-r'); d.appendChild(el('span', '', r[0])); d.appendChild(el('b', '', r[1])); 몸.appendChild(d); });
@@ -706,7 +707,7 @@
       // 화면 구성·영상 제작 방식은 앞의 「구성」 단계로 옮겼다 → 이 창에서는 보이지 않게 떼어 둔다(값은 그대로 들고 있어서 되돌릴 일이 없다). 왼쪽 칸은 비워 둔다
       [판, 판2].forEach(function (c) { if (c && c.parentNode) c.parentNode.removeChild(c); });
       // 작업장(왼쪽): 앞 단계에서 올린 내 사진·영상을 모아 보여 준다. 누르면 미리보기 배경이 되고, 끌면 순서(= 장면 순서)가 바뀐다. 올리기·지우기는 앞 단계에서 한다
-      var 자료 = (Array.isArray(opt.자료) ? opt.자료 : []).filter(function (x) { return x && x.src; });
+      var 자료 = (Array.isArray(opt.자료) ? opt.자료 : []).filter(function (x) { return !!x; });   // 그림이 없는 드라이브 사진·영상도 한 장면으로 센다(순서가 앞 단계 목록과 같아야 한다)
       var 작업장 = el('section', 'cz-card cz-wb'); 작업장.setAttribute('aria-label', '내 사진·영상');
       (function () {
         var 머리 = el('div', 'cz-ch cz-wb-h'); var 제 = el('h3', '', '내 사진·영상'); 머리.appendChild(제); var 수 = el('b', 'cz-now', ''); 제.appendChild(수); 작업장.appendChild(머리);
@@ -719,7 +720,7 @@
           안내.textContent = 자료.length ? '끌어서 사진 순서를 바꿔요 · 순서가 장면 순서예요 · 올리기와 빼기, 영상·파일은 앞의 「화면·길이」 단계에서 해요' : (Array.isArray(opt.자료) ? '앞 단계에서 올린 사진이 여기에 모여요. 올리지 않으면 AI가 장면 그림을 만들어요' : '이 종류는 AI가 장면 그림을 만들어서 여기에 모이는 자료가 없어요');
           자료.forEach(function (it, i) {
             var t = el('div', 'cz-wb-t'); t.setAttribute('role', 'listitem'); t.tabIndex = 0; t.dataset.i = String(i); t.title = (it.이름 || '') + (it.영상 ? ' (영상)' : '');
-            var im = el('span', 'cz-wb-img'); im.style.backgroundImage = 'url("' + String(it.src).replace(/["\\\n]/g, encodeURIComponent) + '")'; t.appendChild(im);
+            var im = el('span', 'cz-wb-img'); if (it.src) im.style.backgroundImage = 'url("' + String(it.src).replace(/["\\\n]/g, encodeURIComponent) + '")'; else { im.classList.add('cz-wb-ph'); im.textContent = it.영상 ? '영상' : (it.이름 || '사진'); } t.appendChild(im);
             t.appendChild(el('i', 'cz-wb-n', String(i + 1))); if (it.영상) t.appendChild(el('i', 'cz-wb-v', '▶'));
             if (i === 고른) t.setAttribute('aria-pressed', 'true');
             t.addEventListener('click', function () { 고른 = i; 쓰기그림(it.src); Array.prototype.forEach.call(격자.children, function (c, k) { c.setAttribute('aria-pressed', String(k === i)); }); });

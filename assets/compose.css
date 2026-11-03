@@ -524,3 +524,7 @@ button.cz-pane-l[aria-pressed="true"] { color: var(--rz-ac); }
 .cz-secrow { display: flex; align-items: center; gap: 8px; margin: 6px 14px 0; font-size: var(--fs-sm); color: var(--ink-dim); }
 .cz-secin { width: 72px; height: 30px; padding: 0 8px; background: var(--rz-p1); color: var(--ink); border: 1px solid var(--rz-ln); border-radius: 4px; font: inherit; font-variant-numeric: tabular-nums; }
 .cz-secin:focus-visible { outline: 2px solid var(--rz-ac); outline-offset: 1px; }
+
+/* 그림이 없는 자료(드라이브 사진·영상): 이름만 보이는 칸 */
+.cz-wb-ph { display: flex; align-items: center; justify-content: center; padding: 6px; text-align: center; font-size: .8rem; color: var(--ink-dim); overflow: hidden; word-break: break-all; background: #151518; }
+.cz-insp-ph { display: flex; align-items: center; justify-content: center; color: var(--ink-dim); }
