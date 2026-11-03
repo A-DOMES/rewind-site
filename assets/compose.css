@@ -411,8 +411,18 @@ label.cz-chip { display: inline-flex; align-items: center; }
 .cz-dlg[data-pg="text"] .cz-body > .cz-card { border-right: 1px solid var(--rz-ln); }
 .cz-dlg[data-pg="shape"] .cz-dockbody > .cz-shapepg { display: block; max-height: none; }
 @media (min-width: 901px) {
-  .cz-dlg { --dock-h: clamp(200px, 32dvh, 300px); grid-template-columns: minmax(230px, 20%) minmax(380px, 1fr); grid-template-rows: auto minmax(0, 1fr) min(var(--dock-h), 58dvh) auto; grid-template-areas: "head head" "lib pv" "dock dock" "foot foot"; }
-  .cz-dock { grid-area: dock; }
+  .cz-dlg { --dock-h: clamp(200px, 32dvh, 300px); grid-template-columns: minmax(230px, 20%) minmax(380px, 1fr) minmax(220px, 22%); grid-template-rows: auto minmax(0, 1fr) min(var(--dock-h), 58dvh) auto; grid-template-areas: "head head head" "lib pv insp" "dock dock dock" "foot foot foot"; }
+  .cz-dock { grid-area: dock; } .cz-insp { grid-area: insp; }
   .cz-phone { width: clamp(90px, calc((min(100dvh, 940px) - var(--dock-h) - 250px) * 0.5625), 520px); }
 }
-@media (max-width: 900px) { .cz-lib { display: none; } .cz-dockgrip { display: none; } .cz-dockbody > * { overflow: visible; } .cz-dock { min-height: 260px; } }
+@media (max-width: 900px) { .cz-lib, .cz-insp { display: none; } .cz-dockgrip { display: none; } .cz-dockbody > * { overflow: visible; } .cz-dock { min-height: 260px; } }
+
+/* 오른쪽 속성(Inspector): 재생 위치의 장면 정보 */
+.cz-insp { min-width: 0; min-height: 0; overflow: auto; background: var(--rz-p1); border-left: 1px solid var(--rz-ln); }
+.cz-insp-h { position: sticky; top: 0; display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding: 8px 14px; background: var(--rz-p2); border-bottom: 1px solid var(--rz-ln); }
+.cz-insp-h b { font-size: var(--fs-sm); color: var(--ink); } .cz-insp-h span { font-size: var(--fs-xs, .75rem); color: var(--ink-dim); }
+.cz-insp-b { padding: 10px 14px; display: flex; flex-direction: column; gap: 2px; }
+.cz-insp-img { aspect-ratio: 16 / 9; max-height: 140px; border-radius: 4px; background: #000 center / cover no-repeat; border: 1px solid var(--rz-ln); margin-bottom: 4px; }
+.cz-insp-name { margin: 0 0 6px; font-size: var(--fs-xs, .75rem); color: var(--ink-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cz-insp-r { display: flex; justify-content: space-between; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--rz-ln); font-size: var(--fs-sm); }
+.cz-insp-r span { color: var(--ink-dim); } .cz-insp-r b { color: var(--ink); font-weight: 500; text-align: right; overflow-wrap: anywhere; }

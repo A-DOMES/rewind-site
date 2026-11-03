@@ -191,9 +191,10 @@
     var 뷰머리 = el('div', 'cz-vhead'); 뷰머리.appendChild(el('b', '', '미리보기')); var 뷰비 = el('span', '', 가로 ? '16:9 가로' : '9:16 세로'); 뷰비.appendChild(뷰시각); 뷰머리.appendChild(뷰비); pv.appendChild(뷰머리);   // 리졸브의 뷰어 머리줄
     pv.appendChild(phone); pv.appendChild(tools); pv.appendChild(warn); pv.appendChild(el('p', 'cz-note', '제목·자막·문구는 끌어서 옮길 수 있어요 · 실제 영상은 조금 다를 수 있어요'));
     var lib = el('aside', 'cz-lib'); lib.setAttribute('aria-label', '구성과 모양'); var body = el('div', 'cz-body'); var tl = el('section', 'cz-tl'); tl.setAttribute('aria-label', '타임라인(앞 단계에서 정한 값)');
+    var insp = el('aside', 'cz-insp'); insp.setAttribute('aria-label', '속성');   // 오른쪽 속성(Inspector): 재생 위치의 장면 정보(읽기 전용)
     var foot = el('div', 'cz-foot'); var reset = el('button', 'cz-btn', '처음 모양으로'); reset.type = 'button'; var ok = el('button', 'cz-btn cz-main', '적용하기'); ok.type = 'button'; foot.appendChild(reset); foot.appendChild(ok);
     var dock = el('section', 'cz-dock'), 그립 = el('div', 'cz-dockgrip'), 독몸 = el('div', 'cz-dockbody'); 그립.setAttribute('role', 'separator'); 그립.setAttribute('aria-orientation', 'horizontal'); 그립.setAttribute('aria-label', '아래 칸 높이 (끌거나 위·아래 화살표)'); 그립.tabIndex = 0; 독몸.appendChild(body); 독몸.appendChild(tl); dock.appendChild(그립); dock.appendChild(독몸);
-    dlg.appendChild(head); dlg.appendChild(lib); dlg.appendChild(pv); dlg.appendChild(dock); dlg.appendChild(foot); ov.appendChild(dlg);
+    dlg.appendChild(head); dlg.appendChild(lib); dlg.appendChild(pv); dlg.appendChild(insp); dlg.appendChild(dock); dlg.appendChild(foot); ov.appendChild(dlg);
 
     function 그리기미리보기() {
       var m = 합치기(선택, 종류), v = m.값;
@@ -420,6 +421,16 @@
     function 눈금간격(초) { var 후보 = [1, 2, 5, 10, 15, 30, 60, 120, 300, 600, 900, 1800, 3600, 7200]; for (var i = 0; i < 후보.length; i++) if (초 / 후보[i] <= 10) return 후보[i]; return 7200; }
     function 트랙줄(이름, 칸) { var 줄 = el('div', 'cz-trk'); 줄.appendChild(el('span', 'cz-trk-n', 이름)); var 레인 = el('div', 'cz-lane'); 줄.appendChild(레인); tl.appendChild(줄); return 레인; }
     function 조각(레인, 시작, 끝, 길이, 글, 클래스, 배경) { var p = el('i', 'cz-seg' + (클래스 ? ' ' + 클래스 : '')); p.style.left = (시작 / 길이 * 100) + '%'; p.style.width = Math.max(0.3, (끝 - 시작) / 길이 * 100) + '%'; if (글) p.appendChild(el('span', '', 글)); if (배경) p.style.backgroundImage = 'url("' + 배경 + '")'; 레인.appendChild(p); return p; }
+    function 분초(초) { var m = Math.floor(초 / 60), r = 초 - m * 60; return m + ':' + (r < 10 ? '0' : '') + r.toFixed(1); }
+    function 속성그리기(장, 수, 길이) {   // 재생 위치가 있는 장면의 정보. 값은 앞 단계에서 정한 것이라 여기서는 보기만 한다
+      insp.textContent = '';
+      var 머리 = el('div', 'cz-insp-h'); 머리.appendChild(el('b', '', '속성')); 머리.appendChild(el('span', '', '장면 ' + 장 + ' / ' + 수)); insp.appendChild(머리);
+      var 몸 = el('div', 'cz-insp-b'), 시작 = 길이 * (장 - 1) / 수, 끝 = 길이 * 장 / 수, 사진 = (T.사진 || [])[장 - 1], 자료 = (Array.isArray(opt.자료) ? opt.자료 : [])[장 - 1];
+      if (/^(blob:|https:\/\/|data:image\/)/.test(사진 || '')) { var 그림 = el('div', 'cz-insp-img'); 그림.style.backgroundImage = 'url("' + String(사진).replace(/["\\\n]/g, encodeURIComponent) + '")'; 몸.appendChild(그림); if (자료 && 자료.이름) 몸.appendChild(el('p', 'cz-insp-name', String(자료.이름))); }
+      var 줄들 = [['시작', 분초(시작)], ['끝', 분초(끝)], ['길이', (끝 - 시작).toFixed(1) + 's'], ['소리', T.소리 || (영상종류 === '수면' ? '배경 음악' : '목소리')], ['자막', 영상종류 === '수면' ? '없음' : (v0().자막끄기 ? '끔' : (자막방식 || '구절형'))]];
+      줄들.forEach(function (r) { var d = el('div', 'cz-insp-r'); d.appendChild(el('span', '', r[0])); d.appendChild(el('b', '', r[1])); 몸.appendChild(d); });
+      insp.appendChild(몸);
+    }
     function 타임라인그리기() {
       tl.textContent = '';
       var 길이 = Number(T.길이초) > 0 ? Number(T.길이초) : (영상종류 === '쇼츠' ? 30 : 1800), 긴 = 길이 > 180;
@@ -432,6 +443,7 @@
         var 초 = 머리비 * 길이, 장 = Math.min(수, Math.floor(머리비 * 수) + 1);
         뷰시각.textContent = ' · ' + 시간글(초) + (영상종류 === '쇼츠' ? ' · 장면 ' + 장 : ''); 재생시간.textContent = 시간글(초) + ' / ' + 시간글(길이);
         클립목록.forEach(function (c, n) { c.classList.toggle('cz-t-cur', n === 장 - 1); });
+        속성그리기(장, 수, 길이);
       };
       위치옮김 = 두는곳;
       var 끌고있음 = false, 위치계산 = function (e) { var r = 눈금.getBoundingClientRect(); 두는곳((e.clientX - r.left) / Math.max(1, r.width)); };
