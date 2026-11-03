@@ -205,8 +205,8 @@
       띠손잡이.style.display = 제목형 ? 'block' : 'none'; 띠손잡이.style.top = (상자.띠 / H * 100) + '%';
       ttx.style.fontSize = (상자.크기 * 0.66 / W * 100) + 'cqw'; ttx.style.lineHeight = (상자.크기 / W * 100) + 'cqw';   // ASS 의 크기는 줄 높이, 한글 폭은 그 0.66배(서버 render.js 글자폭과 같음)
        ttx.style.left = (상자.x / W * 100) + '%'; ttx.style.top = ((상자.위 !== null ? 상자.위 : H * 0.133) / H * 100) + '%';
-      if (가운데형) {   // 영상 칸: 위는 문구 아래(서버와 같은 식), 아래 끝은 꾸미기에서 정한 값(없으면 예전 크기)
-        var 위비 = Math.max(0.235, 상자.띠 / H + 0.012), 아래비 = typeof v.가운데아래 === 'number' ? Math.max(위비 + 0.12, Math.min(0.9, v.가운데아래)) : 위비 + 0.36;
+      if (가운데형) {   // 영상 칸: 위는 문구 아래(서버와 같은 식), 아래 끝은 꾸미기에서 정한 값(없으면 화면 아래 안전선 78% — 유튜브 설명·채널 칸이 시작되는 자리)
+        var 위비 = Math.max(0.235, 상자.띠 / H + 0.012), 아래비 = typeof v.가운데아래 === 'number' ? Math.max(위비 + 0.12, Math.min(0.9, v.가운데아래)) : Math.max(위비 + 0.12, 0.78);
         칸상태 = { 위: 위비, 아래: 아래비 }; ctr.style.top = (위비 * 100) + '%'; ctr.style.height = ((아래비 - 위비) * 100) + '%'; 칸손잡이.style.top = (아래비 * 100) + '%';
       }
       칸손잡이.style.display = 가운데형 ? 'block' : 'none';
