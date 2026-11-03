@@ -345,3 +345,16 @@ label.cz-chip { display: inline-flex; align-items: center; }
 .cz-rst { border-color: transparent; background: transparent; color: var(--ink-faint); border-radius: 6px; }
 .cz-rst:hover, .cz-rst:focus-visible { background: rgba(255,255,255,.06); border-color: transparent; color: var(--rz-ac); }
 .cz-body .cz-row:has(> .cz-chips) > label { text-align: left; width: auto; min-width: 0; flex-basis: 100%; }
+
+/* ===== 리졸브식 인스펙터 2단계(2026-11-03): 아이콘 탭 + 둘째 줄 서류철 탭 ===== */
+.cz-card.cz-subhide { display: none !important; }
+.cz-tab { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 52px; padding: 6px 18px; font-size: .78rem; font-weight: 600; color: var(--ink-faint); }
+.cz-tab svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.cz-tab[aria-selected="true"] { color: var(--rz-ac); }
+.cz-tab[aria-selected="true"] svg { stroke: var(--rz-ac); }
+.cz-subtabs { display: flex; gap: 2px; padding: 0 10px; background: var(--rz-p1); border-bottom: 1px solid var(--rz-ln); }
+.cz-subtabs[hidden] { display: none; }
+.cz-subtab { appearance: none; border: 0; background: transparent; color: var(--ink-dim); font: inherit; font-size: .84rem; font-weight: 600; padding: 7px 14px; margin-bottom: -1px; cursor: pointer; border-bottom: 2px solid transparent; transition: color .15s, background-color .15s; }
+.cz-subtab:hover { color: var(--ink); background: rgba(255,255,255,.05); }
+.cz-subtab[aria-selected="true"] { color: #fff; border-bottom-color: var(--rz-ac); }
+.cz-subtab:focus-visible { outline: 2px solid var(--rz-ac); outline-offset: -2px; }
