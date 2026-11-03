@@ -230,6 +230,8 @@
         칸상태 = { 위: 위비, 아래: 아래비 }; ctr.style.top = (위비 * 100) + '%'; ctr.style.height = ((아래비 - 위비) * 100) + '%'; 칸손잡이.style.top = (아래비 * 100) + '%';
       }
       칸손잡이.style.display = 가운데형 ? 'block' : 'none';
+      var 제목칸 = 제목형 && !가운데형 && !(문구시간쓰기 && 문구시간 === '3s');   // 제목고정형: 사진은 띠 아래부터 화면 맨 아래까지(서버 render.js 의 제목칸모드와 같다). 제목을 처음 몇 초만 보이게 하면 예전처럼 전체에 깔고 띠가 덮는다
+      bg.style.top = 제목칸 ? (상자.띠 / H * 100) + '%' : ''; bg.style.height = 제목칸 ? ((H - 상자.띠) / H * 100) + '%' : '';
       ctr.style.display = 가운데형 ? 'block' : 'none'; var 띠 = 가운데형 && 헥스.test(v.가운데색 || '') ? v.가운데색 : ''; bg.style.filter = 가운데형 && !띠 ? 'blur(5px) brightness(.7)' : ''; bg.style.visibility = 띠 ? 'hidden' : ''; phone.style.background = 띠 || ''; bg.style.transform = 가운데형 ? 'scale(1.12)' : '';
       var box = RWLayout.자막상자(W, H, { 위치: 자막위치, 크기: v.자막크기 * Math.min(W, H) / 1080, 줄수: v.줄수, 줄길이: v.줄길이, 거리: v.자막거리, 가로: v.자막가로, 안전영역: !가로 });
       sub.style.cssText = 'left:' + ((box.x + box.w / 2) / W * 100) + '%;top:' + (box.y / H * 100) + '%;width:' + (box.w / W * 100) + '%;height:' + (box.h / H * 100) + '%;font-size:' + (v.자막크기 * 0.8 / 1080 * 100 * (가로 ? 0.5625 : 1)) + 'cqw;display:' + (v.자막끄기 ? 'none' : 'flex') + ';flex-direction:column;justify-content:flex-end;overflow:hidden;';   // 줄 칸을 잡고 글은 아래 칸부터 채운다
