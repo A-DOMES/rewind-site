@@ -41,10 +41,31 @@
     var 줄 = el('div', 'cz-cw-side'), 막 = el('input', 'cz-cw-v'); 막.type = 'range'; 막.min = 0; 막.max = 100; 막.setAttribute('aria-label', 옵션.이름 + ' 밝기');
     var 입줄 = el('label', 'cz-cw-hexrow'); 입줄.appendChild(el('span', '', 'HEX')); var 입 = el('input', 'cz-cw-hex'); 입.type = 'text'; 입.maxLength = 7; 입.spellcheck = false; 입.setAttribute('aria-label', 옵션.이름 + ' 코드 (#RRGGBB)'); 입줄.appendChild(입);
     var 기 = el('button', 'cz-btn cz-cw-rst', '기본으로'); 기.type = 'button'; 줄.appendChild(막); 줄.appendChild(입줄); 줄.appendChild(기); 박.appendChild(링); 박.appendChild(줄);
+    var 수칸들 = [];   // 색 페이지용: 색상·채도·밝기 숫자칸(글자를 끌면 값이 바뀌고, 두 번 누르면 기본값) + 되돌리기 ↺
+    if (옵션.페이지형) {
+      박.classList.add('cz-cw-pg'); 기.textContent = '↺'; 기.title = '이 색을 기본으로'; 기.setAttribute('aria-label', 옵션.이름 + ' 기본으로'); 기.className = 'cz-cw-undo'; 박.insertBefore(기, 링);
+      var 기본조각 = function () { var h = typeof 옵션.기본hex === 'function' ? 옵션.기본hex() : 옵션.기본hex; return hex로hsv(정리hex(h) || '#808080', null); };
+      var 수줄 = el('div', 'cz-cw-nums');
+      [['h', '색상', 359, 1], ['s', '채도', 100, 100], ['v', '밝기', 100, 100]].forEach(function (k) {
+        var 칸 = el('label', 'cz-cw-n'), 글 = el('span', '', k[1]), 숫 = el('input'); 숫.type = 'text'; 숫.inputMode = 'numeric'; 숫.maxLength = 3; 숫.setAttribute('aria-label', 옵션.이름 + ' ' + k[1] + ' (' + (k[2]) + ' 까지, 글자를 끌거나 두 번 눌러 되돌려요)'); 칸.appendChild(글); 칸.appendChild(숫);
+        var 읽기 = function () { return Math.round(상태[k[0]] * k[3]); }, 쓰기 = function (n) { n = Math.max(0, Math.min(k[2], n)); 상태[k[0]] = n / k[3]; 내보내기(); };
+        var 시작 = null; 글.addEventListener('pointerdown', function (e) { 시작 = { x: e.clientX, n: 읽기() }; try { 글.setPointerCapture(e.pointerId); } catch (x) {} e.preventDefault(); });
+        글.addEventListener('pointermove', function (e) { if (시작) 쓰기(Math.round(시작.n + (e.clientX - 시작.x) * (k[2] / 150))); }); 글.addEventListener('pointerup', function () { 시작 = null; }); 글.addEventListener('pointercancel', function () { 시작 = null; });
+        칸.addEventListener('dblclick', function () { var 기본 = 기본조각(); 쓰기(Math.round(기본[k[0]] * k[3])); });
+        var 고침;
+        숫.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); 숫.blur(); } else if (e.key === 'Escape') { e.stopPropagation(); 고침 = false; 숫.value = String(읽기()); 숫.blur(); } });
+        고침 = false; 숫.addEventListener('input', function () { 고침 = true; });
+        숫.addEventListener('blur', function () { var n = parseInt(숫.value, 10); if (고침 && !isNaN(n) && n !== 읽기()) 쓰기(n); 고침 = false; 숫.value = String(읽기()); });
+        수줄.appendChild(칸); 수칸들.push(function () { if (!(document.activeElement === 숫 && 고침)) 숫.value = String(읽기()); });
+      });
+      var 막줄 = el('div', 'cz-cw-barrow'), 막되 = el('button', 'cz-cw-undo', '↺'); 막되.type = 'button'; 막되.title = '밝기 기본으로'; 막되.setAttribute('aria-label', 옵션.이름 + ' 밝기 기본으로'); 막되.addEventListener('click', function () { 상태.v = 기본조각().v; 내보내기(); }); 막줄.appendChild(막); 막줄.appendChild(막되);
+      줄.insertBefore(막줄, 줄.firstChild); 박.insertBefore(수줄, 줄);   // 기본으로 버튼은 휠 위 ↺, 막대 줄에는 밝기 ↺
+    }
     function 그리기() {
       var rad = 링.clientWidth / 2 || 56, a = 상태.h * Math.PI / 180; 점.style.left = (50 + 50 * 상태.s * Math.sin(a)) + '%'; 점.style.top = (50 - 50 * 상태.s * Math.cos(a)) + '%';
       그늘.style.background = 'rgba(0,0,0,' + (1 - 상태.v) + ')'; 막.value = String(Math.round(상태.v * 100)); 막.style.setProperty('--cw', hsv로hex(상태.h, 상태.s, 1));
       점.style.background = 지금hex; if (document.activeElement !== 입) { 입.value = 지금hex; 입.classList.remove('cz-bad'); }
+      수칸들.forEach(function (f) { f(); });
     }
     function 내보내기() { 지금hex = hsv로hex(상태.h, 상태.s, 상태.v); 그리기(); 옵션.쓰기(지금hex); }
     function 끌기점(e) { var r = 링.getBoundingClientRect(), dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2), 반 = r.width / 2; 상태.s = Math.min(1, Math.sqrt(dx * dx + dy * dy) / 반); if (상태.s > 0.02) 상태.h = (Math.atan2(dx, -dy) * 180 / Math.PI + 360) % 360; 내보내기(); }
@@ -637,8 +658,26 @@
       }
       // 아래 페이지 바(리졸브의 페이지): 모양 = 지금 배치 / 장면 = 미리보기를 크게, 왼쪽은 장면 탭
       var 페이지줄 = el('div', 'cz-pages'); 페이지줄.setAttribute('role', 'tablist'); 페이지줄.setAttribute('aria-label', '작업 화면');
-      var 페이지목록 = [['모양', 'M4 5h7v6H4zM13 5h7v6h-7zM4 13h7v6H4zM13 13h7v6h-7z'].concat(['shape']), ['장면', 'M4 6h16v12H4zM8 6v12M16 6v12M4 10h4M4 14h4M16 10h4M16 14h4', 'scene']];
-      function 페이지보기(k) { dlg.dataset.pg = k; Array.prototype.forEach.call(페이지줄.children, function (b) { b.setAttribute('aria-selected', String(b.dataset.k === k)); }); if (k === 'scene') 왼탭열기('장면'); else if (k === 'shape') 왼탭열기('템플릿'); }
+      var 페이지목록 = [['모양', 'M4 5h7v6H4zM13 5h7v6h-7zM4 13h7v6H4zM13 13h7v6h-7z'].concat(['shape']), ['색', 'M12 3a9 9 0 100 18c1.4 0 2-1 1.6-2-.5-1.2.2-2.5 1.6-2.5H17a4 4 0 004-4c0-5-4-9.5-9-9.5zM7.5 11h.01M10 7.5h.01M14.5 7.5h.01', 'color'], ['장면', 'M4 6h16v12H4zM8 6v12M16 6v12M4 10h4M4 14h4M16 10h4M16 14h4', 'scene']];
+      // 색 페이지(리졸브 컬러 페이지): 제목 띠 색 · 제목 글자색 · 자막 글자색을 휠 3개로 나란히. 값은 꾸미기 안의 같은 칸을 그대로 쓴다(새 기능 없음)
+      var 색판 = el('section', 'cz-colpg'); 색판.setAttribute('aria-label', '색'); var 점칩 = function (hx) { var d = el('span'); d.style.cssText = 'display:inline-block;width:.9em;height:.9em;border-radius:50%;margin-right:.35em;vertical-align:-.1em;border:1px solid #8886;background:' + hx; return d; };
+      function 색칸(이름, 키, 목록, 기본색, 읽기, 쓰기지움, 모양대로) {
+        var 칸 = el('div', 'cz-colpg-c'); 칸.appendChild(el('h4', '', 이름)); var 바탕 = function () { return 읽기() || (typeof 기본색 === 'function' ? 기본색() : 기본색) || '#808080'; };
+        var 휠 = 색휠({ 이름: 이름, 페이지형: true, 기본hex: 기본색, 쓰기: function (hx) { 선택[키] = hx; if (!모양대로 && 기본색 && hx.toLowerCase() === String(기본색).toLowerCase()) delete 선택[키]; 갱신(); }, 기본으로: function () { delete 선택[키]; 갱신(); } });
+        칸.appendChild(휠.box); var 칩줄 = el('div', 'cz-chips'); 칸.appendChild(칩줄);
+        목록.forEach(function (c) { var b = el('button', 'cz-chip'); b.type = 'button'; b.title = c[0]; if (c[1]) b.appendChild(점칩(c[1])); b.appendChild(document.createTextNode(c[0]));
+          b.addEventListener('click', function () { if (!c[1] || (!모양대로 && String(c[1]).toLowerCase() === String(기본색).toLowerCase())) delete 선택[키]; else 선택[키] = c[1].toUpperCase(); 갱신(); }); 칩줄.appendChild(b);
+          눌림목록.push(function () { var 지금 = 읽기(); b.setAttribute('aria-pressed', String(c[1] ? 지금.toLowerCase() === c[1].toLowerCase() : !지금)); }); });
+        눌림목록.push(function () { 휠.맞추기(바탕()); }); 색판.appendChild(칸); return 칸;
+      }
+      var 값읽기 = function (키, 기본) { return function () { var x = 합치기(선택, 종류).값[키]; return 헥스.test(x || '') ? x : (기본 || ''); }; };
+      var 띠칸 = 색칸('제목 띠 색', '제목띠색', [['검정', '#15110e'], ['남색', '#14213d'], ['진초록', '#12372a'], ['자주', '#3b1d3a'], ['빨강', '#8b1e1e'], ['크림', '#f5f1e8'], ['노랑', '#ffd60a']], '#15110e', 값읽기('제목띠색', '#15110e'));
+      var 제글칸 = 색칸('제목 글자색', '제목글자색', [['노랑', '#fff200'], ['흰색', '#ffffff'], ['검정', '#111111'], ['하늘', '#4dc3ff'], ['분홍', '#ff4d8d'], ['초록', '#2ee6a6']], '#fff200', 값읽기('제목글자색', '#fff200'));
+      var 자기본 = function () { return 모양겉(합치기(선택, 종류).값.자막모양).c.replace(/^#fff$/i, '#FFFFFF'); };
+      색칸('자막색', '자막색', [['모양대로', ''], ['흰색', '#ffffff'], ['노랑', '#ffe600'], ['하늘', '#4dc3ff'], ['분홍', '#ff4d8d'], ['초록', '#2ee6a6'], ['검정', '#111111']], 자기본, 값읽기('자막색', ''), null, true);
+      눌림목록.push(function () { var 보임 = !가로 && (화면 === '제목고정형' || 화면 === '가운데영상형'); 띠칸.style.display = 제글칸.style.display = 보임 ? '' : 'none'; });
+      dlg.appendChild(색판); dlg.insertBefore(색판, foot);
+      function 페이지보기(k) { dlg.dataset.pg = k; Array.prototype.forEach.call(페이지줄.children, function (b) { b.setAttribute('aria-selected', String(b.dataset.k === k)); }); if (k === 'scene') 왼탭열기('장면'); else if (k === 'shape') 왼탭열기('템플릿'); else if (k === 'color') 눌림갱신(); }
       페이지목록.forEach(function (it) { var b = el('button', 'cz-page'); b.type = 'button'; b.dataset.k = it[2]; b.setAttribute('role', 'tab'); b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="' + it[1] + '"/></svg><span>' + it[0] + '</span>'; b.addEventListener('click', function () { 페이지보기(it[2]); }); 페이지줄.appendChild(b); });
       if (판2) { foot.insertBefore(페이지줄, foot.firstChild); 페이지보기('shape'); }
       var 빈탭 = el('p', 'cz-card cz-hintcard', '이 화면 구성에는 위쪽 제목 띠가 없어요. 제목 띠가 필요하면 왼쪽에서 \'제목고정\' 또는 \'가운데영상\'을 골라요.'); 빈탭.dataset.tab = '제목'; body.appendChild(빈탭);
