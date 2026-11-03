@@ -501,7 +501,7 @@ button.cz-pane-l[aria-pressed="true"] { color: var(--rz-ac); }
 @media (min-width: 901px) {
   .cz-colgrip { position: relative; z-index: 4; width: 7px; cursor: ew-resize; touch-action: none; align-self: stretch; }
   .cz-colgrip::after { content: ""; position: absolute; top: 0; bottom: 0; left: 3px; width: 1px; background: transparent; transition: background .15s; }
-  .cz-colgrip:hover::after, .cz-colgrip:focus-visible::after { background: var(--rz-ac); }
+  .cz-colgrip:hover::after, .cz-colgrip:focus-visible::after { background: var(--rz-ac); width: 3px; left: 2px; }
   .cz-colgrip:focus-visible { outline: none; }
   .cz-colgrip-lib { grid-area: lib; justify-self: end; margin-right: -3px; }
   .cz-colgrip-insp { grid-area: insp; justify-self: start; margin-left: -3px; }
