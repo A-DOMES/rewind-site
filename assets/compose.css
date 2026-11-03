@@ -366,3 +366,14 @@ label.cz-chip { display: inline-flex; align-items: center; }
 .cz-libtab svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 .cz-libtab:hover { color: #fff; }
 .cz-libtab[aria-selected="true"] { color: var(--rz-ac); border-bottom-color: var(--rz-ac); }
+
+/* RESOLVE step 5a: 아래 페이지 바 */
+.cz-pages { display: flex; gap: 2px; margin-right: auto; }
+.cz-page { display: flex; align-items: center; gap: 6px; min-height: 34px; padding: 0 16px; border: 0; border-radius: 6px; background: transparent; font: inherit; font-size: .82rem; font-weight: 600; color: var(--ink-faint); cursor: pointer; }
+.cz-page svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.cz-page:hover { color: #fff; background: var(--rz-p2); }
+.cz-page[aria-selected="true"] { color: var(--rz-ac); background: var(--rz-p2); }
+@media (min-width: 901px) {
+  .cz-dlg[data-pg="scene"] { grid-template-areas: "head head head" "lib pv pv" "tl tl tl" "foot foot foot"; }
+  .cz-dlg[data-pg="scene"] .cz-body { display: none; }
+}

@@ -626,14 +626,21 @@
       // 왼쪽 라이브러리(리졸브의 미디어 풀): 화면 구성 · 모양 · 영상 제작 방식. 오른쪽 인스펙터 탭: 제목 · 자막 · 고정 글자
       [판, c1, 판2].forEach(function (c) { if (c) { c.dataset.tab = '*'; if (c !== 판) { c.classList.remove('cz-fold'); var 머리 = c.querySelector('.cz-ch'); if (머리) 머리.setAttribute('aria-expanded', 'true'); } else { c.classList.add('cz-fold'); c.querySelector('.cz-ch').setAttribute('aria-expanded', 'false'); } lib.appendChild(c); } });
       // 왼쪽 탭: 템플릿(화면 구성 · 모양) / 장면(영상 제작 방식). 제작 방식 카드가 없으면 탭 없이 그대로 둔다
+      var 왼탭열기 = function () {};
       if (판2) {
         [판, c1].forEach(function (c) { if (c) c.dataset.lib = '템플릿'; }); 판2.dataset.lib = '장면';
         var 왼줄 = el('div', 'cz-libtabs'); 왼줄.setAttribute('role', 'tablist'); 왼줄.setAttribute('aria-label', '왼쪽 패널');
         var 왼그림 = { '템플릿': 'M4 5h7v6H4zM13 5h7v6h-7zM4 13h7v6H4zM13 13h7v6h-7z', '장면': 'M4 6h16v12H4zM8 6v12M16 6v12M4 10h4M4 14h4M16 10h4M16 14h4' };
-        var 왼보이기 = function (t) { Array.prototype.forEach.call(lib.querySelectorAll('.cz-card'), function (c) { c.classList.toggle('cz-libhide', c.dataset.lib !== t); }); Array.prototype.forEach.call(왼줄.children, function (b) { b.setAttribute('aria-selected', String(b.dataset.t === t)); }); };
+        var 왼보이기 = 왼탭열기 = function (t) { Array.prototype.forEach.call(lib.querySelectorAll('.cz-card'), function (c) { c.classList.toggle('cz-libhide', c.dataset.lib !== t); }); Array.prototype.forEach.call(왼줄.children, function (b) { b.setAttribute('aria-selected', String(b.dataset.t === t)); }); };
         ['템플릿', '장면'].forEach(function (t) { var b = el('button', 'cz-libtab'); b.type = 'button'; b.dataset.t = t; b.setAttribute('role', 'tab'); b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="' + 왼그림[t] + '"/></svg><span>' + t + '</span>'; b.addEventListener('click', function () { 왼보이기(t); }); 왼줄.appendChild(b); });
         lib.insertBefore(왼줄, lib.firstChild); 왼보이기('템플릿');
       }
+      // 아래 페이지 바(리졸브의 페이지): 모양 = 지금 배치 / 장면 = 미리보기를 크게, 왼쪽은 장면 탭
+      var 페이지줄 = el('div', 'cz-pages'); 페이지줄.setAttribute('role', 'tablist'); 페이지줄.setAttribute('aria-label', '작업 화면');
+      var 페이지목록 = [['모양', 'M4 5h7v6H4zM13 5h7v6h-7zM4 13h7v6H4zM13 13h7v6h-7z'].concat(['shape']), ['장면', 'M4 6h16v12H4zM8 6v12M16 6v12M4 10h4M4 14h4M16 10h4M16 14h4', 'scene']];
+      function 페이지보기(k) { dlg.dataset.pg = k; Array.prototype.forEach.call(페이지줄.children, function (b) { b.setAttribute('aria-selected', String(b.dataset.k === k)); }); if (k === 'scene') 왼탭열기('장면'); else if (k === 'shape') 왼탭열기('템플릿'); }
+      페이지목록.forEach(function (it) { var b = el('button', 'cz-page'); b.type = 'button'; b.dataset.k = it[2]; b.setAttribute('role', 'tab'); b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="' + it[1] + '"/></svg><span>' + it[0] + '</span>'; b.addEventListener('click', function () { 페이지보기(it[2]); }); 페이지줄.appendChild(b); });
+      if (판2) { foot.insertBefore(페이지줄, foot.firstChild); 페이지보기('shape'); }
       var 빈탭 = el('p', 'cz-card cz-hintcard', '이 화면 구성에는 위쪽 제목 띠가 없어요. 제목 띠가 필요하면 왼쪽에서 \'제목고정\' 또는 \'가운데영상\'을 골라요.'); 빈탭.dataset.tab = '제목'; body.appendChild(빈탭);
       눌림목록.push(function () { 빈탭.style.display = (띠없음 || 화면 === '제목고정형' || 화면 === '가운데영상형') ? 'none' : ''; });
       var 띠없음 = 가로 || 화면목록.length < 2;   // 화면 구성을 고를 수 없으면(가로·롱폼 세로) 제목 띠도 없다
