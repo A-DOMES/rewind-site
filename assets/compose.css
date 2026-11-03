@@ -358,3 +358,11 @@ label.cz-chip { display: inline-flex; align-items: center; }
 .cz-subtab:hover { color: var(--ink); background: rgba(255,255,255,.05); }
 .cz-subtab[aria-selected="true"] { color: #fff; border-bottom-color: var(--rz-ac); }
 .cz-subtab:focus-visible { outline: 2px solid var(--rz-ac); outline-offset: -2px; }
+
+/* RESOLVE step 4: 왼쪽 패널 탭(템플릿 / 장면) */
+.cz-card.cz-libhide { display: none !important; }
+.cz-libtabs { position: sticky; top: 0; z-index: 2; display: flex; gap: 2px; padding: 0 10px; background: var(--rz-p1); border-bottom: 1px solid var(--rz-ln); }
+.cz-libtab { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 52px; padding: 6px 18px; border: 0; border-bottom: 2px solid transparent; background: transparent; font: inherit; font-size: .78rem; font-weight: 600; color: var(--ink-faint); cursor: pointer; }
+.cz-libtab svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.cz-libtab:hover { color: #fff; }
+.cz-libtab[aria-selected="true"] { color: var(--rz-ac); border-bottom-color: var(--rz-ac); }
