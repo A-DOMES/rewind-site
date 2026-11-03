@@ -458,6 +458,10 @@ button.cz-pane-l[aria-pressed="true"] { color: var(--rz-ac); }
 .cz-stage-w { flex-direction: column; align-items: center; gap: 4px; }
 .cz-pane-tabs { display: flex; gap: 6px; }
 .cz-stage-w[data-v="편집"] > .cz-pane-r, .cz-stage-w[data-v="결과"] > .cz-pane-e { display: none; }
+.cz-stage-w[data-v="나란히"] { flex-direction: row; flex-wrap: wrap; align-items: flex-start; justify-content: center; }
+.cz-stage-w[data-v="나란히"] > .cz-pane-tabs { flex-basis: 100%; justify-content: center; }
+.cz-stage-w[data-v="나란히"] > .cz-pane { width: calc(50% - 12px); }
+@media (max-width: 900px) { .cz-pane-both { display: none; } }
 @media (max-width: 900px) { .cz-stage:not(.cz-stage-w) .cz-pane-r, .cz-stage:not(.cz-stage-w) .cz-pane-l { display: none; } }
 .cz-stage-w .cz-pane { width: 100%; }
 
@@ -515,3 +519,8 @@ button.cz-pane-l[aria-pressed="true"] { color: var(--rz-ac); }
   .cz-stage:not(.cz-stage-w):not(.cz-side):not(.cz-r-off) .cz-phone { --pcap: calc((100cqw - 72px) / 2); }
   .cz-stage.cz-r-off:not(.cz-side) .cz-phone { --pcap: calc(100cqw - 72px); }
 }
+
+/* 문구가 보이는 시간: 초 입력 */
+.cz-secrow { display: flex; align-items: center; gap: 8px; margin: 6px 14px 0; font-size: var(--fs-sm); color: var(--ink-dim); }
+.cz-secin { width: 72px; height: 30px; padding: 0 8px; background: var(--rz-p1); color: var(--ink); border: 1px solid var(--rz-ln); border-radius: 4px; font: inherit; font-variant-numeric: tabular-nums; }
+.cz-secin:focus-visible { outline: 2px solid var(--rz-ac); outline-offset: 1px; }
