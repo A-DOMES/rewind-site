@@ -413,7 +413,7 @@ label.cz-chip { display: inline-flex; align-items: center; }
 @media (min-width: 901px) {
   .cz-dlg { --dock-h: clamp(190px, 30dvh, 290px); grid-template-columns: minmax(230px, 20%) minmax(380px, 1fr) minmax(220px, 22%); grid-template-rows: auto minmax(0, 1fr) min(var(--dock-h), 58dvh); grid-template-areas: "head head head" "lib pv insp" "dock dock dock"; }
   .cz-dock { grid-area: dock; } .cz-insp { grid-area: insp; }
-  .cz-phone { width: clamp(90px, calc((min(100dvh, 940px) - var(--dock-h) - 160px) * 0.5625), 520px); }
+  .cz-phone { width: clamp(90px, calc((min(100dvh, 940px) - var(--dock-h) - 190px) * 0.5625), 520px); }
 }
 @media (max-width: 900px) { .cz-lib, .cz-insp { display: none; } .cz-dockgrip { display: none; } .cz-dockbody > * { overflow: visible; } .cz-dock { min-height: 260px; } }
 
@@ -444,3 +444,19 @@ label.cz-chip { display: inline-flex; align-items: center; }
 .cz-vnote { flex: 1; min-width: 0; text-align: center; font-weight: 400; color: var(--ink-faint); font-size: var(--fs-2xs); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 10px; }
 .cz-insp-img.cz-v { aspect-ratio: 9 / 16; height: 200px; max-height: none; align-self: flex-start; }
 @media (max-width: 900px) { .cz-vnote { display: none; } .cz-head small { display: none; } .cz-head-acts .cz-btn { padding: 4px 10px; font-size: .85rem; } }
+
+/* 미리보기 둘(편집 · 결과) */
+.cz-stage { display: flex; justify-content: center; align-items: flex-start; gap: clamp(16px, 4%, 48px); width: 100%; min-height: 0; }
+.cz-pane { display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 0; }
+.cz-pane-l { font-size: var(--fs-2xs); letter-spacing: .06em; color: var(--ink-dim); background: none; border: 0; padding: 2px 8px; font-family: inherit; }
+button.cz-pane-l { cursor: pointer; border-radius: 3px; font-size: var(--fs-xs); }
+button.cz-pane-l:hover { color: #fff; }
+button.cz-pane-l[aria-pressed="true"] { color: var(--rz-ac); }
+.cz-phone.cz-result { pointer-events: none; box-shadow: 0 8px 28px rgba(0,0,0,.7); }
+.cz-result .cz-g, .cz-result .cz-bandh { display: none !important; }
+.cz-result .cz-sel { outline: 0; box-shadow: none; }
+.cz-stage-w { flex-direction: column; align-items: center; gap: 4px; }
+.cz-pane-tabs { display: flex; gap: 6px; }
+.cz-stage-w[data-v="편집"] > .cz-pane-r, .cz-stage-w[data-v="결과"] > .cz-pane-e { display: none; }
+@media (max-width: 900px) { .cz-stage:not(.cz-stage-w) .cz-pane-r, .cz-stage:not(.cz-stage-w) .cz-pane-l { display: none; } }
+.cz-stage-w .cz-pane { width: 100%; }

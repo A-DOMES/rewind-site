@@ -189,7 +189,24 @@
     var warn = el('ul', 'cz-warn'); warn.setAttribute('aria-live', 'polite');
     var 머리비 = 0, 뷰시각 = el('small', 'cz-vt', ''), 클립목록 = [];   // 재생 위치(0~1)와 미리보기 위쪽 줄의 시각 글자
     var 뷰머리 = el('div', 'cz-vhead'); 뷰머리.appendChild(el('b', '', '미리보기')); var 뷰비 = el('span', '', 가로 ? '16:9 가로' : '9:16 세로'); 뷰비.appendChild(뷰시각); 뷰머리.appendChild(el('span', 'cz-vnote', '제목·자막·문구는 끌어서 옮길 수 있어요 · 실제 영상은 조금 다를 수 있어요')); 뷰머리.appendChild(뷰비); pv.appendChild(뷰머리);   // 리졸브의 뷰어 머리줄
-    pv.appendChild(phone); pv.appendChild(tools); pv.appendChild(warn);
+    // 미리보기 둘: 왼쪽 「편집」(점선·끌기·선택 테두리) · 오른쪽 「결과」(같은 화면을 복제해 깨끗하게 보여 줌). 그리는 코드는 하나뿐이고, 편집 쪽이 바뀌면 결과가 따라 바뀐다(읽는 효과 움직임도 같이)
+    var stage = el('div', 'cz-stage'), 편집칸 = el('div', 'cz-pane cz-pane-e'), 결과칸 = el('div', 'cz-pane cz-pane-r'), 보기 = '편집';
+    stage.dataset.v = '편집'; if (가로) stage.classList.add('cz-stage-w');
+    if (가로) {   // 가로 영상은 폭이 모자라 한 번에 하나만: 위쪽 탭으로 바꾼다
+      var 탭줄 = el('div', 'cz-pane-tabs'); ['편집', '결과'].forEach(function (이름) { var b = el('button', 'cz-pane-l', 이름); b.type = 'button'; b.dataset.v = 이름; b.setAttribute('aria-pressed', String(이름 === 보기)); b.addEventListener('click', function () { 보기 = 이름; stage.dataset.v = 이름; [].forEach.call(탭줄.children, function (n) { n.setAttribute('aria-pressed', String(n.dataset.v === 이름)); }); 결과갱신(); }); 탭줄.appendChild(b); }); stage.appendChild(탭줄);
+    } else { 편집칸.appendChild(el('span', 'cz-pane-l', '편집')); 결과칸.appendChild(el('span', 'cz-pane-l', '결과')); }
+    편집칸.appendChild(phone); stage.appendChild(편집칸); stage.appendChild(결과칸);
+    var 결과폰 = null, 결과예약 = 0;
+    function 결과갱신() {
+      if (결과예약) return; 결과예약 = requestAnimationFrame(function () {
+        결과예약 = 0; if (가로 && 보기 !== '결과') return;
+        var c = phone.cloneNode(true); c.classList.add('cz-result'); c.classList.remove('cz-sel-out'); c.setAttribute('aria-hidden', 'true'); [].forEach.call(c.querySelectorAll('[id]'), function (n) { n.removeAttribute('id'); });
+        if (결과폰) 결과칸.replaceChild(c, 결과폰); else 결과칸.appendChild(c); 결과폰 = c;
+      });
+    }
+    try { new MutationObserver(결과갱신).observe(phone, { subtree: true, attributes: true, childList: true, characterData: true }); } catch (x) {}
+    결과갱신();
+    pv.appendChild(stage); pv.appendChild(tools); pv.appendChild(warn);
     var lib = el('aside', 'cz-lib'); lib.setAttribute('aria-label', '구성과 모양'); var body = el('div', 'cz-body'); var tl = el('section', 'cz-tl'); tl.setAttribute('aria-label', '타임라인(앞 단계에서 정한 값)');
     var insp = el('aside', 'cz-insp'); insp.setAttribute('aria-label', '속성');   // 오른쪽 속성(Inspector): 재생 위치의 장면 정보(읽기 전용)
     var acts = el('div', 'cz-head-acts'); var reset = el('button', 'cz-btn', '처음 모양으로'); reset.type = 'button'; var ok = el('button', 'cz-btn cz-main', '적용하기'); ok.type = 'button'; acts.appendChild(reset); acts.appendChild(ok);   // 위쪽 줄 오른쪽(닫기 왼쪽)
