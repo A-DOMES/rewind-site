@@ -405,3 +405,5 @@ label.cz-chip { display: inline-flex; align-items: center; }
   .cz-dlg[data-pg="color"] .cz-phone { width: clamp(140px, calc((100dvh - 560px) * 0.5625), 520px); }
 }
 @media (max-width: 900px) { .cz-dlg[data-pg="color"] .cz-lib, .cz-dlg[data-pg="color"] .cz-body { display: none; } .cz-dlg[data-pg="color"] .cz-colpg { grid-auto-flow: row; } }
+
+@media (max-width: 900px) { .cz-foot { flex-wrap: wrap; } .cz-pages { flex: 1 1 100%; margin-right: 0; } .cz-page { flex: 1 1 0; justify-content: center; } }

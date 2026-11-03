@@ -51,7 +51,8 @@
         var 읽기 = function () { return Math.round(상태[k[0]] * k[3]); }, 쓰기 = function (n) { n = Math.max(0, Math.min(k[2], n)); 상태[k[0]] = n / k[3]; 내보내기(); };
         var 시작 = null; 글.addEventListener('pointerdown', function (e) { 시작 = { x: e.clientX, n: 읽기() }; try { 글.setPointerCapture(e.pointerId); } catch (x) {} e.preventDefault(); });
         글.addEventListener('pointermove', function (e) { if (시작) 쓰기(Math.round(시작.n + (e.clientX - 시작.x) * (k[2] / 150))); }); 글.addEventListener('pointerup', function () { 시작 = null; }); 글.addEventListener('pointercancel', function () { 시작 = null; });
-        칸.addEventListener('dblclick', function () { var 기본 = 기본조각(); 쓰기(Math.round(기본[k[0]] * k[3])); });
+        글.addEventListener('click', function (e) { e.preventDefault(); });   // 끈 뒤 숫자칸으로 포커스가 가서 폰 키보드가 뜨지 않게
+        글.addEventListener('dblclick', function () { var 기본 = 기본조각(); 쓰기(Math.round(기본[k[0]] * k[3])); });
         var 고침;
         숫.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); 숫.blur(); } else if (e.key === 'Escape') { e.stopPropagation(); 고침 = false; 숫.value = String(읽기()); 숫.blur(); } });
         고침 = false; 숫.addEventListener('input', function () { 고침 = true; });
@@ -653,7 +654,7 @@
         var 왼줄 = el('div', 'cz-libtabs'); 왼줄.setAttribute('role', 'tablist'); 왼줄.setAttribute('aria-label', '왼쪽 패널');
         var 왼그림 = { '템플릿': 'M4 5h7v6H4zM13 5h7v6h-7zM4 13h7v6H4zM13 13h7v6h-7z', '장면': 'M4 6h16v12H4zM8 6v12M16 6v12M4 10h4M4 14h4M16 10h4M16 14h4' };
         var 왼보이기 = 왼탭열기 = function (t) { Array.prototype.forEach.call(lib.querySelectorAll('.cz-card'), function (c) { c.classList.toggle('cz-libhide', c.dataset.lib !== t); }); Array.prototype.forEach.call(왼줄.children, function (b) { b.setAttribute('aria-selected', String(b.dataset.t === t)); }); };
-        ['템플릿', '장면'].forEach(function (t) { var b = el('button', 'cz-libtab'); b.type = 'button'; b.dataset.t = t; b.setAttribute('role', 'tab'); b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="' + 왼그림[t] + '"/></svg><span>' + t + '</span>'; b.addEventListener('click', function () { 왼보이기(t); }); 왼줄.appendChild(b); });
+        ['템플릿', '장면'].forEach(function (t) { var b = el('button', 'cz-libtab'); b.type = 'button'; b.dataset.t = t; b.setAttribute('role', 'tab'); b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="' + 왼그림[t] + '"/></svg><span>' + t + '</span>'; b.addEventListener('click', function () { 왼보이기(t); if (dlg.dataset.pg && dlg.dataset.pg !== 'color') 페이지보기(t === '장면' ? 'scene' : 'shape'); }); 왼줄.appendChild(b); });
         lib.insertBefore(왼줄, lib.firstChild); 왼보이기('템플릿');
       }
       // 아래 페이지 바(리졸브의 페이지): 모양 = 지금 배치 / 장면 = 미리보기를 크게, 왼쪽은 장면 탭
@@ -663,7 +664,7 @@
       var 색판 = el('section', 'cz-colpg'); 색판.setAttribute('aria-label', '색'); var 점칩 = function (hx) { var d = el('span'); d.style.cssText = 'display:inline-block;width:.9em;height:.9em;border-radius:50%;margin-right:.35em;vertical-align:-.1em;border:1px solid #8886;background:' + hx; return d; };
       function 색칸(이름, 키, 목록, 기본색, 읽기, 쓰기지움, 모양대로) {
         var 칸 = el('div', 'cz-colpg-c'); 칸.appendChild(el('h4', '', 이름)); var 바탕 = function () { return 읽기() || (typeof 기본색 === 'function' ? 기본색() : 기본색) || '#808080'; };
-        var 휠 = 색휠({ 이름: 이름, 페이지형: true, 기본hex: 기본색, 쓰기: function (hx) { 선택[키] = hx; if (!모양대로 && 기본색 && hx.toLowerCase() === String(기본색).toLowerCase()) delete 선택[키]; 갱신(); }, 기본으로: function () { delete 선택[키]; 갱신(); } });
+        var 휠 = 색휠({ 이름: 이름, 페이지형: true, 기본hex: 기본색, 쓰기: function (hx) { 선택[키] = hx; var 기 = typeof 기본색 === 'function' ? 기본색() : 기본색; if (기 && hx.toLowerCase() === String(기).toLowerCase()) delete 선택[키]; 갱신(); }, 기본으로: function () { delete 선택[키]; 갱신(); } });
         칸.appendChild(휠.box); var 칩줄 = el('div', 'cz-chips'); 칸.appendChild(칩줄);
         목록.forEach(function (c) { var b = el('button', 'cz-chip'); b.type = 'button'; b.title = c[0]; if (c[1]) b.appendChild(점칩(c[1])); b.appendChild(document.createTextNode(c[0]));
           b.addEventListener('click', function () { if (!c[1] || (!모양대로 && String(c[1]).toLowerCase() === String(기본색).toLowerCase())) delete 선택[키]; else 선택[키] = c[1].toUpperCase(); 갱신(); }); 칩줄.appendChild(b);
@@ -678,8 +679,8 @@
       눌림목록.push(function () { var 보임 = !가로 && (화면 === '제목고정형' || 화면 === '가운데영상형'); 띠칸.style.display = 제글칸.style.display = 보임 ? '' : 'none'; });
       dlg.appendChild(색판); dlg.insertBefore(색판, foot);
       function 페이지보기(k) { dlg.dataset.pg = k; Array.prototype.forEach.call(페이지줄.children, function (b) { b.setAttribute('aria-selected', String(b.dataset.k === k)); }); if (k === 'scene') 왼탭열기('장면'); else if (k === 'shape') 왼탭열기('템플릿'); else if (k === 'color') 눌림갱신(); }
-      페이지목록.forEach(function (it) { var b = el('button', 'cz-page'); b.type = 'button'; b.dataset.k = it[2]; b.setAttribute('role', 'tab'); b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="' + it[1] + '"/></svg><span>' + it[0] + '</span>'; b.addEventListener('click', function () { 페이지보기(it[2]); }); 페이지줄.appendChild(b); });
-      if (판2) { foot.insertBefore(페이지줄, foot.firstChild); 페이지보기('shape'); }
+      페이지목록.filter(function (it) { return 판2 || it[2] !== 'scene'; }).forEach(function (it) { var b = el('button', 'cz-page'); b.type = 'button'; b.dataset.k = it[2]; b.setAttribute('role', 'tab'); b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="' + it[1] + '"/></svg><span>' + it[0] + '</span>'; b.addEventListener('click', function () { 페이지보기(it[2]); }); 페이지줄.appendChild(b); });
+      foot.insertBefore(페이지줄, foot.firstChild); 페이지보기('shape');
       var 빈탭 = el('p', 'cz-card cz-hintcard', '이 화면 구성에는 위쪽 제목 띠가 없어요. 제목 띠가 필요하면 왼쪽에서 \'제목고정\' 또는 \'가운데영상\'을 골라요.'); 빈탭.dataset.tab = '제목'; body.appendChild(빈탭);
       눌림목록.push(function () { 빈탭.style.display = (띠없음 || 화면 === '제목고정형' || 화면 === '가운데영상형') ? 'none' : ''; });
       var 띠없음 = 가로 || 화면목록.length < 2;   // 화면 구성을 고를 수 없으면(가로·롱폼 세로) 제목 띠도 없다
