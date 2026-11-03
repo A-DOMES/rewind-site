@@ -254,7 +254,6 @@ label.cz-chip { display: inline-flex; align-items: center; }
 .cz-vt { color: var(--rz-ac); font-size: inherit; margin-left: 2px; }
 
 /* ---------- 색 휠 (리졸브식) ---------- */
-.cz-cw-wrap { width: 100%; }
 .cz-cw { display: flex; gap: 14px; align-items: center; padding: 10px; background: var(--rz-p2, #1b1b1f); border: 1px solid var(--rz-ln, #2a2a2e); border-radius: 4px; }
 .cz-cw-ring { position: relative; flex: 0 0 auto; width: 112px; height: 112px; border-radius: 50%; touch-action: none; cursor: crosshair;
   background: radial-gradient(circle closest-side, #fff, rgba(255,255,255,0)), conic-gradient(from 0deg, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00); box-shadow: 0 0 0 1px #000, 0 0 0 2px #3a3a40; }
@@ -338,12 +337,6 @@ label.cz-chip { display: inline-flex; align-items: center; }
 /* ===== 리졸브식 인스펙터 2단계(2026-11-03): 아이콘 탭 + 둘째 줄 서류철 탭 ===== */
 
 /* RESOLVE step 4: 왼쪽 패널 탭(템플릿 / 장면) */
-.cz-card.cz-libhide { display: none !important; }
-.cz-libtabs { position: sticky; top: 0; z-index: 2; display: flex; gap: 2px; padding: 0 10px; background: var(--rz-p1); border-bottom: 1px solid var(--rz-ln); }
-.cz-libtab { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 52px; padding: 6px 18px; border: 0; border-bottom: 2px solid transparent; background: transparent; font: inherit; font-size: .78rem; font-weight: 600; color: var(--ink-faint); cursor: pointer; }
-.cz-libtab svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
-.cz-libtab:hover { color: #fff; }
-.cz-libtab[aria-selected="true"] { color: var(--rz-ac); border-bottom-color: var(--rz-ac); }
 
 /* RESOLVE step 5a: 아래 페이지 바 */
 .cz-pages { display: flex; gap: 2px; margin-right: auto; }
@@ -351,8 +344,6 @@ label.cz-chip { display: inline-flex; align-items: center; }
 .cz-page svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 .cz-page:hover { color: #fff; background: var(--rz-p2); }
 .cz-page[aria-selected="true"] { color: var(--rz-ac); background: var(--rz-p2); }
-@media (min-width: 901px) {
-}
 
 /* 색 페이지: 색마다 휠 하나(왼쪽 휠 + 오른쪽 숫자·밝기·HEX). 칸이 많으면 옆으로 넘겨 본다 */
 .cz-colpg { display: none; }
@@ -420,8 +411,8 @@ label.cz-chip { display: inline-flex; align-items: center; }
 .cz-dlg[data-pg="text"] .cz-body > .cz-card { border-right: 1px solid var(--rz-ln); }
 .cz-dlg[data-pg="shape"] .cz-dockbody > .cz-shapepg { display: block; max-height: none; }
 @media (min-width: 901px) {
-  .cz-dlg { --dock-h: clamp(220px, 34dvh, 300px); grid-template-columns: minmax(230px, 20%) minmax(380px, 1fr); grid-template-rows: auto minmax(0, 1fr) min(var(--dock-h), 58dvh) auto; grid-template-areas: "head head" "lib pv" "dock dock" "foot foot"; }
+  .cz-dlg { --dock-h: clamp(200px, 32dvh, 300px); grid-template-columns: minmax(230px, 20%) minmax(380px, 1fr); grid-template-rows: auto minmax(0, 1fr) min(var(--dock-h), 58dvh) auto; grid-template-areas: "head head" "lib pv" "dock dock" "foot foot"; }
   .cz-dock { grid-area: dock; }
-  .cz-phone { width: clamp(120px, calc((min(100dvh, 940px) - var(--dock-h) - 250px) * 0.5625), 520px); }
+  .cz-phone { width: clamp(90px, calc((min(100dvh, 940px) - var(--dock-h) - 250px) * 0.5625), 520px); }
 }
 @media (max-width: 900px) { .cz-lib { display: none; } .cz-dockgrip { display: none; } .cz-dockbody > * { overflow: visible; } .cz-dock { min-height: 260px; } }

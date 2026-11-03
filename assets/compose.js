@@ -268,10 +268,10 @@
     var 블록다시 = function () {}, 블록색다시 = function () {};   // 만들기() 안의 블록그리기를 가리킨다
     var 제목상태 = null;   // 마지막으로 그린 제목 상자(끌기가 쓴다)
     var 한계 = function (x, a, b) { return Math.min(b, Math.max(a, x)); }, 둘째 = function (x) { return Math.round(x * 100) / 100; };
-    // ---------- 요소 선택 (리졸브에서 컷을 누르면 인스펙터가 따라가듯) ----------
+    // ---------- 요소 선택 (컷을 누르면 아래 칸이 따라가요) ----------
     // 선택 = { 종류, 번호 }. 미리보기 요소는 값을 바꿀 때마다 다시 그려지므로 요소가 아니라 '이름표'로 기억하고, 그릴 때마다 테두리를 다시 입힌다.
     // 선택해도 값은 하나도 바뀌지 않는다: 해당 탭으로 옮기고 그 요소의 색 휠을 열어 줄 뿐이다. 모든 설정은 탭에서 그대로 할 수 있다.
-    var 고름 = null, 탭이동 = function () {}, 선택줄칩 = {}, 선택알림 = null, 선택알림글 = '';
+    var 고름 = null, 탭이동 = function () {}, 선택줄칩 = {}, 선택알림 = null;
     var 띠있음 = function () { return !가로 && (화면 === '제목고정형' || 화면 === '가운데영상형'); };
     var 대상표 = {
       '제목띠': { 이름: '제목 띠', 탭: '제목', 가능: function () { return 띠있음(); } },
@@ -299,7 +299,7 @@
       if (고름.종류 === '제목띠') ttl.classList.add('cz-sel'); else if (고름.종류 === '제목글자') ttx.classList.add('cz-sel'); else if (고름.종류 === '자막') sub.classList.add('cz-sel'); else if (고름.종류 === '바깥') phone.classList.add('cz-sel-out');
       else if (고름.종류 === '블록') { var 대상 = [].slice.call(blk.children).filter(function (n) { return n.dataset.블록 === String(고름.번호); })[0]; if (대상) 대상.classList.add('cz-sel'); }
     }
-    // 미리보기 끌기: 눌러서 끌면 오른쪽 슬라이더와 같은 값이 바뀐다. 방향키로도 움직인다. 끄는 동안 요소가 다시 그려져도 이어지도록 문서에서 움직임을 듣는다
+    // 미리보기 끌기: 눌러서 끌면 색·크기 칸과 같은 값이 바뀐다. 방향키로도 움직인다. 끄는 동안 요소가 다시 그려져도 이어지도록 문서에서 움직임을 듣는다
     function 끌기(요소, 이동, 이름, 눌림) {   // 눌림: 끌지 않고 눌렀다 뗀(클릭) 때 부르는 함수. 움직임이 문턱(5px) 아래면 값은 하나도 바꾸지 않는다
       요소.classList.add('cz-drag'); 요소.tabIndex = 0; 요소.setAttribute('role', 'button'); 요소.setAttribute('aria-label', 이름 + ' (끌거나 방향키로 옮겨요)'); 요소.style.pointerEvents = 'auto';
       요소.addEventListener('pointerdown', function (e) {
@@ -535,7 +535,7 @@
       var 효과줄 = el('div', 'cz-chips'); c2b.appendChild(효과줄);
       칩묶음(효과줄, 읽는효과들, function () { return 합치기(선택, 종류).값.읽는효과 || '끔'; }, function (v) { 선택.읽는효과 = v; }, '읽는 글자 효과');   // '끔'도 값으로 보낸다(바깥 자막 효과 설정보다 꾸미기에서 고른 것이 우선)
       눌림목록.push(function () { 다시.style.display = (합치기(선택, 종류).값.읽는효과 || '끔') === '끔' ? 'none' : ''; });
-      c2b.appendChild(el('p', 'cz-hint', '왼쪽 미리보기에서 바로 확인해요. 실제 영상은 목소리 속도에 맞춰 조금 달라질 수 있어요'));
+      c2b.appendChild(el('p', 'cz-hint', '위쪽 미리보기에서 바로 확인해요. 실제 영상은 목소리 속도에 맞춰 조금 달라질 수 있어요'));
       var c3 = 카드('자막 크기와 줄', '가운데가 기본이에요', '자막');
       // 크기: 숫자 + 슬라이더(가운데=기본 77, 오른쪽=크게)
       var rs = el('div', 'cz-row'); rs.appendChild(el('label', '', '글자 크기')); var sl = el('input'); sl.type = 'range'; sl.min = -50; sl.max = 50; sl.step = 1; sl.setAttribute('aria-label', '글자 크기 (가운데가 기본)'); var nm = el('input'); nm.type = 'number'; nm.min = 20; nm.max = 200; nm.setAttribute('aria-label', '글자 크기 숫자'); rs.appendChild(sl); rs.appendChild(nm); c3.appendChild(rs);
@@ -593,7 +593,7 @@
       끌기(ttx, 제목이동, '제목 글자', function (n, t) { if (t === 'click') 선택하기('제목글자'); }); 끌기(sub, 자막이동, '자막', function (n, t) { if (t === 'click') 선택하기('자막'); }); 끌기(띠손잡이, 띠이동, '제목 띠 높이', function (n, t) { if (t === 'click') 선택하기('제목띠'); }); 끌기(칸손잡이, 칸이동, '영상 칸 아래 끝', function (n, t) { if (t === 'click') 선택하기('바깥'); });
       ttl.addEventListener('click', function () { 선택하기('제목띠'); });   // 띠 빈 곳을 누르면 제목 띠 선택
       phone.addEventListener('click', function (e) { if (e.target.closest('.cz-drag, .cz-sub') || e.target === ttl) return; var 칸 = 화면 === '가운데영상형' && !가로, r = phone.getBoundingClientRect(), y = (e.clientY - r.top) / r.height; if (칸 && e.target !== ctr && (y > 칸상태.아래 || (y > Math.max(0.235, ttl.getBoundingClientRect().height / r.height) && y < 칸상태.위))) 선택하기('바깥'); else 선택풀기(); });   // 영상 칸 위·아래 빈 곳 = 바깥, 그 밖의 빈 곳 = 선택 풀기
-      // 왼쪽 라이브러리(리졸브의 미디어 풀): 화면 구성 · 모양 · 영상 제작 방식. 오른쪽 인스펙터 탭: 제목 · 자막 · 고정 글자
+      // 왼쪽 라이브러리: 화면 구성 · 모양 · 영상 제작 방식. 오른쪽 인스펙터 탭: 제목 · 자막 · 고정 글자
       // 화면 구성·영상 제작 방식은 앞의 「구성」 단계로 옮겼다 → 이 창에서는 보이지 않게 떼어 둔다(값은 그대로 들고 있어서 되돌릴 일이 없다). 왼쪽 칸은 비워 둔다
       [판, 판2].forEach(function (c) { if (c && c.parentNode) c.parentNode.removeChild(c); });
       // 작업장(왼쪽): 앞 단계에서 올린 내 사진·영상을 모아 보여 준다. 누르면 미리보기 배경이 되고, 끌면 순서(= 장면 순서)가 바뀐다. 올리기·지우기는 앞 단계에서 한다
@@ -653,7 +653,9 @@
       var 자기본 = function () { return 모양겉(합치기(선택, 종류).값.자막모양).c.replace(/^#fff$/i, '#FFFFFF'); };
       색칸('자막 글자색', '자막색', 자기본, 값읽기('자막색', ''));
       var 빈곳칸 = 색칸('위·아래 빈 곳', '가운데색', '', 값읽기('가운데색', ''), '↺ 로 되돌리면 흐리게 보여요');
-      var 단어칸 = 색칸('단어 색', '핵심색', '', function () { return 이름색(합치기(선택, 종류).값.핵심색) || ''; }, '대본에서 중요한 단어에 칠해져요. ↺ 로 되돌리면 칠하지 않아요');
+      var 단어칸 = 색칸('단어 색', '핵심색', '', function () { return 이름색(합치기(선택, 종류).값.핵심색) || ''; }, '대본에서 중요한 단어에 칠해져요. ↺ 는 모양의 기본값으로 돌려요');
+      var 단어없음 = el('button', 'cz-btn', '칠하지 않음'); 단어없음.type = 'button'; 단어없음.addEventListener('click', function () { 선택.핵심색 = '없음'; 갱신(); }); 단어칸.appendChild(단어없음);
+      눌림목록.push(function () { 단어없음.setAttribute('aria-pressed', String(합치기(선택, 종류).값.핵심색 === '없음')); });
       var 읽는칸 = 색칸('읽는 글자 색', '읽는색', '#FFE14D', function () { return 이름색(합치기(선택, 종류).값.읽는색 || '노랑') || '#FFE14D'; }, '읽는 글자 효과를 켰을 때 칠하는 색이에요');
       var 블록색칸들 = [];   // 고정 글자마다 하나(글자를 더하거나 지우면 다시 만든다)
       var 블록색맞추기 = function () { 블록색칸들.forEach(function (c) { c.맞추기(); }); };
