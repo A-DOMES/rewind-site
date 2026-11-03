@@ -726,7 +726,7 @@
         var 머리 = el('div', 'cz-ch cz-wb-h'); var 제 = el('h3', '', '내 사진·영상'); 머리.appendChild(제); var 수 = el('b', 'cz-now', ''); 제.appendChild(수); 작업장.appendChild(머리);
         var 격자 = el('div', 'cz-wb-grid'); 격자.setAttribute('role', 'list'); var 안내 = el('p', 'cz-hint cz-wb-note', ''); 작업장.appendChild(격자); 작업장.appendChild(안내);
         var 고른 = -1;
-        function 쓰기그림(src) { var u = /^(blob:|https:\/\/|data:image\/)/.test(String(src || '')) ? String(src).replace(/["\\\n]/g, encodeURIComponent) : ''; if (!u) return; bg.style.background = '#222 center / cover no-repeat url("' + u + '")'; ctr.style.background = '#222 center / cover no-repeat url("' + u + '")'; }
+        function 쓰기그림(src) { var u = /^(blob:|https:\/\/|data:image\/)/.test(String(src || '')) ? String(src).replace(/["\\\n]/g, encodeURIComponent) : ''; if (!u) { bg.style.background = ''; ctr.style.background = '#222'; bg.setAttribute('data-ph', '사진 없음'); return; } bg.removeAttribute('data-ph'); bg.style.background = '#222 center / cover no-repeat url("' + u + '")'; ctr.style.background = '#222 center / cover no-repeat url("' + u + '")'; }
         function 그리기() {
           격자.textContent = '';
           수.textContent = 자료.length ? '지금: ' + 자료.length + '개' : '';
@@ -754,9 +754,9 @@
           });
         }
         function 옮기기(a, b) {
-          if (b < 0 || b >= 자료.length || a === b) return; var it = 자료.splice(a, 1)[0]; 자료.splice(b, 0, it); if (고른 === a) 고른 = b; else if (고른 >= 0 && a < b && 고른 > a && 고른 <= b) 고른--; else if (고른 >= 0 && a > b && 고른 >= b && 고른 < a) 고른++;
+          if (b < 0 || b >= 자료.length || a === b) return; var it = 자료.splice(a, 1)[0]; 자료.splice(b, 0, it); if (Array.isArray(opt.자료) && opt.자료 !== 자료) { var o = opt.자료.splice(a, 1)[0]; opt.자료.splice(b, 0, o); } if (Array.isArray(T.사진) && T.사진.length > Math.max(a, b)) { var tp = T.사진.splice(a, 1)[0]; T.사진.splice(b, 0, tp); }   // 장면 순서(사진·정보)도 같이 옮겨 재생·속성·타임라인이 새 순서를 따른다 if (고른 === a) 고른 = b; else if (고른 >= 0 && a < b && 고른 > a && 고른 <= b) 고른--; else if (고른 >= 0 && a > b && 고른 >= b && 고른 < a) 고른++;
           if (typeof opt.자료옮김 === 'function') { try { opt.자료옮김(a, b); } catch (x) {} }
-          그리기(); var 칸 = 격자.children[b]; if (칸) 칸.focus();
+          그리기(); 지난장 = 0; if (typeof 타임라인그리기 === 'function') 타임라인그리기(); var 칸 = 격자.children[b]; if (칸) 칸.focus();
         }
         그리기();
       })();
