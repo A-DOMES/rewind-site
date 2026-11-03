@@ -431,10 +431,14 @@
       줄들.forEach(function (r) { var d = el('div', 'cz-insp-r'); d.appendChild(el('span', '', r[0])); d.appendChild(el('b', '', r[1])); 몸.appendChild(d); });
       insp.appendChild(몸);
     }
+    var 줌 = 1, 줌단계 = [1, 1.5, 2, 3, 4, 6, 8];   // 타임라인 확대 단계(1 = 한눈에 보기)
     function 타임라인그리기() {
+      var 옛왼쪽 = tl.scrollLeft; tl.style.setProperty('--tz', String(줌));
       tl.textContent = '';
       var 길이 = Number(T.길이초) > 0 ? Number(T.길이초) : (영상종류 === '쇼츠' ? 30 : 1800), 긴 = 길이 > 180;
-      var 머리 = el('div', 'cz-tl-h'); 머리.appendChild(el('b', '', '타임라인')); 머리.appendChild(el('span', '', '전체 약 ' + 시간글(길이) + ' · ' + ({ 쇼츠: '쇼츠', 야담: '야담', 수면: '수면음악' }[영상종류]) + (T.장면수 ? ' · 장면 ' + T.장면수 : ''))); tl.appendChild(머리);
+      var 머리 = el('div', 'cz-tl-h'); 머리.appendChild(el('b', '', '타임라인')); 머리.appendChild(el('span', '', '전체 약 ' + 시간글(길이) + ' · ' + ({ 쇼츠: '쇼츠', 야담: '야담', 수면: '수면음악' }[영상종류]) + (T.장면수 ? ' · 장면 ' + T.장면수 : ''))); var 도구 = el('div', 'cz-tl-tools'); 도구.setAttribute('role', 'toolbar'); 도구.setAttribute('aria-label', '타임라인 도구');
+      [['이전 장면', '⏮', function () { 장면가기(-1); }], ['다음 장면', '⏭', function () { 장면가기(1); }], ['축소', '−', function () { 줌바꿈(-1); }], ['확대', '+', function () { 줌바꿈(1); }]].forEach(function (d) { var b = el('button', 'cz-tbtn', d[1]); b.type = 'button'; b.title = d[0]; b.setAttribute('aria-label', d[0]); b.addEventListener('click', d[2]); if (d[1] === '−') b.disabled = 줌 <= 줌단계[0]; if (d[1] === '+') b.disabled = 줌 >= 줌단계[줌단계.length - 1]; 도구.appendChild(b); });
+      머리.appendChild(도구); tl.appendChild(머리);
       var 눈금줄 = el('div', 'cz-trk cz-ruler'); 눈금줄.appendChild(el('span', 'cz-trk-n', '')); var 눈금 = el('div', 'cz-lane'); 눈금줄.appendChild(눈금);
       var 간격 = 눈금간격(길이); for (var t = 0; t <= 길이 + 1e-6; t += 간격) { var k = el('i', 'cz-tick' + (t / 길이 > 0.94 ? ' cz-tick-end' : '')); k.style.left = (t / 길이 * 100) + '%'; k.appendChild(el('span', '', 시간글(t))); 눈금.appendChild(k); }
       var 헤드 = el('i', 'cz-play'); 눈금.appendChild(헤드); tl.appendChild(눈금줄);
@@ -462,7 +466,15 @@
       var 자 = 트랙줄('자막'); if (v0().자막끄기) 자.appendChild(el('em', 'cz-empty', '자막 끔')); else if (영상종류 === '수면') 자.appendChild(el('em', 'cz-empty', '음악 영상은 자막이 필요할 때만 넣어요')); else for (var j = 0; j < 자막수; j++) 조각(자, 길이 * j / 자막수 + 길이 * 0.004, 길이 * (j + 1) / 자막수 - 길이 * 0.004, 길이, '', 'cz-t-sub');
       var 소 = 트랙줄(영상종류 === '수면' ? '음악' : '소리'); 조각(소, 0, 길이, 길이, (영상종류 === '수면' ? '배경 음악' : '목소리') + (T.소리 ? ' · ' + T.소리 : ''), 'cz-t-wave');
       if (영상종류 === '야담') { var 배 = 트랙줄('배경음'); 조각(배, 0, 길이, 길이, '잔잔한 배경음', 'cz-t-bgm'); }
-      두는곳(머리비);
+      두는곳(머리비); tl.scrollLeft = 옛왼쪽;
+      function 장면가기(방향) {   // 이전·다음 장면의 시작으로 재생선을 옮긴다
+        var 지금 = Math.min(수 - 1, Math.floor(머리비 * 수 + 1e-6)), 시작쪽 = 지금 / 수, 목표 = 방향 > 0 ? 지금 + 1 : (머리비 - 시작쪽 > 0.002 ? 지금 : 지금 - 1);
+        두는곳(Math.min(1, Math.max(0, 목표 / 수 + 1e-4)));
+      }
+      function 줌바꿈(방향) {
+        var k = 줌단계.indexOf(줌) + 방향; if (k < 0 || k >= 줌단계.length) return; 줌 = 줌단계[k]; 타임라인그리기();
+        tl.scrollLeft = Math.max(0, 머리비 * (tl.scrollWidth - 64) + 64 - tl.clientWidth / 2);   // 재생선이 가운데 오게
+      }
     }
     function v0() { return 합치기(선택, 종류).값; }
     function 타임라인만들기() { 타임라인그리기(); 눌림목록.push(타임라인그리기); }

@@ -426,3 +426,13 @@ label.cz-chip { display: inline-flex; align-items: center; }
 .cz-insp-name { margin: 0 0 6px; font-size: var(--fs-xs, .75rem); color: var(--ink-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cz-insp-r { display: flex; justify-content: space-between; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--rz-ln); font-size: var(--fs-sm); }
 .cz-insp-r span { color: var(--ink-dim); } .cz-insp-r b { color: var(--ink); font-weight: 500; text-align: right; overflow-wrap: anywhere; }
+
+/* 타임라인 도구줄: 이전·다음 장면, 확대·축소. 확대하면 트랙이 옆으로 길어진다 */
+.cz-tl .cz-tl-h { position: sticky; left: 0; z-index: 3; }
+.cz-tl .cz-trk { width: calc(100% * var(--tz, 1)); }
+.cz-tl .cz-trk-n { position: sticky; left: 0; z-index: 2; }
+.cz-tl-tools { display: flex; gap: 4px; order: 2; margin: 0 auto 0 14px; } .cz-tl-h > b { order: 1; } .cz-tl-h > span { order: 3; }
+.cz-tbtn { min-width: 28px; height: 22px; padding: 0 6px; border: 1px solid var(--rz-ln); border-radius: 4px; background: var(--rz-p1); color: var(--ink); font: inherit; font-size: var(--fs-sm); line-height: 1; cursor: pointer; }
+.cz-tbtn:hover:not(:disabled) { border-color: var(--rz-ac); color: #fff; }
+.cz-tbtn:disabled { opacity: .35; cursor: default; }
+.cz-tbtn:focus-visible { outline: 2px solid var(--rz-ac); outline-offset: 1px; }
