@@ -374,8 +374,6 @@ label.cz-chip { display: inline-flex; align-items: center; }
 .cz-page:hover { color: #fff; background: var(--rz-p2); }
 .cz-page[aria-selected="true"] { color: var(--rz-ac); background: var(--rz-p2); }
 @media (min-width: 901px) {
-  .cz-dlg[data-pg="scene"] { grid-template-areas: "head head head" "lib pv pv" "tl tl tl" "foot foot foot"; }
-  .cz-dlg[data-pg="scene"] .cz-body { display: none; }
 }
 
 /* RESOLVE step 5b: 색 페이지 — 휠 3개를 나란히 */
@@ -414,4 +412,18 @@ label.cz-chip { display: inline-flex; align-items: center; }
   .cz-pvtools > .cz-tp { grid-column: 2; grid-row: 1; justify-self: center; }
   .cz-pvtools > label { grid-column: 3; grid-row: 1; justify-self: end; }
   .cz-pvtools > .cz-btn { grid-column: 1; grid-row: 1; justify-self: start; }
+}
+
+/* 단계 정리(구성 단계로 이사): 왼쪽 칸은 비우고, 페이지 = 모양 / 색 / 글자 */
+.cz-lib { display: none !important; }
+.cz-shapepg { display: none; }
+.cz-dlg[data-pg="shape"] .cz-shapepg { display: block; }
+.cz-dlg[data-pg="shape"] .cz-body, .cz-dlg[data-pg="shape"] .cz-tl, .cz-dlg[data-pg="color"] .cz-body, .cz-dlg[data-pg="color"] .cz-tl { display: none; }
+.cz-shapepg .cz-card { margin: 0; border: 0; }
+.cz-shapepg .cz-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+@media (min-width: 901px) {
+  .cz-dlg { grid-template-columns: minmax(380px, 1fr) minmax(320px, 30%); grid-template-areas: "head head" "pv body" "tl tl" "foot foot"; }
+  .cz-dlg[data-pg="shape"], .cz-dlg[data-pg="color"] { grid-template-rows: auto minmax(0, 1fr) auto auto; grid-template-areas: "head head" "pv pv" "col col" "foot foot"; }
+  .cz-shapepg { grid-area: col; max-height: 300px; overflow: auto; background: var(--rz-p1); border-top: 1px solid var(--rz-ln); }
+  .cz-dlg[data-pg="shape"] .cz-phone { width: clamp(140px, calc((100dvh - 560px) * 0.5625), 520px); }
 }
