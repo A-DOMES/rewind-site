@@ -443,8 +443,10 @@
     function 트랙줄(이름, 칸) { var 줄 = el('div', 'cz-trk'); 줄.appendChild(el('span', 'cz-trk-n', 이름)); var 레인 = el('div', 'cz-lane'); 줄.appendChild(레인); tl.appendChild(줄); return 레인; }
     function 조각(레인, 시작, 끝, 길이, 글, 클래스, 배경) { var p = el('i', 'cz-seg' + (클래스 ? ' ' + 클래스 : '')); p.style.left = (시작 / 길이 * 100) + '%'; p.style.width = Math.max(0.3, (끝 - 시작) / 길이 * 100) + '%'; if (글) p.appendChild(el('span', '', 글)); if (배경) p.style.backgroundImage = 'url("' + 배경 + '")'; 레인.appendChild(p); return p; }
     function 분초(초) { var m = Math.floor(초 / 60), r = 초 - m * 60; return m + ':' + (r < 10 ? '0' : '') + r.toFixed(1); }
+    var 속성키 = '';
     function 속성그리기(장, 수, 길이) {   // 재생 위치가 있는 장면의 정보. 값은 앞 단계에서 정한 것이라 여기서는 보기만 한다
-      insp.textContent = '';
+      var 키 = [장, 수, 길이, T.소리, v0().자막끄기, 자막방식].join('|'); if (키 === 속성키 && insp.firstChild) return;   // 재생 중 매 프레임 다시 그리면 입력 칸을 잡을 수 없다: 장면·값이 바뀔 때만 그린다
+      속성키 = 키; insp.textContent = '';
       var 머리 = el('div', 'cz-insp-h'); 머리.appendChild(el('b', '', '속성')); 머리.appendChild(el('span', '', '장면 ' + 장 + ' / ' + 수)); insp.appendChild(머리);
       var 몸 = el('div', 'cz-insp-b'), 시작 = 길이 * (장 - 1) / 수, 끝 = 길이 * 장 / 수, 사진 = (T.사진 || [])[장 - 1], 자료 = (Array.isArray(opt.자료) ? opt.자료 : [])[장 - 1];
       if (/^(blob:|https:\/\/|data:image\/)/.test(사진 || '')) { var 그림 = el('div', 'cz-insp-img' + (가로 ? '' : ' cz-v')); 그림.style.backgroundImage = 'url("' + String(사진).replace(/["\\\n]/g, encodeURIComponent) + '")'; 몸.appendChild(그림); if (자료 && 자료.이름) 몸.appendChild(el('p', 'cz-insp-name', String(자료.이름))); }
@@ -796,7 +798,7 @@
     x.addEventListener('click', function () { 닫기(null); });
     ov.addEventListener('mousedown', function (e) { if (e.target === ov) 닫기(null); });
     gc.addEventListener('change', function () { 가이드켜짐 = gc.checked; 그리기미리보기(); });
-    reset.addEventListener('click', function () { 고름 = null; 선택 = {}; 화면 = 기본화면(); 화면바꿈 = false; 자막위치 = '아래'; 위치바꿈 = false; 초기화함 = true; 블록다시(); 갱신(); });
+    reset.addEventListener('click', function () { 속성키 = ''; 고름 = null; 선택 = {}; 화면 = 기본화면(); 화면바꿈 = false; 자막위치 = '아래'; 위치바꿈 = false; 초기화함 = true; 블록다시(); 갱신(); });
     function 적용상태() { var 막힘 = 블록검사().some(Boolean); ok.disabled = 막힘; ok.style.opacity = 막힘 ? '.5' : ''; ok.title = 막힘 ? '문구의 쓸 수 없는 표현을 먼저 고쳐 주세요' : ''; }
     ok.addEventListener('click', function () { if (ok.disabled) return;
       if (선택.블록) { 선택.블록 = 선택.블록.filter(function (b) { return String(b.글 || '').trim(); }).map(function (b) { return Object.assign({ 글: String(b.글).trim(), 위치: b.위치, 크기: b.크기, 모양: b.모양, 글꼴: b.글꼴 }, 헥스.test(b.색 || '') ? { 색: b.색 } : {}); }); if (!선택.블록.length) delete 선택.블록; }
