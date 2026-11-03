@@ -528,3 +528,6 @@ button.cz-pane-l[aria-pressed="true"] { color: var(--rz-ac); }
 /* 그림이 없는 자료(드라이브 사진·영상): 이름만 보이는 칸 */
 .cz-wb-ph { display: flex; align-items: center; justify-content: center; padding: 6px; text-align: center; font-size: .8rem; color: var(--ink-dim); overflow: hidden; word-break: break-all; background: #151518; }
 .cz-insp-ph { display: flex; align-items: center; justify-content: center; color: var(--ink-dim); }
+
+/* 사진이 없는 장면(영상·드라이브 파일): 이름표 */
+.cz-bg[data-ph]::after { content: attr(data-ph); position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); padding: 3px 10px; border-radius: 10px; background: rgba(0,0,0,.45); color: rgba(255,255,255,.75); font-size: .72rem; letter-spacing: .04em; white-space: nowrap; }

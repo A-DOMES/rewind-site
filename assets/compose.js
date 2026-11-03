@@ -163,6 +163,19 @@
     var 제작방식 = opt.제작방식 || null, 제작값 = 제작방식 ? 제작방식.값 : '', 제작바꿈 = false;
     var 화면바꿈 = false; var 선택 = Object.assign({}, opt.값 || {}); var 자막위치 = opt.자막위치 || '아래'; var 처음위치 = 자막위치, 위치바꿈 = false, 초기화함 = false; var 가이드켜짐 = true;
     var 샘플 = String(opt.샘플 || '').trim() || 샘플기본; var 자막방식 = ['구절형', '문장형', '단어형'].indexOf(opt.자막방식) >= 0 ? opt.자막방식 : '구절형', 자막방식바꿈 = false; var 시간받음 = /^(\d+(?:\.\d+)?)s$/.exec(String(opt.문구시간 || '')), 문구시간 = 시간받음 ? '초' : 'all', 문구초 = 시간받음 ? Math.min(60, Number(시간받음[1])) : 3, 문구시간쓰기 = opt.문구시간 !== undefined;   // 문구가 보이는 시간은 상품쇼츠만: 계속 보이기 / 처음 N초만(0이면 안 보임). 예전 값 '3s' 도 받는다
+    // 재생 위치가 장면을 넘어가면 그 장면의 사진과 대본 문장으로 바꾼다(실제 영상이 이렇게 이어진다는 것을 보여 주는 근사치: 대본을 장면 수만큼 문장 단위로 나눈다)
+    var 샘플원본 = 샘플, 대본문장 = (String(opt.대본 || '').match(/[^.!?。！？]+[.!?。！？]*/g) || []).map(function (x) { return x.trim(); }).filter(Boolean), 지난장 = 0;
+    function 장면대본(장, 수) { if (!대본문장.length) return 샘플원본; var a = Math.floor((장 - 1) * 대본문장.length / 수), b = Math.max(a + 1, Math.floor(장 * 대본문장.length / 수)); return 대본문장.slice(a, b).join(' ') || 샘플원본; }
+    function 장면그림(장) {
+      var 사진목록 = T.사진; if (!Array.isArray(사진목록) || !사진목록.length) return;
+      var 주소 = String(사진목록[장 - 1] || ''), 있음 = /^(blob:|https:\/\/|data:image\/)/.test(주소), 틀 = 있음 ? '#222 center / cover no-repeat url("' + 주소.replace(/["\\\n]/g, encodeURIComponent) + '")' : '';
+      bg.style.background = 틀; ctr.style.background = 틀 || '#222';
+      if (있음) bg.removeAttribute('data-ph'); else bg.setAttribute('data-ph', ((Array.isArray(opt.자료) ? opt.자료 : [])[장 - 1] || {}).영상 ? '영상 장면' : '사진 장면');
+    }
+    function 장면바뀜(장, 수) {
+      if (영상종류 !== '쇼츠' || 장 === 지난장) return; 지난장 = 장;
+      var 새 = 장면대본(장, 수); 샘플 = 새; 장면그림(장); 그리기미리보기(); if (재생중) 읽기재생();
+    }
     function 문구초값() { return 문구시간쓰기 && 문구시간 === '초' ? 문구초 : null; }   // null = 계속
     글꼴불러오기();
     var 이전포커스 = document.activeElement;
@@ -530,7 +543,7 @@
         var 초 = 머리비 * 길이, 장 = Math.min(수, Math.floor(머리비 * 수) + 1);
         뷰시각.textContent = ' · ' + 시간글(초) + (영상종류 === '쇼츠' ? ' · 장면 ' + 장 : ''); 재생시간.textContent = 시간글(초) + ' / ' + 시간글(길이);
         클립목록.forEach(function (c, n) { c.classList.toggle('cz-t-cur', n === 장 - 1); });
-        속성그리기(장, 수, 길이);
+        속성그리기(장, 수, 길이); 장면바뀜(장, 수);
       };
       위치옮김 = 두는곳;
       var 끌고있음 = false, 위치계산 = function (e) { var r = 눈금.getBoundingClientRect(); 두는곳((e.clientX - r.left) / Math.max(1, r.width)); };
@@ -723,7 +736,7 @@
             var im = el('span', 'cz-wb-img'); if (it.src) im.style.backgroundImage = 'url("' + String(it.src).replace(/["\\\n]/g, encodeURIComponent) + '")'; else { im.classList.add('cz-wb-ph'); im.textContent = it.영상 ? '영상' : (it.이름 || '사진'); } t.appendChild(im);
             t.appendChild(el('i', 'cz-wb-n', String(i + 1))); if (it.영상) t.appendChild(el('i', 'cz-wb-v', '▶'));
             if (i === 고른) t.setAttribute('aria-pressed', 'true');
-            t.addEventListener('click', function () { 고른 = i; 쓰기그림(it.src); Array.prototype.forEach.call(격자.children, function (c, k) { c.setAttribute('aria-pressed', String(k === i)); }); });
+            t.addEventListener('click', function () { 고른 = i; 쓰기그림(it.src); if (영상종류 === '쇼츠') 위치옮김((i + 0.5) / Math.max(1, 자료.length)); Array.prototype.forEach.call(격자.children, function (c, k) { c.setAttribute('aria-pressed', String(k === i)); }); });
             t.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); t.click(); } else if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && e.altKey) { e.preventDefault(); 옮기기(i, i + (e.key === 'ArrowLeft' ? -1 : 1)); } });
             // 끌어서 순서 바꾸기(마우스·터치): 놓은 자리의 칸 앞으로 들어간다
             t.addEventListener('pointerdown', function (e) {
