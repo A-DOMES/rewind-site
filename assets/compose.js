@@ -202,18 +202,48 @@
       if (결과예약) return; 결과예약 = requestAnimationFrame(function () {
         결과예약 = 0; if (가로 && 보기 !== '결과') return; if (!결과칸.offsetParent) return;   // 안 보이는 동안(휴대폰·가로의 편집 탭)은 복제하지 않는다
         var c = phone.cloneNode(true); c.classList.add('cz-result'); c.classList.remove('cz-sel-out'); c.setAttribute('aria-hidden', 'true'); c.inert = true; [].forEach.call(c.querySelectorAll('[tabindex],[role]'), function (n) { n.removeAttribute('tabindex'); n.removeAttribute('role'); }); [].forEach.call(c.querySelectorAll('[id]'), function (n) { n.removeAttribute('id'); });
-        if (결과폰) 결과칸.replaceChild(c, 결과폰); else 결과칸.appendChild(c); 결과폰 = c;
+        if (결과폰) 결과칸.replaceChild(c, 결과폰); else 결과칸.insertBefore(c, ctlR.parentNode === 결과칸 ? ctlR : null); 결과폰 = c;
       });
     }
     var 결과관찰 = null; try { 결과관찰 = new MutationObserver(결과갱신); 결과관찰.observe(phone, { subtree: true, attributes: true, childList: true, characterData: true }); } catch (x) {}
     결과갱신();
     pv.appendChild(stage); pv.appendChild(tools); pv.appendChild(warn);
+    // 데스크톱 세로 영상: 재생 버튼은 「결과」 폰 오른쪽 아래, 점선은 「편집」 폰 왼쪽 아래에 붙는다(폭이 모자라면 폰 아래로). 휴대폰·가로는 예전처럼 아래 줄
+    var 저장 = (function () { try { return JSON.parse(localStorage.getItem('rw_cz_layout') || '{}') || {}; } catch (e) { return {}; } })();
+    function 저장하기(k, v) { try { 저장[k] = v; localStorage.setItem('rw_cz_layout', JSON.stringify(저장)); } catch (e) {} }
+    var ctlR = el('div', 'cz-ctl cz-ctl-r'), ctlE = el('div', 'cz-ctl cz-ctl-e'), 접기 = el('button', 'cz-tbtn cz-fold', '결과 접기'); 접기.type = 'button'; ctlR.appendChild(접기);
+    var 결과접힘 = 저장.접힘 === true, 넓은 = window.matchMedia ? window.matchMedia('(min-width: 901px)') : { matches: true };
+    function 컨트롤놓기() {
+      var 옆 = 넓은.matches && !가로;
+      if (옆) { ctlR.insertBefore(재생줄, ctlR.firstChild); ctlE.appendChild(gl); (결과접힘 ? 편집칸 : 결과칸).appendChild(ctlR); 편집칸.appendChild(ctlE); }
+      else { tools.insertBefore(재생줄, tools.firstChild); tools.insertBefore(gl, 다시); if (ctlR.parentNode) ctlR.remove(); if (ctlE.parentNode) ctlE.remove(); }
+      tools.classList.toggle('cz-tools-min', 옆);       stage.classList.toggle('cz-r-off', 옆 && 결과접힘); 접기.textContent = 결과접힘 ? '결과 보기' : '결과 접기'; 접기.setAttribute('aria-expanded', String(!결과접힘)); 폭판정();
+    }
+    function 폭판정() {   // 폰 둘과 옆 버튼이 pv 안에 들어가면 옆에 붙이고, 아니면 폰 아래로
+      var 옆 = 넓은.matches && !가로, h = Math.min(window.innerHeight, 940), 폭 = Math.max(90, Math.min(520, (h - dock.offsetHeight - 146) * 0.5625));
+      stage.classList.toggle('cz-side', 옆 && pv.clientWidth >= (결과접힘 ? 폭 + 2 * 130 : 2 * 폭 + 48 + 200));
+    }
+    접기.addEventListener('click', function () { 결과접힘 = !결과접힘; 저장하기('접힘', 결과접힘); 컨트롤놓기(); if (!결과접힘) 결과갱신(); });
+    try { 넓은.addEventListener('change', 컨트롤놓기); } catch (x) {}
+    var 폭관찰 = null; try { 폭관찰 = new ResizeObserver(폭판정); 폭관찰.observe(pv); } catch (x) {}
     var lib = el('aside', 'cz-lib'); lib.setAttribute('aria-label', '구성과 모양'); var body = el('div', 'cz-body'); var tl = el('section', 'cz-tl'); tl.setAttribute('aria-label', '타임라인(앞 단계에서 정한 값)');
     var insp = el('aside', 'cz-insp'); insp.setAttribute('aria-label', '속성');   // 오른쪽 속성(Inspector): 재생 위치의 장면 정보(읽기 전용)
     var acts = el('div', 'cz-head-acts'); var reset = el('button', 'cz-btn', '처음 모양으로'); reset.type = 'button'; var ok = el('button', 'cz-btn cz-main', '적용하기'); ok.type = 'button'; acts.appendChild(reset); acts.appendChild(ok);   // 위쪽 줄 오른쪽(닫기 왼쪽)
     head.insertBefore(acts, x);
     var dock = el('section', 'cz-dock'), 그립 = el('div', 'cz-dockgrip'), 독몸 = el('div', 'cz-dockbody'); 그립.setAttribute('role', 'separator'); 그립.setAttribute('aria-orientation', 'horizontal'); 그립.setAttribute('aria-label', '아래 칸 높이 (끌거나 위·아래 화살표)'); 그립.tabIndex = 0; 독몸.appendChild(body); 독몸.appendChild(tl); dock.appendChild(그립); dock.appendChild(독몸);
     dlg.appendChild(head); dlg.appendChild(lib); dlg.appendChild(pv); dlg.appendChild(insp); dlg.appendChild(dock); ov.appendChild(dlg);
+    // 왼쪽·오른쪽 칸 폭을 끌어서 바꾼다(리졸브의 패널 경계). 마지막 폭은 기억한다
+    [['lib', '--lib-w', '왼쪽 칸 폭'], ['insp', '--insp-w', '오른쪽 칸 폭']].forEach(function (d) {
+      var 칸 = d[0] === 'lib' ? lib : insp, g = el('div', 'cz-colgrip cz-colgrip-' + d[0]); g.setAttribute('role', 'separator'); g.setAttribute('aria-orientation', 'vertical'); g.setAttribute('aria-label', d[2] + ' (끌거나 좌·우 화살표)'); g.tabIndex = 0; dlg.appendChild(g);
+      function 놓기(px) { px = Math.round(Math.max(200, Math.min(Math.max(200, dlg.clientWidth * 0.36), px))); dlg.style.setProperty(d[1], px + 'px'); 저장하기(d[0], px); 폭판정(); }
+      if (저장[d[0]] > 0) dlg.style.setProperty(d[1], Math.max(200, 저장[d[0]]) + 'px');
+      g.addEventListener('pointerdown', function (e) { if (e.button) return; e.preventDefault(); var x0 = e.clientX, w0 = 칸.offsetWidth; g.setPointerCapture(e.pointerId);
+        var 이동 = function (ev) { 놓기(w0 + (d[0] === 'lib' ? ev.clientX - x0 : x0 - ev.clientX)); }, 끝 = function () { g.removeEventListener('pointermove', 이동); g.removeEventListener('pointerup', 끝); g.removeEventListener('pointercancel', 끝); };
+        g.addEventListener('pointermove', 이동); g.addEventListener('pointerup', 끝); g.addEventListener('pointercancel', 끝); });
+      g.addEventListener('keydown', function (e) { if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return; e.preventDefault(); var 더 = (e.key === 'ArrowRight') === (d[0] === 'lib'); 놓기(칸.offsetWidth + (더 ? 24 : -24)); });
+    });
+    if (저장.독 > 0) dlg.style.setProperty('--dock-h', Math.max(130, 저장.독) + 'px');
+    컨트롤놓기();
 
     function 그리기미리보기() {
       var m = 합치기(선택, 종류), v = m.값;
@@ -778,8 +808,8 @@
       페이지보기('타임라인');
       // 아래 칸 높이 조절: 손잡이를 위로 끌면 페이지 막대와 타임라인(설정)이 함께 커지고, 미리보기는 그만큼만 줄어든다
       (function () {
-        var 가장 = 190; function 최대() { return Math.max(가장, dlg.clientHeight - head.offsetHeight - 276); }
-        function 놓기(px) { px = Math.round(Math.max(가장, Math.min(최대(), px))); dlg.style.setProperty('--dock-h', px + 'px'); 그립.setAttribute('aria-valuenow', String(px)); }
+        var 가장 = 130; function 최대() { return Math.max(가장, dlg.clientHeight - head.offsetHeight - 276); }
+        function 놓기(px) { px = Math.round(Math.max(가장, Math.min(최대(), px))); dlg.style.setProperty('--dock-h', px + 'px'); 그립.setAttribute('aria-valuenow', String(px)); 저장하기('독', px); 폭판정(); }
         그립.addEventListener('pointerdown', function (e) { if (e.button) return; e.preventDefault(); var y0 = e.clientY, h0 = dock.offsetHeight; 그립.setPointerCapture(e.pointerId);
           var 이동 = function (ev) { 놓기(h0 + (y0 - ev.clientY)); }, 끝 = function () { 그립.removeEventListener('pointermove', 이동); 그립.removeEventListener('pointerup', 끝); 그립.removeEventListener('pointercancel', 끝); };
           그립.addEventListener('pointermove', 이동); 그립.addEventListener('pointerup', 끝); 그립.addEventListener('pointercancel', 끝); });
@@ -787,7 +817,7 @@
       })();
       타임라인만들기();
     }
-    function 닫기(결과) { if (결과관찰) 결과관찰.disconnect(); if (결과예약) cancelAnimationFrame(결과예약); 읽기멈춤(); 재생멈춤(); if (끌기중단) 끌기중단(); document.removeEventListener('keydown', 키); document.body.style.overflow = 이전스크롤; ov.remove(); if (이전포커스 && 이전포커스.focus) 이전포커스.focus(); if (결과 && typeof opt.onDone === 'function') opt.onDone(결과); }
+    function 닫기(결과) { if (폭관찰) 폭관찰.disconnect(); if (결과관찰) 결과관찰.disconnect(); if (결과예약) cancelAnimationFrame(결과예약); 읽기멈춤(); 재생멈춤(); if (끌기중단) 끌기중단(); document.removeEventListener('keydown', 키); document.body.style.overflow = 이전스크롤; ov.remove(); if (이전포커스 && 이전포커스.focus) 이전포커스.focus(); if (결과 && typeof opt.onDone === 'function') opt.onDone(결과); }
     function 키(e) {
       if (e.key === 'Escape') { e.preventDefault(); if (선택풀기()) return; 닫기(null); return; }   // 고른 요소가 있으면 선택만 풀고, 없을 때만 창을 닫는다
       if (e.key !== 'Tab') return;

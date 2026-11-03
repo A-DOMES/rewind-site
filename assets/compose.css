@@ -411,9 +411,9 @@ label.cz-chip { display: inline-flex; align-items: center; }
 .cz-dlg[data-pg="text"] .cz-body > .cz-card { border-right: 1px solid var(--rz-ln); }
 .cz-dlg[data-pg="shape"] .cz-dockbody > .cz-shapepg { display: block; max-height: none; }
 @media (min-width: 901px) {
-  .cz-dlg { --dock-h: clamp(190px, 30dvh, 290px); grid-template-columns: minmax(230px, 20%) minmax(380px, 1fr) minmax(220px, 22%); grid-template-rows: auto minmax(0, 1fr) min(var(--dock-h), 58dvh); grid-template-areas: "head head head" "lib pv insp" "dock dock dock"; }
+  .cz-dlg { --dock-h: clamp(190px, 30dvh, 290px); grid-template-columns: var(--lib-w, minmax(250px, 21%)) minmax(380px, 1fr) var(--insp-w, minmax(260px, 23%)); grid-template-rows: auto minmax(0, 1fr) min(var(--dock-h), 58dvh); grid-template-areas: "head head head" "lib pv insp" "dock dock dock"; }
   .cz-dock { grid-area: dock; } .cz-insp { grid-area: insp; }
-  .cz-phone { width: clamp(90px, calc((min(100dvh, 940px) - var(--dock-h) - 190px) * 0.5625), 520px); }
+  .cz-phone { width: min(clamp(90px, calc((min(100dvh, 940px) - var(--dock-h) - var(--rsv, 190px)) * 0.5625), 520px), var(--pcap, 9999px)); }
 }
 @media (max-width: 900px) { .cz-lib, .cz-insp { display: none; } .cz-dockgrip { display: none; } .cz-dockbody > * { overflow: visible; } .cz-dock { min-height: 260px; } }
 
@@ -480,3 +480,38 @@ button.cz-pane-l[aria-pressed="true"] { color: var(--rz-ac); }
 .cz-insp-pc { min-width: 3.2em; text-align: right; font-variant-numeric: tabular-nums; }
 .cz-insp-rs { width: 24px; height: 24px; padding: 0; border: 1px solid var(--rz-ln); border-radius: 4px; background: var(--rz-p1); color: var(--ink); cursor: pointer; }
 .cz-insp-rs:disabled { opacity: .3; cursor: default; }
+
+/* 미리보기 옆 버튼(재생·점선) · 칸 폭 손잡이 · 왼쪽/오른쪽 칸 글자 키움 */
+.cz-pane { position: relative; }
+.cz-ctl { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; margin-top: 6px; }
+.cz-ctl-e { align-items: flex-start; font-size: var(--fs-xs); color: var(--ink-dim); }
+.cz-ctl .cz-tp { display: grid; grid-template-columns: repeat(3, auto); justify-content: end; gap: 4px; }
+.cz-ctl .cz-tpb { min-width: 28px; min-height: 28px; padding: 0 4px; font-size: .8rem; }
+.cz-ctl .cz-tpb-main { min-width: 34px; }
+.cz-ctl .cz-tpt { grid-column: 1 / -1; margin: 0; text-align: right; font-size: var(--fs-xs); }
+.cz-ctl .cz-fold { height: 24px; font-size: var(--fs-xs); white-space: nowrap; }
+.cz-stage.cz-side .cz-ctl { position: absolute; bottom: 0; margin: 0 8px; width: max-content; }
+.cz-stage.cz-side .cz-ctl-r { left: 100%; } .cz-stage.cz-side .cz-ctl-e { right: 100%; }
+.cz-stage.cz-side .cz-phone { --rsv: 146px; }
+.cz-pvtools.cz-tools-min { padding: 0; min-height: 0; border: 0; background: none; }
+.cz-stage:not(.cz-side) .cz-ctl { flex-direction: row; flex-wrap: nowrap; white-space: nowrap; align-items: center; justify-content: center; margin-top: 4px; width: 0; align-self: center; }
+.cz-stage:not(.cz-side) .cz-ctl .cz-tp { display: inline-flex; align-items: center; }
+.cz-stage:not(.cz-side) .cz-ctl .cz-tpt { margin-left: 6px; }
+.cz-stage.cz-r-off .cz-pane-r { display: none; }
+@media (min-width: 901px) {
+  .cz-colgrip { position: relative; z-index: 4; width: 7px; cursor: ew-resize; touch-action: none; align-self: stretch; }
+  .cz-colgrip::after { content: ""; position: absolute; top: 0; bottom: 0; left: 3px; width: 1px; background: transparent; transition: background .15s; }
+  .cz-colgrip:hover::after, .cz-colgrip:focus-visible::after { background: var(--rz-ac); }
+  .cz-colgrip:focus-visible { outline: none; }
+  .cz-colgrip-lib { grid-area: lib; justify-self: end; margin-right: -3px; }
+  .cz-colgrip-insp { grid-area: insp; justify-self: start; margin-left: -3px; }
+  .cz-lib, .cz-insp { --fs-2xs: .84rem; --fs-xs: .92rem; --fs-sm: 1rem; }
+  .cz-lib .cz-wb-grid { grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); }
+  .cz-lib .cz-hint, .cz-lib .cz-note, .cz-wb-note { font-size: .9rem; line-height: 1.5; }
+}
+@media (max-width: 900px) { .cz-colgrip { display: none; } }
+@media (min-width: 901px) {
+  .cz-pv { container-type: inline-size; }
+  .cz-stage:not(.cz-stage-w):not(.cz-side):not(.cz-r-off) .cz-phone { --pcap: calc((100cqw - 72px) / 2); }
+  .cz-stage.cz-r-off:not(.cz-side) .cz-phone { --pcap: calc(100cqw - 72px); }
+}
