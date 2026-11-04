@@ -10,7 +10,9 @@
 (function () {
   'use strict';
   var API = 'https://a-domes--rewind-render-upload-api.modal.run/sign';
-  var LIMITS = { longSide: 2048, quality: 0.88, maxMB: 20, batch: 30, putTries: 2, conc: 3 };
+  var LIMITS = { longSide: 2048, quality: 0.88, maxMB: 20, batch: 30, putTries: 2, conc: 3, videoMB: 150, videoMax: 5 };   // videoMB·videoMax 는 서버(uploadsign.py)의 영상 한도와 같아야 한다
+  var VIDEO_EXT = { mp4: 'video/mp4', m4v: 'video/x-m4v', mov: 'video/quicktime', webm: 'video/webm' };
+  function videoType(f) { var m = /\.([a-z0-9]+)$/i.exec(f.name || ''), e = m ? m[1].toLowerCase() : ''; if (VIDEO_EXT[e]) return VIDEO_EXT[e]; return /^video\/(mp4|quicktime|webm|x-m4v)$/.test(f.type) ? f.type : ''; }
   var OK_TYPE = { 'image/jpeg': 1, 'image/png': 1, 'image/webp': 1 };
   var CSS = ''
     + '.mm-card{margin:0 0 var(--sp-3,12px)}.mm-card.mm-over{border-color:var(--accent,#e2a23c)!important;box-shadow:0 0 0 2px color-mix(in srgb,var(--accent,#e2a23c) 40%,transparent)}'
@@ -70,13 +72,32 @@
   }
 
   // ---------- 서명 주소 받기 / 올리기 ----------
+  // 영상 첫 장면 그림(작은 미리보기). 브라우저가 못 여는 영상(예: 일부 HEVC)이면 null — 그래도 올리기는 계속한다(열 수 있는지는 서버가 확인한다)
+  function videoThumb(card, f) {
+    return new Promise(function (ok) {
+      var v = document.createElement('video'), u = URL.createObjectURL(f), done = false, tm = 0;
+      function end(b) { if (done) return; done = true; clearTimeout(tm); try { v.removeAttribute('src'); v.load(); URL.revokeObjectURL(u); } catch (e) { } ok(b || null); }
+      tm = setTimeout(function () { end(null); }, 8000);
+      v.muted = true; v.playsInline = true; v.preload = 'metadata';
+      v.onloadeddata = function () { try { v.currentTime = Math.min(0.1, (v.duration || 0.2) / 2); } catch (e) { end(null); } };
+      v.onseeked = function () {
+        try {
+          var w = v.videoWidth, h = v.videoHeight; if (!w || !h) return end(null);
+          var k = Math.min(1, 320 / Math.max(w, h)), c = document.createElement('canvas'); c.width = Math.max(1, Math.round(w * k)); c.height = Math.max(1, Math.round(h * k));
+          c.getContext('2d').drawImage(v, 0, 0, c.width, c.height); c.toBlob(function (b) { end(b); }, 'image/jpeg', 0.8);
+        } catch (e) { end(null); }
+      };
+      v.onerror = function () { end(null); };
+      v.src = u;
+    });
+  }
   function sign(host, items) {   // items = [{name, size}] → Promise<[{putUrl, readUrl, contentType}]>
     var token = host.token();
     if (!token) return Promise.reject(new Error('로그인이 필요해요. 로그인한 뒤 다시 올려 주세요.'));
     var ac = typeof AbortController === 'function' ? new AbortController() : null, tm = ac ? setTimeout(function () { ac.abort(); }, 20000) : 0;
     return fetch(API, {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: ac ? ac.signal : undefined,
-      body: JSON.stringify({ idToken: token, files: items.map(function (x) { return { name: x.name, type: 'image/jpeg', size: x.size }; }) })
+      body: JSON.stringify({ idToken: token, files: items.map(function (x) { return { name: x.name, type: x.type || 'image/jpeg', size: x.size }; }) })
     }).then(function (r) { clearTimeout(tm); return r.json().catch(function () { return null; }).then(function (d) { return { ok: r.ok, d: d }; }); },
       function () { clearTimeout(tm); throw new Error('연결이 불안정해요. 잠시 뒤 다시 시도해 주세요.'); })
       .then(function (r) {
@@ -93,7 +114,7 @@
       x.onload = function () { x.status >= 200 && x.status < 300 ? ok() : no(new Error('http ' + x.status)); };
       x.onerror = function () { no(new Error('network')); };
       x.ontimeout = function () { no(new Error('timeout')); };
-      x.timeout = 120000;
+      x.timeout = Math.max(120000, Math.round((blob.size || 0) / 100000) * 1000);   // 느린 회선에서도 영상(큰 파일)이 끊기지 않게: 초당 100KB 기준
       x.send(blob);
     });
   }
@@ -104,8 +125,8 @@
     var pcOn = !!host.pc;
     var ICO = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V5"/><path d="M7.5 9.5L12 5l4.5 4.5"/><path d="M4 15v3.5A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5V15"/></svg>';
     // 주소 카드(사진·영상 1)와 같은 명함카드 모양. 안내 글은 접어 두어 화면이 빽빽하지 않게 한다
-    var bar = pcOn ? el('<div class="pimg-card mm-card"><span class="pimg-th">' + ICO + '</span><div class="pimg-body"><div class="pimg-top"><b>내 컴퓨터에서 올리기</b><button type="button" class="mm-pick">사진 고르기</button></div><p class="mm-hint">사진을 여기로 끌어다 놓아도 돼요</p><p class="mm-count" aria-live="polite"></p><input type="file" class="mm-file" multiple accept="image/jpeg,image/png,image/webp" hidden></div></div>') : null;
-    var note = !pcOn ? null : el('<details class="pd-how mm-how"><summary>내 컴퓨터에서 올릴 때 알아 두세요</summary><ul><li>JPG·PNG·WEBP 사진만 올릴 수 있어요. 영상은 구글 드라이브 주소로 넣어 주세요.</li><li>올린 사진은 영상 제작에만 쓰고, 제작이 끝나면 지워요.</li><li>올리는 사진은 본인 것이어야 하고, 책임은 올린 분에게 있어요.</li></ul></details>');
+    var bar = pcOn ? el('<div class="pimg-card mm-card"><span class="pimg-th">' + ICO + '</span><div class="pimg-body"><div class="pimg-top"><b>내 컴퓨터에서 올리기</b><button type="button" class="mm-pick">사진·영상 고르기</button></div><p class="mm-hint">사진·영상을 여기로 끌어다 놓아도 돼요</p><p class="mm-count" aria-live="polite"></p><input type="file" class="mm-file" multiple accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime,video/webm,.mp4,.mov,.m4v,.webm" hidden></div></div>') : null;
+    var note = !pcOn ? null : el('<details class="pd-how mm-how"><summary>내 컴퓨터에서 올릴 때 알아 두세요</summary><ul><li>사진은 JPG·PNG·WEBP, 영상은 MP4·MOV·WEBM을 올릴 수 있어요. 영상은 한 개 '+LIMITS.videoMB+'MB까지, 최대 '+LIMITS.videoMax+'개예요.</li><li>영상은 줄이지 않고 그대로 올라가서 시간이 걸릴 수 있어요. 올린 뒤 영상 꾸미기에서 쓸 구간을 정해요.</li><li>올린 사진·영상은 영상 제작에만 쓰고, 제작이 끝나면 지워요.</li><li>올리는 사진·영상은 본인 것이어야 하고, 책임은 올린 분에게 있어요.</li></ul></details>');
     var msg = !pcOn ? null : el('<p class="mm-msg" role="status"></p>');
     var say = function (t) { if (msg) msg.textContent = t || ''; };
     if (pcOn) {
@@ -125,30 +146,40 @@
     function take(files) {
       say('');
       if (!files.length) return;
-      var room = host.max() - host.used(), sk = { video: 0, type: 0, dup: 0, full: 0 }, have = seen(), ok = [];
+      var room = host.max() - host.used(), sk = { badvideo: 0, bigvideo: 0, vfull: 0, type: 0, dup: 0, full: 0 }, have = seen(), ok = [], vok = 0, vids = list.querySelectorAll('.pimg-card[data-type="video"]').length;
       files.forEach(function (f) {
-        if (/^video\//.test(f.type) || /\.(mp4|mov|webm|m4v|avi|mkv)$/i.test(f.name)) { sk.video++; return; }
+        var vt = videoType(f);
+        if (!vt && (/^video\//.test(f.type) || /\.(avi|mkv|wmv|flv|3gp)$/i.test(f.name))) { sk.badvideo++; return; }
+        if (vt) {
+          if (f.size > LIMITS.videoMB * 1024 * 1024) { sk.bigvideo++; return; }
+          var k0 = fkey(f); if (have[k0]) { sk.dup++; return; } have[k0] = 1;
+          if (vids + vok >= LIMITS.videoMax) { sk.vfull++; return; }
+          if (ok.length >= room) { sk.full++; return; }
+          vok++; f.__vt = vt; ok.push(f); return;
+        }
         if (!OK_TYPE[f.type]) { sk.type++; return; }
         var k = fkey(f); if (have[k]) { sk.dup++; return; } have[k] = 1;
         if (ok.length >= room) { sk.full++; return; }
         ok.push(f);
       });
       var t = [];
-      if (sk.video) t.push('영상은 컴퓨터에서 올릴 수 없어요. 영상은 구글 드라이브 주소로 넣어 주세요.');
-      if (sk.type) t.push('JPG·PNG·WEBP 사진만 올릴 수 있어요 (' + sk.type + '개 건너뜀).');
+      if (sk.badvideo) t.push('영상은 MP4·MOV·WEBM만 올릴 수 있어요 (' + sk.badvideo + '개 건너뜀).');
+      if (sk.bigvideo) t.push('영상 한 개는 ' + LIMITS.videoMB + 'MB까지예요 (' + sk.bigvideo + '개 건너뜀). 짧게 잘라서 올리거나 드라이브 주소로 넣어 주세요.');
+      if (sk.vfull) t.push('영상은 최대 ' + LIMITS.videoMax + '개까지예요 (' + sk.vfull + '개 건너뜀).');
+      if (sk.type) t.push('사진은 JPG·PNG·WEBP만 올릴 수 있어요 (' + sk.type + '개 건너뜀).');
       if (sk.dup) t.push('이미 넣은 사진 ' + sk.dup + '장은 건너뛰었어요.');
       if (sk.full) t.push('최대 ' + host.max() + '개까지라 ' + sk.full + '장은 넣지 못했어요.');
       say(t.join(' '));
       if (!ok.length) return;
       var cards = ok.map(function (f) {
         var c = host.emptyCard() || host.addCard(); if (!c) return null;
-        c.dataset.src = 'pc'; c.dataset.up = 'busy'; c.dataset.fk = fkey(f); c.dataset.type = 'image';
+        c.dataset.src = 'pc'; c.dataset.up = 'busy'; c.dataset.fk = fkey(f); c.dataset.type = f.__vt ? 'video' : 'image';
         var body = c.querySelector('.pimg-body');
         if (!body.querySelector('.pimg-name')) body.insertBefore(el('<span class="pimg-name"></span>'), c.querySelector('.pimg-url'));
         body.querySelector('.pimg-name').textContent = f.name;
         if (!body.querySelector('.mm-bar2')) body.insertBefore(el('<div class="mm-bar2" aria-hidden="true"><i></i></div>'), c.querySelector('.pimg-state'));
         c.querySelector('.mm-bar2>i').style.width = '0';
-        var st = c.querySelector('.pimg-state'); st.className = 'pimg-state'; st.textContent = '사진 준비 중…';
+        var st = c.querySelector('.pimg-state'); st.className = 'pimg-state'; st.textContent = f.__vt ? '영상 준비 중…' : '사진 준비 중…';
         var old = c.querySelector('.mm-retry'); if (old) old.remove();
         c.__mm = { file: f, blob: null };
         return c;
@@ -165,14 +196,13 @@
     function run(cards) {   // 줄이기 → 서명 → 올리기. 한 번에 여러 장이어도 서명은 묶어서 한 번만 받는다
       var jobs = cards.map(function (c) {
         var m = c.__mm;
-        var p = m.blob ? Promise.resolve(m.blob) : shrink(m.file).then(function (b) {
-          m.blob = b;
+        var p = m.blob ? Promise.resolve(m.blob) : (m.file.__vt ? videoThumb(c, m.file) : shrink(m.file)).then(function (b) {
+          m.blob = m.file.__vt ? m.file : b;   // 영상은 줄이지 않고 원본 그대로 올린다(b 는 첫 장면 그림)
           if (m.url) URL.revokeObjectURL(m.url);
-          m.url = URL.createObjectURL(b);
-          var th = c.querySelector('.pimg-th'); th.innerHTML = ''; var im = new Image(); im.alt = ''; im.src = m.url; th.appendChild(im);
-          return b;
+          if (b && b !== m.file) { m.url = URL.createObjectURL(b); var th = c.querySelector('.pimg-th'); th.innerHTML = ''; var im = new Image(); im.alt = ''; im.src = m.url; th.appendChild(im); }
+          return m.blob;
         });
-        return p.then(function () { return true; }, function () { fail(c, '이 사진은 열 수 없어요. 다른 사진으로 바꿔 주세요.'); return false; });
+        return p.then(function () { return true; }, function () { fail(c, m.file.__vt ? '이 영상은 열 수 없어요. 다른 영상으로 바꿔 주세요.' : '이 사진은 열 수 없어요. 다른 사진으로 바꿔 주세요.'); return false; });
       });
       Promise.all(jobs).then(function (oks) {
         var live = cards.filter(function (c, i) { return oks[i] && c.isConnected; });
@@ -182,7 +212,7 @@
     }
     function upload(cards) {
       cards.forEach(function (c) { c.querySelector('.pimg-state').textContent = '올리는 중…'; });
-      return sign(host, cards.map(function (c) { return { name: c.__mm.file.name, size: c.__mm.blob.size }; })).then(function (items) {
+      return sign(host, cards.map(function (c) { return { name: c.__mm.file.name, size: c.__mm.blob.size, type: c.__mm.file.__vt || 'image/jpeg' }; })).then(function (items) {
         var q = cards.map(function (c, i) { return { c: c, it: items[i] }; }), run1 = function () {
           var n = q.shift(); if (!n) return Promise.resolve();
           return one(n.c, n.it).then(run1);

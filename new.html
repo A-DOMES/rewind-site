@@ -1936,15 +1936,15 @@
 </style>
 <script src="./theme.js"></script>
 <script src="./assets/voice-panel.js?v=20261102c"></script>
-<script src="./assets/media-input.js?v=20261105c"></script>
+<script src="./assets/media-input.js?v=20261105d"></script>
 <script src="./assets/voice-catalog.js?v=20261025"></script>
 <script src="./assets/voice-picker.js?v=20261104a"></script>
 <link rel="stylesheet" href="./assets/guide.css?v=20261025">
 <script src="./assets/guide.js?v=20261101"></script>
-<link rel="stylesheet" href="./assets/compose.css?v=20261105c">
+<link rel="stylesheet" href="./assets/compose.css?v=20261105d">
 <script src="./assets/shared/layout.js?v=20261027"></script>
 <script src="./assets/shared/phrase.js?v=20261026"></script>
-<script src="./assets/compose.js?v=20261105c"></script>
+<script src="./assets/compose.js?v=20261105d"></script>
 <script src="./assets/rw-consent.js"></script>
 <link rel="stylesheet" href="./assets/rw-theme.css?v=20261103n">
 </head>
@@ -4261,7 +4261,7 @@ ${비율칸Html(kind, 상태)}</div>`;
       inp.dispatchEvent(new Event('input', { bubbles: true }));
       return '';
     };
-    const 컴퓨터올리기 = () => { const f = 자료목록 && 자료목록.querySelector('.mm-pick'); if (!f || f.disabled) return false; f.click(); return true; };
+    const 컴퓨터올리기 = () => { const f = 자료목록 && 자료목록.parentNode.querySelector('.mm-pick'); if (!f || f.disabled) return false; f.click(); return true; };
     const 자료옮김 = (a, b) => { const u = 자료카드(), c = u[a]; if (!c) return; u.splice(a, 1); const ref = u[b] || null; if (ref) 자료목록.insertBefore(c, ref); else { const last = u[u.length - 1]; last ? 자료목록.insertBefore(c, last.nextSibling) : 자료목록.appendChild(c); } if (자료목록.__mm && 자료목록.__mm.changed) 자료목록.__mm.changed(); };
     RWCompose.open({ 종류: 상품 ? '상품쇼츠' : '쇼츠', 자료, 자료옮김, 자료읽기, 구간바꿈, 자료빼기, 자료더하기, 컴퓨터올리기, 타임라인: composeTimeline(상품), 화면: '세로', 배경그림: 첫사진, 화면목록, 화면구성, 제작방식, 문구시간: 상품 ? (((document.querySelector('input[name="pd-hookshow"]:checked') || {}).value === '3s') ? ((parseFloat((document.getElementById('pd-hooksec') || {}).value) >= 0 ? parseFloat(document.getElementById('pd-hooksec').value) : 3) + 's') : 'all') : undefined, 자막방식: (상품 && window.RWVoice) ? (RWVoice.getExtra().subtitleStyle || '구절형') : undefined, 문구: document.getElementById('df-hookText')?.value || '', 값, 자막위치: 거꾸로[지금] || '아래', 대본: 대본전체, 샘플: 대본첫줄 || document.getElementById('df-hookText')?.value || '',
       onDone: res => {
