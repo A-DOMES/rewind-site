@@ -281,7 +281,8 @@ label.cz-chip { display: inline-flex; align-items: center; }
 .cz-phone.cz-sel-out { box-shadow: inset 0 0 0 3px var(--rz-ac, #e2a23c); }
 
 /* ── 필름 띠: 지금 위치의 클립 강조 ── */
-.cz-t-clip.cz-t-cur { outline: 2px solid #f0a030; outline-offset: -2px; z-index: 1; }
+.cz-t-clip.cz-t-sel { outline: 2px solid #f0a030; outline-offset: -2px; z-index: 1; }
+.cz-t-clip.cz-t-cur { box-shadow: inset 0 3px 0 #fff; }   /* 재생 위치의 장면은 윗줄만 밝게 */
 /* ── 재생 줄 ── */
 .cz-tp { display: inline-flex; align-items: center; gap: 4px; }
 .cz-tpb { min-width: 36px; min-height: 36px; padding: 0 8px; border: 1px solid var(--rz-ln, #3a3a42); border-radius: 6px; background: var(--rz-p2, #1b1b1f); color: inherit; font: inherit; cursor: pointer; }
@@ -550,3 +551,8 @@ button.cz-pane-l[aria-pressed="true"] { color: var(--rz-ac); }
 .cz-insp-num { width: 64px; min-height: 30px; padding: 0 6px; border: 1px solid var(--rz-ln); border-radius: 6px; background: #000; color: inherit; font: inherit; font-size: .82rem; text-align: right; }
 .cz-insp-btns { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 .cz-insp-btns .cz-btn { min-height: 30px; padding: 0 10px; font-size: .76rem; }
+
+/* 편집|결과 사이 구분선: 두 폰은 각자 자기 반쪽의 가운데에 놓는다 */
+.cz-stage:not(.cz-stage-w):not(.cz-r-off) { position: relative; justify-content: space-around; gap: 0; }
+.cz-stage:not(.cz-stage-w):not(.cz-r-off)::after { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: #262626; }
+@media (max-width: 900px) { .cz-stage:not(.cz-stage-w)::after { display: none; } }
