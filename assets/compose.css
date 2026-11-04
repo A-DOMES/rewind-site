@@ -588,27 +588,36 @@ button.cz-pane-l[aria-pressed="true"] { color: var(--rz-ac); }
 @media (max-width: 900px) { .cz-head-acts .cz-btn:not(.cz-main) { display: none; } .cz-fm-wrap { margin-right: 6px; } }   /* 좁은 화면: 처음 모양으로는 파일 메뉴에 있다 */
 
 /* 믹서형 페이더 묶음(제목 설정): 이름 · 세로 페이더 · 값과 처음 값 버튼. 위쪽이 + (크게·위로), 가운데가 기본 */
-.cz-mix { display: flex; gap: 6px; align-items: stretch; justify-content: space-between; margin: 0 14px; padding: 6px 4px 2px; background: #060607; border: 1px solid var(--rz-ln); border-radius: 8px; }
+/* 믹서(제목·자막·문구 페이더): 콘솔 채널 스트립처럼 촘촘하게. 어두운 금속 판 · 홈(groove) · 양옆 눈금 · 크롬 손잡이에 금색 선 · 아래 작은 숫자 창 */
+.cz-mix { position: relative; width: fit-content; max-width: calc(100% - 28px); box-sizing: border-box; display: flex; gap: 0; align-items: stretch; justify-content: flex-start; margin: 0 14px; padding: 8px 8px 8px 30px; background: linear-gradient(180deg, #1c1c20 0%, #121214 55%, #0b0b0d 100%); border: 1px solid #2c2c31; border-radius: 6px; box-shadow: inset 0 1px 0 rgba(255,255,255,.06), inset 0 -1px 0 rgba(0,0,0,.6), 0 2px 8px rgba(0,0,0,.5); }
+.cz-mix::before { content: "+\A\A 0\A\A\2212"; white-space: pre; position: absolute; left: 10px; top: 26px; height: 120px; font: 600 9px/24px ui-monospace, Menlo, monospace; color: #6c6c74; text-align: center; pointer-events: none; }   /* 왼쪽 눈금 글자: 위(+) · 가운데(0) · 아래(−) */
 .cz-body .cz-card > .cz-mix { margin-left: 14px; margin-right: 14px; }
-.cz-mix .cz-row { flex: 1 1 0; min-width: 0; display: grid; grid-template-rows: auto 64px auto; grid-template-columns: 1fr auto; justify-items: center; align-items: center; gap: 4px 4px; padding: 2px 4px 6px; border-right: 1px solid #16161a; }
-.cz-mix .cz-row:last-child { border-right: 0; }
-.cz-mix .cz-row label { grid-column: 1 / -1; grid-row: 1; min-width: 0; text-align: center; font-size: .78rem; color: var(--ink-dim); white-space: nowrap; }
+.cz-mix .cz-row { flex: 0 0 64px; min-width: 0; display: grid; grid-template-rows: 14px 120px auto; grid-template-columns: 1fr auto; justify-items: center; align-items: center; gap: 4px 2px; padding: 0 3px 2px; border-right: 1px solid #222226; box-shadow: 1px 0 0 rgba(255,255,255,.03); }
+.cz-mix .cz-row.cz-fd-h { flex: 0 0 168px; }
+.cz-mix .cz-row:last-child { border-right: 0; box-shadow: none; }
+.cz-mix .cz-row label { grid-column: 1 / -1; grid-row: 1; min-width: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; text-align: center; font-size: .66rem; letter-spacing: .03em; color: #9c9ca6; white-space: nowrap; }
 .cz-mix .cz-row input[type=range] { grid-column: 1 / -1; grid-row: 2; }
 .cz-mix .cz-val { grid-row: 3; grid-column: 1; justify-self: end; min-width: 3.4ch; }
-.cz-mix .cz-rst { grid-row: 3; grid-column: 2; justify-self: start; width: 24px; height: 24px; font-size: .8rem; }
-.cz-mix .cz-row:hover label { color: #fff; }
-/* 세로 페이더: 가로 슬라이더를 세워서 쓴다(footprint 는 30 x 64). 눈금은 슬라이더 자신의 배경으로 그린다 */
-.cz-mix .cz-fd input[type=range] { width: 64px; height: 30px; min-height: 0; margin: -17px; flex: none; background-image: linear-gradient(90deg, #666 1px, transparent 1px), linear-gradient(90deg, #aaa 2px, transparent 2px); background-size: 25% 10px, 100% 18px; background-position: 0 50%, 50% 50%; background-repeat: repeat-x, no-repeat; }
-.cz-mix .cz-fd input[type=range] { transform: rotate(-90deg); touch-action: none; }   /* 세로로 끌 때 패널이 스크롤되지 않게 */
+.cz-mix .cz-rst { grid-row: 3; grid-column: 2; justify-self: start; width: 18px; height: 18px; font-size: .7rem; border-radius: 3px; color: #8a8a92; background: transparent; border: 1px solid #2c2c31; }
+.cz-mix .cz-rst:hover:not(:disabled) { color: #f0c060; border-color: #6a5426; }
+.cz-mix .cz-row:hover label { color: #f2f2f4; }
+.cz-mix .cz-row:hover { background: linear-gradient(180deg, rgba(240,192,96,.05), transparent 70%); }
+/* 세로 페이더: 가로 슬라이더를 세워서 쓴다(footprint 30 x 120). 눈금·가운데 표시는 슬라이더 자신의 배경, 홈은 트랙 */
+.cz-mix .cz-fd input[type=range] { width: 120px; height: 30px; min-height: 0; margin: -45px; flex: none; transform: rotate(-90deg); touch-action: none; }   /* 세로로 끌 때 패널이 스크롤되지 않게 */
 .cz-mix .cz-fd-h input[type=range] { width: 100%; min-height: 0; height: 30px; }
-.cz-mix .cz-row input[type=range].cz-bi::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 26px; border-radius: 3px; border: 1px solid #000; background: linear-gradient(90deg, #8a8a90, #e8e8ec 45%, #8a8a90); box-shadow: 0 1px 2px rgba(0,0,0,.6); margin-top: -11px; }
-.cz-mix .cz-row input[type=range].cz-bi::-moz-range-thumb { width: 10px; height: 24px; border-radius: 3px; border: 1px solid #000; background: linear-gradient(90deg, #8a8a90, #e8e8ec 45%, #8a8a90); }
-.cz-mix .cz-row input[type=range].cz-bi:hover::-webkit-slider-thumb { background: linear-gradient(90deg, #c88a30, #ffd27a 45%, #c88a30); }
-.cz-mix .cz-row input[type=range].cz-bi:focus-visible { outline: 2px solid var(--rz-ac); outline-offset: 2px; }
+.cz-mix .cz-row input[type=range].cz-bi { background-image: linear-gradient(90deg, transparent calc(50% - 1px), #b8b8c0 calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px)), repeating-linear-gradient(90deg, #45454c 0 1px, transparent 1px 10%); background-size: 100% 22px, calc(100% - 14px) 16px; background-position: center, center; background-repeat: no-repeat; }
+.cz-mix .cz-row input[type=range].cz-bi::-webkit-slider-runnable-track { height: 5px; border-radius: 3px; background: linear-gradient(to right, #050506 0 var(--a, 50%), #c9922f var(--a, 50%) var(--b, 50%), #050506 var(--b, 50%) 100%); box-shadow: inset 0 1px 2px #000, 0 1px 0 rgba(255,255,255,.07); }
+.cz-mix .cz-row input[type=range].cz-bi::-moz-range-track { height: 5px; border-radius: 3px; background: linear-gradient(to right, #050506 0 var(--a, 50%), #c9922f var(--a, 50%) var(--b, 50%), #050506 var(--b, 50%) 100%); }
+.cz-mix .cz-row input[type=range].cz-bi::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 28px; margin-top: -11.5px; border-radius: 2px; border: 1px solid #0a0a0a; background: linear-gradient(90deg, #5c5c62 0%, #d9d9de 22%, #f4f4f6 34%, #a2a2a8 44%, #e0a33a 44% 56%, #a2a2a8 56%, #ececf0 70%, #8c8c92 88%, #4e4e54 100%); box-shadow: 0 2px 3px rgba(0,0,0,.7), inset 0 0 0 1px rgba(255,255,255,.15); cursor: grab; }
+.cz-mix .cz-row input[type=range].cz-bi::-moz-range-thumb { width: 12px; height: 26px; border-radius: 2px; border: 1px solid #0a0a0a; background: linear-gradient(90deg, #5c5c62 0%, #d9d9de 22%, #f4f4f6 34%, #a2a2a8 44%, #e0a33a 44% 56%, #a2a2a8 56%, #ececf0 70%, #8c8c92 88%, #4e4e54 100%); }
+.cz-mix .cz-row input[type=range].cz-bi:hover::-webkit-slider-thumb { background: linear-gradient(90deg, #6a6a70 0%, #ececf0 22%, #ffffff 34%, #b4b4ba 44%, #ffc455 44% 56%, #b4b4ba 56%, #f6f6f8 70%, #9a9aa0 88%, #5a5a60 100%); box-shadow: 0 0 8px rgba(240,180,70,.45), 0 2px 3px rgba(0,0,0,.7); }
+.cz-mix .cz-row input[type=range].cz-bi:active::-webkit-slider-thumb { cursor: grabbing; }
+.cz-mix .cz-row input[type=range].cz-bi:hover::-moz-range-thumb { background: linear-gradient(90deg, #6a6a70 0%, #ececf0 22%, #ffffff 34%, #b4b4ba 44%, #ffc455 44% 56%, #b4b4ba 56%, #f6f6f8 70%, #9a9aa0 88%, #5a5a60 100%); box-shadow: 0 0 8px rgba(240,180,70,.45); }
+.cz-mix .cz-row input[type=range].cz-bi:focus-visible { outline: 1px solid #c9922f; outline-offset: 2px; }
 .cz-dlg[data-pg="text"] .cz-dockbody > .cz-body > .cz-card:has(> .cz-mix) { grid-column: 1 / -1; }
 @media (min-width: 900px) { .cz-dlg[data-pg="text"] .cz-dockbody > .cz-body > .cz-card:has(> .cz-mix) { grid-column: span 2; } }   /* 넓으면 두 칸, 좁으면 한 줄 전체 */   /* 믹서 카드는 두 칸 */
-@media (max-width: 600px) { .cz-mix { flex-wrap: wrap; } .cz-mix .cz-row { flex: 1 1 44%; } .cz-mix .cz-row:nth-child(2n) { border-right: 0; } }
-.cz-mix .cz-row .cz-numin { grid-row: 3; grid-column: 1; justify-self: end; width: 3.6em; }
+@media (max-width: 600px) { .cz-mix { flex-wrap: wrap; padding-left: 8px; } .cz-mix::before { display: none; } .cz-mix .cz-row { flex: 0 0 64px; } .cz-mix .cz-row.cz-fd-h { flex: 1 1 100%; } }   /* 좁으면 줄을 바꾸되 스트립 폭은 그대로 */
+.cz-mix .cz-row .cz-numin { grid-row: 3; grid-column: 1; justify-self: end; width: 3.2em; height: 18px; padding: 0 3px; font: 600 11px/16px ui-monospace, Menlo, monospace; text-align: center; color: #e8c06a; background: #050506; border: 1px solid #2c2c31; border-radius: 3px; box-shadow: inset 0 1px 2px #000; }   /* 숫자 창 */
 
 /* 편집 화면 옆 빈 자리의 장면 정보 */
 .cz-pane-info { position: absolute; right: 100%; margin-right: 12px; top: 40px; width: max-content; display: grid; gap: 3px; font-size: .74rem; color: var(--ink-dim); pointer-events: none; }
@@ -632,3 +641,11 @@ button.cz-pane-l[aria-pressed="true"] { color: var(--rz-ac); }
 .cz-t-drop { position: absolute; top: -2px; bottom: -2px; width: 3px; margin-left: -1px; background: var(--rz-ac); border-radius: 2px; pointer-events: none; z-index: 3; }
 .cz-t-drop[hidden] { display: none; }
 .cz-mix .cz-row.cz-off { opacity: .4; pointer-events: none; }
+/* 선택 줄: 쪽마다 관계있는 요소만(제목 쪽 = 제목 띠·글자, 자막 쪽 = 자막) */
+.cz-dlg[data-tab="제목"] .cz-selbar .cz-chip[data-종류="자막"]:not([aria-pressed="true"]), .cz-dlg[data-tab="자막"] .cz-selbar .cz-chip[data-종류="제목띠"]:not([aria-pressed="true"]), .cz-dlg[data-tab="자막"] .cz-selbar .cz-chip[data-종류="제목글자"]:not([aria-pressed="true"]) { display: none !important; }   /* 골라 둔 것은 숨기지 않는다 */
+/* 자막 글자 모양 견본: 작게 */
+.cz-grid.cz-grid-sm { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 6px; }
+.cz-grid-sm .cz-opt { min-height: 0; padding: 6px 8px; gap: 1px; border-width: 1px; }
+.cz-grid-sm .cz-opt .cz-sample { font-size: .95rem; }
+.cz-grid-sm .cz-opt small, .cz-grid-sm .cz-opt b { font-size: .7rem; }
+.cz-grid-sm .cz-opt[aria-pressed="true"]::after { right: 5px; top: 3px; font-size: .7rem; }

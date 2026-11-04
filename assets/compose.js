@@ -925,7 +925,7 @@
         c1d.appendChild(el('p', 'cz-hint', '고르지 않으면 한 줄씩 나와요. 한두 단어씩은 큰 글씨가 빠르게 바뀌어요'));
       }
       var c2 = 카드('자막 글자 모양', undefined, '자막');
-      var gm = el('div', 'cz-grid'); c2.appendChild(gm);
+      var gm = el('div', 'cz-grid cz-grid-sm'); c2.appendChild(gm);   // 자막 글자 모양: 작은 견본
       모양들.forEach(function (m) { var b = el('button', 'cz-opt'); b.type = 'button'; var s = el('span', 'cz-sample', '가나다'); s.style.fontWeight = String(m[2].w); s.style.color = m[2].c === '#fff' ? 'var(--ink)' : m[2].c; s.style.textShadow = m[2].c === '#fff' ? 'none' : '0 0 1px #0006'; if (m[2].bg) { s.style.background = m[2].bg === 'rgba(0,0,0,.75)' ? '#000a' : m[2].bg; s.style.color = m[2].bg === 'rgba(0,0,0,.75)' ? '#fff' : m[2].c; s.style.padding = '0 6px'; s.style.borderRadius = '4px'; } b.appendChild(s); b.appendChild(el('small', '', m[1]));
         b.addEventListener('click', function () { 선택.자막모양 = m[0]; 갱신(); }); gm.appendChild(b); 눌림목록.push(function () { b.setAttribute('aria-pressed', String(합치기(선택, 종류).값.자막모양 === m[0])); }); });
       var r1 = el('div', 'cz-row'); r1.appendChild(el('label', '', '글꼴')); r1.appendChild(Object.assign(el('div', 'cz-chips'), {})); c2.appendChild(r1);
@@ -1143,7 +1143,7 @@
       var 쪽그림 = { '타임라인': 'M4 7h16M4 12h10M4 17h13', '제목': 'M5 6h14M12 6v13M9 19h6', '자막': 'M4 6h16v12H4zM8 11h8M8 14.5h5', '색': 'M12 3a9 9 0 100 18c1.4 0 2-1 1.6-2-.5-1.2.2-2.5 1.6-2.5H17a4 4 0 004-4c0-5-4-9.5-9-9.5zM7.5 11h.01M10 7.5h.01M14.5 7.5h.01', '모양': 'M4 5h7v6H4zM13 5h7v6h-7zM4 13h7v6H4zM13 13h7v6h-7z', '문구': 'M12 3v8M8.5 11h7l-1.5 4h-4zM12 15v6' };
       var 쪽목록 = ['타임라인', '제목', '자막', '색', '모양', '문구'].filter(function (n) { return n === '타임라인' || n === '색' || (n === '모양' ? !!모양판 : 있는탭.indexOf(n) >= 0); });
       function 페이지보기(k) {
-        var 글자쪽 = 있는탭.indexOf(k) >= 0; dlg.dataset.pg = 글자쪽 ? 'text' : ({ '타임라인': 'tl', '색': 'color', '모양': 'shape' })[k] || 'tl'; if (글자쪽) 탭보이기(k);
+        var 글자쪽 = 있는탭.indexOf(k) >= 0; dlg.dataset.pg = 글자쪽 ? 'text' : ({ '타임라인': 'tl', '색': 'color', '모양': 'shape' })[k] || 'tl'; dlg.dataset.tab = 글자쪽 ? k : ''; if (글자쪽) 탭보이기(k);   // tab: 선택 줄에서 이 쪽과 관계없는 칩을 숨긴다(제목 쪽에는 자막 칩 없음)
         Array.prototype.forEach.call(페이지줄.children, function (b) { var 선 = b.dataset.k === k; b.setAttribute('aria-selected', String(선)); b.tabIndex = 선 ? 0 : -1; }); if (k === '색') 눌림갱신();
       }
       쪽목록.forEach(function (n, i) { var b = el('button', 'cz-page'); b.type = 'button'; b.dataset.k = n; b.setAttribute('role', 'tab'); b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="' + 쪽그림[n] + '"/></svg><span>' + n + '</span>';
