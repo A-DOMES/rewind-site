@@ -491,6 +491,7 @@
     var 속성키 = '';
     function 속성그리기(장, 수, 길이) {   // 재생 위치가 있는 장면의 정보. 값은 앞 단계에서 정한 것이라 여기서는 보기만 한다
       var 키 = [장, 수, 길이, T.소리, v0().자막끄기, 자막방식].join('|'); if (키 === 속성키 && insp.firstChild) return;   // 재생 중 매 프레임 다시 그리면 입력 칸을 잡을 수 없다: 장면·값이 바뀔 때만 그린다
+      var 옛영상 = insp.querySelector('video'); if (옛영상) { try { 옛영상.pause(); 옛영상.removeAttribute('src'); 옛영상.load(); } catch (x) {} }   // 이전 영상은 멈추고 받던 것도 끊는다
       속성키 = 키; insp.textContent = '';
       var 머리 = el('div', 'cz-insp-h'); 머리.appendChild(el('b', '', '속성')); 머리.appendChild(el('span', '', '장면 ' + 장 + ' / ' + 수)); insp.appendChild(머리);
       var 몸 = el('div', 'cz-insp-b'), 시작 = 길이 * (장 - 1) / 수, 끝 = 길이 * 장 / 수, 사진 = (T.사진 || [])[장 - 1], 자료 = (Array.isArray(opt.자료) ? opt.자료 : [])[장 - 1];
@@ -505,28 +506,32 @@
         var 반영 = function () { 자료.시작 = 시초; 자료.끝 = 끝초; try { opt.구간바꿈(번호, 시초, 끝초); } catch (x) {} 글자(); var 격 = lib.querySelector('.cz-wb-grid'), 칸 = 격 && 격.children[번호]; if (칸) { var 라 = 칸.querySelector('.cz-wb-r'); if (!라) { 라 = el('i', 'cz-wb-r', ''); 칸.appendChild(라); } 라.textContent = 소수(시초) + '–' + 소수(끝초) + 's'; } };
         var 시칸 = el('input', 'cz-insp-num'), 끝칸 = el('input', 'cz-insp-num');
         function 글자() { 글.textContent = ''; 글.appendChild(el('span', '', '길이')); 글.appendChild(el('b', '', 소수(끝초 - 시초) + 's')); 시칸.value = String(소수(시초)); 끝칸.value = String(소수(끝초)); if (총) { 막시.value = String(시초); 막끝.value = String(끝초); } }
-        function 맞추기(기준) {   // 시작 < 끝, 한 컷 0.5~60초, 영상 길이 안
+        var 내림 = function (n) { return Math.floor(n * 10 + 1e-9) / 10; };
+        function 보정(기준) {   // 시작 < 끝, 한 컷 0.5~60초, 영상 길이 안(끝은 내림: 영상 길이를 넘지 않게)
           if (총) { 시초 = Math.min(Math.max(0, 시초), Math.max(0, 총 - 0.5)); 끝초 = Math.min(끝초, 총); }
-          if (끝초 - 시초 < 0.5) { if (기준 === '끝') 시초 = Math.max(0, 끝초 - 0.5); else 끝초 = 시초 + 0.5; }
+          if (끝초 - 시초 < 0.5) { if (기준 === '끝') { 끝초 = Math.max(끝초, 0.5); 시초 = Math.max(0, 끝초 - 0.5); } else 끝초 = 시초 + 0.5; }
           if (끝초 - 시초 > 최대컷) { if (기준 === '끝') 시초 = 끝초 - 최대컷; else 끝초 = 시초 + 최대컷; }
-          시초 = Math.max(0, 소수(시초)); 끝초 = 소수(끝초); 반영();
+          시초 = Math.max(0, 소수(시초)); 끝초 = 내림(끝초); if (끝초 - 시초 < 0.4) 끝초 = 소수(시초 + 0.5);
         }
+        function 맞추기(기준) { 보정(기준); 반영(); }
+        var 버튼줄 = null;
         if (자료.재생주소) {
           영 = el('video', 'cz-insp-vid'); 영.controls = true; 영.preload = 'metadata'; 영.playsInline = true; 영.muted = false; 영.setAttribute('referrerpolicy', 'no-referrer'); 영.src = 자료.재생주소; 구.appendChild(영);
-          영.addEventListener('loadedmetadata', function () { if (isFinite(영.duration) && 영.duration > 0) { 총 = 영.duration; [막시, 막끝].forEach(function (m) { m.min = '0'; m.max = String(소수(총)); m.disabled = false; }); if (끝초 > 총) 끝초 = 총; if (시초 >= 총) 시초 = 0; 맞추기('시작'); 영.currentTime = 시초; } });
-          영.addEventListener('error', function () { var p = el('p', 'cz-hint', '이 영상은 여기서 재생할 수 없어요. 아래 숫자로 정해 주세요.'); 구.insertBefore(p, 영); 영.remove(); 영 = null; });
+          영.addEventListener('loadedmetadata', function () { if (isFinite(영.duration) && 영.duration > 0) { 총 = 영.duration; [막시, 막끝].forEach(function (m) { m.min = '0'; m.max = String(내림(총)); m.disabled = false; }); var 앞시 = 시초, 앞끝 = 끝초; if (시초 >= 총) 시초 = 0; 보정('시작'); if (시초 !== 앞시 || 끝초 !== 앞끝) 반영(); else 글자(); 영.currentTime = 시초; } });   // 열기만 해서는 카드 값을 바꾸지 않는다(범위를 벗어난 값만 고친다)
+          영.addEventListener('error', function () { var p = el('p', 'cz-hint', '이 영상은 여기서 재생할 수 없어요. 아래 숫자로 정해 주세요.'); 구.insertBefore(p, 영); 영.remove(); 영 = null; 막시.disabled = true; 막끝.disabled = true; if (버튼줄) { 버튼줄.remove(); 버튼줄 = null; } });
+          영.addEventListener('pause', function () { 영.dataset.미리 = ''; });
           영.addEventListener('timeupdate', function () { if (!영.paused && 영.dataset.미리 === '1' && 영.currentTime >= 끝초) { 영.pause(); 영.dataset.미리 = ''; } });
         } else { 구.appendChild(el('p', 'cz-hint', '이 영상은 여기서 볼 수 없어요(구글 드라이브 등). 숫자로 정해 주세요.')); }
         [[막시, '쓸 구간 시작', '시작'], [막끝, '쓸 구간 끝', '끝']].forEach(function (x) { var m = x[0]; m.type = 'range'; m.step = '0.1'; m.min = '0'; m.max = '60'; m.value = x[2] === '시작' ? String(시초) : String(끝초); m.disabled = !영; m.setAttribute('aria-label', x[1]); });
-        막시.addEventListener('input', function () { 시초 = Number(막시.value); 맞추기('시작'); if (영) 영.currentTime = 시초; });
-        막끝.addEventListener('input', function () { 끝초 = Number(막끝.value); 맞추기('끝'); if (영) 영.currentTime = Math.max(0, 끝초 - 0.1); });
+        막시.addEventListener('input', function () { 막시.setAttribute('aria-valuetext', 막시.value + '초'); 시초 = Number(막시.value); 맞추기('시작'); if (영) 영.currentTime = 시초; });
+        막끝.addEventListener('input', function () { 막끝.setAttribute('aria-valuetext', 막끝.value + '초'); 끝초 = Number(막끝.value); 맞추기('끝'); if (영) 영.currentTime = Math.max(0, 끝초 - 0.1); });
         var 줄시 = el('div', 'cz-insp-r cz-insp-in'); 줄시.appendChild(el('span', '', '구간 시작')); 줄시.appendChild(막시); 줄시.appendChild(시칸);
         var 줄끝 = el('div', 'cz-insp-r cz-insp-in'); 줄끝.appendChild(el('span', '', '구간 끝')); 줄끝.appendChild(막끝); 줄끝.appendChild(끝칸);
-        [[시칸, '시작', '시작 초'], [끝칸, '끝', '끝 초']].forEach(function (x) { var n = x[0]; n.type = 'number'; n.min = '0'; n.step = '0.1'; n.setAttribute('aria-label', x[2]); n.addEventListener('change', function () { var v = Number(n.value); if (!isFinite(v)) { 글자(); return; } if (x[1] === '시작') 시초 = v; else 끝초 = v; 맞추기(x[1]); if (영 && 영.readyState) 영.currentTime = x[1] === '시작' ? 시초 : Math.max(0, 끝초 - 0.1); }); });
+        [[시칸, '시작', '시작 초'], [끝칸, '끝', '끝 초']].forEach(function (x) { var n = x[0]; n.type = 'number'; n.min = '0'; n.step = '0.1'; n.setAttribute('aria-label', x[2]); n.addEventListener('change', function () { var v = Number(n.value); if (String(n.value).trim() === '' || !isFinite(v)) { 글자(); return; } if (x[1] === '시작') 시초 = v; else 끝초 = v; 맞추기(x[1]); if (영 && 영.readyState) 영.currentTime = x[1] === '시작' ? 시초 : Math.max(0, 끝초 - 0.1); }); });
         구.appendChild(줄시); 구.appendChild(줄끝); 구.appendChild(글);
         if (영) {
-          var 버튼줄 = el('div', 'cz-insp-btns');
-          [['지금 위치를 시작으로', function () { 시초 = 소수(영.currentTime); if (끝초 <= 시초) 끝초 = 시초 + 소수(Math.min(10, Math.max(0.5, 총 - 시초))); 맞추기('시작'); }], ['지금 위치를 끝으로', function () { 끝초 = 소수(영.currentTime); 맞추기('끝'); }], ['구간 재생', function () { 영.currentTime = 시초; 영.dataset.미리 = '1'; 영.play(); }]].forEach(function (x) { var b = el('button', 'cz-btn', x[0]); b.type = 'button'; b.addEventListener('click', x[1]); 버튼줄.appendChild(b); });
+          버튼줄 = el('div', 'cz-insp-btns');
+          [['지금 위치를 시작으로', function () { if (!영) return; 시초 = 소수(영.currentTime); if (끝초 <= 시초) 끝초 = 시초 + 소수(Math.min(10, Math.max(0.5, 총 - 시초))); 맞추기('시작'); }], ['지금 위치를 끝으로', function () { if (!영) return; 끝초 = 소수(영.currentTime); 맞추기('끝'); }], ['구간 재생', function () { if (!영) return; 영.currentTime = 시초; 영.dataset.미리 = '1'; 영.play(); }]].forEach(function (x) { var b = el('button', 'cz-btn', x[0]); b.type = 'button'; b.addEventListener('click', x[1]); 버튼줄.appendChild(b); });
           구.appendChild(버튼줄);
         }
         글자(); 몸.insertBefore(구, 몸.firstChild);   // 위쪽에 둔다(패널이 짧아도 바로 보이게)
@@ -807,9 +812,10 @@
           if (typeof opt.자료읽기 !== 'function' || 예약) return;
           예약 = requestAnimationFrame(function () {
             예약 = 0; var 새 = (opt.자료읽기() || []).filter(function (x) { return !!x; });
+            var 서명 = function (a) { return a.map(function (x) { return [x.영상 ? 1 : 0, x.재생주소 || '', x.영상 ? '' : (x.src || ''), x.이름 || ''].join('~'); }).join('|'); }, 바뀜 = 서명(자료) !== 서명(새);
             자료.length = 0; Array.prototype.push.apply(자료, 새); if (Array.isArray(opt.자료) && opt.자료 !== 자료) { opt.자료.length = 0; Array.prototype.push.apply(opt.자료, 새); }
             T.사진 = 새.map(function (x) { return x.src || ''; }); T.사진수 = 새.length || undefined;
-            if (고른 >= 새.length) 고른 = -1; 그리기(); 지난장 = 0; 속성키 = ''; if (typeof 타임라인그리기 === 'function') 타임라인그리기();
+            if (고른 >= 새.length) 고른 = -1; 그리기(); 지난장 = 0; if (바뀜) 속성키 = ''; if (typeof 타임라인그리기 === 'function') 타임라인그리기();
           });
         }
         window.__rwPoolRefresh = 다시읽기;
@@ -829,7 +835,7 @@
           if (b < 0 || b >= 자료.length || a === b) return; var it = 자료.splice(a, 1)[0]; 자료.splice(b, 0, it); if (Array.isArray(opt.자료) && opt.자료 !== 자료) { var o = opt.자료.splice(a, 1)[0]; opt.자료.splice(b, 0, o); } if (Array.isArray(T.사진) && T.사진.length > Math.max(a, b)) { var tp = T.사진.splice(a, 1)[0]; T.사진.splice(b, 0, tp); }   // 장면 순서(사진·정보)도 같이 옮겨 재생·속성·타임라인이 새 순서를 따른다
           if (고른 === a) 고른 = b; else if (고른 >= 0 && a < b && 고른 > a && 고른 <= b) 고른--; else if (고른 >= 0 && a > b && 고른 >= b && 고른 < a) 고른++;
           if (typeof opt.자료옮김 === 'function') { try { opt.자료옮김(a, b); } catch (x) {} }
-          그리기(); 지난장 = 0; if (typeof 타임라인그리기 === 'function') 타임라인그리기(); var 칸 = 격자.children[b]; if (칸) 칸.focus();
+          그리기(); 지난장 = 0; 속성키 = ''; if (typeof 타임라인그리기 === 'function') 타임라인그리기(); var 칸 = 격자.children[b]; if (칸) 칸.focus();
         }
         그리기();
       })();
