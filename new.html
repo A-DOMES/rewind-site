@@ -174,15 +174,13 @@
   .pm-range[hidden] { display: none; }
   .pm-range input { width: 74px; min-height: 36px; }
   .pm-range small { color: var(--ink-faint); }
-  .pm-prev, .pm-more, .pm-take { min-height: 32px; padding: 0 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg-raised, transparent); color: var(--ink); font: inherit; font-size: .82rem; cursor: pointer; }
-  .pm-prev:hover, .pm-more:hover, .pm-take:hover { border-color: var(--accent, #f0a030); }
-  .pm-more { margin-left: auto; }
-  .pm-player { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
-  .pm-player[hidden], .pimg-card.pm-folder .pm-player, .pimg-card[data-type="image"] .pm-player { display: none; }
-  .pm-player video { width: 100%; max-height: 260px; border-radius: 8px; background: #000; }
-  .pm-player iframe { width: 100%; aspect-ratio: 16 / 9; border: 0; border-radius: 8px; background: #000; }
-  .pm-takes { display: flex; gap: 6px; flex-wrap: wrap; }
-  .pm-note { margin: 0; font-size: .8rem; color: var(--ink-dim); }
+  .pm-range { display: block; }
+  .pm-hint { display: block; }
+  .pm-hint b { color: var(--ink); font-weight: 600; }
+  .pm-adv { margin-top: 6px; }
+  .pm-adv summary { cursor: pointer; color: var(--ink-dim); font-size: .8rem; width: fit-content; }
+  .pm-adv summary:hover { color: var(--ink); }
+  .pm-advin { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
   .pd-len { display: flex; align-items: center; gap: 8px; margin-top: 8px; color: var(--ink-dim); font-size: .88rem; flex-wrap: wrap; }
   .pd-len input { width: 84px; min-height: 40px; }
   .pd-len small { color: var(--ink-faint); }
@@ -4795,7 +4793,7 @@ ${비율칸Html(kind, 상태)}</div>`;
   const pdIsDrive = v => /^https:\/\/(drive|docs)\.google\.com\//i.test(v);
   const pdGuessType = v => /\.(mp4|mov|webm|m4v)(\?|#|$)/i.test(v) ? 'video' : /\.(jpe?g|png|webp|gif|avif)(\?|#|$)/i.test(v) ? 'image' : '';
   function pimgCardHtml() {
-    return `<div class="pimg-card" data-type="image"><span class="pimg-th">${PIMG_ICO}</span><div class="pimg-body"><div class="pimg-top"><b>사진·영상 1</b><span class="pm-type" role="group" aria-label="종류"><button type="button" data-t="image" aria-pressed="true">사진</button><button type="button" data-t="video" aria-pressed="false">영상</button></span><span class="pimg-mv"><button type="button" class="pimg-grip" aria-label="끌어서 순서 바꾸기" title="끌어서 순서 바꾸기">⠿</button><button type="button" class="pimg-up" aria-label="위로 옮기기">▲</button><button type="button" class="pimg-dn" aria-label="아래로 옮기기">▼</button></span><button type="button" class="pimg-del" aria-label="이 사진·영상 지우기">×</button></div><input type="url" class="pimg-url" inputmode="url" autocomplete="off" placeholder="https://..." aria-label="사진·영상 주소"><div class="pm-range" hidden><span>쓸 구간</span><input type="number" class="pm-s" min="0" step="0.5" value="0" aria-label="시작 초"><span>초 ~</span><input type="number" class="pm-e" min="0.5" step="0.5" value="10" aria-label="끝 초"><span>초 <small>(한 컷 최대 60초)</small></span><button type="button" class="pm-prev">영상 보기</button><button type="button" class="pm-more">구간 더하기</button></div><div class="pm-player" hidden></div><p class="pimg-state"></p></div></div>`;
+    return `<div class="pimg-card" data-type="image"><span class="pimg-th">${PIMG_ICO}</span><div class="pimg-body"><div class="pimg-top"><b>사진·영상 1</b><span class="pm-type" role="group" aria-label="종류"><button type="button" data-t="image" aria-pressed="true">사진</button><button type="button" data-t="video" aria-pressed="false">영상</button></span><span class="pimg-mv"><button type="button" class="pimg-grip" aria-label="끌어서 순서 바꾸기" title="끌어서 순서 바꾸기">⠿</button><button type="button" class="pimg-up" aria-label="위로 옮기기">▲</button><button type="button" class="pimg-dn" aria-label="아래로 옮기기">▼</button></span><button type="button" class="pimg-del" aria-label="이 사진·영상 지우기">×</button></div><input type="url" class="pimg-url" inputmode="url" autocomplete="off" placeholder="https://..." aria-label="사진·영상 주소"><div class="pm-range" hidden><span class="pm-hint">영상은 앞 10초부터 쓰여요. 쓸 구간은 <b>영상 꾸미기</b>에서 정해요.</span><details class="pm-adv"><summary>구간을 숫자로 정하기</summary><div class="pm-advin"><input type="number" class="pm-s" min="0" step="0.5" value="0" aria-label="시작 초"><span>초 ~</span><input type="number" class="pm-e" min="0.5" step="0.5" value="10" aria-label="끝 초"><span>초 <small>(한 컷 최대 60초)</small></span></div></details></div><p class="pimg-state"></p></div></div>`;
   }
   // ===== [상품쇼츠] 영상 제작 방식 · 화면 구성 (꾸미기) =====
   // 서버·렌더 서버가 지금 실제로 만들 수 있는 것만 고를 수 있다. 나머지는 "준비 중"으로 잠가 두고, 준비되면 아래 표에서 열어 준다.
@@ -5323,7 +5321,6 @@ ${비율칸Html(kind, 상태)}</div>`;
       const inp = card.querySelector('.pimg-url'), th = card.querySelector('.pimg-th'), st = card.querySelector('.pimg-state');
       const v = inp.value.trim(), video = card.dataset.type === 'video';
       st.className = 'pimg-state'; st.textContent = '';
-      { const pb = card.querySelector('.pm-player'); if (pb && !pb.hidden) { pb.hidden = true; pb.textContent = ''; } }   // 주소·종류가 바뀌면 열려 있던 재생기는 닫는다
       th.innerHTML = video ? PVID_ICO : PIMG_ICO;
       const folder = pdIsDriveFolder(v); card.classList.toggle('pm-folder', folder);   // 폴더면 종류·구간 칸은 숨긴다(안의 파일마다 사진/영상을 알아서 가른다)
       if (!v) return;
@@ -5354,53 +5351,7 @@ ${비율칸Html(kind, 상태)}</div>`;
       const del = e.target.closest('.pimg-del');
       if (del) { const dc = del.closest('.pimg-card'); if (cards().length > 1 || dc.dataset.src) { if (list.__mm) list.__mm.release(dc); dc.remove(); if (!cards().length) addCard(false); sync(); } return; }
       if (e.target.closest('.pimg-add')) addCard(true);
-      const pv = e.target.closest('.pm-prev'); if (pv) { 영상보기(pv.closest('.pimg-card')); return; }
-      const mo = e.target.closest('.pm-more'); if (mo) { 구간더하기(mo.closest('.pimg-card')); return; }
-      const pt = e.target.closest('.pm-take'); if (pt) { const c = pt.closest('.pimg-card'), v = c.querySelector('.pm-player video'); if (!v) return; const t = Math.round(v.currentTime * 10) / 10; if (!isFinite(t) || !v.readyState) { const st = c.querySelector('.pimg-state'); st.className = 'pimg-state bad'; st.textContent = '영상이 아직 준비 중이에요. 잠시 뒤에 다시 눌러 주세요.'; return; } const 칸 = c.querySelector(pt.dataset.to === 'e' ? '.pm-e' : '.pm-s'); 칸.value = String(t); 칸.dispatchEvent(new Event('input', { bubbles: true })); return; }
     });
-    // 영상 보기: 구글 드라이브 영상은 드라이브 미리보기(시간은 직접 적기), 그 밖의 영상 주소는 재생기(현재 위치를 시작·끝으로 가져오기)
-    function 영상보기(card) {
-      const box = card.querySelector('.pm-player'), url = pdCleanUrl(card.querySelector('.pimg-url').value), st = card.querySelector('.pimg-state');
-      if (!box.hidden) { box.hidden = true; box.textContent = ''; return; }
-      const prob = url ? pdUrlProblem(url, 'media') : '영상 주소를 먼저 넣어 주세요.';
-      if (prob) { st.className = 'pimg-state bad'; st.textContent = prob; return; }
-      let host = ''; try { host = new URL(url).hostname.toLowerCase(); } catch (e) { }
-      box.textContent = '';
-      const d = url.match(/\/file\/d\/([A-Za-z0-9_-]{10,})/) || url.match(/[?&]id=([A-Za-z0-9_-]{10,})/);
-      if ((host === 'drive.google.com' || host === 'docs.google.com') && d) {
-        const f = document.createElement('iframe'); f.src = 'https://drive.google.com/file/d/' + d[1] + '/preview'; f.setAttribute('allow', 'fullscreen'); f.title = '영상 미리보기'; box.appendChild(f);
-        const p = document.createElement('p'); p.className = 'pm-note'; p.textContent = '드라이브 영상은 보면서 시간을 확인한 뒤 위의 시작·끝 초에 직접 적어 주세요.'; box.appendChild(p);
-      } else if (host === 'drive.google.com' || host === 'docs.google.com') {
-        const p = document.createElement('p'); p.className = 'pm-note'; p.textContent = '이 드라이브 주소로는 영상을 볼 수 없어요. 파일의 공유 링크를 넣어 주세요.'; box.appendChild(p);
-      } else {
-        const v = document.createElement('video'); v.controls = true; v.preload = 'metadata'; v.playsInline = true; v.src = url; box.appendChild(v);
-        const row = document.createElement('div'); row.className = 'pm-takes';
-        [['s', '지금 위치를 시작으로'], ['e', '지금 위치를 끝으로']].forEach(([to, t]) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'pm-take'; b.dataset.to = to; b.textContent = t; row.appendChild(b); });
-        box.appendChild(row);
-        v.addEventListener('error', () => { box.textContent = ''; const p = document.createElement('p'); p.className = 'pm-note'; p.textContent = '이 주소는 여기서 재생할 수 없어요. 시간은 직접 적어 주세요.'; box.appendChild(p); });
-      }
-      box.hidden = false;
-    }
-    // 구간 더하기: 같은 영상으로 새 칸을 바로 아래에 만든다(시작은 지금 칸의 끝)
-    function 구간더하기(card) {
-      const st = card.querySelector('.pimg-state'), bad = m => { st.className = 'pimg-state bad'; st.textContent = m; };
-      const url = pdCleanUrl(card.querySelector('.pimg-url').value);
-      if (!url) return bad('영상 주소를 먼저 넣어 주세요.');
-      const prob = pdUrlProblem(url, 'media'); if (prob) return bad(prob);
-      if (pdIsDriveFolder(url)) return bad('폴더는 구간을 나눌 수 없어요. 폴더 안 영상의 파일 링크를 넣어 주세요.');
-      if (cards().length >= max) return bad('더 넣을 수 없어요 (최대 ' + max + '개).');
-      const vids = [...cards()].filter(c => isUsed(c) && c.dataset.type === 'video').length;
-      if (vids >= MEDIA_VIDEO_MAX) return bad('영상은 구간까지 합쳐 최대 ' + MEDIA_VIDEO_MAX + '개까지 넣을 수 있어요.');
-      const s = Number(card.querySelector('.pm-s').value) || 0, e0 = Number(card.querySelector('.pm-e').value);
-      if (!(s >= 0 && s < 36000)) return bad('시작 초를 먼저 확인해 주세요.');
-      if (!(e0 > s)) return bad('끝 초를 시작보다 크게 적은 뒤에 눌러 주세요.');
-      const e = Math.round(e0 * 10) / 10, 길이 = Math.min(60, Math.max(0.5, e - s));
-      card.insertAdjacentHTML('afterend', pimgCardHtml());
-      const nc = card.nextElementSibling; nc.querySelector('.pimg-url').value = url; nc.dataset.manual = '1';
-      nc.querySelector('.pm-s').value = String(e); nc.querySelector('.pm-e').value = String(Math.round((e + 길이) * 10) / 10);
-      setType(nc, 'video'); sync();
-      const si = nc.querySelector('.pm-s'); if (si) { si.focus(); si.select && si.select(); }
-    }
     addCard(false);
   }
   function setupProduct() {
