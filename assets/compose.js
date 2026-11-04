@@ -561,8 +561,8 @@
       if (자료 && 자료.영상 && typeof opt.구간바꿈 === 'function') {   // 영상 장면: 쓸 구간. 재생할 수 있는 영상은 보면서 손잡이(시작·끝)로 정하고, 아니면 숫자로 정한다
         var 구 = el('div', 'cz-insp-set'); 구.appendChild(el('div', 'cz-insp-sh', '쓸 구간'));
         var 번호 = 장 - 1, 시초 = Number(자료.시작) >= 0 ? Number(자료.시작) : 0, 끝초 = Number(자료.끝) > 시초 ? Number(자료.끝) : 시초 + 10, 총 = 0, 최대컷 = 60;
-        var 영 = null, 막시 = el('input', 'cz-insp-rng'), 막끝 = el('input', 'cz-insp-rng'), 글 = el('div', 'cz-insp-r'), 소수 = function (n) { return Math.round(n * 10) / 10; };
-        var 반영 = function () { 자료.시작 = 시초; 자료.끝 = 끝초; try { opt.구간바꿈(번호, 시초, 끝초); } catch (x) {} 글자(); var 격 = lib.querySelector('.cz-wb-grid'), 칸 = 격 && 격.children[번호]; if (칸) { var 라 = 칸.querySelector('.cz-wb-r'); if (!라) { 라 = el('i', 'cz-wb-r', ''); 칸.appendChild(라); } 라.textContent = 소수(시초) + '–' + 소수(끝초) + 's'; } };
+        var 앞구간 = [시초, 끝초]; var 영 = null, 막시 = el('input', 'cz-insp-rng'), 막끝 = el('input', 'cz-insp-rng'), 글 = el('div', 'cz-insp-r'), 소수 = function (n) { return Math.round(n * 10) / 10; };
+        var 반영 = function () { 구간기록(번호, 앞구간[0], 앞구간[1], 시초, 끝초); 앞구간 = [시초, 끝초]; 자료.시작 = 시초; 자료.끝 = 끝초; try { opt.구간바꿈(번호, 시초, 끝초); } catch (x) {} 글자(); var 격 = lib.querySelector('.cz-wb-grid'), 칸 = 격 && 격.children[번호]; if (칸) { var 라 = 칸.querySelector('.cz-wb-r'); if (!라) { 라 = el('i', 'cz-wb-r', ''); 칸.appendChild(라); } 라.textContent = 소수(시초) + '–' + 소수(끝초) + 's'; } };
         var 시칸 = el('input', 'cz-insp-num'), 끝칸 = el('input', 'cz-insp-num');
         function 글자() { 글.textContent = ''; 글.appendChild(el('span', '', '길이')); 글.appendChild(el('b', '', 소수(끝초 - 시초) + 's')); 시칸.value = String(소수(시초)); 끝칸.value = String(소수(끝초)); if (총) { 막시.value = String(시초); 막끝.value = String(끝초); } }
         var 내림 = function (n) { return Math.floor(n * 10 + 1e-9) / 10; };
@@ -626,13 +626,68 @@
       insp.appendChild(몸);
     }
     var 줌 = 1, 줌단계 = [1, 1.5, 2, 3, 4, 6, 8];   // 타임라인 확대 단계(1 = 한눈에 보기)
+
+    // ── 편집 기록(되돌리기·다시하기)과 장면 편집 도구(나누기·삭제·복사·붙여넣기) ── 장면 = 앞 단계의 사진·영상 카드. 제목·자막·소리는 대본·목소리에서 자동으로 만들어져 직접 자르지 않는다
+    var 되돌림통 = [], 다시통 = [], 붙여넣을틀 = null, 도구버튼 = {}, 도구글 = '';
+    function 편집가능() { return 영상종류 === '쇼츠' && typeof opt.자료떼기 === 'function' && typeof opt.자료붙이기 === 'function' && typeof opt.자료복제 === 'function'; }
+    function 도구갱신() { var n = 클립목록.length; if (도구버튼.되돌리기) 도구버튼.되돌리기.disabled = !되돌림통.length; if (도구버튼.다시하기) 도구버튼.다시하기.disabled = !다시통.length; if (도구버튼.삭제) 도구버튼.삭제.disabled = n <= 1; if (도구버튼.붙여넣기) 도구버튼.붙여넣기.disabled = !붙여넣을틀; if (도구버튼.글) 도구버튼.글.textContent = 도구글; }
+    function 알리기(글) { 도구글 = 글 || ''; if (도구버튼.글) 도구버튼.글.textContent = 도구글; }
+    function 기록하기(c) { 되돌림통.push(c); if (되돌림통.length > 50) 되돌림통.shift(); 다시통.length = 0; 도구갱신(); }
+    function 기록지우기() { 되돌림통.length = 0; 다시통.length = 0; 도구갱신(); }
+    function 되돌리기() { var c = 되돌림통.pop(); if (!c) { 알리기('되돌릴 것이 없어요'); return; } c.undo(); 다시통.push(c); 알리기('되돌렸어요 · ' + c.이름); 도구갱신(); }
+    function 다시하기() { var c = 다시통.pop(); if (!c) { 알리기('다시 할 것이 없어요'); return; } c.redo(); 되돌림통.push(c); 알리기('다시 했어요 · ' + c.이름); 도구갱신(); }
+    function 장면별복사() { return 선택.장면별 ? JSON.parse(JSON.stringify(선택.장면별)) : null; }
+    function 장면별쓰기(m) { if (m && Object.keys(m).length) 선택.장면별 = JSON.parse(JSON.stringify(m)); else delete 선택.장면별; try { if (typeof opt.장면별바뀜 === 'function') opt.장면별바뀜(장면별복사()); } catch (x) {} }
+    function 장면별옮김(f) { var 옛 = 장면별복사(); if (!옛) return; var 새 = {}; Object.keys(옛).forEach(function (k) { var n = f(Number(k)); if (n > 0) 새[n] = 옛[k]; }); 장면별쓰기(새); }   // f(번호) → 새 번호(0이면 버림)
+    function 편집끝(장) { if (장) 편집장 = 장; 지난장 = 0; if (window.__rwPoolNow) window.__rwPoolNow(true); 갱신(); 도구갱신(); }
+    function 구간기록(i, 옛s, 옛e, 새s, 새e) {   // 쓸 구간을 바꾼 기록. 슬라이더를 끄는 동안(0.9초 안)은 하나로 묶는다
+      if (!편집가능() || (옛s === 새s && 옛e === 새e)) return;
+      var 위 = 되돌림통[되돌림통.length - 1], 지금 = Date.now();
+      if (위 && 위.구간 === i && 지금 - 위.때 < 900) { 위.새 = [새s, 새e]; 위.때 = 지금; 다시통.length = 0; 도구갱신(); return; }
+      var c = { 이름: '쓸 구간', 구간: i, 때: 지금, 옛: [옛s, 옛e], 새: [새s, 새e] };
+      c.undo = function () { opt.구간바꿈(i, c.옛[0], c.옛[1]); 편집끝(i + 1); }; c.redo = function () { opt.구간바꿈(i, c.새[0], c.새[1]); 편집끝(i + 1); };
+      기록하기(c);
+    }
+    function 삭제하기(i) {   // → '' 또는 안내 글. 카드는 버리지 않고 떼어 두었다가 되돌리기 때 다시 끼운다
+      var 앞 = 장면별복사(), 카드 = opt.자료떼기(i);
+      if (카드 === 'busy') { 기록지우기(); opt.자료빼기(i); 장면별옮김(function (n) { return n === i + 1 ? 0 : n > i + 1 ? n - 1 : n; }); 편집끝(i + 1); return ''; }   // 올리는 중인 카드: 되돌릴 수 없는 예전 방식
+      if (!카드) return '마지막 장면은 지울 수 없어요';
+      장면별옮김(function (n) { return n === i + 1 ? 0 : n > i + 1 ? n - 1 : n; }); var 뒤 = 장면별복사();
+      기록하기({ 이름: '삭제', undo: function () { opt.자료붙이기(카드, i); 장면별쓰기(앞); 편집끝(i + 1); }, redo: function () { opt.자료떼기(i); 장면별쓰기(뒤); 편집끝(i + 1); } });
+      편집끝(i + 1); return '';
+    }
+    function 복제끼우기(원, j, 이름, 고칠일) {   // 원(번호 또는 틀)을 j 자리에 끼우고 기록한다. 고칠일(): 끼운 뒤 더 할 일(구간 나누기). → '' 또는 안내 글
+      var 앞 = 장면별복사(), r = opt.자료복제(원, j); if (!r || !r.카드) return (r && r.오류) || '복사하지 못했어요';
+      var 원번호 = typeof 원 === 'number' ? 원 + 1 : 0, 원설정 = 원번호 && 앞 ? 앞[원번호] : null;
+      장면별옮김(function (n) { return n >= j + 1 ? n + 1 : n; }); if (원설정) { var m = 장면별복사() || {}; m[j + 1] = JSON.parse(JSON.stringify(원설정)); 장면별쓰기(m); }
+      var 뒤 = 장면별복사(), 카드 = r.카드, 후 = 고칠일 ? 고칠일(카드) : null;
+      기록하기({ 이름: 이름, undo: function () { if (후) 후.undo(); opt.자료떼기(j); 장면별쓰기(앞); 편집끝(j); }, redo: function () { opt.자료붙이기(카드, j); if (후) 후.redo(); 장면별쓰기(뒤); 편집끝(j + 1); } });
+      편집끝(j + 1); return '';
+    }
+    function 나누기() {   // 재생 위치의 장면을 둘로: 영상은 쓸 구간을 그 지점에서 갈라 두 장면, 사진은 같은 사진 두 장면
+      if (!편집가능()) return; var 수n = 클립목록.length, 머리 = 머리비 * 수n, i = Math.min(수n - 1, Math.max(0, Math.floor(머리 + 1e-9))), f = 머리 - i;
+      var g = (Array.isArray(opt.자료) ? opt.자료 : [])[i]; if (!g) return;
+      if (!g.영상) { 알리기(복제끼우기(i, i + 1, '나누기') || '나눴어요 · 같은 사진 두 장면'); return; }
+      var s = Number(g.시작) >= 0 ? Number(g.시작) : 0, e = Number(g.끝) > s ? Number(g.끝) : s + 10, m = Math.round((s + (e - s) * Math.min(0.999, Math.max(0.001, f))) * 10) / 10;
+      if (m - s < 0.5 || e - m < 0.5) { 알리기('나눈 조각이 0.5초보다 짧아져요. 재생 위치를 장면 안쪽에 놓아 주세요'); return; }
+      var 문제 = 복제끼우기(i, i + 1, '나누기', function (카드) { opt.구간바꿈(i, s, m); opt.구간바꿈(i + 1, m, e); return { undo: function () { opt.구간바꿈(i, s, e); }, redo: function () { opt.구간바꿈(i, s, m); opt.구간바꿈(i + 1, m, e); } }; });
+      알리기(문제 || '나눴어요 · ' + 분초(m)); }
+    function 삭제도구() { if (!편집가능()) return; 알리기(삭제하기(편집장 - 1) || '지웠어요 · 되돌리기로 살릴 수 있어요'); }
+    function 복사하기() { if (!편집가능()) return; var 틀 = opt.자료복사 ? opt.자료복사(편집장 - 1) : null; if (!틀) { 알리기('올리는 중인 장면은 복사할 수 없어요'); return; } 붙여넣을틀 = 틀; 알리기('복사했어요 · 장면 ' + 편집장); 도구갱신(); }
+    function 붙여넣기() { if (!편집가능() || !붙여넣을틀) { 알리기('복사한 장면이 없어요'); return; } 알리기(복제끼우기(붙여넣을틀, 편집장, '붙여넣기') || '붙여넣었어요 · 선택한 장면 뒤'); }
     function 타임라인그리기() {
       var 옛왼쪽 = tl.scrollLeft; tl.style.setProperty('--tz', String(줌));
       tl.textContent = '';
       var 길이 = Number(T.길이초) > 0 ? Number(T.길이초) : (영상종류 === '쇼츠' ? 30 : 1800), 긴 = 길이 > 180;
       var 머리 = el('div', 'cz-tl-h'); 머리.appendChild(el('b', '', '타임라인')); 머리.appendChild(el('span', '', '전체 약 ' + 시간글(길이) + ' · ' + ({ 쇼츠: '쇼츠', 야담: '야담', 수면: '수면음악' }[영상종류]) + (T.장면수 ? ' · 장면 ' + T.장면수 : ''))); var 도구 = el('div', 'cz-tl-tools'); 도구.setAttribute('role', 'toolbar'); 도구.setAttribute('aria-label', '타임라인 도구');
       [['이전 장면', '⏮', function () { 장면가기(-1); }], ['다음 장면', '⏭', function () { 장면가기(1); }], ['축소', '−', function () { 줌바꿈(-1); }], ['확대', '+', function () { 줌바꿈(1); }]].forEach(function (d) { var b = el('button', 'cz-tbtn', d[1]); b.type = 'button'; b.title = d[0]; if (d[1] === '−' || d[1] === '+') b.classList.add('cz-zoom'); b.setAttribute('aria-label', d[0]); b.addEventListener('click', d[2]); if (d[1] === '−') b.disabled = 줌 <= 줌단계[0]; if (d[1] === '+') b.disabled = 줌 >= 줌단계[줌단계.length - 1]; 도구.appendChild(b); });
-      머리.appendChild(도구); tl.appendChild(머리);
+      도구버튼 = {};
+      if (편집가능()) {   // 편집 도구(리졸브의 타임라인 도구): 나누기 · 삭제 · 복사 · 붙여넣기 · 되돌리기 · 다시하기
+        var 편집줄 = el('div', 'cz-tl-tools cz-tl-edit'); 편집줄.setAttribute('role', 'toolbar'); 편집줄.setAttribute('aria-label', '편집 도구');
+        [['되돌리기', 되돌리기, 'Ctrl+Z'], ['다시하기', 다시하기, 'Ctrl+Shift+Z'], ['나누기', 나누기, 'S'], ['삭제', 삭제도구, 'Delete'], ['복사', 복사하기, 'Ctrl+C'], ['붙여넣기', 붙여넣기, 'Ctrl+V']].forEach(function (d) { var b = el('button', 'cz-tbtn cz-tbtn-t', d[0]); b.type = 'button'; b.title = d[0] + ' (' + d[2] + ')'; b.addEventListener('click', d[1]); 도구버튼[d[0]] = b; 편집줄.appendChild(b); });
+        머리.appendChild(편집줄); 도구버튼.글 = el('span', 'cz-tl-msg', 도구글); 도구버튼.글.setAttribute('role', 'status'); 머리.appendChild(도구버튼.글);
+      }
+      머리.appendChild(도구); tl.appendChild(머리); 도구갱신();
       var 눈금줄 = el('div', 'cz-trk cz-ruler'); 눈금줄.appendChild(el('span', 'cz-trk-n', '')); var 눈금 = el('div', 'cz-lane'); 눈금줄.appendChild(눈금);
       var 간격 = 눈금간격(길이); for (var t = 0; t <= 길이 + 1e-6; t += 간격) { var k = el('i', 'cz-tick' + (t / 길이 > 0.94 ? ' cz-tick-end' : '')); k.style.left = (t / 길이 * 100) + '%'; k.appendChild(el('span', '', 시간글(t))); 눈금.appendChild(k); }
       var 헤드 = el('i', 'cz-play'); 눈금.appendChild(헤드); tl.appendChild(눈금줄);
@@ -672,7 +727,7 @@
       var 자 = 트랙줄('자막'); if (v0().자막끄기) 자.appendChild(el('em', 'cz-empty', '자막 끔')); else if (영상종류 === '수면') 자.appendChild(el('em', 'cz-empty', '음악 영상은 자막이 필요할 때만 넣어요')); else for (var j = 0; j < 자막수; j++) 조각(자, 길이 * j / 자막수 + 길이 * 0.004, 길이 * (j + 1) / 자막수 - 길이 * 0.004, 길이, '', 'cz-t-sub');
       var 소 = 트랙줄(영상종류 === '수면' ? '음악' : '소리'); 조각(소, 0, 길이, 길이, (영상종류 === '수면' ? '배경 음악' : '목소리') + (T.소리 ? ' · ' + T.소리 : ''), 'cz-t-wave');
       if (영상종류 === '야담') { var 배 = 트랙줄('배경음'); 조각(배, 0, 길이, 길이, '잔잔한 배경음', 'cz-t-bgm'); }
-      두는곳(머리비); 편집고르기(편집장); tl.scrollLeft = 옛왼쪽;
+      두는곳(머리비); 편집고르기(편집장); tl.scrollLeft = 옛왼쪽; 도구갱신();
       function 장면가기(방향) {   // 이전·다음 장면의 시작으로 재생선을 옮긴다
         var 지금 = Math.min(수 - 1, Math.floor(머리비 * 수 + 1e-6)), 시작쪽 = 지금 / 수, 목표 = 방향 > 0 ? 지금 + 1 : (머리비 - 시작쪽 > 0.002 ? 지금 : 지금 - 1);
         두는곳(Math.min(1, Math.max(0, 목표 / 수 + 1e-4))); 편집고르기(Math.min(수, Math.max(0, 목표)) + 1);   // 이전·다음 장면 버튼은 재생선과 고른 장면을 함께 옮긴다(키보드로도 장면을 고를 수 있게)
@@ -871,6 +926,8 @@
         }
         function 빼기(i) {
           if (i < 0 || i >= 자료.length) return;
+          if (편집가능()) { var 문제 = 삭제하기(i); if (문제) { 알리기(문제); return; } if (고른 === i) { 고른 = -1; 쓰기그림(''); } else if (고른 > i) 고른--; var 다 = 격자.children[Math.min(i, 격자.children.length - 1)]; if (다) 다.focus(); return; }   // 되돌릴 수 있는 길
+          기록지우기();   // 되돌릴 수 없는 삭제: 번호가 어긋나므로 기록을 비운다
           자료.splice(i, 1); if (Array.isArray(opt.자료) && opt.자료 !== 자료) opt.자료.splice(i, 1); if (Array.isArray(T.사진)) T.사진.splice(i, 1); T.사진수 = 자료.length || undefined;
           if (선택.장면별) { var 새 = {}; Object.keys(선택.장면별).forEach(function (k) { var n = Number(k); if (n === i + 1) return; 새[n > i + 1 ? n - 1 : n] = 선택.장면별[k]; }); if (Object.keys(새).length) 선택.장면별 = 새; else delete 선택.장면별; }
           if (고른 === i) { 고른 = -1; 쓰기그림(''); } else if (고른 > i) 고른--;
@@ -879,17 +936,21 @@
           var 다음 = 격자.children[Math.min(i, 격자.children.length - 1)]; if (다음) 다음.focus();
         }
         var 예약 = 0;
-        function 다시읽기() {   // 앞 단계 목록이 바뀌면(주소로 넣기·컴퓨터에서 올리기·썸네일 도착) 목록을 다시 읽어 온다
-          if (typeof opt.자료읽기 !== 'function' || 예약) return;
-          예약 = requestAnimationFrame(function () {
-            예약 = 0; var 새 = (opt.자료읽기() || []).filter(function (x) { return !!x; });
+        function 지금읽기(강제) {   // 목록을 바로 다시 읽어 그린다. 강제: 구간·순서처럼 서명에 안 잡히는 변화도 속성을 새로 그린다(되돌리기용)
+          if (typeof opt.자료읽기 !== 'function') return;
+          {
+            var 새 = (opt.자료읽기() || []).filter(function (x) { return !!x; });
             var 서명 = function (a) { return a.map(function (x) { return [x.영상 ? 1 : 0, x.재생주소 || '', x.영상 ? '' : (x.src || ''), x.이름 || ''].join('~'); }).join('|'); }, 바뀜 = 서명(자료) !== 서명(새);
             자료.length = 0; Array.prototype.push.apply(자료, 새); if (Array.isArray(opt.자료) && opt.자료 !== 자료) { opt.자료.length = 0; Array.prototype.push.apply(opt.자료, 새); }
             T.사진 = 새.map(function (x) { return x.src || ''; }); T.사진수 = 새.length || undefined;
-            if (고른 >= 새.length) 고른 = -1; 그리기(); 지난장 = 0; if (바뀜) 속성키 = ''; if (typeof 타임라인그리기 === 'function') 타임라인그리기();
-          });
+            if (고른 >= 새.length) 고른 = -1; 그리기(); 지난장 = 0; if (바뀜 || 강제) 속성키 = ''; if (typeof 타임라인그리기 === 'function') 타임라인그리기();
+          }
         }
-        window.__rwPoolRefresh = 다시읽기;
+        function 다시읽기() {   // 앞 단계 목록이 바뀌면(주소로 넣기·컴퓨터에서 올리기·썸네일 도착) 목록을 다시 읽어 온다
+          if (typeof opt.자료읽기 !== 'function' || 예약) return;
+          예약 = requestAnimationFrame(function () { 예약 = 0; 지금읽기(); });
+        }
+        window.__rwPoolRefresh = 다시읽기; window.__rwPoolNow = 지금읽기;
         if (typeof opt.자료더하기 === 'function') {   // 가져오기: 주소로 사진·영상 넣기 / 컴퓨터에서 올리기. 앞 단계 목록에 똑같이 더해진다
           var 폼 = el('div', 'cz-wb-add'); 폼.hidden = true; var 주소 = el('input', 'cz-wb-url'); 주소.type = 'url'; 주소.placeholder = 'https://… 사진·영상 주소'; 주소.setAttribute('aria-label', '사진·영상 주소');
           var 종 = el('span', 'cz-seg2'); 종.setAttribute('role', 'group'); 종.setAttribute('aria-label', '종류'); var 지금종류 = 'image';
@@ -904,8 +965,8 @@
           파일동작.주소 = function () { 폼.hidden = false; 주소.focus(); };
           if (typeof opt.컴퓨터올리기 === 'function') 파일동작.컴퓨터 = function () { if (opt.컴퓨터올리기() === false) { 폼.hidden = false; 알림.textContent = '지금은 컴퓨터에서 가져올 수 없어요.'; } };
         }
-        function 옮기기(a, b) {
-          if (b < 0 || b >= 자료.length || a === b) return; var it = 자료.splice(a, 1)[0]; 자료.splice(b, 0, it); if (Array.isArray(opt.자료) && opt.자료 !== 자료) { var o = opt.자료.splice(a, 1)[0]; opt.자료.splice(b, 0, o); } if (Array.isArray(T.사진) && T.사진.length > Math.max(a, b)) { var tp = T.사진.splice(a, 1)[0]; T.사진.splice(b, 0, tp); }   // 장면 순서(사진·정보)도 같이 옮겨 재생·속성·타임라인이 새 순서를 따른다
+        function 옮기기(a, b, 기록안함) {
+          if (b < 0 || b >= 자료.length || a === b) return; if (!기록안함 && 영상종류 === '쇼츠') 기록하기({ 이름: '순서 바꾸기', undo: function () { 옮기기(b, a, true); }, redo: function () { 옮기기(a, b, true); } }); var it = 자료.splice(a, 1)[0]; 자료.splice(b, 0, it); if (Array.isArray(opt.자료) && opt.자료 !== 자료) { var o = opt.자료.splice(a, 1)[0]; opt.자료.splice(b, 0, o); } if (Array.isArray(T.사진) && T.사진.length > Math.max(a, b)) { var tp = T.사진.splice(a, 1)[0]; T.사진.splice(b, 0, tp); }   // 장면 순서(사진·정보)도 같이 옮겨 재생·속성·타임라인이 새 순서를 따른다
           if (고른 === a) 고른 = b; else if (고른 >= 0 && a < b && 고른 > a && 고른 <= b) 고른--; else if (고른 >= 0 && a > b && 고른 >= b && 고른 < a) 고른++;
           if (typeof opt.자료옮김 === 'function') { try { opt.자료옮김(a, b); } catch (x) {} }
           그리기(); 지난장 = 0; 속성키 = ''; if (typeof 타임라인그리기 === 'function') 타임라인그리기(); var 칸 = 격자.children[b]; if (칸) 칸.focus();
@@ -988,9 +1049,20 @@
       })();
       타임라인만들기();
     }
-    function 닫기(결과) { 파일메뉴닫기(); window.__rwPoolRefresh = null; try { if (넓은.removeEventListener) 넓은.removeEventListener('change', 넓은바뀜); else if (넓은.removeListener) 넓은.removeListener(넓은바뀜); } catch (x) {} if (폭관찰) 폭관찰.disconnect(); if (결과관찰) 결과관찰.disconnect(); if (결과예약) cancelAnimationFrame(결과예약); 읽기멈춤(); 재생멈춤(); if (끌기중단) 끌기중단(); document.removeEventListener('keydown', 키); document.body.style.overflow = 이전스크롤; ov.remove(); if (이전포커스 && 이전포커스.focus) 이전포커스.focus(); if (결과 && typeof opt.onDone === 'function') opt.onDone(결과); }
+    function 닫기(결과) { 파일메뉴닫기(); window.__rwPoolRefresh = null; window.__rwPoolNow = null; try { if (넓은.removeEventListener) 넓은.removeEventListener('change', 넓은바뀜); else if (넓은.removeListener) 넓은.removeListener(넓은바뀜); } catch (x) {} if (폭관찰) 폭관찰.disconnect(); if (결과관찰) 결과관찰.disconnect(); if (결과예약) cancelAnimationFrame(결과예약); 읽기멈춤(); 재생멈춤(); if (끌기중단) 끌기중단(); document.removeEventListener('keydown', 키); document.body.style.overflow = 이전스크롤; ov.remove(); if (이전포커스 && 이전포커스.focus) 이전포커스.focus(); if (결과 && typeof opt.onDone === 'function') opt.onDone(결과); }
     function 키(e) {
       if (e.key === 'Escape') { e.preventDefault(); if (선택풀기()) return; 닫기(null); return; }   // 고른 요소가 있으면 선택만 풀고, 없을 때만 창을 닫는다
+      if (편집가능() && !e.altKey) {   // 타임라인 편집 단축키(글 입력 중에는 그대로 둔다)
+        var 대 = e.target, 입력 = 대 && (/^(INPUT|TEXTAREA|SELECT)$/.test(대.tagName) || 대.isContentEditable), 모 = e.ctrlKey || e.metaKey, 키값 = String(e.key).toLowerCase();
+        if (!입력) {
+          if (모 && 키값 === 'z') { e.preventDefault(); if (e.shiftKey) 다시하기(); else 되돌리기(); return; }
+          if (모 && 키값 === 'y') { e.preventDefault(); 다시하기(); return; }
+          if (모 && 키값 === 'c' && !String(window.getSelection && window.getSelection())) { e.preventDefault(); 복사하기(); return; }
+          if (모 && 키값 === 'v') { e.preventDefault(); 붙여넣기(); return; }
+          if (!모 && 키값 === 's') { e.preventDefault(); 나누기(); return; }
+          if (!모 && (e.key === 'Delete' || e.key === 'Backspace')) { e.preventDefault(); 삭제도구(); return; }
+        }
+      }
       if (e.key !== 'Tab') return;
       var f = [].slice.call(dlg.querySelectorAll('button,input,select,[tabindex]:not([tabindex="-1"])')).filter(function (n) { return !n.disabled && n.offsetParent !== null; });
       if (!f.length) return; var a = f[0], z = f[f.length - 1];

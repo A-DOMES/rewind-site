@@ -603,3 +603,6 @@ button.cz-pane-l[aria-pressed="true"] { color: var(--rz-ac); }
 .cz-pane-info > div { display: flex; gap: 8px; justify-content: space-between; min-width: 86px; }
 .cz-pane-info b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
 @media (max-width: 1300px) { .cz-pane-info { display: none; } }
+.cz-tl-edit { margin-left: 12px; }
+.cz-tbtn-t { width: auto; padding: 0 9px; font-size: .74rem; }
+.cz-tl-msg { margin-left: 10px; font-size: .74rem; color: var(--ink-dim); white-space: nowrap; }

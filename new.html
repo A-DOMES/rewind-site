@@ -1941,10 +1941,10 @@
 <script src="./assets/voice-picker.js?v=20261104a"></script>
 <link rel="stylesheet" href="./assets/guide.css?v=20261025">
 <script src="./assets/guide.js?v=20261101"></script>
-<link rel="stylesheet" href="./assets/compose.css?v=20261105k">
+<link rel="stylesheet" href="./assets/compose.css?v=20261105l">
 <script src="./assets/shared/layout.js?v=20261027"></script>
 <script src="./assets/shared/phrase.js?v=20261026"></script>
-<script src="./assets/compose.js?v=20261105k"></script>
+<script src="./assets/compose.js?v=20261105l"></script>
 <script src="./assets/rw-consent.js"></script>
 <link rel="stylesheet" href="./assets/rw-theme.css?v=20261103n">
 </head>
@@ -4270,7 +4270,20 @@ ${비율칸Html(kind, 상태)}</div>`;
     };
     const 컴퓨터올리기 = () => { const f = 자료목록 && 자료목록.parentNode.querySelector('.mm-pick'); if (!f || f.disabled) return false; f.click(); return true; };
     const 자료옮김 = (a, b) => { const u = 자료카드(), c = u[a]; if (!c) return; u.splice(a, 1); const ref = u[b] || null; if (ref) 자료목록.insertBefore(c, ref); else { const last = u[u.length - 1]; last ? 자료목록.insertBefore(c, last.nextSibling) : 자료목록.appendChild(c); } if (자료목록.__mm && 자료목록.__mm.changed) 자료목록.__mm.changed(); };
-    RWCompose.open({ 종류: 상품 ? '상품쇼츠' : '쇼츠', 자료, 자료옮김, 자료읽기, 구간바꿈, 자료빼기, 자료더하기, 컴퓨터올리기, 타임라인: composeTimeline(상품), 화면: '세로', 배경그림: 첫사진, 화면목록, 화면구성, 제작방식, 문구시간: 상품 ? (((document.querySelector('input[name="pd-hookshow"]:checked') || {}).value === '3s') ? ((parseFloat((document.getElementById('pd-hooksec') || {}).value) >= 0 ? parseFloat(document.getElementById('pd-hooksec').value) : 3) + 's') : 'all') : undefined, 자막방식: (상품 && window.RWVoice) ? (RWVoice.getExtra().subtitleStyle || '구절형') : undefined, 문구: document.getElementById('df-hookText')?.value || '', 값, 자막위치: 거꾸로[지금] || '아래', 대본: 대본전체, 샘플: 대본첫줄 || document.getElementById('df-hookText')?.value || '',
+    // 장면 편집(영상 꾸미기 타임라인): 카드를 떼었다 되붙일 수 있게 해 되돌리기를 받친다(떼어낸 카드는 그대로 들고 있다가 다시 끼운다)
+    const 목록바뀜 = () => { if (자료목록.__mm && 자료목록.__mm.changed) 자료목록.__mm.changed(); else if (window.__rwPoolRefresh) window.__rwPoolRefresh(); };
+    const 자료떼기 = i => { const u = 자료카드(), c = u[i]; if (!c || u.length <= 1) return null; if (c.dataset.up === 'busy') return 'busy'; c.remove(); 목록바뀜(); return c; };
+    const 자료붙이기 = (c, i) => { const u = 자료카드(), ref = u[i] || null; if (ref) 자료목록.insertBefore(c, ref); else { const last = u[u.length - 1]; last ? 자료목록.insertBefore(c, last.nextSibling) : 자료목록.appendChild(c); } 목록바뀜(); };
+    const 복제틀 = c => { const n = c.cloneNode(true); n.removeAttribute('data-fk'); n.removeAttribute('data-manual'); if (c.__mm) n.__mm = { file: c.__mm.file, blob: null }; return n; };
+    const 자료복사 = i => { const c = 자료카드()[i]; if (!c) return null; if (c.dataset.up === 'busy' || c.dataset.up === 'fail') return null; return 복제틀(c); };
+    const 자료복제 = (원, j) => {   // 원: 카드 번호 또는 자료복사()가 돌려준 틀. j 자리에 끼운다 → { 카드 } 또는 { 오류 }
+      const 틀 = typeof 원 === 'number' ? 자료복사(원) : 원; if (!틀) return { 오류: '올리는 중이거나 올리지 못한 장면은 복사할 수 없어요.' };
+      const 한도 = 상품 ? PRODUCT_IMG_MAX : GN_IMG_MAX; if (자료카드().length >= 한도) return { 오류: '더 넣을 수 없어요 (최대 ' + 한도 + '개).' };
+      if (틀.dataset.type === 'video' && 자료카드().filter(c => c.dataset.type === 'video').length >= MEDIA_VIDEO_MAX) return { 오류: '영상은 최대 ' + MEDIA_VIDEO_MAX + '개까지 넣을 수 있어요.' };
+      const n = 복제틀(틀); 자료붙이기(n, j); return { 카드: n };
+    };
+    const 장면별바뀜 = m => { if (composeState && composeState.장면별 !== undefined) { if (m) composeState.장면별 = m; else delete composeState.장면별; } };   // 창을 취소해도 저장해 둔 장면 설정이 카드와 어긋나지 않게
+    RWCompose.open({ 종류: 상품 ? '상품쇼츠' : '쇼츠', 자료, 자료옮김, 자료읽기, 구간바꿈, 자료빼기, 자료더하기, 컴퓨터올리기, 자료떼기, 자료붙이기, 자료복사, 자료복제, 장면별바뀜, 타임라인: composeTimeline(상품), 화면: '세로', 배경그림: 첫사진, 화면목록, 화면구성, 제작방식, 문구시간: 상품 ? (((document.querySelector('input[name="pd-hookshow"]:checked') || {}).value === '3s') ? ((parseFloat((document.getElementById('pd-hooksec') || {}).value) >= 0 ? parseFloat(document.getElementById('pd-hooksec').value) : 3) + 's') : 'all') : undefined, 자막방식: (상품 && window.RWVoice) ? (RWVoice.getExtra().subtitleStyle || '구절형') : undefined, 문구: document.getElementById('df-hookText')?.value || '', 값, 자막위치: 거꾸로[지금] || '아래', 대본: 대본전체, 샘플: 대본첫줄 || document.getElementById('df-hookText')?.value || '',
       onDone: res => {
         composeState = Object.keys(res.compose).length ? res.compose : null; composeKind = composeState ? 종류표 : '';
         const 고르기 = (name, v) => { const r = [...document.querySelectorAll(`input[name="${name}"]`)].find(x => x.value === v); if (r && !r.disabled) { r.checked = true; r.dispatchEvent(new Event('change', { bubbles: true })); } };
