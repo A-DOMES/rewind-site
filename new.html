@@ -1936,15 +1936,15 @@
 </style>
 <script src="./theme.js"></script>
 <script src="./assets/voice-panel.js?v=20261102c"></script>
-<script src="./assets/media-input.js?v=20261104y"></script>
+<script src="./assets/media-input.js?v=20261105a"></script>
 <script src="./assets/voice-catalog.js?v=20261025"></script>
 <script src="./assets/voice-picker.js?v=20261104a"></script>
 <link rel="stylesheet" href="./assets/guide.css?v=20261025">
 <script src="./assets/guide.js?v=20261101"></script>
-<link rel="stylesheet" href="./assets/compose.css?v=20261104y">
+<link rel="stylesheet" href="./assets/compose.css?v=20261105a">
 <script src="./assets/shared/layout.js?v=20261027"></script>
 <script src="./assets/shared/phrase.js?v=20261026"></script>
-<script src="./assets/compose.js?v=20261104y"></script>
+<script src="./assets/compose.js?v=20261105a"></script>
 <script src="./assets/rw-consent.js"></script>
 <link rel="stylesheet" href="./assets/rw-theme.css?v=20261103n">
 </head>
@@ -4232,15 +4232,17 @@ ${비율칸Html(kind, 상태)}</div>`;
     const 자료 = 자료읽기();
     const 자료빼기 = i => {
       const c = 자료카드()[i]; if (!c) return;
+      if (composeState && composeState.장면별) { const 새 = {}; Object.keys(composeState.장면별).forEach(k => { const n = Number(k); if (n === i + 1) return; 새[n > i + 1 ? n - 1 : n] = composeState.장면별[k]; }); if (Object.keys(새).length) composeState.장면별 = 새; else delete composeState.장면별; }   // 창을 취소해도 저장해 둔 장면 설정이 어긋나지 않게
       if (자료목록.querySelectorAll('.pimg-card').length > 1 || c.dataset.src) { const d = c.querySelector('.pimg-del'); if (d) d.click(); }
       else { const inp = c.querySelector('.pimg-url'); inp.value = ''; inp.dispatchEvent(new Event('input', { bubbles: true })); }
     };
+    const 비었나 = c => !c.querySelector('.pimg-url').value.trim() && !c.dataset.src && !c.dataset.up;
+    const 비었나카드 = () => [...자료목록.querySelectorAll('.pimg-card')].some(비었나);
     const 자료더하기 = (url, 종류) => {
       const u = pdCleanUrl(url); if (!u) return '주소를 넣어 주세요.';
       const p = pdUrlProblem(u, 'media'); if (p) return p;
-      const 한도 = 상품 ? PRODUCT_IMG_MAX : GN_IMG_MAX; if (자료카드().length >= 한도) return '더 넣을 수 없어요 (최대 ' + 한도 + '개).';
+      const 한도 = 상품 ? PRODUCT_IMG_MAX : GN_IMG_MAX; if (자료목록.querySelectorAll('.pimg-card').length >= 한도 && !비었나카드()) return '더 넣을 수 없어요 (최대 ' + 한도 + '개).';
       if (종류 === 'video' && 자료카드().filter(c => c.dataset.type === 'video').length >= MEDIA_VIDEO_MAX) return '영상은 최대 ' + MEDIA_VIDEO_MAX + '개까지 넣을 수 있어요.';
-      const 비었나 = c => !c.querySelector('.pimg-url').value.trim() && !c.dataset.src && !c.dataset.up;
       let c = [...자료목록.querySelectorAll('.pimg-card')].find(비었나);
       if (!c) { const a = 자료목록.querySelector('.pimg-add'); if (a) a.click(); c = [...자료목록.querySelectorAll('.pimg-card')].find(비었나); }
       if (!c) return '추가하지 못했어요.';
@@ -4249,7 +4251,7 @@ ${비율칸Html(kind, 상태)}</div>`;
       inp.dispatchEvent(new Event('input', { bubbles: true }));
       return '';
     };
-    const 컴퓨터올리기 = () => { const f = 자료목록 && 자료목록.querySelector('.mm-pick'); if (!f) return false; f.click(); return true; };
+    const 컴퓨터올리기 = () => { const f = 자료목록 && 자료목록.querySelector('.mm-pick'); if (!f || f.disabled) return false; f.click(); return true; };
     const 자료옮김 = (a, b) => { const u = 자료카드(), c = u[a]; if (!c) return; u.splice(a, 1); const ref = u[b] || null; if (ref) 자료목록.insertBefore(c, ref); else { const last = u[u.length - 1]; last ? 자료목록.insertBefore(c, last.nextSibling) : 자료목록.appendChild(c); } if (자료목록.__mm && 자료목록.__mm.changed) 자료목록.__mm.changed(); };
     RWCompose.open({ 종류: 상품 ? '상품쇼츠' : '쇼츠', 자료, 자료옮김, 자료읽기, 자료빼기, 자료더하기, 컴퓨터올리기, 타임라인: composeTimeline(상품), 화면: '세로', 배경그림: 첫사진, 화면목록, 화면구성, 제작방식, 문구시간: 상품 ? (((document.querySelector('input[name="pd-hookshow"]:checked') || {}).value === '3s') ? ((parseFloat((document.getElementById('pd-hooksec') || {}).value) >= 0 ? parseFloat(document.getElementById('pd-hooksec').value) : 3) + 's') : 'all') : undefined, 자막방식: (상품 && window.RWVoice) ? (RWVoice.getExtra().subtitleStyle || '구절형') : undefined, 문구: document.getElementById('df-hookText')?.value || '', 값, 자막위치: 거꾸로[지금] || '아래', 대본: 대본전체, 샘플: 대본첫줄 || document.getElementById('df-hookText')?.value || '',
       onDone: res => {

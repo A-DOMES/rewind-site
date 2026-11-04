@@ -763,9 +763,10 @@
           if (i < 0 || i >= 자료.length) return;
           자료.splice(i, 1); if (Array.isArray(opt.자료) && opt.자료 !== 자료) opt.자료.splice(i, 1); if (Array.isArray(T.사진)) T.사진.splice(i, 1); T.사진수 = 자료.length || undefined;
           if (선택.장면별) { var 새 = {}; Object.keys(선택.장면별).forEach(function (k) { var n = Number(k); if (n === i + 1) return; 새[n > i + 1 ? n - 1 : n] = 선택.장면별[k]; }); if (Object.keys(새).length) 선택.장면별 = 새; else delete 선택.장면별; }
-          if (고른 === i) 고른 = -1; else if (고른 > i) 고른--;
+          if (고른 === i) { 고른 = -1; 쓰기그림(''); } else if (고른 > i) 고른--;
           try { opt.자료빼기(i); } catch (x) {}
           그리기(); 지난장 = 0; 속성키 = ''; if (typeof 타임라인그리기 === 'function') 타임라인그리기(); 갱신();
+          var 다음 = 격자.children[Math.min(i, 격자.children.length - 1)]; if (다음) 다음.focus();
         }
         var 예약 = 0;
         function 다시읽기() {   // 앞 단계 목록이 바뀌면(주소로 넣기·컴퓨터에서 올리기·썸네일 도착) 목록을 다시 읽어 온다
@@ -774,7 +775,7 @@
             예약 = 0; var 새 = (opt.자료읽기() || []).filter(function (x) { return !!x; });
             자료.length = 0; Array.prototype.push.apply(자료, 새); if (Array.isArray(opt.자료) && opt.자료 !== 자료) { opt.자료.length = 0; Array.prototype.push.apply(opt.자료, 새); }
             T.사진 = 새.map(function (x) { return x.src || ''; }); T.사진수 = 새.length || undefined;
-            if (고른 >= 새.length) 고른 = -1; 그리기(); 지난장 = 0; if (typeof 타임라인그리기 === 'function') 타임라인그리기();
+            if (고른 >= 새.length) 고른 = -1; 그리기(); 지난장 = 0; 속성키 = ''; if (typeof 타임라인그리기 === 'function') 타임라인그리기();
           });
         }
         window.__rwPoolRefresh = 다시읽기;
@@ -791,7 +792,8 @@
           작업장.appendChild(폼); 작업장.appendChild(알림);
         }
         function 옮기기(a, b) {
-          if (b < 0 || b >= 자료.length || a === b) return; var it = 자료.splice(a, 1)[0]; 자료.splice(b, 0, it); if (Array.isArray(opt.자료) && opt.자료 !== 자료) { var o = opt.자료.splice(a, 1)[0]; opt.자료.splice(b, 0, o); } if (Array.isArray(T.사진) && T.사진.length > Math.max(a, b)) { var tp = T.사진.splice(a, 1)[0]; T.사진.splice(b, 0, tp); }   // 장면 순서(사진·정보)도 같이 옮겨 재생·속성·타임라인이 새 순서를 따른다 if (고른 === a) 고른 = b; else if (고른 >= 0 && a < b && 고른 > a && 고른 <= b) 고른--; else if (고른 >= 0 && a > b && 고른 >= b && 고른 < a) 고른++;
+          if (b < 0 || b >= 자료.length || a === b) return; var it = 자료.splice(a, 1)[0]; 자료.splice(b, 0, it); if (Array.isArray(opt.자료) && opt.자료 !== 자료) { var o = opt.자료.splice(a, 1)[0]; opt.자료.splice(b, 0, o); } if (Array.isArray(T.사진) && T.사진.length > Math.max(a, b)) { var tp = T.사진.splice(a, 1)[0]; T.사진.splice(b, 0, tp); }   // 장면 순서(사진·정보)도 같이 옮겨 재생·속성·타임라인이 새 순서를 따른다
+          if (고른 === a) 고른 = b; else if (고른 >= 0 && a < b && 고른 > a && 고른 <= b) 고른--; else if (고른 >= 0 && a > b && 고른 >= b && 고른 < a) 고른++;
           if (typeof opt.자료옮김 === 'function') { try { opt.자료옮김(a, b); } catch (x) {} }
           그리기(); 지난장 = 0; if (typeof 타임라인그리기 === 'function') 타임라인그리기(); var 칸 = 격자.children[b]; if (칸) 칸.focus();
         }
