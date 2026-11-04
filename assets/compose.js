@@ -256,15 +256,15 @@
       var v = 구간바연결.읽기(), 시 = v[0], 끝 = v[1], 눈 = Math.max(0.5, v[2]); 구간바.hidden = false;
       구간띠.style.left = (시 / 눈 * 100) + '%'; 구간띠.style.width = Math.max(0.5, (끝 - 시) / 눈 * 100) + '%';
       손잡이[0].style.left = (시 / 눈 * 100) + '%'; 손잡이[1].style.left = (끝 / 눈 * 100) + '%';
-      [[0, 시], [1, 끝]].forEach(function (d) { 손잡이[d[0]].setAttribute('aria-valuemin', '0'); 손잡이[d[0]].setAttribute('aria-valuemax', String(눈)); 손잡이[d[0]].setAttribute('aria-valuenow', String(d[1])); 손잡이[d[0]].setAttribute('aria-valuetext', d[1] + '초'); });
+      [[0, 시], [1, 끝]].forEach(function (d) { 손잡이[d[0]].setAttribute('aria-valuemin', d[0] ? String(시 + 0.5) : '0'); 손잡이[d[0]].setAttribute('aria-valuemax', d[0] ? String(눈) : String(끝 - 0.5)); 손잡이[d[0]].setAttribute('aria-valuenow', String(d[1])); 손잡이[d[0]].setAttribute('aria-valuetext', d[1] + '초'); });
       구간시.textContent = 분초(시); 구간끝.textContent = 분초(끝); 구간길.textContent = (Math.round((끝 - 시) * 10) / 10) + 's';
     }
     손잡이.forEach(function (h) {
       var 끌림 = false, 값 = function (e) { var r = 트랙.getBoundingClientRect(), v = 구간바연결.읽기(); return Math.round(Math.min(1, Math.max(0, (e.clientX - r.left) / Math.max(1, r.width))) * Math.max(0.5, v[2]) * 10) / 10; };
-      h.addEventListener('pointerdown', function (e) { if (!구간바연결) return; 끌림 = true; try { h.setPointerCapture(e.pointerId); } catch (x) {} e.preventDefault(); h.focus(); });
+      h.addEventListener('pointerdown', function (e) { if (!구간바연결 || e.button !== 0) return; 끌림 = true; try { h.setPointerCapture(e.pointerId); } catch (x) {} e.preventDefault(); h.focus(); });
       h.addEventListener('pointermove', function (e) { if (끌림 && 구간바연결) 구간바연결.쓰기(h.dataset.k, 값(e)); });
-      var 끝냄 = function () { 끌림 = false; }; h.addEventListener('pointerup', 끝냄); h.addEventListener('pointercancel', 끝냄);
-      h.addEventListener('keydown', function (e) { if (!구간바연결 || (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' && e.key !== 'ArrowUp' && e.key !== 'ArrowDown')) return; e.preventDefault(); e.stopPropagation(); var v = 구간바연결.읽기(), 지금 = h.dataset.k === '시작' ? v[0] : v[1], 걸음 = e.shiftKey ? 1 : 0.1; 구간바연결.쓰기(h.dataset.k, Math.round((지금 + ((e.key === 'ArrowLeft' || e.key === 'ArrowDown') ? -걸음 : 걸음)) * 10) / 10); });
+      var 끝냄 = function () { 끌림 = false; }; h.addEventListener('pointerup', 끝냄); h.addEventListener('pointercancel', 끝냄); h.addEventListener('lostpointercapture', 끝냄);
+      h.addEventListener('keydown', function (e) { if (!구간바연결 || e.ctrlKey || e.altKey || e.metaKey || (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' && e.key !== 'ArrowUp' && e.key !== 'ArrowDown')) return; e.preventDefault(); e.stopPropagation(); var v = 구간바연결.읽기(), 지금 = h.dataset.k === '시작' ? v[0] : v[1], 걸음 = e.shiftKey ? 1 : 0.1; 구간바연결.쓰기(h.dataset.k, Math.round((지금 + ((e.key === 'ArrowLeft' || e.key === 'ArrowDown') ? -걸음 : 걸음)) * 10) / 10); });
     });
     stage.appendChild(편집칸); stage.appendChild(결과칸);
     var 결과폰 = null, 결과예약 = 0;
@@ -615,7 +615,7 @@
           구.appendChild(버튼줄);
         }
         var 눈추정 = Math.max(60, Math.ceil((끝초 + 5) / 10) * 10);   // 영상 길이를 모를 때의 막대 눈금(끝을 끌어도 눈금이 흔들리지 않게 처음에 정한다)
-        구간바연결 = { 읽기: function () { return [시초, 끝초, 총 || 눈추정]; }, 쓰기: function (기준, v) { if (!isFinite(v)) return; if (기준 === '시작') 시초 = v; else 끝초 = v; 맞추기(기준); if (영 && 영.readyState) 영.currentTime = 기준 === '시작' ? 시초 : Math.max(0, 끝초 - 0.1); } };
+        구간바연결 = { 읽기: function () { return [시초, 끝초, Math.max(총 || 눈추정, 끝초)]; }, 쓰기: function (기준, v) { if (!isFinite(v)) return; v = 기준 === '시작' ? Math.min(v, 끝초 - 0.5) : Math.max(v, 시초 + 0.5); if (기준 === '시작') 시초 = v; else 끝초 = v; 맞추기(기준); if (영 && 영.readyState) 영.currentTime = 기준 === '시작' ? 시초 : Math.max(0, 끝초 - 0.1); } };
         글자(); 몸.insertBefore(구, 몸.firstChild);   // 위쪽에 둔다(패널이 짧아도 바로 보이게)
         if (영) Array.prototype.slice.call(몸.querySelectorAll('.cz-insp-img, .cz-insp-name')).forEach(function (x) { x.remove(); });   // 재생기가 있으면 자리 표시 그림은 뺀다
       }
