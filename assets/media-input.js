@@ -272,7 +272,7 @@
       };
       document.addEventListener('pointermove', move); document.addEventListener('pointerup', end); document.addEventListener('pointercancel', end);
     });
-    list.__mm = { changed: function () { host.changed(); }, setCount: function (t) { if (bar) bar.querySelector('.mm-count').textContent = t; }, release: function (c) { if (c.__mm && c.__mm.url) URL.revokeObjectURL(c.__mm.url); } };
+    list.__mm = { changed: function () { host.changed(); }, setCount: function (t) { if (bar) bar.querySelector('.mm-count').textContent = t; }, release: function (c) { if (c.__mm && c.__mm.url && !c.__mm.shared) URL.revokeObjectURL(c.__mm.url); } };
   }
 
   // 시트 '설정'(site-config 의 upload 블록)에서 받은 한도로 바꾼다. 범위 밖이거나 숫자가 아닌 값은 무시한다. 이미 그려진 안내 문구는 다음에 그릴 때부터 바뀐다.
