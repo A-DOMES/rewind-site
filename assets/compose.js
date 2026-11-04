@@ -577,6 +577,17 @@
     function 효과음있는장면(장, 수) { var S = 효과음설정(); return 영상종류 === '쇼츠' && S.켜짐 && 수 >= 2 && 장 >= 1 && 장 < 수 && 장 <= S.최대; }
     function 효과음값(e) { return (선택.효과음 && 선택.효과음[e]) || {}; }
     var 효과포커스 = '';   // 효과음 칸을 바꾼 뒤 다시 그려도 같은 칸에 포커스를 돌려준다(키보드 사용)
+    var 효과듣기 = null;   // 미리 듣기 재생기(하나만). 효과음 파일은 렌더 서버가 10분짜리 임시 주소로 넘겨 준다
+    function 효과음멈춤() { if (효과듣기) { try { 효과듣기.pause(); } catch (x) {} 효과듣기 = null; } }
+    function 효과음듣기(id, 음량, 버튼) {
+      var S = 효과음설정(), x = S.목록.filter(function (t) { return t.id === id; })[0] || S.목록.filter(function (t) { return t.kind === 'whoosh'; })[0] || S.목록[0];   // 자동이면 전환음(whoosh) 하나를 예로 들려준다
+      효과음멈춤(); if (!x) { 알리기('들어 볼 효과음이 없어요'); return; }
+      var a = new Audio('https://a-domes--rewind-render-upload-api.modal.run/sfx?id=' + encodeURIComponent(x.id));
+      a.volume = Math.max(0, Math.min(1, 음량));   // 브라우저 재생은 1(원래 크기)까지: 그보다 크게 고른 값은 미리 듣기에서 같은 크기로 들린다 효과듣기 = a; if (버튼) 버튼.classList.add('on');
+      var 끝 = function () { if (버튼) 버튼.classList.remove('on'); if (효과듣기 === a) 효과듣기 = null; };
+      a.addEventListener('ended', 끝); a.addEventListener('error', function () { 끝(); 알리기('효과음을 불러오지 못했어요'); });
+      var p = a.play(); if (p && p.catch) p.catch(function () { 끝(); });
+    }
     function 효과음이름(id) { var x = 효과음설정().목록.filter(function (t) { return t.id === id; })[0], k = 효과음설정().목록.indexOf(x); return x ? (x.name || ((x.kind || '소리') + ' ' + (k + 1))) : ''; }
     function 속성그리기(장, 수, 길이) {   // 재생 위치가 있는 장면의 정보. 값은 앞 단계에서 정한 것이라 여기서는 보기만 한다
       var 키 = [장, 수, 길이, T.소리, v0().자막끄기, 자막방식].join('|'); if (키 === 속성키 && insp.firstChild) return;   // 재생 중 매 프레임 다시 그리면 입력 칸을 잡을 수 없다: 장면·값이 바뀔 때만 그린다
@@ -665,7 +676,7 @@
         Object.keys(고칠것).forEach(function (k) { if (고칠것[k] === undefined) delete 뒤[k]; else 뒤[k] = 고칠것[k]; });
         if (!Object.keys(뒤).length) 뒤 = undefined; if (JSON.stringify(전) === JSON.stringify(뒤)) return;
         var 넣기 = function (v) { var 모두 = Object.assign({}, 선택.효과음 || {}); if (v === undefined) delete 모두[장]; else 모두[장] = JSON.parse(JSON.stringify(v)); if (Object.keys(모두).length) 선택.효과음 = 모두; else delete 선택.효과음; 속성키 = ''; 타임라인그리기(); };
-        효과포커스 = 포커스 || ''; 넣기(뒤); 기록하기({ 이름: '효과음', undo: function () { 넣기(전); }, redo: function () { 넣기(뒤); } });
+        효과음멈춤(); 효과포커스 = 포커스 || ''; 넣기(뒤); 기록하기({ 이름: '효과음', undo: function () { 넣기(전); }, redo: function () { 넣기(뒤); } });
       };
       var 칸 = el('div', 'cz-insp-set cz-insp-sfx'); 칸.appendChild(el('div', 'cz-insp-sh', '효과음 · 장면 ' + 장 + ' → ' + (장 + 1)));
       var 꺼짐 = !!지금().끔;
@@ -681,7 +692,9 @@
       고름.value = 지금().번호 || '';
       var 되1 = el('button', 'cz-insp-rs', '↺'); 되1.type = 'button'; 되1.dataset.f = 'r1'; 되1.title = '기본값으로'; 되1.disabled = !지금().번호; 되1.addEventListener('click', function () { 바꾸기({ 번호: undefined }, 'sel'); });
       고름.addEventListener('change', function () { 바꾸기({ 번호: 고름.value || undefined }, 'sel'); });
-      줄1.appendChild(고름); 줄1.appendChild(되1); 칸.appendChild(줄1);
+      var 듣 = el('button', 'cz-insp-play', '▶'); 듣.type = 'button'; 듣.dataset.f = 'pl'; 듣.title = '미리 듣기'; 듣.setAttribute('aria-label', '효과음 미리 듣기'); 듣.disabled = 꺼짐 || !S.목록.length;
+      듣.addEventListener('click', function () { if (효과듣기 && 듣.classList.contains('on')) { 효과음멈춤(); 듣.classList.remove('on'); return; } 효과음듣기(고름.value, 막대를값(Number(막대.value)), 듣); });
+      줄1.appendChild(고름); 줄1.appendChild(듣); 줄1.appendChild(되1); 칸.appendChild(줄1);
       // 음량: 가운데 = 관리자 기본 음량(vol), 왼쪽 끝 = 0, 오른쪽 끝 = 2(렌더 상한). 표시는 기본 대비 %(기본이 0이면 실제 크기 %)
       var 기본 = S.음량, 값 = 지금().음량 !== undefined ? 지금().음량 : 기본;
       var 막대를값 = function (n) { return n <= 0 ? 기본 * (1 + n / 50) : 기본 + (2 - 기본) * n / 50; }, 값을막대 = function (v) { return v <= 기본 ? (기본 > 0 ? Math.round((v / 기본 - 1) * 50) : 0) : (기본 < 2 ? Math.round((v - 기본) / (2 - 기본) * 50) : 0); };
@@ -1151,7 +1164,7 @@
       })();
       타임라인만들기();
     }
-    function 닫기(결과) { if (!결과 && 되돌림통.length) { try { while (되돌림통.length) 되돌림통.pop().undo(); } catch (x) {} }   /* 취소: 이 창에서 한 장면 편집(카드)도 함께 되돌린다 */
+    function 닫기(결과) { 효과음멈춤(); if (!결과 && 되돌림통.length) { try { while (되돌림통.length) 되돌림통.pop().undo(); } catch (x) {} }   /* 취소: 이 창에서 한 장면 편집(카드)도 함께 되돌린다 */
       파일메뉴닫기(); window.__rwPoolRefresh = null; window.__rwPoolNow = null; try { if (넓은.removeEventListener) 넓은.removeEventListener('change', 넓은바뀜); else if (넓은.removeListener) 넓은.removeListener(넓은바뀜); } catch (x) {} if (폭관찰) 폭관찰.disconnect(); if (결과관찰) 결과관찰.disconnect(); if (결과예약) cancelAnimationFrame(결과예약); 읽기멈춤(); 재생멈춤(); if (끌기중단) 끌기중단(); document.removeEventListener('keydown', 키); document.body.style.overflow = 이전스크롤; ov.remove(); if (이전포커스 && 이전포커스.focus) 이전포커스.focus(); if (결과 && typeof opt.onDone === 'function') opt.onDone(결과); }
     function 키(e) {
       if (e.key === 'Escape') { e.preventDefault(); if (선택풀기()) return; 닫기(null); return; }   // 고른 요소가 있으면 선택만 풀고, 없을 때만 창을 닫는다

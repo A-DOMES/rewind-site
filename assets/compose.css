@@ -209,6 +209,10 @@ label.cz-chip { display: inline-flex; align-items: center; }
 .cz-insp-tg { min-width: 46px; padding: 3px 8px; border-radius: 4px; border: 1px solid #555; background: #1a1a1a; color: #999; font-size: 11px; font-weight: 700; cursor: pointer; }
 .cz-insp-tg.on { border-color: #c9a23a; color: #f0c850; }
 .cz-insp-tg:hover { border-color: #f0c850; color: #fff; }
+.cz-insp-play { width: 26px; height: 24px; margin-left: 4px; border-radius: 4px; border: 1px solid #555; background: #1a1a1a; color: #ccc; font-size: 10px; cursor: pointer; }
+.cz-insp-play:hover:not(:disabled) { border-color: #f0c850; color: #fff; }
+.cz-insp-play.on { border-color: #f0c850; color: #f0c850; }
+.cz-insp-play:disabled { opacity: .4; cursor: default; }
 .cz-empty { align-self: center; padding-left: 8px; font-size: 10px; color: var(--ink-faint); font-style: normal; }
 /* 배치 */
 @media (min-width: 901px) {
