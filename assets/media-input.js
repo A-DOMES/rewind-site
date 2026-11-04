@@ -6,11 +6,11 @@
  * 쓰는 법: RWMedia.mount(list, host)   list = .pimg-list 요소
  *   host = { max(): 최대 개수, used(): 지금 쓰는 개수, addCard(): 새 카드(없으면 null), emptyCard(): 비어 있는 카드(없으면 null),
  *            token(): 구글 토큰, changed(): 목록이 바뀌었을 때 부르는 함수, pc: 컴퓨터에서 올리기 칸을 보일지 }
- * 한도 숫자는 아래 LIMITS 한 곳에서만 바꾼다(서버 한도는 modal_app/uploadsign.py 와 같아야 한다). */
+ * 한도 숫자는 아래 LIMITS 한 곳에서만 바꾼다(서버 한도는 시트 '설정'에서 받고, 못 받으면 uploadsign.py 기본값). */
 (function () {
   'use strict';
   var API = 'https://a-domes--rewind-render-upload-api.modal.run/sign';
-  var LIMITS = { longSide: 2048, quality: 0.88, maxMB: 20, batch: 30, putTries: 2, conc: 3, videoMB: 150, videoMax: 5 };   // videoMB·videoMax 는 서버(uploadsign.py)의 영상 한도와 같아야 한다
+  var LIMITS = { longSide: 2048, quality: 0.88, maxMB: 20, batch: 30, putTries: 2, conc: 3, videoMB: 150, videoMax: 5 };   // maxMB·videoMB·videoMax 는 기본값이고, 사이트 설정(upload)을 받으면 setLimits 로 덮어쓴다(서버도 같은 시트 값을 쓴다)
   var VIDEO_EXT = { mp4: 'video/mp4', m4v: 'video/x-m4v', mov: 'video/quicktime', webm: 'video/webm' };
   function videoType(f) { var m = /\.([a-z0-9]+)$/i.exec(f.name || ''), e = m ? m[1].toLowerCase() : ''; if (VIDEO_EXT[e]) return VIDEO_EXT[e]; return /^video\/(mp4|quicktime|webm|x-m4v)$/.test(f.type) ? f.type : ''; }
   var OK_TYPE = { 'image/jpeg': 1, 'image/png': 1, 'image/webp': 1 };
@@ -213,6 +213,7 @@
     function upload(cards) {
       cards.forEach(function (c) { c.querySelector('.pimg-state').textContent = '올리는 중…'; });
       return sign(host, cards.map(function (c) { return { name: c.__mm.file.name, size: c.__mm.blob.size, type: c.__mm.file.__vt || 'image/jpeg' }; })).then(function (items) {
+        cards.forEach(function (c, i) { c.__mm.sig = { it: items[i], at: Date.now() }; });   // 다시 시도할 때 아직 유효하면 같은 주소로 올린다(서명을 또 받으면 하루 한도가 한 번 더 깎인다)
         var q = cards.map(function (c, i) { return { c: c, it: items[i] }; }), run1 = function () {
           var n = q.shift(); if (!n) return Promise.resolve();
           return one(n.c, n.it).then(run1);
@@ -220,6 +221,11 @@
         var w = []; for (var k = 0; k < Math.min(LIMITS.conc, q.length); k++) w.push(run1());
         return Promise.all(w);
       }, function (e) { cards.forEach(function (c) { if (c.isConnected) fail(c, e.message || '올리기에 실패했어요.'); }); });
+    }
+    function retry(c) {
+      var g = c.__mm.sig, 유효초 = (c.__mm.file.__vt ? 3300 : 800) * 1000;   // 서버 주소 유효 시간(영상 1시간·사진 15분)보다 조금 짧게
+      if (g && c.__mm.blob && Date.now() - g.at < 유효초) return one(c, g.it);
+      return run([c]);
     }
     function one(c, it, tries) {
       tries = tries || 1;
@@ -233,13 +239,14 @@
         host.changed();
       }, function (err) {
         if (tries < LIMITS.putTries) return one(c, it, tries + 1);
+        if (String((err && err.message) || '') !== 'network' && c.__mm) c.__mm.sig = null;   // 연결 문제가 아닌 실패(서명 불일치 등)는 다시 시도할 때 새 서명을 받는다
         var why = String((err && err.message) || ''); try { console.warn('[올리기 실패]', why); } catch (x) {}
         // 'network' = 브라우저가 저장소 답을 받지 못함(저장소가 이 사이트를 허용하지 않을 때도 이렇게 보인다), 'http 403' = 서명 주소가 맞지 않음
         fail(c, why === 'network' ? '올리지 못했어요. 인터넷을 확인하고 다시 시도해 주세요. 계속 안 되면 저장소 설정 문제일 수 있어요. (오류: 연결 거부)' : why.indexOf('http ') === 0 ? '올리지 못했어요. 저장소가 파일을 받지 않았어요. (오류: ' + why.slice(5) + ')' : '올리지 못했어요. 인터넷을 확인하고 다시 시도해 주세요.');
       });
     }
     list.addEventListener('click', function (e) {
-      var rt = e.target.closest('.mm-retry'); if (rt) { var c = rt.closest('.pimg-card'); rt.remove(); c.dataset.up = 'busy'; c.querySelector('.pimg-state').textContent = '다시 올리는 중…'; c.querySelector('.mm-bar2>i').style.width = '0'; host.changed(); run([c]); return; }
+      var rt = e.target.closest('.mm-retry'); if (rt) { var c = rt.closest('.pimg-card'); rt.remove(); c.dataset.up = 'busy'; c.querySelector('.pimg-state').textContent = '다시 올리는 중…'; c.querySelector('.mm-bar2>i').style.width = '0'; host.changed(); retry(c); return; }
       var up = e.target.closest('.pimg-up'), dn = e.target.closest('.pimg-dn');
       if (up || dn) {
         var cd = (up || dn).closest('.pimg-card'), sib = up ? cd.previousElementSibling : cd.nextElementSibling;
@@ -268,5 +275,13 @@
     list.__mm = { changed: function () { host.changed(); }, setCount: function (t) { if (bar) bar.querySelector('.mm-count').textContent = t; }, release: function (c) { if (c.__mm && c.__mm.url) URL.revokeObjectURL(c.__mm.url); } };
   }
 
-  window.RWMedia = { mount: mount };
+  // 시트 '설정'(site-config 의 upload 블록)에서 받은 한도로 바꾼다. 범위 밖이거나 숫자가 아닌 값은 무시한다. 이미 그려진 안내 문구는 다음에 그릴 때부터 바뀐다.
+  function setLimits(u) {
+    if (!u || typeof u !== 'object') return;
+    function pick(v, lo, hi, set) { v = Number(v); if (isFinite(v) && v >= lo && v <= hi) set(Math.round(v)); }
+    pick(u.photoMB, 1, 30, function (v) { LIMITS.maxMB = v; });
+    pick(u.videoMB, 10, 300, function (v) { LIMITS.videoMB = v; });
+    pick(u.videoMax, 1, 10, function (v) { LIMITS.videoMax = v; });
+  }
+  window.RWMedia = { mount: mount, setLimits: setLimits };
 })();

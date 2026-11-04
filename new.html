@@ -1936,15 +1936,15 @@
 </style>
 <script src="./theme.js"></script>
 <script src="./assets/voice-panel.js?v=20261102c"></script>
-<script src="./assets/media-input.js?v=20261105d"></script>
+<script src="./assets/media-input.js?v=20261105e"></script>
 <script src="./assets/voice-catalog.js?v=20261025"></script>
 <script src="./assets/voice-picker.js?v=20261104a"></script>
 <link rel="stylesheet" href="./assets/guide.css?v=20261025">
 <script src="./assets/guide.js?v=20261101"></script>
-<link rel="stylesheet" href="./assets/compose.css?v=20261105d">
+<link rel="stylesheet" href="./assets/compose.css?v=20261105e">
 <script src="./assets/shared/layout.js?v=20261027"></script>
 <script src="./assets/shared/phrase.js?v=20261026"></script>
-<script src="./assets/compose.js?v=20261105d"></script>
+<script src="./assets/compose.js?v=20261105e"></script>
 <script src="./assets/rw-consent.js"></script>
 <link rel="stylesheet" href="./assets/rw-theme.css?v=20261103n">
 </head>
@@ -3831,7 +3831,7 @@ ${비율칸Html(kind, 상태)}</div>`;
     '고급형': { '수면음악': [90, 35], '야담': [80, 13] }
   };
   // 사진·영상 최대 개수 (나중에 시트 '설정'으로 바꿀 수 있게 연결 예정). 상품쇼츠는 접수 서버 설정 '상품쇼츠_소재최대'(최대 30)와 같아야 한다
-  const PRODUCT_IMG_MAX = 30, GN_IMG_MAX = 30, MEDIA_VIDEO_MAX = 5;   // 상품쇼츠 사진·영상 합계 / 일반 쇼츠 '내 사진·영상' 합계(접수 서버는 같은 '상품쇼츠_소재최대' 한도를 쓴다) / 그중 영상
+  const PRODUCT_IMG_MAX = 30, GN_IMG_MAX = 30; let MEDIA_VIDEO_MAX = 5;   // 상품쇼츠 사진·영상 합계 / 일반 쇼츠 '내 사진·영상' 합계(접수 서버는 같은 '상품쇼츠_소재최대' 한도를 쓴다) / 그중 영상
   const LONG_MAX_MIN = { '수면음악': 480, '야담': 360 };   // 야담(그림이 자주 바뀌는)·긴 이야기 한도는 시트 '설정'(site-config limits)로 덮어쓴다(applySiteLimits)
   // [표시 이름] 화면·안내 문구에서 보이는 이름은 여기 한 곳에서만 바꾼다. 내부 값('수면음악')은 시트·서버·워크플로와 이어져 있어서 그대로 둔다.
   const LONG_LABEL = { '수면음악': '분위기 영상', '야담': '야담' };
@@ -4019,6 +4019,13 @@ ${비율칸Html(kind, 상태)}</div>`;
     if (changed) afterPriceChange();
     return changed;
   }
+  // 컴퓨터에서 올리는 사진·영상 한도: 사이트 설정(upload)이 올바를 때만 덮어쓴다(올리기 화면과 영상 개수 확인이 같은 값을 쓴다).
+  function applySiteUpload(u) {
+    if (!u || typeof u !== 'object') return;
+    const n = Number(u.videoMax);
+    if (Number.isFinite(n) && n >= 1 && n <= 10) MEDIA_VIDEO_MAX = Math.round(n);
+    if (window.RWMedia && window.RWMedia.setLimits) window.RWMedia.setLimits(u);
+  }
   // 최대 길이 한도(분): 사이트 설정(limits)이 올바를 때만 덮어쓴다. 바뀌었으면 true.
   function applySiteLimits(l) {
     if (!l || typeof l !== 'object') return false;
@@ -4035,7 +4042,7 @@ ${비율칸Html(kind, 상태)}</div>`;
       const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), 3000);
       const r = await fetch(SITE_CONFIG_URL + '?t=' + Date.now(), { cache: 'no-store', signal: ctl.signal }); clearTimeout(to);
       const cfg = r.ok ? await r.json() : null;
-      if (cfg && cfg.ok === true) { try { sessionStorage.setItem('rw_site_cfg_v1', JSON.stringify({ at: Date.now(), cfg })); } catch (e) {} const a = applySitePrice(cfg.price), b = applySiteLong(cfg.long), c2 = applySiteLimits(cfg.limits); return a || b || c2; }
+      if (cfg && cfg.ok === true) { try { sessionStorage.setItem('rw_site_cfg_v1', JSON.stringify({ at: Date.now(), cfg })); } catch (e) {} const a = applySitePrice(cfg.price), b = applySiteLong(cfg.long), c2 = applySiteLimits(cfg.limits); applySiteUpload(cfg.upload); return a || b || c2; }
     } catch (e) {}
     return false;
   }
@@ -4068,7 +4075,7 @@ ${비율칸Html(kind, 상태)}</div>`;
     function apply(c) {
       if (!c || c.ok !== true) return;
       showNotice(c.notice);
-      applySitePrice(c.price); applySiteLong(c.long); applySiteLimits(c.limits);
+      applySitePrice(c.price); applySiteLong(c.long); applySiteLimits(c.limits); applySiteUpload(c.upload);
       const g = Number(c.signupGrant);
       if (Number.isFinite(g) && g >= 0) document.querySelectorAll('[data-grant]').forEach(el => { el.textContent = String(Math.round(g)); });
       let changed = false;
