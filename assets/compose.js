@@ -498,6 +498,40 @@
       if (/^(blob:|https:\/\/|data:image\/)/.test(사진 || '')) { var 그림 = el('div', 'cz-insp-img' + (가로 ? '' : ' cz-v')); 그림.style.backgroundImage = 'url("' + String(사진).replace(/["\\\n]/g, encodeURIComponent) + '")'; 몸.appendChild(그림); if (자료 && 자료.이름) 몸.appendChild(el('p', 'cz-insp-name', String(자료.이름))); }
       var 줄들 = [['시작', 분초(시작)], ['끝', 분초(끝)], ['길이', (끝 - 시작).toFixed(1) + 's'], ['소리', T.소리 || (영상종류 === '수면' ? '배경 음악' : '목소리')], ['자막', 영상종류 === '수면' ? '없음' : (v0().자막끄기 ? '끔' : (자막방식 || '구절형'))]];
       줄들.forEach(function (r) { var d = el('div', 'cz-insp-r'); d.appendChild(el('span', '', r[0])); d.appendChild(el('b', '', r[1])); 몸.appendChild(d); });
+      if (자료 && 자료.영상 && typeof opt.구간바꿈 === 'function') {   // 영상 장면: 쓸 구간. 재생할 수 있는 영상은 보면서 손잡이(시작·끝)로 정하고, 아니면 숫자로 정한다
+        var 구 = el('div', 'cz-insp-set'); 구.appendChild(el('div', 'cz-insp-sh', '쓸 구간'));
+        var 번호 = 장 - 1, 시초 = Number(자료.시작) >= 0 ? Number(자료.시작) : 0, 끝초 = Number(자료.끝) > 시초 ? Number(자료.끝) : 시초 + 10, 총 = 0, 최대컷 = 60;
+        var 영 = null, 막시 = el('input', 'cz-insp-rng'), 막끝 = el('input', 'cz-insp-rng'), 글 = el('div', 'cz-insp-r'), 소수 = function (n) { return Math.round(n * 10) / 10; };
+        var 반영 = function () { 자료.시작 = 시초; 자료.끝 = 끝초; try { opt.구간바꿈(번호, 시초, 끝초); } catch (x) {} 글자(); var 격 = lib.querySelector('.cz-wb-grid'), 칸 = 격 && 격.children[번호]; if (칸) { var 라 = 칸.querySelector('.cz-wb-r'); if (!라) { 라 = el('i', 'cz-wb-r', ''); 칸.appendChild(라); } 라.textContent = 소수(시초) + '–' + 소수(끝초) + 's'; } };
+        var 시칸 = el('input', 'cz-insp-num'), 끝칸 = el('input', 'cz-insp-num');
+        function 글자() { 글.textContent = ''; 글.appendChild(el('span', '', '길이')); 글.appendChild(el('b', '', 소수(끝초 - 시초) + 's')); 시칸.value = String(소수(시초)); 끝칸.value = String(소수(끝초)); if (총) { 막시.value = String(시초); 막끝.value = String(끝초); } }
+        function 맞추기(기준) {   // 시작 < 끝, 한 컷 0.5~60초, 영상 길이 안
+          if (총) { 시초 = Math.min(Math.max(0, 시초), Math.max(0, 총 - 0.5)); 끝초 = Math.min(끝초, 총); }
+          if (끝초 - 시초 < 0.5) { if (기준 === '끝') 시초 = Math.max(0, 끝초 - 0.5); else 끝초 = 시초 + 0.5; }
+          if (끝초 - 시초 > 최대컷) { if (기준 === '끝') 시초 = 끝초 - 최대컷; else 끝초 = 시초 + 최대컷; }
+          시초 = Math.max(0, 소수(시초)); 끝초 = 소수(끝초); 반영();
+        }
+        if (자료.재생주소) {
+          영 = el('video', 'cz-insp-vid'); 영.controls = true; 영.preload = 'metadata'; 영.playsInline = true; 영.muted = false; 영.setAttribute('referrerpolicy', 'no-referrer'); 영.src = 자료.재생주소; 구.appendChild(영);
+          영.addEventListener('loadedmetadata', function () { if (isFinite(영.duration) && 영.duration > 0) { 총 = 영.duration; [막시, 막끝].forEach(function (m) { m.min = '0'; m.max = String(소수(총)); m.disabled = false; }); if (끝초 > 총) 끝초 = 총; if (시초 >= 총) 시초 = 0; 맞추기('시작'); 영.currentTime = 시초; } });
+          영.addEventListener('error', function () { var p = el('p', 'cz-hint', '이 영상은 여기서 재생할 수 없어요. 아래 숫자로 정해 주세요.'); 구.insertBefore(p, 영); 영.remove(); 영 = null; });
+          영.addEventListener('timeupdate', function () { if (!영.paused && 영.dataset.미리 === '1' && 영.currentTime >= 끝초) { 영.pause(); 영.dataset.미리 = ''; } });
+        } else { 구.appendChild(el('p', 'cz-hint', '이 영상은 여기서 볼 수 없어요(구글 드라이브 등). 숫자로 정해 주세요.')); }
+        [[막시, '쓸 구간 시작', '시작'], [막끝, '쓸 구간 끝', '끝']].forEach(function (x) { var m = x[0]; m.type = 'range'; m.step = '0.1'; m.min = '0'; m.max = '60'; m.value = x[2] === '시작' ? String(시초) : String(끝초); m.disabled = !영; m.setAttribute('aria-label', x[1]); });
+        막시.addEventListener('input', function () { 시초 = Number(막시.value); 맞추기('시작'); if (영) 영.currentTime = 시초; });
+        막끝.addEventListener('input', function () { 끝초 = Number(막끝.value); 맞추기('끝'); if (영) 영.currentTime = Math.max(0, 끝초 - 0.1); });
+        var 줄시 = el('div', 'cz-insp-r cz-insp-in'); 줄시.appendChild(el('span', '', '구간 시작')); 줄시.appendChild(막시); 줄시.appendChild(시칸);
+        var 줄끝 = el('div', 'cz-insp-r cz-insp-in'); 줄끝.appendChild(el('span', '', '구간 끝')); 줄끝.appendChild(막끝); 줄끝.appendChild(끝칸);
+        [[시칸, '시작', '시작 초'], [끝칸, '끝', '끝 초']].forEach(function (x) { var n = x[0]; n.type = 'number'; n.min = '0'; n.step = '0.1'; n.setAttribute('aria-label', x[2]); n.addEventListener('change', function () { var v = Number(n.value); if (!isFinite(v)) { 글자(); return; } if (x[1] === '시작') 시초 = v; else 끝초 = v; 맞추기(x[1]); if (영 && 영.readyState) 영.currentTime = x[1] === '시작' ? 시초 : Math.max(0, 끝초 - 0.1); }); });
+        구.appendChild(줄시); 구.appendChild(줄끝); 구.appendChild(글);
+        if (영) {
+          var 버튼줄 = el('div', 'cz-insp-btns');
+          [['지금 위치를 시작으로', function () { 시초 = 소수(영.currentTime); if (끝초 <= 시초) 끝초 = 시초 + 소수(Math.min(10, Math.max(0.5, 총 - 시초))); 맞추기('시작'); }], ['지금 위치를 끝으로', function () { 끝초 = 소수(영.currentTime); 맞추기('끝'); }], ['구간 재생', function () { 영.currentTime = 시초; 영.dataset.미리 = '1'; 영.play(); }]].forEach(function (x) { var b = el('button', 'cz-btn', x[0]); b.type = 'button'; b.addEventListener('click', x[1]); 버튼줄.appendChild(b); });
+          구.appendChild(버튼줄);
+        }
+        글자(); 몸.insertBefore(구, 몸.firstChild);   // 위쪽에 둔다(패널이 짧아도 바로 보이게)
+        if (영) Array.prototype.slice.call(몸.querySelectorAll('.cz-insp-img, .cz-insp-name')).forEach(function (x) { x.remove(); });   // 재생기가 있으면 자리 표시 그림은 뺀다
+      }
       if (영상종류 === '쇼츠') {   // 장면별 설정: 움직임(사진 장면만)·음량. 기본값이면 지워서 건드리지 않은 것으로 둔다
         var 칸 = el('div', 'cz-insp-set'); 칸.appendChild(el('div', 'cz-insp-sh', '장면 설정'));
         var 지금 = function () { return (선택.장면별 && 선택.장면별[장]) || {}; };
@@ -734,7 +768,7 @@
           자료.forEach(function (it, i) {
             var t = el('div', 'cz-wb-t'); t.setAttribute('role', 'listitem'); t.tabIndex = 0; t.dataset.i = String(i); t.title = (it.이름 || '') + (it.영상 ? ' (영상)' : '');
             var im = el('span', 'cz-wb-img'); if (it.src) im.style.backgroundImage = 'url("' + String(it.src).replace(/["\\\n]/g, encodeURIComponent) + '")'; else { im.classList.add('cz-wb-ph'); im.textContent = it.영상 ? '영상' : (it.이름 || '사진'); } t.appendChild(im);
-            t.appendChild(el('i', 'cz-wb-n', String(i + 1))); if (it.영상) t.appendChild(el('i', 'cz-wb-v', '▶'));
+            t.appendChild(el('i', 'cz-wb-n', String(i + 1))); if (it.영상) { t.appendChild(el('i', 'cz-wb-v', '▶')); if (Number(it.끝) > 0) t.appendChild(el('i', 'cz-wb-r', (Math.round((Number(it.시작) || 0) * 10) / 10) + '–' + (Math.round(Number(it.끝) * 10) / 10) + 's')); }
             if (typeof opt.자료빼기 === 'function') {   // 빼기: 앞 단계 목록에서도 같이 빠진다. 뒤 장면의 장면별 설정은 한 칸씩 당긴다
               var 엑스 = el('button', 'cz-wb-x', '×'); 엑스.type = 'button'; 엑스.setAttribute('aria-label', (i + 1) + '번 빼기'); 엑스.title = '빼기';
               엑스.addEventListener('pointerdown', function (e) { e.stopPropagation(); });

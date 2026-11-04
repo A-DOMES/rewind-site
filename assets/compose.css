@@ -543,3 +543,10 @@ button.cz-pane-l[aria-pressed="true"] { color: var(--rz-ac); }
 .cz-seg2 { display: inline-flex; gap: 4px; }
 .cz-wb-msg { min-height: 1em; margin: 4px 0 0; color: #ff8a80; }
 .cz-wb-add .cz-chip, .cz-wb-add .cz-btn { min-height: 34px; padding: 0 10px; font-size: .78rem; }
+
+/* 영상 구간(속성 패널) · 작업장 타일의 구간 표시 */
+.cz-wb-r { position: absolute; left: 4px; bottom: 4px; font-style: normal; font-size: .66rem; padding: 1px 5px; border-radius: 4px; background: rgba(0,0,0,.65); color: #ddd; max-width: calc(100% - 28px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cz-insp-vid { width: 100%; max-height: 220px; border-radius: 6px; background: #000; margin-bottom: 6px; }
+.cz-insp-num { width: 64px; min-height: 30px; padding: 0 6px; border: 1px solid var(--rz-ln); border-radius: 6px; background: #000; color: inherit; font: inherit; font-size: .82rem; text-align: right; }
+.cz-insp-btns { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.cz-insp-btns .cz-btn { min-height: 30px; padding: 0 10px; font-size: .76rem; }
