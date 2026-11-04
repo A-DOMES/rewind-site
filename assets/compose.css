@@ -597,3 +597,9 @@ button.cz-pane-l[aria-pressed="true"] { color: var(--rz-ac); }
 @media (min-width: 900px) { .cz-dlg[data-pg="text"] .cz-dockbody > .cz-body > .cz-card:has(> .cz-mix) { grid-column: span 2; } }   /* 넓으면 두 칸, 좁으면 한 줄 전체 */   /* 믹서 카드는 두 칸 */
 @media (max-width: 600px) { .cz-mix { flex-wrap: wrap; } .cz-mix .cz-row { flex: 1 1 44%; } .cz-mix .cz-row:nth-child(2n) { border-right: 0; } }
 .cz-mix .cz-row .cz-numin { grid-row: 3; grid-column: 1; justify-self: end; width: 3.6em; }
+
+/* 편집 화면 옆 빈 자리의 장면 정보 */
+.cz-pane-info { position: absolute; right: 100%; margin-right: 12px; top: 40px; width: max-content; display: grid; gap: 3px; font-size: .74rem; color: var(--ink-dim); pointer-events: none; }
+.cz-pane-info > div { display: flex; gap: 8px; justify-content: space-between; min-width: 86px; }
+.cz-pane-info b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+@media (max-width: 1300px) { .cz-pane-info { display: none; } }

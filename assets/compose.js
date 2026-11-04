@@ -244,7 +244,8 @@
     if (가로) {   // 가로 영상은 폭이 모자라 한 번에 하나만: 위쪽 탭으로 바꾼다
       var 탭줄 = el('div', 'cz-pane-tabs'); ['나란히', '편집', '결과'].forEach(function (이름) { var b = el('button', 'cz-pane-l' + (이름 === '나란히' ? ' cz-pane-both' : ''), 이름); b.type = 'button'; b.dataset.v = 이름; b.setAttribute('aria-pressed', String(이름 === 보기)); b.addEventListener('click', function () { 보기 = 이름; stage.dataset.v = 이름; [].forEach.call(탭줄.children, function (n) { n.setAttribute('aria-pressed', String(n.dataset.v === 이름)); }); 결과갱신(); }); 탭줄.appendChild(b); }); stage.appendChild(탭줄);
     } else { 편집칸.appendChild(el('span', 'cz-pane-l', '편집')); 결과칸.appendChild(el('span', 'cz-pane-l', '결과')); }
-    편집칸.appendChild(phone); stage.appendChild(편집칸); stage.appendChild(결과칸);
+    var 편집정보 = el('div', 'cz-pane-info'); 편집정보.setAttribute('aria-live', 'off');   // 편집 화면 옆 빈 자리: 고른 장면의 시간 정보(읽기 전용, 값은 오른쪽 속성에서 손본다)
+    편집칸.appendChild(편집정보); 편집칸.appendChild(phone); stage.appendChild(편집칸); stage.appendChild(결과칸);
     var 결과폰 = null, 결과예약 = 0;
     function 결과갱신() {
       if (결과예약) return; 결과예약 = requestAnimationFrame(function () {
@@ -647,6 +648,7 @@
         n = Math.min(수, Math.max(1, Math.round(n) || 1)); 편집장 = n;
         클립목록.forEach(function (c, k) { c.classList.toggle('cz-t-sel', k === n - 1); });
         속성그리기(n, 수, 길이); 편집장면적용(n, 수); 결과갱신();
+        편집정보.textContent = ''; if (영상종류 === '쇼츠') { [['장면', n + ' / ' + 수], ['시작', 분초(길이 * (n - 1) / 수)], ['끝', 분초(길이 * n / 수)], ['길이', (길이 / 수).toFixed(1) + 's']].forEach(function (d) { var r = el('div'); r.appendChild(el('span', '', d[0])); r.appendChild(el('b', '', d[1])); 편집정보.appendChild(r); }); }
       };
       var 눌린클립 = -1, 눌린자리 = 0, 끌고있음 = false, 위치계산 = function (e) { var r = 눈금.getBoundingClientRect(); 두는곳((e.clientX - r.left) / Math.max(1, r.width)); };
       if (tl.__핸들) tl.__핸들.forEach(function (h) { tl.removeEventListener(h[0], h[1]); }); tl.__핸들 = [];   // 다시 그릴 때 옛 핸들러를 걷어낸다(쌓이지 않게)
