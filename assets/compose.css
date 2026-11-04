@@ -676,3 +676,4 @@ button.cz-pane-l[aria-pressed="true"] { color: var(--rz-ac); }
 @media (max-width: 600px) { .cz-mix .cz-row { flex: 0 0 70px; } .cz-mix .cz-row.cz-fd-h { flex: 1 1 100%; } }
 .cz-mix .cz-row.cz-fd-h { grid-template-rows: 20px 1fr auto; }   /* 가로 페이더는 가운데에 */
 @media (max-width: 600px) { .cz-mix .cz-row.cz-fd-h { grid-template-rows: 20px 40px auto; } }
+.cz-bgb { position: absolute; left: 0; width: 100%; filter: blur(6px) brightness(.75); overflow: hidden; pointer-events: none; }   /* 제목고정형에서 줄어든 그림 양옆 */

@@ -193,6 +193,7 @@
       var g = 그림틀(재생장), cb = c.querySelector('.cz-bg'), cc = c.querySelector('.cz-ctr');
       if (g && cb) { cb.style.background = g.틀; if (g.있음) cb.removeAttribute('data-ph'); else cb.setAttribute('data-ph', ((Array.isArray(opt.자료) ? opt.자료 : [])[재생장 - 1] || {}).영상 ? '영상 장면' : '사진 장면'); }
       if (g && cc) cc.style.background = g.틀 || '#222';
+      var cbb = c.querySelector('.cz-bgb'); if (g && cbb) cbb.style.background = g.틀;   // 제목고정형에서 줄어든 그림의 흐린 양옆도 같은 장면
       var cs = c.querySelector('.cz-sub'), 줄 = cs && cs.firstElementChild; if (!줄) return;
       var v = 합치기(선택, 종류).값, 문장 = 장면대본(재생장, 수n), 보임 = (v.줄수 === 1 && /[.!?]/.test(문장)) ? 문장.slice(0, 문장.search(/[.!?]/) + 1) : 문장;
       var 핵 = 핵심들.find(function (h) { return h[0] === v.핵심색; }), 핵색값 = 헥스.test(v.핵심색 || '') ? v.핵심색 : (핵 && 핵[2]) || '';
@@ -218,7 +219,7 @@
     var dlg = el('div', 'cz-dlg'); dlg.setAttribute('role', 'dialog'); dlg.setAttribute('aria-modal', 'true'); dlg.setAttribute('aria-labelledby', 'cz-title');
     var head = el('div', 'cz-head'); var ht = el('div'); var h2 = el('h2', '', '영상 꾸미기'); h2.id = 'cz-title'; ht.appendChild(h2); ht.appendChild(el('small', '', '마음에 드는 모양을 고르고, 필요하면 조금만 고쳐 보세요'));
     var x = el('button', 'cz-x', '×'); x.type = 'button'; x.setAttribute('aria-label', '닫기'); head.appendChild(ht); head.appendChild(x);
-    var pv = el('div', 'cz-pv'); var phone = el('div', 'cz-phone' + (가로 ? ' cz-wide' : '')); var bg = el('div', 'cz-bg'); phone.appendChild(bg);
+    var pv = el('div', 'cz-pv'); var phone = el('div', 'cz-phone' + (가로 ? ' cz-wide' : '')); var bgb = el('div', 'cz-bgb'); bgb.style.display = 'none'; phone.appendChild(bgb); var bg = el('div', 'cz-bg'); phone.appendChild(bg);   // bgb: 제목고정형에서 그림이 줄었을 때 양옆에 까는 흐린 같은 그림
     var 그림주소 = /^(blob:|https:\/\/|data:image\/)/.test(String(opt.배경그림 || '')) ? String(opt.배경그림).replace(/["\\\n]/g, encodeURIComponent) : '';   // 앞 단계에서 올린 첫 사진(있으면 미리보기 배경)
     if (그림주소) bg.style.background = '#222 center / cover no-repeat url("' + 그림주소 + '")';
     var gbox = el('div'); gbox.style.cssText = 'position:absolute;inset:0'; phone.appendChild(gbox);
@@ -358,6 +359,10 @@
       칸손잡이.style.display = 가운데형 ? 'block' : 'none';
       var 제목칸 = 제목형 && !가운데형;   // 제목고정형: 사진은 띠 아래부터 화면 맨 아래까지(서버 render.js 의 제목칸모드와 같다). 제목을 처음 몇 초만 보이게 하면 예전처럼 전체에 깔고 띠가 덮는다
       bg.style.top = 제목칸 ? (상자.띠 / H * 100) + '%' : ''; bg.style.height = 제목칸 ? ((H - 상자.띠) / H * 100) + '%' : '';
+      // 띠를 기본보다 내리면 그림은 잘리지 않고 그만큼 작아진다(렌더 서버 render.js 의 칸.폭과 같은 식). 양옆은 같은 그림을 흐리게
+      var 기본띠 = 제목칸 ? RWLayout.제목상자(W, H, { 줄수: 줄들.length, 최대폭: 1, 띠: true }).띠 : 0, 줄비 = 제목칸 ? Math.min(1, (H - Math.min(H * 0.5, 상자.띠)) / Math.max(1, H - Math.min(H * 0.5, 기본띠))) : 1, 줄음 = 줄비 < 0.995 && !!String(opt.문구 || '').trim();   // 렌더도 문구가 있을 때만 제목칸(줄이기)을 쓴다
+      bg.style.left = 줄음 ? ((1 - 줄비) / 2 * 100) + '%' : ''; bg.style.width = 줄음 ? (줄비 * 100) + '%' : '';
+      bgb.style.display = 줄음 ? 'block' : 'none'; if (줄음) { bgb.style.top = bg.style.top; bgb.style.height = bg.style.height; bgb.style.background = bg.style.background; }
       ctr.style.display = 가운데형 ? 'block' : 'none'; var 띠 = 가운데형 && 헥스.test(v.가운데색 || '') ? v.가운데색 : ''; bg.style.filter = 가운데형 && !띠 ? 'blur(5px) brightness(.7)' : ''; bg.style.visibility = 띠 ? 'hidden' : ''; phone.style.background = 띠 || ''; bg.style.transform = 가운데형 ? 'scale(1.12)' : '';
       var box = RWLayout.자막상자(W, H, { 위치: 자막위치, 크기: v.자막크기 * Math.min(W, H) / 1080, 줄수: v.줄수, 줄길이: v.줄길이, 거리: v.자막거리, 가로: v.자막가로, 안전영역: !가로 });
       sub.style.cssText = 'left:' + ((box.x + box.w / 2) / W * 100) + '%;top:' + (box.y / H * 100) + '%;width:' + (box.w / W * 100) + '%;height:' + (box.h / H * 100) + '%;font-size:' + (v.자막크기 * 0.8 / 1080 * 100 * (가로 ? 0.5625 : 1)) + 'cqw;display:' + (v.자막끄기 ? 'none' : 'flex') + ';flex-direction:column;justify-content:flex-end;overflow:hidden;';   // 줄 칸을 잡고 글은 아래 칸부터 채운다
@@ -1004,7 +1009,7 @@
         var 머리 = el('div', 'cz-ch cz-wb-h'); var 제 = el('h3', '', '내 사진·영상'); 머리.appendChild(제); var 수 = el('b', 'cz-now', ''); 제.appendChild(수); 작업장.appendChild(머리);
         var 격자 = el('div', 'cz-wb-grid'); 격자.setAttribute('role', 'list'); var 안내 = el('p', 'cz-hint cz-wb-note', ''); 작업장.appendChild(격자); 작업장.appendChild(안내);
         var 고른 = -1;
-        function 쓰기그림(src) { var u = /^(blob:|https:\/\/|data:image\/)/.test(String(src || '')) ? String(src).replace(/["\\\n]/g, encodeURIComponent) : ''; if (!u) { bg.style.background = ''; ctr.style.background = '#222'; bg.setAttribute('data-ph', '사진 없음'); return; } bg.removeAttribute('data-ph'); bg.style.background = '#222 center / cover no-repeat url("' + u + '")'; ctr.style.background = '#222 center / cover no-repeat url("' + u + '")'; }
+        function 쓰기그림(src) { var u = /^(blob:|https:\/\/|data:image\/)/.test(String(src || '')) ? String(src).replace(/["\\\n]/g, encodeURIComponent) : ''; if (!u) { bg.style.background = ''; ctr.style.background = '#222'; bg.setAttribute('data-ph', '사진 없음'); bgb.style.background = ''; return; } bg.removeAttribute('data-ph'); bg.style.background = '#222 center / cover no-repeat url("' + u + '")'; ctr.style.background = '#222 center / cover no-repeat url("' + u + '")';  bgb.style.background = bg.style.background; }
         function 그리기() {
           격자.textContent = '';
           수.textContent = 자료.length ? '지금: ' + 자료.length + '개' : '';
