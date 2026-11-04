@@ -616,3 +616,6 @@ button.cz-pane-l[aria-pressed="true"] { color: var(--rz-ac); }
 .cz-trim-h:hover, .cz-trim-h:focus-visible { outline: 2px solid #fff; }
 .cz-trim-l { display: flex; justify-content: space-between; font-size: .72rem; color: var(--ink-dim); font-variant-numeric: tabular-nums; }
 .cz-trim-l em { font-style: normal; color: var(--ink); }
+.cz-t-clip.cz-t-drag { opacity: .45; }
+.cz-t-drop { position: absolute; top: -2px; bottom: -2px; width: 3px; margin-left: -1px; background: var(--rz-ac); border-radius: 2px; pointer-events: none; z-index: 3; }
+.cz-t-drop[hidden] { display: none; }

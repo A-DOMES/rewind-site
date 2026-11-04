@@ -651,7 +651,7 @@
     var 줌 = 1, 줌단계 = [1, 1.5, 2, 3, 4, 6, 8];   // 타임라인 확대 단계(1 = 한눈에 보기)
 
     // ── 편집 기록(되돌리기·다시하기)과 장면 편집 도구(나누기·삭제·복사·붙여넣기) ── 장면 = 앞 단계의 사진·영상 카드. 제목·자막·소리는 대본·목소리에서 자동으로 만들어져 직접 자르지 않는다
-    var 되돌림통 = [], 다시통 = [], 붙여넣을틀 = null, 도구버튼 = {}, 도구글 = '';
+    var 되돌림통 = [], 다시통 = [], 붙여넣을틀 = null, 도구버튼 = {}, 도구글 = '', 장면옮기기 = null;
     function 편집가능() { return 영상종류 === '쇼츠' && Array.isArray(opt.자료) && opt.자료.length > 0 && typeof opt.자료떼기 === 'function' && typeof opt.자료붙이기 === 'function' && typeof opt.자료복제 === 'function'; }
     function 도구갱신() { var n = 클립목록.length; if (도구버튼.되돌리기) 도구버튼.되돌리기.disabled = !되돌림통.length; if (도구버튼.다시하기) 도구버튼.다시하기.disabled = !다시통.length; if (도구버튼.삭제) 도구버튼.삭제.disabled = n <= 1; if (도구버튼.붙여넣기) 도구버튼.붙여넣기.disabled = !붙여넣을틀; if (도구버튼.글) 도구버튼.글.textContent = 도구글; }
     function 알리기(글) { 도구글 = 글 || ''; if (도구버튼.글) 도구버튼.글.textContent = 도구글; }
@@ -728,14 +728,25 @@
         속성그리기(n, 수, 길이); 편집장면적용(n, 수); 결과갱신();
         편집정보.textContent = ''; if (영상종류 === '쇼츠') { [['장면', n + ' / ' + 수], ['시작', 분초(길이 * (n - 1) / 수)], ['끝', 분초(길이 * n / 수)], ['길이', (길이 / 수).toFixed(1) + 's']].forEach(function (d) { var r = el('div'); r.appendChild(el('span', '', d[0])); r.appendChild(el('b', '', d[1])); 편집정보.appendChild(r); }); }
       };
+      var 이동중 = false, 슬롯 = 0, 표시선 = el('i', 'cz-t-drop'); 표시선.hidden = true;
       var 눌린클립 = -1, 눌린자리 = 0, 끌고있음 = false, 위치계산 = function (e) { var r = 눈금.getBoundingClientRect(); 두는곳((e.clientX - r.left) / Math.max(1, r.width)); };
       if (tl.__핸들) tl.__핸들.forEach(function (h) { tl.removeEventListener(h[0], h[1]); }); tl.__핸들 = [];   // 다시 그릴 때 옛 핸들러를 걷어낸다(쌓이지 않게)
       var 달기 = function (t, f) { tl.addEventListener(t, f); tl.__핸들.push([t, f]); };
       달기('pointerdown', function (e) { if (e.target.closest('.cz-trk-n') || e.target.closest('.cz-tl-h')) return; var 클립 = e.target.closest('.cz-t-clip'); 눌린클립 = 클립 ? 클립목록.indexOf(클립) : -1; 눌린자리 = e.clientX;
         if (눌린클립 >= 0) { try { tl.setPointerCapture(e.pointerId); } catch (x) {} return; }   // 클립 위: 움직임이 작으면 장면 고르기, 끌면 재생선 이동
         끌고있음 = true; 위치계산(e); try { tl.setPointerCapture(e.pointerId); } catch (x) {} });
-      달기('pointermove', function (e) { if (눌린클립 >= 0 && !끌고있음 && Math.abs(e.clientX - 눌린자리) > 4) 끌고있음 = true; if (끌고있음) 위치계산(e); });
-      달기('pointerup', function () { if (눌린클립 >= 0 && !끌고있음) 편집고르기(눌린클립 + 1); 눌린클립 = -1; 끌고있음 = false; }); 달기('pointercancel', function () { 눌린클립 = -1; 끌고있음 = false; });
+      var 이동끝내기 = function () { if (이동중 && 클립목록[눌린클립]) 클립목록[눌린클립].classList.remove('cz-t-drag'); 표시선.hidden = true; 이동중 = false; };
+      달기('pointermove', function (e) {
+        if (눌린클립 >= 0 && 편집가능() && !끌고있음) {   // 장면 조각을 끌면 순서가 바뀐다(리졸브처럼). 재생선 이동은 눈금을 끈다
+          if (!이동중 && Math.abs(e.clientX - 눌린자리) > 4) { 이동중 = true; 클립목록[눌린클립].classList.add('cz-t-drag'); if (!표시선.parentNode) 클립목록[눌린클립].parentNode.appendChild(표시선); }
+          if (이동중) { var 레 = 클립목록[눌린클립].parentNode.getBoundingClientRect(), 수n = 클립목록.length; 슬롯 = Math.min(수n, Math.max(0, Math.round((e.clientX - 레.left) / Math.max(1, 레.width) * 수n))); 표시선.hidden = false; 표시선.style.left = (슬롯 / 수n * 100) + '%'; }
+          return;
+        }
+        if (눌린클립 >= 0 && !끌고있음 && Math.abs(e.clientX - 눌린자리) > 4) 끌고있음 = true; if (끌고있음) 위치계산(e); });
+      달기('pointerup', function () {
+        if (이동중) { var a = 눌린클립, 도착 = 슬롯 > a ? 슬롯 - 1 : 슬롯; 이동끝내기(); 눌린클립 = -1; 끌고있음 = false; if (도착 !== a && 장면옮기기) { 편집장 = 도착 + 1; 장면옮기기(a, 도착); 알리기('순서를 바꿨어요 · 장면 ' + (a + 1) + ' → ' + (도착 + 1)); } return; }
+        if (눌린클립 >= 0 && !끌고있음) 편집고르기(눌린클립 + 1); 눌린클립 = -1; 끌고있음 = false; });
+      달기('pointercancel', function () { 이동끝내기(); 눌린클립 = -1; 끌고있음 = false; });
       var 문구있음 = !!String(opt.문구 || '').trim(), 제목끝 = 문구초값() !== null ? Math.min(문구초값(), 길이) : 길이, 구성 = 화면 === '자동' ? '전체화면형' : 화면;
       if (영상종류 === '쇼츠' && !가로) {
         var 제 = 트랙줄('제목'); if ((문구있음 || 구성 === '제목고정형' || 구성 === '가운데영상형') && 제목끝 > 0) 조각(제, 0, 제목끝, 길이, 문구있음 ? String(opt.문구).trim() : '제목', 'cz-t-title'); else 제.appendChild(el('em', 'cz-empty', '제목 없음'));
@@ -991,11 +1002,13 @@
           if (typeof opt.컴퓨터올리기 === 'function') 파일동작.컴퓨터 = function () { if (opt.컴퓨터올리기() === false) { 폼.hidden = false; 알림.textContent = '지금은 컴퓨터에서 가져올 수 없어요.'; } };
         }
         function 옮기기(a, b, 기록안함) {
-          if (b < 0 || b >= 자료.length || a === b) return; if (!기록안함 && 영상종류 === '쇼츠') 기록하기({ 이름: '순서 바꾸기', undo: function () { 옮기기(b, a, true); }, redo: function () { 옮기기(a, b, true); } }); var it = 자료.splice(a, 1)[0]; 자료.splice(b, 0, it); if (Array.isArray(opt.자료) && opt.자료 !== 자료) { var o = opt.자료.splice(a, 1)[0]; opt.자료.splice(b, 0, o); } if (Array.isArray(T.사진) && T.사진.length > Math.max(a, b)) { var tp = T.사진.splice(a, 1)[0]; T.사진.splice(b, 0, tp); }   // 장면 순서(사진·정보)도 같이 옮겨 재생·속성·타임라인이 새 순서를 따른다
+          if (b < 0 || b >= 자료.length || a === b) return; if (!기록안함 && 영상종류 === '쇼츠') 기록하기({ 이름: '순서 바꾸기', undo: function () { 옮기기(b, a, true); }, redo: function () { 옮기기(a, b, true); } });
+          장면별옮김(function (n) { var k = n - 1; return (k === a ? b : (a < b && k > a && k <= b) ? k - 1 : (a > b && k >= b && k < a) ? k + 1 : k) + 1; });   // 장면 설정(움직임·음량)은 장면을 따라 간다 var it = 자료.splice(a, 1)[0]; 자료.splice(b, 0, it); if (Array.isArray(opt.자료) && opt.자료 !== 자료) { var o = opt.자료.splice(a, 1)[0]; opt.자료.splice(b, 0, o); } if (Array.isArray(T.사진) && T.사진.length > Math.max(a, b)) { var tp = T.사진.splice(a, 1)[0]; T.사진.splice(b, 0, tp); }   // 장면 순서(사진·정보)도 같이 옮겨 재생·속성·타임라인이 새 순서를 따른다
           if (고른 === a) 고른 = b; else if (고른 >= 0 && a < b && 고른 > a && 고른 <= b) 고른--; else if (고른 >= 0 && a > b && 고른 >= b && 고른 < a) 고른++;
           if (typeof opt.자료옮김 === 'function') { try { opt.자료옮김(a, b); } catch (x) {} }
           그리기(); 지난장 = 0; 속성키 = ''; if (typeof 타임라인그리기 === 'function') 타임라인그리기(); var 칸 = 격자.children[b]; if (칸) 칸.focus();
         }
+        장면옮기기 = 옮기기;
         그리기();
       })();
       lib.appendChild(작업장);

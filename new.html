@@ -1941,10 +1941,10 @@
 <script src="./assets/voice-picker.js?v=20261104a"></script>
 <link rel="stylesheet" href="./assets/guide.css?v=20261025">
 <script src="./assets/guide.js?v=20261101"></script>
-<link rel="stylesheet" href="./assets/compose.css?v=20261105p">
+<link rel="stylesheet" href="./assets/compose.css?v=20261105q">
 <script src="./assets/shared/layout.js?v=20261027"></script>
 <script src="./assets/shared/phrase.js?v=20261026"></script>
-<script src="./assets/compose.js?v=20261105p"></script>
+<script src="./assets/compose.js?v=20261105q"></script>
 <script src="./assets/rw-consent.js"></script>
 <link rel="stylesheet" href="./assets/rw-theme.css?v=20261103n">
 </head>
@@ -4269,7 +4269,8 @@ ${비율칸Html(kind, 상태)}</div>`;
       return '';
     };
     const 컴퓨터올리기 = () => { const f = 자료목록 && 자료목록.parentNode.querySelector('.mm-pick'); if (!f || f.disabled) return false; f.click(); return true; };
-    const 자료옮김 = (a, b) => { const u = 자료카드(), c = u[a]; if (!c) return; u.splice(a, 1); const ref = u[b] || null; if (ref) 자료목록.insertBefore(c, ref); else { const last = u[u.length - 1]; last ? 자료목록.insertBefore(c, last.nextSibling) : 자료목록.appendChild(c); } if (자료목록.__mm && 자료목록.__mm.changed) 자료목록.__mm.changed(); };
+    const 자료옮김 = (a, b) => { const u = 자료카드(), c = u[a]; if (!c) return; if (composeState && composeState.장면별) { const 새 = {}; Object.keys(composeState.장면별).forEach(k => { const n = Number(k) - 1; 새[(n === a ? b : (a < b && n > a && n <= b) ? n - 1 : (a > b && n >= b && n < a) ? n + 1 : n) + 1] = composeState.장면별[k]; }); composeState.장면별 = 새; }   // 저장해 둔 장면 설정도 장면을 따라 간다
+      u.splice(a, 1); const ref = u[b] || null; if (ref) 자료목록.insertBefore(c, ref); else { const last = u[u.length - 1]; last ? 자료목록.insertBefore(c, last.nextSibling) : 자료목록.appendChild(c); } if (자료목록.__mm && 자료목록.__mm.changed) 자료목록.__mm.changed(); };
     // 장면 편집(영상 꾸미기 타임라인): 카드를 떼었다 되붙일 수 있게 해 되돌리기를 받친다(떼어낸 카드는 그대로 들고 있다가 다시 끼운다)
     const 목록바뀜 = () => { if (자료목록.__mm && 자료목록.__mm.changed) 자료목록.__mm.changed(); else if (window.__rwPoolRefresh) window.__rwPoolRefresh(); };
     const 쓴카드 = () => 자료카드().filter(c => !비었나(c));
