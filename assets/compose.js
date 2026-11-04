@@ -723,10 +723,10 @@
         눌림목록.push(function () { var it = 제작방식.목록.filter(function (x) { return x.값 === 제작값; })[0]; 안내2.textContent = it ? (it.설명 || '') : ''; });
       }
       // 제목 설정: 위쪽 제목 띠(제목고정형)·제목 글자(제목고정형·가운데영상형). 슬라이더는 모두 가운데가 기본이다
-      var c1b = 카드('제목 설정', '위쪽 문구의 띠와 글자', '제목'); var 제목행들 = [];
-      function 제목슬라이더(이름, 키, 기본, 변환, 역변환, 띠만) {
-        var r = el('div', 'cz-row'); r.appendChild(el('label', '', 이름)); var sl = el('input'); sl.type = 'range'; sl.min = -50; sl.max = 50; sl.step = 1; sl.setAttribute('aria-label', '제목 ' + 이름 + ' (가운데가 기본)');
-        sl.addEventListener('input', function () { if (Number(sl.value) === 0) delete 선택[키]; else 선택[키] = 변환(Number(sl.value)); 갱신(); }); r.appendChild(sl); c1b.appendChild(r);   // 가운데(0)는 건드리지 않은 것과 같다
+      var c1b = 카드('제목 설정', '위쪽 문구의 띠와 글자', '제목'); var 제목행들 = []; var 제목믹서 = el('div', 'cz-mix'); c1b.appendChild(제목믹서);   // 믹서처럼 세로 페이더를 나란히(스크롤 없이 한눈에)
+      function 제목슬라이더(이름, 키, 기본, 변환, 역변환, 띠만, 모양) {
+        var r = el('div', 'cz-row ' + (모양 || 'cz-fd')); r.appendChild(el('label', '', 이름)); var sl = el('input'); sl.type = 'range'; sl.min = -50; sl.max = 50; sl.step = 1; sl.setAttribute('aria-label', '제목 ' + 이름 + ' (가운데가 기본)'); if (!모양 || 모양 === 'cz-fd') sl.setAttribute('aria-orientation', 'vertical');
+        sl.addEventListener('input', function () { if (Number(sl.value) === 0) delete 선택[키]; else 선택[키] = 변환(Number(sl.value)); 갱신(); }); r.appendChild(sl); 제목믹서.appendChild(r);   // 가운데(0)는 건드리지 않은 것과 같다
         눌림목록.push(function () { var v = 합치기(선택, 종류).값[키]; sl.value = String(v === undefined ? 0 : Math.round(수(역변환(v), -50, 50, 0))); });
         제목행들.push({ r: r, 띠만: !!띠만 });
       }
@@ -736,8 +736,8 @@
       제목슬라이더('글자 크기', '제목크기', 1, 크기식[0], 크기식[1]);
       var 세로범위 = function () { return 제목상태 ? 제목상태.세로범위 : [0.02, 0.17]; };
       var 기본세로 = function () { return 제목상태 ? 제목상태.기본세로 : 0.09; };
-      제목슬라이더('위·아래', '제목세로', 0.09, function (v) { var g = 기본세로(), r = 세로범위(); return Math.round((v < 0 ? g - (g - r[0]) * (-v / 50) : g + (r[1] - g) * (v / 50)) * 1000) / 1000; }, function (x) { var g = 기본세로(), r = 세로범위(); return (x - g) / (((x < g ? g - r[0] : r[1] - g) / 50) || 1); });
-      제목슬라이더('왼쪽·오른쪽', '제목가로', 0.5, function (v) { return Math.round((0.5 + v / 100) * 100) / 100; }, function (x) { return (x - 0.5) * 100; });
+      제목슬라이더('위·아래', '제목세로', 0.09, function (v) { var g = 기본세로(), r = 세로범위(); return Math.round((v > 0 ? g - (g - r[0]) * (v / 50) : g + (r[1] - g) * (-v / 50)) * 1000) / 1000; }, function (x) { var g = 기본세로(), r = 세로범위(); return -(x - g) / (((x < g ? g - r[0] : r[1] - g) / 50) || 1); }, false, 'cz-fd');   // 위쪽이 + (글자가 위로)
+      제목슬라이더('왼쪽·오른쪽', '제목가로', 0.5, function (v) { return Math.round((0.5 + v / 100) * 100) / 100; }, function (x) { return (x - 0.5) * 100; }, false, 'cz-fd-h');
       c1b.appendChild(el('p', 'cz-hint', '띠 높이를 바꾸면 글자가 띠에 맞춰져요. 글자는 띠 아래 화면 위로도 옮길 수 있어요'));
       눌림목록.push(function () { var 보임 = !가로 && (화면 === '제목고정형' || 화면 === '가운데영상형'); c1b.style.display = 보임 ? '' : 'none'; 제목행들.forEach(function (h) { h.r.style.display = (h.띠만 === '가운데' && 화면 !== '가운데영상형') ? 'none' : ''; }); });
       if (문구시간쓰기) {

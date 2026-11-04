@@ -574,3 +574,26 @@ button.cz-pane-l[aria-pressed="true"] { color: var(--rz-ac); }
 .cz-head { justify-content: flex-start; }
 .cz-head > .cz-fm-wrap + div { margin-right: auto; }
 @media (max-width: 900px) { .cz-head-acts .cz-btn:not(.cz-main) { display: none; } .cz-fm-wrap { margin-right: 6px; } }   /* 좁은 화면: 처음 모양으로는 파일 메뉴에 있다 */
+
+/* 믹서형 페이더 묶음(제목 설정): 이름 · 세로 페이더 · 값과 처음 값 버튼. 위쪽이 + (크게·위로), 가운데가 기본 */
+.cz-mix { display: flex; gap: 6px; align-items: stretch; justify-content: space-between; margin: 0 14px; padding: 6px 4px 2px; background: #060607; border: 1px solid var(--rz-ln); border-radius: 8px; }
+.cz-body .cz-card > .cz-mix { margin-left: 14px; margin-right: 14px; }
+.cz-mix .cz-row { flex: 1 1 0; min-width: 0; display: grid; grid-template-rows: auto 64px auto; grid-template-columns: 1fr auto; justify-items: center; align-items: center; gap: 4px 4px; padding: 2px 4px 6px; border-right: 1px solid #16161a; }
+.cz-mix .cz-row:last-child { border-right: 0; }
+.cz-mix .cz-row label { grid-column: 1 / -1; grid-row: 1; min-width: 0; text-align: center; font-size: .78rem; color: var(--ink-dim); white-space: nowrap; }
+.cz-mix .cz-row input[type=range] { grid-column: 1 / -1; grid-row: 2; }
+.cz-mix .cz-val { grid-row: 3; grid-column: 1; justify-self: end; min-width: 3.4ch; }
+.cz-mix .cz-rst { grid-row: 3; grid-column: 2; justify-self: start; width: 24px; height: 24px; font-size: .8rem; }
+.cz-mix .cz-row:hover label { color: #fff; }
+/* 세로 페이더: 가로 슬라이더를 세워서 쓴다(footprint 는 30 x 64). 눈금은 슬라이더 자신의 배경으로 그린다 */
+.cz-mix .cz-fd input[type=range] { width: 64px; height: 30px; min-height: 0; margin: -17px; flex: none; background-image: linear-gradient(90deg, #666 1px, transparent 1px), linear-gradient(90deg, #aaa 2px, transparent 2px); background-size: 25% 10px, 100% 18px; background-position: 0 50%, 50% 50%; background-repeat: repeat-x, no-repeat; }
+.cz-mix .cz-fd input[type=range] { transform: rotate(-90deg); touch-action: none; }   /* 세로로 끌 때 패널이 스크롤되지 않게 */
+.cz-mix .cz-fd-h input[type=range] { width: 100%; min-height: 0; height: 30px; }
+.cz-mix .cz-row input[type=range].cz-bi::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 26px; border-radius: 3px; border: 1px solid #000; background: linear-gradient(90deg, #8a8a90, #e8e8ec 45%, #8a8a90); box-shadow: 0 1px 2px rgba(0,0,0,.6); margin-top: -11px; }
+.cz-mix .cz-row input[type=range].cz-bi::-moz-range-thumb { width: 10px; height: 24px; border-radius: 3px; border: 1px solid #000; background: linear-gradient(90deg, #8a8a90, #e8e8ec 45%, #8a8a90); }
+.cz-mix .cz-row input[type=range].cz-bi:hover::-webkit-slider-thumb { background: linear-gradient(90deg, #c88a30, #ffd27a 45%, #c88a30); }
+.cz-mix .cz-row input[type=range].cz-bi:focus-visible { outline: 2px solid var(--rz-ac); outline-offset: 2px; }
+.cz-dlg[data-pg="text"] .cz-dockbody > .cz-body > .cz-card:has(> .cz-mix) { grid-column: 1 / -1; }
+@media (min-width: 900px) { .cz-dlg[data-pg="text"] .cz-dockbody > .cz-body > .cz-card:has(> .cz-mix) { grid-column: span 2; } }   /* 넓으면 두 칸, 좁으면 한 줄 전체 */   /* 믹서 카드는 두 칸 */
+@media (max-width: 600px) { .cz-mix { flex-wrap: wrap; } .cz-mix .cz-row { flex: 1 1 44%; } .cz-mix .cz-row:nth-child(2n) { border-right: 0; } }
+.cz-mix .cz-row .cz-numin { grid-row: 3; grid-column: 1; justify-self: end; width: 3.6em; }
