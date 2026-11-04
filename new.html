@@ -4037,12 +4037,15 @@ ${비율칸Html(kind, 상태)}</div>`;
     return changed;
   }
   // 접수 직전에 최신 설정을 한 번 더 받아 온다(브라우저 보관을 쓰지 않음). 받지 못하면 지금 값 그대로 진행한다. 실제 차감은 서버가 같은 공식으로 다시 계산한다.
+  // 효과음 설정(자동 배치·장면 앞 초·최대 개수·음량·고를 수 있는 소리 목록): 영상 꾸미기 타임라인이 렌더링과 같은 자리를 보여 주는 데만 쓴다. 받지 못하면 꾸미기 쪽 기본값(렌더링 v38과 같음).
+  let SITE_SFX = null;
+  function applySiteSfx(x) { if (x && typeof x === 'object' && !Array.isArray(x)) SITE_SFX = x; }
   async function 최신가격받기() {
     try {
       const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), 3000);
       const r = await fetch(SITE_CONFIG_URL + '?t=' + Date.now(), { cache: 'no-store', signal: ctl.signal }); clearTimeout(to);
       const cfg = r.ok ? await r.json() : null;
-      if (cfg && cfg.ok === true) { try { sessionStorage.setItem('rw_site_cfg_v1', JSON.stringify({ at: Date.now(), cfg })); } catch (e) {} const a = applySitePrice(cfg.price), b = applySiteLong(cfg.long), c2 = applySiteLimits(cfg.limits); applySiteUpload(cfg.upload); return a || b || c2; }
+      if (cfg && cfg.ok === true) { try { sessionStorage.setItem('rw_site_cfg_v1', JSON.stringify({ at: Date.now(), cfg })); } catch (e) {} const a = applySitePrice(cfg.price), b = applySiteLong(cfg.long), c2 = applySiteLimits(cfg.limits); applySiteUpload(cfg.upload); applySiteSfx(cfg.sfx); return a || b || c2; }
     } catch (e) {}
     return false;
   }
@@ -4075,7 +4078,7 @@ ${비율칸Html(kind, 상태)}</div>`;
     function apply(c) {
       if (!c || c.ok !== true) return;
       showNotice(c.notice);
-      applySitePrice(c.price); applySiteLong(c.long); applySiteLimits(c.limits); applySiteUpload(c.upload);
+      applySitePrice(c.price); applySiteLong(c.long); applySiteLimits(c.limits); applySiteUpload(c.upload); applySiteSfx(c.sfx);
       const g = Number(c.signupGrant);
       if (Number.isFinite(g) && g >= 0) document.querySelectorAll('[data-grant]').forEach(el => { el.textContent = String(Math.round(g)); });
       let changed = false;
@@ -4195,7 +4198,7 @@ ${비율칸Html(kind, 상태)}</div>`;
       const 분 = 롱 ? Number(롱폼길이분()) : parseFloat(document.getElementById('df-videoLength')?.value), 초 = 상품 ? parseFloat(document.getElementById('df-prodLen')?.value) : (분 > 0 ? 분 * 60 : 0);
       const 사진 = 롱 ? [] : 내자료카드(상품).map(c => ((c.querySelector('.pimg-th img') || {}).src) || '');   // 야담·수면은 올린 사진이 없다(장면은 AI가 만든다)
       let 소리 = ''; try { if (window.RWVoice && typeof RWVoice.summary === 'function') 소리 = String(RWVoice.summary() || '').slice(0, 30); } catch (e) {}
-      return { 길이초: 초 > 0 ? Math.round(초) : 0, 사진, 사진수: 사진.length || undefined, 소리 };
+      return { 길이초: 초 > 0 ? Math.round(초) : 0, 사진, 사진수: 사진.length || undefined, 소리, 효과음: SITE_SFX || undefined };
     } catch (e) { return {}; }
   }
   document.addEventListener('click', ev => {
