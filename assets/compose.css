@@ -606,3 +606,12 @@ button.cz-pane-l[aria-pressed="true"] { color: var(--rz-ac); }
 .cz-tl-edit { margin-left: 12px; }
 .cz-tbtn-t { width: auto; padding: 0 9px; font-size: .74rem; }
 .cz-tl-msg { margin-left: 10px; font-size: .74rem; color: var(--ink-dim); white-space: nowrap; }
+/* 구간 바(트림): 편집 화면 아래 */
+.cz-trim { width: min(100%, 320px); display: grid; gap: 4px; margin-top: 4px; }
+.cz-trim[hidden] { display: none; }
+.cz-trim-t { position: relative; height: 22px; background: var(--rz-p1); border: 1px solid var(--rz-ln); border-radius: 4px; margin: 0 7px; }
+.cz-trim-r { position: absolute; top: 0; bottom: 0; background: color-mix(in srgb, var(--rz-ac) 35%, transparent); border-top: 2px solid var(--rz-ac); border-bottom: 2px solid var(--rz-ac); pointer-events: none; }
+.cz-trim-h { position: absolute; top: -3px; bottom: -3px; width: 14px; margin-left: -7px; background: var(--rz-ac); border-radius: 3px; cursor: ew-resize; touch-action: none; }
+.cz-trim-h:hover, .cz-trim-h:focus-visible { outline: 2px solid #fff; }
+.cz-trim-l { display: flex; justify-content: space-between; font-size: .72rem; color: var(--ink-dim); font-variant-numeric: tabular-nums; }
+.cz-trim-l em { font-style: normal; color: var(--ink); }
