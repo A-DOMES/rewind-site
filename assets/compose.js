@@ -730,11 +730,17 @@
         function 그리기() {
           격자.textContent = '';
           수.textContent = 자료.length ? '지금: ' + 자료.length + '개' : '';
-          안내.textContent = 자료.length ? '끌어서 사진 순서를 바꿔요 · 순서가 장면 순서예요 · 올리기와 빼기, 영상·파일은 앞의 「화면·길이」 단계에서 해요' : (Array.isArray(opt.자료) ? '앞 단계에서 올린 사진이 여기에 모여요. 올리지 않으면 AI가 장면 그림을 만들어요' : '이 종류는 AI가 장면 그림을 만들어서 여기에 모이는 자료가 없어요');
+          안내.textContent = 자료.length ? '끌어서 사진 순서를 바꿔요 · 순서가 장면 순서예요 · 가져오기와 빼기는 아래와 × 로 해요' : (Array.isArray(opt.자료) ? '앞 단계에서 올린 사진이 여기에 모여요. 올리지 않으면 AI가 장면 그림을 만들어요' : '이 종류는 AI가 장면 그림을 만들어서 여기에 모이는 자료가 없어요');
           자료.forEach(function (it, i) {
             var t = el('div', 'cz-wb-t'); t.setAttribute('role', 'listitem'); t.tabIndex = 0; t.dataset.i = String(i); t.title = (it.이름 || '') + (it.영상 ? ' (영상)' : '');
             var im = el('span', 'cz-wb-img'); if (it.src) im.style.backgroundImage = 'url("' + String(it.src).replace(/["\\\n]/g, encodeURIComponent) + '")'; else { im.classList.add('cz-wb-ph'); im.textContent = it.영상 ? '영상' : (it.이름 || '사진'); } t.appendChild(im);
             t.appendChild(el('i', 'cz-wb-n', String(i + 1))); if (it.영상) t.appendChild(el('i', 'cz-wb-v', '▶'));
+            if (typeof opt.자료빼기 === 'function') {   // 빼기: 앞 단계 목록에서도 같이 빠진다. 뒤 장면의 장면별 설정은 한 칸씩 당긴다
+              var 엑스 = el('button', 'cz-wb-x', '×'); 엑스.type = 'button'; 엑스.setAttribute('aria-label', (i + 1) + '번 빼기'); 엑스.title = '빼기';
+              엑스.addEventListener('pointerdown', function (e) { e.stopPropagation(); });
+              엑스.addEventListener('click', function (e) { e.stopPropagation(); 빼기(i); });
+              t.appendChild(엑스);
+            }
             if (i === 고른) t.setAttribute('aria-pressed', 'true');
             t.addEventListener('click', function () { 고른 = i; 쓰기그림(it.src); if (영상종류 === '쇼츠') 위치옮김((i + 0.5) / Math.max(1, 자료.length)); Array.prototype.forEach.call(격자.children, function (c, k) { c.setAttribute('aria-pressed', String(k === i)); }); });
             t.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); t.click(); } else if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && e.altKey) { e.preventDefault(); 옮기기(i, i + (e.key === 'ArrowLeft' ? -1 : 1)); } });
@@ -752,6 +758,37 @@
             });
             격자.appendChild(t);
           });
+        }
+        function 빼기(i) {
+          if (i < 0 || i >= 자료.length) return;
+          자료.splice(i, 1); if (Array.isArray(opt.자료) && opt.자료 !== 자료) opt.자료.splice(i, 1); if (Array.isArray(T.사진)) T.사진.splice(i, 1); T.사진수 = 자료.length || undefined;
+          if (선택.장면별) { var 새 = {}; Object.keys(선택.장면별).forEach(function (k) { var n = Number(k); if (n === i + 1) return; 새[n > i + 1 ? n - 1 : n] = 선택.장면별[k]; }); if (Object.keys(새).length) 선택.장면별 = 새; else delete 선택.장면별; }
+          if (고른 === i) 고른 = -1; else if (고른 > i) 고른--;
+          try { opt.자료빼기(i); } catch (x) {}
+          그리기(); 지난장 = 0; 속성키 = ''; if (typeof 타임라인그리기 === 'function') 타임라인그리기(); 갱신();
+        }
+        var 예약 = 0;
+        function 다시읽기() {   // 앞 단계 목록이 바뀌면(주소로 넣기·컴퓨터에서 올리기·썸네일 도착) 목록을 다시 읽어 온다
+          if (typeof opt.자료읽기 !== 'function' || 예약) return;
+          예약 = requestAnimationFrame(function () {
+            예약 = 0; var 새 = (opt.자료읽기() || []).filter(function (x) { return !!x; });
+            자료.length = 0; Array.prototype.push.apply(자료, 새); if (Array.isArray(opt.자료) && opt.자료 !== 자료) { opt.자료.length = 0; Array.prototype.push.apply(opt.자료, 새); }
+            T.사진 = 새.map(function (x) { return x.src || ''; }); T.사진수 = 새.length || undefined;
+            if (고른 >= 새.length) 고른 = -1; 그리기(); 지난장 = 0; if (typeof 타임라인그리기 === 'function') 타임라인그리기();
+          });
+        }
+        window.__rwPoolRefresh = 다시읽기;
+        if (typeof opt.자료더하기 === 'function') {   // 가져오기: 주소로 사진·영상 넣기 / 컴퓨터에서 올리기. 앞 단계 목록에 똑같이 더해진다
+          var 폼 = el('div', 'cz-wb-add'); var 주소 = el('input', 'cz-wb-url'); 주소.type = 'url'; 주소.placeholder = 'https://… 사진·영상 주소'; 주소.setAttribute('aria-label', '사진·영상 주소');
+          var 종 = el('span', 'cz-seg2'); 종.setAttribute('role', 'group'); 종.setAttribute('aria-label', '종류'); var 지금종류 = 'image';
+          [['image', '사진'], ['video', '영상']].forEach(function (x) { var b = el('button', 'cz-chip', x[1]); b.type = 'button'; b.setAttribute('aria-pressed', String(x[0] === 지금종류)); b.addEventListener('click', function () { 지금종류 = x[0]; Array.prototype.forEach.call(종.children, function (k, n) { k.setAttribute('aria-pressed', String(n === (x[0] === 'image' ? 0 : 1))); }); }); 종.appendChild(b); });
+          var 더 = el('button', 'cz-btn', '가져오기'); 더.type = 'button'; var 알림 = el('p', 'cz-hint cz-wb-msg', ''); 알림.setAttribute('role', 'status');
+          주소.addEventListener('input', function () { if (/\.(mp4|mov|webm|m4v)(\?|#|$)/i.test(주소.value)) { 지금종류 = 'video'; Array.prototype.forEach.call(종.children, function (k, n) { k.setAttribute('aria-pressed', String(n === 1)); }); } else if (/\.(jpe?g|png|webp|gif|avif)(\?|#|$)/i.test(주소.value)) { 지금종류 = 'image'; Array.prototype.forEach.call(종.children, function (k, n) { k.setAttribute('aria-pressed', String(n === 0)); }); } });
+          function 넣기() { var 문제 = opt.자료더하기(주소.value, 지금종류); 알림.textContent = 문제 || ''; if (!문제) { 주소.value = ''; 다시읽기(); } }
+          더.addEventListener('click', 넣기); 주소.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); 넣기(); } });
+          폼.appendChild(주소); 폼.appendChild(종); 폼.appendChild(더);
+          if (typeof opt.컴퓨터올리기 === 'function') { var 올 = el('button', 'cz-btn', '컴퓨터에서'); 올.type = 'button'; 올.addEventListener('click', function () { if (opt.컴퓨터올리기() === false) 알림.textContent = '지금은 컴퓨터에서 올릴 수 없어요.'; }); 폼.appendChild(올); }
+          작업장.appendChild(폼); 작업장.appendChild(알림);
         }
         function 옮기기(a, b) {
           if (b < 0 || b >= 자료.length || a === b) return; var it = 자료.splice(a, 1)[0]; 자료.splice(b, 0, it); if (Array.isArray(opt.자료) && opt.자료 !== 자료) { var o = opt.자료.splice(a, 1)[0]; opt.자료.splice(b, 0, o); } if (Array.isArray(T.사진) && T.사진.length > Math.max(a, b)) { var tp = T.사진.splice(a, 1)[0]; T.사진.splice(b, 0, tp); }   // 장면 순서(사진·정보)도 같이 옮겨 재생·속성·타임라인이 새 순서를 따른다 if (고른 === a) 고른 = b; else if (고른 >= 0 && a < b && 고른 > a && 고른 <= b) 고른--; else if (고른 >= 0 && a > b && 고른 >= b && 고른 < a) 고른++;
@@ -836,7 +873,7 @@
       })();
       타임라인만들기();
     }
-    function 닫기(결과) { try { if (넓은.removeEventListener) 넓은.removeEventListener('change', 넓은바뀜); else if (넓은.removeListener) 넓은.removeListener(넓은바뀜); } catch (x) {} if (폭관찰) 폭관찰.disconnect(); if (결과관찰) 결과관찰.disconnect(); if (결과예약) cancelAnimationFrame(결과예약); 읽기멈춤(); 재생멈춤(); if (끌기중단) 끌기중단(); document.removeEventListener('keydown', 키); document.body.style.overflow = 이전스크롤; ov.remove(); if (이전포커스 && 이전포커스.focus) 이전포커스.focus(); if (결과 && typeof opt.onDone === 'function') opt.onDone(결과); }
+    function 닫기(결과) { window.__rwPoolRefresh = null; try { if (넓은.removeEventListener) 넓은.removeEventListener('change', 넓은바뀜); else if (넓은.removeListener) 넓은.removeListener(넓은바뀜); } catch (x) {} if (폭관찰) 폭관찰.disconnect(); if (결과관찰) 결과관찰.disconnect(); if (결과예약) cancelAnimationFrame(결과예약); 읽기멈춤(); 재생멈춤(); if (끌기중단) 끌기중단(); document.removeEventListener('keydown', 키); document.body.style.overflow = 이전스크롤; ov.remove(); if (이전포커스 && 이전포커스.focus) 이전포커스.focus(); if (결과 && typeof opt.onDone === 'function') opt.onDone(결과); }
     function 키(e) {
       if (e.key === 'Escape') { e.preventDefault(); if (선택풀기()) return; 닫기(null); return; }   // 고른 요소가 있으면 선택만 풀고, 없을 때만 창을 닫는다
       if (e.key !== 'Tab') return;

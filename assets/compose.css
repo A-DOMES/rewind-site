@@ -531,3 +531,15 @@ button.cz-pane-l[aria-pressed="true"] { color: var(--rz-ac); }
 
 /* 사진이 없는 장면(영상·드라이브 파일): 이름표 */
 .cz-bg[data-ph]::after { content: attr(data-ph); position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); padding: 3px 10px; border-radius: 10px; background: rgba(0,0,0,.45); color: rgba(255,255,255,.75); font-size: .72rem; letter-spacing: .04em; white-space: nowrap; }
+
+/* 작업장: 빼기(×)와 가져오기 줄 */
+.cz-wb-x { position: absolute; top: 3px; right: 3px; width: 22px; height: 22px; padding: 0; border: 0; border-radius: 50%; background: rgba(0,0,0,.72); color: #ddd; font-size: 15px; line-height: 22px; cursor: pointer; opacity: 0; transition: opacity .12s; }
+.cz-wb-t:hover .cz-wb-x, .cz-wb-t:focus-within .cz-wb-x, .cz-wb-x:focus-visible { opacity: 1; }
+.cz-wb-x:hover { background: #b3261e; color: #fff; }
+@media (hover: none) { .cz-wb-x { opacity: .85; } }
+.cz-wb-add { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--rz-ln); }
+.cz-wb-url { flex: 1 1 100%; min-width: 0; min-height: 34px; padding: 0 10px; border: 1px solid var(--rz-ln); border-radius: 6px; background: #000; color: inherit; font: inherit; font-size: .82rem; }
+.cz-wb-url:focus-visible { outline: 2px solid var(--rz-ac); outline-offset: 1px; }
+.cz-seg2 { display: inline-flex; gap: 4px; }
+.cz-wb-msg { min-height: 1em; margin: 4px 0 0; color: #ff8a80; }
+.cz-wb-add .cz-chip, .cz-wb-add .cz-btn { min-height: 30px; padding: 0 10px; font-size: .78rem; }

@@ -1936,15 +1936,15 @@
 </style>
 <script src="./theme.js"></script>
 <script src="./assets/voice-panel.js?v=20261102c"></script>
-<script src="./assets/media-input.js?v=20261104z"></script>
+<script src="./assets/media-input.js?v=20261104y"></script>
 <script src="./assets/voice-catalog.js?v=20261025"></script>
 <script src="./assets/voice-picker.js?v=20261104a"></script>
 <link rel="stylesheet" href="./assets/guide.css?v=20261025">
 <script src="./assets/guide.js?v=20261101"></script>
-<link rel="stylesheet" href="./assets/compose.css?v=20261104z">
+<link rel="stylesheet" href="./assets/compose.css?v=20261104y">
 <script src="./assets/shared/layout.js?v=20261027"></script>
 <script src="./assets/shared/phrase.js?v=20261026"></script>
-<script src="./assets/compose.js?v=20261104z"></script>
+<script src="./assets/compose.js?v=20261104y"></script>
 <script src="./assets/rw-consent.js"></script>
 <link rel="stylesheet" href="./assets/rw-theme.css?v=20261103n">
 </head>
@@ -4228,9 +4228,30 @@ ${비율칸Html(kind, 상태)}</div>`;
     // 작업장(왼쪽): 앞 단계에서 올린 사진·영상 목록과 순서 바꾸기(원래 목록의 카드 순서를 그대로 옮긴다)
     const 자료목록 = document.getElementById(상품 ? 'df-pimgs' : 'df-gimgs');
     const 자료카드 = () => 내자료카드(상품);
-    const 자료 = 자료카드().map(c => ({ src: ((c.querySelector('.pimg-th img') || {}).src) || '', 영상: c.dataset.type === 'video', 이름: ((c.querySelector('.pimg-name') || {}).textContent || '').trim() || String((c.querySelector('.pimg-url') || {}).value || '').trim().slice(-24) }));
+    const 자료읽기 = () => 자료카드().map(c => ({ src: ((c.querySelector('.pimg-th img') || {}).src) || '', 영상: c.dataset.type === 'video', 이름: ((c.querySelector('.pimg-name') || {}).textContent || '').trim() || String((c.querySelector('.pimg-url') || {}).value || '').trim().slice(-24) }));
+    const 자료 = 자료읽기();
+    const 자료빼기 = i => {
+      const c = 자료카드()[i]; if (!c) return;
+      if (자료목록.querySelectorAll('.pimg-card').length > 1 || c.dataset.src) { const d = c.querySelector('.pimg-del'); if (d) d.click(); }
+      else { const inp = c.querySelector('.pimg-url'); inp.value = ''; inp.dispatchEvent(new Event('input', { bubbles: true })); }
+    };
+    const 자료더하기 = (url, 종류) => {
+      const u = pdCleanUrl(url); if (!u) return '주소를 넣어 주세요.';
+      const p = pdUrlProblem(u, 'media'); if (p) return p;
+      const 한도 = 상품 ? PRODUCT_IMG_MAX : GN_IMG_MAX; if (자료카드().length >= 한도) return '더 넣을 수 없어요 (최대 ' + 한도 + '개).';
+      if (종류 === 'video' && 자료카드().filter(c => c.dataset.type === 'video').length >= MEDIA_VIDEO_MAX) return '영상은 최대 ' + MEDIA_VIDEO_MAX + '개까지 넣을 수 있어요.';
+      const 비었나 = c => !c.querySelector('.pimg-url').value.trim() && !c.dataset.src && !c.dataset.up;
+      let c = [...자료목록.querySelectorAll('.pimg-card')].find(비었나);
+      if (!c) { const a = 자료목록.querySelector('.pimg-add'); if (a) a.click(); c = [...자료목록.querySelectorAll('.pimg-card')].find(비었나); }
+      if (!c) return '추가하지 못했어요.';
+      const inp = c.querySelector('.pimg-url'); inp.value = u;
+      const tb = c.querySelector(`.pm-type button[data-t="${종류 === 'video' ? 'video' : 'image'}"]`); if (tb) tb.click();
+      inp.dispatchEvent(new Event('input', { bubbles: true }));
+      return '';
+    };
+    const 컴퓨터올리기 = () => { const f = 자료목록 && 자료목록.querySelector('.mm-pick'); if (!f) return false; f.click(); return true; };
     const 자료옮김 = (a, b) => { const u = 자료카드(), c = u[a]; if (!c) return; u.splice(a, 1); const ref = u[b] || null; if (ref) 자료목록.insertBefore(c, ref); else { const last = u[u.length - 1]; last ? 자료목록.insertBefore(c, last.nextSibling) : 자료목록.appendChild(c); } if (자료목록.__mm && 자료목록.__mm.changed) 자료목록.__mm.changed(); };
-    RWCompose.open({ 종류: 상품 ? '상품쇼츠' : '쇼츠', 자료, 자료옮김, 타임라인: composeTimeline(상품), 화면: '세로', 배경그림: 첫사진, 화면목록, 화면구성, 제작방식, 문구시간: 상품 ? (((document.querySelector('input[name="pd-hookshow"]:checked') || {}).value === '3s') ? ((parseFloat((document.getElementById('pd-hooksec') || {}).value) >= 0 ? parseFloat(document.getElementById('pd-hooksec').value) : 3) + 's') : 'all') : undefined, 자막방식: (상품 && window.RWVoice) ? (RWVoice.getExtra().subtitleStyle || '구절형') : undefined, 문구: document.getElementById('df-hookText')?.value || '', 값, 자막위치: 거꾸로[지금] || '아래', 대본: 대본전체, 샘플: 대본첫줄 || document.getElementById('df-hookText')?.value || '',
+    RWCompose.open({ 종류: 상품 ? '상품쇼츠' : '쇼츠', 자료, 자료옮김, 자료읽기, 자료빼기, 자료더하기, 컴퓨터올리기, 타임라인: composeTimeline(상품), 화면: '세로', 배경그림: 첫사진, 화면목록, 화면구성, 제작방식, 문구시간: 상품 ? (((document.querySelector('input[name="pd-hookshow"]:checked') || {}).value === '3s') ? ((parseFloat((document.getElementById('pd-hooksec') || {}).value) >= 0 ? parseFloat(document.getElementById('pd-hooksec').value) : 3) + 's') : 'all') : undefined, 자막방식: (상품 && window.RWVoice) ? (RWVoice.getExtra().subtitleStyle || '구절형') : undefined, 문구: document.getElementById('df-hookText')?.value || '', 값, 자막위치: 거꾸로[지금] || '아래', 대본: 대본전체, 샘플: 대본첫줄 || document.getElementById('df-hookText')?.value || '',
       onDone: res => {
         composeState = Object.keys(res.compose).length ? res.compose : null; composeKind = composeState ? 종류표 : '';
         const 고르기 = (name, v) => { const r = [...document.querySelectorAll(`input[name="${name}"]`)].find(x => x.value === v); if (r && !r.disabled) { r.checked = true; r.dispatchEvent(new Event('change', { bubbles: true })); } };
@@ -5299,6 +5320,7 @@ ${비율칸Html(kind, 상태)}</div>`;
       const all = [...cards()], n = all.length, used = all.filter(isUsed).length, vids = all.filter(c => isUsed(c) && c.dataset.type === 'video').length;
       all.forEach((c, i) => { c.querySelector('b').textContent = '사진·영상 ' + (i + 1); c.querySelector('.pimg-del').hidden = n <= 1 && !c.dataset.src; c.querySelector('.pimg-mv').hidden = n <= 1; });
       add.hidden = n >= max;
+      if (window.__rwPoolRefresh) window.__rwPoolRefresh();   // 열려 있는 영상 꾸미기 창의 왼쪽 목록도 같이 바꾼다
       add.querySelector('span').textContent = '주소로 사진·영상 넣기 (' + used + '/' + max + ')';
       if (list.__mm) list.__mm.setCount('사진·영상 ' + used + '/' + max + (opt && opt.pc ? ' · 영상은 최대 ' + MEDIA_VIDEO_MAX + '개 (지금 ' + vids + '개)' : ''));
     }
@@ -5330,7 +5352,7 @@ ${비율칸Html(kind, 상태)}</div>`;
       if (pdIsDrive(v)) { st.textContent = video ? '드라이브 영상이에요. 공유가 "링크가 있는 모든 사용자"인지 확인해 주세요.' : '드라이브 파일이에요. 영상 파일이면 위의 "영상"을 눌러 주세요.'; return; }
       if (video) return;
       const img = new Image(); img.referrerPolicy = 'no-referrer'; img.alt = '';
-      img.onload = () => { if (inp.value.trim() === v && card.dataset.type !== 'video') { th.innerHTML = ''; th.appendChild(img); } };
+      img.onload = () => { if (inp.value.trim() === v && card.dataset.type !== 'video') { th.innerHTML = ''; th.appendChild(img); if (window.__rwPoolRefresh) window.__rwPoolRefresh(); } };
       img.onerror = () => { if (inp.value.trim() === v) st.textContent = '미리보기는 안 되지만 주소가 맞으면 괜찮아요. 서버가 만들 때 다시 확인해요.'; };
       img.src = v;
     }
