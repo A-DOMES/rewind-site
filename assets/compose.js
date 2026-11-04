@@ -865,10 +865,10 @@
       function 자막페이더(이름, 읽기, 쓰기, 보임, 모양) {
         var r = el('div', 'cz-row ' + (모양 || 'cz-fd')); r.appendChild(el('label', '', 이름)); var sl = el('input'); sl.type = 'range'; sl.min = -50; sl.max = 50; sl.step = 1; sl.setAttribute('aria-label', '자막 ' + 이름 + ' (가운데가 기본)'); if (!모양) sl.setAttribute('aria-orientation', 'vertical');
         sl.addEventListener('input', function () { 쓰기(Number(sl.value)); 갱신(); }); r.appendChild(sl); 자막믹서.appendChild(r);   // 0은 건드리지 않은 것과 같다(키를 지운다)
-        눌림목록.push(function () { sl.value = String(Math.round(수(읽기(), -50, 50, 0))); r.style.display = 보임 && !보임() ? 'none' : ''; sl.disabled = !!합치기(선택, 종류).값.자막끄기; });
+        눌림목록.push(function () { sl.value = String(Math.round(수(읽기(), -50, 50, 0))); r.style.display = 보임 && !보임() ? 'none' : ''; var 끔 = !!합치기(선택, 종류).값.자막끄기; sl.disabled = 끔; r.classList.toggle('cz-off', 끔); });
       }
-      자막페이더('글자 크기', function () { return (합치기(선택, 종류).값.자막크기 - 기준값().자막크기) / 0.84; }, function (v) { if (v === 0) delete 선택.자막크기; else 선택.자막크기 = Math.round(수(기준값().자막크기 + v * 0.84, 20, 200, 77)); });
-      자막페이더('줄 길이', function () { return (합치기(선택, 종류).값.줄길이 - 기준값().줄길이) / 0.0048; }, function (v) { if (v === 0) delete 선택.줄길이; else 선택.줄길이 = Math.round(수(기준값().줄길이 + v * 0.0048, 0.5, 1, 0.76) * 100) / 100; });
+      자막페이더('글자 크기', function () { return (합치기(선택, 종류).값.자막크기 - 기준값().자막크기) / 0.84; }, function (v) { if (v === 0) delete 선택.자막크기; else 선택.자막크기 = Math.round(수(기준값().자막크기 + v * 0.84, 20, 200, 77) * 10) / 10; });
+      자막페이더('줄 길이', function () { return (합치기(선택, 종류).값.줄길이 - 기준값().줄길이) / 0.0048; }, function (v) { if (v === 0) delete 선택.줄길이; else 선택.줄길이 = Math.round(수(기준값().줄길이 + v * 0.0048, 0.5, 1, 0.76) * 1000) / 1000; });
       var 기본거리 = function () { return Math.round((자막위치 === '위' ? (가로 ? 0.07 : 0.13) : (가로 ? 0.07 : 0.22)) * 100); };
       var 거리부호 = function () { return 자막위치 === '위' ? -1 : 1; };   // 거리가 클수록 '위'는 아래로, '아래'는 위로 간다 → 페이더는 언제나 위쪽(+) = 올림
       자막페이더('위·아래', function () { var d0 = 기본거리(), 지금 = 선택.자막거리 !== undefined ? 선택.자막거리 * 100 : d0, 올림 = (지금 - d0) * 거리부호(); return 올림 >= 0 ? 올림 / Math.max(1, (거리부호() > 0 ? 45 - d0 : d0)) * 50 : 올림 / Math.max(1, (거리부호() > 0 ? d0 : 45 - d0)) * 50; },
@@ -877,7 +877,7 @@
       자막페이더('왼쪽·오른쪽', function () { return (선택.자막가로 !== undefined ? Math.round(선택.자막가로 * 100) : 50) - 50; }, function (v) { if (v === 0) delete 선택.자막가로; else 선택.자막가로 = (50 + v) / 100; }, null, 'cz-fd-h');
       var c4 = 카드('자막 위치', '자막이 나올 자리', '자막');
       var rp = el('div', 'cz-chips'); c4.appendChild(rp);
-      칩묶음(rp, 위치들, function () { return 자막위치; }, function (v) { 자막위치 = v; 위치바꿈 = true; }, '자막 위치');
+      칩묶음(rp, 위치들, function () { return 자막위치; }, function (v) { 자막위치 = v; 위치바꿈 = true; delete 선택.자막거리; }, '자막 위치');   // 거리는 가장자리 기준이라 위·아래가 바뀌면 처음 자리로
       var rk = el('div', 'cz-row'); rk.appendChild(el('label', '', '자막')); var ck = el('div', 'cz-chips'); rk.appendChild(ck); c4.appendChild(rk);
       [[false, '보이기'], [true, '끄기']].forEach(function (it) { var b = el('button', 'cz-chip', it[1]); b.type = 'button'; b.addEventListener('click', function () { if (it[0]) 선택.자막끄기 = true; else delete 선택.자막끄기; 갱신(); }); ck.appendChild(b); 눌림목록.push(function () { b.setAttribute('aria-pressed', String(!!선택.자막끄기 === it[0])); }); });
       c4.appendChild(el('p', 'cz-hint', '자막을 끄면 목소리만 나오고 문구는 그대로 보여요'));
@@ -909,7 +909,7 @@
           var 삭 = el('button', 'cz-btn', '이 글자 지우기'); 삭.type = 'button'; 삭.addEventListener('click', function () { 블록목록().splice(i, 1); if (고름 && 고름.종류 === '블록') { if (고름.번호 === i) { 고름 = null; if (선택알림) 선택알림.textContent = '선택을 풀었어요'; } else if (고름.번호 > i) 고름.번호--; } 블록그리기(); 갱신(); 적용상태(); }); 칸.appendChild(삭);
           목록칸.appendChild(칸);
         });
-        블록색다시();
+        블록색다시(); 값표시();
       }
       추가.addEventListener('click', function () { if (블록목록().length >= 4) return; 블록목록().push({ 글: '', 위치: { 기준: '위', 거리: 0.15, 가로: 0.5 }, 크기: 60, 모양: '굵은흰', 글꼴: 'Noto Sans CJK KR' }); 블록그리기(); 갱신(); 적용상태(); });
       블록그리기();
@@ -1114,6 +1114,7 @@
     function 적용상태() { var 막힘 = 블록검사().some(Boolean); ok.disabled = 막힘; ok.style.opacity = 막힘 ? '.5' : ''; ok.title = 막힘 ? '문구의 쓸 수 없는 표현을 먼저 고쳐 주세요' : ''; }
     ok.addEventListener('click', function () { if (ok.disabled) return;
       if (선택.블록) { 선택.블록 = 선택.블록.filter(function (b) { return String(b.글 || '').trim(); }).map(function (b) { return Object.assign({ 글: String(b.글).trim(), 위치: b.위치, 크기: b.크기, 모양: b.모양, 글꼴: b.글꼴 }, 헥스.test(b.색 || '') ? { 색: b.색 } : {}); }); if (!선택.블록.length) delete 선택.블록; }
+      if (선택.자막크기 !== undefined) 선택.자막크기 = Math.round(선택.자막크기); if (선택.줄길이 !== undefined) 선택.줄길이 = Math.round(선택.줄길이 * 100) / 100; if (선택.자막거리 !== undefined) 선택.자막거리 = Math.round(선택.자막거리 * 100) / 100;   /* 페이더로 만든 소수는 여기서 정리한다 */
       var m = 합치기(선택, 종류); 닫기({ compose: Object.assign({}, 선택), 문구시간: 문구시간쓰기 ? (문구시간 === '초' ? 문구초 + 's' : 'all') : undefined, 자막방식: opt.자막방식 !== undefined ? 자막방식 : undefined, 자막위치: 자막위치, 화면구성: 화면바꿈 ? 화면 : (opt.화면구성 || 화면), 제작방식: 제작바꿈 ? 제작값 : undefined, 위치바뀜: 자막위치 !== 처음위치, 초기화: 초기화함 && !Object.keys(선택).length && 자막위치 === '아래' }); });
     document.addEventListener('keydown', 키);
     var 이전스크롤 = document.body.style.overflow; document.body.style.overflow = 'hidden'; dlg.tabIndex = -1;
