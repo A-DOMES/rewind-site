@@ -848,30 +848,25 @@
       눌림목록.push(function () { 다시.style.display = (합치기(선택, 종류).값.읽는효과 || '끔') === '끔' ? 'none' : ''; });
       c2b.appendChild(el('p', 'cz-hint', '위쪽 미리보기에서 바로 확인해요. 실제 영상은 목소리 속도에 맞춰 조금 달라질 수 있어요'));
       var c3 = 카드('자막 크기와 줄', '가운데가 기본이에요', '자막');
-      // 크기: 숫자 + 슬라이더(가운데=기본 77, 오른쪽=크게)
-      var rs = el('div', 'cz-row'); rs.appendChild(el('label', '', '글자 크기')); var sl = el('input'); sl.type = 'range'; sl.min = -50; sl.max = 50; sl.step = 1; sl.setAttribute('aria-label', '글자 크기 (가운데가 기본)'); var nm = el('input'); nm.type = 'number'; nm.min = 20; nm.max = 200; nm.setAttribute('aria-label', '글자 크기 숫자'); rs.appendChild(sl); rs.appendChild(nm); c3.appendChild(rs);
-      sl.addEventListener('input', function () { 선택.자막크기 = Math.round(수(기준값().자막크기 + Number(sl.value) * 0.84, 20, 200, 77)); 갱신(); });
-      nm.addEventListener('input', function () { if (nm.value !== '') { 선택.자막크기 = Math.round(수(nm.value, 20, 200, 77)); 그리기미리보기(); sl.value = String(수((선택.자막크기 - 기준값().자막크기) / 0.84, -50, 50, 0)); } });
-      nm.addEventListener('change', 갱신);
-      눌림목록.push(function () { var s = 합치기(선택, 종류).값.자막크기; sl.value = String(수((s - 기준값().자막크기) / 0.84, -50, 50, 0)); if (document.activeElement !== nm) nm.value = String(s); });
       var rl = el('div', 'cz-row'); rl.appendChild(el('label', '', '줄 수')); var cl = el('div', 'cz-chips'); rl.appendChild(cl); c3.appendChild(rl);
       칩묶음(cl, [[1, '1줄'], [2, '2줄'], [3, '3줄']], function () { return 합치기(선택, 종류).값.줄수; }, function (v) { 선택.줄수 = v; }, '줄 수');
-      var rw = el('div', 'cz-row'); rw.appendChild(el('label', '', '한 줄 길이')); var sw = el('input'); sw.type = 'range'; sw.min = -50; sw.max = 50; sw.step = 1; sw.setAttribute('aria-label', '한 줄 길이 (가운데가 기본)'); var nw = el('input'); nw.type = 'number'; nw.min = 50; nw.max = 100; nw.setAttribute('aria-label', '한 줄 길이 (화면 폭의 %)'); rw.appendChild(sw); rw.appendChild(nw); rw.appendChild(el('span', 'cz-hint', '% (화면 폭)')); c3.appendChild(rw);
-      sw.addEventListener('input', function () { 선택.줄길이 = Math.round(수(기준값().줄길이 + Number(sw.value) * 0.0048, 0.5, 1, 0.76) * 100) / 100; 갱신(); });
-      nw.addEventListener('input', function () { if (nw.value !== '') { 선택.줄길이 = Math.round(수(nw.value, 50, 100, 76)) / 100; 그리기미리보기(); sw.value = String(수((선택.줄길이 - 기준값().줄길이) / 0.0048, -50, 50, 0)); } });
-      nw.addEventListener('change', 갱신);
-      눌림목록.push(function () { var l = 합치기(선택, 종류).값.줄길이; sw.value = String(수((l - 기준값().줄길이) / 0.0048, -50, 50, 0)); if (document.activeElement !== nw) nw.value = String(Math.round(l * 100)); });
+      var 자막믹서 = el('div', 'cz-mix'); c3.appendChild(자막믹서);   // 크기 · 줄 길이 · 위치를 믹서 페이더로(가운데 = 기본, 위·오른쪽 = 크게·올림·오른쪽)
+      function 자막페이더(이름, 읽기, 쓰기, 보임, 모양) {
+        var r = el('div', 'cz-row ' + (모양 || 'cz-fd')); r.appendChild(el('label', '', 이름)); var sl = el('input'); sl.type = 'range'; sl.min = -50; sl.max = 50; sl.step = 1; sl.setAttribute('aria-label', '자막 ' + 이름 + ' (가운데가 기본)'); if (!모양) sl.setAttribute('aria-orientation', 'vertical');
+        sl.addEventListener('input', function () { 쓰기(Number(sl.value)); 갱신(); }); r.appendChild(sl); 자막믹서.appendChild(r);   // 0은 건드리지 않은 것과 같다(키를 지운다)
+        눌림목록.push(function () { sl.value = String(Math.round(수(읽기(), -50, 50, 0))); r.style.display = 보임 && !보임() ? 'none' : ''; sl.disabled = !!합치기(선택, 종류).값.자막끄기; });
+      }
+      자막페이더('글자 크기', function () { return (합치기(선택, 종류).값.자막크기 - 기준값().자막크기) / 0.84; }, function (v) { if (v === 0) delete 선택.자막크기; else 선택.자막크기 = Math.round(수(기준값().자막크기 + v * 0.84, 20, 200, 77)); });
+      자막페이더('줄 길이', function () { return (합치기(선택, 종류).값.줄길이 - 기준값().줄길이) / 0.0048; }, function (v) { if (v === 0) delete 선택.줄길이; else 선택.줄길이 = Math.round(수(기준값().줄길이 + v * 0.0048, 0.5, 1, 0.76) * 100) / 100; });
+      var 기본거리 = function () { return Math.round((자막위치 === '위' ? (가로 ? 0.07 : 0.13) : (가로 ? 0.07 : 0.22)) * 100); };
+      var 거리부호 = function () { return 자막위치 === '위' ? -1 : 1; };   // 거리가 클수록 '위'는 아래로, '아래'는 위로 간다 → 페이더는 언제나 위쪽(+) = 올림
+      자막페이더('위·아래', function () { var d0 = 기본거리(), 지금 = 선택.자막거리 !== undefined ? 선택.자막거리 * 100 : d0, 올림 = (지금 - d0) * 거리부호(); return 올림 >= 0 ? 올림 / Math.max(1, (거리부호() > 0 ? 45 - d0 : d0)) * 50 : 올림 / Math.max(1, (거리부호() > 0 ? d0 : 45 - d0)) * 50; },
+        function (v) { if (v === 0) { delete 선택.자막거리; return; } var d0 = 기본거리(), 위쪽 = 거리부호() > 0 ? 45 - d0 : d0, 아래쪽 = 거리부호() > 0 ? d0 : 45 - d0, 올림 = v > 0 ? v / 50 * 위쪽 : v / 50 * 아래쪽; 선택.자막거리 = Math.round(Math.min(45, Math.max(0, d0 + 올림 * 거리부호())) * 10) / 1000; },
+        function () { return 자막위치 !== '가운데' && 화면 !== '가운데영상형'; });
+      자막페이더('왼쪽·오른쪽', function () { return (선택.자막가로 !== undefined ? Math.round(선택.자막가로 * 100) : 50) - 50; }, function (v) { if (v === 0) delete 선택.자막가로; else 선택.자막가로 = (50 + v) / 100; }, null, 'cz-fd-h');
       var c4 = 카드('자막 위치', '자막이 나올 자리', '자막');
       var rp = el('div', 'cz-chips'); c4.appendChild(rp);
       칩묶음(rp, 위치들, function () { return 자막위치; }, function (v) { 자막위치 = v; 위치바꿈 = true; }, '자막 위치');
-      function 자막슬라이더(이름, 키, 읽기, 쓰기, 최소, 최대, 보임) {
-        var r = el('div', 'cz-row'); r.appendChild(el('label', '', 이름)); var sl = el('input'); sl.type = 'range'; sl.min = 최소; sl.max = 최대; sl.setAttribute('aria-label', '자막 ' + 이름);
-        sl.addEventListener('input', function () { 쓰기(Number(sl.value)); 그리기미리보기(); }); sl.__reset = function () { delete 선택[키]; 갱신(); }; r.appendChild(sl); c4.appendChild(r);
-        눌림목록.push(function () { sl.value = String(읽기()); r.style.display = 보임 && !보임() ? 'none' : ''; sl.disabled = !!합치기(선택, 종류).값.자막끄기; });
-      }
-      var 기본거리 = function () { return Math.round((자막위치 === '위' ? (가로 ? 0.07 : 0.13) : (가로 ? 0.07 : 0.22)) * 100); };
-      자막슬라이더('위·아래 거리', '자막거리', function () { return 선택.자막거리 !== undefined ? Math.round(선택.자막거리 * 100) : 기본거리(); }, function (v) { 선택.자막거리 = v / 100; }, 0, 45, function () { return 자막위치 !== '가운데' && 화면 !== '가운데영상형'; });
-      자막슬라이더('왼쪽·오른쪽', '자막가로', function () { return 선택.자막가로 !== undefined ? Math.round(선택.자막가로 * 100) : 50; }, function (v) { 선택.자막가로 = v / 100; }, 0, 100);
       var rk = el('div', 'cz-row'); rk.appendChild(el('label', '', '자막')); var ck = el('div', 'cz-chips'); rk.appendChild(ck); c4.appendChild(rk);
       [[false, '보이기'], [true, '끄기']].forEach(function (it) { var b = el('button', 'cz-chip', it[1]); b.type = 'button'; b.addEventListener('click', function () { if (it[0]) 선택.자막끄기 = true; else delete 선택.자막끄기; 갱신(); }); ck.appendChild(b); 눌림목록.push(function () { b.setAttribute('aria-pressed', String(!!선택.자막끄기 === it[0])); }); });
       c4.appendChild(el('p', 'cz-hint', '자막을 끄면 목소리만 나오고 문구는 그대로 보여요'));
@@ -888,9 +883,16 @@
           칸.appendChild(입력); 칸.appendChild(문제칸); 문제칸.textContent = 블록검사()[i] || '';
           var r1 = el('div', 'cz-row'); r1.appendChild(el('label', '', '자리')); var c = el('div', 'cz-chips'); r1.appendChild(c); 칸.appendChild(r1);
           [['위', '위'], ['가운데', '가운데'], ['아래', '아래']].forEach(function (it) { var k = el('button', 'cz-chip', it[1]); k.type = 'button'; k.setAttribute('aria-pressed', String(b.위치.기준 === it[0])); k.addEventListener('click', function () { b.위치.기준 = it[0]; 블록그리기(); 그리기미리보기(); }); c.appendChild(k); });
-          function 슬라이더(이름, 읽기, 쓰기, 최소, 최대) { var r = el('div', 'cz-row'); r.appendChild(el('label', '', 이름)); var sl = el('input'); sl.type = 'range'; sl.min = 최소; sl.max = 최대; sl.value = 읽기(); var 처음값 = sl.value; sl.__reset = function () { sl.value = 처음값; sl.dispatchEvent(new Event('input', { bubbles: true })); sl.dispatchEvent(new Event('change', { bubbles: true })); }; sl.setAttribute('aria-label', '문구 ' + (i + 1) + ' ' + 이름); sl.addEventListener('input', function () { 쓰기(Number(sl.value)); 그리기미리보기(); }); r.appendChild(sl); 칸.appendChild(r); }
-          슬라이더('위·아래 거리', function () { return Math.round(b.위치.거리 * 100); }, function (v) { b.위치.거리 = v / 100; }, 0, 45);
-          슬라이더('왼쪽·오른쪽', function () { return Math.round(b.위치.가로 * 100); }, function (v) { b.위치.가로 = v / 100; }, 0, 100);
+          var 문구믹서 = el('div', 'cz-mix'); 칸.appendChild(문구믹서);   // 위치 페이더(가운데 = 처음 자리, 위·오른쪽 = 올림·오른쪽)
+          function 문구페이더(이름, 읽기, 쓰기, 모양, 보임) {
+            var r = el('div', 'cz-row ' + (모양 || 'cz-fd')); r.appendChild(el('label', '', 이름)); var sl = el('input'); sl.type = 'range'; sl.min = -50; sl.max = 50; sl.step = 1; sl.setAttribute('aria-label', '문구 ' + (i + 1) + ' ' + 이름 + ' (가운데가 기본)'); if (!모양) sl.setAttribute('aria-orientation', 'vertical');
+            sl.value = String(Math.round(읽기())); sl.addEventListener('input', function () { 쓰기(Number(sl.value)); 그리기미리보기(); }); r.appendChild(sl); 문구믹서.appendChild(r);
+            if (보임 && !보임()) r.style.display = 'none';   // '가운데' 자리는 위·아래 거리가 없다
+          }
+          var 문부호 = function () { return b.위치.기준 === '위' ? -1 : 1; }, 문기본 = 15;   // 거리가 클수록 '위'는 아래로, '아래'는 위로 → 페이더는 언제나 + = 올림. 가운데(0) = 새 문구의 처음 자리(15%)
+          문구페이더('위·아래', function () { var 올림 = (b.위치.거리 * 100 - 문기본) * 문부호(), 위쪽 = 문부호() > 0 ? 45 - 문기본 : 문기본, 아래쪽 = 문부호() > 0 ? 문기본 : 45 - 문기본; return 올림 >= 0 ? 올림 / 위쪽 * 50 : 올림 / 아래쪽 * 50; },
+            function (v) { var 위쪽 = 문부호() > 0 ? 45 - 문기본 : 문기본, 아래쪽 = 문부호() > 0 ? 문기본 : 45 - 문기본, 올림 = v > 0 ? v / 50 * 위쪽 : v / 50 * 아래쪽; b.위치.거리 = Math.round(Math.min(45, Math.max(0, 문기본 + 올림 * 문부호())) * 10) / 1000; }, null, function () { return b.위치.기준 !== '가운데'; });
+          문구페이더('왼쪽·오른쪽', function () { return b.위치.가로 * 100 - 50; }, function (v) { b.위치.가로 = (50 + v) / 100; }, 'cz-fd-h');
           var r2 = el('div', 'cz-row'); r2.appendChild(el('label', '', '글자 크기')); var nm = el('input'); nm.type = 'number'; nm.min = 20; nm.max = 200; nm.value = b.크기; nm.setAttribute('aria-label', '문구 ' + (i + 1) + ' 크기'); nm.addEventListener('input', function () { b.크기 = Math.round(수(nm.value, 20, 200, 60)); 그리기미리보기(); }); r2.appendChild(nm);
           var 모 = el('div', 'cz-chips'); 모양들.forEach(function (m) { var k = el('button', 'cz-chip', m[1]); k.type = 'button'; k.setAttribute('aria-pressed', String(b.모양 === m[0])); k.addEventListener('click', function () { b.모양 = m[0]; 블록그리기(); 그리기미리보기(); }); 모.appendChild(k); }); r2.appendChild(모); 칸.appendChild(r2);
           var 삭 = el('button', 'cz-btn', '이 글자 지우기'); 삭.type = 'button'; 삭.addEventListener('click', function () { 블록목록().splice(i, 1); if (고름 && 고름.종류 === '블록') { if (고름.번호 === i) { 고름 = null; if (선택알림) 선택알림.textContent = '선택을 풀었어요'; } else if (고름.번호 > i) 고름.번호--; } 블록그리기(); 갱신(); 적용상태(); }); 칸.appendChild(삭);
