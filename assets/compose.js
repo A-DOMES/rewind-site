@@ -194,6 +194,9 @@
       if (g && cb) { cb.style.background = g.틀; if (g.있음) cb.removeAttribute('data-ph'); else cb.setAttribute('data-ph', ((Array.isArray(opt.자료) ? opt.자료 : [])[재생장 - 1] || {}).영상 ? '영상 장면' : '사진 장면'); }
       if (g && cc) cc.style.background = g.틀 || '#222';
       var cbb = c.querySelector('.cz-bgb'); if (g && cbb) cbb.style.background = g.틀;   // 제목고정형에서 줄어든 그림의 흐린 양옆도 같은 장면
+      var 결변 = 변형css(재생장), 결가운데 = cc && cc.style.display !== 'none'; if (cb && !결가운데) { cb.style.transform = 결변; cb.style.clipPath = 변형클립(재생장, bg); } if (cc) { cc.style.transform = 결가운데 ? 결변 : ''; cc.style.clipPath = 결가운데 ? 변형클립(재생장, ctr) : ''; }   // 결과 화면도 재생 장면의 변형으로
+      if (cbb && !결가운데 && 결변) { cbb.style.display = 'block'; cbb.style.top = cbb.style.top || cb.style.top || '0'; cbb.style.height = cbb.style.height || cb.style.height || '100%'; }
+      var 결틀 = c.querySelector('.cz-tfbox'); if (결틀) 결틀.remove();
       var cs = c.querySelector('.cz-sub'), 줄 = cs && cs.firstElementChild; if (!줄) return;
       var v = 합치기(선택, 종류).값, 문장 = 장면대본(재생장, 수n), 보임 = (v.줄수 === 1 && /[.!?]/.test(문장)) ? 문장.slice(0, 문장.search(/[.!?]/) + 1) : 문장;
       var 핵 = 핵심들.find(function (h) { return h[0] === v.핵심색; }), 핵색값 = 헥스.test(v.핵심색 || '') ? v.핵심색 : (핵 && 핵[2]) || '';
@@ -222,7 +225,7 @@
     var pv = el('div', 'cz-pv'); var phone = el('div', 'cz-phone' + (가로 ? ' cz-wide' : '')); var bgb = el('div', 'cz-bgb'); bgb.style.display = 'none'; phone.appendChild(bgb); var bg = el('div', 'cz-bg'); phone.appendChild(bg);   // bgb: 제목고정형에서 그림이 줄었을 때 양옆에 까는 흐린 같은 그림
     var 그림주소 = /^(blob:|https:\/\/|data:image\/)/.test(String(opt.배경그림 || '')) ? String(opt.배경그림).replace(/["\\\n]/g, encodeURIComponent) : '';   // 앞 단계에서 올린 첫 사진(있으면 미리보기 배경)
     if (그림주소) bg.style.background = '#222 center / cover no-repeat url("' + 그림주소 + '")';
-    var gbox = el('div'); gbox.style.cssText = 'position:absolute;inset:0'; phone.appendChild(gbox);
+    var gbox = el('div'); gbox.style.cssText = 'position:absolute;inset:0;pointer-events:none'; phone.appendChild(gbox);   // 안내선은 보기만(아래 그림 손잡이·영상 단추를 가리지 않게)
     var ttl = el('div'); ttl.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:18.4%;background:#15110e;display:none;overflow:hidden'; var ttx = el('div'); ttx.style.cssText = 'position:absolute;transform:translateX(-50%);text-align:center;font-weight:800;white-space:pre'; phone.appendChild(ttl); phone.appendChild(ttx);
     var 띠손잡이 = el('div', 'cz-bandh'); 띠손잡이.style.display = 'none'; phone.appendChild(띠손잡이);
     var ctr = el('div', 'cz-ctr'); ctr.style.display = 'none'; phone.insertBefore(ctr, gbox); if (그림주소) ctr.style.background = '#222 center / cover no-repeat url("' + 그림주소 + '")';
@@ -362,8 +365,9 @@
       // 띠를 기본보다 내리면 그림은 잘리지 않고 그만큼 작아진다(렌더 서버 render.js 의 칸.폭과 같은 식). 양옆은 같은 그림을 흐리게
       var 기본띠 = 제목칸 ? RWLayout.제목상자(W, H, { 줄수: 줄들.length, 최대폭: 1, 띠: true }).띠 : 0, 줄비 = 제목칸 ? Math.min(1, (H - Math.min(H * 0.5, 상자.띠)) / Math.max(1, H - Math.min(H * 0.5, 기본띠))) : 1, 줄음 = 줄비 < 0.995 && !!String(opt.문구 || '').trim();   // 렌더도 문구가 있을 때만 제목칸(줄이기)을 쓴다
       bg.style.left = 줄음 ? ((1 - 줄비) / 2 * 100) + '%' : ''; bg.style.width = 줄음 ? (줄비 * 100) + '%' : '';
-      편집영상맞춤(); bgb.style.display = 줄음 ? 'block' : 'none'; if (줄음) { bgb.style.top = bg.style.top; bgb.style.height = bg.style.height; bgb.style.background = bg.style.background; }
-      ctr.style.display = 가운데형 ? 'block' : 'none'; var 띠 = 가운데형 && 헥스.test(v.가운데색 || '') ? v.가운데색 : ''; bg.style.filter = 가운데형 && !띠 ? 'blur(5px) brightness(.7)' : ''; bg.style.visibility = 띠 ? 'hidden' : ''; phone.style.background = 띠 || ''; bg.style.transform = 가운데형 ? 'scale(1.12)' : '';
+      var 변 = 변형css(편집장); ctr.style.transform = 가운데형 ? 변 : '';
+      if (편집영상) 편집영상.style.transform = 변; 줄음 = 줄음 || (!!변 && 제목칸) || (!!변 && !가운데형 && !제목칸); bgb.style.display = 줄음 ? 'block' : 'none'; if (줄음) { bgb.style.top = bg.style.top || '0'; bgb.style.height = bg.style.height || '100%'; bgb.style.background = bg.style.background; }
+      ctr.style.display = 가운데형 ? 'block' : 'none'; var 띠 = 가운데형 && 헥스.test(v.가운데색 || '') ? v.가운데색 : ''; bg.style.filter = 가운데형 && !띠 ? 'blur(5px) brightness(.7)' : ''; bg.style.visibility = 띠 ? 'hidden' : ''; phone.style.background = 띠 || ''; bg.style.transform = 가운데형 ? 'scale(1.12)' : 변형css(편집장); 편집영상맞춤(); 변형틀맞춤(); bg.style.clipPath = 가운데형 ? '' : 변형클립(편집장, bg); ctr.style.clipPath = 가운데형 ? 변형클립(편집장, ctr) : ''; if (편집영상) 편집영상.style.clipPath = 변형클립(편집장, 편집영상);   // 칸 표시가 정해진 뒤에 맞춘다
       var box = RWLayout.자막상자(W, H, { 위치: 자막위치, 크기: v.자막크기 * Math.min(W, H) / 1080, 줄수: v.줄수, 줄길이: v.줄길이, 거리: v.자막거리, 가로: v.자막가로, 안전영역: !가로 });
       sub.style.cssText = 'left:' + ((box.x + box.w / 2) / W * 100) + '%;top:' + (box.y / H * 100) + '%;width:' + (box.w / W * 100) + '%;height:' + (box.h / H * 100) + '%;font-size:' + (v.자막크기 * 0.8 / 1080 * 100 * (가로 ? 0.5625 : 1)) + 'cqw;display:' + (v.자막끄기 ? 'none' : 'flex') + ';flex-direction:column;justify-content:flex-end;overflow:hidden;';   // 줄 칸을 잡고 글은 아래 칸부터 채운다
       if (가운데형 && !v.자막끄기) {   // 가운데영상형: 서버(render.js)와 같은 식 — 자막은 영상 칸 안(위·가운데·아래 끝)에 놓이고, 아래는 화면 아래 안전선(78%)을 넘지 않는다
@@ -574,6 +578,47 @@
     function 조각(레인, 시작, 끝, 길이, 글, 클래스, 배경) { var p = el('i', 'cz-seg' + (클래스 ? ' ' + 클래스 : '')); p.style.left = (시작 / 길이 * 100) + '%'; p.style.width = Math.max(0.3, (끝 - 시작) / 길이 * 100) + '%'; if (글) p.appendChild(el('span', '', 글)); if (배경) p.style.backgroundImage = 'url("' + 배경 + '")'; 레인.appendChild(p); return p; }
     function 분초(초) { var m = Math.floor(초 / 60), r = 초 - m * 60; return m + ':' + (r < 10 ? '0' : '') + r.toFixed(1); }
     var 속성키 = '', 속성탭 = '영상', 편집영상 = null;   // 속성탭: 고른 탭(장면을 바꿔도 남음) · 편집영상: 편집 화면에서 재생 중인 영상 요소
+    // ── 장면 변형(크기·위치·회전): 선택.장면별[장].변형 = { 크기 0.5~2, 가로 -0.5~0.5(+ 오른쪽), 세로 -0.5~0.5(+ 위), 회전 -180~180 }. 렌더 서버 render.js 변형정리와 같은 뜻
+    function 변형값(장) { var v = 선택.장면별 && 선택.장면별[장] && 선택.장면별[장].변형; return v && typeof v === 'object' ? { 크기: Number(v.크기) || 1, 가로: Number(v.가로) || 0, 세로: Number(v.세로) || 0, 회전: Number(v.회전) || 0 } : null; }
+    function 변형클립(장, 요소) {   // 변형된 요소를 원래 칸(변형 전 자기 상자) 안으로만 보이게: 칸 모서리를 요소 안쪽 좌표로 되돌려 polygon 으로
+      var v = 변형값(장); if (!변형css(장) || !요소) return ''; var w = 요소.offsetWidth || 1, h = 요소.offsetHeight || 1, a = -v.회전 * Math.PI / 180, cs = Math.cos(a), sn = Math.sin(a), tx = v.가로 * w, ty = -v.세로 * h;
+      return 'polygon(' + [[0, 0], [w, 0], [w, h], [0, h]].map(function (p) { var x = p[0] - w / 2 - tx, y = p[1] - h / 2 - ty, rx = (x * cs - y * sn) / v.크기 + w / 2, ry = (x * sn + y * cs) / v.크기 + h / 2; return (rx / w * 100).toFixed(2) + '% ' + (ry / h * 100).toFixed(2) + '%'; }).join(', ') + ')';
+    }
+    function 변형css(장) { if (영상종류 !== '쇼츠') return ''; var v = 변형값(장); if (!v || (v.크기 === 1 && !v.가로 && !v.세로 && !v.회전)) return ''; return 'translate(' + (v.가로 * 100) + '%,' + (-v.세로 * 100) + '%) rotate(' + v.회전 + 'deg) scale(' + v.크기 + ')'; }
+    var 변형틀 = el('div', 'cz-tfbox'); 변형틀.style.display = 'none'; 변형틀.setAttribute('aria-hidden', 'true');   // 편집 화면의 그림 테두리: 안쪽을 끌면 위치, 모서리를 끌면 크기(속성 → 영상 → 변형과 같은 값)
+    var 변형판 = el('i', 'cz-tfmove'); 변형틀.appendChild(변형판);   // 끌어서 옮기는 면(영상 장면이면 아래 조작 단추 자리는 비워 둔다)
+    ['nw', 'ne', 'sw', 'se'].forEach(function (k) { var h = el('i', 'cz-tfk cz-tfk-' + k); h.dataset.k = k; 변형틀.appendChild(h); });
+    var 변형바뀜 = null, 변형끌었음 = false;   // 변형끌었음: 방금 끌었으면 그 클릭은 선택으로 넘기지 않는다   // 속성 칸이 열려 있으면 페이더 숫자를 따라 바꾸는 함수
+    function 변형쓰기(장, 새, 기록) {   // 새: {크기,가로,세로,회전} 또는 null(기본). 기록: 되돌리기에 남길지
+      var 전 = 선택.장면별 && 선택.장면별[장] && 선택.장면별[장].변형 ? JSON.parse(JSON.stringify(선택.장면별[장].변형)) : undefined;
+      var 정리 = function (v) { if (!v) return undefined; var o = {}; if (Math.abs(v.크기 - 1) > 0.004) o.크기 = Math.round(v.크기 * 1000) / 1000; if (Math.abs(v.가로) > 0.002) o.가로 = Math.round(v.가로 * 1000) / 1000; if (Math.abs(v.세로) > 0.002) o.세로 = Math.round(v.세로 * 1000) / 1000; if (Math.abs(v.회전) > 0.05) o.회전 = Math.round(v.회전 * 10) / 10; return Object.keys(o).length ? o : undefined; };
+      var 뒤 = 정리(새), 넣기 = function (v) { var 모두 = Object.assign({}, 선택.장면별 || {}), 이것 = Object.assign({}, 모두[장] || {}); if (v === undefined) delete 이것.변형; else 이것.변형 = JSON.parse(JSON.stringify(v)); if (Object.keys(이것).length) 모두[장] = 이것; else delete 모두[장]; if (Object.keys(모두).length) 선택.장면별 = 모두; else delete 선택.장면별; 그리기미리보기(); if (변형바뀜 && 편집장 === 장) 변형바뀜(); };
+      넣기(뒤); if (기록 && JSON.stringify(전) !== JSON.stringify(뒤)) 기록하기({ 이름: '변형', undo: function () { 넣기(전); }, redo: function () { 넣기(뒤); } });
+      return 전;
+    }
+    function 변형틀맞춤() {
+      var 보임 = 영상종류 === '쇼츠' && Array.isArray(opt.자료) && opt.자료.length > 0 && !가로; 변형틀.style.display = 보임 ? 'block' : 'none'; if (!보임) return;
+      var 원 = ctr.style.display !== 'none' ? ctr : bg; ['top', 'left', 'width', 'height'].forEach(function (k) { 변형틀.style[k] = 원.style[k] || (원 === ctr ? getComputedStyle(ctr)[k] : ''); }); var 틀v = 변형값(편집장); 변형틀.style.transform = 변형css(편집장) ? 'translate(' + (틀v.가로 * 100) + '%,' + (-틀v.세로 * 100) + '%) rotate(' + 틀v.회전 + 'deg) scale(' + Math.min(1, 틀v.크기) + ')' : '';   // 틀은 1배까지(크게 해도 모서리를 잡을 수 있게)
+      변형판.style.bottom = 편집영상 ? '44px' : '0'; if (변형틀.nextSibling !== gbox) phone.insertBefore(변형틀, gbox);   // 영상보다 위, 안내선보다 아래
+    }
+    (function () {   // 끌기: 안쪽 = 위치, 모서리 = 크기(가운데에서 거리 비율). 놓을 때 한 번만 되돌리기에 남긴다
+      var 시작 = null;
+      변형틀.addEventListener('pointerdown', function (e) {
+        if (e.button !== 0) return; e.preventDefault(); e.stopPropagation(); var r = 변형틀.getBoundingClientRect(), 박 = (ctr.style.display !== 'none' ? ctr : bg), 칸r = { w: 박.offsetWidth || 1, h: 박.offsetHeight || 1 };
+        var v = 변형값(편집장) || { 크기: 1, 가로: 0, 세로: 0, 회전: 0 }, cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+        시작 = { 장: 편집장, 움직임: false, x: e.clientX, y: e.clientY, v: v, 칸: 칸r, 모서리: !!e.target.dataset.k, 거리: Math.max(8, Math.hypot(e.clientX - cx, e.clientY - cy)), cx: cx, cy: cy, 전: 선택.장면별 && 선택.장면별[편집장] && 선택.장면별[편집장].변형 ? JSON.parse(JSON.stringify(선택.장면별[편집장].변형)) : undefined };
+        try { 변형틀.setPointerCapture(e.pointerId); } catch (x) {}
+      });
+      변형틀.addEventListener('pointermove', function (e) {
+        if (!시작) return; if (Math.abs(e.clientX - 시작.x) + Math.abs(e.clientY - 시작.y) > 3) 시작.움직임 = true; if (!시작.움직임) return; var v = Object.assign({}, 시작.v), 한 = function (x, a, b) { return Math.min(b, Math.max(a, x)); };
+        if (시작.모서리) v.크기 = 한(시작.v.크기 * Math.hypot(e.clientX - 시작.cx, e.clientY - 시작.cy) / 시작.거리, 0.5, 2);
+        else { v.가로 = 한(시작.v.가로 + (e.clientX - 시작.x) / 시작.칸.w, -0.5, 0.5); v.세로 = 한(시작.v.세로 - (e.clientY - 시작.y) / 시작.칸.h, -0.5, 0.5); }
+        변형쓰기(시작.장, v, false);
+      });
+      var 끝 = function () { if (!시작) return; var 장 = 시작.장, 지금 = 선택.장면별 && 선택.장면별[장] && 선택.장면별[장].변형, 전 = 시작.전; 변형끌었음 = 시작.움직임; 시작 = null; var 뒤 = 지금 ? JSON.parse(JSON.stringify(지금)) : undefined;
+        if (JSON.stringify(전) !== JSON.stringify(뒤)) 기록하기({ 이름: '변형', undo: function () { 변형쓰기(장, 전 ? Object.assign({ 크기: 1, 가로: 0, 세로: 0, 회전: 0 }, 전) : null, false); }, redo: function () { 변형쓰기(장, 뒤 ? Object.assign({ 크기: 1, 가로: 0, 세로: 0, 회전: 0 }, 뒤) : null, false); } }); };
+      변형틀.addEventListener('pointerup', 끝); 변형틀.addEventListener('pointercancel', 끝);
+    })();
     function 편집영상맞춤() { if (!편집영상) return; var 원 = ctr.style.display !== 'none' ? ctr : bg; ['top', 'left', 'width', 'height'].forEach(function (k) { 편집영상.style[k] = 원.style[k] || (원 === ctr ? getComputedStyle(ctr)[k] : ''); }); }   // 영상은 보이는 그림 칸(제목 띠 아래·줄어든 폭, 가운데영상형이면 가운데 칸)과 같은 자리에
     // ── 효과음(쇼츠): 렌더링(Queue처리 v38)과 같은 규칙. 장면이 바뀌는 순간(앞 장면 끝에서 lead초 앞, 장면 안에서만)에 전환음, 앞에서부터 max개까지.
     //    고객이 바꾼 값은 선택.효과음 = { '<전환 번호>': { 끔, 번호, 음량 } } 에 둔다(전환 번호 e = 장면 e → e+1). 타임라인의 자리 기준이라 장면을 옮겨도 그 자리에 남는다.
@@ -597,7 +642,7 @@
     function 효과음이름(id) { var x = 효과음설정().목록.filter(function (t) { return t.id === id; })[0], k = 효과음설정().목록.indexOf(x); return x ? (x.name || ((x.kind || '소리') + ' ' + (k + 1))) : ''; }
     function 속성그리기(장, 수, 길이) {   // 재생 위치가 있는 장면의 정보. 값은 앞 단계에서 정한 것이라 여기서는 보기만 한다
       var 키 = [장, 수, 길이, T.소리, v0().자막끄기, 자막방식].join('|'); if (키 === 속성키 && insp.firstChild) return;   // 재생 중 매 프레임 다시 그리면 입력 칸을 잡을 수 없다: 장면·값이 바뀔 때만 그린다
-      var 옛영상 = 편집영상 || insp.querySelector('video'); if (옛영상) { try { 옛영상.pause(); 옛영상.removeAttribute('src'); 옛영상.load(); } catch (x) {} if (옛영상.parentNode) 옛영상.parentNode.removeChild(옛영상); } 편집영상 = null; gbox.style.pointerEvents = '';   // 이전 영상은 멈추고 받던 것도 끊고 편집 화면에서 뺀다
+      var 옛영상 = 편집영상 || insp.querySelector('video'); if (옛영상) { try { 옛영상.pause(); 옛영상.removeAttribute('src'); 옛영상.load(); } catch (x) {} if (옛영상.parentNode) 옛영상.parentNode.removeChild(옛영상); } 편집영상 = null;   // 이전 영상은 멈추고 받던 것도 끊고 편집 화면에서 뺀다
       속성키 = 키; insp.textContent = ''; 구간바연결 = null; 구간바그리기();
       var 머리 = el('div', 'cz-insp-h'); 머리.appendChild(el('b', '', '속성')); 머리.appendChild(el('span', '', '장면 ' + 장 + ' / ' + 수)); insp.appendChild(머리);
       var 몸 = el('div', 'cz-insp-b'), 시작 = 길이 * (장 - 1) / 수, 끝 = 길이 * 장 / 수, 사진 = (T.사진 || [])[장 - 1], 자료 = (Array.isArray(opt.자료) ? opt.자료 : [])[장 - 1];
@@ -626,7 +671,7 @@
         var 버튼줄 = null;
         if (자료.재생주소) {
           영 = el('video', 'cz-edvid'); 영.controls = true; 영.preload = 'metadata'; 영.playsInline = true; 영.muted = false; 영.setAttribute('referrerpolicy', 'no-referrer'); 영.setAttribute('aria-label', '장면 ' + 장 + ' 영상'); 영.src = 자료.재생주소;
-          if (탭식) { 편집영상 = 영; phone.insertBefore(영, gbox); 편집영상맞춤(); gbox.style.pointerEvents = 'none';   // 쇼츠: 편집 화면에서 재생. 안내선 칸이 영상 조작 단추를 가리지 않게
+          if (탭식) { 편집영상 = 영; phone.insertBefore(영, gbox); 편집영상맞춤(); 변형틀맞춤();   // 쇼츠: 편집 화면에서 재생. 안내선 칸이 영상 조작 단추를 가리지 않게
             try { new IntersectionObserver(function (es) { if (!es[0].isIntersecting && !영.paused) 영.pause(); }).observe(영); } catch (x) {} }   // 편집 화면이 안 보이면(좁은 화면·보기 바꿈) 멈춘다
           else { 영.className = 'cz-insp-vid'; 구.appendChild(영); }   // 영상은 편집 화면에서 재생한다(결과 화면에는 복제하지 않음)
           영.addEventListener('loadedmetadata', function () { if (isFinite(영.duration) && 영.duration > 0) { 총 = 영.duration; [막시, 막끝].forEach(function (m) { m.min = '0'; m.max = String(내림(총)); m.disabled = false; }); var 앞시 = 시초, 앞끝 = 끝초; if (시초 >= 총) 시초 = 0; 보정('시작'); if (시초 !== 앞시 || 끝초 !== 앞끝) 반영(); else 글자(); 영.currentTime = 시초; } });   // 열기만 해서는 카드 값을 바꾸지 않는다(범위를 벗어난 값만 고친다)
@@ -679,6 +724,26 @@
         판.소리.appendChild(칸2);
         if (효과음있는장면(장, 수)) 효과음칸그리기(판.소리, 장);
       }
+      if (탭식 && 자료) {   // 영상 탭 맨 위: 변형(크기·위치 X·위치 Y·회전). 가운데가 기본, 놓을 때 되돌리기에 남는다
+        var 변칸 = el('div', 'cz-insp-set'); 변칸.appendChild(el('div', 'cz-insp-sh', '변형')); var 변줄들 = [];
+        [['크기', '크기', function (n) { return n < 0 ? 1 + n / 100 : 1 + n / 50; }, function (v) { return v < 1 ? (v - 1) * 100 : (v - 1) * 50; }, function (v) { return Math.round(v * 100) + '%'; }],
+         ['위치 X', '가로', function (n) { return n / 100; }, function (v) { return v * 100; }, function (v) { return String(Math.round(v * 100)); }],
+         ['위치 Y', '세로', function (n) { return n / 100; }, function (v) { return v * 100; }, function (v) { return String(Math.round(v * 100)); }],
+         ['회전', '회전', function (n) { return n * 3.6; }, function (v) { return v / 3.6; }, function (v) { return Math.round(v) + '°'; }]].forEach(function (d) {
+          var 줄 = el('div', 'cz-insp-r cz-insp-in'); 줄.appendChild(el('span', '', d[0]));
+          var 막 = el('input', 'cz-insp-rng'); 막.type = 'range'; 막.min = '-50'; 막.max = '50'; 막.step = '1'; 막.setAttribute('aria-label', d[0] + ' (가운데가 기본)');
+          var 값글 = el('b', 'cz-insp-pc'), 되 = el('button', 'cz-insp-rs', '↺'); 되.type = 'button'; 되.title = '기본값으로';
+          var 지금값 = function () { var v = 변형값(장) || { 크기: 1, 가로: 0, 세로: 0, 회전: 0 }; return v[d[1]]; };
+          var 그리기줄 = function () { var v = 지금값(); 막.value = String(Math.round(Math.max(-50, Math.min(50, d[3](v))))); 값글.textContent = d[4](v); 되.disabled = d[1] === '크기' ? Math.abs(v - 1) < 0.004 : Math.abs(v) < 0.002; };
+          var 시작전 = null;
+          막.addEventListener('input', function () { var v = 변형값(장) || { 크기: 1, 가로: 0, 세로: 0, 회전: 0 }; if (시작전 === null) 시작전 = JSON.stringify(v); v[d[1]] = d[2](Number(막.value)); 변형쓰기(장, v, false); });
+          막.addEventListener('change', function () { var 전 = 시작전 ? JSON.parse(시작전) : null; 시작전 = null; var 뒤 = 변형값(장) || { 크기: 1, 가로: 0, 세로: 0, 회전: 0 }; if (전 && JSON.stringify(전) !== JSON.stringify(뒤)) { 변형쓰기(장, 전, false); 변형쓰기(장, 뒤, true); } });
+          되.addEventListener('click', function () { var v = 변형값(장) || { 크기: 1, 가로: 0, 세로: 0, 회전: 0 }; v[d[1]] = d[1] === '크기' ? 1 : 0; 변형쓰기(장, v, true); });
+          그리기줄(); 변줄들.push(그리기줄); 줄.appendChild(막); 줄.appendChild(값글); 줄.appendChild(되); 변칸.appendChild(줄);
+        });
+        변형바뀜 = function () { 변줄들.forEach(function (f) { f(); }); };
+        판.영상.insertBefore(변칸, 판.영상.firstChild);
+      } else 변형바뀜 = null;
       if (탭식) {   // 탭 막대: 내용이 있는 탭만. 고른 탭은 장면을 바꿔도 그대로
         var 탭들 = ['영상', '소리', '파일'].filter(function (k) { return 판[k].childNodes.length; }); if (탭들.indexOf(속성탭) < 0) 속성탭 = 탭들[0];
         var 탭줄 = el('div', 'cz-insp-tabs'); 탭줄.setAttribute('role', 'tablist'); 탭줄.setAttribute('aria-label', '속성');
@@ -1014,7 +1079,7 @@
       블록다시 = 블록그리기;
       끌기(ttx, 제목이동, '제목 글자', function (n, t) { if (t === 'click') 선택하기('제목글자'); }); 끌기(sub, 자막이동, '자막', function (n, t) { if (t === 'click') 선택하기('자막'); }); 끌기(띠손잡이, 띠이동, '제목 띠 높이', function (n, t) { if (t === 'click') 선택하기('제목띠'); }); 끌기(칸손잡이, 칸이동, '영상 칸 아래 끝', function (n, t) { if (t === 'click') 선택하기('바깥'); });
       ttl.addEventListener('click', function () { 선택하기('제목띠'); });   // 띠 빈 곳을 누르면 제목 띠 선택
-      phone.addEventListener('click', function (e) { if (e.target.closest('.cz-drag, .cz-sub, .cz-edvid') || e.target === ttl) return; var 칸 = 화면 === '가운데영상형' && !가로, r = phone.getBoundingClientRect(), y = (e.clientY - r.top) / r.height; if (칸 && e.target !== ctr && (y > 칸상태.아래 || (y > Math.max(0.235, ttl.getBoundingClientRect().height / r.height) && y < 칸상태.위))) 선택하기('바깥'); else 선택풀기(); });   // 영상 칸 위·아래 빈 곳 = 바깥, 그 밖의 빈 곳 = 선택 풀기
+      phone.addEventListener('click', function (e) { if (e.target.closest('.cz-tfbox') && 변형끌었음) { 변형끌었음 = false; return; } if (e.target.closest('.cz-tfbox') && 편집영상 && !e.target.closest('.cz-tfk')) { if (편집영상.paused) 편집영상.play().catch(function () {}); else 편집영상.pause(); } if (e.target.closest('.cz-drag, .cz-sub, .cz-edvid') || e.target === ttl) return; var 칸 = 화면 === '가운데영상형' && !가로, r = phone.getBoundingClientRect(), y = (e.clientY - r.top) / r.height; if (칸 && e.target !== ctr && (y > 칸상태.아래 || (y > Math.max(0.235, ttl.getBoundingClientRect().height / r.height) && y < 칸상태.위))) 선택하기('바깥'); else 선택풀기(); });   // 영상 칸 위·아래 빈 곳 = 바깥, 그 밖의 빈 곳 = 선택 풀기
       // 왼쪽 라이브러리: 화면 구성 · 모양 · 영상 제작 방식. 오른쪽 인스펙터 탭: 제목 · 자막 · 문구
       // 화면 구성·영상 제작 방식은 앞의 「구성」 단계로 옮겼다 → 이 창에서는 보이지 않게 떼어 둔다(값은 그대로 들고 있어서 되돌릴 일이 없다). 왼쪽 칸은 비워 둔다
       [판, 판2].forEach(function (c) { if (c && c.parentNode) c.parentNode.removeChild(c); });
