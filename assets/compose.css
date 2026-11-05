@@ -700,3 +700,7 @@ button.cz-pane-l[aria-pressed="true"] { color: var(--rz-ac); }
 .cz-insp-btn:hover { border-color: #b8862e; color: #fff; }
 .cz-insp-vp { margin-top: 6px; max-height: 360px; overflow: auto; }
 .cz-insp-vp .rwvp .vp-grid { grid-template-columns: 1fr; }
+/* 고객이 넣은 효과음 조각: 금색 채움(자동 전환음은 테두리) */
+.cz-t-sfx.cz-sfx-add { background: #c9922f; border-color: #f0c850; cursor: grab; }
+.cz-t-sfx.cz-sfx-add:active { cursor: grabbing; }
+.cz-insp-cur { background: rgba(240,176,64,.08); }
