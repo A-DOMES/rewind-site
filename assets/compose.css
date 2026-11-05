@@ -694,3 +694,9 @@ button.cz-pane-l[aria-pressed="true"] { color: var(--rz-ac); }
 .cz-tfk-nw { left: 0; top: 0; cursor: nwse-resize; } .cz-tfk-ne { right: 0; top: 0; margin-right: -5px; cursor: nesw-resize; } .cz-tfk-sw { left: 0; bottom: 0; margin-bottom: -5px; cursor: nesw-resize; } .cz-tfk-se { right: 0; bottom: 0; margin-right: -5px; margin-bottom: -5px; cursor: nwse-resize; }
 .cz-tfk:hover { background: #f0b040; }
 .cz-result .cz-tfbox { display: none !important; }
+/* 속성 → 소리: 대본 목소리 */
+.cz-insp-vn { flex: 1; text-align: right; margin-right: 8px; color: var(--ink); font-size: .8rem; }
+.cz-insp-btn { padding: 3px 10px; font-size: .74rem; border-radius: 4px; border: 1px solid #50535a; background: linear-gradient(180deg, #45484f, #383a40); color: #e6e7ea; cursor: pointer; }
+.cz-insp-btn:hover { border-color: #b8862e; color: #fff; }
+.cz-insp-vp { margin-top: 6px; max-height: 360px; overflow: auto; }
+.cz-insp-vp .rwvp .vp-grid { grid-template-columns: 1fr; }

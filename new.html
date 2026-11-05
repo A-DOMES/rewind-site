@@ -1941,10 +1941,10 @@
 <script src="./assets/voice-picker.js?v=20261104a"></script>
 <link rel="stylesheet" href="./assets/guide.css?v=20261025">
 <script src="./assets/guide.js?v=20261101"></script>
-<link rel="stylesheet" href="./assets/compose.css?v=20261105w">
+<link rel="stylesheet" href="./assets/compose.css?v=20261105x">
 <script src="./assets/shared/layout.js?v=20261027"></script>
 <script src="./assets/shared/phrase.js?v=20261026"></script>
-<script src="./assets/compose.js?v=20261105w"></script>
+<script src="./assets/compose.js?v=20261105x"></script>
 <script src="./assets/rw-consent.js"></script>
 <link rel="stylesheet" href="./assets/rw-theme.css?v=20261103n">
 </head>
@@ -4292,7 +4292,13 @@ ${비율칸Html(kind, 상태)}</div>`;
       if (틀.dataset.type === 'video' && 쓴카드().filter(c => c.dataset.type === 'video').length >= MEDIA_VIDEO_MAX) return { 오류: '영상은 최대 ' + MEDIA_VIDEO_MAX + '개까지 넣을 수 있어요.' };
       const n = 복제틀(틀); 자료붙이기(n, j); return { 카드: n };
     };
-    RWCompose.open({ 종류: 상품 ? '상품쇼츠' : '쇼츠', 자료, 자료옮김, 자료읽기, 구간바꿈, 자료빼기, 자료더하기, 컴퓨터올리기, 자료떼기, 자료붙이기, 자료복사, 자료복제, 타임라인: composeTimeline(상품), 화면: '세로', 배경그림: 첫사진, 화면목록, 화면구성, 제작방식, 문구시간: 상품 ? (((document.querySelector('input[name="pd-hookshow"]:checked') || {}).value === '3s') ? ((parseFloat((document.getElementById('pd-hooksec') || {}).value) >= 0 ? parseFloat(document.getElementById('pd-hooksec').value) : 3) + 's') : 'all') : undefined, 자막방식: (상품 && window.RWVoice) ? (RWVoice.getExtra().subtitleStyle || '구절형') : undefined, 문구: document.getElementById('df-hookText')?.value || '', 값, 자막위치: 거꾸로[지금] || '아래', 대본: 대본전체, 샘플: 대본첫줄 || document.getElementById('df-hookText')?.value || '',
+    const 목소리바꿈 = (window.__rwVP && __rwVP.쇼츠) ? (id, g) => {   // 영상 꾸미기 → 속성 → 소리에서 고른 목소리·성별을 신청 화면의 목소리 고르기·성별·나이 칸에 그대로 반영(신청 값은 하나)
+      const sg = document.getElementById('df-voiceGender'), sa = document.getElementById('df-voiceAge'), v = id && window.RWVoiceCatalog ? RWVoiceCatalog.찾기(id) : null, 성 = v ? v.성별 : (g === '여' ? '여' : '남');
+      __rwVP.쇼츠.성별설정(성); __rwVP.쇼츠.값설정(id || '');
+      if (sg) sg.value = 성 === '여' ? '여성' : '남성'; if (sa && v) sa.value = voiceAgeOf(id);
+    } : undefined;
+    const 지금목소리 = (window.__rwVP && __rwVP.쇼츠 && __rwVP.쇼츠.값()) || '', 지금성별 = (document.getElementById('df-voiceGender') || {}).value === '여성' ? '여' : '남';
+    RWCompose.open({ 종류: 상품 ? '상품쇼츠' : '쇼츠', 목소리값: 지금목소리, 목소리성별: 지금성별, 목소리바꿈, 자료, 자료옮김, 자료읽기, 구간바꿈, 자료빼기, 자료더하기, 컴퓨터올리기, 자료떼기, 자료붙이기, 자료복사, 자료복제, 타임라인: composeTimeline(상품), 화면: '세로', 배경그림: 첫사진, 화면목록, 화면구성, 제작방식, 문구시간: 상품 ? (((document.querySelector('input[name="pd-hookshow"]:checked') || {}).value === '3s') ? ((parseFloat((document.getElementById('pd-hooksec') || {}).value) >= 0 ? parseFloat(document.getElementById('pd-hooksec').value) : 3) + 's') : 'all') : undefined, 자막방식: (상품 && window.RWVoice) ? (RWVoice.getExtra().subtitleStyle || '구절형') : undefined, 문구: document.getElementById('df-hookText')?.value || '', 값, 자막위치: 거꾸로[지금] || '아래', 대본: 대본전체, 샘플: 대본첫줄 || document.getElementById('df-hookText')?.value || '',
       onDone: res => {
         composeState = Object.keys(res.compose).length ? res.compose : null; composeKind = composeState ? 종류표 : '';
         const 고르기 = (name, v) => { const r = [...document.querySelectorAll(`input[name="${name}"]`)].find(x => x.value === v); if (r && !r.disabled) { r.checked = true; r.dispatchEvent(new Event('change', { bubbles: true })); } };

@@ -577,7 +577,7 @@
     function 트랙줄(이름, 칸) { var 줄 = el('div', 'cz-trk'); 줄.appendChild(el('span', 'cz-trk-n', 이름)); var 레인 = el('div', 'cz-lane'); 줄.appendChild(레인); tl.appendChild(줄); return 레인; }
     function 조각(레인, 시작, 끝, 길이, 글, 클래스, 배경) { var p = el('i', 'cz-seg' + (클래스 ? ' ' + 클래스 : '')); p.style.left = (시작 / 길이 * 100) + '%'; p.style.width = Math.max(0.3, (끝 - 시작) / 길이 * 100) + '%'; if (글) p.appendChild(el('span', '', 글)); if (배경) p.style.backgroundImage = 'url("' + 배경 + '")'; 레인.appendChild(p); return p; }
     function 분초(초) { var m = Math.floor(초 / 60), r = 초 - m * 60; return m + ':' + (r < 10 ? '0' : '') + r.toFixed(1); }
-    var 속성키 = '', 속성탭 = '영상', 편집영상 = null;   // 속성탭: 고른 탭(장면을 바꿔도 남음) · 편집영상: 편집 화면에서 재생 중인 영상 요소
+    var 속성키 = '', 속성탭 = '영상', 편집영상 = null, 목고르기 = null, 목소리값 = String(opt.목소리값 || ''), 목소리성별 = opt.목소리성별 === '여' ? '여' : '남';   // 목고르기: 속성 → 소리의 목소리 고르기 화면   // 속성탭: 고른 탭(장면을 바꿔도 남음) · 편집영상: 편집 화면에서 재생 중인 영상 요소
     // ── 장면 변형(크기·위치·회전): 선택.장면별[장].변형 = { 크기 0.5~2, 가로 -0.5~0.5(+ 오른쪽), 세로 -0.5~0.5(+ 위), 회전 -180~180 }. 렌더 서버 render.js 변형정리와 같은 뜻
     function 변형값(장) { var v = 선택.장면별 && 선택.장면별[장] && 선택.장면별[장].변형; return v && typeof v === 'object' ? { 크기: Number(v.크기) || 1, 가로: Number(v.가로) || 0, 세로: Number(v.세로) || 0, 회전: Number(v.회전) || 0 } : null; }
     function 변형클립(장, 요소) {   // 변형된 요소를 원래 칸(변형 전 자기 상자) 안으로만 보이게: 칸 모서리를 요소 안쪽 좌표로 되돌려 polygon 으로
@@ -643,6 +643,7 @@
     function 속성그리기(장, 수, 길이) {   // 재생 위치가 있는 장면의 정보. 값은 앞 단계에서 정한 것이라 여기서는 보기만 한다
       var 키 = [장, 수, 길이, T.소리, v0().자막끄기, 자막방식].join('|'); if (키 === 속성키 && insp.firstChild) return;   // 재생 중 매 프레임 다시 그리면 입력 칸을 잡을 수 없다: 장면·값이 바뀔 때만 그린다
       var 옛영상 = 편집영상 || insp.querySelector('video'); if (옛영상) { try { 옛영상.pause(); 옛영상.removeAttribute('src'); 옛영상.load(); } catch (x) {} if (옛영상.parentNode) 옛영상.parentNode.removeChild(옛영상); } 편집영상 = null;   // 이전 영상은 멈추고 받던 것도 끊고 편집 화면에서 뺀다
+      if (목고르기) { try { 목고르기.소리멈춤(); } catch (x) {} 목고르기 = null; }
       속성키 = 키; insp.textContent = ''; 구간바연결 = null; 구간바그리기();
       var 머리 = el('div', 'cz-insp-h'); 머리.appendChild(el('b', '', '속성')); 머리.appendChild(el('span', '', '장면 ' + 장 + ' / ' + 수)); insp.appendChild(머리);
       var 몸 = el('div', 'cz-insp-b'), 시작 = 길이 * (장 - 1) / 수, 끝 = 길이 * 장 / 수, 사진 = (T.사진 || [])[장 - 1], 자료 = (Array.isArray(opt.자료) ? opt.자료 : [])[장 - 1];
@@ -723,6 +724,27 @@
         퍼센트갱신(); 줄2.appendChild(막대); 줄2.appendChild(퍼센트); 줄2.appendChild(되2); 칸2.appendChild(줄2);
         판.소리.appendChild(칸2);
         if (효과음있는장면(장, 수)) 효과음칸그리기(판.소리, 장);
+      }
+      if (탭식 && typeof opt.목소리바꿈 === 'function' && window.RWVoicePicker && window.RWVoiceCatalog) {   // 소리 탭 맨 위: 대본 목소리(영상 전체). 신청 화면의 목소리 고르기와 같은 값을 바꾼다
+        var 목칸 = el('div', 'cz-insp-set'); 목칸.appendChild(el('div', 'cz-insp-sh', '대본 목소리 · 영상 전체'));
+        var 목줄 = el('div', 'cz-insp-r cz-insp-in'), 목이름 = el('b', 'cz-insp-vn', RWVoiceCatalog.이름(목소리값) || '자동 추천'), 목단추 = el('button', 'cz-insp-btn', '바꾸기'); 목단추.type = 'button'; 목단추.setAttribute('aria-expanded', 'false');
+        목줄.appendChild(el('span', '', '목소리')); 목줄.appendChild(목이름); 목줄.appendChild(목단추); 목칸.appendChild(목줄);
+        var 목판 = el('div', 'cz-insp-vp'); 목판.hidden = true; 목칸.appendChild(목판);
+        목단추.addEventListener('click', function () {
+          if (!목판.hidden) { 목판.hidden = true; 목단추.textContent = '바꾸기'; 목단추.setAttribute('aria-expanded', 'false'); if (목고르기) 목고르기.소리멈춤(); return; }
+          목판.hidden = false; 목단추.textContent = '닫기'; 목단추.setAttribute('aria-expanded', 'true');
+          if (!목고르기) 목고르기 = RWVoicePicker.mount(목판, { 종류: 종류 === '상품쇼츠' ? '상품쇼츠' : '쇼츠', 성별: 목소리성별, 값: 목소리값, 바뀜: function (id) { 목소리정함(id || '', null); }, 성별바뀜: function (g) { 목소리정함(null, g); } });
+        });
+        function 목소리정함(id, g) {   // id 또는 성별(g)이 바뀜. 같으면 아무것도 안 한다. 신청 화면 값과 함께 바꾸고 되돌리기에 남긴다(값·성별·소리 줄 이름을 한 번에)
+          var 전 = { 값: 목소리값, 성별: 목소리성별, 소리: T.소리 }, 새 = { 값: id === null ? 목소리값 : id, 성별: g || 목소리성별 };
+          if (id !== null && 새.값) { var c = RWVoiceCatalog.찾기(새.값); if (c) 새.성별 = c.성별; }
+          if (새.값 === 전.값 && 새.성별 === 전.성별) return;
+          새.소리 = 새.값 ? RWVoiceCatalog.이름(새.값) : (전.값 || 새.성별 !== 전.성별 ? (새.성별 === '여' ? '여자' : '남자') + ' · 자동 추천' : 전.소리);
+          var 넣기 = function (v, 다시) { 목소리값 = v.값; 목소리성별 = v.성별; T.소리 = v.소리; try { opt.목소리바꿈(v.값, v.성별); } catch (x) {} if (다시) { 속성키 = ''; 타임라인그리기(); } else { 목이름.textContent = RWVoiceCatalog.이름(v.값) || '자동 추천'; var 줄글 = tl.querySelector('.cz-t-wave span'); if (줄글) 줄글.textContent = '목소리 · ' + v.소리; } };
+          넣기(새, false); 알리기('목소리를 바꿨어요 · ' + 새.소리);
+          기록하기({ 이름: '목소리', undo: function () { 넣기(전, true); }, redo: function () { 넣기(새, true); } });
+        }
+        판.소리.insertBefore(목칸, 판.소리.firstChild);
       }
       if (탭식 && 자료) {   // 영상 탭 맨 위: 변형(크기·위치 X·위치 Y·회전). 가운데가 기본, 놓을 때 되돌리기에 남는다
         var 변칸 = el('div', 'cz-insp-set'); 변칸.appendChild(el('div', 'cz-insp-sh', '변형')); var 변줄들 = [];
@@ -1250,7 +1272,7 @@
       })();
       타임라인만들기();
     }
-    function 닫기(결과) { 효과음멈춤(); if (!결과 && 되돌림통.length) { try { while (되돌림통.length) 되돌림통.pop().undo(); } catch (x) {} }   /* 취소: 이 창에서 한 장면 편집(카드)도 함께 되돌린다 */
+    function 닫기(결과) { 효과음멈춤(); if (목고르기) { try { 목고르기.소리멈춤(); } catch (x) {} } if (!결과 && 되돌림통.length) { try { while (되돌림통.length) 되돌림통.pop().undo(); } catch (x) {} }   /* 취소: 이 창에서 한 장면 편집(카드)도 함께 되돌린다 */
       파일메뉴닫기(); window.__rwPoolRefresh = null; window.__rwPoolNow = null; try { if (넓은.removeEventListener) 넓은.removeEventListener('change', 넓은바뀜); else if (넓은.removeListener) 넓은.removeListener(넓은바뀜); } catch (x) {} if (폭관찰) 폭관찰.disconnect(); if (결과관찰) 결과관찰.disconnect(); if (결과예약) cancelAnimationFrame(결과예약); 읽기멈춤(); 재생멈춤(); if (끌기중단) 끌기중단(); document.removeEventListener('keydown', 키); document.body.style.overflow = 이전스크롤; ov.remove(); if (이전포커스 && 이전포커스.focus) 이전포커스.focus(); if (결과 && typeof opt.onDone === 'function') opt.onDone(결과); }
     function 키(e) {
       if (e.key === 'Escape') { e.preventDefault(); if (선택풀기()) return; 닫기(null); return; }   // 고른 요소가 있으면 선택만 풀고, 없을 때만 창을 닫는다
