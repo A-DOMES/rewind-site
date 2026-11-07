@@ -704,3 +704,7 @@ button.cz-pane-l[aria-pressed="true"] { color: var(--rz-ac); }
 .cz-t-sfx.cz-sfx-add { background: #c9922f; border-color: #f0c850; cursor: grab; }
 .cz-t-sfx.cz-sfx-add:active { cursor: grabbing; }
 .cz-insp-cur { background: rgba(240,176,64,.08); }
+/* 원래 소리 줄(영상 장면의 영상 자체 소리) */
+.cz-t-orig { background: repeating-linear-gradient(90deg, #4a3a6a 0 2px, #362a4f 2px 4px); border: 1px solid #7d64b0; }
+.cz-t-orig.cz-orig-auto { background: transparent; border-style: dashed; border-color: #6d5a96; }
+.cz-t-orig.cz-orig-low { opacity: .6; }

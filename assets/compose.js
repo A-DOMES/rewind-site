@@ -738,6 +738,17 @@
         var 되2 = 되돌림(function () { 쓰기('음량', undefined); 막대.value = '0'; 퍼센트갱신(); 되2.disabled = true; }, function () { return 지금().음량 !== undefined; });
         막대.addEventListener('input', function () { var n = Number(막대.value); 쓰기('음량', n === 0 ? undefined : Math.round(막대를값(n) * 100) / 100); 퍼센트갱신(); 되2.disabled = n === 0; });
         퍼센트갱신(); 줄2.appendChild(막대); 줄2.appendChild(퍼센트); 줄2.appendChild(되2); 칸2.appendChild(줄2);
+        if (자료 && 자료.영상) {   // 영상 장면의 소리: 무엇을 들려줄지. 저작권 음악이 있다고 한 신청은 원래 소리를 쓸 수 없다
+          var 소칸 = el('div', 'cz-insp-set'); 소칸.appendChild(el('div', 'cz-insp-sh', '이 장면의 소리'));
+          var 소줄 = el('div', 'cz-insp-r cz-insp-in'); 소줄.appendChild(el('span', '', '들려줄 소리'));
+          var 소고름 = el('select', 'cz-insp-sel'); 소고름.setAttribute('aria-label', '이 장면의 소리');
+          [['', opt.원래소리막힘 ? '자동 (대본 목소리)' : '자동 (원래 소리가 있으면 원래 소리)'], ['원래', '영상 원래 소리'], ['대본', '대본 목소리'], ['둘다', '둘 다 (원래 소리는 작게)']].forEach(function (o) { var e = el('option', '', o[1]); e.value = o[0]; if (opt.원래소리막힘 && (o[0] === '원래' || o[0] === '둘다')) e.disabled = true; 소고름.appendChild(e); });
+          소고름.value = opt.원래소리막힘 && (지금().소리 === '원래' || 지금().소리 === '둘다') ? '' : (지금().소리 || '');   // 막힌 값은 자동으로 보인다(서버도 대본 목소리로 만든다)
+          소고름.addEventListener('change', function () { var 전 = 지금().소리, 뒤 = 소고름.value || undefined, 장0 = 장; var 넣기 = function (v) { var 모두 = Object.assign({}, 선택.장면별 || {}), 이것 = Object.assign({}, 모두[장0] || {}); if (v === undefined) delete 이것.소리; else 이것.소리 = v; if (Object.keys(이것).length) 모두[장0] = 이것; else delete 모두[장0]; if (Object.keys(모두).length) 선택.장면별 = 모두; else delete 선택.장면별; 속성키 = ''; 타임라인그리기(); }; 넣기(뒤); 기록하기({ 이름: '장면 소리', undo: function () { 넣기(전); }, redo: function () { 넣기(뒤); } }); });
+          소줄.appendChild(소고름); 소칸.appendChild(소줄);
+          if (opt.원래소리막힘) 소칸.appendChild(el('p', 'cz-hint', '저작권 음악이 있다고 하셔서 영상 원래 소리는 쓰지 않아요.'));
+          판.소리.appendChild(소칸);
+        }
         판.소리.appendChild(칸2);
         if (효과음있는장면(장, 수)) 효과음칸그리기(판.소리, 장);
         if (효과음설정().받음 && 효과음설정().목록.length) 넣은칸그리기(판.소리, 장, 수, 길이);
@@ -989,6 +1000,16 @@
           효.title = '두 번 누르면 그 자리에 효과음을 넣어요';
           달기('dblclick', function (ev) { var r = 효.getBoundingClientRect(); if (ev.clientY < r.top || ev.clientY > r.bottom || ev.clientX < r.left || ev.clientX > r.right) return; if (효과조각.some(function (q) { var b = q.getBoundingClientRect(); return ev.clientX >= b.left - 2 && ev.clientX <= b.right + 2; })) return; 넣은넣기(Math.max(0, Math.min(1, (ev.clientX - r.left) / Math.max(1, r.width))) * 길이, 길이, 수); });   // 타임라인이 포인터를 잡으므로 줄 위치로 판단
         }
+      }
+      if (영상종류 === '쇼츠' && Array.isArray(opt.자료) && opt.자료.some(function (x) { return x && x.영상; })) {   // 원래 소리 줄: 영상 장면에서 영상 자체의 소리가 나오는 곳(다빈치의 A2)
+        var 원 = 트랙줄('원래 소리'), 장폭2 = 길이 / 수;
+        opt.자료.forEach(function (x, k) { if (!x || !x.영상 || k >= 수) return; var 고 = (선택.장면별 && 선택.장면별[k + 1] && 선택.장면별[k + 1].소리) || '', 막힘 = !!opt.원래소리막힘;
+          var 나옴 = !막힘 && (고 === '원래' || 고 === '둘다'), 자동 = !막힘 && !고;
+          if (!나옴 && !자동) return;
+          var q = 조각(원, 장폭2 * k + 길이 * 0.004, 장폭2 * (k + 1) - 길이 * 0.004, 길이, 고 === '둘다' ? '원래 소리 · 작게' : (자동 ? '자동' : '원래 소리'), 'cz-t-orig' + (자동 ? ' cz-orig-auto' : '') + (고 === '둘다' ? ' cz-orig-low' : ''));
+          q.title = '장면 ' + (k + 1) + ' · ' + (자동 ? '원래 소리가 있으면 원래 소리 (속성 → 소리에서 바꿔요)' : 고 === '둘다' ? '원래 소리를 작게 깔고 대본 목소리' : '영상 원래 소리만');
+        });
+        if (!원.querySelector('.cz-seg')) 원.appendChild(el('em', 'cz-empty', '원래 소리 안 씀'));
       }
       if (영상종류 === '야담') { var 배 = 트랙줄('배경음'); 조각(배, 0, 길이, 길이, '잔잔한 배경음', 'cz-t-bgm'); }
       두는곳(머리비); 편집고르기(편집장); tl.scrollLeft = 옛왼쪽; 도구갱신();

@@ -1941,10 +1941,10 @@
 <script src="./assets/voice-picker.js?v=20261104a"></script>
 <link rel="stylesheet" href="./assets/guide.css?v=20261025">
 <script src="./assets/guide.js?v=20261101"></script>
-<link rel="stylesheet" href="./assets/compose.css?v=20261105y">
+<link rel="stylesheet" href="./assets/compose.css?v=20261107a">
 <script src="./assets/shared/layout.js?v=20261027"></script>
 <script src="./assets/shared/phrase.js?v=20261026"></script>
-<script src="./assets/compose.js?v=20261105y"></script>
+<script src="./assets/compose.js?v=20261107a"></script>
 <script src="./assets/rw-consent.js"></script>
 <link rel="stylesheet" href="./assets/rw-theme.css?v=20261103n">
 </head>
@@ -4298,7 +4298,7 @@ ${비율칸Html(kind, 상태)}</div>`;
       if (sg) sg.value = 성 === '여' ? '여성' : '남성'; if (sa && v) sa.value = voiceAgeOf(id);
     } : undefined;
     const 지금목소리 = (window.__rwVP && __rwVP.쇼츠 && __rwVP.쇼츠.값()) || '', 지금성별 = (document.getElementById('df-voiceGender') || {}).value === '여성' ? '여' : '남';
-    RWCompose.open({ 종류: 상품 ? '상품쇼츠' : '쇼츠', 목소리값: 지금목소리, 목소리성별: 지금성별, 목소리바꿈, 자료, 자료옮김, 자료읽기, 구간바꿈, 자료빼기, 자료더하기, 컴퓨터올리기, 자료떼기, 자료붙이기, 자료복사, 자료복제, 타임라인: composeTimeline(상품), 화면: '세로', 배경그림: 첫사진, 화면목록, 화면구성, 제작방식, 문구시간: 상품 ? (((document.querySelector('input[name="pd-hookshow"]:checked') || {}).value === '3s') ? ((parseFloat((document.getElementById('pd-hooksec') || {}).value) >= 0 ? parseFloat(document.getElementById('pd-hooksec').value) : 3) + 's') : 'all') : undefined, 자막방식: (상품 && window.RWVoice) ? (RWVoice.getExtra().subtitleStyle || '구절형') : undefined, 문구: document.getElementById('df-hookText')?.value || '', 값, 자막위치: 거꾸로[지금] || '아래', 대본: 대본전체, 샘플: 대본첫줄 || document.getElementById('df-hookText')?.value || '',
+    RWCompose.open({ 종류: 상품 ? '상품쇼츠' : '쇼츠', 원래소리막힘: (document.querySelector(상품 ? 'input[name="df-pmusic"]:checked' : 'input[name="df-gmusic"]:checked') || {}).value === 'yes',   /* 상품쇼츠는 pmusic, 일반은 gmusic */ 목소리값: 지금목소리, 목소리성별: 지금성별, 목소리바꿈, 자료, 자료옮김, 자료읽기, 구간바꿈, 자료빼기, 자료더하기, 컴퓨터올리기, 자료떼기, 자료붙이기, 자료복사, 자료복제, 타임라인: composeTimeline(상품), 화면: '세로', 배경그림: 첫사진, 화면목록, 화면구성, 제작방식, 문구시간: 상품 ? (((document.querySelector('input[name="pd-hookshow"]:checked') || {}).value === '3s') ? ((parseFloat((document.getElementById('pd-hooksec') || {}).value) >= 0 ? parseFloat(document.getElementById('pd-hooksec').value) : 3) + 's') : 'all') : undefined, 자막방식: (상품 && window.RWVoice) ? (RWVoice.getExtra().subtitleStyle || '구절형') : undefined, 문구: document.getElementById('df-hookText')?.value || '', 값, 자막위치: 거꾸로[지금] || '아래', 대본: 대본전체, 샘플: 대본첫줄 || document.getElementById('df-hookText')?.value || '',
       onDone: res => {
         composeState = Object.keys(res.compose).length ? res.compose : null; composeKind = composeState ? 종류표 : '';
         const 고르기 = (name, v) => { const r = [...document.querySelectorAll(`input[name="${name}"]`)].find(x => x.value === v); if (r && !r.disabled) { r.checked = true; r.dispatchEvent(new Event('change', { bubbles: true })); } };
