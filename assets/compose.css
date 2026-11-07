@@ -708,3 +708,12 @@ button.cz-pane-l[aria-pressed="true"] { color: var(--rz-ac); }
 .cz-t-orig { background: repeating-linear-gradient(90deg, #4a3a6a 0 2px, #362a4f 2px 4px); border: 1px solid #7d64b0; }
 .cz-t-orig.cz-orig-auto { background: transparent; border-style: dashed; border-color: #6d5a96; }
 .cz-t-orig.cz-orig-low { opacity: .6; }
+/* 대본 문장 조각: 자막(위)과 목소리(아래)가 한 쌍. 끌어서 옮기고 Delete 로 지운다 */
+.cz-t-sent { cursor: grab; }
+.cz-t-sent.cz-pair, .cz-t-sent:hover { outline: 1px solid #f0c060; z-index: 2; }
+.cz-t-sent.cz-sent-off { opacity: .35; }
+.cz-t-sent.cz-dragging { opacity: .7; z-index: 3; cursor: grabbing; }
+.cz-t-sentnone { background: transparent; border: 1px dashed #3f5a50; color: #6c8a7e; }
+.cz-insp-txt { width: 100%; box-sizing: border-box; resize: vertical; background: #0d0e10; color: #f1f2f4; border: 1px solid #3a3d43; border-radius: 4px; padding: 6px 8px; font: inherit; font-size: .82rem; line-height: 1.5; }
+.cz-insp-txt:focus { outline: 1px solid #c9922f; }
+.cz-insp-crop span { color: #b9bcc4; }   /* 자르기 줄 */

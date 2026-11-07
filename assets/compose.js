@@ -165,7 +165,7 @@
     var 샘플 = String(opt.샘플 || '').trim() || 샘플기본; var 자막방식 = ['구절형', '문장형', '단어형'].indexOf(opt.자막방식) >= 0 ? opt.자막방식 : '구절형', 자막방식바꿈 = false; var 시간받음 = /^(\d+(?:\.\d+)?)s$/.exec(String(opt.문구시간 || '')), 문구시간 = 시간받음 ? '초' : 'all', 문구초 = 시간받음 ? Math.min(60, Number(시간받음[1])) : 3, 문구시간쓰기 = opt.문구시간 !== undefined;   // 문구가 보이는 시간은 상품쇼츠만: 계속 보이기 / 처음 N초만(0이면 안 보임). 예전 값 '3s' 도 받는다
     // 재생 위치가 장면을 넘어가면 그 장면의 사진과 대본 문장으로 바꾼다(실제 영상이 이렇게 이어진다는 것을 보여 주는 근사치: 대본을 장면 수만큼 문장 단위로 나눈다)
     var 샘플원본 = 샘플, 대본문장 = (String(opt.대본 || '').match(/[^.!?。！？]+[.!?。！？]*/g) || []).map(function (x) { return x.trim(); }).filter(Boolean), 지난장 = 0;
-    function 장면대본(장, 수) { if (!대본문장.length) return 샘플원본; var a = Math.floor((장 - 1) * 대본문장.length / 수), b = Math.max(a + 1, Math.floor(장 * 대본문장.length / 수)); return 대본문장.slice(a, b).join(' ') || 샘플원본; }
+    function 장면대본(장, 수) { var 고 = 선택.장면별 && 선택.장면별[장] && 선택.장면별[장].대본; if (typeof 고 === 'string') return 고 || ' '; if (!대본문장.length) return 샘플원본; var a = Math.floor((장 - 1) * 대본문장.length / 수), b = Math.max(a + 1, Math.floor(장 * 대본문장.length / 수)); return 대본문장.slice(a, b).join(' ') || 샘플원본; }
     function 그림틀(장) {   // 장면 번호의 그림 → { 틀: 배경 값, 있음 }
       var 사진목록 = T.사진; if (!Array.isArray(사진목록) || !사진목록.length) return null;
       var 주소 = String(사진목록[장 - 1] || ''), 있음 = /^(blob:|https:\/\/|data:image\/)/.test(주소);
@@ -366,7 +366,7 @@
       var 기본띠 = 제목칸 ? RWLayout.제목상자(W, H, { 줄수: 줄들.length, 최대폭: 1, 띠: true }).띠 : 0, 줄비 = 제목칸 ? Math.min(1, (H - Math.min(H * 0.5, 상자.띠)) / Math.max(1, H - Math.min(H * 0.5, 기본띠))) : 1, 줄음 = 줄비 < 0.995 && !!String(opt.문구 || '').trim();   // 렌더도 문구가 있을 때만 제목칸(줄이기)을 쓴다
       bg.style.left = 줄음 ? ((1 - 줄비) / 2 * 100) + '%' : ''; bg.style.width = 줄음 ? (줄비 * 100) + '%' : '';
       var 변 = 변형css(편집장); ctr.style.transform = 가운데형 ? 변 : '';
-      if (편집영상) 편집영상.style.transform = 변; 줄음 = 줄음 || (!!변 && 제목칸) || (!!변 && !가운데형 && !제목칸); bgb.style.display = 줄음 ? 'block' : 'none'; if (줄음) { bgb.style.top = bg.style.top || '0'; bgb.style.height = bg.style.height || '100%'; bgb.style.background = bg.style.background; }
+      if (편집영상) 편집영상.style.transform = 변; var 변있음 = !!변 || !!(변형값(편집장) && (변형값(편집장).왼 || 변형값(편집장).오 || 변형값(편집장).위 || 변형값(편집장).아래)); 줄음 = 줄음 || (변있음 && !가운데형); bgb.style.display = 줄음 ? 'block' : 'none'; if (줄음) { bgb.style.top = bg.style.top || '0'; bgb.style.height = bg.style.height || '100%'; bgb.style.background = bg.style.background; }   // 변형·자르기가 있으면 빈 곳에 흐린 같은 그림
       ctr.style.display = 가운데형 ? 'block' : 'none'; var 띠 = 가운데형 && 헥스.test(v.가운데색 || '') ? v.가운데색 : ''; bg.style.filter = 가운데형 && !띠 ? 'blur(5px) brightness(.7)' : ''; bg.style.visibility = 띠 ? 'hidden' : ''; phone.style.background = 띠 || ''; bg.style.transform = 가운데형 ? 'scale(1.12)' : 변형css(편집장); 편집영상맞춤(); 변형틀맞춤(); bg.style.clipPath = 가운데형 ? '' : 변형클립(편집장, bg); ctr.style.clipPath = 가운데형 ? 변형클립(편집장, ctr) : ''; if (편집영상) 편집영상.style.clipPath = 변형클립(편집장, 편집영상);   // 칸 표시가 정해진 뒤에 맞춘다
       var box = RWLayout.자막상자(W, H, { 위치: 자막위치, 크기: v.자막크기 * Math.min(W, H) / 1080, 줄수: v.줄수, 줄길이: v.줄길이, 거리: v.자막거리, 가로: v.자막가로, 안전영역: !가로 });
       sub.style.cssText = 'left:' + ((box.x + box.w / 2) / W * 100) + '%;top:' + (box.y / H * 100) + '%;width:' + (box.w / W * 100) + '%;height:' + (box.h / H * 100) + '%;font-size:' + (v.자막크기 * 0.8 / 1080 * 100 * (가로 ? 0.5625 : 1)) + 'cqw;display:' + (v.자막끄기 ? 'none' : 'flex') + ';flex-direction:column;justify-content:flex-end;overflow:hidden;';   // 줄 칸을 잡고 글은 아래 칸부터 채운다
@@ -579,10 +579,18 @@
     function 분초(초) { var m = Math.floor(초 / 60), r = 초 - m * 60; return m + ':' + (r < 10 ? '0' : '') + r.toFixed(1); }
     var 속성키 = '', 속성탭 = '영상', 편집영상 = null, 목고르기 = null, 목소리값 = String(opt.목소리값 || ''), 목소리성별 = opt.목소리성별 === '여' ? '여' : '남';   // 목고르기: 속성 → 소리의 목소리 고르기 화면   // 속성탭: 고른 탭(장면을 바꿔도 남음) · 편집영상: 편집 화면에서 재생 중인 영상 요소
     // ── 장면 변형(크기·위치·회전): 선택.장면별[장].변형 = { 크기 0.5~2, 가로 -0.5~0.5(+ 오른쪽), 세로 -0.5~0.5(+ 위), 회전 -180~180 }. 렌더 서버 render.js 변형정리와 같은 뜻
-    function 변형값(장) { var v = 선택.장면별 && 선택.장면별[장] && 선택.장면별[장].변형; return v && typeof v === 'object' ? { 크기: Number(v.크기) || 1, 가로: Number(v.가로) || 0, 세로: Number(v.세로) || 0, 회전: Number(v.회전) || 0 } : null; }
+    function 변형값(장) { var v = 선택.장면별 && 선택.장면별[장] && 선택.장면별[장].변형; return v && typeof v === 'object' ? { 크기: Number(v.크기) || 1, 가로: Number(v.가로) || 0, 세로: Number(v.세로) || 0, 회전: Number(v.회전) || 0, 왼: Number(v.왼) || 0, 오: Number(v.오) || 0, 위: Number(v.위) || 0, 아래: Number(v.아래) || 0 } : null; }
+    function 기본변형() { return { 크기: 1, 가로: 0, 세로: 0, 회전: 0, 왼: 0, 오: 0, 위: 0, 아래: 0 }; }
     function 변형클립(장, 요소) {   // 변형된 요소를 원래 칸(변형 전 자기 상자) 안으로만 보이게: 칸 모서리를 요소 안쪽 좌표로 되돌려 polygon 으로
-      var v = 변형값(장); if (!변형css(장) || !요소) return ''; var w = 요소.offsetWidth || 1, h = 요소.offsetHeight || 1, a = -v.회전 * Math.PI / 180, cs = Math.cos(a), sn = Math.sin(a), tx = v.가로 * w, ty = -v.세로 * h;
-      return 'polygon(' + [[0, 0], [w, 0], [w, h], [0, h]].map(function (p) { var x = p[0] - w / 2 - tx, y = p[1] - h / 2 - ty, rx = (x * cs - y * sn) / v.크기 + w / 2, ry = (x * sn + y * cs) / v.크기 + h / 2; return (rx / w * 100).toFixed(2) + '% ' + (ry / h * 100).toFixed(2) + '%'; }).join(', ') + ')';
+      var v = 변형값(장); if (영상종류 !== '쇼츠' || !v || !요소) return ''; var 자름 = v.왼 || v.오 || v.위 || v.아래; if (!변형css(장) && !자름) return ''; var w = 요소.offsetWidth || 1, h = 요소.offsetHeight || 1, a = -v.회전 * Math.PI / 180, cs = Math.cos(a), sn = Math.sin(a), tx = v.가로 * w, ty = -v.세로 * h;
+      var 다각 = [[0, 0], [w, 0], [w, h], [0, h]].map(function (p) { var x = p[0] - w / 2 - tx, y = p[1] - h / 2 - ty; return [(x * cs - y * sn) / v.크기 + w / 2, (x * sn + y * cs) / v.크기 + h / 2]; });
+      if (자름) {   // 자르기 사각형으로 한 번 더 자른다(서버: 크기·회전 전에 crop)
+        var 면 = [[0, v.왼 * w], [1, (1 - v.오) * w], [2, v.위 * h], [3, (1 - v.아래) * h]];
+        면.forEach(function (f) { var 안 = function (p) { return f[0] === 0 ? p[0] >= f[1] : f[0] === 1 ? p[0] <= f[1] : f[0] === 2 ? p[1] >= f[1] : p[1] <= f[1]; }, 만남 = function (a, b) { var t = f[0] < 2 ? (f[1] - a[0]) / ((b[0] - a[0]) || 1e-9) : (f[1] - a[1]) / ((b[1] - a[1]) || 1e-9); return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]; }, 새 = [];
+          다각.forEach(function (c2, i2) { var p2 = 다각[(i2 + 다각.length - 1) % 다각.length]; if (안(c2)) { if (!안(p2)) 새.push(만남(p2, c2)); 새.push(c2); } else if (안(p2)) 새.push(만남(p2, c2)); }); 다각 = 새; });
+        if (!다각.length) return 'polygon(0 0, 0 0, 0 0)';
+      }
+      return 'polygon(' + 다각.map(function (p) { return (p[0] / w * 100).toFixed(2) + '% ' + (p[1] / h * 100).toFixed(2) + '%'; }).join(', ') + ')';
     }
     function 변형css(장) { if (영상종류 !== '쇼츠') return ''; var v = 변형값(장); if (!v || (v.크기 === 1 && !v.가로 && !v.세로 && !v.회전)) return ''; return 'translate(' + (v.가로 * 100) + '%,' + (-v.세로 * 100) + '%) rotate(' + v.회전 + 'deg) scale(' + v.크기 + ')'; }
     var 변형틀 = el('div', 'cz-tfbox'); 변형틀.style.display = 'none'; 변형틀.setAttribute('aria-hidden', 'true');   // 편집 화면의 그림 테두리: 안쪽을 끌면 위치, 모서리를 끌면 크기(속성 → 영상 → 변형과 같은 값)
@@ -591,7 +599,7 @@
     var 변형바뀜 = null, 변형끌었음 = false;   // 변형끌었음: 방금 끌었으면 그 클릭은 선택으로 넘기지 않는다   // 속성 칸이 열려 있으면 페이더 숫자를 따라 바꾸는 함수
     function 변형쓰기(장, 새, 기록) {   // 새: {크기,가로,세로,회전} 또는 null(기본). 기록: 되돌리기에 남길지
       var 전 = 선택.장면별 && 선택.장면별[장] && 선택.장면별[장].변형 ? JSON.parse(JSON.stringify(선택.장면별[장].변형)) : undefined;
-      var 정리 = function (v) { if (!v) return undefined; var o = {}; if (Math.abs(v.크기 - 1) > 0.004) o.크기 = Math.round(v.크기 * 1000) / 1000; if (Math.abs(v.가로) > 0.002) o.가로 = Math.round(v.가로 * 1000) / 1000; if (Math.abs(v.세로) > 0.002) o.세로 = Math.round(v.세로 * 1000) / 1000; if (Math.abs(v.회전) > 0.05) o.회전 = Math.round(v.회전 * 10) / 10; return Object.keys(o).length ? o : undefined; };
+      var 정리 = function (v) { if (!v) return undefined; var o = {}; if (Math.abs(v.크기 - 1) > 0.004) o.크기 = Math.round(v.크기 * 1000) / 1000; if (Math.abs(v.가로) > 0.002) o.가로 = Math.round(v.가로 * 1000) / 1000; if (Math.abs(v.세로) > 0.002) o.세로 = Math.round(v.세로 * 1000) / 1000; if (Math.abs(v.회전) > 0.05) o.회전 = Math.round(v.회전 * 10) / 10; ['왼', '오', '위', '아래'].forEach(function (k) { if ((v[k] || 0) > 0.002) o[k] = Math.round(v[k] * 1000) / 1000; }); return Object.keys(o).length ? o : undefined; };
       var 뒤 = 정리(새), 넣기 = function (v) { var 모두 = Object.assign({}, 선택.장면별 || {}), 이것 = Object.assign({}, 모두[장] || {}); if (v === undefined) delete 이것.변형; else 이것.변형 = JSON.parse(JSON.stringify(v)); if (Object.keys(이것).length) 모두[장] = 이것; else delete 모두[장]; if (Object.keys(모두).length) 선택.장면별 = 모두; else delete 선택.장면별; 그리기미리보기(); if (변형바뀜 && 편집장 === 장) 변형바뀜(); };
       넣기(뒤); if (기록 && JSON.stringify(전) !== JSON.stringify(뒤)) 기록하기({ 이름: '변형', undo: function () { 넣기(전); }, redo: function () { 넣기(뒤); } });
       return 전;
@@ -605,7 +613,7 @@
       var 시작 = null;
       변형틀.addEventListener('pointerdown', function (e) {
         if (e.button !== 0) return; e.preventDefault(); e.stopPropagation(); var r = 변형틀.getBoundingClientRect(), 박 = (ctr.style.display !== 'none' ? ctr : bg), 칸r = { w: 박.offsetWidth || 1, h: 박.offsetHeight || 1 };
-        var v = 변형값(편집장) || { 크기: 1, 가로: 0, 세로: 0, 회전: 0 }, cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+        var v = 변형값(편집장) || 기본변형(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
         시작 = { 장: 편집장, 움직임: false, x: e.clientX, y: e.clientY, v: v, 칸: 칸r, 모서리: !!e.target.dataset.k, 거리: Math.max(8, Math.hypot(e.clientX - cx, e.clientY - cy)), cx: cx, cy: cy, 전: 선택.장면별 && 선택.장면별[편집장] && 선택.장면별[편집장].변형 ? JSON.parse(JSON.stringify(선택.장면별[편집장].변형)) : undefined };
         try { 변형틀.setPointerCapture(e.pointerId); } catch (x) {}
       });
@@ -616,7 +624,7 @@
         변형쓰기(시작.장, v, false);
       });
       var 끝 = function () { if (!시작) return; var 장 = 시작.장, 지금 = 선택.장면별 && 선택.장면별[장] && 선택.장면별[장].변형, 전 = 시작.전; 변형끌었음 = 시작.움직임; 시작 = null; var 뒤 = 지금 ? JSON.parse(JSON.stringify(지금)) : undefined;
-        if (JSON.stringify(전) !== JSON.stringify(뒤)) 기록하기({ 이름: '변형', undo: function () { 변형쓰기(장, 전 ? Object.assign({ 크기: 1, 가로: 0, 세로: 0, 회전: 0 }, 전) : null, false); }, redo: function () { 변형쓰기(장, 뒤 ? Object.assign({ 크기: 1, 가로: 0, 세로: 0, 회전: 0 }, 뒤) : null, false); } }); };
+        if (JSON.stringify(전) !== JSON.stringify(뒤)) 기록하기({ 이름: '변형', undo: function () { 변형쓰기(장, 전 ? Object.assign(기본변형(), 전) : null, false); }, redo: function () { 변형쓰기(장, 뒤 ? Object.assign(기본변형(), 뒤) : null, false); } }); };
       변형틀.addEventListener('pointerup', 끝); 변형틀.addEventListener('pointercancel', 끝);
     })();
     function 편집영상맞춤() { if (!편집영상) return; var 원 = ctr.style.display !== 'none' ? ctr : bg; ['top', 'left', 'width', 'height'].forEach(function (k) { 편집영상.style[k] = 원.style[k] || (원 === ctr ? getComputedStyle(ctr)[k] : ''); }); }   // 영상은 보이는 그림 칸(제목 띠 아래·줄어든 폭, 가운데영상형이면 가운데 칸)과 같은 자리에
@@ -627,6 +635,25 @@
       return { 받음: !!T.효과음, 켜짐: !!T.효과음 && s.auto !== false, 앞: 수(s.lead, 0.15, 0, 1), 최대: Math.floor(수(s.max, 6, 0, 20)), 음량: 수(s.vol, 0.6, 0, 2), 목록: Array.isArray(s.list) ? s.list.filter(function (x) { return x && /^sfx:[a-z0-9_-]{1,50}$/.test(String(x.id || '')); }) : [] }; }
     function 효과음있는장면(장, 수) { var S = 효과음설정(); return 영상종류 === '쇼츠' && S.켜짐 && 수 >= 2 && 장 >= 1 && 장 < 수 && 장 <= S.최대; }
     function 효과음값(e) { return (선택.효과음 && 선택.효과음[e]) || {}; }
+    // ── 대본 문장 편집(쇼츠 · 내 사진·영상): 장면마다 대본 = 선택.장면별[장].대본(문자열). 자막과 목소리는 이 글에서 함께 만들어지므로 늘 같이 움직인다.
+    //    처음 고칠 때 모든 장면의 대본을 화면에 보이는 대로 고정한다(보이는 것 = 만들어지는 것). 고치지 않으면 서버가 장면에 맞춰 나눈다
+    var 고른문장 = null, 끌문장 = null;
+    function 대본켜짐() { return 영상종류 === '쇼츠' && Array.isArray(opt.자료) && opt.자료.length > 0 && 대본문장.length > 0 && !v0().자막끄기; }
+    function 문장들(글) { return (String(글 || '').match(/[^.!?。！？]+[.!?。！？]*/g) || []).map(function (x) { return x.trim(); }).filter(Boolean); }
+    function 장면글(장, 수) { var 고 = 선택.장면별 && 선택.장면별[장] && 선택.장면별[장].대본; if (typeof 고 === 'string') return 고; if (대본고정됨()) return ''; var a = Math.floor((장 - 1) * 대본문장.length / 수), b = Math.max(a + 1, Math.floor(장 * 대본문장.length / 수)); return 대본문장.slice(a, b).join(' '); }
+    function 대본고정됨() { return !!선택.장면별 && Object.keys(선택.장면별).some(function (k) { return typeof 선택.장면별[k].대본 === 'string'; }); }
+    function 대본바꾸기(바꿀, 이름, 수) {   // 바꿀: { 장: 글 }. 처음이면 모든 장면을 고정. 되돌리기에 남긴다(대본 값과 '고침' 표시만). 고객이 직접 고친 장면만 서버가 금지 표현을 검사한다(대본고침)
+      var 처음 = !대본고정됨(), 잘림 = false, 전 = {}, 뒤 = {}, 전고 = {}, 뒤고 = {};
+      for (var n = 1; n <= 수; n++) { var 이것0 = 선택.장면별 && 선택.장면별[n] || {}; 전[n] = 이것0.대본; 전고[n] = 이것0.대본고침; var 바뀜 = Object.prototype.hasOwnProperty.call(바꿀, n), 글 = 바뀜 ? String(바꿀[n]) : (처음 ? 장면글(n, 수) : 전[n]); if (typeof 글 === 'string' && 글.length > 400) { 잘림 = true; 글 = 글.slice(0, 400); } 뒤[n] = 글; 뒤고[n] = 바뀜 ? true : 전고[n]; }
+      var 넣기 = function (m, 고) { var 모두 = Object.assign({}, 선택.장면별 || {}); Object.keys(m).forEach(function (n) { var 이것 = Object.assign({}, 모두[n] || {}); if (m[n] === undefined) delete 이것.대본; else 이것.대본 = m[n]; if (고[n]) 이것.대본고침 = true; else delete 이것.대본고침; if (Object.keys(이것).length) 모두[n] = 이것; else delete 모두[n]; }); if (Object.keys(모두).length) 선택.장면별 = 모두; else delete 선택.장면별; 속성키 = ''; 지난장 = 0; 타임라인그리기(); 결과갱신(); 문장포커스(); };   // 지난장 0: 편집·결과 화면 자막도 새 대본으로
+      넣기(뒤, 뒤고); 기록하기({ 이름: 이름, undo: function () { 넣기(전, 전고); }, redo: function () { 넣기(뒤, 뒤고); } });
+      if (처음) 알리기('장면마다 대본을 고정했어요 · 이제 보이는 대로 자막과 목소리가 만들어져요' + (잘림 ? ' (긴 장면은 400자까지)' : '')); else if (잘림) 알리기('한 장면 대본은 400자까지라 넘친 부분은 빠졌어요 · 되돌리기로 살릴 수 있어요');
+    }
+    var 포커스문장 = null;
+    function 문장포커스() { if (!포커스문장) return; var f = 포커스문장; 포커스문장 = null; var a = [].slice.call(tl.querySelectorAll('.cz-t-sub.cz-t-sent')), q = a.filter(function (x) { return Number(x.dataset.s) === f.장; })[Math.max(0, f.k - 1)] || a[0]; if (q) try { q.focus({ preventScroll: true }); } catch (x) {} }
+    function 문장지우기(장, k, 수) { 포커스문장 = { 장: 장, k: k }; var a = 문장들(장면글(장, 수)); if (!a[k]) return; var 글 = a[k]; a.splice(k, 1); var m = {}; m[장] = a.join(' '); 고른문장 = null; 대본바꾸기(m, '문장 지우기', 수); 알리기('"' + 글.slice(0, 20) + '" 문장을 지웠어요 · 자막과 목소리가 함께 빠져요'); }
+    function 문장옮기기(장, k, 새장, 새자리, 수) { var a = 문장들(장면글(장, 수)), 글 = a[k]; if (!글) return; if (새장 === 장) { a.splice(k, 1); a.splice(Math.min(새자리, a.length), 0, 글); var m1 = {}; m1[장] = a.join(' '); 대본바꾸기(m1, '문장 옮기기', 수); return; }
+      var b = 문장들(장면글(새장, 수)); a.splice(k, 1); b.splice(Math.min(새자리, b.length), 0, 글); var m = {}; m[장] = a.join(' '); m[새장] = b.join(' '); 고른문장 = { 장: 새장, k: Math.min(새자리, b.length - 1) }; 대본바꾸기(m, '문장 옮기기', 수); }
     // 고객이 넣은 효과음: 선택.효과음추가 = [{ 장면(1~), 초(장면 시작 뒤), 번호('sfx:..'), 음량?(0~2) }] 최대 20개. 렌더는 '장면 시작 + 초'에 얹는다(장면 길이가 달라도 장면 기준이라 어긋나지 않는다)
     var 고른넣은 = -1;
     function 넣은효과음() { var a = Array.isArray(선택.효과음추가) ? 선택.효과음추가 : []; return JSON.parse(JSON.stringify(a.filter(function (x) { return x && /^sfx:[a-z0-9_-]{1,50}$/.test(String(x.번호 || '')) && x.장면 >= 1 && x.초 >= 0; }))); }   // 복사본(바꿔도 원래 값은 그대로: 되돌리기용)
@@ -774,28 +801,39 @@
         }
         판.소리.insertBefore(목칸, 판.소리.firstChild);
       }
+      if (탭식 && 대본켜짐()) 대본칸그리기(판.소리, 장, 수);
       if (탭식 && 자료) {   // 영상 탭 맨 위: 변형(크기·위치 X·위치 Y·회전). 가운데가 기본, 놓을 때 되돌리기에 남는다
         var 변칸 = el('div', 'cz-insp-set'); 변칸.appendChild(el('div', 'cz-insp-sh', '변형')); var 변줄들 = [];
         [['크기', '크기', function (n) { return n < 0 ? 1 + n / 100 : 1 + n / 50; }, function (v) { return v < 1 ? (v - 1) * 100 : (v - 1) * 50; }, function (v) { return Math.round(v * 100) + '%'; }],
          ['위치 X', '가로', function (n) { return n / 100; }, function (v) { return v * 100; }, function (v) { return String(Math.round(v * 100)); }],
          ['위치 Y', '세로', function (n) { return n / 100; }, function (v) { return v * 100; }, function (v) { return String(Math.round(v * 100)); }],
-         ['회전', '회전', function (n) { return n * 3.6; }, function (v) { return v / 3.6; }, function (v) { return Math.round(v) + '°'; }]].forEach(function (d) {
+         ['회전', '회전', function (n) { return n * 3.6; }, function (v) { return v / 3.6; }, function (v) { return Math.round(v) + '°'; }],
+         ['자르기 왼쪽', '왼', null], ['자르기 오른쪽', '오', null], ['자르기 위', '위', null], ['자르기 아래', '아래', null]].forEach(function (d) {
+          if (!d[2]) { d[2] = function (n) { return (n + 50) / 100 * 0.45; }; d[3] = function (v) { return v / 0.45 * 100 - 50; }; d[4] = function (v) { return Math.round(v * 100) + '%'; }; }   // 자르기: 왼쪽 끝 = 자르지 않음, 오른쪽 끝 = 45%
           var 줄 = el('div', 'cz-insp-r cz-insp-in'); 줄.appendChild(el('span', '', d[0]));
           var 막 = el('input', 'cz-insp-rng'); 막.type = 'range'; 막.min = '-50'; 막.max = '50'; 막.step = '1'; 막.setAttribute('aria-label', d[0] + ' (가운데가 기본)');
           var 값글 = el('b', 'cz-insp-pc'), 되 = el('button', 'cz-insp-rs', '↺'); 되.type = 'button'; 되.title = '기본값으로';
-          var 지금값 = function () { var v = 변형값(장) || { 크기: 1, 가로: 0, 세로: 0, 회전: 0 }; return v[d[1]]; };
-          var 그리기줄 = function () { var v = 지금값(); 막.value = String(Math.round(Math.max(-50, Math.min(50, d[3](v))))); 값글.textContent = d[4](v); 되.disabled = d[1] === '크기' ? Math.abs(v - 1) < 0.004 : Math.abs(v) < 0.002; };
+          var 지금값 = function () { var v = 변형값(장) || 기본변형(); return v[d[1]]; };
+          var 그리기줄 = function () { var v = 지금값(); 막.value = String(Math.round(Math.max(-50, Math.min(50, d[3](v))))); 값글.textContent = d[4](v); 되.disabled = d[1] === '크기' ? Math.abs(v - 1) < 0.004 : Math.abs(v) < 0.002; }; if (['왼', '오', '위', '아래'].indexOf(d[1]) >= 0) 줄.classList.add('cz-insp-crop');
           var 시작전 = null;
-          막.addEventListener('input', function () { var v = 변형값(장) || { 크기: 1, 가로: 0, 세로: 0, 회전: 0 }; if (시작전 === null) 시작전 = JSON.stringify(v); v[d[1]] = d[2](Number(막.value)); 변형쓰기(장, v, false); });
-          막.addEventListener('change', function () { var 전 = 시작전 ? JSON.parse(시작전) : null; 시작전 = null; var 뒤 = 변형값(장) || { 크기: 1, 가로: 0, 세로: 0, 회전: 0 }; if (전 && JSON.stringify(전) !== JSON.stringify(뒤)) { 변형쓰기(장, 전, false); 변형쓰기(장, 뒤, true); } });
-          되.addEventListener('click', function () { var v = 변형값(장) || { 크기: 1, 가로: 0, 세로: 0, 회전: 0 }; v[d[1]] = d[1] === '크기' ? 1 : 0; 변형쓰기(장, v, true); });
+          막.addEventListener('input', function () { var v = 변형값(장) || 기본변형(); if (시작전 === null) 시작전 = JSON.stringify(v); v[d[1]] = d[2](Number(막.value)); 변형쓰기(장, v, false); });
+          막.addEventListener('change', function () { var 전 = 시작전 ? JSON.parse(시작전) : null; 시작전 = null; var 뒤 = 변형값(장) || 기본변형(); if (전 && JSON.stringify(전) !== JSON.stringify(뒤)) { 변형쓰기(장, 전, false); 변형쓰기(장, 뒤, true); } });
+          되.addEventListener('click', function () { var v = 변형값(장) || 기본변형(); v[d[1]] = d[1] === '크기' ? 1 : 0; 변형쓰기(장, v, true); });
           그리기줄(); 변줄들.push(그리기줄); 줄.appendChild(막); 줄.appendChild(값글); 줄.appendChild(되); 변칸.appendChild(줄);
         });
         변형바뀜 = function () { 변줄들.forEach(function (f) { f(); }); };
         판.영상.insertBefore(변칸, 판.영상.firstChild);
       } else 변형바뀜 = null;
+      if (탭식 && 자료 && 장 < 수) {   // 효과 탭: 이 장면에서 다음 장면으로 넘어가는 방식
+        var 전칸 = el('div', 'cz-insp-set'); 전칸.appendChild(el('div', 'cz-insp-sh', '장면 전환 · 장면 ' + 장 + ' → ' + (장 + 1)));
+        var 전줄 = el('div', 'cz-insp-r cz-insp-in'); 전줄.appendChild(el('span', '', '넘어가는 방식'));
+        var 전고름 = el('select', 'cz-insp-sel'); 전고름.setAttribute('aria-label', '장면 전환'); [['', '페이드 (기본)'], ['컷', '바로 넘김 (컷)']].forEach(function (o) { var e2 = el('option', '', o[1]); e2.value = o[0]; 전고름.appendChild(e2); });
+        var 지금전 = function () { return (선택.장면별 && 선택.장면별[장] && 선택.장면별[장].전환) || ''; }; 전고름.value = 지금전();
+        전고름.addEventListener('change', function () { var 전 = 지금전() || undefined, 뒤 = 전고름.value || undefined, 장0 = 장; var 넣기 = function (v) { var 모두 = Object.assign({}, 선택.장면별 || {}), 이것 = Object.assign({}, 모두[장0] || {}); if (v === undefined) delete 이것.전환; else 이것.전환 = v; if (Object.keys(이것).length) 모두[장0] = 이것; else delete 모두[장0]; if (Object.keys(모두).length) 선택.장면별 = 모두; else delete 선택.장면별; 속성키 = ''; 타임라인그리기(); }; 넣기(뒤); 기록하기({ 이름: '장면 전환', undo: function () { 넣기(전); }, redo: function () { 넣기(뒤); } }); });
+        전줄.appendChild(전고름); 전칸.appendChild(전줄); 판.효과 = 판.효과 || el('div', 'cz-insp-pane'); 판.효과.appendChild(전칸);
+      }
       if (탭식) {   // 탭 막대: 내용이 있는 탭만. 고른 탭은 장면을 바꿔도 그대로
-        var 탭들 = ['영상', '소리', '파일'].filter(function (k) { return 판[k].childNodes.length; }); if (탭들.indexOf(속성탭) < 0) 속성탭 = 탭들[0];
+        var 탭들 = ['영상', '소리', '효과', '파일'].filter(function (k) { return 판[k] && 판[k].childNodes.length; }); if (탭들.indexOf(속성탭) < 0) 속성탭 = 탭들[0];
         var 탭줄 = el('div', 'cz-insp-tabs'); 탭줄.setAttribute('role', 'tablist'); 탭줄.setAttribute('aria-label', '속성');
         탭들.forEach(function (k, i) { var b = el('button', 'cz-insp-tab', k); b.type = 'button'; b.setAttribute('role', 'tab'); b.setAttribute('aria-selected', String(k === 속성탭)); b.tabIndex = k === 속성탭 ? 0 : -1;
           b.addEventListener('click', function () { 속성탭 = k; 탭줄.querySelectorAll('.cz-insp-tab').forEach(function (x) { var 선 = x.textContent === k; x.setAttribute('aria-selected', String(선)); x.tabIndex = 선 ? 0 : -1; }); 탭들.forEach(function (t) { 판[t].hidden = t !== k; }); });
@@ -804,6 +842,30 @@
         insp.appendChild(탭줄); 탭들.forEach(function (k) { 판[k].hidden = k !== 속성탭; 판[k].setAttribute('role', 'tabpanel'); 몸.appendChild(판[k]); });
       }
       insp.appendChild(몸);
+    }
+    function 문장조각들(자, 소, 길이, 수) {   // 장면마다 문장 조각(글자 수 비율). 자막(자)과 목소리(소)는 같은 자리·같은 번호라 한 쌍으로 보인다
+      var 장폭 = 길이 / 수;
+      for (var 장 = 1; 장 <= 수; 장++) {
+        var a = 문장들(장면글(장, 수)), 합 = a.reduce(function (t, x) { return t + x.length; }, 0) || 1, 시 = 장폭 * (장 - 1) + 장폭 * 0.03, 쓸폭 = 장폭 * 0.94, 고 = (선택.장면별 && 선택.장면별[장] && 선택.장면별[장].소리) || '', 안씀 = 고 === '원래' && !opt.원래소리막힘;
+        a.forEach(function (글, k) {
+          var 끝 = 시 + 쓸폭 * 글.length / 합, 레 = 자 || 소, q = 조각(레, 시 + 길이 * 0.002, 끝 - 길이 * 0.002, 길이, 자 ? 글 : (k === 0 && 장 === 1 && T.소리 ? '목소리 · ' + T.소리 : ''), (자 ? 'cz-t-sub' : 'cz-t-wave') + ' cz-t-sent' + (안씀 ? ' cz-sent-off' : '') + (고른문장 && 고른문장.장 === 장 && 고른문장.k === k ? ' cz-t-sel' : ''));
+          q.dataset.s = String(장); q.dataset.k = String(k); q.tabIndex = 0; q.setAttribute('role', 'button'); q.title = '장면 ' + 장 + ' · ' + 글 + (안씀 ? ' (원래 소리 장면이라 대본 목소리는 쓰지 않아요)' : '') + '\n끌어서 옮기기 · Delete 지우기 · 눌러서 고치기';
+          q.addEventListener('mouseenter', function () { 문장쌍(this, true); }); q.addEventListener('mouseleave', function () { 문장쌍(this, false); });
+          q.addEventListener('keydown', function (ev) { var s0 = Number(this.dataset.s), k0 = Number(this.dataset.k); if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); 문장고르기(s0, k0); } else if (ev.key === 'Delete' || ev.key === 'Backspace') { ev.preventDefault(); ev.stopPropagation(); 문장지우기(s0, k0, 수); } });
+          시 = 끝;
+        });
+        if (!a.length && 자) { var 빈 = 조각(자, 장폭 * (장 - 1) + 장폭 * 0.1, 장폭 * 장 - 장폭 * 0.1, 길이, '대본 없음', 'cz-t-sentnone'); 빈.dataset.s = String(장); }
+      }
+    }
+    function 문장쌍(q, 켬) { [].forEach.call(tl.querySelectorAll('.cz-t-sent[data-s="' + q.dataset.s + '"][data-k="' + q.dataset.k + '"]'), function (x) { x.classList.toggle('cz-pair', 켬); }); }
+    function 문장고르기(장, k) { 고른문장 = { 장: 장, k: k }; 속성탭 = '소리'; 속성키 = ''; 편집고르기(장); [].forEach.call(tl.querySelectorAll('.cz-t-sent'), function (x) { x.classList.toggle('cz-t-sel', Number(x.dataset.s) === 장 && Number(x.dataset.k) === k); }); }
+    function 대본칸그리기(몸, 장, 수) {   // 속성 → 소리: 이 장면의 대본(고치면 자막과 목소리가 함께 바뀐다)
+      var 칸 = el('div', 'cz-insp-set'); 칸.appendChild(el('div', 'cz-insp-sh', '대본 · 장면 ' + 장));
+      var 글칸 = el('textarea', 'cz-insp-txt'); 글칸.rows = 4; 글칸.maxLength = 400; 글칸.value = 장면글(장, 수); 글칸.setAttribute('aria-label', '장면 ' + 장 + ' 대본');
+      var 원 = 글칸.value; 글칸.addEventListener('change', function () { var v = 글칸.value.replace(/[<>]/g, '').replace(/\s+/g, ' ').trim(); if (v === 원.trim()) return; var m = {}; m[장] = v; 대본바꾸기(m, '대본 고치기', 수); 알리기('대본을 고쳤어요 · 자막과 목소리가 함께 바뀌어요'); });
+      칸.appendChild(글칸); 칸.appendChild(el('p', 'cz-hint', '자막과 목소리는 이 글에서 함께 만들어져요. 문장 조각을 끌어 다른 장면으로 옮기거나 Delete 로 지울 수 있어요.' + ((opt.자료 || [])[장 - 1] && opt.자료[장 - 1].영상 ? ' 영상 장면은 영상 길이를 넘는 말이 잘려요. 원래 소리를 쓰는 장면은 대본 목소리가 나오지 않아요.' : '')));
+      if (고른문장 && 고른문장.장 === 장) setTimeout(function () { var a = 문장들(글칸.value), 앞 = a.slice(0, 고른문장 ? 고른문장.k : 0).join(' '), 시작 = 앞 ? 앞.length + 1 : 0, 끝 = 시작 + ((a[고른문장 ? 고른문장.k : 0]) || '').length; try { 글칸.setSelectionRange(시작, 끝); } catch (x) {} }, 0);
+      몸.insertBefore(칸, 몸.firstChild);
     }
     function 넣은칸그리기(몸, 장, 수, 길이) {   // 이 장면에 넣은 효과음들(고른 것이 위) + '재생 위치에 넣기'
       var S = 효과음설정(), 목록 = 넣은효과음(), 칸 = el('div', 'cz-insp-set cz-insp-sfx'); 칸.appendChild(el('div', 'cz-insp-sh', '넣은 효과음 · 장면 ' + 장));
@@ -895,8 +957,11 @@
     function 복제끼우기(원, j, 이름, 고칠일) {   // 원(번호 또는 틀)을 j 자리에 끼우고 기록한다. 고칠일(): 끼운 뒤 더 할 일(구간 나누기). → '' 또는 안내 글
       var 원설정 = typeof 원 === 'number' && 선택.장면별 && 선택.장면별[원 + 1] !== undefined ? JSON.parse(JSON.stringify(선택.장면별[원 + 1])) : undefined;
       var r = opt.자료복제(원, j); if (!r || !r.카드) return (r && r.오류) || '복사하지 못했어요';
+      var 원대본 = 원설정 && typeof 원설정.대본 === 'string' ? 원설정.대본 : null, 원번 = typeof 원 === 'number' ? (원 >= j ? 원 + 2 : 원 + 1) : 0;   // 원번: 끼운 뒤 원래 장면의 번호
+      if (원대본 !== null) { var 반 = 문장들(원대본), 앞수 = 이름.indexOf('나누') >= 0 ? Math.ceil(반.length / 2) : 반.length; 원설정 = Object.assign({}, 원설정, { 대본: 이름.indexOf('나누') >= 0 ? 반.slice(앞수).join(' ') : '' }); }   // 나누기: 뒤쪽 문장은 새 장면으로 · 복사: 새 장면은 대본 없이(같은 말이 두 번 나오지 않게)
       장면별끼움(j, 원설정);
-      var 카드 = r.카드, 후 = 고칠일 ? 고칠일(카드) : null;
+      var 대본전 = null, 대본후 = null; if (원대본 !== null && 이름.indexOf('나누') >= 0 && 원번 && 선택.장면별 && 선택.장면별[원번]) { 대본전 = 원대본; 대본후 = 문장들(원대본).slice(0, Math.ceil(문장들(원대본).length / 2)).join(' '); 선택.장면별[원번].대본 = 대본후; }
+      var 카드 = r.카드, 후0 = 고칠일 ? 고칠일(카드) : null, 후 = 대본전 === null ? 후0 : { undo: function () { if (후0) 후0.undo(); if (선택.장면별 && 선택.장면별[원번]) 선택.장면별[원번].대본 = 대본전; }, redo: function () { if (후0) 후0.redo(); if (선택.장면별 && 선택.장면별[원번]) 선택.장면별[원번].대본 = 대본후; } };
       기록하기({ 이름: 이름, undo: function () { if (후) 후.undo(); opt.자료떼기(j); 장면별뺌(j); 편집끝(j); }, redo: function () { opt.자료붙이기(카드, j); if (후) 후.redo(); 장면별끼움(j, 원설정); 편집끝(j + 1); } });
       편집끝(j + 1); return '';
     }
@@ -945,12 +1010,14 @@
       var 끌넣은 = null, 눌린클립 = -1, 눌린효과 = 0, 눌린자리 = 0, 끌고있음 = false, 위치계산 = function (e) { var r = 눈금.getBoundingClientRect(); 두는곳((e.clientX - r.left) / Math.max(1, r.width)); };
       if (tl.__핸들) tl.__핸들.forEach(function (h) { tl.removeEventListener(h[0], h[1]); }); tl.__핸들 = [];   // 다시 그릴 때 옛 핸들러를 걷어낸다(쌓이지 않게)
       var 달기 = function (t, f) { tl.addEventListener(t, f); tl.__핸들.push([t, f]); };
-      달기('pointerdown', function (e) { if (e.target.closest('.cz-trk-n') || e.target.closest('.cz-tl-h')) return; var 효과 = e.target.closest('.cz-t-sfx'); if (효과 && 효과.dataset.a !== undefined) { 끌넣은 = { k: Number(효과.dataset.a), x: e.clientX, 조각: 효과, 왼: parseFloat(효과.style.left) || 0, 움직임: false }; try { tl.setPointerCapture(e.pointerId); } catch (x) {} return; } if (효과) { 눌린효과 = Number(효과.dataset.n); 눌린자리 = e.clientX; 끌고있음 = false; 눌린클립 = -1; try { tl.setPointerCapture(e.pointerId); } catch (x) {} return; }   // 효과음 조각: 누르면 그 장면을 골라 속성에 효과음 칸을 연다(재생선은 그대로)
+      달기('pointerdown', function (e) { if (e.target.closest('.cz-trk-n') || e.target.closest('.cz-tl-h')) return; var 효과 = e.target.closest('.cz-t-sfx'); var 문 = e.target.closest('.cz-t-sent'); if (문) { 끌문장 = { 장: Number(문.dataset.s), k: Number(문.dataset.k), x: e.clientX, 움직임: false, 조각: 문 }; try { tl.setPointerCapture(e.pointerId); } catch (x) {} return; }
+        if (효과 && 효과.dataset.a !== undefined) { 끌넣은 = { k: Number(효과.dataset.a), x: e.clientX, 조각: 효과, 왼: parseFloat(효과.style.left) || 0, 움직임: false }; try { tl.setPointerCapture(e.pointerId); } catch (x) {} return; } if (효과) { 눌린효과 = Number(효과.dataset.n); 눌린자리 = e.clientX; 끌고있음 = false; 눌린클립 = -1; try { tl.setPointerCapture(e.pointerId); } catch (x) {} return; }   // 효과음 조각: 누르면 그 장면을 골라 속성에 효과음 칸을 연다(재생선은 그대로)
         var 클립 = e.target.closest('.cz-t-clip'); 눌린클립 = 클립 ? 클립목록.indexOf(클립) : -1; 눌린자리 = e.clientX;
         if (눌린클립 >= 0) { try { tl.setPointerCapture(e.pointerId); } catch (x) {} return; }   // 클립 위: 움직임이 작으면 장면 고르기, 끌면 재생선 이동
         끌고있음 = true; 위치계산(e); try { tl.setPointerCapture(e.pointerId); } catch (x) {} });
       var 이동끝내기 = function () { if (이동중 && 클립목록[눌린클립]) 클립목록[눌린클립].classList.remove('cz-t-drag'); 표시선.hidden = true; 이동중 = false; };
       달기('pointermove', function (e) {
+        if (끌문장) { if (Math.abs(e.clientX - 끌문장.x) > 4) 끌문장.움직임 = true; if (끌문장.움직임) { 끌문장.조각.style.transform = 'translateX(' + (e.clientX - 끌문장.x) + 'px)'; 끌문장.조각.classList.add('cz-dragging'); } return; }
         if (끌넣은) { var 레0 = 끌넣은.조각.parentNode.getBoundingClientRect(), d = (e.clientX - 끌넣은.x) / Math.max(1, 레0.width) * 100; if (Math.abs(e.clientX - 끌넣은.x) > 3) 끌넣은.움직임 = true; if (끌넣은.움직임) 끌넣은.조각.style.left = Math.max(0, Math.min(99.5, 끌넣은.왼 + d)) + '%'; return; }
         if (눌린클립 >= 0 && 편집가능() && !끌고있음) {   // 장면 조각을 끌면 순서가 바뀐다(리졸브처럼). 재생선 이동은 눈금을 끈다
           if (!이동중 && Math.abs(e.clientX - 눌린자리) > 4) { 이동중 = true; 클립목록[눌린클립].classList.add('cz-t-drag'); if (!표시선.parentNode) 클립목록[눌린클립].parentNode.appendChild(표시선); }
@@ -959,11 +1026,16 @@
         }
         if (눌린클립 >= 0 && !끌고있음 && Math.abs(e.clientX - 눌린자리) > 4) 끌고있음 = true; if (끌고있음) 위치계산(e); });
       달기('pointerup', function (e) {
+        if (끌문장) { var 끈문 = 끌문장; 끌문장 = null; if (!끈문.움직임) { 문장고르기(끈문.장, 끈문.k); return; }
+          var 레1 = 끈문.조각.parentNode.getBoundingClientRect(), 비1 = Math.max(0, Math.min(0.999, (e.clientX - 레1.left) / Math.max(1, 레1.width))), 수1 = Math.max(1, 클립목록.length || 1), 새장 = Math.floor(비1 * 수1) + 1;
+          var 같은 = [].filter.call(tl.querySelectorAll('.cz-t-sent[data-s="' + 새장 + '"]'), function (x) { return x.parentNode === 끈문.조각.parentNode && x !== 끈문.조각; }), 자리 = 같은.filter(function (x) { var b = x.getBoundingClientRect(); return b.left + b.width / 2 < e.clientX; }).length;
+          끈문.조각.style.transform = ''; if (새장 === 끈문.장 && 자리 === 끈문.k) { 끈문.조각.classList.remove('cz-dragging'); return; }   // 제자리
+          문장옮기기(끈문.장, 끈문.k, 새장, 자리, 수1); return; }
         if (끌넣은) { var 끈 = 끌넣은; 끌넣은 = null; if (끈.움직임) 넣은옮기기(끈.k, (parseFloat(끈.조각.style.left) || 0) / 100); else 넣은고르기(끈.k); return; }
         if (눌린효과 > 0) { var 효번 = 눌린효과; 눌린효과 = 0; 끌고있음 = false; 눌린클립 = -1; if (Math.abs(e.clientX - 눌린자리) <= 4) 편집고르기(효번); return; }
         if (이동중) { var a = 눌린클립, 도착 = 슬롯 > a ? 슬롯 - 1 : 슬롯; 이동끝내기(); 눌린클립 = -1; 끌고있음 = false; if (도착 !== a && 장면옮기기) { 편집장 = 도착 + 1; 장면옮기기(a, 도착); 알리기('순서를 바꿨어요 · 장면 ' + (a + 1) + ' → ' + (도착 + 1)); } return; }
         if (눌린클립 >= 0 && !끌고있음) 편집고르기(눌린클립 + 1); 눌린클립 = -1; 끌고있음 = false; });
-      달기('pointercancel', function () { 끌넣은 = null; 눌린효과 = 0; 이동끝내기(); 눌린클립 = -1; 끌고있음 = false; });
+      달기('pointercancel', function () { if (끌문장) { 끌문장.조각.style.transform = ''; 끌문장 = null; } 끌넣은 = null; 눌린효과 = 0; 이동끝내기(); 눌린클립 = -1; 끌고있음 = false; });
       var 문구있음 = !!String(opt.문구 || '').trim(), 제목끝 = 문구초값() !== null ? Math.min(문구초값(), 길이) : 길이, 구성 = 화면 === '자동' ? '전체화면형' : 화면;
       if (영상종류 === '쇼츠' && !가로) {
         var 제 = 트랙줄('제목'); if ((문구있음 || 구성 === '제목고정형' || 구성 === '가운데영상형') && 제목끝 > 0) 조각(제, 0, 제목끝, 길이, 문구있음 ? String(opt.문구).trim() : '제목', 'cz-t-title'); else 제.appendChild(el('em', 'cz-empty', '제목 없음'));
@@ -975,8 +1047,8 @@
         c.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); 편집고르기(k + 1); } });
       });
       var 방식 = 자막방식 || '구절형', 자막칸 = 긴 ? 30 : ({ 구절형: 3, 문장형: 5, 단어형: 1.2 }[방식] || 3), 자막수 = Math.min(긴 && 수 ? 수 * 4 : 80, Math.max(1, Math.floor(길이 / 자막칸)));
-      var 자 = 트랙줄('자막'); if (v0().자막끄기) 자.appendChild(el('em', 'cz-empty', '자막 끔')); else if (영상종류 === '수면') 자.appendChild(el('em', 'cz-empty', '음악 영상은 자막이 필요할 때만 넣어요')); else for (var j = 0; j < 자막수; j++) 조각(자, 길이 * j / 자막수 + 길이 * 0.004, 길이 * (j + 1) / 자막수 - 길이 * 0.004, 길이, '', 'cz-t-sub');
-      var 소 = 트랙줄(영상종류 === '수면' ? '음악' : '소리'); 조각(소, 0, 길이, 길이, (영상종류 === '수면' ? '배경 음악' : '목소리') + (T.소리 ? ' · ' + T.소리 : ''), 'cz-t-wave');
+      var 문장판 = 대본켜짐(); var 자 = 트랙줄('자막'); if (문장판) 문장조각들(자, null, 길이, 수); else if (v0().자막끄기) 자.appendChild(el('em', 'cz-empty', '자막 끔')); else if (영상종류 === '수면') 자.appendChild(el('em', 'cz-empty', '음악 영상은 자막이 필요할 때만 넣어요')); else for (var j = 0; j < 자막수; j++) 조각(자, 길이 * j / 자막수 + 길이 * 0.004, 길이 * (j + 1) / 자막수 - 길이 * 0.004, 길이, '', 'cz-t-sub');
+      var 소 = 트랙줄(영상종류 === '수면' ? '음악' : '소리'); if (문장판) 문장조각들(null, 소, 길이, 수); else 조각(소, 0, 길이, 길이, (영상종류 === '수면' ? '배경 음악' : '목소리') + (T.소리 ? ' · ' + T.소리 : ''), 'cz-t-wave');
       효과조각 = []; if (영상종류 === '쇼츠') {
         var 효 = 트랙줄('효과음'), S = 효과음설정(), 장폭 = 길이 / 수, 폭 = Math.max(길이 * 0.012, 0.25), 넣은 = 넣은효과음();
         if (!S.받음) 효.appendChild(el('em', 'cz-empty', '효과음 정보를 불러오지 못했어요'));
@@ -1367,6 +1439,7 @@
     ok.addEventListener('click', function () { if (ok.disabled) return;
       if (선택.블록) { 선택.블록 = 선택.블록.filter(function (b) { return String(b.글 || '').trim(); }).map(function (b) { return Object.assign({ 글: String(b.글).trim(), 위치: b.위치, 크기: b.크기, 모양: b.모양, 글꼴: b.글꼴 }, 헥스.test(b.색 || '') ? { 색: b.색 } : {}); }); if (!선택.블록.length) delete 선택.블록; }
       if (선택.자막크기 !== undefined) 선택.자막크기 = Math.round(선택.자막크기); if (선택.줄길이 !== undefined) 선택.줄길이 = Math.round(선택.줄길이 * 100) / 100; if (선택.자막거리 !== undefined) 선택.자막거리 = Math.round(선택.자막거리 * 100) / 100;   /* 페이더로 만든 소수는 여기서 정리한다 */
+      if (대본고정됨()) { var 수끝 = Math.max(1, 클립목록.length || 1); for (var 끝n = 1; 끝n <= 수끝; 끝n++) { 선택.장면별 = 선택.장면별 || {}; if (typeof (선택.장면별[끝n] || {}).대본 !== 'string') 선택.장면별[끝n] = Object.assign({}, 선택.장면별[끝n] || {}, { 대본: '' }); } }   // 고정했으면 대본 없는 장면은 말 없음(서버가 다른 나레이션을 쓰지 않게)
       var m = 합치기(선택, 종류); 닫기({ compose: Object.assign({}, 선택), 문구시간: 문구시간쓰기 ? (문구시간 === '초' ? 문구초 + 's' : 'all') : undefined, 자막방식: opt.자막방식 !== undefined ? 자막방식 : undefined, 자막위치: 자막위치, 화면구성: 화면바꿈 ? 화면 : (opt.화면구성 || 화면), 제작방식: 제작바꿈 ? 제작값 : undefined, 위치바뀜: 자막위치 !== 처음위치, 초기화: 초기화함 && !Object.keys(선택).length && 자막위치 === '아래' }); });
     document.addEventListener('keydown', 키);
     var 이전스크롤 = document.body.style.overflow; document.body.style.overflow = 'hidden'; dlg.tabIndex = -1;
