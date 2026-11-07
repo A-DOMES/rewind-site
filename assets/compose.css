@@ -35,7 +35,6 @@
 .cz-chip { min-height: 44px; padding: 0 var(--sp-4); background: var(--bg-input); color: var(--ink); border: 2px solid var(--line); border-radius: var(--r-pill); cursor: pointer; font: inherit; transition: border-color .12s; }
 .cz-chip:hover { border-color: color-mix(in srgb, var(--gold) 60%, var(--line)); }
 .cz-chip[aria-pressed="true"] { border-color: var(--gold); background: var(--accent-soft); }
-.cz-foot { grid-column: 1 / -1; display: flex; gap: var(--sp-3); justify-content: flex-end; align-items: center; padding: var(--sp-3) var(--sp-4); border-top: 1px solid var(--line); background: var(--bg); }
 .cz-btn { min-height: 48px; padding: 0 var(--sp-5); border-radius: var(--r-md); border: 1px solid var(--line); background: transparent; color: var(--ink); cursor: pointer; font: inherit; }
 .cz-btn:hover { border-color: var(--gold); }
 .cz-btn.cz-main { background: var(--gold); color: var(--on-gold); border-color: var(--gold); font-weight: 700; }
@@ -93,7 +92,7 @@ label.cz-chip { display: inline-flex; align-items: center; }
 
 /* ── 2026-11-01 재디자인: 신청 화면과 같은 말(검정 바탕·파랑 보라 빛·아이콘 머리글·명함 카드) ── */
 .cz-dlg { background: #000; border-color: var(--nw-edge, rgba(140,160,255,.3)); border-radius: 22px; box-shadow: 0 0 40px rgba(60,90,220,.25); }
-.cz-head, .cz-foot { background: #05060c; border-color: var(--nw-edge, var(--line)); }
+.cz-head { background: #05060c; border-color: var(--nw-edge, var(--line)); }
 .cz-pv { background: radial-gradient(120% 80% at 50% 0%, #10142e, #05060c 70%); border-right-color: var(--nw-edge, var(--line)); }
 .cz-phone { border-color: rgba(140,160,255,.45); box-shadow: 0 0 28px rgba(80,110,255,.28); }
 .cz-card { background: var(--nw-card, var(--bg-raised)); border: 1px solid var(--nw-edge, var(--line)); border-radius: 18px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.4); }
@@ -182,7 +181,6 @@ label.cz-chip { display: inline-flex; align-items: center; }
 .cz-btn:hover { border-color: var(--rz-ac); }
 .cz-btn.cz-main { background: var(--rz-ac); color: #111; border: 0; box-shadow: none; border-radius: 6px; font-weight: 800; }
 .cz-ov :focus-visible { outline-color: var(--rz-ac); }
-.cz-foot { background: var(--rz-p1); border-top: 1px solid var(--rz-ln); padding: 7px 14px; }
 .cz-lay-pic svg { box-shadow: 0 0 0 1px #34343a; }
 .cz-g span { font-size: 10px; }
 /* 타임라인 */
@@ -217,7 +215,7 @@ label.cz-chip { display: inline-flex; align-items: center; }
 /* 배치 */
 @media (min-width: 901px) {
   .cz-dlg { width: min(1760px, 100%); height: min(100%, 940px); grid-template-columns: minmax(250px, 22%) minmax(380px, 1fr) minmax(320px, 30%); grid-template-rows: auto minmax(0, 1fr) auto auto; grid-template-areas: "head head head" "lib pv body" "tl tl tl" "foot foot foot"; }
-  .cz-head { grid-area: head; } .cz-lib { grid-area: lib; } .cz-pv { grid-area: pv; } .cz-body { grid-area: body; } .cz-tl { grid-area: tl; } .cz-foot { grid-area: foot; }
+  .cz-head { grid-area: head; } .cz-lib { grid-area: lib; } .cz-pv { grid-area: pv; } .cz-body { grid-area: body; } .cz-tl { grid-area: tl; }
   .cz-pv { overflow: hidden; }
   .cz-phone { width: clamp(180px, calc((100dvh - 470px) * 0.5625), 520px); }
   .cz-phone.cz-wide { width: min(94%, calc((100dvh - 470px) * 1.7778)); max-width: none; }
@@ -234,7 +232,6 @@ label.cz-chip { display: inline-flex; align-items: center; }
   .cz-lib { border-right: 0; border-bottom: 1px solid var(--rz-ln); overflow: visible; }
   .cz-pv { border-right: 0; }
   .cz-body { overflow: visible; }
-  .cz-foot { position: sticky; bottom: 0; z-index: 5; }
   .cz-trk { grid-template-columns: 48px minmax(0, 1fr); }
 }
 .cz-tick-end span { left: auto; right: 4px; }
@@ -725,3 +722,5 @@ button.cz-pane-l[aria-pressed="true"] { color: var(--rz-ac); }
   .cz-dlg.cz-insp-open .cz-insp { display: block; position: fixed; left: 0; right: 0; bottom: 0; max-height: 62vh; overflow: auto; z-index: 60; background: #121214; border-top: 1px solid #3a3d43; border-radius: 12px 12px 0 0; box-shadow: 0 -8px 24px rgba(0,0,0,.6); }
   .cz-dlg.cz-insp-open .cz-insp-mclose { display: inline-block; margin-left: auto; padding: 2px 10px; font-size: 1rem; color: #e6e7ea; background: transparent; border: 1px solid #3a3d43; border-radius: 6px; cursor: pointer; }
 }
+/* 가운데영상형: 변형·자르기로 비는 곳은 칸 안에서 흐린 같은 그림(렌더와 같게) */
+.cz-ctrb { position: absolute; left: 0; width: 100%; filter: blur(6px) brightness(.75); overflow: hidden; pointer-events: none; display: none; }
