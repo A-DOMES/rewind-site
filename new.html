@@ -1944,7 +1944,7 @@
 <link rel="stylesheet" href="./assets/compose.css?v=20261107e">
 <script src="./assets/shared/layout.js?v=20261027"></script>
 <script src="./assets/shared/phrase.js?v=20261026"></script>
-<script src="./assets/compose.js?v=20261107f"></script>
+<script src="./assets/compose.js?v=20261107g"></script>
 <script src="./assets/rw-consent.js"></script>
 <link rel="stylesheet" href="./assets/rw-theme.css?v=20261103n">
 </head>
@@ -5075,6 +5075,27 @@ ${비율칸Html(kind, 상태)}</div>`;
     return { probs, err: first ? first.msg : '', el: first ? first.el : null, part: first ? first.part : '', data: { form, topic, link, img, len, sc, script, media: mm.media, people: mm.people, music: mm.music === true, narrate: !!(script && window.__rwNarrateOn && window.__rwNarrateOn()) } };
   }
   // 사진·영상 목록 칸을 읽는다(상품쇼츠 · 일반 쇼츠 공통). 문제가 있으면 첫 문제 하나만 err 로 돌려준다
+  // 대본 만들기(AI로 쓰기)가 고객이 넣은 사진·영상을 보고 대본을 쓰도록: 지금 화면의 사진·영상 목록 + 사진 한 줄 설명(렌더 서버 /describe)
+  window.__rwGenMedia = () => {
+    const kind = (document.querySelector('input[name="df-type"]:checked') || {}).value;
+    if (kind === '상품쇼츠') return document.getElementById('df-pimgs') ? readMediaCards('df-pimgs').media.filter(m => m.type !== 'folder').slice(0, 8) : [];
+    const sec = document.querySelector('#df-fields .gn-mymedia');
+    if (!sec || sec.classList.contains('gn-mm-off') || !document.getElementById('df-gimgs')) return [];
+    return readMediaCards('df-gimgs').media.filter(m => m.type !== 'folder').slice(0, 8);
+  };
+  const 설명보관 = {};
+  window.__rwDescribeMedia = async (media) => {
+    const urls = media.map(m => (m.type === 'image' ? m.url : ''));
+    if (!urls.some(Boolean) || !googleIdToken) return {};
+    const key = urls.join('|'); if (설명보관[key]) return 설명보관[key];
+    try {
+      const r = await fetch('https://a-domes--rewind-render-upload-api.modal.run/describe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idToken: googleIdToken, urls }) });
+      const d = await r.json().catch(() => null);
+      const out = (r.ok && d && d.ok && d.설명 && typeof d.설명 === 'object') ? d.설명 : {};
+      if (Object.keys(out).length) 설명보관[key] = out;
+      return out;
+    } catch (e) { return {}; }
+  };
   function readMediaCards(listId, mutate) {
     const cards = [...document.querySelectorAll('#' + listId + ' .pimg-card')];
     const media = [], seen = new Set();
@@ -6549,8 +6570,9 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
   function active(on){document.querySelectorAll('.side-item').forEach(function(b){b.classList.toggle('active',on&&b===btn)})}
   function openFrame(type,src,from,load,kind,form,narrate){
     ret=from||null;kind=kind==='mood'?'mood':kind==='gen'?'gen':'yadam';form=form==='롱폼'?'롱폼':'쇼츠';
-    fr.setAttribute('src','./script.html?type=long&src=mine&mode=pre&lite=1&kind='+kind+(kind==='gen'?'&form='+encodeURIComponent(form):'')+'&t='+Date.now());
-    if(load)fr.addEventListener('load',function once(){fr.removeEventListener('load',once);try{fr.contentWindow.postMessage({type:'rw-script-init',cfg:{type:'long',kind:kind,form:kind==='gen'?form:'',src:'mine',mode:'pre',lite:'1',load:load,narrate:(typeof narrate==='boolean'?narrate:undefined)}},'*')}catch(e){}});
+    var tsec=0;if(kind==='gen'){try{tsec=window.__rwGenTargetSec?window.__rwGenTargetSec(form):0}catch(e){tsec=0}}   /* 2단계에서 고른 영상 길이를 대본 만들기의 길이로 이어 준다 */
+    fr.setAttribute('src','./script.html?type=long&src=mine&mode=pre&lite=1&kind='+kind+(kind==='gen'?'&form='+encodeURIComponent(form)+(tsec?'&sec='+tsec:''):'')+'&t='+Date.now());
+    if(load)fr.addEventListener('load',function once(){fr.removeEventListener('load',once);try{fr.contentWindow.postMessage({type:'rw-script-init',cfg:{type:'long',kind:kind,form:kind==='gen'?form:'',sec:tsec||undefined,src:'mine',mode:'pre',lite:'1',load:load,narrate:(typeof narrate==='boolean'?narrate:undefined)}},'*')}catch(e){}});
     document.body.classList.add('studio-open');document.body.classList.remove('hub-open');
     if(from==='direct')crumb('직접 설정하기 › 대본 만들기','직접 설정하기','direct');else crumb(kind==='mood'?'대본 만들기 › 영상 편지':kind==='gen'?'대본 만들기 › '+form:'대본 만들기 › 야담','대본 만들기','hub');
     if(from!=='direct')active(true);
@@ -6693,26 +6715,28 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
   function narSpeed(){if(!(window.__rwAI&&window.__rwAI.mode&&window.__rwAI.mode()==='paid'))return 1;var v=window.RWVoice&&RWVoice.value&&RWVoice.value();var s=v&&v.speed>0?v.speed:1;return Math.min(2,Math.max(0.5,Math.round(s*100)/100))}
   /* opt 가 있으면(신청 직전·새로고침 뒤) 화면 상태 대신 신청 값(answers)의 낭독 여부·말속도를 쓴다. 서버로 가는 값과 같아야 가격이 어긋나지 않는다 */
   function useMin(x,opt){
-    if(opt){if(!opt.narrate)return minOf(x);var sp=opt.paid&&opt.speed>0?Math.min(2,Math.max(0.5,Math.round(opt.speed*100)/100)):1;return Math.max(0.25,Math.round(charsOf(x)/360/sp*10)/10)}
-    var g=window.__rwGenScript;if(window.__rwNarrateOn&&window.__rwNarrateOn()&&g&&x&&g.id===x.id)return Math.max(0.25,Math.round(charsOf(x)/360/narSpeed()*10)/10);return minOf(x)}
+    if(opt){var sp=opt.paid&&opt.speed>0?Math.min(2,Math.max(0.5,Math.round(opt.speed*100)/100)):1;return Math.max(0.25,Math.round(charsOf(x)/360/sp*10)/10)}
+    return Math.max(0.25,Math.round(charsOf(x)/360/narSpeed()*10)/10)}   /* [2026-11-07] 낭독형만이 아니라 모든 내 대본에 말속도를 반영한다(빠르게 읽으면 영상이 짧아진다). 접수 v3.90 과 같은 식 */
   window.__rwNarSpeed=narSpeed;
-  document.addEventListener('input',function(e){if(e.target&&e.target.id==='vp-speed'){if(window.__rwNarrateOn&&window.__rwNarrateOn())lock(true);else if(window.__rwGenScript)render()}});
-  function lenText(x){if(x.form==='롱폼')return '약 '+(Math.round((x.chars||0)/360*10)/10)+'분';var sec=Math.round(minOf(x)*60);return '약 '+(sec<60?sec+'초':(sec%60?Math.floor(sec/60)+'분 '+(sec%60)+'초':(sec/60)+'분'))}
+  document.addEventListener('input',function(e){if(e.target&&e.target.id==='vp-speed'){if(window.__rwGenScript)render()}});
+  function lenText(x){var um=useMin(x);if(x.form==='롱폼')return '약 '+um+'분';var sec=Math.round(um*60);return '약 '+(sec<60?sec+'초':(sec%60?Math.floor(sec/60)+'분 '+(sec%60)+'초':(sec/60)+'분'))}
   function kindVal(){return (document.querySelector('input[name="df-type"]:checked')||{}).value}
   function isProd(){return kindVal()==='상품쇼츠'}   /* 상품쇼츠도 같은 대본 카드를 쓴다(소리 뒤 5단계). 형태는 늘 쇼츠, 길이 칸만 상품쇼츠 것(df-prodLen)을 잠근다 */
   function curForm(){if(isProd())return '쇼츠';var f=document.getElementById('df-form');return f&&f.value==='롱폼'?'롱폼':'쇼츠'}
   function isGen(){var k=kindVal();return k==='일반'||k==='상품쇼츠'}
   window.__rwGenMin=useMin;
+  /* 대본 만들기를 열 때 넘겨 줄 목표 길이(초). 2단계 길이 칸 값, 비었으면 0(대본 만들기 기본값) */
+  window.__rwGenTargetSec=function(form){if(!isGen())return 0;if(isProd()){var p=document.getElementById('df-prodLen');var ps=p?parseFloat(p.value):0;return ps>0?Math.round(ps):0}var li=document.getElementById('df-videoLength');var m=li?parseFloat(li.value):0;if(!(m>0))return 0;return Math.round(m*60)};
   window.__rwNarrateOn=function(){var g=window.__rwGenScript;return !!(g&&g.mode==='read'&&g.form==='롱폼'&&isGen())};
   function lockProd(on){   /* 상품쇼츠: 길이 칸(초)을 대본 글자 수에 맞춰 잠근다. 서버도 대본 글자 수로 길이를 다시 정한다 */
     var li=document.getElementById('df-prodLen'),ch=document.getElementById('df-prodLen-chips'),g=window.__rwGenScript;
-    if(on&&g&&li){var sec=Math.max(30,Math.min(180,Math.round(minOf(g)*60)));if(li.value!==String(sec)){li.value=String(sec);li.dispatchEvent(new Event('input',{bubbles:true}))}li.readOnly=true;li.classList.add('gn-lk');if(ch){ch.classList.add('gn-lk');ch.setAttribute('inert','')}}
+    if(on&&g&&li){var gx=(window.__rwGenLib?window.__rwGenLib():[]).filter(function(y){return y.id===g.id})[0]||g,sec=Math.max(30,Math.min(180,Math.round(useMin(gx)*60)));if(li.value!==String(sec)){li.value=String(sec);li.dispatchEvent(new Event('input',{bubbles:true}))}li.readOnly=true;li.classList.add('gn-lk');if(ch){ch.classList.add('gn-lk');ch.setAttribute('inert','')}}
     else{if(li){li.readOnly=false;li.classList.remove('gn-lk')}if(ch){ch.classList.remove('gn-lk');ch.removeAttribute('inert')}}
   }
   function lock(on){
     if(isProd()){lockProd(on);return}
     var li=document.getElementById('df-videoLength'),ch=document.getElementById('df-len-chips');
-    if(on){var g=window.__rwGenScript;if(li&&g){var v=String(useMin(g));if(li.value!==v){li.value=v;li.dispatchEvent(new Event('input',{bubbles:true}))}li.readOnly=true;li.classList.add('gn-lk')}if(ch){ch.classList.add('gn-lk');ch.setAttribute('inert','')}}
+    if(on){var g=window.__rwGenScript;if(li&&g){var gx=(window.__rwGenLib?window.__rwGenLib():[]).filter(function(y){return y.id===g.id})[0]||g,v=String(useMin(gx));if(li.value!==v){li.value=v;li.dispatchEvent(new Event('input',{bubbles:true}))}li.readOnly=true;li.classList.add('gn-lk')}if(ch){ch.classList.add('gn-lk');ch.setAttribute('inert','')}}
     else{if(li){li.readOnly=false;li.classList.remove('gn-lk')}if(ch){ch.classList.remove('gn-lk');ch.removeAttribute('inert')}}
   }
   function drop(){window.__rwGenScript=null;lock(false);var li=isProd()?null:document.getElementById('df-videoLength');if(li&&li.value){li.value='';li.dispatchEvent(new Event('input',{bubbles:true}))}}
@@ -6745,11 +6769,8 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
       host.querySelectorAll('[data-art]').forEach(function(b){b.onclick=function(){g.art=b.dataset.art;render();redraw()}});
       host.querySelector('#gs-edit').onclick=function(){var y=(window.__rwGenLib?window.__rwGenLib():[]).filter(function(z){return z.id===g.id})[0];window.__rwOpenStudio('long','mine',y?{title:y.title,chapters:y.chapters,meta:y.meta}:null,'gen',f,f==='롱폼'?g.mode==='read':undefined)};
       host.querySelector('#gs-clear').onclick=function(){drop();note='';render();redraw()};
-      /* 말 속도를 바꾸면 같은 대본이라도 영상 길이가 달라진다 (글자 수 ÷ 초당 6.05자 ÷ 속도). 크게 어긋나면 알려 준다 */
-      if(f==='쇼츠'&&g.mode!=='read'){var spv=window.RWVoice&&RWVoice.value&&RWVoice.value(),sp=spv&&spv.speed>0?spv.speed:(isProd()?1.12:1),base=minOf(x)*60,expS=charsOf(x)/(6.05*sp);
-        if(base>0&&Math.abs(expS-base)/base>0.12){var fs=function(t){t=Math.round(t);return t<60?t+'초':(t%60?Math.floor(t/60)+'분 '+(t%60)+'초':(t/60)+'분')};
-          host.insertAdjacentHTML('beforeend','<p class="gs-warn" role="note">말 속도 ×'+(Math.round(sp*100)/100)+'로 읽으면 영상 길이가 약 <b>'+fs(expS)+'</b>쯤 돼요. 이 대본은 보통 속도로 약 '+fs(base)+' 분량이에요. 길이를 맞추고 싶다면 <button type="button" class="gs-warn-b" id="gs-warn-edit">대본 고치기</button>에서 글자 수를 조절하거나 말 속도를 바꿔 주세요.</p>');
-          var we=host.querySelector('#gs-warn-edit'),ge=host.querySelector('#gs-edit');if(we&&ge)we.onclick=function(){ge.click()}}}
+      /* 말 속도는 위 길이에 이미 들어 있다(빠르게 읽으면 짧아진다). 대본 만들기도 같은 속도로 글자 수를 맞춘다 */
+      var spn=narSpeed();if(Math.abs(spn-1)>0.001)host.insertAdjacentHTML('beforeend','<p class="sc-note gs-speed" role="note">말 속도 ×'+spn+'로 읽는 길이예요. 말 속도를 바꾸면 길이도 함께 바뀌어요.</p>');
       lock(true);return;
     }
     lock(false);

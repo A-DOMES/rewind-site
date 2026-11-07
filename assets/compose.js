@@ -1181,10 +1181,10 @@
       var gm = el('div', 'cz-grid cz-grid-sm'); c2.appendChild(gm);   // 자막 글자 모양: 작은 견본
       모양들.forEach(function (m) { var b = el('button', 'cz-opt'); b.type = 'button'; var s = el('span', 'cz-sample', '가나다'); s.style.fontWeight = String(m[2].w); s.style.color = m[2].c === '#fff' ? 'var(--ink)' : m[2].c; s.style.textShadow = m[2].c === '#fff' ? 'none' : '0 0 1px #0006'; if (m[2].bg) { s.style.background = m[2].bg === 'rgba(0,0,0,.75)' ? '#000a' : m[2].bg; s.style.color = m[2].bg === 'rgba(0,0,0,.75)' ? '#fff' : m[2].c; s.style.padding = '0 6px'; s.style.borderRadius = '4px'; } b.appendChild(s); b.appendChild(el('small', '', m[1]));
         b.addEventListener('click', function () { 선택.자막모양 = m[0]; 갱신(); }); gm.appendChild(b); 눌림목록.push(function () { b.setAttribute('aria-pressed', String(합치기(선택, 종류).값.자막모양 === m[0])); }); });
-      var r1 = el('div', 'cz-row'); r1.appendChild(el('label', '', '글꼴')); r1.appendChild(Object.assign(el('div', 'cz-chips'), {})); c2.appendChild(r1);
+      var c2b = 카드('글꼴 · 읽는 글자 효과', '글꼴을 고르고, 목소리가 읽는 단어를 색으로 칠해요', '자막');   // [11-07] 글꼴을 읽는 글자 효과와 같은 카드 위쪽으로(글자 모양 견본 아래에 있어 찾기 어려웠다)
+      var r1 = el('div', 'cz-row'); r1.appendChild(el('label', '', '글꼴')); r1.appendChild(Object.assign(el('div', 'cz-chips'), {})); c2b.appendChild(r1);
       칩묶음(r1.lastChild, 글꼴들, function () { return 합치기(선택, 종류).값.글꼴; }, function (v) { 선택.글꼴 = v; }, '글꼴');
-      var c2b = 카드('읽는 글자 효과', '목소리가 읽는 단어를 색으로 칠해요', '자막');
-      var 효과줄 = el('div', 'cz-chips'); c2b.appendChild(효과줄);
+      var r1b = el('div', 'cz-row'); r1b.appendChild(el('label', '', '읽는 글자')); var 효과줄 = el('div', 'cz-chips'); r1b.appendChild(효과줄); c2b.appendChild(r1b);
       칩묶음(효과줄, 읽는효과들, function () { return 합치기(선택, 종류).값.읽는효과 || '끔'; }, function (v) { 선택.읽는효과 = v; }, '읽는 글자 효과');   // '끔'도 값으로 보낸다(바깥 자막 효과 설정보다 꾸미기에서 고른 것이 우선)
       눌림목록.push(function () { 다시.style.display = (합치기(선택, 종류).값.읽는효과 || '끔') === '끔' ? 'none' : ''; });
       c2b.appendChild(el('p', 'cz-hint', '위쪽 미리보기에서 바로 확인해요. 실제 영상은 목소리 속도에 맞춰 조금 달라질 수 있어요'));
