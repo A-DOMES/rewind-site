@@ -193,7 +193,7 @@
       var g = 그림틀(재생장), cb = c.querySelector('.cz-bg'), cc = c.querySelector('.cz-ctr');
       if (g && cb) { cb.style.background = g.틀; if (g.있음) cb.removeAttribute('data-ph'); else cb.setAttribute('data-ph', ((Array.isArray(opt.자료) ? opt.자료 : [])[재생장 - 1] || {}).영상 ? '영상 장면' : '사진 장면'); }
       if (g && cc) cc.style.background = g.틀 || '#222';
-      var ccb = c.querySelector('.cz-ctrb'); if (ccb) { var 재v = 변형값(재생장); ccb.style.display = cc && cc.style.display !== 'none' && 재v && (변형css(재생장) || 재v.왼 || 재v.오 || 재v.위 || 재v.아래) ? 'block' : 'none'; if (g) ccb.style.background = g.틀 || '#222'; }   // 결과도 재생 장면 기준
+      var ccb = c.querySelector('.cz-ctrb'); if (ccb) { var 재v = 변형값(재생장); ccb.style.display = cc && cc.style.display !== 'none' && 재v && (변형css(재생장) || 재v.왼 || 재v.오 || 재v.위 || 재v.아래) ? 'block' : 'none'; if (g) ccb.style.background = g.틀 || '#222'; if (cc) { ccb.style.top = cc.style.top || getComputedStyle(ctr).top; ccb.style.height = cc.style.height || getComputedStyle(ctr).height; } }   // 결과도 재생 장면 기준
       var cbb = c.querySelector('.cz-bgb'); if (g && cbb) cbb.style.background = g.틀;   // 제목고정형에서 줄어든 그림의 흐린 양옆도 같은 장면
       var 결변 = 변형css(재생장), 결가운데 = cc && cc.style.display !== 'none'; if (cb && !결가운데) { cb.style.transform = 결변; cb.style.clipPath = 변형클립(재생장, bg); } if (cc) { cc.style.transform = 결가운데 ? 결변 : ''; cc.style.clipPath = 결가운데 ? 변형클립(재생장, ctr) : ''; }   // 결과 화면도 재생 장면의 변형으로
       if (cbb && !결가운데 && 결변) { cbb.style.display = 'block'; cbb.style.top = cbb.style.top || cb.style.top || '0'; cbb.style.height = cbb.style.height || cb.style.height || '100%'; }
@@ -229,7 +229,7 @@
     var gbox = el('div'); gbox.style.cssText = 'position:absolute;inset:0;pointer-events:none'; phone.appendChild(gbox);   // 안내선은 보기만(아래 그림 손잡이·영상 단추를 가리지 않게)
     var ttl = el('div'); ttl.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:18.4%;background:#15110e;display:none;overflow:hidden'; var ttx = el('div'); ttx.style.cssText = 'position:absolute;transform:translateX(-50%);text-align:center;font-weight:800;white-space:pre'; phone.appendChild(ttl); phone.appendChild(ttx);
     var 띠손잡이 = el('div', 'cz-bandh'); 띠손잡이.style.display = 'none'; phone.appendChild(띠손잡이);
-    var ctrb = el('div', 'cz-ctrb'); phone.insertBefore(ctrb, gbox); var ctr = el('div', 'cz-ctr'); ctr.style.display = 'none'; phone.insertBefore(ctr, gbox);   // ctrb: 가운데 칸 뒤의 흐린 같은 그림 if (그림주소) ctr.style.background = '#222 center / cover no-repeat url("' + 그림주소 + '")';
+    var ctrb = el('div', 'cz-ctrb'); phone.insertBefore(ctrb, gbox); var ctr = el('div', 'cz-ctr'); ctr.style.display = 'none'; phone.insertBefore(ctr, gbox); if (그림주소) ctr.style.background = '#222 center / cover no-repeat url("' + 그림주소 + '")';   // ctrb: 가운데 칸 뒤의 흐린 같은 그림
     var 칸손잡이 = el('div', 'cz-bandh'); 칸손잡이.style.display = 'none'; phone.appendChild(칸손잡이); var 칸상태 = { 위: 0.235, 아래: 0.595 };
     var sub = el('div', 'cz-sub'); phone.appendChild(sub); var blk = el('div'); blk.style.cssText = 'position:absolute;inset:0;pointer-events:none'; phone.appendChild(blk);
     var tools = el('div', 'cz-pvtools'); var gl = el('label'); var gc = el('input'); gc.type = 'checkbox'; gc.checked = true; gl.appendChild(gc); gl.appendChild(document.createTextNode(' 점선')); gl.title = '유튜브가 쓰는 자리를 점선으로 보여 줘요'; tools.appendChild(gl);
@@ -756,7 +756,12 @@
           고름1.value = 지금().움직임 || '';
           var 되1 = 되돌림(function () { 쓰기('움직임', undefined); 고름1.value = ''; 되1.disabled = true; }, function () { return !!지금().움직임; });
           고름1.addEventListener('change', function () { 쓰기('움직임', 고름1.value || undefined); 되1.disabled = !고름1.value; });
-          줄1.appendChild(고름1); 줄1.appendChild(되1); 칸.appendChild(줄1); 판.영상.insertBefore(칸, 판.영상.firstChild);
+          줄1.appendChild(고름1); 줄1.appendChild(되1); 칸.appendChild(줄1);
+          var 길줄 = el('div', 'cz-insp-r cz-insp-in'); 길줄.appendChild(el('span', '', '장면 길이'));   // 사진 장면을 최소 몇 초 보여 줄지(말이 더 길면 말 길이). 렌더: scene.최소길이
+          var 길고름 = el('select', 'cz-insp-sel'); 길고름.setAttribute('aria-label', '장면 길이'); [['', '자동 (말 길이)'], ['3', '3초 이상'], ['5', '5초 이상'], ['7', '7초 이상'], ['10', '10초 이상'], ['15', '15초 이상']].forEach(function (o) { var e3 = el('option', '', o[1]); e3.value = o[0]; 길고름.appendChild(e3); });
+          길고름.value = 지금().길이 ? String(지금().길이) : '';
+          길고름.addEventListener('change', function () { var 전 = 지금().길이, 뒤 = 길고름.value ? Number(길고름.value) : undefined, 장0 = 장; var 넣기 = function (v) { var 모두 = Object.assign({}, 선택.장면별 || {}), 이것 = Object.assign({}, 모두[장0] || {}); if (v === undefined) delete 이것.길이; else 이것.길이 = v; if (Object.keys(이것).length) 모두[장0] = 이것; else delete 모두[장0]; if (Object.keys(모두).length) 선택.장면별 = 모두; else delete 선택.장면별; 속성키 = ''; 타임라인그리기(); }; 넣기(뒤); 기록하기({ 이름: '장면 길이', undo: function () { 넣기(전); }, redo: function () { 넣기(뒤); } }); });
+          길줄.appendChild(길고름); 칸.appendChild(길줄); 판.영상.insertBefore(칸, 판.영상.firstChild);
         }
         var 줄2 = el('div', 'cz-insp-r cz-insp-in'); 줄2.appendChild(el('span', '', '음량'));
         var 막대 = el('input', 'cz-insp-rng'); 막대.type = 'range'; 막대.min = '-50'; 막대.max = '50'; 막대.step = '1'; 막대.setAttribute('aria-label', '음량');   // 가운데 = 기본(100%), 왼쪽 = 작게(0~100%), 오른쪽 = 크게(~150%)
