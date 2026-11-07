@@ -717,3 +717,11 @@ button.cz-pane-l[aria-pressed="true"] { color: var(--rz-ac); }
 .cz-insp-txt { width: 100%; box-sizing: border-box; resize: vertical; background: #0d0e10; color: #f1f2f4; border: 1px solid #3a3d43; border-radius: 4px; padding: 6px 8px; font: inherit; font-size: .82rem; line-height: 1.5; }
 .cz-insp-txt:focus { outline: 1px solid #c9922f; }
 .cz-insp-crop span { color: #b9bcc4; }   /* 자르기 줄 */
+/* 휴대폰(900px 이하): 속성은 위쪽 '속성' 단추로 아래에서 올라오는 판 */
+.cz-insp-mbtn, .cz-insp-mclose { display: none; }
+@media (max-width: 900px) {
+  .cz-head-acts .cz-btn.cz-insp-mbtn { display: inline-flex; }   /* 좁은 화면에서 숨기는 다른 단추와 달리 보인다 */
+  .cz-insp-mbtn[aria-expanded="true"] { border-color: #f0b040; color: #f0b040; }
+  .cz-dlg.cz-insp-open .cz-insp { display: block; position: fixed; left: 0; right: 0; bottom: 0; max-height: 62vh; overflow: auto; z-index: 60; background: #121214; border-top: 1px solid #3a3d43; border-radius: 12px 12px 0 0; box-shadow: 0 -8px 24px rgba(0,0,0,.6); }
+  .cz-dlg.cz-insp-open .cz-insp-mclose { display: inline-block; margin-left: auto; padding: 2px 10px; font-size: 1rem; color: #e6e7ea; background: transparent; border: 1px solid #3a3d43; border-radius: 6px; cursor: pointer; }
+}

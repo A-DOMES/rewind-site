@@ -301,8 +301,9 @@
     var 넓은바뀜 = function () { if (가로 && !넓은.matches && 보기 === '나란히') { 보기 = '편집'; stage.dataset.v = 보기; [].forEach.call(stage.querySelectorAll('.cz-pane-tabs > button'), function (n) { n.setAttribute('aria-pressed', String(n.dataset.v === 보기)); }); } 컨트롤놓기(); 결과갱신(); }; try { if (넓은.addEventListener) 넓은.addEventListener('change', 넓은바뀜); else if (넓은.addListener) 넓은.addListener(넓은바뀜); } catch (x) {}
     var 폭관찰 = null; try { 폭관찰 = new ResizeObserver(폭판정); 폭관찰.observe(pv); } catch (x) {}
     var lib = el('aside', 'cz-lib'); lib.setAttribute('aria-label', '구성과 모양'); var body = el('div', 'cz-body'); var tl = el('section', 'cz-tl'); tl.setAttribute('aria-label', '타임라인(앞 단계에서 정한 값)');
+    function 속성창(열기) { dlg.classList.toggle('cz-insp-open', !!열기); 속성열기.setAttribute('aria-expanded', 열기 ? 'true' : 'false'); }   // 휴대폰(900px 이하): 속성을 아래에서 올라오는 판으로
     var insp = el('aside', 'cz-insp'); insp.setAttribute('aria-label', '속성');   // 오른쪽 속성(Inspector): 재생 위치의 장면 정보(읽기 전용)
-    var acts = el('div', 'cz-head-acts'); var reset = el('button', 'cz-btn', '처음 모양으로'); reset.type = 'button'; var ok = el('button', 'cz-btn cz-main', '적용하기'); ok.type = 'button'; acts.appendChild(reset); acts.appendChild(ok);   // 위쪽 줄 오른쪽(닫기 왼쪽)
+    var acts = el('div', 'cz-head-acts'); var reset = el('button', 'cz-btn', '처음 모양으로'); reset.type = 'button'; var ok = el('button', 'cz-btn cz-main', '적용하기'); ok.type = 'button'; var 속성열기 = el('button', 'cz-btn cz-insp-mbtn', '속성'); 속성열기.type = 'button'; 속성열기.setAttribute('aria-expanded', 'false'); 속성열기.title = '고른 장면의 속성(휴대폰 화면)'; 속성열기.addEventListener('click', function () { 속성창(!dlg.classList.contains('cz-insp-open')); }); acts.appendChild(속성열기); acts.appendChild(reset); acts.appendChild(ok);   // 위쪽 줄 오른쪽(닫기 왼쪽)
     head.insertBefore(acts, x);
     // 「파일」 메뉴(웹 브라우저의 파일 메뉴처럼): 가져오기 · 처음 모양으로 · 적용하기. 가져오기 동작은 왼쪽 작업장이 만들 때 파일동작 에 달아 둔다
     var 파일동작 = {}, 파일메뉴닫기 = function () {};
@@ -688,7 +689,7 @@
       var 옛영상 = 편집영상 || insp.querySelector('video'); if (옛영상) { try { 옛영상.pause(); 옛영상.removeAttribute('src'); 옛영상.load(); } catch (x) {} if (옛영상.parentNode) 옛영상.parentNode.removeChild(옛영상); } 편집영상 = null;   // 이전 영상은 멈추고 받던 것도 끊고 편집 화면에서 뺀다
       if (목고르기) { try { 목고르기.소리멈춤(); } catch (x) {} 목고르기 = null; }
       속성키 = 키; insp.textContent = ''; 구간바연결 = null; 구간바그리기();
-      var 머리 = el('div', 'cz-insp-h'); 머리.appendChild(el('b', '', '속성')); 머리.appendChild(el('span', '', '장면 ' + 장 + ' / ' + 수)); insp.appendChild(머리);
+      var 머리 = el('div', 'cz-insp-h'); 머리.appendChild(el('b', '', '속성')); 머리.appendChild(el('span', '', '장면 ' + 장 + ' / ' + 수)); var 접기 = el('button', 'cz-insp-mclose', '✕'); 접기.type = 'button'; 접기.setAttribute('aria-label', '속성 닫기'); 접기.addEventListener('click', function () { 속성창(false); }); 머리.appendChild(접기); insp.appendChild(머리);
       var 몸 = el('div', 'cz-insp-b'), 시작 = 길이 * (장 - 1) / 수, 끝 = 길이 * 장 / 수, 사진 = (T.사진 || [])[장 - 1], 자료 = (Array.isArray(opt.자료) ? opt.자료 : [])[장 - 1];
       // 쇼츠: 다빈치 인스펙터처럼 탭(영상 · 소리 · 파일). 각 탭은 내용이 있을 때만 보인다. 야담·수면은 예전처럼 정보 한 칸
       var 탭식 = 영상종류 === '쇼츠', 판 = { 영상: el('div', 'cz-insp-pane'), 소리: el('div', 'cz-insp-pane'), 파일: el('div', 'cz-insp-pane') }, 파일판 = 탭식 ? 판.파일 : 몸;
