@@ -275,7 +275,7 @@
     function 결과갱신() {
       if (결과예약) return; 결과예약 = requestAnimationFrame(function () {
         결과예약 = 0; if (가로 && 보기 === '편집') return; if (!결과칸.offsetParent) return;   // 안 보이는 동안(휴대폰·가로의 편집 탭)은 복제하지 않는다
-        var c = phone.cloneNode(false); [].forEach.call(phone.childNodes, function (n) { if (n !== 편집영상) c.appendChild(n.cloneNode(true)); }); c.classList.add('cz-result');   // 편집 영상은 복제하지 않는다(복제본이 영상을 다시 받지 않게) c.classList.remove('cz-sel-out'); c.setAttribute('aria-hidden', 'true'); c.inert = true; [].forEach.call(c.querySelectorAll('[tabindex],[role]'), function (n) { n.removeAttribute('tabindex'); n.removeAttribute('role'); }); [].forEach.call(c.querySelectorAll('[id]'), function (n) { n.removeAttribute('id'); }); 결과장면맞춤(c);
+        var c = phone.cloneNode(false); [].forEach.call(phone.childNodes, function (n) { if (n !== 편집영상) c.appendChild(n.cloneNode(true)); }); c.classList.add('cz-result'); c.classList.remove('cz-sel-out'); c.setAttribute('aria-hidden', 'true'); c.inert = true; [].forEach.call(c.querySelectorAll('[tabindex],[role]'), function (n) { n.removeAttribute('tabindex'); n.removeAttribute('role'); }); [].forEach.call(c.querySelectorAll('[id]'), function (n) { n.removeAttribute('id'); }); 결과장면맞춤(c);   // 편집 영상은 복제하지 않는다(복제본이 영상을 다시 받지 않게)
         if (결과폰) 결과칸.replaceChild(c, 결과폰); else 결과칸.insertBefore(c, ctlR.parentNode === 결과칸 ? ctlR : null); 결과폰 = c;
       });
     }
@@ -677,7 +677,7 @@
       var S = 효과음설정(), x = S.목록.filter(function (t) { return t.id === id; })[0] || S.목록.filter(function (t) { return t.kind === 'whoosh'; })[0] || S.목록[0];   // 자동이면 전환음(whoosh) 하나를 예로 들려준다
       효과음멈춤(); if (!x) { 알리기('들어 볼 효과음이 없어요'); return; }
       var a = new Audio('https://a-domes--rewind-render-upload-api.modal.run/sfx?id=' + encodeURIComponent(x.id));
-      a.volume = Math.max(0, Math.min(1, 음량));   // 브라우저 재생은 1(원래 크기)까지: 그보다 크게 고른 값은 미리 듣기에서 같은 크기로 들린다 효과듣기 = a; if (버튼) 버튼.classList.add('on');
+      a.volume = Math.max(0, Math.min(1, 음량)); 효과듣기 = a; if (버튼) 버튼.classList.add('on');   // 브라우저 재생은 1(원래 크기)까지: 그보다 크게 고른 값은 미리 듣기에서 같은 크기로 들린다
       var 끝 = function () { if (버튼) 버튼.classList.remove('on'); if (효과듣기 === a) 효과듣기 = null; };
       a.addEventListener('ended', 끝); a.addEventListener('error', function () { 끝(); 알리기('효과음을 불러오지 못했어요'); });
       var p = a.play(); if (p && p.catch) p.catch(function () { 끝(); });
