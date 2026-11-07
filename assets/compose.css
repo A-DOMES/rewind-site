@@ -638,8 +638,6 @@ button.cz-pane-l[aria-pressed="true"] { color: var(--rz-ac); }
 .cz-t-drop { position: absolute; top: -2px; bottom: -2px; width: 3px; margin-left: -1px; background: var(--rz-ac); border-radius: 2px; pointer-events: none; z-index: 3; }
 .cz-t-drop[hidden] { display: none; }
 .cz-mix .cz-row.cz-off { opacity: .4; pointer-events: none; }
-/* 선택 줄: 쪽마다 관계있는 요소만(제목 쪽 = 제목 띠·글자, 자막 쪽 = 자막) */
-.cz-dlg[data-tab="제목"] .cz-selbar .cz-chip[data-종류="자막"]:not([aria-pressed="true"]), .cz-dlg[data-tab="자막"] .cz-selbar .cz-chip[data-종류="제목띠"]:not([aria-pressed="true"]), .cz-dlg[data-tab="자막"] .cz-selbar .cz-chip[data-종류="제목글자"]:not([aria-pressed="true"]) { display: none !important; }   /* 골라 둔 것은 숨기지 않는다 */
 /* 자막 글자 모양 견본: 작게 */
 .cz-grid.cz-grid-sm { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 6px; }
 .cz-grid-sm .cz-opt { min-height: 0; padding: 6px 8px; gap: 1px; border-width: 1px; }
@@ -724,3 +722,22 @@ button.cz-pane-l[aria-pressed="true"] { color: var(--rz-ac); }
 }
 /* 가운데영상형: 변형·자르기로 비는 곳은 칸 안에서 흐린 같은 그림(렌더와 같게) */
 .cz-ctrb { position: absolute; left: 0; width: 100%; filter: blur(6px) brightness(.75); overflow: hidden; pointer-events: none; display: none; }
+
+/* [11-07] 문구 쪽: 넓게(한 줄 전체), 추가 단추는 위, 문구는 한 줄씩 접어 두고 누른 것만 연다 */
+.cz-dlg[data-pg="text"] .cz-dockbody > .cz-body > .cz-card.cz-blk-card { grid-column: 1 / -1; }
+.cz-blk-add { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 4px 0 8px; }
+.cz-blk-msg { margin: 0 0 0 4px; }
+.cz-blk-list { display: grid; gap: 6px; }
+.cz-blk-row { border: 1px solid var(--rz-ln, #2a2a2e); border-radius: 6px; background: var(--rz-p1, #141417); }
+.cz-blk-row.on { border-color: var(--rz-ac, #e2a23c); }
+.cz-blk-h { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 40px; padding: 4px 10px; border: 0; background: none; color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+.cz-blk-h:hover { background: rgba(255,255,255,.04); }
+.cz-blk-h > b { flex: none; font-size: .78rem; color: var(--ink-dim); }
+.cz-blk-h > span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cz-blk-th { width: 32px; height: 32px; object-fit: contain; background: repeating-conic-gradient(#333 0 25%, #222 0 50%) 0 0 / 8px 8px; border-radius: 3px; flex: none; }
+.cz-blk-car { font-style: normal; color: var(--ink-dim); }
+.cz-blk-row > .cz-hint { margin: 0 10px 6px; }
+.cz-blk-body { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 10px 18px; padding: 8px 10px 10px; border-top: 1px solid var(--rz-ln, #2a2a2e); }
+.cz-blk-body > input[type=text] { flex: 1 1 100%; }
+.cz-blk-body > .cz-hint { flex: 1 1 100%; margin: 0; }
+.cz-ovimg { pointer-events: auto; user-select: none; }

@@ -1936,15 +1936,15 @@
 </style>
 <script src="./theme.js"></script>
 <script src="./assets/voice-panel.js?v=20261102c"></script>
-<script src="./assets/media-input.js?v=20261105e"></script>
+<script src="./assets/media-input.js?v=20261107a"></script>
 <script src="./assets/voice-catalog.js?v=20261025"></script>
 <script src="./assets/voice-picker.js?v=20261104a"></script>
 <link rel="stylesheet" href="./assets/guide.css?v=20261025">
 <script src="./assets/guide.js?v=20261101"></script>
-<link rel="stylesheet" href="./assets/compose.css?v=20261107e">
+<link rel="stylesheet" href="./assets/compose.css?v=20261107f">
 <script src="./assets/shared/layout.js?v=20261027"></script>
 <script src="./assets/shared/phrase.js?v=20261026"></script>
-<script src="./assets/compose.js?v=20261107g"></script>
+<script src="./assets/compose.js?v=20261107h"></script>
 <script src="./assets/rw-consent.js"></script>
 <link rel="stylesheet" href="./assets/rw-theme.css?v=20261103n">
 </head>
@@ -5083,6 +5083,7 @@ ${비율칸Html(kind, 상태)}</div>`;
     if (!sec || sec.classList.contains('gn-mm-off') || !document.getElementById('df-gimgs')) return [];
     return readMediaCards('df-gimgs').media.filter(m => m.type !== 'folder').slice(0, 8);
   };
+  window.__rwUploadImage = file => (window.RWMedia && RWMedia.uploadOne) ? RWMedia.uploadOne(file, googleIdToken) : Promise.reject(new Error('올리기를 준비하지 못했어요. 화면을 새로 고쳐 주세요.'));   // 영상 꾸미기의 그림 문구
   const 설명보관 = {};
   window.__rwDescribeMedia = async (media) => {
     const urls = media.map(m => (m.type === 'image' ? m.url : ''));

@@ -283,5 +283,13 @@
     pick(u.videoMB, 10, 300, function (v) { LIMITS.videoMB = v; });
     pick(u.videoMax, 1, 10, function (v) { LIMITS.videoMax = v; });
   }
-  window.RWMedia = { mount: mount, setLimits: setLimits };
+  // 그림 한 장 올리기(영상 꾸미기의 그림 문구): 줄이지 않고 그대로(PNG 투명 유지). 5MB까지. → Promise<읽기 주소>
+  function uploadOne(file, token) {
+    if (!file || !OK_TYPE[file.type]) return Promise.reject(new Error('그림은 PNG·JPG·WEBP만 올릴 수 있어요.'));
+    if (file.size > 5 * 1048576) return Promise.reject(new Error('그림은 5MB까지 올릴 수 있어요.'));
+    return sign({ token: function () { return token; } }, [{ name: file.name || 'image', size: file.size, type: file.type }]).then(function (items) {
+      return put(document.createElement('div'), items[0], file).then(function () { return items[0].readUrl; });
+    });
+  }
+  window.RWMedia = { mount: mount, setLimits: setLimits, uploadOne: uploadOne };
 })();
