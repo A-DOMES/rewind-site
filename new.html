@@ -1950,6 +1950,27 @@
   .sc-card .sh-item { align-items: center; }
   .sc-card .sh-del { color: var(--ink-faint); }
   .sc-card .sh-delall { margin-top: 8px; color: var(--ink-dim); }
+  /* ===== [11-08] 직접 설정하기 1단계 색 정리 (되돌리기: snapshot-20261108-step1 브랜치) =====
+     역할: 파랑 = 고른 것 · 금색 = 카드 제목 · 주황 = 단계 번호·안내 · 보라는 테두리에서 빼고 바탕 그라데이션에만. 종류 아이콘은 메뉴처럼 종류마다 색 */
+  /* 1. 위쪽 두 탭: 고른 탭만 채운다 */
+  .df-tabs .df-tab:first-child, .df-tabs .df-tab:last-child { background: transparent; border-color: rgba(255,255,255,.12); color: #aab4e0; filter: none; box-shadow: none; }
+  .df-tabs .df-tab:hover { border-color: rgba(155,184,255,.6); color: #fff; }
+  .df-tabs .df-tab.active { background: linear-gradient(135deg, #2b55d0, #1b2f86); border-color: #7db4ff; color: #fff; filter: none; box-shadow: 0 0 12px rgba(80,150,255,.45); }
+  /* 2. 선택지 카드: 고르지 않은 카드는 옅은 흰 테두리, 고른 카드만 파랑 테두리 + 빛(예전의 절반) */
+  #df-fields.pw-on[data-pwstep="1"] .df-types .tcard, #df-fields.pw-on[data-pwstep="1"] #gn-forms .tcard { background: linear-gradient(135deg, #121b40, #0b1130); border: 1.5px solid rgba(255,255,255,.11); box-shadow: none; }
+  #df-fields.pw-on[data-pwstep="1"] .df-types .tcard:hover, #df-fields.pw-on[data-pwstep="1"] #gn-forms .tcard:hover { background: linear-gradient(135deg, #172252, #0e163c); border-color: rgba(155,184,255,.55); box-shadow: 0 0 10px rgba(80,150,255,.25); filter: none; transform: translateY(-2px); }
+  #df-fields.pw-on[data-pwstep="1"] .df-types input:checked + .tcard, #df-fields.pw-on[data-pwstep="1"] #gn-forms input:checked + .tcard { background: linear-gradient(135deg, #1d47b3, #102a72); border: 1.5px solid #7db4ff; box-shadow: 0 0 0 1px #7db4ff, 0 0 13px rgba(80,150,255,.45), inset 0 0 18px rgba(120,180,255,.14); }
+  /* 3. 종류 아이콘: 종류마다 색(옅은 색 바탕 + 색 선) — 일반 파랑 · 상품쇼츠 코랄 · 분위기 분홍 · 야담 호박 */
+  #df-fields.pw-on .df-types label:has(> input[value="일반"]) { --tc: #4a9be8; }
+  #df-fields.pw-on .df-types label:has(> input[value="상품쇼츠"]) { --tc: #f0694a; }
+  #df-fields.pw-on .df-types label:has(> input[value="수면음악"]) { --tc: #d9569a; }
+  #df-fields.pw-on .df-types label:has(> input[value="야담"]) { --tc: #e2a23c; }
+  #df-fields.pw-on[data-pwstep="1"] .df-types .tcard .ti { background: color-mix(in srgb, var(--tc, #9bb8ff) 18%, #0b0d1f); border: 1px solid color-mix(in srgb, var(--tc, #9bb8ff) 45%, transparent); color: color-mix(in srgb, var(--tc, #9bb8ff) 85%, #fff); }
+  #df-fields.pw-on[data-pwstep="1"] .df-types input:checked + .tcard .ti { background: color-mix(in srgb, var(--tc, #9bb8ff) 34%, #0b0d1f); border-color: color-mix(in srgb, var(--tc, #9bb8ff) 75%, #fff); color: #fff; }
+  /* 4. 보라 테두리 빼기: 참고 영상 상자 */
+  #df-fields.pw-on[data-pwstep="1"] .rf-box { border-color: rgba(255,255,255,.12); }
+  /* 5. 별 장식은 첫 카드에만 */
+  #df-fields.pw-on[data-pwstep="1"] > .df-sec.pw-cur ~ .df-sec.pw-cur::after { display: none; }
 </style>
 <script src="./theme.js"></script>
 <script src="./assets/voice-panel.js?v=20261102c"></script>
