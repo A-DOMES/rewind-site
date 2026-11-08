@@ -2709,7 +2709,7 @@ ${비율칸Html(kind, 상태)}</div>`;
     try { sessionStorage.setItem(CHAT_STATE_KEY, JSON.stringify({ history, answers, mode, productExtra, mediaExtra, composeState, composeKind })); } catch (e) {}
   }
   function clearChatState() {
-    productExtra = null; mediaExtra = null; composeState = null; composeKind = '';
+    productExtra = null; mediaExtra = null; composeState = null; composeKind = ''; formPin = null;   // 새 대화: 지난 입력 화면 고정값을 지운다
     try { sessionStorage.removeItem(CHAT_STATE_KEY); } catch (e) {}
   }
   function loadChatState() {
@@ -2848,6 +2848,7 @@ ${비율칸Html(kind, 상태)}</div>`;
       if (data.collected) Object.assign(answers, data.collected);
       if (answers.productShort && productExtra) pinProduct();   // 상품쇼츠는 챗봇이 돌려준 값이 아니라 입력 화면의 값을 따른다
       if (answers.genScriptId) pinGen();   // 내 대본으로 만든 일반 영상은 챗봇이 돌려준 형태·길이·제목이 아니라 대본의 값을 따른다
+      else if (formPin) { if (formPin.form) answers.form = formPin.form; if (formPin.videoLength) answers.videoLength = formPin.videoLength; formPin = null; }   // 직접 설정하기에서 고른 길이·형태 고정(예: 롱폼 1분이 3분으로 바뀌던 문제)
       // [신규] 정식 모드는 영상 길이·영상 제작 방식까지 골라야 필수 항목이 채워진 것 (선택 버튼이 떠 있는 동안 '진행하기' 버튼을 띄우지 않음)
       const 선택대기 = Array.isArray(data.choices) && data.choices.length > 0;
       const 필수충족 = !선택대기 && (mode === 'media' ? !!(answers.driveLink && answers.form)
@@ -5514,7 +5515,7 @@ ${비율칸Html(kind, 상태)}</div>`;
     return Array.from((m ? m[0] : body).trim()).slice(0, 30).join('').trim() || '내 대본';   // 글자 수는 이모지를 반으로 자르지 않게 센다
   }
   window.__rwGenTitle = 대본제목;
-  let genPin = null;   // 입력 화면에서 고른 주제·제작 방식 (챗봇이 바꿔 돌려줘도 이 값을 따른다)
+  let genPin = null, formPin = null;   // 입력 화면에서 고른 주제·제작 방식 (챗봇이 바꿔 돌려줘도 이 값을 따른다)
   function pinGen() {
     const x = (window.__rwGenLib ? window.__rwGenLib() : []).find(y => y.id === answers.genScriptId); if (!x) return;
     answers.form = x.form === '롱폼' ? '롱폼' : '쇼츠'; answers.scriptTitle = 대본제목(x);
@@ -6498,6 +6499,7 @@ ${비율칸Html(kind, 상태)}</div>`;
         if (!answers.productShort && val('df-tempo')) answers.tempo = val('df-tempo');
         if (!answers.productShort && val('df-hookText')) answers.hookText = val('df-hookText');
         if (!answers.productShort && val('df-videoLength')) answers.videoLength = val('df-videoLength');
+        formPin = !answers.productShort ? { videoLength: answers.videoLength || '', form: answers.form } : null;   // 첫 상담 답이 길이·형태를 바꿔 돌려줘도 입력 화면 값을 따른다(한 번만 — 그 뒤 고객이 채팅으로 바꾸는 것은 허용)
         if (answers.genScriptId && window.__rwGenMin) { const gx = window.__rwGenLib().find(x => x.id === answers.genScriptId); if (gx) answers.videoLength = String(window.__rwGenMin(gx, { narrate: answers.narrate === true, paid: planMode === 'paid', speed: answers.voice && answers.voice.speed })); }   // 길이는 대본 글자 수에 맞춘다
         if (!answers.productShort && val('df-sceneCount')) answers.sceneCount = val('df-sceneCount');
         if (val('df-directorNote')) answers.directorNote = val('df-directorNote');
