@@ -1905,6 +1905,9 @@
   #df-fields.pw-on .vp-speed[data-vp="speed"] .vp-ticks { height: 40px; margin: 0 8px; }
   #df-fields.pw-on .vp-speed[data-vp="speed"] .vp-ticks span { font-size: 1rem; font-weight: 600; color: #cfd6f5; }
   #df-fields.pw-on .vp-speed[data-vp="speed"] .vp-ticks span::before { height: 9px; margin-bottom: 4px; background: #5b6aa8; }
+  /* [11-08] 보통(1.0)과 조금빠름(1.12) 눈금이 가까워 글자가 붙는다 → 조금빠름만 한 줄 아래로(눈금 선을 길게) */
+  #df-fields.pw-on .vp-speed[data-vp="speed"] .vp-ticks { height: 62px; }
+  #df-fields.pw-on .vp-speed[data-vp="speed"] .vp-ticks span[data-v="1.12"]::before { height: 30px; }
   #df-fields.pw-on .vp-speed[data-vp="speed"] .vp-ticks span.on { color: #ffb347; font-size: 1.08rem; }
   #df-fields.pw-on .vp-speed[data-vp="speed"] .vp-ticks span.on::before { background: #ffb347; }
   /* 4단계 목소리 분위기: 그림처럼 항상 3열 */
@@ -2023,7 +2026,15 @@
   html[data-theme="light"] #df-fields.pw-on .df-voice .vp-row label, html[data-theme="light"] #df-fields.pw-on .df-voice .df-field > label { color: #2d241a !important; }
   html[data-theme="light"] #df-fields.pw-on .vp-play { background: #fff4e0 !important; color: #8a4b00 !important; border: 1px solid #f0c98a !important; }
   html[data-theme="light"] #df-fields.pw-on .df-voice .vp-r, html[data-theme="light"] #df-fields.pw-on .df-voice .vp-w { color: #6b5e4d !important; }
+  html[data-theme="light"] #df-fields.pw-on .vp-speed[data-vp="speed"] .vp-ticks span { color: #5a4e40 !important; }
+  html[data-theme="light"] #df-fields.pw-on .vp-speed[data-vp="speed"] .vp-ticks span::before { background: #c9bfae !important; }
+  html[data-theme="light"] #df-fields.pw-on .vp-speed[data-vp="speed"] .vp-ticks span.on { color: #9a5b00 !important; }
+  html[data-theme="light"] #df-fields.pw-on .vp-speed[data-vp="speed"] .vp-ticks span.on::before { background: #d98a1c !important; }
   @media (prefers-color-scheme: light) {
+    html[data-theme="system"] #df-fields.pw-on .vp-speed[data-vp="speed"] .vp-ticks span { color: #5a4e40 !important; }
+    html[data-theme="system"] #df-fields.pw-on .vp-speed[data-vp="speed"] .vp-ticks span::before { background: #c9bfae !important; }
+    html[data-theme="system"] #df-fields.pw-on .vp-speed[data-vp="speed"] .vp-ticks span.on { color: #9a5b00 !important; }
+    html[data-theme="system"] #df-fields.pw-on .vp-speed[data-vp="speed"] .vp-ticks span.on::before { background: #d98a1c !important; }
     html[data-theme="system"] #df-fields.pw-on .df-voice .vp-row label, html[data-theme="system"] #df-fields.pw-on .df-voice .df-field > label { color: #2d241a !important; }
     html[data-theme="system"] #df-fields.pw-on .vp-play { background: #fff4e0 !important; color: #8a4b00 !important; border: 1px solid #f0c98a !important; }
     html[data-theme="system"] #df-fields.pw-on .df-voice .vp-r, html[data-theme="system"] #df-fields.pw-on .df-voice .vp-w { color: #6b5e4d !important; }
