@@ -1003,7 +1003,7 @@
       var 옛왼쪽 = tl.scrollLeft; tl.style.setProperty('--tz', String(줌));
       tl.textContent = '';
       var 길이 = Number(T.길이초) > 0 ? Number(T.길이초) : (영상종류 === '쇼츠' ? 30 : 1800), 긴 = 길이 > 180;
-      var 머리 = el('div', 'cz-tl-h'); 머리.appendChild(el('b', '', '타임라인')); 머리.appendChild(el('span', '', '전체 약 ' + 시간글(길이) + ' · ' + ({ 쇼츠: '쇼츠', 야담: '야담', 수면: '수면음악' }[영상종류]) + (T.장면수 ? ' · 장면 ' + T.장면수 : ''))); var 도구 = el('div', 'cz-tl-tools'); 도구.setAttribute('role', 'toolbar'); 도구.setAttribute('aria-label', '타임라인 도구');
+      var 머리 = el('div', 'cz-tl-h'); 머리.appendChild(el('b', '', '타임라인')); 머리.appendChild(el('span', '', '전체 약 ' + 시간글(길이) + ' · ' + (opt.이름표 || { 쇼츠: '쇼츠', 야담: '야담', 수면: '수면음악' }[영상종류]) + (T.장면수 ? ' · 장면 ' + T.장면수 : ''))); var 도구 = el('div', 'cz-tl-tools'); 도구.setAttribute('role', 'toolbar'); 도구.setAttribute('aria-label', '타임라인 도구');
       [['이전 장면', '⏮', function () { 장면가기(-1); }], ['다음 장면', '⏭', function () { 장면가기(1); }], ['축소', '−', function () { 줌바꿈(-1); }], ['확대', '+', function () { 줌바꿈(1); }]].forEach(function (d) { var b = el('button', 'cz-tbtn', d[1]); b.type = 'button'; b.title = d[0]; if (d[1] === '−' || d[1] === '+') b.classList.add('cz-zoom'); b.setAttribute('aria-label', d[0]); b.addEventListener('click', d[2]); if (d[1] === '−') b.disabled = 줌 <= 줌단계[0]; if (d[1] === '+') b.disabled = 줌 >= 줌단계[줌단계.length - 1]; 도구.appendChild(b); });
       도구버튼 = {};
       if (편집가능()) {   // 편집 도구(리졸브의 타임라인 도구): 나누기 · 삭제 · 복사 · 붙여넣기 · 되돌리기 · 다시하기

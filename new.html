@@ -2092,7 +2092,7 @@
 <link rel="stylesheet" href="./assets/compose.css?v=20261108b">
 <script src="./assets/shared/layout.js?v=20261027"></script>
 <script src="./assets/shared/phrase.js?v=20261026"></script>
-<script src="./assets/compose.js?v=20261108b"></script>
+<script src="./assets/compose.js?v=20261109a"></script>
 <script src="./assets/rw-consent.js"></script>
 <link rel="stylesheet" href="./assets/rw-theme.css?v=20261108a">
 <link rel="stylesheet" href="./assets/screens.css?v=20261108c">
@@ -3755,7 +3755,7 @@ ${비율칸Html(kind, 상태)}</div>`;
       if (planMode === 'paid' && /^(true|예|네|응|yes|y|1|원해요|만들어)/i.test(String(answers.thumbnail ?? '').trim())) payload.thumbnail = 'TRUE';
       if (answers.layout && answers.layout !== '자동') payload.layout = answers.layout;
       if (answers.captionPos && answers.captionPos !== '자동') payload.captionPos = answers.captionPos;
-      if (composeState && Object.keys(composeState).length && ((answers.form !== '롱폼' && !answers.videoType && composeKind === (answers.productShort ? '상품' : '일반')) || (['야담', '수면음악'].includes(answers.videoType) && composeKind === answers.videoType) || (answers.narrate === true && answers.form === '롱폼' && composeKind === '낭독'))) payload.compose = composeState;
+      if (composeState && Object.keys(composeState).length && ((answers.form !== '롱폼' && !answers.videoType && composeKind === (answers.productShort ? '상품' : '일반')) || (answers.form === '롱폼' && !answers.videoType && answers.narrate !== true && composeKind === '일반롱폼') || (['야담', '수면음악'].includes(answers.videoType) && composeKind === answers.videoType) || (answers.narrate === true && answers.form === '롱폼' && composeKind === '낭독'))) payload.compose = composeState;
       if (payload.compose && answers.productShort && window.__rwRefRhythm && Array.isArray(payload.productMedia) && payload.productMedia.length) {   // [참고 영상] 상품쇼츠 장면 리듬: 고객이 장면 설정을 하지 않은 카드에만 움직임·전환
         const 리 = window.__rwRefRhythm, 별 = Object.assign({}, payload.compose.장면별 || {});
         payload.productMedia.forEach((m, i) => { const k = String(i + 1), 이것 = Object.assign({}, 별[k] || {}); if (리.움직임 && m.type !== 'video' && 이것.움직임 === undefined) 이것.움직임 = 리.움직임; if (리.전환 === '컷' && 이것.전환 === undefined && i < payload.productMedia.length - 1) 이것.전환 = '컷';   /* 장면별[k].전환 = k번에서 다음 카드로 넘어가는 방식(소재목록 계획 조립) */ if (Object.keys(이것).length) 별[k] = 이것; });
@@ -4377,7 +4377,14 @@ ${비율칸Html(kind, 상태)}</div>`;
     const b = ev.target.closest && ev.target.closest('#df-compose-open'); if (!b || !window.RWCompose) return;
     const 상품 = 현재종류() === '상품쇼츠', 이름들 = { 구성: 'df-layout', 자막: 'df-captionPos', 요약: 'df-compose-sum' };   // 상품쇼츠도 쇼츠와 같은 꾸미기 카드·창을 쓴다
     const sum = document.getElementById(이름들.요약), 종류표 = 상품 ? '상품' : '일반';
-    if (!상품 && document.getElementById('df-form')?.value === '롱폼') { if (sum) sum.textContent = '롱폼은 지금은 기본 모양으로 만들어져요'; return; }
+    if (!상품 && document.getElementById('df-form')?.value === '롱폼' && window.__rwNarrateOn && __rwNarrateOn()) { if (sum) sum.textContent = '낭독형은 아래 화면 비율만 정해요'; return; }   // 낭독형 롱폼은 '낭독' 값(화면 비율)을 쓴다 — 일반롱폼으로 덮지 않는다
+    if (!상품 && document.getElementById('df-form')?.value === '롱폼') {   // [롱폼 렌더 서버 이전] 일반 롱폼: 야담과 같은 가로 16:9 편집 화면(자막·글꼴·색·읽는 효과). 제목 띠·템플릿·화면 비율은 쓰지 않는다(Queue v41: 1920×1080 전체화면형)
+      const 값 = composeKind === '일반롱폼' && composeState ? composeState : {}, 위 = 값.자막위치 || '아래';
+      const 롱T = composeTimeline(false, true), 분 = parseFloat(document.getElementById('df-videoLength')?.value) || defaultLen('롱폼'); 롱T.길이초 = Math.round(분 * 60);   // 일반 롱폼 길이(분) — 야담용 시간 칸을 읽지 않게
+      RWCompose.open({ 종류: '야담', 이름표: '롱폼', 타임라인: 롱T, 화면: '가로', 화면목록: [{ 값: '전체화면형' }], 화면구성: '전체화면형', 값, 자막위치: 위, 자막위치저장: true, 샘플: document.getElementById('df-topic')?.value || '',
+        onDone: res => { const c = Object.assign({}, res.compose); delete c.템플릿; delete c.화면비; if (res.자막위치 && res.자막위치 !== '아래') c.자막위치 = res.자막위치; composeState = Object.keys(c).length ? c : null; composeKind = composeState ? '일반롱폼' : ''; if (sum) sum.textContent = composeSumText('야담', composeState); saveChatState(); } });
+      return;
+    }
     const POS = { '위': '상단', '가운데': '가운데', '아래': '하단' }, 거꾸로 = { '상단': '위', '가운데': '가운데', '하단': '아래' };
     const 지금 = document.querySelector(`input[name="${이름들.자막}"]:checked`)?.value;
     const 값 = composeKind === 종류표 && composeState ? composeState : {};   // 다른 폼에서 만든 값은 이어받지 않는다
@@ -4731,19 +4738,19 @@ ${비율칸Html(kind, 상태)}</div>`;
   let 참고꾸미기 = null, 참고전 = null;   // 참고전: 덮어쓰기 전 고객 값 {state, kind} — 되돌릴 때 그대로 돌려준다
   window.__rwRefLook = function (look) {
     const 종 = 현재종류(), 일반폼 = document.getElementById('df-form')?.value;
-    const kind = 종 === '상품쇼츠' ? '상품' : 종 === '야담' ? '야담' : 종 === '수면음악' ? '수면음악' : (종 === '일반' && 일반폼 !== '롱폼' ? '일반' : '');
+    const kind = 종 === '상품쇼츠' ? '상품' : 종 === '야담' ? '야담' : 종 === '수면음악' ? '수면음악' : (종 === '일반' ? (일반폼 === '롱폼' ? (window.__rwNarrateOn && __rwNarrateOn() ? '' : '일반롱폼') : '일반') : '');
     const 있었음 = !!참고꾸미기 || !!window.__rwRefRhythm;
     if (참고꾸미기 && composeState === 참고꾸미기) { composeState = 참고전 ? 참고전.state : null; composeKind = 참고전 ? 참고전.kind : ''; }
     참고꾸미기 = null; 참고전 = null; window.__rwRefRhythm = null;
     const 라벨 = [];
     if (look && look.preset && kind && (!composeState || composeKind !== kind)) {
       const p = Object.assign({}, look.preset);
-      if (kind === '일반' || kind === '상품') { delete p.화면비; delete p.자막위치; } else { ['제목띠색', '제목글자색', '제목크기', '가운데색'].forEach(k => delete p[k]); }
+      if (kind === '일반' || kind === '상품') { delete p.화면비; delete p.자막위치; } else { ['제목띠색', '제목글자색', '제목크기', '가운데색'].forEach(k => delete p[k]); if (kind === '일반롱폼') delete p.화면비; }
       if (Object.keys(p).length) { 참고전 = composeState ? { state: composeState, kind: composeKind } : null; composeState = p; composeKind = kind; 참고꾸미기 = p; 라벨.push('글자 모양·색'); if (p.화면비 === '세로') 라벨.push('화면 비율 세로'); }
     }
     if (look && kind === '상품' && look.rhythm && (look.rhythm.움직임 || look.rhythm.전환)) { window.__rwRefRhythm = look.rhythm; 라벨.push('장면 움직임'); }
     if (!있었음 && !참고꾸미기) return 라벨;   // 참고 영상을 쓰지 않으면 화면 요약도 건드리지 않는다
-    const 요 = document.getElementById('df-compose-sum'); if (요 && window.RWCompose) 요.textContent = composeSumText(kind === '상품', kind === '일반' || kind === '상품' ? (composeKind === kind ? composeState : null) : null);
+    const 요 = document.getElementById('df-compose-sum'); if (요 && window.RWCompose) 요.textContent = kind === '일반롱폼' ? composeSumText('야담', composeKind === kind ? composeState : null) : composeSumText(kind === '상품', kind === '일반' || kind === '상품' ? (composeKind === kind ? composeState : null) : null);
     ['yd', 'sl'].forEach(pre => { const k = pre === 'yd' ? '야담' : '수면음악', 칸 = document.getElementById(pre + '-compose-sum'); if (칸 && window.RWCompose) 칸.textContent = RWCompose.요약(composeKind === k ? composeState : null); });
     document.querySelectorAll('.cz-ratio .len-chip[data-ratio]').forEach(b => { const k = b.closest('.cz-ratio').dataset.kind; if (k !== kind) return; const 세로 = !!(composeKind === k && composeState && composeState.화면비 === '세로'), on = b.dataset.ratio === (세로 ? '세로' : '가로'); b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
     return 라벨;
