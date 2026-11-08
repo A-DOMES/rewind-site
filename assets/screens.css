@@ -105,3 +105,65 @@ html[data-theme="system"] #topic-hub .tf-go { color: color-mix(in srgb, var(--tc
 html[data-theme="system"] #topic-hub .cal-retry { color: #2a4fb0; border-color: #9db7ef; }
 html[data-theme="system"] .price-modal .price-table tbody tr:hover td { background-color: rgba(0,0,0,.035); }
 }
+
+/* ── 참고 영상으로 만들기(2026-11-08): 진행선 단계 표시 · 제목 아이콘 · 참고 칸 · AI 맡기기 카드 · 고른 것 카드 ── */
+#guide-hub .gd-steps { gap: 0; border-bottom: 0; padding: 4px 0 18px; counter-reset: none; }
+#guide-hub .gd-steps li { position: relative; display: flex; justify-content: center; }
+#guide-hub .gd-steps li > * { flex-direction: column; align-items: center; gap: 6px; background: none !important; border: 0 !important; box-shadow: none !important; padding: 0 !important; width: auto; text-align: center; color: var(--ink-dim); }
+#guide-hub .gd-steps li::before { content: ""; position: absolute; top: 14px; left: calc(-50% + 18px); right: calc(50% + 18px); height: 2px; background: rgba(255,255,255,.12); border-radius: 2px; }
+#guide-hub .gd-steps li:first-child::before { display: none; }
+#guide-hub .gd-steps li.done::before, #guide-hub .gd-steps li.on::before { background: linear-gradient(90deg, #7db4ff, #4a86f0); }
+#guide-hub .gd-steps i { width: 30px; height: 30px; font-size: .8rem; position: relative; z-index: 1; background: #0c0c0f; border-color: rgba(255,255,255,.18); }
+#guide-hub .gd-steps li.on > * { color: #fff; font-weight: 700; }
+#guide-hub .gd-steps li.on i { box-shadow: 0 0 0 4px rgba(80,150,255,.22), 0 0 12px rgba(80,150,255,.45); }
+#guide-hub .gd-steps button:hover i { border-color: #7db4ff; }
+#guide-hub .gd-title h2 { display: flex; align-items: center; gap: 10px; font-size: 1.35rem; }
+#guide-hub .gd-ti { flex: none; width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: rgba(80,150,255,.14); border: 1px solid rgba(125,180,255,.35); color: #9bc4ff; }
+#guide-hub .gd-ti svg, #guide-hub .gd-row i svg, #guide-hub .gd-ai .gd-ic svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+#guide-hub .gd-title { margin-bottom: 6px; }
+#guide-hub .gd-chip { font-size: 1rem; padding: 8px 16px; margin: 4px 0 6px; border-color: rgba(255,213,138,.35); background: rgba(255,213,138,.06); }
+#guide-hub .gd-chip b { color: var(--sc-gold); margin-left: 4px; }
+#guide-hub .gd-ref { border: 1.5px solid var(--sc-line); background: var(--sc-card); }
+#guide-hub .gd-ref.on { border-color: var(--sc-sel); box-shadow: var(--sc-glow); }
+#guide-hub .gd-ref .gd-in { margin-top: 4px; }
+#guide-hub .gd-err { margin: 0; color: var(--err, #ff7a7a); font-size: .85rem; }
+#guide-hub .gd-ai { display: grid; grid-template-columns: auto 1fr; column-gap: 12px; align-items: center; text-align: left; width: 100%; padding: 14px 16px; border-radius: 14px; cursor: pointer; }
+#guide-hub .gd-ai .gd-ic { grid-row: span 2; width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: rgba(226,162,60,.14); color: #f0b45a; }
+#guide-hub .gd-ai h3 { margin: 0; font-size: 1rem; } #guide-hub .gd-ai p { margin: 2px 0 0; font-size: .85rem; color: var(--ink-dim); }
+#guide-hub .gd-need { border-left: 3px solid #f0694a; }
+#guide-hub .gd-need b { color: #ffb4a3; }
+#guide-hub .gd-rail .gd-box { background: var(--sc-card); border: 1px solid var(--sc-line); }
+#guide-hub .gd-rail h3 { color: var(--sc-gold); }
+#guide-hub .gd-row { align-items: center; width: 100%; background: none; border: 0; border-bottom: 1px dashed rgba(255,255,255,.07); font: inherit; color: var(--ink-dim); padding: 8px 4px; text-align: left; }
+#guide-hub .gd-row > span { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; flex: none; }
+#guide-hub .gd-row i { width: 24px; height: 24px; border-radius: 7px; display: grid; place-items: center; background: rgba(255,255,255,.05); color: #9bc4ff; }
+#guide-hub .gd-row i svg { width: 14px; height: 14px; }
+#guide-hub button.gd-row { cursor: pointer; border-radius: 8px; }
+#guide-hub button.gd-row:hover { background: rgba(80,150,255,.08); }
+@media (max-width: 640px) { #guide-hub .gd-steps li > * { font-size: 0; } #guide-hub .gd-steps li.on > * { font-size: .8rem; } }
+html[data-theme="light"] #guide-hub .gd-steps i { background: #fff; border-color: #d6cfc2; }
+html[data-theme="light"] #guide-hub .gd-steps li.on i { background: #3b6fe0; border-color: #3b6fe0; color: #fff; box-shadow: 0 0 0 4px rgba(59,111,224,.18); }
+html[data-theme="light"] #guide-hub .gd-steps li.done i { background: #eef3ff; border-color: #3b6fe0; color: #3b6fe0; }
+html[data-theme="light"] #guide-hub .gd-steps li::before { background: #e3dccf; }
+html[data-theme="light"] #guide-hub .gd-steps li.on > * { color: #1c2a4a; }
+html[data-theme="light"] #guide-hub .gd-ti, html[data-theme="light"] #guide-hub .gd-row i { background: #eef3ff; border-color: #c8d7fb; color: #3b6fe0; }
+html[data-theme="light"] #guide-hub .gd-chip { background: #fff8ea; border-color: #ecd6a6; }
+html[data-theme="light"] #guide-hub .gd-chip b, html[data-theme="light"] #guide-hub .gd-rail h3 { color: #9a5b00; }
+html[data-theme="light"] #guide-hub .gd-ref, html[data-theme="light"] #guide-hub .gd-rail .gd-box { background: #fff; border-color: #e3dccf; }
+html[data-theme="light"] #guide-hub .gd-ref.on { border-color: #3b6fe0; box-shadow: 0 0 0 1px #3b6fe0; }
+html[data-theme="light"] #guide-hub .gd-need b { color: #c2410c; }
+html[data-theme="light"] #guide-hub .gd-row { border-bottom-color: #eee6d8; }
+@media (prefers-color-scheme: light) {
+  html[data-theme="system"] #guide-hub .gd-steps i { background: #fff; border-color: #d6cfc2; }
+  html[data-theme="system"] #guide-hub .gd-steps li.on i { background: #3b6fe0; border-color: #3b6fe0; color: #fff; box-shadow: 0 0 0 4px rgba(59,111,224,.18); }
+  html[data-theme="system"] #guide-hub .gd-steps li.done i { background: #eef3ff; border-color: #3b6fe0; color: #3b6fe0; }
+  html[data-theme="system"] #guide-hub .gd-steps li::before { background: #e3dccf; }
+  html[data-theme="system"] #guide-hub .gd-steps li.on > * { color: #1c2a4a; }
+  html[data-theme="system"] #guide-hub .gd-ti, html[data-theme="system"] #guide-hub .gd-row i { background: #eef3ff; border-color: #c8d7fb; color: #3b6fe0; }
+  html[data-theme="system"] #guide-hub .gd-chip { background: #fff8ea; border-color: #ecd6a6; }
+  html[data-theme="system"] #guide-hub .gd-chip b, html[data-theme="system"] #guide-hub .gd-rail h3 { color: #9a5b00; }
+  html[data-theme="system"] #guide-hub .gd-ref, html[data-theme="system"] #guide-hub .gd-rail .gd-box { background: #fff; border-color: #e3dccf; }
+  html[data-theme="system"] #guide-hub .gd-ref.on { border-color: #3b6fe0; box-shadow: 0 0 0 1px #3b6fe0; }
+  html[data-theme="system"] #guide-hub .gd-need b { color: #c2410c; }
+  html[data-theme="system"] #guide-hub .gd-row { border-bottom-color: #eee6d8; }
+}

@@ -2088,14 +2088,14 @@
 <script src="./assets/voice-catalog.js?v=20261025"></script>
 <script src="./assets/voice-picker.js?v=20261104a"></script>
 <link rel="stylesheet" href="./assets/guide.css?v=20261025">
-<script src="./assets/guide.js?v=20261101"></script>
+<script src="./assets/guide.js?v=20261108b"></script>
 <link rel="stylesheet" href="./assets/compose.css?v=20261108b">
 <script src="./assets/shared/layout.js?v=20261027"></script>
 <script src="./assets/shared/phrase.js?v=20261026"></script>
 <script src="./assets/compose.js?v=20261108b"></script>
 <script src="./assets/rw-consent.js"></script>
 <link rel="stylesheet" href="./assets/rw-theme.css?v=20261108a">
-<link rel="stylesheet" href="./assets/screens.css?v=20261108a">
+<link rel="stylesheet" href="./assets/screens.css?v=20261108b">
 </head>
 <body>
 
@@ -3755,7 +3755,12 @@ ${비율칸Html(kind, 상태)}</div>`;
       if (planMode === 'paid' && /^(true|예|네|응|yes|y|1|원해요|만들어)/i.test(String(answers.thumbnail ?? '').trim())) payload.thumbnail = 'TRUE';
       if (answers.layout && answers.layout !== '자동') payload.layout = answers.layout;
       if (answers.captionPos && answers.captionPos !== '자동') payload.captionPos = answers.captionPos;
-      if (composeState && Object.keys(composeState).length && ((answers.form !== '롱폼' && !answers.videoType && composeKind === (answers.productShort ? '상품' : '일반')) || (['야담', '수면음악'].includes(answers.videoType) && composeKind === answers.videoType) || (answers.narrate === true && answers.form === '롱폼' && composeKind === '낭독'))) payload.compose = composeState;   // 영상 꾸미기: 건드린 값만. 롱폼·상품쇼츠(S5b)·야담류는 아직 보내지 않는다
+      if (composeState && Object.keys(composeState).length && ((answers.form !== '롱폼' && !answers.videoType && composeKind === (answers.productShort ? '상품' : '일반')) || (['야담', '수면음악'].includes(answers.videoType) && composeKind === answers.videoType) || (answers.narrate === true && answers.form === '롱폼' && composeKind === '낭독'))) payload.compose = composeState;
+      if (payload.compose && answers.productShort && window.__rwRefRhythm && Array.isArray(payload.productMedia) && payload.productMedia.length) {   // [참고 영상] 상품쇼츠 장면 리듬: 고객이 장면 설정을 하지 않은 카드에만 움직임·전환
+        const 리 = window.__rwRefRhythm, 별 = Object.assign({}, payload.compose.장면별 || {});
+        payload.productMedia.forEach((m, i) => { const k = String(i + 1), 이것 = Object.assign({}, 별[k] || {}); if (리.움직임 && m.type !== 'video' && 이것.움직임 === undefined) 이것.움직임 = 리.움직임; if (리.전환 === '컷' && 이것.전환 === undefined && i < payload.productMedia.length - 1) 이것.전환 = '컷';   /* 장면별[k].전환 = k번에서 다음 카드로 넘어가는 방식(소재목록 계획 조립) */ if (Object.keys(이것).length) 별[k] = 이것; });
+        if (Object.keys(별).length) payload.compose = Object.assign({}, payload.compose, { 장면별: 별 });
+      }   // 영상 꾸미기: 건드린 값만. 롱폼·상품쇼츠(S5b)·야담류는 아직 보내지 않는다
       if (planMode === 'paid' && MOTION_RATE[answers.motion]) payload.motion = answers.motion;
       if (answers.productShort && productExtra) {   // 상품쇼츠는 입력 화면에서 읽어 둔 값이 기준이다 (챗봇이 돌려준 값으로 바뀌지 않게)
         const pe = productExtra;
@@ -4523,8 +4528,8 @@ ${비율칸Html(kind, 상태)}</div>`;
 
   // ───── 화면 구성·자막 위치 그림 선택 ─────
   const LAYOUT_OPTS = [
-    ['자동', '보통 제목고정형'], ['제목고정형', '제목이 위에 고정'], ['전체화면형', '장면을 가득'], ['자막바형', '아래 띠에 큰 자막']
-  ];
+    ['자동', '보통 제목고정형'], ['제목고정형', '제목이 위에 고정'], ['전체화면형', '장면을 가득']
+  ];   // [2026-11-08] 자막바형은 고객 화면에서 뺐다(영상꾸미기 자막 모양 노랑박스·흰박스로 대신). 서버는 예전 신청 재렌더를 위해 그대로 안다
   const CAPTION_OPTS = [['자동', '보통 3/4 지점'], ['하단', '3/4 지점'], ['가운데', '화면 가운데'], ['상단', '위쪽']];
   // 미니 휴대폰 그림 (viewBox 45x80). layout: 제목고정형/전체화면형/자막바형, pos: 하단/가운데/상단, auto: 반짝이 표시
   // 롱폼(가로 16:9)이면 가로 화면 그림 (viewBox 80x45)
@@ -4669,7 +4674,7 @@ ${비율칸Html(kind, 상태)}</div>`;
   }
 
   // ===== 영상 종류(일반 / 수면음악 / 야담) 선택 - 직접 설정하기 =====
-  /* 한번에 만들기(assets/guide.js)가 부르는 입구: 고른 값을 직접 설정하기 폼의 칸에 채워 준다. 신청·가격·검증은 기존 폼이 그대로 한다 */
+  /* 참고 영상으로 만들기(옛 한번에 만들기, assets/guide.js)가 부르는 입구: 고른 값을 직접 설정하기 폼의 칸에 채워 준다. 신청·가격·검증은 기존 폼이 그대로 한다 */
   window.__rwGuideApi = {
     상품열림: () => !!PRODUCT_READY(),
     정식회원: () => planMode === 'paid',   // 참고 영상 칸은 정식 회원에게만 보인다
@@ -4683,7 +4688,7 @@ ${비율칸Html(kind, 상태)}</div>`;
         return d.matches.filter(v => v && /^[\w-]{11}$/.test(v.id));
       } catch (e) { return null; }   // null = 알아보지 못함(실패), [] = 같은 상품 없음
     },
-    구성들: LAYOUT_OPTS, 자막들: CAPTION_OPTS,
+    구성들: LAYOUT_OPTS.concat([['가운데영상형', '영상은 가운데에만']]), 자막들: CAPTION_OPTS,
     그림: (구성, 자막, 가로, 자동) => phoneSvg(구성, 자막, 자동, 가로),
     적용(v) {
       if (v.키 === 'short' || v.키 === 'long') {
@@ -4696,23 +4701,48 @@ ${비율칸Html(kind, 상태)}</div>`;
         composeState = v.compose && Object.keys(v.compose).length ? v.compose : null; composeKind = composeState ? '일반' : '';   // 한번에 만들기에서 고른 모양
         const 요 = document.getElementById('df-compose-sum'); if (요 && window.RWCompose) 요.textContent = composeSumText(false, composeState);
         setTimeout(() => { if (window.__pwGo && window.__pwOn && window.__pwOn()) window.__pwGo(v.바로확인 ? (window.__pwLast ? window.__pwLast() : 5) : 3, true); }, 90);
-      } else openFormFor(v.키, v.주제, '', v.키 === 'prod' ? '한번에 만들기에서 가져온 이름이에요. 정확한 제품명으로 고쳐 주세요.' : '');
+      } else openFormFor(v.키, v.주제, '', v.키 === 'prod' ? '참고 영상으로 만들기에서 가져온 이름이에요. 정확한 제품명으로 고쳐 주세요.' : '');
       if (v.키 === 'prod') setTimeout(() => {   // 길이(초)와 목소리를 상품쇼츠 폼에 채운다
         const L = document.getElementById('df-prodLen'); if (L && v.길이분) { L.value = String(Math.max(30, Math.min(180, Math.round(v.길이분 * 60)))); L.dispatchEvent(new Event('input', { bubbles: true })); L.dispatchEvent(new Event('change', { bubbles: true })); }
         if (v.목소리 && window.__rwVP && __rwVP.쇼츠) __rwVP.쇼츠.값설정(v.목소리);
       }, 150);
-      if (v.참고 && /^[\w-]{11}$/.test(v.참고)) {
+      if (v.참고 && window.RWReference && RWReference.checkUrl(v.참고) === 'ok') {   // [참고 영상으로 만들기] 신청 화면의 참고 영상 칸에 주소를 넣고 분석을 바로 시작한다(칸이 뜰 때까지 잠깐 기다림)
         let 시도 = 0; const 넣기 = () => {
-          const u = document.getElementById('rf-url');
-          if (u) { if (!u.value) { u.value = 'https://www.youtube.com/watch?v=' + v.참고; u.dispatchEvent(new Event('input', { bubbles: true })); } return; }
-          if (++시도 < 10) return setTimeout(넣기, 300);
+          const 결과 = RWReference.startWith(v.참고);
+          if (결과 === 'busy') { const h = document.getElementById('guide-hint'); if (h) h.textContent = '다른 참고 영상을 분석하고 있어요. 끝나면 "다른 영상으로 바꾸기"를 눌러 새 주소를 넣어 주세요.'; return; }
+          if (결과) return;
+          if (++시도 < 15) return setTimeout(넣기, 300);
           const h = document.getElementById('guide-hint'); if (h) h.textContent = '참고 영상 칸을 열지 못했어요. 참고할 영상 주소를 "참고 영상" 칸에 직접 붙여넣어 주세요.';   // 채우지 못했으면 거짓 안내를 두지 않는다
         };
-        setTimeout(넣기, 200);
+        setTimeout(넣기, 250);
       }
       const 칸 = document.getElementById('df-fields'), 옛 = document.getElementById('guide-hint'); if (옛) 옛.remove();
-      if (칸 && v.힌트) { const p = document.createElement('p'); p.className = 'df-hint'; p.id = 'guide-hint'; p.textContent = '한번에 만들기에서 가져왔어요. ' + v.힌트; 칸.insertAdjacentElement('afterbegin', p); }
+      if (칸 && v.힌트) { const p = document.createElement('p'); p.className = 'df-hint'; p.id = 'guide-hint'; p.textContent = '참고 영상으로 만들기에서 가져왔어요. ' + v.힌트; 칸.insertAdjacentElement('afterbegin', p); }
     }
+  };
+  /* [참고 영상으로 만들기] 분석이 끝나면 참고 영상의 모양(preset: 글자 모양·글꼴·색 — 색은 서버가 새 색으로 바꿔 준다)을 영상 꾸미기에 미리 채운다.
+     · 고객이 이 종류에서 꾸미기를 이미 했으면 건드리지 않는다(직접 고른 값이 먼저). 다른 영상으로 바꾸면 우리가 넣은 것만 되돌린다.
+     · 쇼츠·상품쇼츠는 화면 구성·자막 위치를 꾸미기 값이 아니라 바깥 칸(layout·captionPos)으로 정한다(렌더 서버가 영상구성.자막위치를 먼저 쓰므로 두 곳이 되지 않게).
+     · 상품쇼츠의 장면 리듬(움직임·전환)은 신청할 때 카드마다 넣는다(카드를 고객이 나중에 더 올릴 수 있어서). */
+  let 참고꾸미기 = null, 참고전 = null;   // 참고전: 덮어쓰기 전 고객 값 {state, kind} — 되돌릴 때 그대로 돌려준다
+  window.__rwRefLook = function (look) {
+    const 종 = 현재종류(), 일반폼 = document.getElementById('df-form')?.value;
+    const kind = 종 === '상품쇼츠' ? '상품' : 종 === '야담' ? '야담' : 종 === '수면음악' ? '수면음악' : (종 === '일반' && 일반폼 !== '롱폼' ? '일반' : '');
+    const 있었음 = !!참고꾸미기 || !!window.__rwRefRhythm;
+    if (참고꾸미기 && composeState === 참고꾸미기) { composeState = 참고전 ? 참고전.state : null; composeKind = 참고전 ? 참고전.kind : ''; }
+    참고꾸미기 = null; 참고전 = null; window.__rwRefRhythm = null;
+    const 라벨 = [];
+    if (look && look.preset && kind && (!composeState || composeKind !== kind)) {
+      const p = Object.assign({}, look.preset);
+      if (kind === '일반' || kind === '상품') { delete p.화면비; delete p.자막위치; } else { ['제목띠색', '제목글자색', '제목크기', '가운데색'].forEach(k => delete p[k]); }
+      if (Object.keys(p).length) { 참고전 = composeState ? { state: composeState, kind: composeKind } : null; composeState = p; composeKind = kind; 참고꾸미기 = p; 라벨.push('글자 모양·색'); if (p.화면비 === '세로') 라벨.push('화면 비율 세로'); }
+    }
+    if (look && kind === '상품' && look.rhythm && (look.rhythm.움직임 || look.rhythm.전환)) { window.__rwRefRhythm = look.rhythm; 라벨.push('장면 움직임'); }
+    if (!있었음 && !참고꾸미기) return 라벨;   // 참고 영상을 쓰지 않으면 화면 요약도 건드리지 않는다
+    const 요 = document.getElementById('df-compose-sum'); if (요 && window.RWCompose) 요.textContent = composeSumText(kind === '상품', kind === '일반' || kind === '상품' ? (composeKind === kind ? composeState : null) : null);
+    ['yd', 'sl'].forEach(pre => { const k = pre === 'yd' ? '야담' : '수면음악', 칸 = document.getElementById(pre + '-compose-sum'); if (칸 && window.RWCompose) 칸.textContent = RWCompose.요약(composeKind === k ? composeState : null); });
+    document.querySelectorAll('.cz-ratio .len-chip[data-ratio]').forEach(b => { const k = b.closest('.cz-ratio').dataset.kind; if (k !== kind) return; const 세로 = !!(composeKind === k && composeState && composeState.화면비 === '세로'), on = b.dataset.ratio === (세로 ? '세로' : '가로'); b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+    return 라벨;
   };
   window.__rwGoYadam = function () { dfPreType = '야담'; showDirectForm(); };
   window.__rwGoGen = function (form) { dfPreType = '일반'; dfPreForm = form === '롱폼' ? '롱폼' : '쇼츠'; showDirectForm(); setTimeout(() => { if (window.__pwGo && window.__pwOn && window.__pwOn()) window.__pwGo(3, true); }, 80); };   // 쇼츠·롱폼 대본으로 바로 만들기 (대본 단계로)
@@ -5024,7 +5054,7 @@ ${비율칸Html(kind, 상태)}</div>`;
     '혼합': '사진 장면의 약 1/3(첫 장면 포함)을 AI 영상으로 움직이고, 나머지는 사진 그대로 써요.',
     '모두 영상': '모든 사진을 AI 영상으로 움직여요. 요즘 쇼츠 느낌 그대로예요.'
   };
-  const PD_LAYOUTS = [['자동', '기본 · 전체화면형'], ['제목고정형', '제목이 위에 고정'], ['전체화면형', '장면을 가득'], ['자막바형', '아래 띠에 큰 자막'], ['가운데영상형', '영상은 가운데에만']];
+  const PD_LAYOUTS = [['자동', '기본 · 전체화면형'], ['제목고정형', '제목이 위에 고정'], ['전체화면형', '장면을 가득'], ['가운데영상형', '영상은 가운데에만']];   // 자막바형은 뺐다(위 LAYOUT_OPTS 주석)
   const PD_LAYOUT_READY = { '자동': true, '전체화면형': true, '제목고정형': true, '자막바형': true, '가운데영상형': true };
   const PD_LAYOUT_DESC = { '자동': '고르지 않으면 장면을 화면 가득 보여 주는 전체화면형으로 만들어요.', '전체화면형': '장면을 화면 가득 보여 줘요.', '제목고정형': '위에 어두운 띠를 깔고 그 안에 위쪽 문구를 넣어요.', '자막바형': '자막 뒤에 주황 띠가 깔려요. 띠 위치는 고른 자막 위치를 따라가요.', '가운데영상형': '위에는 제목 띠, 영상·사진은 가운데에만 나오고 뒤는 흐리게 채워요. 자막은 영상 안에서 위·가운데·아래로 정해요.' };
   const PD_POS_LABEL = { '상단': '위쪽', '가운데': '가운데', '하단': '아래쪽' };
@@ -6982,7 +7012,7 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
 })();
 </script>
 <script src="./assets/notice-cards.js"></script>
-<script src="./assets/reference-input.js?v=20261102"></script>
+<script src="./assets/reference-input.js?v=20261108b"></script>
 <script src="./assets/gate-slides.js" defer></script>
 <script>
 /* 참고 영상 → 신청 칸 미리 채우기. 분석이 끝나면 서버가 준 값(fill: 확신 있는 것만)을 아직 건드리지 않은 칸에만 넣고, 어디에 넣었는지 알려 준다.
@@ -7014,12 +7044,13 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
     { const 야 = !!넣음.야담, sg = 야 ? document.getElementById('df-yvoice') : 성별칸(), 고 = window.__rwVP && (야 ? __rwVP.야담 : __rwVP.쇼츠); if (넣음.voiceGender && sg && sg.value === 넣음.voiceGender) { sg.value = 야 ? '남성' : ''; if (고) { 고.값설정(''); if (야) 고.성별설정('남'); } } }
     넣음 = {};
   }
-  function 채우기(fill) {
+  function 채우기(fill, look) {
     되돌리기();
+    if (look && look.layout) fill = Object.assign({}, fill && typeof fill === 'object' ? fill : {}, { layout: look.layout });   // [분석 v1.7] 모양 분석의 화면 구성(가운데영상형·제목고정형·전체화면형)을 먼저 쓴다
     const 라벨 = [], 상품 = 상품쇼츠(), 롱폼 = !상품 && (document.getElementById('df-form') || {}).value === '롱폼', 쓰는 = 이름();
     넣음.이름 = 쓰는;
     if (fill && typeof fill === 'object') {
-      if (쓰는.layout && !롱폼 && fill.layout === '제목고정형' && (radio(쓰는.layout)?.value || '자동') === '자동' && 정하기(쓰는.layout, '제목고정형')) { 넣음.layout = '제목고정형'; 라벨.push('화면 구성 제목고정형'); }
+      if (쓰는.layout && !롱폼 && ['제목고정형', '가운데영상형', '전체화면형'].includes(fill.layout) && (radio(쓰는.layout)?.value || '자동') === '자동' && 정하기(쓰는.layout, fill.layout)) { 넣음.layout = fill.layout; 라벨.push('화면 구성 ' + fill.layout); }
       if (쓰는.cap && ['상단', '가운데', '하단'].includes(fill.captionPos) && (radio(쓰는.cap)?.value || 쓰는.기본자막) === 쓰는.기본자막 && fill.captionPos !== 쓰는.기본자막 && 정하기(쓰는.cap, fill.captionPos)) { 넣음.captionPos = fill.captionPos; 라벨.push('자막 ' + fill.captionPos); }
       const sp = 말속도(), v = Number(fill.speed);
       if (sp && 쓰는.종류 !== '수면음악' && v >= 0.7 && v <= 1.5 && Math.abs(parseFloat(sp.value) - 쓰는.기본속도) < 0.001) { sp.value = String(v); sp.dispatchEvent(new Event('input', { bubbles: true })); 넣음.speed = v; 라벨.push(속도말(v)); }
@@ -7028,12 +7059,13 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
         sg.value = fill.voiceGender; 고르개.성별설정(fill.voiceGender === '여성' ? '여' : '남'); 넣음.voiceGender = fill.voiceGender; 넣음.야담 = 야담; 라벨.push(fill.voiceGender + ' 목소리');
       }
     }
+    if (window.__rwRefLook) 라벨.push(...window.__rwRefLook(look || null));
     안내(라벨.filter(x => /목소리|말 /.test(x)), ['.df-voicesec'], 'rf-ap-sound');
     안내(라벨.filter(x => /화면|자막/.test(x)), ['.gn-style'], 'rf-ap-screen');
     if (window.RWReference && RWReference.setApplied) RWReference.setApplied(라벨);
     try { if (window.__rwFormRedraw) window.__rwFormRedraw(); } catch (e) { }
   }
-  document.addEventListener('referencechange', e => 채우기(e.detail && e.detail.fill));
+  document.addEventListener('referencechange', e => 채우기(e.detail && e.detail.fill, e.detail && e.detail.look));
 })();
 </script>
 

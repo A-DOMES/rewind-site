@@ -176,7 +176,6 @@
   .lay .mini .fill { flex: 1; }
   .lay .mini .s { height: 16%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 6px; }
   .lay .mini.full { background: #3a3129; justify-content: flex-end; }
-  .lay .mini .band-sub { background: #e2a23c; height: 22%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
   .lay b { font-size: 1rem; }
   .lay small { color: var(--ink-faint); font-size: 0.85rem; text-align: center; margin-top: -8px; }
   @media (max-width: 980px) { .layouts { grid-template-columns: 1fr; gap: 40px; } }
@@ -519,7 +518,7 @@
           <h3>상품 쇼츠</h3>
           <p class="pp-hot">조회수가 급등하는 상품을 한눈에 확인하고, 바로 쇼츠로 제작하세요.</p>
           <p>상품 사진과 영상을 올리면 상품 소개 쇼츠를 만들어 드려요. 영상 길이, 움직임 방식, 위쪽에 보일 문구, 화면 구성을 직접 고를 수 있어요.</p>
-          <div class="uses"><span class="use-chip">제목 고정형</span><span class="use-chip">전체화면형</span><span class="use-chip">자막바형</span></div>
+          <div class="uses"><span class="use-chip">제목 고정형</span><span class="use-chip">전체화면형</span><span class="use-chip">가운데영상형</span></div>
           <p class="fine">급등 상품은 조회 추이를 보여 주는 참고 자료예요(화면 예시). 광고 규정에 맞지 않는 과장·가격 표현은 자동으로 막아요. 건강기능식품·화장품·의료기기는 직접 쓴 대본으로만 만들 수 있어요.</p>
           <span class="go">상품 쇼츠 만들기</span>
         </div>
@@ -559,8 +558,8 @@
         <b>전체화면형</b><small>장면을 화면 가득 보여줘요</small>
       </div>
       <div class="lay">
-        <div class="mini"><div class="fill"></div><div class="band-sub"><i style="width:66%;background:#1a1410"></i><i style="width:44%;background:#1a1410"></i></div></div>
-        <b>자막바형</b><small>아래 띠에 자막을 크게 넣어요</small>
+        <div class="mini" style="background:#15110e"><div class="t"><i style="width:62%;background:#f2e9da"></i><i style="width:44%;background:#e2a23c"></i></div><div style="height:6%"></div><div class="fill" style="flex:0 0 34%;background:#3a3129"></div><div class="fill"></div></div>
+        <b>가운데영상형</b><small>영상은 가운데에, 위에는 제목</small>
       </div>
     </div>
   </div>

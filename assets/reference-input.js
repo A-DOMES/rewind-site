@@ -37,7 +37,9 @@
     toolong: '너무 긴 영상이에요. 3분 이내 영상으로 시도해 주세요.',
     limit: '오늘 사용할 수 있는 횟수를 모두 썼어요. 내일 다시 이용할 수 있어요.',
     paid: '정식 회원 전용 기능이에요.',
-    busy: '지금 이용이 많아요. 잠시 후 다시 시도해 주세요.'
+    busy: '지금 이용이 많아요. 잠시 후 다시 시도해 주세요.',
+    blocked: '이 영상은 권리자 요청으로 참고할 수 없어요. 다른 영상을 넣어 주세요.',
+    ref_limit: '이 영상은 최근 30일 동안 참고할 수 있는 횟수를 모두 썼어요. 다른 영상을 넣어 주세요.'
   };
   // 유튜브 주소 검사(서버와 같은 규칙): https, 유튜브 주소, 11자리 영상 ID
   function checkUrl(v) {
@@ -52,14 +54,14 @@
     if (!document.getElementById('rf-style')) { var st = el('style'); st.id = 'rf-style'; st.textContent = CSS; document.head.appendChild(st); }
     var box = el('div', 'rf-box df-hide'), hid = el('input'); hid.type = 'hidden'; hid.id = 'df-referenceId'; box.appendChild(hid);
     host.appendChild(box);
-    var S = { phase: 'idle', url: '', msg: '', summary: [], fill: null, applied: [], timer: null, paid: false, run: 0 };
+    var S = { phase: 'idle', url: '', msg: '', summary: [], fill: null, look: null, applied: [], timer: null, paid: false, run: 0 };
     var ping = function () { try { if (window.__rwFormRedraw) window.__rwFormRedraw(); } catch (e) { } };   // 상태가 바뀌면 신청 화면의 '다음' 버튼·안내를 다시 계산하게 한다
     var formOf = function () { if (formName) return formName; var f = document.getElementById('df-form'); return f && f.value === '롱폼' ? '롱폼' : '쇼츠'; };
     var open = function () { return !!(window.RWFlags && window.RWFlags.has && window.RWFlags.has('참고영상')); };
     var token = function () { return typeof opt.getToken === 'function' ? opt.getToken() : ''; };
     var post = function (b) { var ac = typeof AbortController === 'function' ? new AbortController() : null, tm = ac ? setTimeout(function () { ac.abort(); }, 20000) : 0; return fetch(URL_, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(b), signal: ac ? ac.signal : undefined }).then(function (r) { clearTimeout(tm); return r; }, function (e) { clearTimeout(tm); throw e; }).then(function (r) { return r.json().catch(function () { return null; }).then(function (d) { return { ok: r.ok, d: d }; }); }); };
     function stop() { if (S.timer) { clearInterval(S.timer); S.timer = null; } }
-    function reset(keepUrl) { stop(); S.run++; hid.value = ''; S.phase = 'idle'; S.msg = ''; S.summary = []; S.fill = null; S.applied = []; if (!keepUrl) S.url = ''; draw(); ping(); }
+    function reset(keepUrl) { stop(); S.run++; hid.value = ''; S.phase = 'idle'; S.msg = ''; S.summary = []; S.fill = null; S.look = null; S.applied = []; if (!keepUrl) S.url = ''; draw(); ping(); }
     function fail(reason) { stop(); hid.value = ''; S.phase = 'idle'; S.msg = (REASON[reason] || '분석하지 못했어요. 잠시 후 다시 시도해 주세요.') + ' 참고 없이 만들려면 그대로 다음으로 가면 돼요.'; draw(); ping(); }
     function start() {
       if (S.phase === 'wait' || checkUrl(S.url) !== 'ok') return;
@@ -82,7 +84,7 @@
       var n = 0; stop();
       S.timer = setInterval(function () {
         if (!box.isConnected) return stop();
-        if (++n > 60) return fail('busy');   // 3초 간격 3분
+        if (++n > 100) return fail('busy');   // 3초 간격 5분([분석 v1.7] 모양 호출이 더해져 조금 길어질 수 있다)
         post({ action: 'status', idToken: token(), id: id }).then(function (r) {
           var d = r.d; if (S.phase !== 'wait' || run !== S.run) return;
           if (!r.ok || !d || d.ok !== true) return fail(d && d.reason);
@@ -90,7 +92,10 @@
         }).catch(function () { });
       }, 3000);
     }
-    function done(d) { stop(); hid.value = String(d.id || ''); S.summary = Array.isArray(d.summary) ? d.summary.slice(0, 8).map(String) : []; S.fill = d.fill && typeof d.fill === 'object' ? d.fill : null; S.phase = 'done'; draw(); ping(); host.dispatchEvent(new CustomEvent('referencechange', { bubbles: true, detail: { id: hid.value, fill: S.fill } })); }
+    function done(d) { stop(); hid.value = String(d.id || ''); S.summary = Array.isArray(d.summary) ? d.summary.slice(0, 8).map(String) : []; S.fill = d.fill && typeof d.fill === 'object' ? d.fill : null;
+      // [분석 v1.7] 참고 영상의 모양 → 영상꾸미기 값(preset)·화면 구성(layout)·장면 리듬(rhythm). 신청 화면이 받아 꾸미기에 미리 채운다
+      S.look = d.preset && typeof d.preset === 'object' ? { preset: d.preset, layout: typeof d.layout === 'string' ? d.layout : '', rhythm: d.rhythm && typeof d.rhythm === 'object' ? d.rhythm : null, form: formOf() } : null;
+      S.phase = 'done'; draw(); ping(); host.dispatchEvent(new CustomEvent('referencechange', { bubbles: true, detail: { id: hid.value, fill: S.fill, look: S.look } })); }
     function draw() {
       var keep = document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.k : null;
       box.textContent = ''; box.appendChild(hid); box.removeAttribute('hidden');
@@ -107,7 +112,7 @@
         if (S.summary.length) { var cs = el('div', 'rf-chips'); S.summary.forEach(function (x) { cs.appendChild(el('span', 'rf-chip', x)); }); dn.appendChild(cs); }
         var ch = el('button', 'rf-btn', '다른 영상으로 바꾸기'); ch.type = 'button'; ch.dataset.k = 'change'; ch.addEventListener('click', function () { reset(false); var n = box.querySelector('#rf-url'); if (n) n.focus(); host.dispatchEvent(new CustomEvent('referencechange', { bubbles: true, detail: { id: '' } })); });
         if (S.applied.length) { var ap = el('p', 'rf-applied', '이 영상에서 가져와 채웠어요: ' + S.applied.join(' · ') + ' (뒤 단계에서 바꿀 수 있어요)'); ap.setAttribute('role', 'status'); dn.appendChild(ap); }
-        dn.appendChild(ch); var nx = el('p', 'rf-next', (formName === '야담' || formName === '분위기영상' ? '맞는 값은 기본으로 채워져요(직접 고른 값이 먼저예요). ' : '화면·자막·말 속도는 기본으로 이 영상에 맞춰져요(직접 고른 값이 있으면 그 값이 먼저예요). ') + '아래 \'다음\' 버튼을 눌러 이야기(주제나 대본)를 정해 주세요.'); nx.setAttribute('role', 'status'); dn.appendChild(nx); dn.appendChild(el('p', 'rf-fine', '영상 내용은 가져오지 않고 구성만 참고해요. 주제와 대본은 새로 만들어요.')); box.appendChild(dn); return;
+        dn.appendChild(ch); var nx = el('p', 'rf-next', (formName === '야담' || formName === '분위기영상' ? '맞는 값은 기본으로 채워져요(직접 고른 값이 먼저예요). ' : '화면·자막·말 속도는 기본으로 이 영상에 맞춰져요(직접 고른 값이 있으면 그 값이 먼저예요). ') + '아래 \'다음\' 버튼을 눌러 이야기(주제나 대본)를 정해 주세요.'); nx.setAttribute('role', 'status'); dn.appendChild(nx); dn.appendChild(el('p', 'rf-fine', '연출 방식만 따르고 영상·음성·로고·문구·색과 대본은 새로 만들어요.')); box.appendChild(dn); return;
       }
       var row = el('div', 'rf-row'), inp = el('input', 'rf-in'); inp.type = 'url'; inp.inputMode = 'url'; inp.autocomplete = 'off'; inp.spellcheck = false; inp.id = 'rf-url'; inp.dataset.k = 'in';
       inp.placeholder = '유튜브 영상 주소를 붙여 넣으세요'; inp.value = S.url; inp.setAttribute('aria-label', '참고할 유튜브 영상 주소');
@@ -117,7 +122,7 @@
       pb.addEventListener('click', function () { var go = function (v) { S.url = String(v || '').trim(); S.msg = ''; draw(); }; if (navigator.clipboard && navigator.clipboard.readText) navigator.clipboard.readText().then(go).catch(function () { inp.focus(); }); else inp.focus(); });
       row.appendChild(pb); box.appendChild(row);
       var msg = el('p', 'rf-msg', bad ? '유튜브 영상 주소만 넣을 수 있어요. (예: youtube.com/shorts/…, youtu.be/…)' : S.msg); msg.id = 'rf-msg'; msg.setAttribute('role', 'alert'); box.appendChild(msg);
-      var go = el('button', 'rf-btn rf-go', '이 영상으로 분석하기'); go.type = 'button'; go.dataset.k = 'go'; go.disabled = checkUrl(S.url) !== 'ok'; box.appendChild(go); box.appendChild(el('p', 'rf-fine', '영상 내용은 가져오지 않고 구성만 참고해요.'));
+      var go = el('button', 'rf-btn rf-go', '이 영상으로 분석하기'); go.type = 'button'; go.dataset.k = 'go'; go.disabled = checkUrl(S.url) !== 'ok'; box.appendChild(go); box.appendChild(el('p', 'rf-fine', '참고 영상의 연출 방식만 따르고, 영상·음성·로고·문구·색은 새로 만들어요. 다른 회사 광고를 흉내 낸 영상은 분쟁이나 유튜브 제재 대상이 될 수 있어요.'));
       inp.addEventListener('input', function () { var was = checkUrl(S.url) === 'bad'; S.url = inp.value; S.msg = ''; var b2 = checkUrl(S.url) === 'bad'; go.disabled = checkUrl(S.url) !== 'ok'; if (was !== b2) { var p = inp.selectionStart; draw(); var n = box.querySelector('#rf-url'); if (n) { n.focus(); try { n.setSelectionRange(p, p); } catch (e) { } } } });
       inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); start(); } });
       go.addEventListener('click', start);
@@ -132,11 +137,14 @@
     document.addEventListener('change', onChange);
     var ticks = 0, timer = setInterval(function () { ticks++; if (!box.isConnected) { clearInterval(timer); return; } sync(); if (open() || ticks > 30) clearInterval(timer); }, 1000);
     box.__rfMove = function (h, name) { if (!h || (h === host && (name || '') === formName)) return; host = h; formName = name || ''; h.appendChild(box); reset(false); sync(); document.dispatchEvent(new CustomEvent('referencechange', { detail: { id: '' } })); };
+    box.__rfStart = function (u) { u = String(u || '').trim(); if (S.phase === 'wait') return S.url.trim() === u; if (S.phase === 'done') { if (S.url.trim() === u) return true; reset(false); host.dispatchEvent(new CustomEvent('referencechange', { bubbles: true, detail: { id: '' } })); } S.url = u; S.msg = ''; draw(); start(); return true; };   // 다른 영상이 분석 중이면 false(안내를 바꾸게)
     box.__rfDraw = draw; current = { box: box, S: S }; sync();
   }
   // 지금 칸의 상태: 보이는지, 분석 중인지, 끝났는지, 올바른 주소가 들어 있는지
   function state() { var c = current; if (!c || !c.box.isConnected) return { visible: false, phase: 'idle', urlOk: false, url: '' }; return { visible: !c.box.classList.contains('df-hide'), phase: c.S.phase, urlOk: checkUrl(c.S.url) === 'ok', url: c.S.url.trim() }; }
   function setApplied(list) { var c = current; if (!c || !c.box.isConnected) return; c.S.applied = Array.isArray(list) ? list.slice(0, 6).map(String) : []; if (c.S.phase === 'done' && c.box.__rfDraw) c.box.__rfDraw(); }
+  function startWith(u) { var c = current; if (!c || !c.box.isConnected || c.box.classList.contains('df-hide') || !c.box.__rfStart) return false; return c.box.__rfStart(u) !== false ? true : 'busy'; }   // 칸이 보일 때만(정식 회원·기능 공개) 주소를 넣고 분석을 시작한다
+  function look() { var c = current; return c && c.box.isConnected && c.S.phase === 'done' ? c.S.look : null; }
   function move(h, name) { var c = current; if (c && c.box.isConnected && c.box.__rfMove) c.box.__rfMove(h, name); }   // 같은 칸을 다른 종류의 자리로 옮긴다(분석 결과는 비우고 다시 시작)
-  window.RWReference = { move: move, mount: mount, checkUrl: checkUrl, state: state, setApplied: setApplied };
+  window.RWReference = { move: move, mount: mount, checkUrl: checkUrl, state: state, setApplied: setApplied, startWith: startWith, look: look };
 })();
