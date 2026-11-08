@@ -741,3 +741,18 @@ button.cz-pane-l[aria-pressed="true"] { color: var(--rz-ac); }
 .cz-blk-body > input[type=text] { flex: 1 1 100%; }
 .cz-blk-body > .cz-hint { flex: 1 1 100%; margin: 0; }
 .cz-ovimg { pointer-events: auto; user-select: none; }
+/* [11-08] 설정은 오른쪽 속성 칸(Inspector)에서: 타임라인 쪽 = 장면 속성, 다른 쪽 = 그 설정. 아래 칸은 늘 타임라인 */
+.cz-dockbody > .cz-tl { display: block !important; }
+.cz-insp-page { display: none; }
+.cz-dlg:not([data-pg="tl"]) .cz-insp-page { display: block; }
+.cz-dlg:not([data-pg="tl"]) .cz-insp-scene { display: none; }
+.cz-insp-ph2 { position: sticky; top: 0; z-index: 3; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.cz-insp-page > .cz-body { display: none; padding: 0 0 16px; }
+.cz-dlg[data-pg="text"] .cz-insp-page > .cz-body { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; }
+.cz-insp-page > .cz-body > .cz-card { border-bottom: 1px solid var(--rz-ln); }
+.cz-insp-page > .cz-body > .cz-bodyhead { position: sticky; top: 38px; z-index: 2; }
+.cz-insp-page .cz-mix { max-width: calc(100% - 28px); overflow-x: auto; }
+.cz-dlg[data-pg="color"] .cz-insp-page > .cz-colpg { flex-direction: column; }
+.cz-insp-page .cz-colpg-c { flex: 0 0 auto; }
+.cz-insp-page .cz-shapepg .cz-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+.cz-insp-page .cz-blk-body { gap: 8px 12px; }

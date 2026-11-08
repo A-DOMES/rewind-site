@@ -304,7 +304,9 @@
     var 폭관찰 = null; try { 폭관찰 = new ResizeObserver(폭판정); 폭관찰.observe(pv); } catch (x) {}
     var lib = el('aside', 'cz-lib'); lib.setAttribute('aria-label', '구성과 모양'); var body = el('div', 'cz-body'); var tl = el('section', 'cz-tl'); tl.setAttribute('aria-label', '타임라인(앞 단계에서 정한 값)');
     function 속성창(열기) { dlg.classList.toggle('cz-insp-open', !!열기); 속성열기.setAttribute('aria-expanded', 열기 ? 'true' : 'false'); }   // 휴대폰(900px 이하): 속성을 아래에서 올라오는 판으로
-    var insp = el('aside', 'cz-insp'); insp.setAttribute('aria-label', '속성');   // 오른쪽 속성(Inspector): 재생 위치의 장면 정보(읽기 전용)
+    var insp = el('aside', 'cz-insp'); insp.setAttribute('aria-label', '속성');
+    // [11-08] 속성 칸 = 다빈치 Inspector: 타임라인 쪽이면 고른 장면의 속성, 제목·자막·색·모양·문구 쪽이면 그 설정을 여기에 보여 준다(아래 칸은 타임라인만 → 스크롤 없이)
+    var 장면칸 = el('div', 'cz-insp-scene'), 설정칸 = el('div', 'cz-insp-page'), 설정머리 = el('div', 'cz-insp-h cz-insp-ph2'); insp.appendChild(장면칸); insp.appendChild(설정칸); 설정칸.appendChild(설정머리);   // 오른쪽 속성(Inspector): 재생 위치의 장면 정보(읽기 전용)
     var acts = el('div', 'cz-head-acts'); var reset = el('button', 'cz-btn', '처음 모양으로'); reset.type = 'button'; var ok = el('button', 'cz-btn cz-main', '적용하기'); ok.type = 'button'; var 속성열기 = el('button', 'cz-btn cz-insp-mbtn', '속성'); 속성열기.type = 'button'; 속성열기.setAttribute('aria-expanded', 'false'); 속성열기.title = '고른 장면의 속성(휴대폰 화면)'; 속성열기.addEventListener('click', function () { 속성창(!dlg.classList.contains('cz-insp-open')); }); acts.appendChild(속성열기); acts.appendChild(reset); acts.appendChild(ok);   // 위쪽 줄 오른쪽(닫기 왼쪽)
     head.insertBefore(acts, x);
     // 「파일」 메뉴(웹 브라우저의 파일 메뉴처럼): 가져오기 · 처음 모양으로 · 적용하기. 가져오기 동작은 왼쪽 작업장이 만들 때 파일동작 에 달아 둔다
@@ -437,7 +439,7 @@
     // ---------- 요소 선택 (컷을 누르면 아래 칸이 따라가요) ----------
     // 선택 = { 종류, 번호 }. 미리보기 요소는 값을 바꿀 때마다 다시 그려지므로 요소가 아니라 '이름표'로 기억하고, 그릴 때마다 테두리를 다시 입힌다.
     // 선택해도 값은 하나도 바뀌지 않는다: 해당 탭으로 옮기고 그 요소의 색 휠을 열어 줄 뿐이다. 모든 설정은 탭에서 그대로 할 수 있다.
-    var 고름 = null, 탭이동 = function () {}, 선택줄칩 = {}, 선택알림 = null;
+    var 고름 = null, 탭이동 = function () {}, 장면쪽으로 = function () {}, 선택줄칩 = {}, 선택알림 = null;
     var 띠있음 = function () { return !가로 && (화면 === '제목고정형' || 화면 === '가운데영상형'); };
     var 대상표 = {
       '제목띠': { 이름: '제목 띠', 탭: '제목', 가능: function () { return 띠있음(); } },
@@ -694,11 +696,11 @@
     }
     function 효과음이름(id) { var x = 효과음설정().목록.filter(function (t) { return t.id === id; })[0], k = 효과음설정().목록.indexOf(x); return x ? (x.name || ((x.kind || '소리') + ' ' + (k + 1))) : ''; }
     function 속성그리기(장, 수, 길이) {   // 재생 위치가 있는 장면의 정보. 값은 앞 단계에서 정한 것이라 여기서는 보기만 한다
-      var 키 = [장, 수, 길이, T.소리, v0().자막끄기, 자막방식].join('|'); if (키 === 속성키 && insp.firstChild) return;   // 재생 중 매 프레임 다시 그리면 입력 칸을 잡을 수 없다: 장면·값이 바뀔 때만 그린다
-      var 옛영상 = 편집영상 || insp.querySelector('video'); if (옛영상) { try { 옛영상.pause(); 옛영상.removeAttribute('src'); 옛영상.load(); } catch (x) {} if (옛영상.parentNode) 옛영상.parentNode.removeChild(옛영상); } 편집영상 = null;   // 이전 영상은 멈추고 받던 것도 끊고 편집 화면에서 뺀다
+      var 키 = [장, 수, 길이, T.소리, v0().자막끄기, 자막방식].join('|'); if (키 === 속성키 && 장면칸.firstChild) return;   // 재생 중 매 프레임 다시 그리면 입력 칸을 잡을 수 없다: 장면·값이 바뀔 때만 그린다
+      var 옛영상 = 편집영상 || 장면칸.querySelector('video'); if (옛영상) { try { 옛영상.pause(); 옛영상.removeAttribute('src'); 옛영상.load(); } catch (x) {} if (옛영상.parentNode) 옛영상.parentNode.removeChild(옛영상); } 편집영상 = null;   // 이전 영상은 멈추고 받던 것도 끊고 편집 화면에서 뺀다
       if (목고르기) { try { 목고르기.소리멈춤(); } catch (x) {} 목고르기 = null; }
-      속성키 = 키; insp.textContent = ''; 구간바연결 = null; 구간바그리기();
-      var 머리 = el('div', 'cz-insp-h'); 머리.appendChild(el('b', '', '속성')); 머리.appendChild(el('span', '', '장면 ' + 장 + ' / ' + 수)); var 접기 = el('button', 'cz-insp-mclose', '✕'); 접기.type = 'button'; 접기.setAttribute('aria-label', '속성 닫기'); 접기.addEventListener('click', function () { 속성창(false); }); 머리.appendChild(접기); insp.appendChild(머리);
+      속성키 = 키; 장면칸.textContent = ''; 구간바연결 = null; 구간바그리기();
+      var 머리 = el('div', 'cz-insp-h'); 머리.appendChild(el('b', '', '속성')); 머리.appendChild(el('span', '', '장면 ' + 장 + ' / ' + 수)); var 접기 = el('button', 'cz-insp-mclose', '✕'); 접기.type = 'button'; 접기.setAttribute('aria-label', '속성 닫기'); 접기.addEventListener('click', function () { 속성창(false); }); 머리.appendChild(접기); 장면칸.appendChild(머리);
       var 몸 = el('div', 'cz-insp-b'), 시작 = 길이 * (장 - 1) / 수, 끝 = 길이 * 장 / 수, 사진 = (T.사진 || [])[장 - 1], 자료 = (Array.isArray(opt.자료) ? opt.자료 : [])[장 - 1];
       // 쇼츠: 다빈치 인스펙터처럼 탭(영상 · 소리 · 파일). 각 탭은 내용이 있을 때만 보인다. 야담·수면은 예전처럼 정보 한 칸
       var 탭식 = 영상종류 === '쇼츠', 판 = { 영상: el('div', 'cz-insp-pane'), 소리: el('div', 'cz-insp-pane'), 파일: el('div', 'cz-insp-pane') }, 파일판 = 탭식 ? 판.파일 : 몸;
@@ -854,9 +856,9 @@
           b.addEventListener('click', function () { 속성탭 = k; 탭줄.querySelectorAll('.cz-insp-tab').forEach(function (x) { var 선 = x.textContent === k; x.setAttribute('aria-selected', String(선)); x.tabIndex = 선 ? 0 : -1; }); 탭들.forEach(function (t) { 판[t].hidden = t !== k; }); });
           b.addEventListener('keydown', function (e) { var d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0; if (!d) return; e.preventDefault(); var n = 탭줄.children[(i + d + 탭들.length) % 탭들.length]; n.click(); n.focus(); });
           탭줄.appendChild(b); });
-        insp.appendChild(탭줄); 탭들.forEach(function (k) { 판[k].hidden = k !== 속성탭; 판[k].setAttribute('role', 'tabpanel'); 몸.appendChild(판[k]); });
+        장면칸.appendChild(탭줄); 탭들.forEach(function (k) { 판[k].hidden = k !== 속성탭; 판[k].setAttribute('role', 'tabpanel'); 몸.appendChild(판[k]); });
       }
-      insp.appendChild(몸);
+      장면칸.appendChild(몸);
     }
     function 문장조각들(자, 소, 길이, 수) {   // 장면마다 문장 조각(글자 수 비율). 자막(자)과 목소리(소)는 같은 자리·같은 번호라 한 쌍으로 보인다
       var 장폭 = 길이 / 수;
@@ -1049,7 +1051,7 @@
         if (끌넣은) { var 끈 = 끌넣은; 끌넣은 = null; if (끈.움직임) 넣은옮기기(끈.k, (parseFloat(끈.조각.style.left) || 0) / 100); else 넣은고르기(끈.k); return; }
         if (눌린효과 > 0) { var 효번 = 눌린효과; 눌린효과 = 0; 끌고있음 = false; 눌린클립 = -1; if (Math.abs(e.clientX - 눌린자리) <= 4) 편집고르기(효번); return; }
         if (이동중) { var a = 눌린클립, 도착 = 슬롯 > a ? 슬롯 - 1 : 슬롯; 이동끝내기(); 눌린클립 = -1; 끌고있음 = false; if (도착 !== a && 장면옮기기) { 편집장 = 도착 + 1; 장면옮기기(a, 도착); 알리기('순서를 바꿨어요 · 장면 ' + (a + 1) + ' → ' + (도착 + 1)); } return; }
-        if (눌린클립 >= 0 && !끌고있음) 편집고르기(눌린클립 + 1); 눌린클립 = -1; 끌고있음 = false; });
+        if (눌린클립 >= 0 && !끌고있음) { 장면쪽으로(); 편집고르기(눌린클립 + 1); } 눌린클립 = -1; 끌고있음 = false; });   // 장면을 누르면 속성 칸이 장면 속성으로
       달기('pointercancel', function () { if (끌문장) { 끌문장.조각.style.transform = ''; 끌문장 = null; } 끌넣은 = null; 눌린효과 = 0; 이동끝내기(); 눌린클립 = -1; 끌고있음 = false; });
       var 문구있음 = !!String(opt.문구 || '').trim(), 제목끝 = 문구초값() !== null ? Math.min(문구초값(), 길이) : 길이, 구성 = 화면 === '자동' ? '전체화면형' : 화면;
       if (영상종류 === '쇼츠' && !가로) {
@@ -1458,12 +1460,16 @@
       function 페이지보기(k) {
         var 글자쪽 = 있는탭.indexOf(k) >= 0; dlg.dataset.pg = 글자쪽 ? 'text' : ({ '타임라인': 'tl', '색': 'color', '모양': 'shape' })[k] || 'tl'; dlg.dataset.tab = 글자쪽 ? k : ''; if (글자쪽) 탭보이기(k); 선택바갱신();   // tab: 선택 줄에서 이 쪽과 관계없는 칩을 숨긴다(제목 쪽에는 자막 칩 없음)
         Array.prototype.forEach.call(페이지줄.children, function (b) { var 선 = b.dataset.k === k; b.setAttribute('aria-selected', String(선)); b.tabIndex = 선 ? 0 : -1; }); if (k === '색') 눌림갱신();
+        설정머리.textContent = ''; 설정머리.appendChild(el('b', '', k)); var 장면으로 = el('button', 'cz-insp-btn', '장면 속성'); 장면으로.type = 'button'; 장면으로.addEventListener('click', function () { 페이지보기('타임라인'); }); 설정머리.appendChild(장면으로);
+        insp.scrollTop = 0; if (k !== '타임라인' && window.matchMedia && window.matchMedia('(max-width: 900px)').matches) 속성창(true);   // 휴대폰: 설정은 아래에서 올라오는 판으로
       }
       쪽목록.forEach(function (n, i) { var b = el('button', 'cz-page'); b.type = 'button'; b.dataset.k = n; b.setAttribute('role', 'tab'); b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="' + 쪽그림[n] + '"/></svg><span>' + n + '</span>';
         b.addEventListener('click', function () { 페이지보기(n); });
         b.addEventListener('keydown', function (e) { var 다음 = e.key === 'ArrowRight' ? (i + 1) % 쪽목록.length : e.key === 'ArrowLeft' ? (i + 쪽목록.length - 1) % 쪽목록.length : e.key === 'Home' ? 0 : e.key === 'End' ? 쪽목록.length - 1 : -1; if (다음 < 0) return; e.preventDefault(); 페이지보기(쪽목록[다음]); 페이지줄.children[다음].focus(); });
         페이지줄.appendChild(b); });
       dock.insertBefore(페이지줄, 독몸); if (모양판) 독몸.appendChild(모양판);
+      [body, 색판, 모양판].forEach(function (n) { if (n) 설정칸.appendChild(n); });   // 설정은 속성 칸으로(아래 칸은 타임라인만)
+      장면쪽으로 = function () { if (dlg.dataset.pg && dlg.dataset.pg !== 'tl') 페이지보기('타임라인'); };
       탭이동 = function (t) { var 지금 = dlg.dataset.pg; if (지금 === 'color' || 지금 === 'shape') return; if (있는탭.indexOf(t) >= 0) 페이지보기(t); };   // 미리보기에서 요소를 누르면 그 설정으로(색·모양을 보는 중이면 그대로)
       페이지보기('타임라인');
       // 아래 칸 높이 조절: 손잡이를 위로 끌면 페이지 막대와 타임라인(설정)이 함께 커지고, 미리보기는 그만큼만 줄어든다
