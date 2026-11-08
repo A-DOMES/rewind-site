@@ -1,0 +1,107 @@
+/* 리와인드 화면 디자인 통일 (2026-11-08) — 한번에 만들기·대본 만들기·주제 찾기·상품 캘린더·요금 안내
+   규칙(직접 설정하기 1단계와 같음): 카드 = 옅은 테두리 · 마우스를 올리면 살짝 떠오름 / 고른 것 = 파랑 / 종류 아이콘 = 종류 색 / 제목 = 흰 글자 + 금색 강조 / 빈 화면 = 아이콘 + 이유 + 다음 행동
+   되돌리기: new.html·dashboard.html 에서 이 파일을 부르는 줄을 지우면 이전 모양(브랜치 snapshot-20261108-screens). 밝은 테마 규칙은 아래에 light·system 두 벌로 있다(같이 고친다) */
+:root { --sc-card: linear-gradient(180deg, #111115, #0c0c0f); --sc-line: rgba(255,255,255,.09); --sc-line-hi: rgba(155,184,255,.55); --sc-sel: #7db4ff; --sc-sel-bg: linear-gradient(135deg, #1d47b3, #102a72); --sc-glow: 0 0 0 1px #7db4ff, 0 0 13px rgba(80,150,255,.42); --sc-gold: #ffd58a; }
+#to-guide .ico { --ic: #5fd0ff; }   /* 한번에 만들기 메뉴 아이콘 색(빠져 있어 회색이던 것) */
+
+/* 공통: 화면 제목 아래 금색 짧은 선 */
+#guide-hub .gd-head h1, #script-hub .sh-top h2, #topic-hub #tf-h { position: relative; padding-bottom: 10px; }
+#guide-hub .gd-head h1::after, #script-hub .sh-top h2::after, #topic-hub #tf-h::after { content: ""; position: absolute; left: 0; bottom: 0; width: 36px; height: 3px; border-radius: 2px; background: linear-gradient(90deg, #ffb347, #ffd58a); }
+#topic-hub #tf-h.cal-title::after { display: none; }
+
+/* ── 1. 한번에 만들기 ── */
+#guide-hub .gd-steps { border-bottom: 0; gap: 8px; padding-bottom: 14px; }
+#guide-hub .gd-steps li > * { background: var(--sc-card); border: 1px solid var(--sc-line); border-radius: 12px; padding: 9px 12px; transition: border-color .15s, box-shadow .15s; }
+#guide-hub .gd-steps button:hover { border-color: var(--sc-line-hi); }
+#guide-hub .gd-steps li.on > * { border-color: var(--sc-sel); box-shadow: var(--sc-glow); color: #fff; }
+#guide-hub .gd-steps .on i { background: #2b55d0; border-color: #7db4ff; color: #fff; }
+#guide-hub .gd-steps .done i { background: rgba(80,150,255,.16); border-color: #7db4ff; color: #9bc4ff; }
+#guide-hub .gd-seg button, #guide-hub .gd-card, #guide-hub .gd-o { background: var(--sc-card); border: 1.5px solid var(--sc-line); transition: transform .15s, border-color .15s, box-shadow .15s; }
+#guide-hub .gd-seg button:hover, #guide-hub .gd-card:hover, #guide-hub .gd-o:hover { border-color: var(--sc-line-hi); box-shadow: 0 0 10px rgba(80,150,255,.22); transform: translateY(-2px); }
+#guide-hub .gd-seg .on, #guide-hub .gd-card.on, #guide-hub .gd-o.on { background: var(--sc-sel-bg); border-color: var(--sc-sel); box-shadow: var(--sc-glow); color: #fff; }
+#guide-hub .gd-seg .on small, #guide-hub .gd-card.on p, #guide-hub .gd-o.on small { color: #cfdcff; }
+#guide-hub input.gd-in { background: #0b0b0e; border-color: rgba(125,140,220,.35); }
+#guide-hub input.gd-in:focus { outline: none; border-color: var(--sc-sel); box-shadow: 0 0 0 3px rgba(80,150,255,.22); }
+#guide-hub .gd-btn:not(:disabled):not(.gd-sub) { background: linear-gradient(90deg, #7a2fd0, #3a72e8); color: #fff; border-color: rgba(255,255,255,.6); box-shadow: 0 0 0 3px rgba(130,120,255,.25), 0 0 18px rgba(110,110,255,.45); }
+#guide-hub .gd-box { background: var(--sc-card); border-color: var(--sc-line); }
+#guide-hub .gd-box h3 { color: var(--sc-gold); }
+#guide-hub .gd-row { padding: 6px 0; border-bottom: 1px dashed rgba(255,255,255,.07); }
+#guide-hub .gd-row:last-child { border-bottom: 0; }
+
+/* ── 2. 대본 만들기 ── */
+#script-hub .sh-priv { position: relative; max-height: 2.9em; overflow: hidden; cursor: help; transition: max-height .25s; background: var(--sc-card); border-color: var(--sc-line); }
+#script-hub .sh-priv::after { content: "자세히"; position: absolute; right: 10px; bottom: 6px; font-size: .74rem; color: #9bc4ff; background: #0e0e12; padding-left: 8px; }
+#script-hub .sh-priv:hover, #script-hub .sh-priv:focus-within, #script-hub .sh-priv:active { max-height: 12em; }
+#script-hub .sh-priv:hover::after, #script-hub .sh-priv:focus-within::after { display: none; }
+#script-hub .kd { background: var(--sc-card); border-color: var(--sc-line); transition: transform .15s, border-color .15s, box-shadow .15s; }
+#script-hub .kd:hover { border-color: var(--sc-line-hi); box-shadow: 0 0 12px rgba(80,150,255,.22); transform: translateY(-2px); }
+#script-hub .sh-h { color: var(--sc-gold); }
+#script-hub .sh-empty { border: 1.5px dashed rgba(255,255,255,.12); border-radius: 16px; background: rgba(255,255,255,.015); }
+#script-hub .sh-empty .pi { background: rgba(138,215,196,.14) !important; box-shadow: inset 0 0 0 1px rgba(138,215,196,.35); color: #8ad7c4; }
+#script-hub .sh-et > :first-child, #script-hub .sh-et b { color: #f3f5ff; }
+
+/* ── 3. 주제 찾기 ── */
+#topic-hub .tf-card { background: var(--sc-card); border-color: var(--sc-line); transition: transform .15s, border-color .15s, box-shadow .15s; }
+#topic-hub .tf-card:hover { border-color: var(--sc-line-hi); box-shadow: 0 0 12px rgba(80,150,255,.22); transform: translateY(-2px); }
+#topic-hub .tf-card { --tc: #4a9be8; }
+#topic-hub .tf-card[data-k*="long"], #topic-hub .tf-card[data-k*="롱폼"] { --tc: #8a7dff; }
+#topic-hub .tf-card.tf-prod, #topic-hub .tf-card[data-k*="prod"], #topic-hub .tf-card[data-k*="상품"] { --tc: #f0694a; }
+#topic-hub .tf-card[data-k*="yadam"], #topic-hub .tf-card[data-k*="야담"] { --tc: #e2a23c; }
+#topic-hub .tf-card[data-k*="mood"], #topic-hub .tf-card[data-k*="sleep"], #topic-hub .tf-card[data-k*="분위기"] { --tc: #d9569a; }
+#topic-hub .tf-glyph { background: color-mix(in srgb, var(--tc) 18%, #0b0d1f) !important; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tc) 45%, transparent); color: color-mix(in srgb, var(--tc) 85%, #fff) !important; }
+#topic-hub .tf-glyph svg { stroke: currentColor; }
+#topic-hub .tf-ex { display: flex !important; flex-wrap: wrap; gap: 6px; border-top: 0 !important; }
+#topic-hub .tf-ex > span { display: inline-flex !important; padding: 5px 11px !important; border: 1px solid rgba(255,255,255,.08) !important; border-radius: 999px; background: rgba(255,255,255,.045); font-size: .84rem !important; max-width: 100%; }
+#topic-hub .tf-ex > span::before { background: var(--tc) !important; }
+#topic-hub .tf-go { color: color-mix(in srgb, var(--tc) 70%, #fff); }
+
+/* ── 4. 상품 캘린더 ── */
+#topic-hub .cal-empty { display: grid; justify-items: center; gap: 10px; text-align: center; padding: 34px 18px; border: 1.5px dashed rgba(255,255,255,.12); border-radius: 16px; background: rgba(255,255,255,.015); }
+#topic-hub .cal-empty::before { content: ""; width: 46px; height: 46px; border-radius: 12px; background: rgba(127,209,185,.14) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237fd1b9' stroke-width='1.8' stroke-linecap='round'%3E%3Crect x='3.5' y='5' width='17' height='15' rx='2.2'/%3E%3Cpath d='M3.5 10h17M8 3v4M16 3v4'/%3E%3C/svg%3E") center / 24px no-repeat; box-shadow: inset 0 0 0 1px rgba(127,209,185,.35); }
+#topic-hub .cal-retry { padding: 8px 18px; border-radius: 999px; border: 1px solid var(--sc-line-hi); background: transparent; color: #cfdcff; font-weight: 600; cursor: pointer; }
+#topic-hub .cal-retry:hover { background: rgba(80,150,255,.12); }
+#topic-hub .cal-item { background: var(--sc-card); border-color: var(--sc-line); transition: border-color .15s, box-shadow .15s; }
+#topic-hub .cal-item:hover { border-color: var(--sc-line-hi); }
+#topic-hub .cal-item.is-open { border-color: var(--sc-sel); box-shadow: var(--sc-glow); }
+#topic-hub .cal-item { --cs: #7fd1b9; box-shadow: inset 3px 0 0 var(--cs); }
+#topic-hub .cal-item.is-open { box-shadow: inset 3px 0 0 var(--cs), var(--sc-glow); }
+
+/* ── 5. 요금 안내 ── */
+.price-modal .ml-item.rec { position: relative; transform: translateY(-3px); box-shadow: inset 4px 0 0 var(--mc), 0 0 0 1.5px color-mix(in srgb, var(--mc) 80%, transparent), 0 8px 24px color-mix(in srgb, var(--mc) 22%, transparent); }
+.price-modal .ml-item.rec::after { content: "추천"; position: absolute; top: -10px; right: 10px; padding: 2px 9px; border-radius: 999px; background: var(--mc); color: #1a1206; font-size: .7rem; font-weight: 800; }
+.price-modal .price-table tbody tr:hover td { background-color: rgba(255,255,255,.05); }
+
+/* ── 6. 내 프로젝트(dashboard.html) ── */
+#content h1 { position: relative; padding-bottom: 12px; }
+#content h1::after { content: ""; position: absolute; left: 0; bottom: 0; width: 44px; height: 3px; border-radius: 2px; background: linear-gradient(90deg, #ffb347, #ffd58a); }
+.reel-row { transition: transform .15s, border-color .15s, box-shadow .15s; }
+.reel-row:hover { border-color: var(--sc-line-hi) !important; box-shadow: 0 0 12px rgba(80,150,255,.2); transform: translateY(-2px); }
+.reel-row .status-chip { background: color-mix(in srgb, currentColor 13%, transparent); border-color: color-mix(in srgb, currentColor 35%, transparent); font-weight: 700; }
+
+/* ── 밝은 테마 ── */
+html[data-theme="light"] { --sc-card: #fff; --sc-line: #e3dccf; --sc-line-hi: #9db7ef; --sc-sel: #3b6fe0; --sc-sel-bg: #eef3ff; --sc-glow: 0 0 0 1px #3b6fe0; --sc-gold: #9a5b00; }
+html[data-theme="light"] #guide-hub .gd-seg .on, html[data-theme="light"] #guide-hub .gd-card.on, html[data-theme="light"] #guide-hub .gd-o.on, html[data-theme="light"] #guide-hub .gd-steps li.on > * { color: #1d3f9e; }
+html[data-theme="light"] #guide-hub .gd-seg .on small, html[data-theme="light"] #guide-hub .gd-card.on p, html[data-theme="light"] #guide-hub .gd-o.on small { color: #3d5aa8; }
+html[data-theme="light"] #guide-hub input.gd-in { background: #fffdf9; border-color: #d9d0c0; }
+html[data-theme="light"] #script-hub .sh-priv::after { background: #fff; color: #2a4fb0; }
+html[data-theme="light"] #script-hub .sh-et > :first-child, html[data-theme="light"] #script-hub .sh-et b { color: #2d241a; }
+html[data-theme="light"] #script-hub .sh-empty, html[data-theme="light"] #topic-hub .cal-empty { border-color: #e0d8c8; background: #fffdf9; }
+html[data-theme="light"] #topic-hub .tf-glyph { background: color-mix(in srgb, var(--tc) 14%, #fff) !important; color: color-mix(in srgb, var(--tc) 85%, #000) !important; }
+html[data-theme="light"] #topic-hub .tf-ex > span { background: #f6f1e8; border-color: #e6dfd2 !important; }
+html[data-theme="light"] #topic-hub .tf-go { color: color-mix(in srgb, var(--tc) 80%, #000); }
+html[data-theme="light"] #topic-hub .cal-retry { color: #2a4fb0; border-color: #9db7ef; }
+html[data-theme="light"] .price-modal .price-table tbody tr:hover td { background-color: rgba(0,0,0,.035); }
+@media (prefers-color-scheme: light) {
+html[data-theme="system"] { --sc-card: #fff; --sc-line: #e3dccf; --sc-line-hi: #9db7ef; --sc-sel: #3b6fe0; --sc-sel-bg: #eef3ff; --sc-glow: 0 0 0 1px #3b6fe0; --sc-gold: #9a5b00; }
+html[data-theme="system"] #guide-hub .gd-seg .on, html[data-theme="system"] #guide-hub .gd-card.on, html[data-theme="system"] #guide-hub .gd-o.on, html[data-theme="system"] #guide-hub .gd-steps li.on > * { color: #1d3f9e; }
+html[data-theme="system"] #guide-hub .gd-seg .on small, html[data-theme="system"] #guide-hub .gd-card.on p, html[data-theme="system"] #guide-hub .gd-o.on small { color: #3d5aa8; }
+html[data-theme="system"] #guide-hub input.gd-in { background: #fffdf9; border-color: #d9d0c0; }
+html[data-theme="system"] #script-hub .sh-priv::after { background: #fff; color: #2a4fb0; }
+html[data-theme="system"] #script-hub .sh-et > :first-child, html[data-theme="system"] #script-hub .sh-et b { color: #2d241a; }
+html[data-theme="system"] #script-hub .sh-empty, html[data-theme="system"] #topic-hub .cal-empty { border-color: #e0d8c8; background: #fffdf9; }
+html[data-theme="system"] #topic-hub .tf-glyph { background: color-mix(in srgb, var(--tc) 14%, #fff) !important; color: color-mix(in srgb, var(--tc) 85%, #000) !important; }
+html[data-theme="system"] #topic-hub .tf-ex > span { background: #f6f1e8; border-color: #e6dfd2 !important; }
+html[data-theme="system"] #topic-hub .tf-go { color: color-mix(in srgb, var(--tc) 80%, #000); }
+html[data-theme="system"] #topic-hub .cal-retry { color: #2a4fb0; border-color: #9db7ef; }
+html[data-theme="system"] .price-modal .price-table tbody tr:hover td { background-color: rgba(0,0,0,.035); }
+}
