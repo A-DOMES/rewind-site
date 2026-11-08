@@ -1752,6 +1752,10 @@
   .pw-st.cur b, .pw-st.done b { color: #fff; }
   .pw-hint b { color: #ffb347; }
   .pw-hint .pw-left { color: #ff8a6b; font-weight: 600; }
+  /* [11-08] 밝은 테마: 진행 단계 바(남색) 안의 "1 / 7"은 밝은 글자, 바 밖 안내 글은 밝은 바탕에서 읽히는 진한 글자 */
+  .pw-bar .pw-title, .pw-bar .pw-title .pw-pos em { color: #f3f5ff; }
+  :root[data-theme="light"] .pw-hint { color: #4a4035; } :root[data-theme="light"] .pw-hint b { color: #b8650a; } :root[data-theme="light"] .pw-hint .pw-left { color: #c2410c; }
+  @media (prefers-color-scheme: light) { :root[data-theme="system"] .pw-hint { color: #4a4035; } :root[data-theme="system"] .pw-hint b { color: #b8650a; } :root[data-theme="system"] .pw-hint .pw-left { color: #c2410c; } }
   .direct-form-inner > h2 { font-size: 1.9rem; position: relative; display: inline-block; }
   .direct-form-inner > h2::after { content: ""; position: absolute; right: -30px; top: -8px; width: 26px; height: 26px; background: no-repeat center / contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23cfe0ff' d='M12 0c.8 6.6 3.2 9.2 12 12-8.8 2.8-11.2 5.4-12 12-.8-6.6-3.2-9.2-12-12 8.8-2.8 11.2-5.4 12-12z'/%3E%3C/svg%3E"); filter: drop-shadow(0 0 6px rgba(150,190,255,.9)); }
   #df-fields > .sc-card.gn-script > h4 { color: #ffd58a; font-size: 1.1rem; }
