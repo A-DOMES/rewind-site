@@ -30,6 +30,9 @@
     + '.rf-fine{margin:var(--sp-2) 0 0;color:var(--ink-faint);font-size:var(--fs-xs)}'
     + '.rf-note{padding:var(--sp-3) var(--sp-4);border-radius:var(--r-md);background:var(--bg-input);color:var(--ink);font-size:var(--fs-sm)}'
     + '.rf-row .rf-btn{padding:0 var(--sp-3)}'
+    + '.rf-fills{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 var(--sp-3)}.rf-fills span{font-size:var(--fs-2xs);padding:3px 10px;border-radius:var(--r-pill);background:rgba(80,150,255,.12);border:1px solid rgba(125,180,255,.28);color:var(--ink)}'
+    + '.rf-got{display:grid;margin:var(--sp-3) 0 var(--sp-2)}.rf-got div{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px dashed var(--line);font-size:var(--fs-sm);color:var(--ink-dim)}.rf-got b{color:var(--ink);text-align:right}'
+    + '.rf-todo{margin:var(--sp-3) 0 0;padding:var(--sp-2) var(--sp-3);border-radius:var(--r-md);border:1px solid rgba(240,105,74,.4);background:rgba(240,105,74,.08);font-size:var(--fs-sm)}.rf-todo b{color:#f0694a}'
     + '.rf-skip{margin-top:var(--sp-2)}.rf-next{margin:var(--sp-3) 0 0;padding:var(--sp-3) var(--sp-4);border-radius:var(--r-md);background:var(--accent-soft);color:var(--ink);font-size:var(--fs-sm)}';
   var el = function (tag, cls, text) { var n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };   // 글자는 textContent 로만 넣는다
   var REASON = {   // 서버가 주는 사유 → 고객이 알아볼 말 (모르는 사유는 기본 문구)
@@ -41,6 +44,26 @@
     blocked: '이 영상은 권리자 요청으로 참고할 수 없어요. 다른 영상을 넣어 주세요.',
     ref_limit: '이 영상은 최근 30일 동안 참고할 수 있는 횟수를 모두 썼어요. 다른 영상을 넣어 주세요.'
   };
+  // 분석 결과 → 고객이 읽을 줄 [이름, 값]. 서버가 준 preset·layout·rhythm·fill 만 쓴다(없으면 그 줄을 뺀다)
+  function 결과줄(S) {
+    var L = S.look || {}, p = L.preset || {}, f = S.fill || {}, r = L.rhythm || {}, 줄 = [];
+    var 글꼴 = { 'Noto Sans CJK KR': '굵은 고딕', 'Do Hyeon': '보통 고딕', 'Black Han Sans': '아주 굵은 제목체', 'Jua': '둥근체', 'Noto Serif KR': '명조', 'Gowun Batang': '붓·손글씨' };
+    var 모양 = { '굵은흰': '굵은 외곽선', '굵은노랑': '굵은 외곽선(색 글자)', '굵은하늘': '굵은 외곽선(색 글자)', '굵은분홍': '굵은 외곽선(색 글자)', '차분흰': '얇은 외곽선', '부드러운그림자': '그림자', '뉴스박스': '어두운 상자', '흰박스': '흰 상자', '노랑박스': '색 상자' };
+    var 위치 = f.captionPos || ({ '위': '상단', '가운데': '가운데', '아래': '하단' })[p.자막위치] || '';
+    if (L.layout || f.layout) 줄.push(['화면 구성', L.layout || f.layout]);
+    var 자막 = [위치, p.자막끄기 ? '자막 없음' : 모양[p.자막모양], p.자막크기 >= 95 ? '아주 큰 글씨' : p.자막크기 >= 85 ? '큰 글씨' : p.자막크기 ? '' : ''].filter(Boolean).join(' · ');
+    if (자막) 줄.push(['자막', 자막]);
+    if (글꼴[p.글꼴]) 줄.push(['글꼴', 글꼴[p.글꼴]]);
+    var 읽기 = { '색': '색칠', '색+커짐': '색칠 + 커짐', '색+튀어오름': '색칠 + 튀어오름' }[p.읽는효과]; if (읽기) 줄.push(['읽는 글자 효과', 읽기]);
+    if (p.화면비) 줄.push(['화면 비율', p.화면비 === '세로' ? '세로 9:16' : '가로 16:9']);
+    var 목 = [f.voiceGender ? f.voiceGender : '', f.speed && f.speed !== 1 ? (f.speed < 1 ? '천천히' : '조금 빠르게') : ''].filter(Boolean).join(' · ');
+    if (목) 줄.push(['목소리', 목]);
+    var 장 = [r.움직임 && r.움직임 !== '없음' ? ({ '줌인': '천천히 확대', '줌아웃': '천천히 축소', '왼쪽': '좌우 이동', '위': '상하 이동' })[r.움직임] : '', r.전환 === '컷' ? '바로 넘김' : r.전환 === '페이드' ? '부드럽게 넘김' : ''].filter(Boolean).join(' · ');
+    if (장 && formName0(S) === '상품쇼츠') 줄.push(['장면', 장]);
+    if (p.자막색 || p.제목띠색 || p.제목글자색 || p.가운데색 || (p.핵심색 && p.핵심색 !== '없음')) 줄.push(['색', L.colorKept ? '참고 영상 색 그대로' : '새 색으로 바꿈']);
+    return 줄;
+  }
+  function formName0(S) { return S.look && S.look.form || ''; }
   // 유튜브 주소 검사(서버와 같은 규칙): https, 유튜브 주소, 11자리 영상 ID
   function checkUrl(v) {
     var s = String(v || '').trim(); if (!s) return '';
@@ -94,25 +117,28 @@
     }
     function done(d) { stop(); hid.value = String(d.id || ''); S.summary = Array.isArray(d.summary) ? d.summary.slice(0, 8).map(String) : []; S.fill = d.fill && typeof d.fill === 'object' ? d.fill : null;
       // [분석 v1.7] 참고 영상의 모양 → 영상꾸미기 값(preset)·화면 구성(layout)·장면 리듬(rhythm). 신청 화면이 받아 꾸미기에 미리 채운다
-      S.look = d.preset && typeof d.preset === 'object' ? { preset: d.preset, layout: typeof d.layout === 'string' ? d.layout : '', rhythm: d.rhythm && typeof d.rhythm === 'object' ? d.rhythm : null, form: formOf() } : null;
+      S.look = d.preset && typeof d.preset === 'object' ? { preset: d.preset, layout: typeof d.layout === 'string' ? d.layout : '', rhythm: d.rhythm && typeof d.rhythm === 'object' ? d.rhythm : null, form: formOf(), colorKept: d.colorKept === true } : null;
       S.phase = 'done'; draw(); ping(); host.dispatchEvent(new CustomEvent('referencechange', { bubbles: true, detail: { id: hid.value, fill: S.fill, look: S.look } })); }
     function draw() {
       var keep = document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.k : null;
       box.textContent = ''; box.appendChild(hid); box.removeAttribute('hidden');
       var head = el('div', 'rf-head'); head.appendChild(el('h4', '', '참고할 영상이 있나요?')); head.appendChild(el('span', 'rf-tag dim', '선택')); if (opt.preview) head.appendChild(el('span', 'rf-tag', '관리자 미리보기')); box.appendChild(head);
       var 긴 = formName === '야담' || formName === '분위기영상';
-      box.appendChild(el('p', 'rf-sub', 긴 ? '유튜브 영상 주소를 넣으면 이야기 구성과 말 속도·목소리를 참고해요. 같은 주제는 쓸 수 없어요.' : '유튜브 영상 주소를 넣으면 화면·자막·말 속도·장면 길이를 비슷하게 만들어요.'));
+      box.appendChild(el('p', 'rf-sub', 긴 ? '유튜브 영상 주소를 넣으면 이야기 흐름과 자막·글꼴·화면 비율·목소리를 참고해요. 분석(1~2분) 동안 다음 단계를 계속 진행해도 돼요.' : '잘된 영상 주소를 넣으면 연출을 살펴보고 다음 단계 값을 미리 채워 드려요. 분석(1~2분) 동안 다음 단계를 계속 진행해도 돼요.'));
+      if (S.phase !== 'done') { var fl = el('div', 'rf-fills'); (긴 ? ['자막 위치·모양', '글꼴', '화면 비율', '목소리'] : ['화면 구성', '자막 위치·모양', '글꼴', '읽는 글자 효과', '목소리·말 속도'].concat(formName === '상품쇼츠' ? ['장면 움직임'] : [])).forEach(function (x) { fl.appendChild(el('span', '', x)); }); box.appendChild(fl); }
       if (S.phase === 'wait') {
         var w = el('div', 'rf-wait'); w.setAttribute('role', 'status'); w.appendChild(el('div', 'rf-spin'));
         var t = el('div'); t.appendChild(el('b', '', '영상 구성을 살펴보고 있어요')); t.appendChild(el('span', '', '약 1분 걸려요. 끝나면 아래 다음 버튼이 켜져요.')); w.appendChild(t); box.appendChild(w);
         var sk = el('button', 'rf-btn rf-skip', '참고 없이 계속하기'); sk.type = 'button'; sk.addEventListener('click', function () { reset(false); var n = box.querySelector('#rf-url'); if (n) n.focus(); }); box.appendChild(sk); return;
       }
       if (S.phase === 'done') {
-        var dn = el('div', 'rf-done'), ok = el('div', 'rf-ok'); ok.appendChild(el('i', '', '✓')); ok.appendChild(el('span', '', '이 영상과 비슷한 구성으로 만들게요')); dn.appendChild(ok);
-        if (S.summary.length) { var cs = el('div', 'rf-chips'); S.summary.forEach(function (x) { cs.appendChild(el('span', 'rf-chip', x)); }); dn.appendChild(cs); }
+        var dn = el('div', 'rf-done'), ok = el('div', 'rf-ok'); ok.appendChild(el('i', '', '✓')); ok.appendChild(el('span', '', '이 영상의 연출로 만들게요')); dn.appendChild(ok);
+        var 표 = 결과줄(S), got = el('div', 'rf-got'); 표.forEach(function (r) { var d = el('div'); d.appendChild(el('span', '', r[0])); d.appendChild(el('b', '', r[1])); got.appendChild(d); }); if (표.length) dn.appendChild(got);
+        else if (S.summary.length) { var cs = el('div', 'rf-chips'); S.summary.forEach(function (x) { cs.appendChild(el('span', 'rf-chip', x)); }); dn.appendChild(cs); }
         var ch = el('button', 'rf-btn', '다른 영상으로 바꾸기'); ch.type = 'button'; ch.dataset.k = 'change'; ch.addEventListener('click', function () { reset(false); var n = box.querySelector('#rf-url'); if (n) n.focus(); host.dispatchEvent(new CustomEvent('referencechange', { bubbles: true, detail: { id: '' } })); });
         if (S.applied.length) { var ap = el('p', 'rf-applied', '이 영상에서 가져와 채웠어요: ' + S.applied.join(' · ') + ' (뒤 단계에서 바꿀 수 있어요)'); ap.setAttribute('role', 'status'); dn.appendChild(ap); }
-        dn.appendChild(ch); var nx = el('p', 'rf-next', (formName === '야담' || formName === '분위기영상' ? '맞는 값은 기본으로 채워져요(직접 고른 값이 먼저예요). ' : '화면·자막·말 속도는 기본으로 이 영상에 맞춰져요(직접 고른 값이 있으면 그 값이 먼저예요). ') + '아래 \'다음\' 버튼을 눌러 이야기(주제나 대본)를 정해 주세요.'); nx.setAttribute('role', 'status'); dn.appendChild(nx); dn.appendChild(el('p', 'rf-fine', '연출 방식만 따르고 영상·음성·로고·문구·색과 대본은 새로 만들어요.')); box.appendChild(dn); return;
+        dn.appendChild(ch); if (formName === '상품쇼츠') { var td = el('p', 'rf-todo'); td.appendChild(el('b', '', '남은 일 ')); td.appendChild(document.createTextNode('· 다음 단계에서 상품 사진·영상 올리기(1개 이상 필수) · 상품 링크(선택)')); dn.appendChild(td); }
+        var nx = el('p', 'rf-next', '모두 다음 단계에서 바꿀 수 있어요(직접 고른 값이 먼저예요). 아래 \'다음\'을 눌러 이어 가세요.'); nx.setAttribute('role', 'status'); dn.appendChild(nx); dn.appendChild(el('p', 'rf-fine', '연출 방식만 따르고 영상·음성·로고·문구·색과 대본은 새로 만들어요.')); box.appendChild(dn); return;
       }
       var row = el('div', 'rf-row'), inp = el('input', 'rf-in'); inp.type = 'url'; inp.inputMode = 'url'; inp.autocomplete = 'off'; inp.spellcheck = false; inp.id = 'rf-url'; inp.dataset.k = 'in';
       inp.placeholder = '유튜브 영상 주소를 붙여 넣으세요'; inp.value = S.url; inp.setAttribute('aria-label', '참고할 유튜브 영상 주소');

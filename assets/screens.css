@@ -167,3 +167,13 @@ html[data-theme="light"] #guide-hub .gd-row { border-bottom-color: #eee6d8; }
   html[data-theme="system"] #guide-hub .gd-need b { color: #c2410c; }
   html[data-theme="system"] #guide-hub .gd-row { border-bottom-color: #eee6d8; }
 }
+
+/* 상품쇼츠: 제품 이름 아래 같은 상품 인기 영상 추천(참고 영상) */
+.pd-refc { margin: 8px 0 4px; padding: 12px; border-radius: 14px; border: 1px dashed rgba(255,213,138,.45); background: rgba(255,213,138,.04); }
+.pd-refc-h { margin: 0 0 8px; font-size: .85rem; color: var(--ink-dim); }
+.pd-refc-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; }
+.pd-refc-v { display: grid; gap: 4px; padding: 0 0 6px; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); background: var(--bg-raised); color: var(--ink); font: inherit; font-size: .75rem; text-align: left; cursor: pointer; transition: border-color .15s, transform .15s; }
+.pd-refc-v img { width: 100%; aspect-ratio: 16/9; object-fit: cover; background: #222; }
+.pd-refc-v span { padding: 0 8px; }
+.pd-refc-v:hover { border-color: #7db4ff; transform: translateY(-2px); }
+.pd-refc-v.on { border-color: #7db4ff; box-shadow: 0 0 0 1px #7db4ff; }

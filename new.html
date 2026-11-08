@@ -2095,7 +2095,7 @@
 <script src="./assets/compose.js?v=20261108b"></script>
 <script src="./assets/rw-consent.js"></script>
 <link rel="stylesheet" href="./assets/rw-theme.css?v=20261108a">
-<link rel="stylesheet" href="./assets/screens.css?v=20261108b">
+<link rel="stylesheet" href="./assets/screens.css?v=20261108c">
 </head>
 <body>
 
@@ -4679,7 +4679,11 @@ ${비율칸Html(kind, 상태)}</div>`;
     상품열림: () => !!PRODUCT_READY(),
     정식회원: () => planMode === 'paid',   // 참고 영상 칸은 정식 회원에게만 보인다
     // 같은 상품 해외 인기 영상 후보 (워크플로우 order-match). 실패·권한 없음이면 null
-    async 같은상품(이름) {
+    async 같은상품(이름) {   // 이름별로 결과를 기억해 같은 이름은 다시 부르지 않는다(참고 영상 설정·상품 이름 칸이 같이 쓴다)
+      const 키 = String(이름 || '').trim().slice(0, 100); if (!this._기억) this._기억 = new Map(); if (this._기억.has(키)) return this._기억.get(키);
+      const 결과 = await this._같은상품(키); if (결과) this._기억.set(키, 결과); return 결과;
+    },
+    async _같은상품(이름) {
       try {
         if (!googleIdToken) return null;
         const res = await fetch('https://bald-buffalo.pikapod.net/webhook/order-match', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idToken: googleIdToken, name: String(이름 || '').slice(0, 100) }) });
@@ -4744,6 +4748,41 @@ ${비율칸Html(kind, 상태)}</div>`;
     document.querySelectorAll('.cz-ratio .len-chip[data-ratio]').forEach(b => { const k = b.closest('.cz-ratio').dataset.kind; if (k !== kind) return; const 세로 = !!(composeKind === k && composeState && composeState.화면비 === '세로'), on = b.dataset.ratio === (세로 ? '세로' : '가로'); b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
     return 라벨;
   };
+  /* [참고 영상] 상품쇼츠: 제품 이름을 적으면 같은 상품의 인기 영상(해외)을 이름 칸 바로 아래에 추천한다. 고르면 1단계의 참고 영상 칸에 넣고 분석을 시작한다.
+     · 정식 회원·기능 공개(참고영상)일 때만, 참고 영상을 아직 넣지 않았을 때만 찾는다(이미 넣은 것을 덮지 않는다). 이름을 멈추고 1.2초 뒤에 한 번만 부른다 */
+  { let 타이머 = 0, 마지막 = '';
+    const 칸 = () => document.getElementById('pd-ref-cands');
+    const 그리기 = (목록, 이름) => {
+      const f = document.getElementById('df-prodName'), 필드 = f && f.closest('.df-field'); if (!필드) return;
+      let c = 칸(); if (!목록 || !목록.length) { if (c) c.remove(); return; }
+      if (!c) { c = document.createElement('div'); c.id = 'pd-ref-cands'; c.className = 'pd-refc'; 필드.insertAdjacentElement('afterend', c); }
+      c.textContent = '';
+      const h = document.createElement('p'); h.className = 'pd-refc-h'; h.textContent = '같은 상품의 인기 영상이 있어요. 하나 고르면 참고 영상으로 넣고 연출을 살펴봐요(연출만 참고, 영상·문구·색은 새로).'; c.appendChild(h);
+      const 줄 = document.createElement('div'); 줄.className = 'pd-refc-row'; c.appendChild(줄);
+      목록.slice(0, 4).forEach(v => {
+        const b = document.createElement('button'); b.type = 'button'; b.className = 'pd-refc-v';
+        const im = document.createElement('img'); im.alt = ''; im.loading = 'lazy'; im.referrerPolicy = 'no-referrer'; im.src = 'https://i.ytimg.com/vi/' + encodeURIComponent(v.id) + '/mqdefault.jpg'; b.appendChild(im);
+        const t = document.createElement('span'); t.textContent = String(v.tr || v.t || '').slice(0, 40) + (v.v ? ' · 조회 ' + (v.v >= 1e4 ? Math.round(v.v / 1e4) + '만' : v.v) : ''); b.appendChild(t);
+        b.addEventListener('click', () => {
+          const r = window.RWReference && RWReference.startWith('https://www.youtube.com/watch?v=' + v.id);
+          h.textContent = r === true ? '참고 영상으로 넣었어요. 1단계의 참고 영상 칸에서 분석 결과를 볼 수 있어요.' : r === 'busy' ? '이미 다른 참고 영상을 분석하고 있어요. 1단계에서 "다른 영상으로 바꾸기"를 누른 뒤 골라 주세요.' : '참고 영상 칸을 쓸 수 없어요. 1단계에서 참고 영상 주소를 직접 넣어 주세요.';
+          c.querySelectorAll('.pd-refc-v').forEach(x => x.classList.toggle('on', x === b));
+        });
+        줄.appendChild(b);
+      });
+    };
+    document.addEventListener('input', e => {
+      if (!e.target || e.target.id !== 'df-prodName') return;
+      clearTimeout(타이머);
+      타이머 = setTimeout(async () => {
+        const 이름 = e.target.value.trim(), st = window.RWReference && RWReference.state ? RWReference.state() : null;
+        if (이름.length < 2 || planMode !== 'paid' || !(window.RWFlags && RWFlags.has('참고영상')) || !st || !st.visible || st.phase !== 'idle') { 마지막 = ''; 그리기(null); return; }   // 지금 쓸 수 없으면 예전 후보도 지운다
+        if (이름 === 마지막) return;
+        마지막 = 이름; const 목록 = await window.__rwGuideApi.같은상품(이름);
+        if (마지막 !== 이름) return; if (!목록) 마지막 = ''; 그리기(목록, 이름);   // 실패(null)면 같은 이름으로 다시 시도할 수 있게
+      }, 1200);
+    });
+  }
   window.__rwGoYadam = function () { dfPreType = '야담'; showDirectForm(); };
   window.__rwGoGen = function (form) { dfPreType = '일반'; dfPreForm = form === '롱폼' ? '롱폼' : '쇼츠'; showDirectForm(); setTimeout(() => { if (window.__pwGo && window.__pwOn && window.__pwOn()) window.__pwGo(3, true); }, 80); };   // 쇼츠·롱폼 대본으로 바로 만들기 (대본 단계로)
   let dfPreForm = null;
@@ -7012,7 +7051,7 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
 })();
 </script>
 <script src="./assets/notice-cards.js"></script>
-<script src="./assets/reference-input.js?v=20261108b"></script>
+<script src="./assets/reference-input.js?v=20261108c"></script>
 <script src="./assets/gate-slides.js" defer></script>
 <script>
 /* 참고 영상 → 신청 칸 미리 채우기. 분석이 끝나면 서버가 준 값(fill: 확신 있는 것만)을 아직 건드리지 않은 칸에만 넣고, 어디에 넣었는지 알려 준다.
