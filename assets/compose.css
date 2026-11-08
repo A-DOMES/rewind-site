@@ -756,3 +756,15 @@ button.cz-pane-l[aria-pressed="true"] { color: var(--rz-ac); }
 .cz-insp-page .cz-colpg-c { flex: 0 0 auto; }
 .cz-insp-page .cz-shapepg .cz-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
 .cz-insp-page .cz-blk-body { gap: 8px 12px; }
+/* [11-08] 장면마다 문구: 다른 장면의 문구는 편집 화면에서 흐리게, 타임라인 문구 줄 */
+.cz-off { opacity: .25 !important; }
+.cz-t-txt { position: absolute; bottom: auto; background: rgba(226,162,60,.28); border: 1px solid rgba(226,162,60,.7); cursor: pointer; overflow: hidden; }
+.cz-t-txt:hover { background: rgba(226,162,60,.45); }
+.cz-t-txt span { font-size: .66rem; line-height: 1; white-space: nowrap; }
+.cz-scn .cz-chip { min-width: 30px; padding-left: 6px; padding-right: 6px; }
+.cz-insp-page .cz-blk-list, .cz-insp-page .cz-blk-row { min-width: 0; }
+.cz-insp-page .cz-blk-row { overflow: hidden; }
+.cz-insp-page .cz-blk-body > input[type=text] { width: 100%; min-width: 0; box-sizing: border-box; }
+.cz-insp-page .cz-blk-body .cz-mix { max-width: 100%; }
+.cz-insp-page .cz-mix { flex-wrap: wrap; width: auto; }
+.cz-insp-page .cz-mix .cz-row.cz-fd-h { flex: 1 1 100%; }

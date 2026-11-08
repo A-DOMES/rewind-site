@@ -1941,10 +1941,10 @@
 <script src="./assets/voice-picker.js?v=20261104a"></script>
 <link rel="stylesheet" href="./assets/guide.css?v=20261025">
 <script src="./assets/guide.js?v=20261101"></script>
-<link rel="stylesheet" href="./assets/compose.css?v=20261108a">
+<link rel="stylesheet" href="./assets/compose.css?v=20261108b">
 <script src="./assets/shared/layout.js?v=20261027"></script>
 <script src="./assets/shared/phrase.js?v=20261026"></script>
-<script src="./assets/compose.js?v=20261108a"></script>
+<script src="./assets/compose.js?v=20261108b"></script>
 <script src="./assets/rw-consent.js"></script>
 <link rel="stylesheet" href="./assets/rw-theme.css?v=20261103n">
 </head>
@@ -4253,6 +4253,7 @@ ${비율칸Html(kind, 상태)}</div>`;
     const 자료빼기 = i => {
       const c = 자료카드()[i]; if (!c) return;
       if (composeState && composeState.장면별) { const 새 = {}; Object.keys(composeState.장면별).forEach(k => { const n = Number(k); if (n === i + 1) return; 새[n > i + 1 ? n - 1 : n] = composeState.장면별[k]; }); if (Object.keys(새).length) composeState.장면별 = 새; else delete composeState.장면별; }   // 창을 취소해도 저장해 둔 장면 설정이 어긋나지 않게
+      문구장면맞춤(n => n === i + 1 ? 0 : n > i + 1 ? n - 1 : n);
       if (자료목록.querySelectorAll('.pimg-card').length > 1 || c.dataset.src) { const d = c.querySelector('.pimg-del'); if (d) d.click(); }
       else { const inp = c.querySelector('.pimg-url'); inp.value = ''; inp.dispatchEvent(new Event('input', { bubbles: true })); }
     };
@@ -4272,12 +4273,15 @@ ${비율칸Html(kind, 상태)}</div>`;
       return '';
     };
     const 컴퓨터올리기 = () => { const f = 자료목록 && 자료목록.parentNode.querySelector('.mm-pick'); if (!f || f.disabled) return false; f.click(); return true; };
+    const 문구장면맞춤 = f => { if (!composeState) return; ['블록', '그림'].forEach(키 => (Array.isArray(composeState[키]) ? composeState[키] : []).forEach(b => { if (b && Array.isArray(b.장면)) b.장면 = [...new Set(b.장면.map(n => f(Number(n))).filter(n => n > 0))].sort((x, y) => x - y); })); };   // 저장해 둔 문구·그림의 보이는 장면(카드 번호)
     const 자료옮김 = (a, b) => { const u = 자료카드(), c = u[a]; if (!c) return; if (composeState && composeState.장면별) { const 새 = {}; Object.keys(composeState.장면별).forEach(k => { const n = Number(k) - 1; 새[(n === a ? b : (a < b && n > a && n <= b) ? n - 1 : (a > b && n >= b && n < a) ? n + 1 : n) + 1] = composeState.장면별[k]; }); composeState.장면별 = 새; }   // 저장해 둔 장면 설정도 장면을 따라 간다
+      문구장면맞춤(n => { const m = n - 1; return (m === a ? b : (a < b && m > a && m <= b) ? m - 1 : (a > b && m >= b && m < a) ? m + 1 : m) + 1; });
       u.splice(a, 1); const ref = u[b] || null; if (ref) 자료목록.insertBefore(c, ref); else { const last = u[u.length - 1]; last ? 자료목록.insertBefore(c, last.nextSibling) : 자료목록.appendChild(c); } if (자료목록.__mm && 자료목록.__mm.changed) 자료목록.__mm.changed(); };
     // 장면 편집(영상 꾸미기 타임라인): 카드를 떼었다 되붙일 수 있게 해 되돌리기를 받친다(떼어낸 카드는 그대로 들고 있다가 다시 끼운다)
     const 목록바뀜 = () => { if (자료목록.__mm && 자료목록.__mm.changed) 자료목록.__mm.changed(); else if (window.__rwPoolRefresh) window.__rwPoolRefresh(); };
     const 쓴카드 = () => 자료카드().filter(c => !비었나(c));
     const 장면별밀기 = (j, 양) => {   // 저장해 둔 장면 설정을 카드 번호에 맞춘다. 양>0: j번째 자리에 새 칸(뒤 번호를 민다) · 양<0: j번째 칸이 빠진다(그 칸의 설정을 돌려준다)
+      문구장면맞춤(n => 양 > 0 ? (n >= j + 1 ? n + 1 : n) : (n === j + 1 ? 0 : n > j + 1 ? n - 1 : n));   // 장면을 정한 문구·그림도 카드 번호를 따라간다
       const m = composeState && composeState.장면별; if (!m) return undefined; const 새 = {}; let 뺀;
       Object.keys(m).forEach(k => { const n = Number(k); if (양 < 0 && n === j + 1) { 뺀 = m[k]; return; } 새[양 > 0 ? (n >= j + 1 ? n + 1 : n) : (n > j + 1 ? n - 1 : n)] = m[k]; });
       if (Object.keys(새).length) composeState.장면별 = 새; else delete composeState.장면별; return 뺀;
