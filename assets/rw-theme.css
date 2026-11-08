@@ -234,3 +234,19 @@ html:root[data-theme="dark"] .mobile-more .mmi { background: #0e0e10 !important;
 html:root[data-theme="dark"] .ttlpick button:hover { border-color: #4a4a52; }
 html:root[data-theme="dark"] .crumb-back:hover { border-color: #4a4a52; }
 html:root[data-theme="dark"] .nc-more:hover { border-color: #4a4a52; }
+
+/* [11-08] 색 체계 통일: 어두운 테마에서도 메뉴·예시 아이콘에 메뉴 색을 쓴다(옅은 색 바탕 + 색 선). PC·모바일 같게. 지금 메뉴는 노란 막대·밝은 글자로 따로 표시 */
+html:root[data-theme="dark"] .sidebar .side-item .ico,
+html:root[data-theme="dark"] .mobile-nav svg,
+html:root[data-theme="dark"] .example-row .example-chip svg { background: color-mix(in srgb, var(--c) 17%, #0b0b0d) !important; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 34%, #0b0b0d); }
+html:root[data-theme="dark"] .sidebar .side-item .ico svg,
+html:root[data-theme="dark"] .mobile-nav svg,
+html:root[data-theme="dark"] .example-row .example-chip svg { stroke: color-mix(in srgb, var(--c) 82%, #fff) !important; }
+html:root[data-theme="dark"] .sidebar .side-item:hover .ico svg { stroke: color-mix(in srgb, var(--c) 60%, #fff) !important; }
+html:root[data-theme="dark"] .sidebar .side-item.active .ico,
+html:root[data-theme="dark"] .mobile-nav .is-on svg { background: color-mix(in srgb, var(--c) 30%, #0b0b0d) !important; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 60%, #0b0b0d); }
+html:root[data-theme="dark"] .sidebar .side-item.active .ico svg,
+html:root[data-theme="dark"] .mobile-nav .is-on svg { stroke: color-mix(in srgb, var(--c) 70%, #fff) !important; }
+html:root[data-theme="dark"] .example-chip:hover { border-color: color-mix(in srgb, var(--c, #3b3b42) 55%, #1f1f23); }
+/* [11-08] 고객 말풍선: 옅은 노랑(누가 말했는지 한눈에). 상담원 말은 풍선 없이 로고 옆 글 */
+html:root[data-theme="dark"] .msg.user .bubble { background: color-mix(in srgb, var(--rw-accent) 12%, #0b0b0d); border: 1px solid color-mix(in srgb, var(--rw-accent) 32%, #0b0b0d); }

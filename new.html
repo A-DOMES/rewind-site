@@ -1670,6 +1670,16 @@
   .example-row .example-chip svg { box-sizing: content-box; width: 18px; height: 18px; padding: 6px; border-radius: var(--r-md); background: var(--c); stroke: #fff !important; }
   .example-row .example-chip:hover { background: color-mix(in srgb, var(--ink) 4%, var(--bg-raised)); border-color: var(--c); transform: none; }
   @media (max-width: 520px) { .example-row { grid-template-columns: repeat(2, minmax(0, 1fr)); } .example-row .example-chip { padding: var(--sp-2) var(--sp-3); } }
+  /* [11-08] 예시 단추: 마지막 줄이 모자라면 가운데로 모은다(5개 = 3 + 가운데 2). 격자 대신 줄바꿈 상자 */
+  .example-row:not([style*="none"]) { display: flex !important; flex-wrap: wrap; justify-content: center; }
+  .example-row .example-chip { flex: 0 1 calc((100% - 2 * var(--sp-3)) / 3); min-width: 0; }
+  .chat-column:not(.is-fresh) .example-row .example-chip { flex-basis: calc((100% - var(--sp-3)) / 2); }
+  @media (max-width: 520px) { .example-row .example-chip { flex-basis: calc((100% - var(--sp-3)) / 2); } }
+  /* [11-08] 상담원 얼굴은 어느 테마에서나 리와인드 로고(밝은 테마에서 빈 베이지 네모로 보이던 문제) */
+  /* [11-08] 직접 설정하기를 연 동안 옆 상담 칸의 예시 단추는 숨긴다(이미 만들기를 시작한 화면) */
+  #split-row.split-active .example-row { display: none !important; }
+  :root[data-theme] .msg.bot .avatar, :root .msg.bot .avatar { font-size: 0; background: #000 url('./리와인드_로고1_512px.png') center / 76% no-repeat !important; box-shadow: 0 0 0 1px var(--line); }
+  .chat-column.is-fresh .msg.bot .avatar { box-shadow: 0 0 0 1px color-mix(in srgb, var(--amber) 45%, transparent), 0 0 28px color-mix(in srgb, var(--amber) 22%, transparent) !important; }
   #topic-hub .tf-sub { text-wrap: balance; }   /* 한 글자만 다음 줄로 남지 않게 */
 
   /* ===== 진행 단계 바 + 1단계(종류) 새 모양 (2026-10-28) =====
@@ -1689,6 +1699,9 @@
   #df-fields.pw-on .df-types .tcard { border-radius: 16px; border: 1px solid rgba(170,120,255,.75); background: linear-gradient(160deg, rgba(24,56,160,.8), rgba(30,16,76,.92)); padding: 13px 16px; transition: transform .15s, box-shadow .15s, border-color .15s; }
   #df-fields.pw-on .df-types .tcard:hover { transform: translateY(-2px); border-color: var(--nw-a); box-shadow: 0 0 16px var(--nw-glow); }
   #df-fields.pw-on .df-types .tcard .ti { background: rgba(255,255,255,.07); color: #ffd58a; }
+  /* [11-08] 남색 선택지 카드는 어느 테마에서나 밝은 글자(밝은 테마에서 고르지 않은 카드 제목이 안 보이던 문제) */
+  #df-fields.pw-on .df-types .tcard b, #df-fields.pw-on .df-chipset .tcard b { color: #f3f5ff; }
+  #df-fields.pw-on .df-types .tcard small, #df-fields.pw-on .df-chipset .tcard small { color: #c9d0ea; }
   #df-fields.pw-on .df-types input:checked + .tcard { border-color: #8fb0ff; background: linear-gradient(160deg, rgba(40,90,230,.85), rgba(60,30,140,.9)); box-shadow: 0 0 0 1px #9bb8ff, 0 0 30px rgba(90,140,255,.8); }
   #df-fields.pw-on .df-types input:checked + .tcard .ti { background: linear-gradient(160deg, var(--nw-a), var(--nw-b)); color: #fff; }
   #df-fields.pw-on .df-chipset .tcard { border-radius: 16px; border: 1px solid rgba(170,120,255,.75); background: linear-gradient(160deg, rgba(24,56,160,.8), rgba(30,16,76,.92)); transition: transform .15s, box-shadow .15s, border-color .15s; }
@@ -1946,7 +1959,7 @@
 <script src="./assets/shared/phrase.js?v=20261026"></script>
 <script src="./assets/compose.js?v=20261108b"></script>
 <script src="./assets/rw-consent.js"></script>
-<link rel="stylesheet" href="./assets/rw-theme.css?v=20261103n">
+<link rel="stylesheet" href="./assets/rw-theme.css?v=20261108a">
 </head>
 <body>
 
