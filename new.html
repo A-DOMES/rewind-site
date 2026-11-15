@@ -5895,16 +5895,25 @@ ${비율칸Html(kind, 상태)}</div>`;
       const 목소리 = (window.RWVoice && RWVoice.summary()) || [gv('df-voiceGender'), gv('df-voiceAge')].filter(Boolean).join(' · ') || '자동';
       const 꾸밈 = [gv('df-hookText') ? '문구 "' + gv('df-hookText') + '"' : '문구 자동', '자막 ' + (document.querySelector('input[name="df-captionPos"]:checked')?.value || '자동')].filter(Boolean).join(' · ');
       const 썸네일 = paid ? (document.getElementById('df-thumbnail')?.checked ? 'AI 썸네일 3장 함께 만들기' : '만들지 않음') : '체험판은 제공하지 않아요';
-      const 광고 = d.link && pdLooksAffiliate(d.link) ? ' 제휴 링크라서 설명란 맨 앞에 광고 안내 문구가 들어가요. 유튜브에 올릴 때 "유료 프로모션 포함"도 체크해 주세요.' : '';
+      const 광고 = d.link && (gnSeller === 'affiliate' || (document.querySelector('input[name="gn-seller"]:checked') || {}).value === 'affiliate' || pdLooksAffiliate(d.link)) ? ' 대가가 있는 영상이라 제목 앞 "(광고)", 영상 안 "유료 광고 포함", 설명란 맨 앞 안내가 들어가요. 직접 올릴 때는 "유료 프로모션 포함"도 체크해 주세요.' : '';
       const 미리 = 롱폼 ? '' : pdPvSvg({ layout: (document.querySelector('input[name="df-layout"]:checked')?.value || '자동') === '자동' ? '전체화면형' : document.querySelector('input[name="df-layout"]:checked').value, hook: gv('df-hookText'), hookShow: 'all', pos: (document.querySelector('input[name="df-captionPos"]:checked')?.value || '자동') === '자동' ? '하단' : document.querySelector('input[name="df-captionPos"]:checked').value, size: vv.subtitleSize || '크게', sub: vv.subtitleStyle || '구절형', off: !!vv.subtitleOff });
       review.innerHTML = `<div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg></span><div><h3 data-n="${LAST + 1}">이대로 만들까요?</h3><p>고칠 곳이 있으면 "고치기"를 눌러 그 단계로 돌아가세요</p></div></div>` +
         (롱폼 ? '' : `<div class="pw-pv" role="img" aria-label="고른 화면 모양 미리보기">${미리}<small>${gv('df-hookText') ? '고른 화면 모양이에요. 위쪽 문구는 "' + esc(gv('df-hookText')) + '"' : '고른 화면 모양이에요. 위쪽 문구가 비어 있으면 AI가 대본에서 정해요'}</small></div>`) +
         row('영상 형태', 롱폼 ? '롱폼 · 가로 16:9' : '쇼츠 · 세로 9:16', 0) + 참고줄 + (d.script ? row('내 대본', d.script.title + ' · ' + ((window.__rwGenChars ? window.__rwGenChars(d.script) : Number(d.script.chars)) || 0).toLocaleString('ko-KR') + '자', 3) : '') + row('주제', d.topic || (d.script ? '대본 제목을 써요' : '아직 비어 있어요'), 3) +
         (gv('df-style') ? row('만드는 방향', gv('df-style'), 3) : '') + (document.getElementById('df-characterUse')?.checked ? row('캐릭터', '영상 내내 같은 캐릭터', 3) : '') +
-        (gv('df-directorNote') ? row('꼭 넣을 연출', gv('df-directorNote'), 3) : '') + row('내 사진·영상', (d.media && d.media.length) ? pdMediaSummary({ media: d.media }) + ' · 올린 순서대로 장면에 써요' : 'AI가 장면 그림을 만들어요', 1) +
+        (gv('df-directorNote') ? row('꼭 넣을 연출', gv('df-directorNote'), 3) : '') + row('내 사진·영상', (d.media && d.media.length) ? pdMediaSummary({ media: d.media }) + ' · 올린 순서대로 장면에 써요' + ((n => n > 0 && d.media.length > n ? ' · ⚠ 대본이 ' + n + '장면이라 ' + d.media.length + '개 중 앞에서부터 ' + n + '개만 쓰여요. 다 쓰려면 대본을 늘리거나 사진·영상을 줄여 주세요' : '')(d.script ? 대본장면수(d.script) : 0)) : 'AI가 장면 그림을 만들어요', 1) +
         row('영상 길이', lenLabel(분) + (parseFloat(d.len) > 0 ? '' : ' (기본)'), 1) + (롱폼 ? '' : row('화면 구성', document.querySelector('input[name="df-layout"]:checked')?.value || '자동', 'L')) + row('영상 제작 방식', 움직임 + (paid ? '' : ' (체험판)'), 'L') +
         row('목소리', 목소리, 2) + row('화면 꾸미기', 꾸밈, 4) + row('썸네일', 썸네일, 4) +
         `<p class="pw-note">AI 목소리가 들어간 영상은 유튜브에 올릴 때 "변경된 콘텐츠" 표시를 확인해 주세요.${(!d.narrate && 움직임 !== '이미지 중심') ? esc(' AI 영상 장면이 있어서 "합성된 콘텐츠"로도 표시해야 하고, 완성된 영상에서 제품 모양·글자가 실제와 같은지 꼭 확인해 주세요.') : ''}${esc(광고)}</p>`;
+    }
+    // [출시 전 점검] 내 대본이 몇 장면으로 나뉘는지 — 소재목록_렌더링 '일반 대본 정리'와 같은 규칙(줄바꿈·문장 끝으로 나누고 48자까지 묶음)
+    function 대본장면수(sc) {
+      const 원문 = ((sc && sc.chapters) || []).map(c => String(c.text || '')).join('\n').replace(/\r/g, '').replace(/^#{1,6}[ \t]+/gm, '').replace(/\*\*/g, '');
+      const 쪼개기 = 줄 => 줄.split(/(?<=[.!?。…]["'”’)\]]*)\s+/).map(x => x.trim()).filter(Boolean);
+      const 길면 = x => { const r = []; let 남 = x; while (Array.from(남).length > 70) { const 앞 = Array.from(남).slice(0, 70).join(''); let k = Math.max(앞.lastIndexOf(', '), 앞.lastIndexOf('，'), 앞.lastIndexOf('; ')); if (k < 20) k = 앞.lastIndexOf(' '); if (k < 20) k = 앞.length; const 끝 = k >= 앞.length ? k : k + 1; r.push(남.slice(0, 끝).trim()); 남 = 남.slice(끝).trim(); } if (남) r.push(남); return r; };
+      const 조각 = 원문.split(/\n+/).map(l => l.replace(/\s+/g, ' ').trim()).filter(l => l.replace(/[\s.!?。…·\-_*~]/g, '').length > 0).map(l => 쪼개기(l).flatMap(길면).filter(x => /[가-힣A-Za-z0-9]/.test(x))).filter(m => m.length);
+      let n = 0; for (const 문단 of 조각) { let 버 = ''; for (const x of 문단) { if (!버) { 버 = x; continue; } if (Array.from(버 + ' ' + x).length <= 48) 버 += ' ' + x; else { n++; 버 = x; } } if (버) n++; }
+      return n;
     }
     function buildReview() {
       if (LONGK()) { buildReviewLong(); return; }
