@@ -3733,7 +3733,6 @@ ${비율칸Html(kind, 상태)}</div>`;
         payload.imageRights = true;
         payload.peopleInMedia = d.people === true; if (d.music) payload.musicInMedia = true;
         if (d.people) payload.peopleConsent = true;
-        payload.disclosureCaption = false;   // 영상 안 자막 고지는 아직 지원하지 않는다 (설명란·고정 댓글로 고지)
       }
       if (answers.mediaShort && mediaExtra) {   // 일반 쇼츠 + 내 사진·영상: 접수 v3.42 (mediaShort)
         payload.mediaShort = true;
