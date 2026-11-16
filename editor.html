@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>썸네일 편집 — 리와인드</title>
-<link rel="icon" type="image/png" href="./리와인드_로고1_512px.png">
+<title>썸네일 편집 — Moview</title>
+<link rel="icon" type="image/svg+xml" href="./moview-icon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -440,12 +440,12 @@
 <script src="./theme.js"></script>
 <script src="./assets/rw-consent.js"></script>
 <script>RWConsent.guard();</script>
-<link rel="stylesheet" href="./assets/rw-theme.css?v=20261103n">
+<link rel="stylesheet" href="./assets/rw-theme.css?v=20261116a">
 </head>
 <body>
 
 <header class="top">
-  <a class="logo" href="./new.html" title="새로 만들기 화면으로"><img src="./리와인드_로고1_512px.png" alt=""><span>리와인드</span></a>
+  <a class="logo" href="./new.html" title="새로 만들기 화면으로"><span class="mv-word" role="img" aria-label="Moview">M<svg class="mv-mark" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="3.2"/><circle cx="11" cy="11" r="3" fill="#ff5a3c"/></svg>view</span></a>
   <a class="back crumb-back" id="back-link" href="./dashboard.html" title="이전 화면(프로젝트)으로"><span aria-hidden="true">←</span><span class="b-txt"> 이전</span></a>
   <nav class="top-title" id="top-title" aria-label="현재 위치"></nav>
   <a class="back crumb-new" href="./new.html" title="새 영상 만들기" aria-label="새로 만들기">+<span class="b-txt"> 새로 만들기</span></a>
@@ -928,7 +928,7 @@
     상태.유튜브교체 = !!d.youtubeReplace;
     상태.제목 = d.title || '';
     $('top-title').innerHTML = '<a href="./dashboard.html">내 프로젝트</a> <span class="sep">›</span> <a href="./project.html?id=' + encodeURIComponent(상태.id) + '">' + escapeHtml(상태.제목 || '프로젝트') + '</a> <span class="sep">›</span> <span class="here" aria-current="page">썸네일 편집</span>';
-    document.title = (상태.제목 ? 상태.제목.slice(0, 24) + ' · ' : '') + '썸네일 편집 — 리와인드';
+    document.title = (상태.제목 ? 상태.제목.slice(0, 24) + ' · ' : '') + '썸네일 편집 — Moview';
     // 설계에 쓰인 글꼴만 기다리고 나머지는 뒤에서 받는다 (글꼴이 많아도 편집 창이 늦게 열리지 않게)
     await R.글꼴준비((상태.설계.장면 || []).flatMap(s => [s && s.블록, ...((s && s.추가상자) || []).map(x => x && x.블록)]).filter(Boolean).map(x => x.글꼴 || 'Black Han Sans'));
     기한표시();
@@ -2852,12 +2852,12 @@ async function 받기(장) {
 
     /* 실제 파일을 기기에 저장한다. */
     const 제목 = String(
-      상태.제목 || '리와인드'
+      상태.제목 || 'Moview'
     )
       .replace(/[\\/:*?"<>|#]/g, '')
       .replace(/\s+/g, ' ')
       .trim()
-      .slice(0, 40) || '리와인드';
+      .slice(0, 40) || 'Moview';
 
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');

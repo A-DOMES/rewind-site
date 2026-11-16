@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>새 영상 만들기 — 리와인드</title>
+<title>새 영상 만들기 — Moview</title>
 <link rel="stylesheet" href="./assets/notice-cards.css">
 <link rel="stylesheet" href="./assets/gate-slides.css">
-<link rel="icon" type="image/png" href="./리와인드_로고1_512px.png">
+<link rel="icon" type="image/svg+xml" href="./moview-icon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1002,7 +1002,7 @@
   /* 보내기 버튼: 비활성은 회색, 입력하면 앰버 */
   .chat-send-btn:disabled { opacity: 1; background: var(--bg-input); color: var(--ink-faint); }
   /* 대화 아바타: 로고 */
-  .msg.bot .avatar { font-size: 0; background: #000 url('./리와인드_로고1_512px.png') center / 76% no-repeat; box-shadow: 0 0 0 1px var(--line); }
+  .msg.bot .avatar { font-size: 0; background: #000 url('./moview-icon.svg') center / 76% no-repeat; box-shadow: 0 0 0 1px var(--line); }
 
   /* ===== 직접 설정 폼: 섹션 카드 + 섹션별 컬러 아이콘 ===== */
   .df-sec { background: var(--bg-raised); border: 1px solid var(--line); border-radius: 16px; padding: 18px 18px 6px; margin-bottom: 14px; }
@@ -1678,7 +1678,7 @@
   /* [11-08] 상담원 얼굴은 어느 테마에서나 리와인드 로고(밝은 테마에서 빈 베이지 네모로 보이던 문제) */
   /* [11-08] 직접 설정하기를 연 동안 옆 상담 칸의 예시 단추는 숨긴다(이미 만들기를 시작한 화면) */
   #split-row.split-active .example-row { display: none !important; }
-  :root[data-theme] .msg.bot .avatar, :root .msg.bot .avatar { font-size: 0; background: #000 url('./리와인드_로고1_512px.png') center / 76% no-repeat !important; box-shadow: 0 0 0 1px var(--line); }
+  :root[data-theme] .msg.bot .avatar, :root .msg.bot .avatar { font-size: 0; background: #000 url('./moview-icon.svg') center / 76% no-repeat !important; box-shadow: 0 0 0 1px var(--line); }
   .chat-column.is-fresh .msg.bot .avatar { box-shadow: 0 0 0 1px color-mix(in srgb, var(--amber) 45%, transparent), 0 0 28px color-mix(in srgb, var(--amber) 22%, transparent) !important; }
   #topic-hub .tf-sub { text-wrap: balance; }   /* 한 글자만 다음 줄로 남지 않게 */
 
@@ -2094,7 +2094,7 @@
 <script src="./assets/shared/phrase.js?v=20261026"></script>
 <script src="./assets/compose.js?v=20261109a"></script>
 <script src="./assets/rw-consent.js"></script>
-<link rel="stylesheet" href="./assets/rw-theme.css?v=20261108a">
+<link rel="stylesheet" href="./assets/rw-theme.css?v=20261116a">
 <link rel="stylesheet" href="./assets/screens.css?v=20261108c">
 </head>
 <body>
@@ -2103,7 +2103,7 @@
   <section class="gate-show" data-gate-slides></section>
   <section class="gate-form">
     <div class="gate-card">
-      <a class="gate-logo" href="./index.html"><img src="./리와인드_로고1_512px.png" alt=""> 리와인드</a>
+      <a class="gate-logo" href="./index.html"><span class="mv-word" role="img" aria-label="Moview">M<svg class="mv-mark" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="3.2"/><circle cx="11" cy="11" r="3" fill="#ff5a3c"/></svg>view</span></a>
       <h1>로그인하고 시작하세요</h1>
       <p class="gate-lede">구글 계정으로 30초면 시작할 수 있어요. 신청 확인과 완성 알림도 이 계정으로 보내드려요.</p>
       <div id="rwc-gate"></div>
@@ -2121,7 +2121,7 @@
 <div id="app">
   <div class="shell">
     <div class="sidebar">
-      <a class="logo" href="./index.html" title="메인 페이지로" style="text-decoration:none;color:inherit"><img src="./리와인드_로고1_512px.png" alt=""> 리와인드</a>
+      <a class="logo" href="./index.html" title="메인 페이지로" style="text-decoration:none;color:inherit"><span class="mv-word" role="img" aria-label="Moview">M<svg class="mv-mark" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="3.2"/><circle cx="11" cy="11" r="3" fill="#ff5a3c"/></svg>view</span></a>
       <button class="new-chat-btn" id="new-chat-btn">+ 새로 만들기</button>
       <nav class="side-nav" aria-label="메뉴">
         <a class="side-item active" href="./new.html"><span class="ico" style="--c:#74b6ff"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-6 8 6v8h-5v-5h-6v5H4z"/></svg></span> 홈</a>
@@ -3046,7 +3046,7 @@ ${비율칸Html(kind, 상태)}</div>`;
     const openLink = (a, v) => { a.href = ytUrl(v); a.target = '_blank'; a.rel = 'noopener noreferrer'; return a; };
     function vrow(v, flat) {
       const r = tpvEl('div', 'tpv-vr' + (flat ? ' flat' : '') + (tpv.sel && tpv.sel.id === v.id ? ' on' : '')); r.dataset.id = v.id;
-      r.title = '리와인드가 계산한 값 — 이 채널 평소 조회수의 ' + tpvScore(v.s) + '배';
+      r.title = 'Moview 가 계산한 값 — 이 채널 평소 조회수의 ' + tpvScore(v.s) + '배';
       const cn = D.countries.find((c) => c.cc === v.cc) || {}, cname = cn.ko || cn.en || v.cc;
       const th = openLink(tpvEl('a', 'tpv-vth'), v); th.setAttribute('aria-label', '유튜브에서 영상 보기'); th.tabIndex = -1;
       const im = document.createElement('img'); im.loading = 'lazy'; im.alt = ''; im.referrerPolicy = 'no-referrer'; im.src = 'https://i.ytimg.com/vi/' + encodeURIComponent(v.id) + '/mqdefault.jpg'; im.addEventListener('error', () => { im.style.display = 'none'; });
@@ -3119,7 +3119,7 @@ ${비율칸Html(kind, 상태)}</div>`;
       }
     }
     function paint() { paintBar(); paintCards(); }
-    help.textContent = '돌풍 ×N 은 그 채널의 평소 조회수보다 N배 나왔다는 뜻이에요(리와인드가 직접 계산한 값). 고른 영상은 주제를 정하는 참고로만 쓰고, 영상 화면이나 내용을 그대로 가져오지는 않아요.';
+    help.textContent = '돌풍 ×N 은 그 채널의 평소 조회수보다 N배 나왔다는 뜻이에요(Moview 가 직접 계산한 값). 고른 영상은 주제를 정하는 참고로만 쓰고, 영상 화면이나 내용을 그대로 가져오지는 않아요.';
     const src = tpvEl('p', 'tpv-src'); src.appendChild(document.createTextNode('영상·조회수 출처: YouTube. '));
     const ta = tpvEl('a', '', 'YouTube 서비스 약관'); ta.href = 'https://www.youtube.com/t/terms'; ta.target = '_blank'; ta.rel = 'noopener noreferrer'; src.appendChild(ta); src.appendChild(document.createTextNode(' · ')); const pa = tpvEl('a', '', 'Google 개인정보처리방침'); pa.href = 'https://policies.google.com/privacy'; pa.target = '_blank'; pa.rel = 'noopener noreferrer'; src.appendChild(pa);
     const main = tpvEl('div', 'tpv-main'), content = tpvEl('div', 'tpv-content'); content.appendChild(out); content.appendChild(more);
@@ -3271,7 +3271,7 @@ ${비율칸Html(kind, 상태)}</div>`;
     if (has && hot.length) {
       const right = tpvEl('span'), list = tpvEl('span', 'tf-hot');
       hot.forEach((h) => { const r = tpvEl('span', 'tf-hot-row'); r.appendChild(tpvEl('span', 'nm', h.name)); r.appendChild(tpvEl('span', 'ct', '영상 ' + h.n + '개')); r.appendChild(tpvEl('span', 'tf-score', '×' + tpvScore(h.s))); list.appendChild(r); });
-      right.appendChild(list); right.appendChild(tpvEl('span', 'tf-hint', '×는 그 채널의 평소 조회수보다 몇 배 나왔는지예요(리와인드가 직접 계산한 값). 출처: YouTube · 약관 링크는 영상 보기 화면 아래에 있어요'));
+      right.appendChild(list); right.appendChild(tpvEl('span', 'tf-hint', '×는 그 채널의 평소 조회수보다 몇 배 나왔는지예요(Moview 가 직접 계산한 값). 출처: YouTube · 약관 링크는 영상 보기 화면 아래에 있어요'));
       b.appendChild(right);
     }
     b.addEventListener('click', () => { if (tpvData) tpvOpen(); else { tfClose(); openFormFor('prod', ''); } });
