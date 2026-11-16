@@ -655,3 +655,6 @@ html:root[data-theme] .btn-gold-sm.btn-go-blue:disabled{opacity:.45}
 /* 신청 화면 맨 아래 여백: 마지막 버튼이 화면 바닥에 붙지 않게 */
 #direct-form-wrap .direct-form-inner::after{content:"";display:block;height:120px;flex:none}   /* 감싼 칸이 flex 라 padding 이 스크롤에 안 잡혀서 빈 칸으로 */
 html:root[data-theme] body #df-fields#df-fields .pw-hint b{color:var(--stc,#ff5a3c)!important}
+#df-fields .ol-est{margin:6px 0 0;font-size:.86rem;color:#a1a1aa}
+#df-fields .ol-est[hidden]{display:none}
+#df-fields .ol-est b{color:#ffb020;font-weight:700}

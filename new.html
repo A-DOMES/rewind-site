@@ -2098,7 +2098,7 @@
 <script src="./assets/shared/phrase.js?v=20261026"></script>
 <script src="./assets/compose.js?v=20261117a"></script>
 <script src="./assets/rw-consent.js"></script>
-<link rel="stylesheet" href="./assets/rw-theme.css?v=20261117d">
+<link rel="stylesheet" href="./assets/rw-theme.css?v=20261117e">
 <link rel="stylesheet" href="./assets/screens.css?v=20261108c">
 </head>
 <body>
@@ -4692,6 +4692,16 @@ ${비율칸Html(kind, 상태)}</div>`;
     전체.checked = true; 전체.dispatchEvent(new Event('change', { bubbles: true }));   // 사람이 누른 것이 아니므로(isTrusted=false) 제목을 다시 켜지 않는다
     return '제목을 숨겨서 화면 구성을 전체화면형으로 바꿨어요.';
   }
+  // [한마디] 문장 분량 안내: 말 약 (공백 뺀 글자 ÷ 4.3)초 + 앞 여백 2초 + 끝 카드 3~5초 = 추천 길이. 끝 카드가 6초를 넘으면 한 줄 안내(막지는 않음)
+  function 한마디분량() {
+    const t = document.getElementById('df-topic'), n = document.getElementById('df-ol-est'); if (!t || !n) return;
+    const 글 = String(t.value || '').replace(/\s+/g, ''), on = 한마디중();
+    if (!on || !글) { n.hidden = true; return; }
+    const 말 = Math.max(1, Math.ceil(글.length / 4.3)), 길이 = gnSnapLen((document.getElementById('df-gnLen') || {}).value);
+    const 낮 = Math.min(ONE_LINE_MAX, 말 + 5), 높 = Math.min(ONE_LINE_MAX, 말 + 7), 남 = Math.max(0, 길이 - 말), 앞 = 남 >= 1 ? Math.min(2, Math.max(1, 남 / 3)) : 0, 카드 = Math.round(남 - 앞);
+    n.hidden = false;
+    n.innerHTML = `약 ${말}초 분량이에요 · 추천 길이 ${낮 === 높 ? 낮 : 낮 + '~' + 높}초` + (말 > 길이 ? ` <b>· 말이 ${길이}초보다 길어요. 문장을 줄이거나 길이를 늘려 주세요</b>` : 카드 > 6 ? ` <b>· 지금 길이면 끝에 문장만 보이는 시간이 약 ${카드}초예요</b>` : '');
+  }
   function 한마디그리기() {
     const on = 한마디중(), ff = document.getElementById('df-fields'); if (!ff) return;
     ff.dataset.oneline = on ? '1' : '';
@@ -4702,6 +4712,10 @@ ${비율칸Html(kind, 상태)}</div>`;
     if (card) { let n = document.getElementById('df-oneline-note'); if (!n) { n = document.createElement('p'); n.id = 'df-oneline-note'; n.className = 'oneline-note'; n.textContent = '한마디 영상은 위 한 문장만으로 만들어요. 대본·분위기·연출 칸은 쓰지 않아요.'; card.parentNode.insertBefore(n, card); } n.hidden = !on; }
     // 제목 [숨기기 | 보이기] — 한 문장 칸 바로 아래. 한마디일 땐 '화면 상단 문구' 칸 대신 여기서 정한다
     const t = document.getElementById('df-topic'); if (!t) return;
+    // 문장 분량 안내 줄(제목 버튼 위)
+    let est = document.getElementById('df-ol-est');
+    if (!est && t.parentElement) { est = document.createElement('p'); est.id = 'df-ol-est'; est.className = 'df-hint ol-est'; t.insertAdjacentElement('afterend', est); t.addEventListener('input', 한마디분량); }
+    한마디분량();
     let tb = document.getElementById('df-ol-title');
     if (!tb && t.parentElement) {
       tb = document.createElement('div'); tb.id = 'df-ol-title'; tb.className = 'ol-title';
