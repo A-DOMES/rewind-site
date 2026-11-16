@@ -123,10 +123,11 @@
   var 수 = function (x, a, b, d) { x = Number(x); return Number.isFinite(x) ? Math.min(b, Math.max(a, x)) : d; };
 
   // 고른 값 + 템플릿 기본 + 기본값 → 실제로 보이는 값
-  var 현재가로 = false;   // 가로 영상은 줄 길이 기본이 화면 폭의 88%(서버와 같음)
+  var 현재가로 = false, 현재한마디배율 = 1;   // 가로 영상은 줄 길이 기본이 화면 폭의 88%(서버와 같음)
   function 합치기(선택, 종류) {
     var t = (템플릿목록 || []).find(function (x) { return x.id === 선택.템플릿 && (!종류 || x.종류.indexOf(종류) >= 0); });
-    var 값 = Object.assign({}, 기본, 현재가로 ? { 줄길이: 0.88 } : {}, t ? t.기본 : {});
+    var 값 = Object.assign({}, 기본, 현재가로 ? { 줄길이: 0.88 } : (종류 === '야담' || 종류 === '수면' ? {} : { 자막크기: 103 }), t ? t.기본 : {});   // 세로(쇼츠) 기본 글자 103 = 서버 render.js 자막크기값 기본(0.0778)과 같음
+    if (현재한마디배율 > 1) 값.자막크기 = Math.min(200, Math.round(값.자막크기 * 현재한마디배율));   // [한마디] 기본 글자 크기 × 배율(서버 render.js 와 같은 규칙: 고객이 직접 고르지 않았을 때만)
     ['자막모양', '글꼴', '자막크기', '줄수', '줄길이', '핵심색', '자막색', '자막거리', '자막가로', '자막끄기', '제목높이', '제목크기', '제목위', '제목세로', '제목가로', '제목띠색', '제목글자색', '가운데색', '가운데아래', '읽는효과', '읽는색'].forEach(function (k) { if (선택[k] !== undefined) 값[k] = 선택[k]; });
     if (t && t.허용스타일 && t.허용스타일.indexOf(값.자막모양) < 0) 값.자막모양 = t.기본.자막모양;
     return { 값: 값, 템플릿: t || null };
@@ -156,7 +157,7 @@
 
   function open(opt) {
     opt = opt || {};
-    var 종류 = opt.종류 || '쇼츠', 가로 = opt.화면 === '가로'; 현재가로 = 가로;
+    var 종류 = opt.종류 || '쇼츠', 가로 = opt.화면 === '가로'; 현재가로 = 가로; 현재한마디배율 = Number(opt.한마디배율) > 1 ? Math.min(2, Number(opt.한마디배율)) : 1;
     var 화면목록 = (Array.isArray(opt.화면목록) ? opt.화면목록 : []).filter(function (x) { return x.값 !== '자동'; }); if (!화면목록.length) 화면목록 = [{ 값: '전체화면형' }];   // '자동'은 고르는 칸에서 뺐다
     function 기본화면() { var 후보 = 종류 === '상품쇼츠' ? ['가운데영상형', '제목고정형'] : ['제목고정형']; for (var i = 0; i < 후보.length; i++) if (화면목록.some(function (x) { return x.값 === 후보[i] && !x.꺼짐; })) return 후보[i]; return (화면목록.filter(function (x) { return !x.꺼짐; })[0] || 화면목록[0]).값; }
     var 화면 = 화면목록.some(function (x) { return x.값 === opt.화면구성 && !x.꺼짐; }) ? opt.화면구성 : 기본화면(), 문구샘플 = String(opt.문구 || '').trim() || '화면 위 제목 문구';

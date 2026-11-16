@@ -2096,7 +2096,7 @@
 <link rel="stylesheet" href="./assets/compose.css?v=20261116a">
 <script src="./assets/shared/layout.js?v=20261027"></script>
 <script src="./assets/shared/phrase.js?v=20261026"></script>
-<script src="./assets/compose.js?v=20261116a"></script>
+<script src="./assets/compose.js?v=20261117a"></script>
 <script src="./assets/rw-consent.js"></script>
 <link rel="stylesheet" href="./assets/rw-theme.css?v=20261116k">
 <link rel="stylesheet" href="./assets/screens.css?v=20261108c">
@@ -3972,7 +3972,7 @@ ${비율칸Html(kind, 상태)}</div>`;
   // 아래 값은 기본값이다. 관리자가 시트 '설정' 탭에서 바꾸면 사이트 설정(site-config)으로 받아 와서 덮어쓴다(applySitePrice).
   let PRICE_BASE = 30, PRICE_LONG_PCT = 20, TRIAL_PCT = 25, TRIAL_MIN = 5;
   let gnHookTouched = false;   // [제목 숨기기] 고객이 제목 보이기/숨기기를 직접 고른 적 있는지(없으면 한마디 영상은 숨기기가 기본)
-  let GN_SHORT_MIN = 5, ONE_LINE_MAX = 20;   // [한마디 영상] 일반 쇼츠 최소 초·한마디 기준 초(사이트 설정 limits 로 덮어씀 — applySiteShort, gnSnapLen)
+  let GN_SHORT_MIN = 5, ONE_LINE_MAX = 20, ONE_LINE_SCALE = 1.25;   // ONE_LINE_SCALE: 한마디 영상 기본 글자 배율(설정 '한마디_자막배율' — 사이트설정 limits.oneLineScale 로 덮어씀)   // [한마디 영상] 일반 쇼츠 최소 초·한마디 기준 초(사이트 설정 limits 로 덮어씀 — applySiteShort, gnSnapLen)
   const MOTION_RATE = { '이미지 중심': 70, '혼합': 110, '모두 영상': 170 };
   const MOTION_LIST = ['이미지 중심', '혼합', '모두 영상'];
   const MOTION_DESC = {
@@ -4202,6 +4202,7 @@ ${비율칸Html(kind, 상태)}</div>`;
     const m = Number(l.shortMin), o = Number(l.oneLineMax); let ch = false;
     if (Number.isFinite(m) && m >= 1 && m <= 30 && Math.round(m) !== GN_SHORT_MIN) { GN_SHORT_MIN = Math.round(m); ch = true; }
     if (Number.isFinite(o) && o >= 5 && o <= 30 && Math.round(o) !== ONE_LINE_MAX) { ONE_LINE_MAX = Math.round(o); ch = true; }
+    const sc = Number(l.oneLineScale); if (Number.isFinite(sc) && sc >= 1 && sc <= 2) ONE_LINE_SCALE = sc;   // 사이트설정_조회 v11
     if (ch) { const i = document.getElementById('df-gnLen'); if (i) i.min = String(GN_SHORT_MIN); }
     return ch;
   }
@@ -4489,7 +4490,7 @@ ${비율칸Html(kind, 상태)}</div>`;
       if (sg) sg.value = 성 === '여' ? '여성' : '남성'; if (sa && v) sa.value = voiceAgeOf(id);
     } : undefined;
     const 지금목소리 = (window.__rwVP && __rwVP.쇼츠 && __rwVP.쇼츠.값()) || '', 지금성별 = (document.getElementById('df-voiceGender') || {}).value === '여성' ? '여' : '남';
-    RWCompose.open({ 종류: 상품 ? '상품쇼츠' : '쇼츠', 원래소리막힘: (document.querySelector(상품 ? 'input[name="df-pmusic"]:checked' : 'input[name="df-gmusic"]:checked') || {}).value === 'yes',   /* 상품쇼츠는 pmusic, 일반은 gmusic */ 목소리값: 지금목소리, 목소리성별: 지금성별, 목소리바꿈, 자료, 자료옮김, 자료읽기, 구간바꿈, 자료빼기, 자료더하기, 컴퓨터올리기, 자료떼기, 자료붙이기, 자료복사, 자료복제, 타임라인: composeTimeline(상품), 화면: '세로', 배경그림: 첫사진, 화면목록, 화면구성, 제작방식, 문구시간: 상품 ? (((document.querySelector('input[name="pd-hookshow"]:checked') || {}).value === '3s') ? ((parseFloat((document.getElementById('pd-hooksec') || {}).value) >= 0 ? parseFloat(document.getElementById('pd-hooksec').value) : 3) + 's') : 'all') : gnHookShow, 자막방식: (상품 && window.RWVoice) ? (RWVoice.getExtra().subtitleStyle || '구절형') : undefined, 문구: document.getElementById('df-hookText')?.value || '', 값, 자막위치: 거꾸로[지금] || '아래', 대본: 한줄글 || 대본전체, 샘플: 한줄글.slice(0, 40) || 대본첫줄 || document.getElementById('df-hookText')?.value || '',
+    RWCompose.open({ 한마디배율: !상품 && (document.getElementById('df-form') || {}).value !== '롱폼' && gnSnapLen((document.getElementById('df-gnLen') || {}).value) <= ONE_LINE_MAX ? ONE_LINE_SCALE : 1,   /* Queue v45.11 과 같은 조건: 일반 쇼츠이고 길이 ≤ 한마디 기준 */ 종류: 상품 ? '상품쇼츠' : '쇼츠', 원래소리막힘: (document.querySelector(상품 ? 'input[name="df-pmusic"]:checked' : 'input[name="df-gmusic"]:checked') || {}).value === 'yes',   /* 상품쇼츠는 pmusic, 일반은 gmusic */ 목소리값: 지금목소리, 목소리성별: 지금성별, 목소리바꿈, 자료, 자료옮김, 자료읽기, 구간바꿈, 자료빼기, 자료더하기, 컴퓨터올리기, 자료떼기, 자료붙이기, 자료복사, 자료복제, 타임라인: composeTimeline(상품), 화면: '세로', 배경그림: 첫사진, 화면목록, 화면구성, 제작방식, 문구시간: 상품 ? (((document.querySelector('input[name="pd-hookshow"]:checked') || {}).value === '3s') ? ((parseFloat((document.getElementById('pd-hooksec') || {}).value) >= 0 ? parseFloat(document.getElementById('pd-hooksec').value) : 3) + 's') : 'all') : gnHookShow, 자막방식: (상품 && window.RWVoice) ? (RWVoice.getExtra().subtitleStyle || '구절형') : undefined, 문구: document.getElementById('df-hookText')?.value || '', 값, 자막위치: 거꾸로[지금] || '아래', 대본: 한줄글 || 대본전체, 샘플: 한줄글.slice(0, 40) || 대본첫줄 || document.getElementById('df-hookText')?.value || '',
       onDone: res => {
         composeState = Object.keys(res.compose).length ? res.compose : null; composeKind = composeState ? 종류표 : '';
         const 고르기 = (name, v) => { const r = [...document.querySelectorAll(`input[name="${name}"]`)].find(x => x.value === v); if (r && !r.disabled) { r.checked = true; r.dispatchEvent(new Event('change', { bubbles: true })); } };
