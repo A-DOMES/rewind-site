@@ -2094,7 +2094,7 @@
 <script src="./assets/shared/phrase.js?v=20261026"></script>
 <script src="./assets/compose.js?v=20261109a"></script>
 <script src="./assets/rw-consent.js"></script>
-<link rel="stylesheet" href="./assets/rw-theme.css?v=20261116e">
+<link rel="stylesheet" href="./assets/rw-theme.css?v=20261116f">
 <link rel="stylesheet" href="./assets/screens.css?v=20261108c">
 </head>
 <body>
@@ -4676,7 +4676,11 @@ ${비율칸Html(kind, 상태)}</div>`;
   function 한마디그리기() {
     const on = 한마디중(), ff = document.getElementById('df-fields'); if (!ff) return;
     ff.dataset.oneline = on ? '1' : '';
-    const card = document.getElementById('df-gen-script-card'), sec = card && card.closest('.df-sec'); if (sec) sec.classList.toggle('oneline-hide', on);
+    // 한 문장으로만 만들므로 대본 고르기 카드·분위기(영상 이렇게 만들어주세요·내 말로 적기)·꼭 넣고 싶은 연출은 흐리게 하고 누를 수 없게 한다
+    const card = document.getElementById('df-gen-script-card');
+    const 끌것 = [card, (document.getElementById('df-style') || {}).closest && document.getElementById('df-style').closest('.df-field'), (document.getElementById('df-directorNote') || {}).closest && document.getElementById('df-directorNote').closest('.df-field')].filter(Boolean);
+    끌것.forEach(el => { el.classList.toggle('oneline-off', on); if (on) el.setAttribute('inert', ''); else el.removeAttribute('inert'); });
+    if (card) { let n = document.getElementById('df-oneline-note'); if (!n) { n = document.createElement('p'); n.id = 'df-oneline-note'; n.className = 'oneline-note'; n.textContent = '한마디 영상은 위 한 문장만으로 만들어요. 대본·분위기·연출 칸은 쓰지 않아요.'; card.parentNode.insertBefore(n, card); } n.hidden = !on; }
     const t = document.getElementById('df-topic'); if (!t) return;
     const lab = t.parentElement && t.parentElement.querySelector('label');
     if (t.dataset.ph0 === undefined) { t.dataset.ph0 = t.placeholder; t.dataset.lb0 = lab ? lab.innerHTML : ''; }
