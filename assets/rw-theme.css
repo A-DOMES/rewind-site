@@ -613,3 +613,44 @@ html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-card{padding-right:2
 /* 한마디 안내 한 줄은 대본 단계(일반 5단계)에서만 */
 #df-fields.pw-on > #df-oneline-note{display:none}
 #df-fields.pw-on.pw-gn[data-pwstep="5"] > #df-oneline-note:not([hidden]){display:block}
+
+/* ═════════ 9. 색 정리 (2026-11-17) — 색 = 단계. 단계 고유색(--sc, new.html PW_COLOR)을 진행 단계·단계 번호·확인 목록에 같이 쓴다 ═════════ */
+/* 진행 단계: 잠김=회색 / 마침=자기 색 아이콘+연한 바탕 / 지금=자기 색 채움+빛 테두리 */
+html:root[data-theme] :is(#df-fields#df-fields,*) .pw-st.done{background:color-mix(in srgb,var(--sc) 14%,#0e0e10)!important;border-color:color-mix(in srgb,var(--sc) 50%,transparent)!important;color:#e4e4e7!important}
+html:root[data-theme] :is(#df-fields#df-fields,*) .pw-st.done svg{stroke:var(--sc)!important;color:var(--sc)!important}
+html:root[data-theme] :is(#df-fields#df-fields,*) .pw-st.done small{color:var(--sc)!important}
+html:root[data-theme] :is(#df-fields#df-fields,*) .pw-st.cur{background:var(--sc)!important;border-color:var(--sc)!important;color:#000!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--sc) 35%,transparent),0 6px 18px -6px color-mix(in srgb,var(--sc) 70%,transparent)!important}
+html:root[data-theme] :is(#df-fields#df-fields,*) .pw-st.cur svg{stroke:#000!important;color:#000!important}
+html:root[data-theme] :is(#df-fields#df-fields,*) .pw-st.cur b,html:root[data-theme] :is(#df-fields#df-fields,*) .pw-st.cur small{color:#000!important;font-weight:800!important}
+html:root[data-theme] :is(#df-fields#df-fields,*) .pw-st.done:hover{filter:brightness(1.15)}
+/* 단계 제목 번호 동그라미 = 지금 단계 색 */
+html:root[data-theme] #df-fields#df-fields.pw-on .df-sec-head h3[data-n]::before{background:var(--stc,#ff5a3c)!important;color:#000!important}
+/* 확인 목록: 줄마다 단계 색 점, 고치기에 올리면 단계 색 테두리 */
+html:root[data-theme] :is(#df-fields#df-fields,*) .pw-row .pw-k{display:inline-flex;align-items:center;gap:8px}
+html:root[data-theme] :is(#df-fields#df-fields,*) .pw-row .pw-k::before{content:"";flex:0 0 10px;width:10px;height:10px;border-radius:50%;background:var(--sc,#8a8a94);box-shadow:0 0 0 3px color-mix(in srgb,var(--sc,#8a8a94) 22%,transparent)}
+html:root[data-theme] :is(#df-fields#df-fields,*) .pw-row .pw-fix:hover{border-color:var(--sc)!important;color:var(--sc)!important}
+/* 2단계 사진|영상: 흰 테두리 대신 연한 색 채우기(사진 파랑·영상 보라 = 제작 방식 색) */
+html:root[data-theme] :is(#df-fields#df-fields,*) .pm-type button[aria-pressed="true"][data-t="image"]{background:rgba(91,157,255,.24)!important;border-color:rgba(91,157,255,.6)!important;color:#d6e6ff!important}
+html:root[data-theme] :is(#df-fields#df-fields,*) .pm-type button[aria-pressed="true"][data-t="video"]{background:rgba(167,139,250,.26)!important;border-color:rgba(167,139,250,.6)!important;color:#e6dcff!important}
+html:root[data-theme="light"] :is(#df-fields#df-fields,*) .pm-type button[aria-pressed="true"][data-t="image"]{background:#dbeafe!important;color:#1e40af!important}
+html:root[data-theme="light"] :is(#df-fields#df-fields,*) .pm-type button[aria-pressed="true"][data-t="video"]{background:#ede9fe!important;color:#5b21b6!important}
+/* 4단계 최종 미리 듣기: 파란 버튼 + 흰 글자 */
+html:root[data-theme] :is(#df-fields#df-fields,*) #vp-preview{background:#2563eb!important;border-color:#2563eb!important;color:#fff!important;font-weight:700!important}
+html:root[data-theme] :is(#df-fields#df-fields,*) #vp-preview:hover{background:#3b82f6!important}
+html:root[data-theme] :is(#df-fields#df-fields,*) #vp-preview svg{fill:#fff!important}
+/* 6단계 영상 꾸미기 카드: 꾸미기 색(분홍) 연한 바탕, 밝은 아이콘, 흰 버튼 */
+html:root[data-theme] :is(#df-fields#df-fields,*) .cz-entry{background:color-mix(in srgb,#f472b6 10%,#111114)!important;border:1px solid color-mix(in srgb,#f472b6 40%,transparent)!important}
+html:root[data-theme] :is(#df-fields#df-fields,*) .cz-entry .cz-entry-ico{background:color-mix(in srgb,#f472b6 24%,transparent)!important;border-radius:12px}
+html:root[data-theme] :is(#df-fields#df-fields,*) .cz-entry .cz-entry-ico svg{stroke:#f9a8d4!important;color:#f9a8d4!important}
+html:root[data-theme] :is(#df-fields#df-fields,*) .cz-entry .cz-btn{background:#f5f5f7!important;border-color:#f5f5f7!important;color:#000!important;font-weight:700!important}
+html:root[data-theme] :is(#df-fields#df-fields,*) .cz-entry .cz-btn:hover{background:#fff!important}
+html:root[data-theme="light"] :is(#df-fields#df-fields,*) .cz-entry{background:#fdf2f8!important}
+html:root[data-theme="light"] :is(#df-fields#df-fields,*) .cz-entry .cz-btn{background:#111114!important;color:#fff!important;border-color:#111114!important}
+/* 확인: 약관 링크 파랑, 마지막 신청 버튼 파랑+흰 글자 */
+html:root[data-theme] .confirm-consent a{color:#7cb4ff!important;text-decoration:underline;text-underline-offset:3px}
+html:root[data-theme="light"] .confirm-consent a{color:#1d4ed8!important}
+html:root[data-theme] .btn-gold-sm.btn-go-blue{background:#2563eb!important;border-color:#2563eb!important;color:#fff!important;font-weight:800!important}
+html:root[data-theme] .btn-gold-sm.btn-go-blue:hover:not(:disabled){background:#3b82f6!important}
+html:root[data-theme] .btn-gold-sm.btn-go-blue:disabled{opacity:.45}
+/* 신청 화면 맨 아래 여백: 마지막 버튼이 화면 바닥에 붙지 않게 */
+#direct-form-wrap{padding-bottom:120px!important}
