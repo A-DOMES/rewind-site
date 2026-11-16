@@ -653,5 +653,5 @@ html:root[data-theme] .btn-gold-sm.btn-go-blue{background:#2563eb!important;bord
 html:root[data-theme] .btn-gold-sm.btn-go-blue:hover:not(:disabled){background:#3b82f6!important}
 html:root[data-theme] .btn-gold-sm.btn-go-blue:disabled{opacity:.45}
 /* 신청 화면 맨 아래 여백: 마지막 버튼이 화면 바닥에 붙지 않게 */
-#direct-form-wrap{padding-bottom:120px!important}
+#direct-form-wrap .direct-form-inner::after{content:"";display:block;height:120px;flex:none}   /* 감싼 칸이 flex 라 padding 이 스크롤에 안 잡혀서 빈 칸으로 */
 html:root[data-theme] body #df-fields#df-fields .pw-hint b{color:var(--stc,#ff5a3c)!important}
