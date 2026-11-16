@@ -610,3 +610,6 @@ html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-card small{white-spa
 html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-card[aria-pressed="true"] .vp-play{background:var(--tn,#ff5a3c)!important}
 html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-card{padding-right:28px!important}
 .rwvp .vp-check{top:6px!important;right:6px!important;width:18px!important;height:18px!important;font-size:.7rem!important}
+/* 한마디 안내 한 줄은 대본 단계(일반 5단계)에서만 */
+#df-fields.pw-on > #df-oneline-note{display:none}
+#df-fields.pw-on.pw-gn[data-pwstep="5"] > #df-oneline-note:not([hidden]){display:block}

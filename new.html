@@ -2098,7 +2098,7 @@
 <script src="./assets/shared/phrase.js?v=20261026"></script>
 <script src="./assets/compose.js?v=20261117a"></script>
 <script src="./assets/rw-consent.js"></script>
-<link rel="stylesheet" href="./assets/rw-theme.css?v=20261116k">
+<link rel="stylesheet" href="./assets/rw-theme.css?v=20261117a">
 <link rel="stylesheet" href="./assets/screens.css?v=20261108c">
 </head>
 <body>
@@ -5208,7 +5208,7 @@ ${비율칸Html(kind, 상태)}</div>`;
     g += `<text x="${X + 4}" y="${safeB + 8}" font-size="3.6" fill="#e8dfd0" fill-opacity=".8" font-family="inherit">앱 제목·버튼 자리</text>` + [78, 91, 104].map(y => `<circle cx="79" cy="${y}" r="3.2" fill="#e8dfd0" fill-opacity=".4"/>`).join('');
     if (band) g += `<rect x="${X}" y="${Y}" width="${W}" height="${band}" rx="6" fill="#0e0e10"/>`;
     if (hook) hookLines.forEach((l, i) => { g += `<text x="45" y="${hTop + hPitch * (i + 0.8)}" text-anchor="middle" font-size="${hPitch * 0.65}" font-weight="800" fill="#FFF200" stroke="#000" stroke-width="${hPitch * 0.14}" paint-order="stroke" font-family="inherit">${pdEsc(l)}</text>`; });
-    else g += `<text x="45" y="${hTop + hPitch * 0.8}" text-anchor="middle" font-size="3.8" fill="#e8dfd0" fill-opacity=".75" font-family="inherit">위쪽 문구 · 비우면 AI가 만들어요</text>`;
+    else if (st.hookShow !== '0s') g += `<text x="45" y="${hTop + hPitch * 0.8}" text-anchor="middle" font-size="3.8" fill="#e8dfd0" fill-opacity=".75" font-family="inherit">위쪽 문구 · 비우면 AI가 만들어요</text>`;
     if (!st.off) {
       const cPitch = W * ({ '작게': 0.048, '보통': 0.058, '크게': 0.072, '아주크게': 0.09 }[st.size] || 0.058) * 1.225 * (st.sub === '단어형' ? 1.2 : 1), sample = st.sub === '문장형' ? '자막은 이렇게 문장 하나를 통째로 보여 줘요' : st.sub === '단어형' ? '이렇게 한두 단어' : '이렇게 한 줄로 나와요';
       const lines = st.sub === '문장형' && lw(sample) * cPitch > W * 0.76 ? split2(sample) : [sample];
