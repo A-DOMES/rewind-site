@@ -23,7 +23,7 @@
     :root:not([data-theme="dark"]) {
       --bg: #fbf3e3; --bg-raised: #ffffff; --bg-input: #ffffff; --line: #eadfc4;
       --ink: #241c11; --ink-dim: #6b5b3d; --ink-faint: #9c8d6c;
-      --amber: #c68a12; --amber-dim: #f3e1ae; --olive: #8a6d1f;
+      --amber: #c68a12; --amber-dim: #f3e1ae; --olive: #52525b;
       --card-shadow: 0 8px 20px -12px rgba(36,28,17,0.12); --on-amber: #1c1409;
     }
   }
@@ -36,7 +36,7 @@
   :root[data-theme="light"] {
     --bg: #fbf3e3; --bg-raised: #ffffff; --bg-input: #ffffff; --line: #eadfc4;
     --ink: #241c11; --ink-dim: #6b5b3d; --ink-faint: #9c8d6c;
-    --amber: #c68a12; --amber-dim: #f3e1ae; --olive: #8a6d1f;
+    --amber: #c68a12; --amber-dim: #f3e1ae; --olive: #52525b;
     --card-shadow: 0 8px 20px -12px rgba(36,28,17,0.12); --on-amber: #1c1409;
   }
 
@@ -311,29 +311,29 @@
   .theme-switch svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
 
   /* ===== 밝은 테마 ===== */
-  :root[data-theme="light"] { color-scheme: light; --bg: #f6f1e9; --bg-raised: #fffdf9; --bg-input: #efe8dc; --line: #e3d9c8; --line-strong: #cbbda6; --bg-deep: #0f0d0b;
-    --ink: #221a12; --ink-dim: #54473a; --ink-faint: #7a6c5c;
-    --amber: #9a600a; --amber-hover: #87540a; --amber-dim: #ead3a8; --amber-wash: #fbf0dc; --olive: #8a6d1f; --on-amber: #ffffff;
-    --gold: #9a600a; --gold-dim: #ead3a8; --on-gold: #ffffff;
-    --blue: #2f6fb3; --green: #3f7d34; --err: #b64532; --focus: #9a600a;
-    --status-plan: #2f6fb3; --status-making: #2f6fb3; --status-review: #9a600a; --status-final: #2f6fb3; --status-done: #3f7d34; --status-error: #b64532; }
-  @media (prefers-color-scheme: light) { :root[data-theme="system"] { color-scheme: light; --bg: #f6f1e9; --bg-raised: #fffdf9; --bg-input: #efe8dc; --line: #e3d9c8; --line-strong: #cbbda6; --bg-deep: #0f0d0b;
-    --ink: #221a12; --ink-dim: #54473a; --ink-faint: #7a6c5c;
-    --amber: #9a600a; --amber-hover: #87540a; --amber-dim: #ead3a8; --amber-wash: #fbf0dc; --olive: #8a6d1f; --on-amber: #ffffff;
-    --gold: #9a600a; --gold-dim: #ead3a8; --on-gold: #ffffff;
-    --blue: #2f6fb3; --green: #3f7d34; --err: #b64532; --focus: #9a600a;
-    --status-plan: #2f6fb3; --status-making: #2f6fb3; --status-review: #9a600a; --status-final: #2f6fb3; --status-done: #3f7d34; --status-error: #b64532; } }
-  :root[data-theme="light"] .btn-primary:hover { background: #87540a }
-  :root[data-theme="light"] .btn-ghost { border-color: #cbbda6 }
-  :root[data-theme="light"] header.shell { border-bottom-color: #e3d9c8 }
-  :root[data-theme="light"] .avatar { border-color: #cbbda6 }
-  :root[data-theme="light"] .reel-row:hover { border-color: #cbbda6; background: #fbf6ee }
+  :root[data-theme="light"] { color-scheme: light; --bg: #fafafa; --bg-raised: #ffffff; --bg-input: #f2f2f4; --line: #e4e4e7; --line-strong: #d4d4d8; --bg-deep: #0f0d0b;
+    --ink: #111114; --ink-dim: #3f3f46; --ink-faint: #5f5f68;
+    --amber: #b0301a; --amber-hover: #9a2a16; --amber-dim: #f6cdc2; --amber-wash: #fdf0ec; --olive: #52525b; --on-amber: #ffffff;
+    --gold: #b0301a; --gold-dim: #f6cdc2; --on-gold: #ffffff;
+    --blue: #2f6fb3; --green: #3f7d34; --err: #b64532; --focus: #b0301a;
+    --status-plan: #2f6fb3; --status-making: #2f6fb3; --status-review: #b0301a; --status-final: #2f6fb3; --status-done: #3f7d34; --status-error: #b64532; }
+  @media (prefers-color-scheme: light) { :root[data-theme="system"] { color-scheme: light; --bg: #fafafa; --bg-raised: #ffffff; --bg-input: #f2f2f4; --line: #e4e4e7; --line-strong: #d4d4d8; --bg-deep: #0f0d0b;
+    --ink: #111114; --ink-dim: #3f3f46; --ink-faint: #5f5f68;
+    --amber: #b0301a; --amber-hover: #9a2a16; --amber-dim: #f6cdc2; --amber-wash: #fdf0ec; --olive: #52525b; --on-amber: #ffffff;
+    --gold: #b0301a; --gold-dim: #f6cdc2; --on-gold: #ffffff;
+    --blue: #2f6fb3; --green: #3f7d34; --err: #b64532; --focus: #b0301a;
+    --status-plan: #2f6fb3; --status-making: #2f6fb3; --status-review: #b0301a; --status-final: #2f6fb3; --status-done: #3f7d34; --status-error: #b64532; } }
+  :root[data-theme="light"] .btn-primary:hover { background: #9a2a16 }
+  :root[data-theme="light"] .btn-ghost { border-color: #d4d4d8 }
+  :root[data-theme="light"] header.shell { border-bottom-color: #e4e4e7 }
+  :root[data-theme="light"] .avatar { border-color: #d4d4d8 }
+  :root[data-theme="light"] .reel-row:hover { border-color: #d4d4d8; background: #f4f4f5 }
   @media (prefers-color-scheme: light) {
-    :root[data-theme="system"] .btn-primary:hover { background: #87540a }
-    :root[data-theme="system"] .btn-ghost { border-color: #cbbda6 }
-    :root[data-theme="system"] header.shell { border-bottom-color: #e3d9c8 }
-    :root[data-theme="system"] .avatar { border-color: #cbbda6 }
-    :root[data-theme="system"] .reel-row:hover { border-color: #cbbda6; background: #fbf6ee }
+    :root[data-theme="system"] .btn-primary:hover { background: #9a2a16 }
+    :root[data-theme="system"] .btn-ghost { border-color: #d4d4d8 }
+    :root[data-theme="system"] header.shell { border-bottom-color: #e4e4e7 }
+    :root[data-theme="system"] .avatar { border-color: #d4d4d8 }
+    :root[data-theme="system"] .reel-row:hover { border-color: #d4d4d8; background: #f4f4f5 }
   }
 
   /* ===== 글씨 정리: 강약 조절 + 또렷하게 ===== */
@@ -411,7 +411,7 @@
 <script src="./theme.js"></script>
 <script src="./assets/rw-consent.js"></script>
 <script>RWConsent.guard();</script>
-<link rel="stylesheet" href="./assets/rw-theme.css?v=20261116a">
+<link rel="stylesheet" href="./assets/rw-theme.css?v=20261116b">
 <link rel="stylesheet" href="./assets/screens.css?v=20261108c">
 </head>
 <body>

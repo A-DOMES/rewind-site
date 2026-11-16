@@ -382,3 +382,6 @@ html:root[data-theme="dark"] #df-fields .cz-entry-ico{background:#16161a!importa
 html:root[data-theme="dark"] #df-fields button:not(.pw-next):not(.rf-go):not(.vp-chip):not(.kd):not(.sh-use):not(.sc-act):not([aria-pressed="true"]):not(.on):not(.active):hover{border-color:#80808a!important}
 html:root[data-theme="dark"] .pw-st.redo{border-color:var(--err)!important;color:var(--err)!important}
 html:root[data-theme="dark"] .pw-hint .pw-left{color:#ffb020!important}
+/* 밝은 테마: 진행 단계 '마침'이 '대기'와 구분되게 */
+html:root[data-theme="light"] .pw-st.done svg{color:#111114!important}
+html:root[data-theme="light"] .pw-st.done{border-color:#d4d4d8!important}

@@ -56,8 +56,8 @@
   .shell { display: flex; height: calc(100% - var(--nb, 0px)); }
   /* 공지 띠: 테마별 색(나중에 테마가 늘면 아래 토큰만 더하면 된다). 글자는 오른쪽에서 왼쪽으로 흐른다. */
   :root { --nt-bg: #1b2a4a; --nt-fg: #ffffff; }
-  :root[data-theme="light"] { --nt-bg: #9a600a; --nt-fg: #ffffff; }
-  @media (prefers-color-scheme: light) { :root[data-theme="system"] { --nt-bg: #9a600a; --nt-fg: #ffffff; } }
+  :root[data-theme="light"] { --nt-bg: #b0301a; --nt-fg: #ffffff; }
+  @media (prefers-color-scheme: light) { :root[data-theme="system"] { --nt-bg: #b0301a; --nt-fg: #ffffff; } }
   .rw-notice { z-index: 400; position: relative; overflow: hidden; background: var(--nt-bg); color: var(--nt-fg); padding: 10px 52px 10px 0; font-size: 1rem; font-weight: 600; line-height: 1.5; }
   .rw-notice .nt-track { display: flex; width: max-content; animation: nt-run var(--nt-dur, 24s) linear infinite; will-change: transform; }
   .rw-notice .nt-item { flex: none; white-space: nowrap; padding-right: 4rem; }
@@ -789,54 +789,54 @@
   .top-mode-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-right: 20px; }
 
   /* ===== 밝은 테마 ===== */
-  :root[data-theme="light"] { color-scheme: light; --bg: #f6f1e9; --bg-raised: #fffdf9; --bg-input: #efe8dc; --line: #e3d9c8; --line-strong: #cbbda6; --bg-deep: #0f0d0b;
-    --ink: #221a12; --ink-dim: #54473a; --ink-faint: #7a6c5c;
-    --amber: #9a600a; --amber-hover: #87540a; --amber-dim: #ead3a8; --amber-wash: #fbf0dc; --olive: #8a6d1f; --on-amber: #ffffff;
-    --gold: #9a600a; --gold-dim: #ead3a8; --on-gold: #ffffff;
-    --blue: #2f6fb3; --green: #3f7d34; --err: #b64532; --focus: #9a600a;
-    --status-plan: #2f6fb3; --status-making: #2f6fb3; --status-review: #9a600a; --status-final: #2f6fb3; --status-done: #3f7d34; --status-error: #b64532; }
-  @media (prefers-color-scheme: light) { :root[data-theme="system"] { color-scheme: light; --bg: #f6f1e9; --bg-raised: #fffdf9; --bg-input: #efe8dc; --line: #e3d9c8; --line-strong: #cbbda6; --bg-deep: #0f0d0b;
-    --ink: #221a12; --ink-dim: #54473a; --ink-faint: #7a6c5c;
-    --amber: #9a600a; --amber-hover: #87540a; --amber-dim: #ead3a8; --amber-wash: #fbf0dc; --olive: #8a6d1f; --on-amber: #ffffff;
-    --gold: #9a600a; --gold-dim: #ead3a8; --on-gold: #ffffff;
-    --blue: #2f6fb3; --green: #3f7d34; --err: #b64532; --focus: #9a600a;
-    --status-plan: #2f6fb3; --status-making: #2f6fb3; --status-review: #9a600a; --status-final: #2f6fb3; --status-done: #3f7d34; --status-error: #b64532; } }
-  :root[data-theme="light"] .btn-primary:hover { background: #87540a }
-  :root[data-theme="light"] .btn-ghost { border-color: #cbbda6 }
-  :root[data-theme="light"] header.shell { border-bottom-color: #e3d9c8 }
-  :root[data-theme="light"] .sidebar { background: #efe8dc; border-right-color: #e3d9c8 }
-  :root[data-theme="light"] .side-item.active, :root[data-theme="light"] .side-item:hover { background: #e9e0d1 }
-  :root[data-theme="light"] .msg .avatar { background: #e3d9c8; box-shadow: 0 0 0 1px #d6c9b4 }
-  :root[data-theme="light"] .msg.bot .bubble { color: #2d241a }
-  :root[data-theme="light"] .msg.user .bubble { background: #f6e6c8; border: 1px solid #e2c68f }
-  :root[data-theme="light"] .example-chip { border-color: #d6c9b4 }
-  :root[data-theme="light"] .chat-text-row { border: 1px solid #d6c9b4 }
-  :root[data-theme="light"] .direct-form-wrap { background: #efe8dc }
-  :root[data-theme="light"] .df-field input, :root[data-theme="light"] .df-field select, :root[data-theme="light"] .df-field textarea { border-color: #d6c9b4 }
-  :root[data-theme="light"] .split-resizer { background: #e3d9c8 }
-  :root[data-theme="light"] .split-resizer::after { background: #cbbda6 }
-  :root[data-theme="light"] .btn-line-sm { border-color: #cbbda6 }
+  :root[data-theme="light"] { color-scheme: light; --bg: #fafafa; --bg-raised: #ffffff; --bg-input: #f2f2f4; --line: #e4e4e7; --line-strong: #d4d4d8; --bg-deep: #0f0d0b;
+    --ink: #111114; --ink-dim: #3f3f46; --ink-faint: #5f5f68;
+    --amber: #b0301a; --amber-hover: #9a2a16; --amber-dim: #f6cdc2; --amber-wash: #fdf0ec; --olive: #52525b; --on-amber: #ffffff;
+    --gold: #b0301a; --gold-dim: #f6cdc2; --on-gold: #ffffff;
+    --blue: #2f6fb3; --green: #3f7d34; --err: #b64532; --focus: #b0301a;
+    --status-plan: #2f6fb3; --status-making: #2f6fb3; --status-review: #b0301a; --status-final: #2f6fb3; --status-done: #3f7d34; --status-error: #b64532; }
+  @media (prefers-color-scheme: light) { :root[data-theme="system"] { color-scheme: light; --bg: #fafafa; --bg-raised: #ffffff; --bg-input: #f2f2f4; --line: #e4e4e7; --line-strong: #d4d4d8; --bg-deep: #0f0d0b;
+    --ink: #111114; --ink-dim: #3f3f46; --ink-faint: #5f5f68;
+    --amber: #b0301a; --amber-hover: #9a2a16; --amber-dim: #f6cdc2; --amber-wash: #fdf0ec; --olive: #52525b; --on-amber: #ffffff;
+    --gold: #b0301a; --gold-dim: #f6cdc2; --on-gold: #ffffff;
+    --blue: #2f6fb3; --green: #3f7d34; --err: #b64532; --focus: #b0301a;
+    --status-plan: #2f6fb3; --status-making: #2f6fb3; --status-review: #b0301a; --status-final: #2f6fb3; --status-done: #3f7d34; --status-error: #b64532; } }
+  :root[data-theme="light"] .btn-primary:hover { background: #9a2a16 }
+  :root[data-theme="light"] .btn-ghost { border-color: #d4d4d8 }
+  :root[data-theme="light"] header.shell { border-bottom-color: #e4e4e7 }
+  :root[data-theme="light"] .sidebar { background: #f2f2f4; border-right-color: #e4e4e7 }
+  :root[data-theme="light"] .side-item.active, :root[data-theme="light"] .side-item:hover { background: #ececef }
+  :root[data-theme="light"] .msg .avatar { background: #e4e4e7; box-shadow: 0 0 0 1px #d4d4d8 }
+  :root[data-theme="light"] .msg.bot .bubble { color: #111114 }
+  :root[data-theme="light"] .msg.user .bubble { background: #f4f4f5; border: 1px solid #d4d4d8 }
+  :root[data-theme="light"] .example-chip { border-color: #d4d4d8 }
+  :root[data-theme="light"] .chat-text-row { border: 1px solid #d4d4d8 }
+  :root[data-theme="light"] .direct-form-wrap { background: #f2f2f4 }
+  :root[data-theme="light"] .df-field input, :root[data-theme="light"] .df-field select, :root[data-theme="light"] .df-field textarea { border-color: #d4d4d8 }
+  :root[data-theme="light"] .split-resizer { background: #e4e4e7 }
+  :root[data-theme="light"] .split-resizer::after { background: #d4d4d8 }
+  :root[data-theme="light"] .btn-line-sm { border-color: #d4d4d8 }
   :root[data-theme="light"] .example-chip { background: var(--bg-raised); border-color: var(--line) }
-  :root[data-theme="light"] .example-chip svg { stroke: var(--c, #7a6c5c) }
+  :root[data-theme="light"] .example-chip svg { stroke: var(--c, #5f5f68) }
   :root[data-theme="light"] .example-chip:hover { background: var(--bg-raised) }
   @media (prefers-color-scheme: light) {
-    :root[data-theme="system"] .btn-primary:hover { background: #87540a }
-    :root[data-theme="system"] .btn-ghost { border-color: #cbbda6 }
-    :root[data-theme="system"] header.shell { border-bottom-color: #e3d9c8 }
-    :root[data-theme="system"] .sidebar { background: #efe8dc; border-right-color: #e3d9c8 }
-    :root[data-theme="system"] .side-item.active, :root[data-theme="system"] .side-item:hover { background: #e9e0d1 }
-    :root[data-theme="system"] .msg .avatar { background: #e3d9c8; box-shadow: 0 0 0 1px #d6c9b4 }
-    :root[data-theme="system"] .msg.bot .bubble { color: #2d241a }
-    :root[data-theme="system"] .msg.user .bubble { background: #f6e6c8; border: 1px solid #e2c68f }
-    :root[data-theme="system"] .example-chip { border-color: #d6c9b4 }
-    :root[data-theme="system"] .chat-text-row { border: 1px solid #d6c9b4 }
-    :root[data-theme="system"] .direct-form-wrap { background: #efe8dc }
-    :root[data-theme="system"] .df-field input, :root[data-theme="system"] .df-field select, :root[data-theme="system"] .df-field textarea { border-color: #d6c9b4 }
-    :root[data-theme="system"] .split-resizer { background: #e3d9c8 }
-    :root[data-theme="system"] .split-resizer::after { background: #cbbda6 }
-    :root[data-theme="system"] .btn-line-sm { border-color: #cbbda6 }
+    :root[data-theme="system"] .btn-primary:hover { background: #9a2a16 }
+    :root[data-theme="system"] .btn-ghost { border-color: #d4d4d8 }
+    :root[data-theme="system"] header.shell { border-bottom-color: #e4e4e7 }
+    :root[data-theme="system"] .sidebar { background: #f2f2f4; border-right-color: #e4e4e7 }
+    :root[data-theme="system"] .side-item.active, :root[data-theme="system"] .side-item:hover { background: #ececef }
+    :root[data-theme="system"] .msg .avatar { background: #e4e4e7; box-shadow: 0 0 0 1px #d4d4d8 }
+    :root[data-theme="system"] .msg.bot .bubble { color: #111114 }
+    :root[data-theme="system"] .msg.user .bubble { background: #f4f4f5; border: 1px solid #d4d4d8 }
+    :root[data-theme="system"] .example-chip { border-color: #d4d4d8 }
+    :root[data-theme="system"] .chat-text-row { border: 1px solid #d4d4d8 }
+    :root[data-theme="system"] .direct-form-wrap { background: #f2f2f4 }
+    :root[data-theme="system"] .df-field input, :root[data-theme="system"] .df-field select, :root[data-theme="system"] .df-field textarea { border-color: #d4d4d8 }
+    :root[data-theme="system"] .split-resizer { background: #e4e4e7 }
+    :root[data-theme="system"] .split-resizer::after { background: #d4d4d8 }
+    :root[data-theme="system"] .btn-line-sm { border-color: #d4d4d8 }
     :root[data-theme="system"] .example-chip { background: var(--bg-raised); border-color: var(--line) }
-    :root[data-theme="system"] .example-chip svg { stroke: var(--c, #7a6c5c) }
+    :root[data-theme="system"] .example-chip svg { stroke: var(--c, #5f5f68) }
     :root[data-theme="system"] .example-chip:hover { background: var(--bg-raised) }
   }
   :root[data-theme="light"] .side-item .ico svg, :root[data-theme="light"] .example-chip svg { stroke: color-mix(in srgb, var(--c) 72%, #000); }
@@ -1982,104 +1982,104 @@
 
   /* ===== [11-08] 밝은 테마: 직접 설정하기를 흰 카드 판으로(어두운 테마의 남색 판 대신). 역할은 같다: 파랑 = 고른 것, 진한 호박 = 제목, 주황 = 번호·안내 ===== */
   html[data-theme="light"] .direct-form-wrap { background-image: none !important; }
-  html[data-theme="light"] #df-fields.pw-on > .df-sec.pw-cur, html[data-theme="light"] #df-fields.pw-on > .sc-card, html[data-theme="light"] .df-price, html[data-theme="light"] .df-tabs, html[data-theme="light"] .pw-bar, html[data-theme="light"] #df-fields .rf-box { background: #fff !important; border: 1px solid #e6dfd2 !important; box-shadow: 0 1px 2px rgba(60,40,10,.06), 0 6px 18px rgba(60,40,10,.06) !important; color: #2d241a; }
+  html[data-theme="light"] #df-fields.pw-on > .df-sec.pw-cur, html[data-theme="light"] #df-fields.pw-on > .sc-card, html[data-theme="light"] .df-price, html[data-theme="light"] .df-tabs, html[data-theme="light"] .pw-bar, html[data-theme="light"] #df-fields .rf-box { background: #fff !important; border: 1px solid #e4e4e7 !important; box-shadow: 0 1px 2px rgba(0,0,0,.06), 0 6px 18px rgba(0,0,0,.06) !important; color: #111114; }
   html[data-theme="light"] #df-fields.pw-on > .df-sec.pw-cur::after, html[data-theme="light"] .direct-form-inner > h2::after { display: none; }
-  html[data-theme="light"] #df-fields .df-sec-head h3, html[data-theme="light"] .pw-title b, html[data-theme="light"] #df-fields .rf-head h4, html[data-theme="light"] #df-fields > .sc-card h3 { color: #9a5b00 !important; }
-  html[data-theme="light"] #df-fields .df-sec-head p, html[data-theme="light"] #df-fields .df-hint, html[data-theme="light"] #df-fields small, html[data-theme="light"] #df-fields label, html[data-theme="light"] #df-fields .df-field > span, html[data-theme="light"] #df-fields p { color: #5a4e40; }
-  html[data-theme="light"] #df-fields.pw-on .df-sec-ico { background: #f3eee5 !important; color: #9a5b00; }
-  html[data-theme="light"] .pw-bar .pw-title, html[data-theme="light"] .pw-bar .pw-title .pw-pos em { color: #2d241a; }
-  html[data-theme="light"] .pw-holes { background: repeating-linear-gradient(90deg, #ece5d8 0 10px, transparent 10px 22px) !important; }
-  html[data-theme="light"] .pw-st { background: #faf7f1 !important; border: 1px solid #e6dfd2 !important; color: #8a7d6b; box-shadow: none !important; }
-  html[data-theme="light"] .pw-st.done { background: #eef3ff !important; color: #2a4fb0; }
-  html[data-theme="light"] .pw-st.cur { background: #e3ecff !important; border: 1.5px solid #3b6fe0 !important; color: #1d3f9e; box-shadow: 0 0 0 3px rgba(59,111,224,.15) !important; }
-  html[data-theme="light"] .df-tabs .df-tab { background: transparent !important; border-color: transparent !important; color: #6b5e4d !important; box-shadow: none !important; filter: none !important; }
-  html[data-theme="light"] .df-tabs .df-tab.active { background: #3b6fe0 !important; color: #fff !important; }
-  html[data-theme="light"] #df-fields.pw-on .df-types .tcard, html[data-theme="light"] #df-fields.pw-on .df-chipset .tcard, html[data-theme="light"] #df-fields.pw-on #gn-forms .tcard, html[data-theme="light"] #df-fields .lp-opt .tcard, html[data-theme="light"] #df-fields .df-comp .ccard, html[data-theme="light"] #df-fields .mood-card, html[data-theme="light"] #df-fields > .sc-card.gn-script .sc-opts button { background: #fff !important; border-color: #e3dccf !important; box-shadow: none !important; color: #2d241a !important; filter: none !important; }
-  html[data-theme="light"] #df-fields.pw-on .df-types .tcard b, html[data-theme="light"] #df-fields.pw-on .df-chipset .tcard b { color: #2d241a; }
-  html[data-theme="light"] #df-fields.pw-on .df-types .tcard small, html[data-theme="light"] #df-fields.pw-on .df-chipset .tcard small { color: #6b5e4d; }
-  html[data-theme="light"] #df-fields.pw-on .df-types .tcard:hover, html[data-theme="light"] #df-fields.pw-on .df-chipset .tcard:hover, html[data-theme="light"] #df-fields .lp-opt .tcard:hover, html[data-theme="light"] #df-fields .mood-card:hover, html[data-theme="light"] #df-fields > .sc-card.gn-script .sc-opts button:hover { border-color: #9db7ef !important; }
-  html[data-theme="light"] #df-fields input:checked + .tcard, html[data-theme="light"] #df-fields input:checked + .ccard, html[data-theme="light"] #df-fields input:checked + .mood-card, html[data-theme="light"] #df-fields > .sc-card.gn-script .sc-opts button[aria-pressed="true"] { background: #eef3ff !important; border-color: #3b6fe0 !important; box-shadow: 0 0 0 1px #3b6fe0 !important; color: #1d3f9e !important; }
-  html[data-theme="light"] #df-fields.pw-on .df-types .tcard .ti { background: color-mix(in srgb, var(--tc, #3b6fe0) 14%, #fff) !important; border-color: color-mix(in srgb, var(--tc, #3b6fe0) 40%, #fff) !important; color: color-mix(in srgb, var(--tc, #3b6fe0) 85%, #000) !important; }
-  html[data-theme="light"] #df-fields.pw-on #gn-forms .tcard .ti, html[data-theme="light"] #df-fields.pw-on .df-chipset .tcard .ti { background: #f3eee5 !important; color: #6b5e4d !important; border-color: #e6dfd2 !important; }
-  html[data-theme="light"] #df-fields .df-field input:not([type=radio]):not([type=checkbox]):not([type=range]), html[data-theme="light"] #df-fields .df-field textarea, html[data-theme="light"] #df-fields .df-field select, html[data-theme="light"] #df-fields .rf-in { background: #fffdf9 !important; border: 1px solid #d9d0c0 !important; color: #2d241a !important; }
-  html[data-theme="light"] #df-fields .rf-btn, html[data-theme="light"] .pw-nav .pw-prev { background: #fff !important; border-color: #d9d0c0 !important; color: #5a4e40 !important; }
-  html[data-theme="light"] #df-fields.pw-on .pimg-card, html[data-theme="light"] #df-fields.pw-on .pimg-add, html[data-theme="light"] .cz-entry { background: #fffdf9 !important; border-color: #e3dccf !important; color: #2d241a !important; box-shadow: none !important; }
-  html[data-theme="light"] #df-fields.pw-on .pimg-th, html[data-theme="light"] .cz-entry-ico { background: #f3eee5 !important; color: #6b5e4d !important; }
-  html[data-theme="light"] #df-fields.pw-on .pimg-card b, html[data-theme="light"] .cz-entry-txt b, html[data-theme="light"] .cz-entry-txt strong { color: #2d241a !important; }
-  html[data-theme="light"] .cz-entry-txt .cz-sum { background: #f3eee5 !important; color: #5a4e40 !important; }
-  html[data-theme="light"] #df-fields.pw-on .len-chips button, html[data-theme="light"] #df-fields.pw-on .len-chips label, html[data-theme="light"] #df-fields .len-chip { background: #fff !important; border: 1px solid #d9d0c0 !important; color: #5a4e40 !important; box-shadow: none !important; }
-  html[data-theme="light"] #df-fields.pw-on .len-chips .len-chip.on, html[data-theme="light"] #df-fields .len-chip.on { background: #fff4e0 !important; border: 1.5px solid #d98a1c !important; color: #8a4b00 !important; }
-  html[data-theme="light"] .df-price b, html[data-theme="light"] .df-price strong, html[data-theme="light"] .df-price em { color: #9a5b00 !important; text-shadow: none !important; }
-  html[data-theme="light"] #df-fields > .sc-card.gn-script > h4, html[data-theme="light"] #df-fields h4 { color: #9a5b00 !important; }
-  html[data-theme="light"] #df-fields .df-field .req { color: #b45309 !important; background: #fff1dc !important; }
-  html[data-theme="light"] .df-price .amt .val { color: #9a5b00 !important; text-shadow: none !important; }
-  html[data-theme="light"] #df-fields > .sc-card.gn-script .sc-hint { background: #fff4e0 !important; color: #8a4b00 !important; border-color: #f0c98a !important; }
-  html[data-theme="light"] #df-fields.pw-on .vp-chip[aria-pressed="true"] { background: #fff4e0 !important; color: #8a4b00 !important; border-color: #d98a1c !important; }
-  html[data-theme="light"] #df-fields.pw-on .vp-pv-txt b { color: #9a5b00 !important; }
-  html[data-theme="light"] #df-fields.pw-on .vp-card, html[data-theme="light"] #df-fields.pw-on .vp-more, html[data-theme="light"] #df-fields.pw-on .df-voicesec .df-field, html[data-theme="light"] #df-fields.pw-on .df-gender .df-field { background: #fff !important; border-color: #e3dccf !important; color: #2d241a !important; box-shadow: none !important; }
-  html[data-theme="light"] #df-fields.pw-on .vp-card *, html[data-theme="light"] #df-fields.pw-on .vp-more { color: #2d241a; }
-  html[data-theme="light"] #df-fields.pw-on .vp-card[aria-pressed="true"] { background: #eef3ff !important; border-color: #3b6fe0 !important; box-shadow: 0 0 0 1px #3b6fe0 !important; }
-  html[data-theme="light"] #df-fields.pw-on .vp-auto { background: #fff4e0 !important; border-color: #d98a1c !important; color: #2d241a !important; box-shadow: none !important; }
-  html[data-theme="light"] #df-fields.pw-on .vp-auto * { color: #5a3a00; }
-  html[data-theme="light"] #df-fields.pw-on .vp-chip:not([aria-pressed="true"]) { background: #fff !important; border: 1px solid #d9d0c0 !important; color: #5a4e40 !important; }
-  html[data-theme="light"] #df-fields.pw-on .df-voice .df-comp .ccard .ci { background: #f3eee5 !important; color: #6b5e4d !important; }
-  html[data-theme="light"] #df-fields.pw-on .df-voice .vp-row label, html[data-theme="light"] #df-fields.pw-on .df-voice .df-field > label { color: #2d241a !important; }
-  html[data-theme="light"] #df-fields.pw-on .vp-play { background: #fff4e0 !important; color: #8a4b00 !important; border: 1px solid #f0c98a !important; }
-  html[data-theme="light"] #df-fields.pw-on .df-voice .vp-r, html[data-theme="light"] #df-fields.pw-on .df-voice .vp-w { color: #6b5e4d !important; }
-  html[data-theme="light"] #df-fields.pw-on .vp-speed[data-vp="speed"] .vp-ticks span { color: #5a4e40 !important; }
+  html[data-theme="light"] #df-fields .df-sec-head h3, html[data-theme="light"] .pw-title b, html[data-theme="light"] #df-fields .rf-head h4, html[data-theme="light"] #df-fields > .sc-card h3 { color: #b0301a !important; }
+  html[data-theme="light"] #df-fields .df-sec-head p, html[data-theme="light"] #df-fields .df-hint, html[data-theme="light"] #df-fields small, html[data-theme="light"] #df-fields label, html[data-theme="light"] #df-fields .df-field > span, html[data-theme="light"] #df-fields p { color: #3f3f46; }
+  html[data-theme="light"] #df-fields.pw-on .df-sec-ico { background: #f4f4f5 !important; color: #b0301a; }
+  html[data-theme="light"] .pw-bar .pw-title, html[data-theme="light"] .pw-bar .pw-title .pw-pos em { color: #111114; }
+  html[data-theme="light"] .pw-holes { background: repeating-linear-gradient(90deg, #e4e4e7 0 10px, transparent 10px 22px) !important; }
+  html[data-theme="light"] .pw-st { background: #ffffff !important; border: 1px solid #e4e4e7 !important; color: #52525b; box-shadow: none !important; }
+  html[data-theme="light"] .pw-st.done { background: #f2f2f4 !important; color: #3f3f46; }
+  html[data-theme="light"] .pw-st.cur { background: #ececef !important; border: 1.5px solid #111114 !important; color: #111114; box-shadow: 0 0 0 3px rgba(17,17,20,.15) !important; }
+  html[data-theme="light"] .df-tabs .df-tab { background: transparent !important; border-color: transparent !important; color: #52525b !important; box-shadow: none !important; filter: none !important; }
+  html[data-theme="light"] .df-tabs .df-tab.active { background: #111114 !important; color: #fff !important; }
+  html[data-theme="light"] #df-fields.pw-on .df-types .tcard, html[data-theme="light"] #df-fields.pw-on .df-chipset .tcard, html[data-theme="light"] #df-fields.pw-on #gn-forms .tcard, html[data-theme="light"] #df-fields .lp-opt .tcard, html[data-theme="light"] #df-fields .df-comp .ccard, html[data-theme="light"] #df-fields .mood-card, html[data-theme="light"] #df-fields > .sc-card.gn-script .sc-opts button { background: #fff !important; border-color: #e4e4e7 !important; box-shadow: none !important; color: #111114 !important; filter: none !important; }
+  html[data-theme="light"] #df-fields.pw-on .df-types .tcard b, html[data-theme="light"] #df-fields.pw-on .df-chipset .tcard b { color: #111114; }
+  html[data-theme="light"] #df-fields.pw-on .df-types .tcard small, html[data-theme="light"] #df-fields.pw-on .df-chipset .tcard small { color: #52525b; }
+  html[data-theme="light"] #df-fields.pw-on .df-types .tcard:hover, html[data-theme="light"] #df-fields.pw-on .df-chipset .tcard:hover, html[data-theme="light"] #df-fields .lp-opt .tcard:hover, html[data-theme="light"] #df-fields .mood-card:hover, html[data-theme="light"] #df-fields > .sc-card.gn-script .sc-opts button:hover { border-color: #a1a1aa !important; }
+  html[data-theme="light"] #df-fields input:checked + .tcard, html[data-theme="light"] #df-fields input:checked + .ccard, html[data-theme="light"] #df-fields input:checked + .mood-card, html[data-theme="light"] #df-fields > .sc-card.gn-script .sc-opts button[aria-pressed="true"] { background: #f2f2f4 !important; border-color: #111114 !important; box-shadow: 0 0 0 1px #111114 !important; color: #111114 !important; }
+  html[data-theme="light"] #df-fields.pw-on .df-types .tcard .ti { background: color-mix(in srgb, var(--tc, #111114) 14%, #fff) !important; border-color: color-mix(in srgb, var(--tc, #111114) 40%, #fff) !important; color: color-mix(in srgb, var(--tc, #111114) 85%, #000) !important; }
+  html[data-theme="light"] #df-fields.pw-on #gn-forms .tcard .ti, html[data-theme="light"] #df-fields.pw-on .df-chipset .tcard .ti { background: #f4f4f5 !important; color: #52525b !important; border-color: #e4e4e7 !important; }
+  html[data-theme="light"] #df-fields .df-field input:not([type=radio]):not([type=checkbox]):not([type=range]), html[data-theme="light"] #df-fields .df-field textarea, html[data-theme="light"] #df-fields .df-field select, html[data-theme="light"] #df-fields .rf-in { background: #ffffff !important; border: 1px solid #d4d4d8 !important; color: #111114 !important; }
+  html[data-theme="light"] #df-fields .rf-btn, html[data-theme="light"] .pw-nav .pw-prev { background: #fff !important; border-color: #d4d4d8 !important; color: #3f3f46 !important; }
+  html[data-theme="light"] #df-fields.pw-on .pimg-card, html[data-theme="light"] #df-fields.pw-on .pimg-add, html[data-theme="light"] .cz-entry { background: #ffffff !important; border-color: #e4e4e7 !important; color: #111114 !important; box-shadow: none !important; }
+  html[data-theme="light"] #df-fields.pw-on .pimg-th, html[data-theme="light"] .cz-entry-ico { background: #f4f4f5 !important; color: #52525b !important; }
+  html[data-theme="light"] #df-fields.pw-on .pimg-card b, html[data-theme="light"] .cz-entry-txt b, html[data-theme="light"] .cz-entry-txt strong { color: #111114 !important; }
+  html[data-theme="light"] .cz-entry-txt .cz-sum { background: #f4f4f5 !important; color: #3f3f46 !important; }
+  html[data-theme="light"] #df-fields.pw-on .len-chips button, html[data-theme="light"] #df-fields.pw-on .len-chips label, html[data-theme="light"] #df-fields .len-chip { background: #fff !important; border: 1px solid #d4d4d8 !important; color: #3f3f46 !important; box-shadow: none !important; }
+  html[data-theme="light"] #df-fields.pw-on .len-chips .len-chip.on, html[data-theme="light"] #df-fields .len-chip.on { background: #fdf0ec !important; border: 1.5px solid #111114 !important; color: #9a2a16 !important; }
+  html[data-theme="light"] .df-price b, html[data-theme="light"] .df-price strong, html[data-theme="light"] .df-price em { color: #b0301a !important; text-shadow: none !important; }
+  html[data-theme="light"] #df-fields > .sc-card.gn-script > h4, html[data-theme="light"] #df-fields h4 { color: #b0301a !important; }
+  html[data-theme="light"] #df-fields .df-field .req { color: #b0301a !important; background: #fdf0ec !important; }
+  html[data-theme="light"] .df-price .amt .val { color: #b0301a !important; text-shadow: none !important; }
+  html[data-theme="light"] #df-fields > .sc-card.gn-script .sc-hint { background: #fdf0ec !important; color: #9a2a16 !important; border-color: #d4d4d8 !important; }
+  html[data-theme="light"] #df-fields.pw-on .vp-chip[aria-pressed="true"] { background: #fdf0ec !important; color: #9a2a16 !important; border-color: #111114 !important; }
+  html[data-theme="light"] #df-fields.pw-on .vp-pv-txt b { color: #b0301a !important; }
+  html[data-theme="light"] #df-fields.pw-on .vp-card, html[data-theme="light"] #df-fields.pw-on .vp-more, html[data-theme="light"] #df-fields.pw-on .df-voicesec .df-field, html[data-theme="light"] #df-fields.pw-on .df-gender .df-field { background: #fff !important; border-color: #e4e4e7 !important; color: #111114 !important; box-shadow: none !important; }
+  html[data-theme="light"] #df-fields.pw-on .vp-card *, html[data-theme="light"] #df-fields.pw-on .vp-more { color: #111114; }
+  html[data-theme="light"] #df-fields.pw-on .vp-card[aria-pressed="true"] { background: #f2f2f4 !important; border-color: #111114 !important; box-shadow: 0 0 0 1px #111114 !important; }
+  html[data-theme="light"] #df-fields.pw-on .vp-auto { background: #fdf0ec !important; border-color: #111114 !important; color: #111114 !important; box-shadow: none !important; }
+  html[data-theme="light"] #df-fields.pw-on .vp-auto * { color: #3f3f46; }
+  html[data-theme="light"] #df-fields.pw-on .vp-chip:not([aria-pressed="true"]) { background: #fff !important; border: 1px solid #d4d4d8 !important; color: #3f3f46 !important; }
+  html[data-theme="light"] #df-fields.pw-on .df-voice .df-comp .ccard .ci { background: #f4f4f5 !important; color: #52525b !important; }
+  html[data-theme="light"] #df-fields.pw-on .df-voice .vp-row label, html[data-theme="light"] #df-fields.pw-on .df-voice .df-field > label { color: #111114 !important; }
+  html[data-theme="light"] #df-fields.pw-on .vp-play { background: #fdf0ec !important; color: #9a2a16 !important; border: 1px solid #d4d4d8 !important; }
+  html[data-theme="light"] #df-fields.pw-on .df-voice .vp-r, html[data-theme="light"] #df-fields.pw-on .df-voice .vp-w { color: #52525b !important; }
+  html[data-theme="light"] #df-fields.pw-on .vp-speed[data-vp="speed"] .vp-ticks span { color: #3f3f46 !important; }
   html[data-theme="light"] #df-fields.pw-on .vp-speed[data-vp="speed"] .vp-ticks span::before { background: #c9bfae !important; }
-  html[data-theme="light"] #df-fields.pw-on .vp-speed[data-vp="speed"] .vp-ticks span.on { color: #9a5b00 !important; }
-  html[data-theme="light"] #df-fields.pw-on .vp-speed[data-vp="speed"] .vp-ticks span.on::before { background: #d98a1c !important; }
+  html[data-theme="light"] #df-fields.pw-on .vp-speed[data-vp="speed"] .vp-ticks span.on { color: #b0301a !important; }
+  html[data-theme="light"] #df-fields.pw-on .vp-speed[data-vp="speed"] .vp-ticks span.on::before { background: #111114 !important; }
   @media (prefers-color-scheme: light) {
-    html[data-theme="system"] #df-fields.pw-on .vp-speed[data-vp="speed"] .vp-ticks span { color: #5a4e40 !important; }
+    html[data-theme="system"] #df-fields.pw-on .vp-speed[data-vp="speed"] .vp-ticks span { color: #3f3f46 !important; }
     html[data-theme="system"] #df-fields.pw-on .vp-speed[data-vp="speed"] .vp-ticks span::before { background: #c9bfae !important; }
-    html[data-theme="system"] #df-fields.pw-on .vp-speed[data-vp="speed"] .vp-ticks span.on { color: #9a5b00 !important; }
-    html[data-theme="system"] #df-fields.pw-on .vp-speed[data-vp="speed"] .vp-ticks span.on::before { background: #d98a1c !important; }
-    html[data-theme="system"] #df-fields.pw-on .df-voice .vp-row label, html[data-theme="system"] #df-fields.pw-on .df-voice .df-field > label { color: #2d241a !important; }
-    html[data-theme="system"] #df-fields.pw-on .vp-play { background: #fff4e0 !important; color: #8a4b00 !important; border: 1px solid #f0c98a !important; }
-    html[data-theme="system"] #df-fields.pw-on .df-voice .vp-r, html[data-theme="system"] #df-fields.pw-on .df-voice .vp-w { color: #6b5e4d !important; }
-    html[data-theme="system"] #df-fields.pw-on .vp-card, html[data-theme="system"] #df-fields.pw-on .vp-more, html[data-theme="system"] #df-fields.pw-on .df-voicesec .df-field, html[data-theme="system"] #df-fields.pw-on .df-gender .df-field { background: #fff !important; border-color: #e3dccf !important; color: #2d241a !important; box-shadow: none !important; }
-    html[data-theme="system"] #df-fields.pw-on .vp-card *, html[data-theme="system"] #df-fields.pw-on .vp-more { color: #2d241a; }
-    html[data-theme="system"] #df-fields.pw-on .vp-card[aria-pressed="true"] { background: #eef3ff !important; border-color: #3b6fe0 !important; box-shadow: 0 0 0 1px #3b6fe0 !important; }
-    html[data-theme="system"] #df-fields.pw-on .vp-auto { background: #fff4e0 !important; border-color: #d98a1c !important; color: #2d241a !important; box-shadow: none !important; }
-    html[data-theme="system"] #df-fields.pw-on .vp-auto * { color: #5a3a00; }
-    html[data-theme="system"] #df-fields.pw-on .vp-chip:not([aria-pressed="true"]) { background: #fff !important; border: 1px solid #d9d0c0 !important; color: #5a4e40 !important; }
-    html[data-theme="system"] #df-fields.pw-on .df-voice .df-comp .ccard .ci { background: #f3eee5 !important; color: #6b5e4d !important; }
-    html[data-theme="system"] #df-fields > .sc-card.gn-script > h4, html[data-theme="system"] #df-fields h4 { color: #9a5b00 !important; }
-    html[data-theme="system"] #df-fields .df-field .req { color: #b45309 !important; background: #fff1dc !important; }
-    html[data-theme="system"] .df-price .amt .val { color: #9a5b00 !important; text-shadow: none !important; }
-    html[data-theme="system"] #df-fields > .sc-card.gn-script .sc-hint { background: #fff4e0 !important; color: #8a4b00 !important; border-color: #f0c98a !important; }
-    html[data-theme="system"] #df-fields.pw-on .vp-chip[aria-pressed="true"] { background: #fff4e0 !important; color: #8a4b00 !important; border-color: #d98a1c !important; }
-    html[data-theme="system"] #df-fields.pw-on .vp-pv-txt b { color: #9a5b00 !important; }
-    html[data-theme="system"] #df-fields.pw-on .pimg-card, html[data-theme="system"] #df-fields.pw-on .pimg-add, html[data-theme="system"] .cz-entry { background: #fffdf9 !important; border-color: #e3dccf !important; color: #2d241a !important; box-shadow: none !important; }
-    html[data-theme="system"] #df-fields.pw-on .pimg-th, html[data-theme="system"] .cz-entry-ico { background: #f3eee5 !important; color: #6b5e4d !important; }
-    html[data-theme="system"] #df-fields.pw-on .pimg-card b, html[data-theme="system"] .cz-entry-txt b, html[data-theme="system"] .cz-entry-txt strong { color: #2d241a !important; }
-    html[data-theme="system"] .cz-entry-txt .cz-sum { background: #f3eee5 !important; color: #5a4e40 !important; }
-    html[data-theme="system"] #df-fields.pw-on .len-chips button, html[data-theme="system"] #df-fields.pw-on .len-chips label, html[data-theme="system"] #df-fields .len-chip { background: #fff !important; border: 1px solid #d9d0c0 !important; color: #5a4e40 !important; box-shadow: none !important; }
-    html[data-theme="system"] #df-fields.pw-on .len-chips .len-chip.on, html[data-theme="system"] #df-fields .len-chip.on { background: #fff4e0 !important; border: 1.5px solid #d98a1c !important; color: #8a4b00 !important; }
-    html[data-theme="system"] .df-price b, html[data-theme="system"] .df-price strong, html[data-theme="system"] .df-price em { color: #9a5b00 !important; text-shadow: none !important; }
+    html[data-theme="system"] #df-fields.pw-on .vp-speed[data-vp="speed"] .vp-ticks span.on { color: #b0301a !important; }
+    html[data-theme="system"] #df-fields.pw-on .vp-speed[data-vp="speed"] .vp-ticks span.on::before { background: #111114 !important; }
+    html[data-theme="system"] #df-fields.pw-on .df-voice .vp-row label, html[data-theme="system"] #df-fields.pw-on .df-voice .df-field > label { color: #111114 !important; }
+    html[data-theme="system"] #df-fields.pw-on .vp-play { background: #fdf0ec !important; color: #9a2a16 !important; border: 1px solid #d4d4d8 !important; }
+    html[data-theme="system"] #df-fields.pw-on .df-voice .vp-r, html[data-theme="system"] #df-fields.pw-on .df-voice .vp-w { color: #52525b !important; }
+    html[data-theme="system"] #df-fields.pw-on .vp-card, html[data-theme="system"] #df-fields.pw-on .vp-more, html[data-theme="system"] #df-fields.pw-on .df-voicesec .df-field, html[data-theme="system"] #df-fields.pw-on .df-gender .df-field { background: #fff !important; border-color: #e4e4e7 !important; color: #111114 !important; box-shadow: none !important; }
+    html[data-theme="system"] #df-fields.pw-on .vp-card *, html[data-theme="system"] #df-fields.pw-on .vp-more { color: #111114; }
+    html[data-theme="system"] #df-fields.pw-on .vp-card[aria-pressed="true"] { background: #f2f2f4 !important; border-color: #111114 !important; box-shadow: 0 0 0 1px #111114 !important; }
+    html[data-theme="system"] #df-fields.pw-on .vp-auto { background: #fdf0ec !important; border-color: #111114 !important; color: #111114 !important; box-shadow: none !important; }
+    html[data-theme="system"] #df-fields.pw-on .vp-auto * { color: #3f3f46; }
+    html[data-theme="system"] #df-fields.pw-on .vp-chip:not([aria-pressed="true"]) { background: #fff !important; border: 1px solid #d4d4d8 !important; color: #3f3f46 !important; }
+    html[data-theme="system"] #df-fields.pw-on .df-voice .df-comp .ccard .ci { background: #f4f4f5 !important; color: #52525b !important; }
+    html[data-theme="system"] #df-fields > .sc-card.gn-script > h4, html[data-theme="system"] #df-fields h4 { color: #b0301a !important; }
+    html[data-theme="system"] #df-fields .df-field .req { color: #b0301a !important; background: #fdf0ec !important; }
+    html[data-theme="system"] .df-price .amt .val { color: #b0301a !important; text-shadow: none !important; }
+    html[data-theme="system"] #df-fields > .sc-card.gn-script .sc-hint { background: #fdf0ec !important; color: #9a2a16 !important; border-color: #d4d4d8 !important; }
+    html[data-theme="system"] #df-fields.pw-on .vp-chip[aria-pressed="true"] { background: #fdf0ec !important; color: #9a2a16 !important; border-color: #111114 !important; }
+    html[data-theme="system"] #df-fields.pw-on .vp-pv-txt b { color: #b0301a !important; }
+    html[data-theme="system"] #df-fields.pw-on .pimg-card, html[data-theme="system"] #df-fields.pw-on .pimg-add, html[data-theme="system"] .cz-entry { background: #ffffff !important; border-color: #e4e4e7 !important; color: #111114 !important; box-shadow: none !important; }
+    html[data-theme="system"] #df-fields.pw-on .pimg-th, html[data-theme="system"] .cz-entry-ico { background: #f4f4f5 !important; color: #52525b !important; }
+    html[data-theme="system"] #df-fields.pw-on .pimg-card b, html[data-theme="system"] .cz-entry-txt b, html[data-theme="system"] .cz-entry-txt strong { color: #111114 !important; }
+    html[data-theme="system"] .cz-entry-txt .cz-sum { background: #f4f4f5 !important; color: #3f3f46 !important; }
+    html[data-theme="system"] #df-fields.pw-on .len-chips button, html[data-theme="system"] #df-fields.pw-on .len-chips label, html[data-theme="system"] #df-fields .len-chip { background: #fff !important; border: 1px solid #d4d4d8 !important; color: #3f3f46 !important; box-shadow: none !important; }
+    html[data-theme="system"] #df-fields.pw-on .len-chips .len-chip.on, html[data-theme="system"] #df-fields .len-chip.on { background: #fdf0ec !important; border: 1.5px solid #111114 !important; color: #9a2a16 !important; }
+    html[data-theme="system"] .df-price b, html[data-theme="system"] .df-price strong, html[data-theme="system"] .df-price em { color: #b0301a !important; text-shadow: none !important; }
     html[data-theme="system"] .direct-form-wrap { background-image: none !important; }
-    html[data-theme="system"] #df-fields.pw-on > .df-sec.pw-cur, html[data-theme="system"] #df-fields.pw-on > .sc-card, html[data-theme="system"] .df-price, html[data-theme="system"] .df-tabs, html[data-theme="system"] .pw-bar, html[data-theme="system"] #df-fields .rf-box { background: #fff !important; border: 1px solid #e6dfd2 !important; box-shadow: 0 1px 2px rgba(60,40,10,.06), 0 6px 18px rgba(60,40,10,.06) !important; color: #2d241a; }
+    html[data-theme="system"] #df-fields.pw-on > .df-sec.pw-cur, html[data-theme="system"] #df-fields.pw-on > .sc-card, html[data-theme="system"] .df-price, html[data-theme="system"] .df-tabs, html[data-theme="system"] .pw-bar, html[data-theme="system"] #df-fields .rf-box { background: #fff !important; border: 1px solid #e4e4e7 !important; box-shadow: 0 1px 2px rgba(0,0,0,.06), 0 6px 18px rgba(0,0,0,.06) !important; color: #111114; }
     html[data-theme="system"] #df-fields.pw-on > .df-sec.pw-cur::after, html[data-theme="system"] .direct-form-inner > h2::after { display: none; }
-    html[data-theme="system"] #df-fields .df-sec-head h3, html[data-theme="system"] .pw-title b, html[data-theme="system"] #df-fields .rf-head h4, html[data-theme="system"] #df-fields > .sc-card h3 { color: #9a5b00 !important; }
-    html[data-theme="system"] #df-fields .df-sec-head p, html[data-theme="system"] #df-fields .df-hint, html[data-theme="system"] #df-fields small, html[data-theme="system"] #df-fields label, html[data-theme="system"] #df-fields .df-field > span, html[data-theme="system"] #df-fields p { color: #5a4e40; }
-    html[data-theme="system"] #df-fields.pw-on .df-sec-ico { background: #f3eee5 !important; color: #9a5b00; }
-    html[data-theme="system"] .pw-bar .pw-title, html[data-theme="system"] .pw-bar .pw-title .pw-pos em { color: #2d241a; }
-    html[data-theme="system"] .pw-holes { background: repeating-linear-gradient(90deg, #ece5d8 0 10px, transparent 10px 22px) !important; }
-    html[data-theme="system"] .pw-st { background: #faf7f1 !important; border: 1px solid #e6dfd2 !important; color: #8a7d6b; box-shadow: none !important; }
-    html[data-theme="system"] .pw-st.done { background: #eef3ff !important; color: #2a4fb0; }
-    html[data-theme="system"] .pw-st.cur { background: #e3ecff !important; border: 1.5px solid #3b6fe0 !important; color: #1d3f9e; box-shadow: 0 0 0 3px rgba(59,111,224,.15) !important; }
-    html[data-theme="system"] .df-tabs .df-tab { background: transparent !important; border-color: transparent !important; color: #6b5e4d !important; box-shadow: none !important; filter: none !important; }
-    html[data-theme="system"] .df-tabs .df-tab.active { background: #3b6fe0 !important; color: #fff !important; }
-    html[data-theme="system"] #df-fields.pw-on .df-types .tcard, html[data-theme="system"] #df-fields.pw-on .df-chipset .tcard, html[data-theme="system"] #df-fields.pw-on #gn-forms .tcard, html[data-theme="system"] #df-fields .lp-opt .tcard, html[data-theme="system"] #df-fields .df-comp .ccard, html[data-theme="system"] #df-fields .mood-card, html[data-theme="system"] #df-fields > .sc-card.gn-script .sc-opts button { background: #fff !important; border-color: #e3dccf !important; box-shadow: none !important; color: #2d241a !important; filter: none !important; }
-    html[data-theme="system"] #df-fields.pw-on .df-types .tcard b, html[data-theme="system"] #df-fields.pw-on .df-chipset .tcard b { color: #2d241a; }
-    html[data-theme="system"] #df-fields.pw-on .df-types .tcard small, html[data-theme="system"] #df-fields.pw-on .df-chipset .tcard small { color: #6b5e4d; }
-    html[data-theme="system"] #df-fields.pw-on .df-types .tcard:hover, html[data-theme="system"] #df-fields.pw-on .df-chipset .tcard:hover, html[data-theme="system"] #df-fields .lp-opt .tcard:hover, html[data-theme="system"] #df-fields .mood-card:hover, html[data-theme="system"] #df-fields > .sc-card.gn-script .sc-opts button:hover { border-color: #9db7ef !important; }
-    html[data-theme="system"] #df-fields input:checked + .tcard, html[data-theme="system"] #df-fields input:checked + .ccard, html[data-theme="system"] #df-fields input:checked + .mood-card, html[data-theme="system"] #df-fields > .sc-card.gn-script .sc-opts button[aria-pressed="true"] { background: #eef3ff !important; border-color: #3b6fe0 !important; box-shadow: 0 0 0 1px #3b6fe0 !important; color: #1d3f9e !important; }
-    html[data-theme="system"] #df-fields.pw-on .df-types .tcard .ti { background: color-mix(in srgb, var(--tc, #3b6fe0) 14%, #fff) !important; border-color: color-mix(in srgb, var(--tc, #3b6fe0) 40%, #fff) !important; color: color-mix(in srgb, var(--tc, #3b6fe0) 85%, #000) !important; }
-    html[data-theme="system"] #df-fields.pw-on #gn-forms .tcard .ti, html[data-theme="system"] #df-fields.pw-on .df-chipset .tcard .ti { background: #f3eee5 !important; color: #6b5e4d !important; border-color: #e6dfd2 !important; }
-    html[data-theme="system"] #df-fields .df-field input:not([type=radio]):not([type=checkbox]):not([type=range]), html[data-theme="system"] #df-fields .df-field textarea, html[data-theme="system"] #df-fields .df-field select, html[data-theme="system"] #df-fields .rf-in { background: #fffdf9 !important; border: 1px solid #d9d0c0 !important; color: #2d241a !important; }
-    html[data-theme="system"] #df-fields .rf-btn, html[data-theme="system"] .pw-nav .pw-prev { background: #fff !important; border-color: #d9d0c0 !important; color: #5a4e40 !important; }
+    html[data-theme="system"] #df-fields .df-sec-head h3, html[data-theme="system"] .pw-title b, html[data-theme="system"] #df-fields .rf-head h4, html[data-theme="system"] #df-fields > .sc-card h3 { color: #b0301a !important; }
+    html[data-theme="system"] #df-fields .df-sec-head p, html[data-theme="system"] #df-fields .df-hint, html[data-theme="system"] #df-fields small, html[data-theme="system"] #df-fields label, html[data-theme="system"] #df-fields .df-field > span, html[data-theme="system"] #df-fields p { color: #3f3f46; }
+    html[data-theme="system"] #df-fields.pw-on .df-sec-ico { background: #f4f4f5 !important; color: #b0301a; }
+    html[data-theme="system"] .pw-bar .pw-title, html[data-theme="system"] .pw-bar .pw-title .pw-pos em { color: #111114; }
+    html[data-theme="system"] .pw-holes { background: repeating-linear-gradient(90deg, #e4e4e7 0 10px, transparent 10px 22px) !important; }
+    html[data-theme="system"] .pw-st { background: #ffffff !important; border: 1px solid #e4e4e7 !important; color: #52525b; box-shadow: none !important; }
+    html[data-theme="system"] .pw-st.done { background: #f2f2f4 !important; color: #3f3f46; }
+    html[data-theme="system"] .pw-st.cur { background: #ececef !important; border: 1.5px solid #111114 !important; color: #111114; box-shadow: 0 0 0 3px rgba(17,17,20,.15) !important; }
+    html[data-theme="system"] .df-tabs .df-tab { background: transparent !important; border-color: transparent !important; color: #52525b !important; box-shadow: none !important; filter: none !important; }
+    html[data-theme="system"] .df-tabs .df-tab.active { background: #111114 !important; color: #fff !important; }
+    html[data-theme="system"] #df-fields.pw-on .df-types .tcard, html[data-theme="system"] #df-fields.pw-on .df-chipset .tcard, html[data-theme="system"] #df-fields.pw-on #gn-forms .tcard, html[data-theme="system"] #df-fields .lp-opt .tcard, html[data-theme="system"] #df-fields .df-comp .ccard, html[data-theme="system"] #df-fields .mood-card, html[data-theme="system"] #df-fields > .sc-card.gn-script .sc-opts button { background: #fff !important; border-color: #e4e4e7 !important; box-shadow: none !important; color: #111114 !important; filter: none !important; }
+    html[data-theme="system"] #df-fields.pw-on .df-types .tcard b, html[data-theme="system"] #df-fields.pw-on .df-chipset .tcard b { color: #111114; }
+    html[data-theme="system"] #df-fields.pw-on .df-types .tcard small, html[data-theme="system"] #df-fields.pw-on .df-chipset .tcard small { color: #52525b; }
+    html[data-theme="system"] #df-fields.pw-on .df-types .tcard:hover, html[data-theme="system"] #df-fields.pw-on .df-chipset .tcard:hover, html[data-theme="system"] #df-fields .lp-opt .tcard:hover, html[data-theme="system"] #df-fields .mood-card:hover, html[data-theme="system"] #df-fields > .sc-card.gn-script .sc-opts button:hover { border-color: #a1a1aa !important; }
+    html[data-theme="system"] #df-fields input:checked + .tcard, html[data-theme="system"] #df-fields input:checked + .ccard, html[data-theme="system"] #df-fields input:checked + .mood-card, html[data-theme="system"] #df-fields > .sc-card.gn-script .sc-opts button[aria-pressed="true"] { background: #f2f2f4 !important; border-color: #111114 !important; box-shadow: 0 0 0 1px #111114 !important; color: #111114 !important; }
+    html[data-theme="system"] #df-fields.pw-on .df-types .tcard .ti { background: color-mix(in srgb, var(--tc, #111114) 14%, #fff) !important; border-color: color-mix(in srgb, var(--tc, #111114) 40%, #fff) !important; color: color-mix(in srgb, var(--tc, #111114) 85%, #000) !important; }
+    html[data-theme="system"] #df-fields.pw-on #gn-forms .tcard .ti, html[data-theme="system"] #df-fields.pw-on .df-chipset .tcard .ti { background: #f4f4f5 !important; color: #52525b !important; border-color: #e4e4e7 !important; }
+    html[data-theme="system"] #df-fields .df-field input:not([type=radio]):not([type=checkbox]):not([type=range]), html[data-theme="system"] #df-fields .df-field textarea, html[data-theme="system"] #df-fields .df-field select, html[data-theme="system"] #df-fields .rf-in { background: #ffffff !important; border: 1px solid #d4d4d8 !important; color: #111114 !important; }
+    html[data-theme="system"] #df-fields .rf-btn, html[data-theme="system"] .pw-nav .pw-prev { background: #fff !important; border-color: #d4d4d8 !important; color: #3f3f46 !important; }
   }
 </style>
 <script src="./theme.js"></script>
@@ -2094,7 +2094,7 @@
 <script src="./assets/shared/phrase.js?v=20261026"></script>
 <script src="./assets/compose.js?v=20261109a"></script>
 <script src="./assets/rw-consent.js"></script>
-<link rel="stylesheet" href="./assets/rw-theme.css?v=20261116a">
+<link rel="stylesheet" href="./assets/rw-theme.css?v=20261116b">
 <link rel="stylesheet" href="./assets/screens.css?v=20261108c">
 </head>
 <body>
@@ -4041,10 +4041,10 @@ ${비율칸Html(kind, 상태)}</div>`;
   // 영상 제작 방식 그림 - 휴대폰 안에 장면 3칸: 정지(산 그림) / 영상(재생 삼각형)
   function motionSvg(kind, auto) {
     const pat = kind === '이미지 중심' ? [0, 0, 0] : kind === '모두 영상' ? [1, 1, 1] : [1, 0, 1];
-    let g = `<rect x="0.5" y="0.5" width="44" height="79" rx="7" fill="#3a3129" stroke="#5a4e42"/>`;
+    let g = `<rect x="0.5" y="0.5" width="44" height="79" rx="7" fill="#27272a" stroke="#52525b"/>`;
     pat.forEach((mv, i) => {
       const y = 6 + i * 24;
-      g += `<rect x="5" y="${y}" width="35" height="20" rx="3" fill="${mv ? '#5a4326' : '#4d4238'}"/>`;
+      g += `<rect x="5" y="${y}" width="35" height="20" rx="3" fill="${mv ? '#5c2418' : '#3f3f46'}"/>`;
       g += mv ? `<path d="M19 ${y + 5} l9 5 -9 5z" fill="${MOTION_COLOR[kind] || '#e2a23c'}"/>`
               : `<path d="M9 ${y + 16} l7-7 5 5 4-3 7 5" fill="none" stroke="${kind === '이미지 중심' ? MOTION_COLOR[kind] : '#7a6b5c'}" stroke-width="1.8" stroke-linejoin="round"/>`;
     });
@@ -4552,9 +4552,9 @@ ${비율칸Html(kind, 상태)}</div>`;
     const top = 제목 ? 9 : 0;
     const barH = 띠 ? 8 : 5.5;
     const y = pos === '상단' ? top + 3 : pos === '가운데' ? Math.round(22.5 - barH / 2) : 32 - (띠 ? 1 : 0);
-    let g = `<rect x="0.5" y="0.5" width="79" height="44" rx="5" fill="#3a3129" stroke="#5a4e42"/>`;
-    g += `<rect x="3" y="${top + 3}" width="74" height="${42 - top - 3}" rx="2.5" fill="#4d4238"/><path d="M10 ${Math.min(top + 32, 38)} l13-11 9 7 8-5 15 9" fill="none" stroke="#6b5d4f" stroke-width="2" stroke-linejoin="round"/>`;
-    if (제목) g += `<rect x="3" y="3" width="74" height="${top}" rx="2.5" fill="#15110e"/><rect x="24" y="4.2" width="32" height="2" rx="1" fill="#FFF200"/><rect x="30" y="7.2" width="20" height="2" rx="1" fill="#FF2D8A"/>`;
+    let g = `<rect x="0.5" y="0.5" width="79" height="44" rx="5" fill="#27272a" stroke="#52525b"/>`;
+    g += `<rect x="3" y="${top + 3}" width="74" height="${42 - top - 3}" rx="2.5" fill="#3f3f46"/><path d="M10 ${Math.min(top + 32, 38)} l13-11 9 7 8-5 15 9" fill="none" stroke="#71717a" stroke-width="2" stroke-linejoin="round"/>`;
+    if (제목) g += `<rect x="3" y="3" width="74" height="${top}" rx="2.5" fill="#0e0e10"/><rect x="24" y="4.2" width="32" height="2" rx="1" fill="#FFF200"/><rect x="30" y="7.2" width="20" height="2" rx="1" fill="#FF2D8A"/>`;
     if (띠) g += `<rect x="3" y="${y}" width="74" height="${barH}" fill="#e2a23c"/><rect x="18" y="${y + 2}" width="44" height="1.8" rx="0.9" fill="#1a1410"/><rect x="26" y="${y + 4.6}" width="28" height="1.8" rx="0.9" fill="#1a1410"/>`;
     else g += `<rect x="3" y="${y}" width="74" height="${barH}" fill="rgba(0,0,0,.55)"/><rect x="18" y="${y + 1.9}" width="44" height="1.8" rx="0.9" fill="#fff"/>`;
     if (auto) g += `<circle cx="68" cy="${제목 ? 17 : 9}" r="5.5" fill="#e2a23c"/><path d="M68 ${제목 ? 13.5 : 5.5} l1 2.4 2.4 1 -2.4 1 -1 2.4 -1-2.4 -2.4-1 2.4-1z" fill="#1a1410"/>`;
@@ -4564,16 +4564,16 @@ ${비율칸Html(kind, 상태)}</div>`;
     if (가로) return screenSvg(layout, pos, auto);
     if (layout === '가운데영상형') {   // 위 문구, 가운데 칸에만 영상, 뒤는 흐리게, 자막은 칸 안
       const bt = 24, bh = 26, y = pos === '상단' ? bt + 3 : pos === '가운데' ? bt + bh / 2 - 4.5 : bt + bh - 12;
-      return `<svg viewBox="0 0 45 80" aria-hidden="true"><rect x="0.5" y="0.5" width="44" height="79" rx="7" fill="#3a3129" stroke="#5a4e42"/><rect x="3" y="3" width="39" height="74" rx="3" fill="#2f2822"/><rect x="3" y="3" width="39" height="14" rx="3" fill="#15110e"/><rect x="10" y="6" width="25" height="3" rx="1.5" fill="#FFF200"/><rect x="14" y="11" width="17" height="3" rx="1.5" fill="#FFF200"/><rect x="3" y="${bt}" width="39" height="${bh}" fill="#4d4238"/><path d="M8 ${bt + 20} l9-9 7 6 5-4 9 7" fill="none" stroke="#6b5d4f" stroke-width="2" stroke-linejoin="round"/><rect x="9" y="${y}" width="27" height="2.8" rx="1.4" fill="#fff"/><rect x="3" y="62" width="39" height="15" fill="#000" opacity=".34"/></svg>`;
+      return `<svg viewBox="0 0 45 80" aria-hidden="true"><rect x="0.5" y="0.5" width="44" height="79" rx="7" fill="#27272a" stroke="#52525b"/><rect x="3" y="3" width="39" height="74" rx="3" fill="#27272a"/><rect x="3" y="3" width="39" height="14" rx="3" fill="#0e0e10"/><rect x="10" y="6" width="25" height="3" rx="1.5" fill="#FFF200"/><rect x="14" y="11" width="17" height="3" rx="1.5" fill="#FFF200"/><rect x="3" y="${bt}" width="39" height="${bh}" fill="#3f3f46"/><path d="M8 ${bt + 20} l9-9 7 6 5-4 9 7" fill="none" stroke="#71717a" stroke-width="2" stroke-linejoin="round"/><rect x="9" y="${y}" width="27" height="2.8" rx="1.4" fill="#fff"/><rect x="3" y="62" width="39" height="15" fill="#000" opacity=".34"/></svg>`;
     }
     const 제목 = layout === '제목고정형';
     const 띠 = layout === '자막바형';
     const top = 제목 ? 16 : 0;
     const barH = 띠 ? 13 : 9;
     const y = pos === '상단' ? top + 5 : pos === '가운데' ? Math.round(40 - barH / 2) : 48 - (띠 ? 1 : 0); // 가운데 = 화면 정가운데, 하단 = 4등분의 3번째 칸(쇼츠 아래 구독·제목 영역을 피함)
-    let g = `<rect x="0.5" y="0.5" width="44" height="79" rx="7" fill="#3a3129" stroke="#5a4e42"/>`;
-    g += `<rect x="3" y="${top + 3}" width="39" height="${77 - top - 3}" rx="3" fill="#4d4238"/><path d="M8 ${Math.min(top + 40, 56)} l9-10 7 7 5-4 9 9" fill="none" stroke="#6b5d4f" stroke-width="2" stroke-linejoin="round"/>`;
-    if (제목) g += `<rect x="3" y="3" width="39" height="${top}" rx="3" fill="#15110e"/><rect x="10" y="6" width="25" height="3" rx="1.5" fill="#FFF200"/><rect x="14" y="11" width="17" height="3" rx="1.5" fill="#FF2D8A"/>`;
+    let g = `<rect x="0.5" y="0.5" width="44" height="79" rx="7" fill="#27272a" stroke="#52525b"/>`;
+    g += `<rect x="3" y="${top + 3}" width="39" height="${77 - top - 3}" rx="3" fill="#3f3f46"/><path d="M8 ${Math.min(top + 40, 56)} l9-10 7 7 5-4 9 9" fill="none" stroke="#71717a" stroke-width="2" stroke-linejoin="round"/>`;
+    if (제목) g += `<rect x="3" y="3" width="39" height="${top}" rx="3" fill="#0e0e10"/><rect x="10" y="6" width="25" height="3" rx="1.5" fill="#FFF200"/><rect x="14" y="11" width="17" height="3" rx="1.5" fill="#FF2D8A"/>`;
     if (띠) g += `<rect x="3" y="${y}" width="39" height="${barH}" fill="#e2a23c"/><rect x="9" y="${y + 3}" width="27" height="2.6" rx="1.3" fill="#1a1410"/><rect x="13" y="${y + 7.4}" width="19" height="2.6" rx="1.3" fill="#1a1410"/>`;
     else g += `<rect x="3" y="${y}" width="39" height="${barH}" fill="rgba(0,0,0,.55)"/><rect x="9" y="${y + 3.2}" width="27" height="2.8" rx="1.4" fill="#fff"/>`;
     if (auto) g += `<circle cx="36" cy="${제목 ? 26 : 10}" r="6.5" fill="#e2a23c"/><path d="M36 ${제목 ? 22 : 6} l1.2 2.8 2.8 1.2 -2.8 1.2 -1.2 2.8 -1.2-2.8 -2.8-1.2 2.8-1.2z" fill="#1a1410"/>`;
@@ -5132,13 +5132,13 @@ ${비율칸Html(kind, 상태)}</div>`;
     const hookLines = (() => { const t = Array.from(hook || '가나다라마바사아자 차카타파하가나').join(''); if (Array.from(t).length <= 10) return [t]; const ch = Array.from(t); let best = -1, d = 1e9; ch.forEach((c, i) => { const r = ch.length - i - 1; if (c === ' ' && i >= 1 && r >= 1 && i <= 10 && r <= 10 && Math.abs(i - r) < d) { d = Math.abs(i - r); best = i; } }); if (best > 0) return [ch.slice(0, best).join(''), ch.slice(best + 1).join('')]; const m = Math.ceil(ch.length / 2); return [ch.slice(0, m).join('').trim(), ch.slice(m).join('').trim()]; })();
     const hPitch = Math.min(W * 0.115, W * 0.84 / Math.max(...hookLines.map(lw)));
     const center = lay === '가운데영상형', hTop = band ? Y + (band - hookLines.length * hPitch) / 2 : Y + H * (center ? 0.133 : 0.065), hBottom = band ? Y + band : hTop + hookLines.length * hPitch + hPitch * 0.07;
-    let g = `<rect x="0.5" y="0.5" width="89" height="159" rx="10" fill="#3a3129" stroke="#5a4e42"/><rect x="${X}" y="${Y + band}" width="${W}" height="${H - band}" rx="6" fill="#4d4238"/>`;
-    g += `<path d="M9 ${Y + band + (H - band) * 0.66} l22-22 16 14 14-10 24 18" fill="none" stroke="#6b5d4f" stroke-width="3" stroke-linejoin="round"/>`;
+    let g = `<rect x="0.5" y="0.5" width="89" height="159" rx="10" fill="#27272a" stroke="#52525b"/><rect x="${X}" y="${Y + band}" width="${W}" height="${H - band}" rx="6" fill="#3f3f46"/>`;
+    g += `<path d="M9 ${Y + band + (H - band) * 0.66} l22-22 16 14 14-10 24 18" fill="none" stroke="#71717a" stroke-width="3" stroke-linejoin="round"/>`;
     const bxTop = Math.max(Y + H * 0.235, hBottom + H * 0.012), bxH = H * 0.317;   // 가운데영상형: 영상 칸(16:9 예시)
-    if (center) g += `<rect x="${X}" y="${Y}" width="${W}" height="${H}" rx="6" fill="#2f2822"/><rect x="${X}" y="${bxTop}" width="${W}" height="${bxH}" fill="#4d4238"/><path d="M9 ${bxTop + bxH * 0.8} l22-14 16 10 14-8 24 12" fill="none" stroke="#6b5d4f" stroke-width="3" stroke-linejoin="round"/>`;
+    if (center) g += `<rect x="${X}" y="${Y}" width="${W}" height="${H}" rx="6" fill="#27272a"/><rect x="${X}" y="${bxTop}" width="${W}" height="${bxH}" fill="#3f3f46"/><path d="M9 ${bxTop + bxH * 0.8} l22-14 16 10 14-8 24 12" fill="none" stroke="#71717a" stroke-width="3" stroke-linejoin="round"/>`;
     g += `<rect x="${X}" y="${safeB}" width="${W}" height="${Y + H - safeB}" fill="#000" opacity=".34"/><line x1="${X}" x2="${X + W}" y1="${safeB}" y2="${safeB}" stroke="#e8dfd0" stroke-opacity=".5" stroke-dasharray="2 2" stroke-width=".6"/>`;
     g += `<text x="${X + 4}" y="${safeB + 8}" font-size="3.6" fill="#e8dfd0" fill-opacity=".8" font-family="inherit">앱 제목·버튼 자리</text>` + [78, 91, 104].map(y => `<circle cx="79" cy="${y}" r="3.2" fill="#e8dfd0" fill-opacity=".4"/>`).join('');
-    if (band) g += `<rect x="${X}" y="${Y}" width="${W}" height="${band}" rx="6" fill="#15110e"/>`;
+    if (band) g += `<rect x="${X}" y="${Y}" width="${W}" height="${band}" rx="6" fill="#0e0e10"/>`;
     if (hook) hookLines.forEach((l, i) => { g += `<text x="45" y="${hTop + hPitch * (i + 0.8)}" text-anchor="middle" font-size="${hPitch * 0.65}" font-weight="800" fill="#FFF200" stroke="#000" stroke-width="${hPitch * 0.14}" paint-order="stroke" font-family="inherit">${pdEsc(l)}</text>`; });
     else g += `<text x="45" y="${hTop + hPitch * 0.8}" text-anchor="middle" font-size="3.8" fill="#e8dfd0" fill-opacity=".75" font-family="inherit">위쪽 문구 · 비우면 AI가 만들어요</text>`;
     if (!st.off) {
