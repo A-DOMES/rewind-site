@@ -2623,7 +2623,8 @@
 
   let mode = null;
   let answers = {};
-  let gnSeller = '';   // 일반 쇼츠 + 제품 링크: 판매 유형(own·affiliate·none) — 광고 표시(접수 v3.95)
+  let gnSeller = '';
+  let gnHookShow = 'all';   // 일반 쇼츠 위쪽 문구 보이는 시간(영상 꾸미기): 'all' = 계속, 'Ns' = 처음 N초(0 = 안 보임) — 접수 v3.97   // 일반 쇼츠 + 제품 링크: 판매 유형(own·affiliate·none) — 광고 표시(접수 v3.95)
   let mediaExtra = null;   // 일반 쇼츠 '내 사진·영상': { media, people } (상담 챗봇에는 보내지 않는다)
   let composeKind = '';   // composeState 가 어느 폼에서 만들어졌는지('일반'|'상품'): 다른 폼으로 바꾸면 보내지 않는다
   function composeSumText(상품, 상태) {   // 입구 카드 요약: 꾸미기에서 고른 값 + 화면 구성·자막 위치(라디오에 저장). 상품이 문자열('야담'·'수면음악')이면 라디오 없이 값만
@@ -3718,7 +3719,8 @@ ${비율칸Html(kind, 상태)}</div>`;
       payload.form = answers.form || '쇼츠';
       // [수정] "없음"처럼 링크가 아닌 답은 시트 제품링크 칸에 적지 않는다 (예전엔 '없음'이 그대로 들어갈 수 있었음)
       const 링크 = v => /^https?:\/\//i.test(String(v || '').trim());
-      if (링크(answers.productLink)) { payload.productLink = answers.productLink; if (gnSeller) payload.sellerType = gnSeller; }   // [광고 표시] 일반 쇼츠도 판매 유형을 보낸다(상품쇼츠는 아래에서 다시 정한다)
+      if (링크(answers.productLink)) { payload.productLink = answers.productLink; if (gnSeller) payload.sellerType = gnSeller; }
+      { const hs = /^(\d+(?:\.\d+)?)s$/.exec(gnHookShow); if (hs && !answers.productShort && payload.form !== '롱폼') payload.hookShow = Number(hs[1]) + '초'; }   // [일반 쇼츠] 위쪽 문구 처음 N초만(0초 = 안 보임). 계속(기본)은 보내지 않는다   // [광고 표시] 일반 쇼츠도 판매 유형을 보낸다(상품쇼츠는 아래에서 다시 정한다)
       if (링크(answers.productImageUrl)) payload.productImageUrl = answers.productImageUrl;
       // [상품쇼츠] 접수 v3.28 이 받는 값. 챗봇이 돌려준 값이 아니라 입력 화면에서 읽어 둔 값(productExtra)만 쓴다.
       if (answers.productShort) {
@@ -3878,6 +3880,7 @@ ${비율칸Html(kind, 상태)}</div>`;
 
   function startFreshChat(skipPendingCheck) {
     gnSeller = '';   // 앞 신청의 판매 유형이 다음 신청에 남지 않게
+    gnHookShow = 'all';
     주제찾기열림 = false;
     mode = null; answers = {}; history = [];
     clearChatState();
@@ -4465,12 +4468,13 @@ ${비율칸Html(kind, 상태)}</div>`;
       if (sg) sg.value = 성 === '여' ? '여성' : '남성'; if (sa && v) sa.value = voiceAgeOf(id);
     } : undefined;
     const 지금목소리 = (window.__rwVP && __rwVP.쇼츠 && __rwVP.쇼츠.값()) || '', 지금성별 = (document.getElementById('df-voiceGender') || {}).value === '여성' ? '여' : '남';
-    RWCompose.open({ 종류: 상품 ? '상품쇼츠' : '쇼츠', 원래소리막힘: (document.querySelector(상품 ? 'input[name="df-pmusic"]:checked' : 'input[name="df-gmusic"]:checked') || {}).value === 'yes',   /* 상품쇼츠는 pmusic, 일반은 gmusic */ 목소리값: 지금목소리, 목소리성별: 지금성별, 목소리바꿈, 자료, 자료옮김, 자료읽기, 구간바꿈, 자료빼기, 자료더하기, 컴퓨터올리기, 자료떼기, 자료붙이기, 자료복사, 자료복제, 타임라인: composeTimeline(상품), 화면: '세로', 배경그림: 첫사진, 화면목록, 화면구성, 제작방식, 문구시간: 상품 ? (((document.querySelector('input[name="pd-hookshow"]:checked') || {}).value === '3s') ? ((parseFloat((document.getElementById('pd-hooksec') || {}).value) >= 0 ? parseFloat(document.getElementById('pd-hooksec').value) : 3) + 's') : 'all') : undefined, 자막방식: (상품 && window.RWVoice) ? (RWVoice.getExtra().subtitleStyle || '구절형') : undefined, 문구: document.getElementById('df-hookText')?.value || '', 값, 자막위치: 거꾸로[지금] || '아래', 대본: 대본전체, 샘플: 대본첫줄 || document.getElementById('df-hookText')?.value || '',
+    RWCompose.open({ 종류: 상품 ? '상품쇼츠' : '쇼츠', 원래소리막힘: (document.querySelector(상품 ? 'input[name="df-pmusic"]:checked' : 'input[name="df-gmusic"]:checked') || {}).value === 'yes',   /* 상품쇼츠는 pmusic, 일반은 gmusic */ 목소리값: 지금목소리, 목소리성별: 지금성별, 목소리바꿈, 자료, 자료옮김, 자료읽기, 구간바꿈, 자료빼기, 자료더하기, 컴퓨터올리기, 자료떼기, 자료붙이기, 자료복사, 자료복제, 타임라인: composeTimeline(상품), 화면: '세로', 배경그림: 첫사진, 화면목록, 화면구성, 제작방식, 문구시간: 상품 ? (((document.querySelector('input[name="pd-hookshow"]:checked') || {}).value === '3s') ? ((parseFloat((document.getElementById('pd-hooksec') || {}).value) >= 0 ? parseFloat(document.getElementById('pd-hooksec').value) : 3) + 's') : 'all') : gnHookShow, 자막방식: (상품 && window.RWVoice) ? (RWVoice.getExtra().subtitleStyle || '구절형') : undefined, 문구: document.getElementById('df-hookText')?.value || '', 값, 자막위치: 거꾸로[지금] || '아래', 대본: 대본전체, 샘플: 대본첫줄 || document.getElementById('df-hookText')?.value || '',
       onDone: res => {
         composeState = Object.keys(res.compose).length ? res.compose : null; composeKind = composeState ? 종류표 : '';
         const 고르기 = (name, v) => { const r = [...document.querySelectorAll(`input[name="${name}"]`)].find(x => x.value === v); if (r && !r.disabled) { r.checked = true; r.dispatchEvent(new Event('change', { bubbles: true })); } };
         if (상품 && window.RWVoice && res.자막방식) RWVoice.setExtra(Object.assign({}, RWVoice.getExtra(), { subtitleStyle: res.자막방식 }));
         if (상품 && res.문구시간) { const 초값 = /^(\d+(?:\.\d+)?)s$/.exec(res.문구시간), si = document.getElementById('pd-hooksec'); if (si) si.value = 초값 ? 초값[1] : '3'; const hs = document.querySelector(`input[name="pd-hookshow"][value="${초값 ? '3s' : 'all'}"]`); if (hs) { hs.checked = true; hs.dispatchEvent(new Event('change', { bubbles: true })); } }
+        if (!상품 && res.문구시간) gnHookShow = res.문구시간;   // 일반 쇼츠도 위쪽 문구를 처음 N초만(0초 = 안 보임)
         if (res.초기화) { 고르기(이름들.구성, '자동'); if (!상품) 고르기(이름들.자막, '자동'); }   // 상품쇼츠의 자막 위치는 '자동'이 따로 없어 그대로 둔다
         else {
           if (res.화면구성) 고르기(이름들.구성, res.화면구성);
