@@ -431,3 +431,9 @@ html:root[data-theme="light"] .mc-img{--mc:#2f6fb3!important}html:root[data-them
 .cz-tfk{border-color:#ff5a3c!important}.cz-tfk:hover{background:#ff5a3c!important}
 .cz-insp-txt:focus,.cz-mix .cz-row input[type=range].cz-bi:focus-visible{outline-color:#f5f5f7!important}
 .cz-lay-pic svg .bar,.cz-mini svg .bar{fill:#ff5a3c!important}.cz-lay-pic svg .dk,.cz-mini svg .dk{fill:#1a1a1f!important}
+/* 대본 만들기 화면: 종류 아이콘은 종류 색(야담 보라·분위기 분홍·쇼츠/롱폼 파랑), 구역 제목은 흰 글자 + 회색 아이콘 */
+.kd[data-kd="yadam"]{--kc:#a78bfa}.kd[data-kd="mood"]{--kc:#f472b6}.kd[data-kd="short"],.kd[data-kd="long"]{--kc:#5b9dff}
+html:root[data-theme="light"] .kd[data-kd="yadam"]{--kc:#6d4fd1}html:root[data-theme="light"] .kd[data-kd="mood"]{--kc:#be185d}html:root[data-theme="light"] .kd[data-kd="short"],html:root[data-theme="light"] .kd[data-kd="long"]{--kc:#2f6fb3}
+.kd .kd-ic{color:var(--kc,var(--ink-dim))!important;border-color:color-mix(in srgb,var(--kc,var(--line)) 45%,transparent)!important;background:color-mix(in srgb,var(--kc,transparent) 10%,transparent)!important}
+.sh-h,.sh-h h3{color:var(--ink)!important}
+.sh-h .hi{color:var(--ink-dim)!important;border-color:var(--line-strong)!important;background:transparent!important}
