@@ -337,7 +337,7 @@ html:root[data-theme="dark"] #df-fields .df-field select:focus,
 html:root[data-theme="dark"] #df-fields .rf-in:focus{border-color:#f5f5f7!important;box-shadow:0 0 0 2px color-mix(in srgb,#f5f5f7 25%,transparent)!important}
 html:root[data-theme="dark"] .pw-st.cur::before,
 html:root[data-theme="dark"] .pw-st.cur::after{box-shadow:none!important}
-html:root[data-theme="dark"] #df-fields button:not(.pw-next):not(.rf-go):not(.vp-chip):not(.kd):not(.sh-use):not(.sc-act),
+html:root[data-theme="dark"] #df-fields :where(button:not(.pw-next,.rf-go,.vp-chip,.kd,.sh-use,.sc-act,.on,.active,[aria-pressed="true"])),
 html:root[data-theme="dark"] #df-fields .pimg-card,
 html:root[data-theme="dark"] #df-fields .pimg-th,
 html:root[data-theme="dark"] #df-fields .pimg-add,
@@ -379,7 +379,7 @@ html:root[data-theme="dark"] #df-fields .cz-entry-ico{background:#16161a!importa
 /* Moview 로고 글자(M + 렌즈 + view) — 모든 화면 공통 */
 .mv-word{display:inline-flex;align-items:center;font-weight:800;letter-spacing:-0.04em;line-height:1;font-family:"Pretendard Variable",Pretendard,-apple-system,sans-serif}
 .mv-word .mv-mark{width:.92em;height:.92em;margin:0 .02em;position:relative;top:.04em}
-html:root[data-theme="dark"] #df-fields button:not(.pw-next):not(.rf-go):not(.vp-chip):not(.kd):not(.sh-use):not(.sc-act):not([aria-pressed="true"]):not(.on):not(.active):hover{border-color:#80808a!important}
+html:root[data-theme="dark"] #df-fields :where(button:not(.pw-next,.rf-go,.vp-chip,.kd,.sh-use,.sc-act,.on,.active,[aria-pressed="true"])):hover{border-color:#80808a!important}
 html:root[data-theme="dark"] .pw-st.redo{border-color:var(--err)!important;color:var(--err)!important}
 html:root[data-theme="dark"] .pw-hint .pw-left{color:#ffb020!important}
 /* 밝은 테마: 진행 단계 '마침'이 '대기'와 구분되게 */
@@ -435,3 +435,92 @@ html:root[data-theme="light"] .kd[data-kd="yadam"]{--kc:#6d4fd1}html:root[data-t
 html:root[data-theme] .kd[data-kd]:not(.off) .kd-ic,html:root[data-theme] .kd[data-kd]:not(.off) .kd-ic svg{color:var(--kc,var(--ink-dim))!important;border-color:color-mix(in srgb,var(--kc,var(--line)) 45%,transparent)!important;background:color-mix(in srgb,var(--kc,transparent) 10%,transparent)!important}
 .sh-h,.sh-h h3{color:var(--ink)!important}
 .sh-h .hi{color:var(--ink-dim)!important;border-color:var(--line-strong)!important;background:transparent!important}
+
+/* ═════════ 6. 명함카드 3단계 (2026-11-16 밤) — 바탕 < 구역 카드 < 선택지 < 고른 것.  고른 것이 한눈에 보이게 ═════════ */
+html:root[data-theme="dark"] body #df-fields#df-fields .df-sec,
+html:root[data-theme="dark"] body #df-fields#df-fields .sc-card,
+html:root[data-theme="dark"] body .pw-bar{background:#111114!important;border:1px solid #2a2a30!important;box-shadow:none!important}
+html:root[data-theme="dark"] body #df-fields#df-fields .df-sec-head,
+html:root[data-theme="dark"] body #df-fields#df-fields .rf-head{border-bottom:1px solid #222227;padding-bottom:12px;margin-bottom:14px}
+html:root[data-theme="dark"] body #df-fields#df-fields .tcard,
+html:root[data-theme="dark"] body #df-fields#df-fields .ccard,
+html:root[data-theme="dark"] body #df-fields#df-fields .mood-card,
+html:root[data-theme="dark"] body #df-fields#df-fields .vp-card,
+html:root[data-theme="dark"] body #df-fields#df-fields .vp-auto,
+html:root[data-theme="dark"] body #df-fields#df-fields .lp-card,
+html:root[data-theme="dark"] body #df-fields#df-fields .len-chip,
+html:root[data-theme="dark"] body #df-fields#df-fields .vp-chip,
+html:root[data-theme="dark"] body #df-fields#df-fields .sc-opts button,
+html:root[data-theme="dark"] body .pw-st,
+html:root[data-theme="dark"] body #df-fields#df-fields .pimg-card,
+html:root[data-theme="dark"] body #df-fields#df-fields .cz-entry,
+html:root[data-theme="dark"] body #df-fields#df-fields .df-field input:not([type=range]):not([type=radio]):not([type=checkbox]),
+html:root[data-theme="dark"] body #df-fields#df-fields .df-field textarea,
+html:root[data-theme="dark"] body #df-fields#df-fields .df-field select{background:#1a1a1f!important;border:1px solid #34343c!important;box-shadow:none!important}
+html:root[data-theme="dark"] body #df-fields#df-fields .tcard:hover,
+html:root[data-theme="dark"] body #df-fields#df-fields .ccard:hover,
+html:root[data-theme="dark"] body #df-fields#df-fields .mood-card:hover,
+html:root[data-theme="dark"] body #df-fields#df-fields .vp-card:hover,
+html:root[data-theme="dark"] body #df-fields#df-fields .vp-auto:hover,
+html:root[data-theme="dark"] body #df-fields#df-fields .lp-opt .lp-card:hover,
+html:root[data-theme="dark"] body #df-fields#df-fields .len-chip:hover,
+html:root[data-theme="dark"] body #df-fields#df-fields .sc-opts button:hover,
+html:root[data-theme="dark"] body .pw-st:hover,
+html:root[data-theme="dark"] body #df-fields#df-fields .cz-entry:hover{border-color:#8a8a94!important;transform:translateY(-1px)}
+html:root[data-theme="dark"] body #df-fields#df-fields input:checked + .tcard,
+html:root[data-theme="dark"] body #df-fields#df-fields input:checked + .ccard,
+html:root[data-theme="dark"] body #df-fields#df-fields input:checked + .mood-card,
+html:root[data-theme="dark"] body #df-fields#df-fields .lp-opt:not(.mc) input:checked + .lp-card,
+html:root[data-theme="dark"] body #df-fields#df-fields .vp-card[aria-pressed="true"],
+html:root[data-theme="dark"] body #df-fields#df-fields .vp-auto[aria-pressed="true"],
+html:root[data-theme="dark"] body #df-fields#df-fields .len-chip.on,
+html:root[data-theme="dark"] body #df-fields#df-fields .sc-opts button[aria-pressed="true"],
+html:root[data-theme="dark"] body .pw-st.cur,
+html:root[data-theme="dark"] body #df-fields#df-fields button.on,
+html:root[data-theme="dark"] body #df-fields#df-fields button.active,
+html:root[data-theme="dark"] body #df-fields#df-fields button[aria-pressed="true"]:not(.vp-chip){background:#2a2a31!important;border:2px solid #f5f5f7!important;box-shadow:0 6px 18px -10px rgba(255,255,255,.35)!important;color:#fff!important}
+html:root[data-theme="dark"] body #df-fields#df-fields .vp-chip[aria-pressed="true"]{background:#f5f5f7!important;color:#000!important;border:2px solid #f5f5f7!important}
+html:root[data-theme="light"] body #df-fields#df-fields .df-sec,
+html:root[data-theme="light"] body #df-fields#df-fields .sc-card,
+html:root[data-theme="light"] body .pw-bar{background:#ffffff!important;border:1px solid #e4e4e7!important;box-shadow:0 1px 3px rgba(0,0,0,.05)!important}
+html:root[data-theme="light"] body #df-fields#df-fields .df-sec-head,
+html:root[data-theme="light"] body #df-fields#df-fields .rf-head{border-bottom:1px solid #ececef;padding-bottom:12px;margin-bottom:14px}
+html:root[data-theme="light"] body #df-fields#df-fields .tcard,
+html:root[data-theme="light"] body #df-fields#df-fields .ccard,
+html:root[data-theme="light"] body #df-fields#df-fields .mood-card,
+html:root[data-theme="light"] body #df-fields#df-fields .vp-card,
+html:root[data-theme="light"] body #df-fields#df-fields .vp-auto,
+html:root[data-theme="light"] body #df-fields#df-fields .lp-card,
+html:root[data-theme="light"] body #df-fields#df-fields .len-chip,
+html:root[data-theme="light"] body #df-fields#df-fields .vp-chip,
+html:root[data-theme="light"] body #df-fields#df-fields .sc-opts button,
+html:root[data-theme="light"] body .pw-st,
+html:root[data-theme="light"] body #df-fields#df-fields .pimg-card,
+html:root[data-theme="light"] body #df-fields#df-fields .cz-entry,
+html:root[data-theme="light"] body #df-fields#df-fields .df-field input:not([type=range]):not([type=radio]):not([type=checkbox]),
+html:root[data-theme="light"] body #df-fields#df-fields .df-field textarea,
+html:root[data-theme="light"] body #df-fields#df-fields .df-field select{background:#f7f7f8!important;border:1px solid #d9d9de!important;box-shadow:none!important}
+html:root[data-theme="light"] body #df-fields#df-fields .tcard:hover,
+html:root[data-theme="light"] body #df-fields#df-fields .ccard:hover,
+html:root[data-theme="light"] body #df-fields#df-fields .mood-card:hover,
+html:root[data-theme="light"] body #df-fields#df-fields .vp-card:hover,
+html:root[data-theme="light"] body #df-fields#df-fields .vp-auto:hover,
+html:root[data-theme="light"] body #df-fields#df-fields .lp-opt .lp-card:hover,
+html:root[data-theme="light"] body #df-fields#df-fields .len-chip:hover,
+html:root[data-theme="light"] body #df-fields#df-fields .sc-opts button:hover,
+html:root[data-theme="light"] body .pw-st:hover,
+html:root[data-theme="light"] body #df-fields#df-fields .cz-entry:hover{border-color:#71717a!important;transform:translateY(-1px)}
+html:root[data-theme="light"] body #df-fields#df-fields input:checked + .tcard,
+html:root[data-theme="light"] body #df-fields#df-fields input:checked + .ccard,
+html:root[data-theme="light"] body #df-fields#df-fields input:checked + .mood-card,
+html:root[data-theme="light"] body #df-fields#df-fields .lp-opt:not(.mc) input:checked + .lp-card,
+html:root[data-theme="light"] body #df-fields#df-fields .vp-card[aria-pressed="true"],
+html:root[data-theme="light"] body #df-fields#df-fields .vp-auto[aria-pressed="true"],
+html:root[data-theme="light"] body #df-fields#df-fields .len-chip.on,
+html:root[data-theme="light"] body #df-fields#df-fields .sc-opts button[aria-pressed="true"],
+html:root[data-theme="light"] body .pw-st.cur,
+html:root[data-theme="light"] body #df-fields#df-fields button.on,
+html:root[data-theme="light"] body #df-fields#df-fields button.active,
+html:root[data-theme="light"] body #df-fields#df-fields button[aria-pressed="true"]:not(.vp-chip){background:#ffffff!important;border:2px solid #111114!important;box-shadow:0 6px 16px -10px rgba(0,0,0,.35)!important;color:#111114!important}
+html:root[data-theme="light"] body #df-fields#df-fields .vp-chip[aria-pressed="true"]{background:#111114!important;color:#fff!important;border:2px solid #111114!important}
+html:root[data-theme="light"] body .direct-form-wrap,html:root[data-theme="light"] body #df-fields{background-color:#f4f4f5}
