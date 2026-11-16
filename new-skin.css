@@ -1,0 +1,52 @@
+/* ===== Moview 옷 (2026-11-16) — 신청 화면. 기존 규칙 위에 마지막으로 덮어쓴다. 되돌리려면 이 블록만 지우면 된다 ===== */
+:root{--bg:#000;--bg-raised:#0e0e10;--bg-deep:#0a0a0b;--line:#26262c;--line-strong:#3a3a44;
+ --ink:#f5f5f7;--ink-dim:#c8c8d0;--ink-faint:#a1a1aa;
+ --amber:#ff5a3c;--amber-hover:#ff7558;--amber-dim:#5c2418;--amber-wash:#1d0f0b;--on-amber:#000;
+ --nw-a:#80808a;--nw-b:#80808a;--nw-edge:#26262c;--nw-glow:transparent;--nw-card:#0e0e10;--nw-opt:#0e0e10;
+ --mv-sel-bd:#f5f5f7;--mv-sel-bg:#16161a;--mv-head:#f5f5f7;--mv-sub:#c8c8d0;--mv-coral:#ff5a3c;--mv-on-coral:#000}
+html[data-theme="light"]{--mv-sel-bd:#111114;--mv-sel-bg:#f2f2f4;--mv-head:#111114;--mv-sub:#3f3f46;--mv-coral:#b0301a;--mv-on-coral:#fff}
+@media (prefers-color-scheme: light){html[data-theme="system"]{--mv-sel-bd:#111114;--mv-sel-bg:#f2f2f4;--mv-head:#111114;--mv-sub:#3f3f46;--mv-coral:#b0301a;--mv-on-coral:#fff}}
+body,h1,h2,h3,h4,#gate .logo,.sidebar .logo,.df-head h2{font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif!important}
+h1,h2,h3{letter-spacing:-0.02em}
+/* 빛·그라데이션 장식 없애기: 카드·선택지는 평평하게 */
+#df-fields .sc-card,#df-fields .df-sec,.pw-bar,#df-fields.pw-on .df-types .tcard,#df-fields.pw-on .df-chipset .tcard,
+#df-fields.pw-on:not([data-pwstep="1"]) .df-chipset .tcard,#df-fields .lp-opt .tcard,#df-fields > .sc-card.gn-script .sc-opts button,
+#df-fields .mood-card,#df-fields.pw-on .vp-card,#df-fields.pw-on .vp-auto,#df-fields .ccard,.df-tab,.pw-st{
+ background:var(--bg-raised)!important;border-color:var(--line)!important;box-shadow:none!important;text-shadow:none!important}
+#df-fields.pw-on[data-pwstep="1"] .df-types .tcard,#df-fields.pw-on[data-pwstep="1"] #gn-forms .tcard{background:var(--bg-raised)!important;border:1px solid var(--line)!important;box-shadow:none!important}
+/* 마우스를 올리면: 테두리가 밝아지고 살짝 뜬다(빛 없음) */
+.pw-st:hover,.df-tab:hover,#df-fields .tcard:hover,#df-fields .ccard:hover,#df-fields .mood-card:hover,#df-fields .vp-card:hover,#df-fields .vp-auto:hover,
+#df-fields > .sc-card.gn-script .sc-opts button:hover,#df-fields .rf-btn:hover,.pw-nav .pw-prev:hover{border-color:#80808a!important;box-shadow:none!important;filter:none!important}
+/* 고른 것: 흰 테두리 + 한 단계 밝은 면 (밝은 화면은 검정 테두리) */
+#df-fields input:checked + .tcard,#df-fields input:checked + .ccard,#df-fields input:checked + .mood-card,
+#df-fields.pw-on[data-pwstep="1"] .df-types input:checked + .tcard,#df-fields.pw-on[data-pwstep="1"] #gn-forms input:checked + .tcard,
+#df-fields > .sc-card.gn-script .sc-opts button[aria-pressed="true"],#df-fields.pw-on .vp-card[aria-pressed="true"],#df-fields.pw-on .vp-auto[aria-pressed="true"],
+#df-fields.pw-on .df-voice .df-comp input:checked + .ccard,#df-fields.pw-on .len-chips .len-chip.on,.df-tabs .df-tab.active,.df-tab.active,.pw-st.cur{
+ background:var(--mv-sel-bg)!important;border:1.5px solid var(--mv-sel-bd)!important;box-shadow:none!important;color:var(--mv-head)!important}
+#df-fields input:checked + .tcard b,#df-fields input:checked + .ccard b{color:var(--mv-head)!important}
+#df-fields.pw-on .vp-card[aria-pressed="true"]::after{background:var(--mv-sel-bd)!important;color:var(--bg)!important}
+#df-fields.pw-on .vp-chip[aria-pressed="true"]{background:var(--mv-head)!important;border-color:var(--mv-head)!important;color:var(--bg)!important;box-shadow:none!important}
+/* 아이콘 칸: 종류 고유색(--tc)은 살리고 빛만 뺀다 */
+#df-fields.pw-on .df-types input:checked + .tcard .ti{box-shadow:none!important}
+.pw-st.done svg{color:var(--mv-sub)!important}
+/* 제목·글자: 금색 → 흰 글자, 보조 → 회색 */
+.pw-title b,#df-fields.pw-on .df-sec-head h3,#df-fields .rf-head h4,#df-fields > .sc-card.gn-script > h4,#df-fields.pw-on .vp-pv-txt b,
+.pw-bar .pw-title,.pw-bar .pw-title .pw-pos em,#df-fields .df-field label,#df-fields .df-types .tcard b,#df-fields .df-chipset .tcard b{color:var(--mv-head)!important}
+#df-fields .df-sec-head p,#df-fields .df-hint,.pw-hint,#df-fields .df-types .tcard small,#df-fields .df-chipset .tcard small,#df-fields .mood-card small,#df-fields .mood-card span{color:var(--mv-sub)!important}
+/* 카드 번호·남은 단계: 코랄 */
+#df-fields.pw-on .df-sec-head h3[data-n]::before{background:var(--mv-coral)!important;color:var(--mv-on-coral)!important;box-shadow:none!important}
+.pw-hint b,.pw-hint .pw-left,#df-fields.pw-on .vp-now,#df-fields.pw-on .vp-speed[data-vp="speed"] .vp-ticks span.on{color:var(--mv-coral)!important}
+#df-fields.pw-on .vp-speed[data-vp="speed"] .vp-ticks span.on::before{background:var(--mv-coral)!important}
+#df-fields.pw-on .vp-range{accent-color:var(--mv-coral)!important}
+/* 필수 표시 */
+#df-fields .df-field .req{background:color-mix(in srgb,var(--mv-coral) 14%,transparent)!important;color:var(--mv-coral)!important;border:1px solid color-mix(in srgb,var(--mv-coral) 40%,transparent)!important}
+#df-fields > .sc-card.gn-script .sc-hint{background:var(--bg-raised)!important;color:var(--mv-sub)!important;border:1px solid var(--line)!important}
+/* 가격 */
+.df-price .amt .val{color:var(--mv-head)!important;text-shadow:none!important}
+/* 주 버튼(다음·만들기): 코랄 하나 */
+.pw-nav .pw-next:not(.is-blocked),#df-fields .rf-go{background:var(--mv-coral)!important;color:var(--mv-on-coral)!important;box-shadow:none!important}
+.pw-nav .pw-next:not(.is-blocked):hover{filter:brightness(1.08);box-shadow:none!important}
+/* 입력칸 포커스 */
+#df-fields .df-field input:focus,#df-fields .df-field textarea:focus,#df-fields .df-field select:focus,#df-fields .rf-in:focus{border-color:var(--mv-sel-bd)!important;box-shadow:0 0 0 2px color-mix(in srgb,var(--mv-sel-bd) 25%,transparent)!important}
+/* 진행 단계 바: 위 빛 표시 없앰 */
+.pw-st.cur::before,.pw-st.cur::after{box-shadow:none!important}
