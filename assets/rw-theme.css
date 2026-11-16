@@ -564,45 +564,47 @@ html:root[data-theme="light"] #df-fields .ol-t-seg button.on{background:#111114!
 /* ═════════ 8. 소리 단계 — 목소리 명함 카드 (2026-11-16 밤) ═════════ */
 /* 분위기 색: 차분 파랑 · 밝은 금색 · 힘 있는 주황 · 부드러운 분홍 · 귀여운 보라 (코랄은 버튼·추천에만) */
 .rwvp [data-tone="calm"]{--tn:#5b9dff}.rwvp [data-tone="bright"]{--tn:#ffb020}.rwvp [data-tone="strong"]{--tn:#fb923c}.rwvp [data-tone="soft"]{--tn:#f472b6}.rwvp [data-tone="cute"]{--tn:#a78bfa}
-html:root[data-theme] .rwvp .vp-card{position:relative;overflow:hidden;gap:12px!important;padding:14px 14px 14px 16px!important;border:1px solid #2c2c33!important;background:#1a1a1f!important;border-radius:14px!important;transition:transform .15s,border-color .15s,box-shadow .15s}
-html:root[data-theme] .rwvp .vp-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--tn,#8a8a94)}
-html:root[data-theme] .rwvp .vp-card:hover{transform:translateY(-2px);border-color:#55555e!important;box-shadow:0 8px 20px -12px rgba(0,0,0,.8)}
-html:root[data-theme] .rwvp .vp-card .vp-play,html:root[data-theme] .rwvp .vp-auto .vp-play{width:40px!important;height:40px!important;flex:0 0 40px;border-radius:50%!important;border:0!important;background:var(--tn,#ff5a3c)!important;color:#000!important;display:grid;place-items:center}
-html:root[data-theme] .rwvp .vp-play svg{fill:#000!important;stroke:none!important;width:18px;height:18px}
-html:root[data-theme] .rwvp .vp-card b{color:#f5f5f7!important;font-weight:700!important;font-size:.95rem!important}
-html:root[data-theme] .rwvp .vp-card small{display:flex!important;align-items:center;gap:6px;color:#a1a1aa!important;margin-top:3px}
+html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-card{position:relative;overflow:hidden;gap:12px!important;padding:14px 14px 14px 16px!important;border:1px solid #2c2c33!important;background:#1a1a1f!important;border-radius:14px!important;transition:transform .15s,border-color .15s,box-shadow .15s}
+html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--tn,#8a8a94)}
+html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-card:hover{transform:translateY(-2px);border-color:#55555e!important;box-shadow:0 8px 20px -12px rgba(0,0,0,.8)}
+html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-card .vp-play,html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-auto .vp-play{width:40px!important;height:40px!important;flex:0 0 40px;border-radius:50%!important;border:0!important;background:var(--tn,#ff5a3c)!important;color:#000!important;display:grid;place-items:center}
+html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-play svg{fill:#000!important;stroke:none!important;width:18px;height:18px}
+html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-card b{color:#f5f5f7!important;font-weight:700!important;font-size:.95rem!important}
+html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-card small{display:flex!important;align-items:center;gap:6px;color:#a1a1aa!important;margin-top:3px}
 .rwvp .vp-tag{font-style:normal;font-size:.72rem;font-weight:700;padding:1px 7px;border-radius:999px;color:var(--tn);background:color-mix(in srgb,var(--tn) 16%,transparent);border:1px solid color-mix(in srgb,var(--tn) 45%,transparent)}
 .rwvp .vp-check{position:absolute;top:8px;right:10px;width:20px;height:20px;border-radius:50%;background:#f5f5f7;color:#000;font-size:.75rem;font-weight:800;display:none;place-items:center}
-html:root[data-theme] .rwvp .vp-card[aria-pressed="true"]{border:2px solid #f5f5f7!important;background:#2a2a31!important;box-shadow:none!important}
+html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-card[aria-pressed="true"]{border:2px solid #f5f5f7!important;background:#2a2a31!important;box-shadow:none!important}
 .rwvp .vp-card[aria-pressed="true"] .vp-check{display:grid}
 /* 자동 추천 카드: 코랄 띠 + 추천 표시 */
-html:root[data-theme] .rwvp .vp-auto{position:relative;overflow:hidden;padding:16px 16px 16px 20px!important;border:1px solid #2c2c33!important;background:#1a1a1f!important;border-radius:14px!important}
-html:root[data-theme] .rwvp .vp-auto::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:#ff5a3c}
-html:root[data-theme] .rwvp .vp-auto:hover{border-color:#55555e!important}
-html:root[data-theme] .rwvp .vp-auto[aria-pressed="true"]{border:2px solid #f5f5f7!important;background:#2a2a31!important;box-shadow:none!important}
+html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-auto{position:relative;overflow:hidden;padding:16px 16px 16px 20px!important;border:1px solid #2c2c33!important;background:#1a1a1f!important;border-radius:14px!important}
+html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-auto::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:#ff5a3c}
+html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-auto:hover{border-color:#55555e!important}
+html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-auto[aria-pressed="true"]{border:2px solid #f5f5f7!important;background:#2a2a31!important;box-shadow:none!important}
 .rwvp .vp-badge{font-style:normal;font-size:.7rem;font-weight:800;margin-left:6px;padding:2px 8px;border-radius:999px;background:#ff5a3c;color:#000;vertical-align:2px}
 /* 남자 | 여자: 한 덩어리 두 칸 */
-html:root[data-theme] .rwvp .vp-seg{display:inline-flex!important;gap:0!important;border:1px solid #2c2c33;border-radius:12px;overflow:hidden;width:max-content}
-html:root[data-theme] .rwvp .vp-seg .vp-chip{border:0!important;border-radius:0!important;background:#1a1a1f!important;color:#c8c8d0!important;padding:8px 26px!important;font-weight:600}
-html:root[data-theme] .rwvp .vp-seg .vp-chip:hover{background:#24242a!important;color:#fff!important}
-html:root[data-theme] .rwvp .vp-seg .vp-chip[aria-pressed="true"]{background:#f5f5f7!important;color:#000!important}
+html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-seg{display:inline-flex!important;gap:0!important;border:1px solid #2c2c33;border-radius:12px;overflow:hidden;width:max-content}
+html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-seg .vp-chip{border:0!important;border-radius:0!important;background:#1a1a1f!important;color:#c8c8d0!important;padding:8px 26px!important;font-weight:600}
+html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-seg .vp-chip:hover{background:#24242a!important;color:#fff!important}
+html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-seg .vp-chip[aria-pressed="true"]{background:#f5f5f7!important;color:#000!important}
 /* 분위기 필터: 카드와 같은 색 점 */
 .rwvp .vp-chip[data-tone]:not([data-tone="all"])::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--tn);margin-right:7px;vertical-align:1px}
-html:root[data-theme] .rwvp .vp-chip[data-tone][aria-pressed="true"]{background:#2a2a31!important;border-color:#f5f5f7!important;color:#fff!important}
-html:root[data-theme] .rwvp .vp-chip[data-tone]:hover{border-color:#8a8a94!important}
+html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-chip[data-tone][aria-pressed="true"]{background:#2a2a31!important;border-color:#f5f5f7!important;color:#fff!important}
+html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-chip[data-tone]:hover{border-color:#8a8a94!important}
 /* 목소리 분위기(보통·기쁘게…): 아이콘을 색 원 안에 */
 .ccard:has(.ci){--tn:#8a8a94}
 input[name="vp-tone"][value="기쁘게"] + .ccard{--tn:#ffb020}input[name="vp-tone"][value="따뜻하게"] + .ccard{--tn:#fb923c}input[name="vp-tone"][value="차분하게"] + .ccard{--tn:#5b9dff}input[name="vp-tone"][value="슬프게"] + .ccard{--tn:#a78bfa}
-html:root[data-theme] input[name="vp-tone"] + .ccard .ci{width:36px!important;height:36px!important;border-radius:50%!important;display:grid!important;place-items:center;background:color-mix(in srgb,var(--tn) 20%,transparent)!important;color:var(--tn)!important}
-html:root[data-theme] input[name="vp-tone"] + .ccard .ci svg{stroke:var(--tn)!important}
-html:root[data-theme] input[name="vp-tone"] + .ccard{background:#1a1a1f!important;border:1px solid #2c2c33!important;transition:transform .15s,border-color .15s}
-html:root[data-theme] input[name="vp-tone"] + .ccard:hover{transform:translateY(-2px);border-color:#55555e!important}
-html:root[data-theme] input[name="vp-tone"]:checked + .ccard{border:2px solid #f5f5f7!important;background:#2a2a31!important}
+html:root[data-theme] :is(#df-fields#df-fields,*) input[name="vp-tone"] + .ccard .ci{width:36px!important;height:36px!important;border-radius:50%!important;display:grid!important;place-items:center;background:color-mix(in srgb,var(--tn) 20%,transparent)!important;color:var(--tn)!important}
+html:root[data-theme] :is(#df-fields#df-fields,*) input[name="vp-tone"] + .ccard .ci svg{stroke:var(--tn)!important}
+html:root[data-theme] :is(#df-fields#df-fields,*) input[name="vp-tone"] + .ccard{background:#1a1a1f!important;border:1px solid #2c2c33!important;transition:transform .15s,border-color .15s}
+html:root[data-theme] :is(#df-fields#df-fields,*) input[name="vp-tone"] + .ccard:hover{transform:translateY(-2px);border-color:#55555e!important}
+html:root[data-theme] :is(#df-fields#df-fields,*) input[name="vp-tone"]:checked + .ccard{border:2px solid #f5f5f7!important;background:#2a2a31!important}
 /* 밝은 화면 */
-html:root[data-theme="light"] .rwvp .vp-card,html:root[data-theme="light"] .rwvp .vp-auto,html:root[data-theme="light"] input[name="vp-tone"] + .ccard{background:#fff!important;border-color:#d4d4d8!important}
-html:root[data-theme="light"] .rwvp .vp-card b{color:#111114!important}
-html:root[data-theme="light"] .rwvp .vp-card[aria-pressed="true"],html:root[data-theme="light"] .rwvp .vp-auto[aria-pressed="true"],html:root[data-theme="light"] input[name="vp-tone"]:checked + .ccard{border:2px solid #111114!important;background:#f4f4f5!important}
-html:root[data-theme="light"] .rwvp .vp-check{background:#111114;color:#fff}
-html:root[data-theme="light"] .rwvp .vp-seg .vp-chip{background:#fff!important;color:#444!important}
-html:root[data-theme="light"] .rwvp .vp-seg .vp-chip[aria-pressed="true"]{background:#111114!important;color:#fff!important}
-html:root[data-theme="light"] .rwvp .vp-chip[data-tone][aria-pressed="true"]{background:#f4f4f5!important;border-color:#111114!important;color:#111114!important}
+html:root[data-theme="light"] :is(#df-fields#df-fields,*) .rwvp .vp-card,html:root[data-theme="light"] :is(#df-fields#df-fields,*) .rwvp .vp-auto,html:root[data-theme="light"] :is(#df-fields#df-fields,*) input[name="vp-tone"] + .ccard{background:#fff!important;border-color:#d4d4d8!important}
+html:root[data-theme="light"] :is(#df-fields#df-fields,*) .rwvp .vp-card b{color:#111114!important}
+html:root[data-theme="light"] :is(#df-fields#df-fields,*) .rwvp .vp-card[aria-pressed="true"],html:root[data-theme="light"] :is(#df-fields#df-fields,*) .rwvp .vp-auto[aria-pressed="true"],html:root[data-theme="light"] :is(#df-fields#df-fields,*) input[name="vp-tone"]:checked + .ccard{border:2px solid #111114!important;background:#f4f4f5!important}
+html:root[data-theme="light"] :is(#df-fields#df-fields,*) .rwvp .vp-check{background:#111114;color:#fff}
+html:root[data-theme="light"] :is(#df-fields#df-fields,*) .rwvp .vp-seg .vp-chip{background:#fff!important;color:#444!important}
+html:root[data-theme="light"] :is(#df-fields#df-fields,*) .rwvp .vp-seg .vp-chip[aria-pressed="true"]{background:#111114!important;color:#fff!important}
+html:root[data-theme="light"] :is(#df-fields#df-fields,*) .rwvp .vp-chip[data-tone][aria-pressed="true"]{background:#f4f4f5!important;border-color:#111114!important;color:#111114!important}
+html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-card small{white-space:nowrap}
+html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-card[aria-pressed="true"] .vp-play{background:var(--tn,#ff5a3c)!important}
