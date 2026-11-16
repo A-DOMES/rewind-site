@@ -35,8 +35,8 @@ html:root[data-theme="dark"] body {   /* body 에도 둔다: 편집기(editor)�
   --ink: #f4f4f5; --ink-dim: #b6b6bd; --ink-faint: #7e7e87;
   --amber: #ff5a3c; --amber-hover: #ff7558; --amber-dim: #5c2418; --amber-wash: #1d0f0b; --on-amber: #000;
   --gold: #ff5a3c; --gold-dim: #5c2418; --on-gold: #000; --olive: #c9a86a; --focus: #ff5a3c;
-  --blue: #86b4f0; --green: #a3cf92; --err: #ff6b8a; --ok: #86c872; --done: #86c872;
-  --status-plan: #86b4f0; --status-making: #86b4f0; --status-review: #ff5a3c; --status-final: #86b4f0; --status-done: #86c872; --status-error: #e88a7a;
+  --blue: #86b4f0; --green: #a3cf92; --err: #ff7a9c; --ok: #86c872; --done: #86c872;
+  --status-plan: #86b4f0; --status-making: #86b4f0; --status-review: #ff5a3c; --status-final: #86b4f0; --status-done: #86c872; --status-error: #ff7a9c;
   --card-shadow: none;
   /* 대본 작업실(script·longscript)이 쓰는 이름 */
   --raised: #09090a; --input: #101012; --line2: #2c2c31; --side: #000;
@@ -337,7 +337,7 @@ html:root[data-theme="dark"] #df-fields .df-field select:focus,
 html:root[data-theme="dark"] #df-fields .rf-in:focus{border-color:#f5f5f7!important;box-shadow:0 0 0 2px color-mix(in srgb,#f5f5f7 25%,transparent)!important}
 html:root[data-theme="dark"] .pw-st.cur::before,
 html:root[data-theme="dark"] .pw-st.cur::after{box-shadow:none!important}
-html:root[data-theme="dark"] #df-fields button:not(.pw-next):not(.rf-go):not(.vp-chip),
+html:root[data-theme="dark"] #df-fields button:not(.pw-next):not(.rf-go):not(.vp-chip):not(.kd):not(.sh-use):not(.sc-act),
 html:root[data-theme="dark"] #df-fields .pimg-card,
 html:root[data-theme="dark"] #df-fields .pimg-th,
 html:root[data-theme="dark"] #df-fields .pimg-add,
@@ -373,3 +373,61 @@ html:root[data-theme="dark"] #df-fields .vp-play{color:#f5f5f7!important}
 html:root[data-theme="dark"] #df-fields .vp-ticks span:not(.on){color:#a1a1aa!important}
 html:root[data-theme="dark"] #df-fields .vp-ticks span:not(.on)::before{background:#3a3a44!important}
 html:root[data-theme="dark"] .pw-nav .pw-next.is-blocked{background:#1a1a1f!important;background-image:none!important;color:#80808a!important;border-color:#26262c!important;box-shadow:none!important}
+html:root[data-theme="dark"] #df-fields .cz-entry{border-color:var(--line)!important;background:var(--bg-raised)!important;background-image:none!important;box-shadow:none!important}
+html:root[data-theme="dark"] #df-fields .cz-entry:hover{border-color:#80808a!important}
+html:root[data-theme="dark"] #df-fields .cz-entry-ico{background:#16161a!important;background-image:none!important;color:#f5f5f7!important}
+/* Moview 로고 글자(M + 렌즈 + view) — 모든 화면 공통 */
+.mv-word{display:inline-flex;align-items:center;font-weight:800;letter-spacing:-0.04em;line-height:1;font-family:"Pretendard Variable",Pretendard,-apple-system,sans-serif}
+.mv-word .mv-mark{width:.92em;height:.92em;margin:0 .02em;position:relative;top:.04em}
+html:root[data-theme="dark"] #df-fields button:not(.pw-next):not(.rf-go):not(.vp-chip):not(.kd):not(.sh-use):not(.sc-act):not([aria-pressed="true"]):not(.on):not(.active):hover{border-color:#80808a!important}
+html:root[data-theme="dark"] .pw-st.redo{border-color:var(--err)!important;color:var(--err)!important}
+html:root[data-theme="dark"] .pw-hint .pw-left{color:#ffb020!important}
+/* 밝은 테마: 진행 단계 '마침'이 '대기'와 구분되게 */
+html:root[data-theme="light"] .pw-st.done svg{color:#111114!important}
+html:root[data-theme="light"] .pw-st.done{border-color:#d4d4d8!important}
+
+/* ═════════ 5. Moview 2차 정리 (2026-11-16 저녁) — 코랄은 아껴 쓰고, 상태 색은 뜻대로 ═════════
+   규칙: 코랄 = 화면(카드 묶음)당 주 버튼 하나·단계 번호·필수 표시만.  할 일(승인 대기) = 금색, 진행 = 파랑, 완성 = 초록, 오류 = 분홍빨강.
+   목록 줄마다 반복되는 버튼·표시는 회색 테두리(마우스를 올리면 코랄).  제작 방식 색: 이미지 중심 파랑 · 혼합 금색 · 모두 영상 보라. */
+html:root[data-theme="dark"]{--mv-todo:#ffb020;--mv-todo-wash:rgba(255,176,32,.07);--status-review:#ffb020;--mv-run:#5b9dff;--mv-ok:#34d399}
+html:root[data-theme="light"]{--mv-todo:#9a6700;--mv-todo-wash:rgba(154,103,0,.06);--status-review:#9a6700;--mv-run:#2f6fb3;--mv-ok:#3f7d34}
+/* ① 목록 줄 버튼: 대본 보관함 '영상 만들기' */
+.sh-item .sh-use{background:transparent!important;border:1px solid var(--line-strong)!important;color:var(--ink)!important}
+.sh-item .sh-use:hover{border-color:var(--amber)!important;color:var(--amber)!important;background:transparent!important}
+/* ① 상품 캘린더 '판매 시기': 줄마다 붉은 표시 → 회색 테두리 표시 */
+.cal-badge,html:root[data-theme="light"] .cal-badge{background:transparent!important;color:var(--ink)!important;border:1px solid var(--line-strong)!important;font-weight:600}
+.cal-item.is-open{border-color:var(--line-strong)!important}
+/* ② 할 일 알림 카드(대본·장면 확인): 금색, 버튼은 테두리형 */
+.nc-todo{--tone:var(--mv-todo)!important}
+.nc-todo .nc-btn{background:transparent!important;border-color:var(--mv-todo)!important;color:var(--mv-todo)!important}
+.nc-todo .nc-btn:hover{background:var(--mv-todo-wash)!important;filter:none!important}
+.nc-todo .nc-ico svg{stroke:#000!important}
+.nc-todo .nc-ico::after{background:var(--mv-todo)!important}
+/* ② 내 프로젝트 목록: 승인 대기 줄 = 금색, 진행 = 파랑, 완성 = 초록 */
+.sum-chip.todo{border-color:color-mix(in srgb,var(--mv-todo) 50%,var(--line))!important;background:var(--mv-todo-wash)!important}
+.sum-chip.todo b{color:var(--mv-todo)!important}
+.reel-row[data-status="대본검수대기"],.reel-row[data-status="검수 대기"]{border-color:color-mix(in srgb,var(--mv-todo) 35%,var(--line))!important;background:var(--mv-todo-wash)!important}
+.reel-row[data-status="대본검수대기"] .status-chip,.reel-row[data-status="검수 대기"] .status-chip{color:var(--mv-todo)!important;border-color:color-mix(in srgb,var(--mv-todo) 40%,var(--line))!important}
+/* ⑤ 장식 정리: 별가루 배경, 대본 보관함 종류 카드의 형광 그림 */
+.direct-form-wrap{background-image:none!important}
+.kd::after{display:none!important}
+.kd:not(.off) .kd-t{color:var(--ink-dim)!important}
+.kd:hover{border-color:var(--ink-faint)!important}
+/* ④ 제작 방식 색(카드·가격 막대·요금표 같게) */
+.mc-img{--mc:#5b9dff!important}.mc-mix{--mc:#ffb020!important}.mc-all{--mc:#a78bfa!important}
+html:root[data-theme="light"] .mc-img{--mc:#2f6fb3!important}html:root[data-theme="light"] .mc-mix{--mc:#9a6700!important}html:root[data-theme="light"] .mc-all{--mc:#6d4fd1!important}
+/* 종류 색(신청 1단계 아이콘): 일반 파랑 · 상품 금색 · 분위기 분홍 · 야담 보라 */
+#df-fields.pw-on .df-types label:has(> input[value="일반"]){--tc:#5b9dff!important}
+#df-fields.pw-on .df-types label:has(> input[value="상품쇼츠"]){--tc:#ffb020!important}
+#df-fields.pw-on .df-types label:has(> input[value="수면음악"]){--tc:#f472b6!important}
+#df-fields.pw-on .df-types label:has(> input[value="야담"]){--tc:#a78bfa!important}
+/* ③ 영상 꾸미기 창: UI 강조만 코랄(타임라인 줄 색은 구분용이라 유지) */
+.cz-ov{--rz-ac:#ff5a3c!important;--rz-ac-soft:rgba(255,90,60,.14)!important}
+.cz-btn.cz-main{background:#ff5a3c!important;border-color:#ff5a3c!important;color:#000!important}
+.cz-insp-tab[aria-selected="true"]{color:#f5f5f7!important;box-shadow:inset 0 -2px 0 #ff5a3c!important}
+.cz-t-clip.cz-t-sel,.cz-t-sfx.cz-t-sel{outline-color:#f5f5f7!important}
+.cz-insp-tg.on,.cz-insp-play.on,.cz-insp-mbtn[aria-expanded="true"]{border-color:#f5f5f7!important;color:#f5f5f7!important}
+.cz-insp-tg:hover,.cz-insp-play:hover:not(:disabled),.cz-insp-btn:hover,.cz-mix .cz-rst:hover:not(:disabled){border-color:#80808a!important}
+.cz-tfk{border-color:#ff5a3c!important}.cz-tfk:hover{background:#ff5a3c!important}
+.cz-insp-txt:focus,.cz-mix .cz-row input[type=range].cz-bi:focus-visible{outline-color:#f5f5f7!important}
+.cz-lay-pic svg .bar,.cz-mini svg .bar{fill:#ff5a3c!important}.cz-lay-pic svg .dk,.cz-mini svg .dk{fill:#1a1a1f!important}
