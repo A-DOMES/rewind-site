@@ -4503,7 +4503,7 @@ ${비율칸Html(kind, 상태)}</div>`;
           if (res.제작방식) 고르기(제작이름, res.제작방식);
           if (composeState || res.위치바뀜) 고르기(이름들.자막, POS[res.자막위치]);
         }
-        const 숨김알림 = !상품 ? 숨김구성맞추기() : '';   // 꾸미기에서 숨겼으면 화면 구성도 결과와 같게
+        const 숨김알림 = !상품 ? 숨김구성맞추기() : ''; if (숨김알림) { 숨김알림글 = 숨김알림; 한마디그리기(); }   // 꾸미기에서 숨겼으면 화면 구성도 결과와 같게
         if (sum) sum.textContent = composeSumText(상품, composeState) + (숨김알림 ? ' · ' + 숨김알림 : '');
         saveChatState();
       } });
@@ -4684,6 +4684,7 @@ ${비율칸Html(kind, 상태)}</div>`;
   }
   window.__rwOneLine = 한마디중;
   // [제목 숨기기] 뒤 단계(5·6)에서 숨기면 3단계 선택도 결과와 같게: 띠 있는 구성(제목고정형·가운데영상형) → 전체화면형으로 옮기고 알린다
+  let 숨김알림글 = '';   // 숨겨서 구성을 옮겼을 때 제목 버튼 아래 알림(보이기를 누르면 지움)
   function 숨김구성맞추기() {
     if (gnHookShow !== '0s') return '';
     const 지금 = document.querySelector('input[name="df-layout"]:checked'), 전체 = document.querySelector('input[name="df-layout"][value="전체화면형"]');
@@ -4706,7 +4707,7 @@ ${비율칸Html(kind, 상태)}</div>`;
       tb = document.createElement('div'); tb.id = 'df-ol-title'; tb.className = 'ol-title';
       tb.innerHTML = '<span class="ol-t-lab">제목</span><div class="ol-t-seg" role="group" aria-label="제목"><button type="button" data-v="hide">숨기기</button><button type="button" data-v="show">보이기</button></div><input type="text" id="df-ol-titleText" maxlength="18" placeholder="비워 두면 AI가 만들어요 · 18자"><p class="df-hint ol-t-hint"></p>';
       t.parentElement.appendChild(tb);
-      tb.addEventListener('click', e => { const b = e.target.closest('button[data-v]'); if (!b) return; gnHookTouched = true; gnHookShow = b.dataset.v === 'hide' ? '0s' : 'all'; const 알림 = 숨김구성맞추기(); 한마디그리기(); if (알림) { const h = tb.querySelector('.ol-t-hint'); if (h) h.textContent = 알림; } b.dispatchEvent(new Event('change', { bubbles: true })); });   // 미리보기도 다시 그리게
+      tb.addEventListener('click', e => { const b = e.target.closest('button[data-v]'); if (!b) return; gnHookTouched = true; gnHookShow = b.dataset.v === 'hide' ? '0s' : 'all'; 숨김알림글 = 숨김구성맞추기(); 한마디그리기(); b.dispatchEvent(new Event('change', { bubbles: true })); });   // 미리보기도 다시 그리게
       tb.querySelector('#df-ol-titleText').addEventListener('input', e => { const h = document.getElementById('df-hookText'); if (h) { h.value = e.target.value; h.dispatchEvent(new Event('input', { bubbles: true })); } });   // 제목은 '화면 상단 문구' 칸 하나에 모은다(꾸미기·미리보기·신청이 같은 칸을 읽음)
     }
     if (on && !gnHookTouched) gnHookShow = '0s'; else if (!on && !gnHookTouched && gnHookShow === '0s') gnHookShow = 'all';   // 한마디 영상은 제목 숨기기가 기본
@@ -4715,7 +4716,7 @@ ${비율칸Html(kind, 상태)}</div>`;
       tb.hidden = !on;
       tb.querySelectorAll('button[data-v]').forEach(b => { const 고름 = b.dataset.v === 한마디제목; b.classList.toggle('on', 고름); b.setAttribute('aria-pressed', 고름 ? 'true' : 'false'); });
       const ti = document.getElementById('df-ol-titleText'); if (ti) { ti.hidden = 한마디제목 !== 'show'; const hv = (document.getElementById('df-hookText') || {}).value || ''; if (document.activeElement !== ti) ti.value = hv; }
-      const h = tb.querySelector('.ol-t-hint'); if (h) h.textContent = 한마디제목 === 'show' ? '영상 맨 위에 나와요. 보이는 시간은 영상 꾸미기에서 바꿀 수 있어요.' : '영상에는 위 한 문장만 나와요. 제목고정형을 골라도 띠 없이 화면 가득 만들어요.';
+      const h = tb.querySelector('.ol-t-hint'); if (h) h.textContent = 한마디제목 === 'show' ? '영상 맨 위에 나와요. 보이는 시간은 영상 꾸미기에서 바꿀 수 있어요.' : (숨김알림글 || '영상에는 위 한 문장만 나와요.');
     }
     const hk = document.getElementById('df-hookText'), hkf = hk && hk.closest('.df-field');
     if (hkf) { hkf.classList.toggle('oneline-off', on); if (on) hkf.setAttribute('inert', ''); else hkf.removeAttribute('inert'); }
