@@ -548,3 +548,15 @@ html:root[data-theme] body #df-fields#df-fields .lp-opt.mc:hover .lp-card{border
 #df-fields .gn-layout .gl-body{display:flex!important;flex-direction:column;gap:14px}
 #df-fields .gn-layout .gl-fields{display:contents}
 #df-fields .gn-layout .gl-lay{order:1}#df-fields .gn-layout .gl-pv{order:2}#df-fields .gn-layout .gn-motion,#df-fields .gn-layout .gl-pd{order:3}
+/* 한마디 영상 제목 [숨기기 | 보이기] */
+#df-fields .ol-title{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin-top:10px}
+#df-fields .ol-title[hidden],#df-fields .ol-title input[hidden]{display:none!important}
+#df-fields .ol-t-lab{font-weight:700;font-size:.9rem}
+#df-fields .ol-t-seg{display:inline-flex;border:1px solid var(--line-strong);border-radius:10px;overflow:hidden}
+html:root[data-theme] #df-fields .ol-t-seg button{background:#1a1a1f!important;color:#c8c8d0!important;border:0!important;padding:7px 16px;font-weight:600;cursor:pointer}
+html:root[data-theme] #df-fields .ol-t-seg button:hover{background:#24242a!important;color:#fff!important}
+html:root[data-theme] #df-fields .ol-t-seg button.on{background:#f5f5f7!important;color:#000!important}
+html:root[data-theme="light"] #df-fields .ol-t-seg button{background:#fff!important;color:#444!important}
+html:root[data-theme="light"] #df-fields .ol-t-seg button.on{background:#111114!important;color:#fff!important}
+#df-fields .ol-title input{flex:1 1 220px;min-width:0}
+#df-fields .ol-t-hint{flex-basis:100%;margin:0}

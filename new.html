@@ -2094,7 +2094,7 @@
 <script src="./assets/shared/phrase.js?v=20261026"></script>
 <script src="./assets/compose.js?v=20261109a"></script>
 <script src="./assets/rw-consent.js"></script>
-<link rel="stylesheet" href="./assets/rw-theme.css?v=20261116f">
+<link rel="stylesheet" href="./assets/rw-theme.css?v=20261116g">
 <link rel="stylesheet" href="./assets/screens.css?v=20261108c">
 </head>
 <body>
@@ -3798,6 +3798,11 @@ ${비율칸Html(kind, 상태)}</div>`;
       delete payload.motion;
     }
     if (answers.hookText && !(answers.productShort && productExtra)) payload.hookText = answers.hookText;
+    // [한마디 영상] 제목 숨기기 = 위쪽 문구 0초·제목 띠 없는 전체화면형 / 보이기 = 적은 제목(비우면 AI 문구)
+    if (payload.script && !answers.productShort && payload.form !== '롱폼' && Number(answers.videoLength) > 0 && Math.round(Number(answers.videoLength) * 60) <= ONE_LINE_MAX) {
+      if (한마디제목 === 'hide') { payload.hookShow = '0초'; delete payload.hookText; if (!payload.layout || payload.layout === '제목고정형') payload.layout = '전체화면형'; }
+      else { const 제목 = String((document.getElementById('df-ol-titleText') || {}).value || '').trim().slice(0, 18); if (제목) payload.hookText = 제목; else delete payload.hookText; }
+    }
     if (answers.sceneCount) payload.sceneCount = answers.sceneCount;
     if (answers.videoLength) payload.videoLength = answers.videoLength;
     await 최신가격받기(); 견적다시계산();   // 가격이 막 바뀐 경우를 반영 (차감은 서버가 정확히 다시 계산)
@@ -3965,6 +3970,7 @@ ${비율칸Html(kind, 상태)}</div>`;
   // 기본료 + 영상 길이(분) × 영상 제작 방식별 분당 포인트, 60분 넘으면 가산율만큼 추가, 1P 단위 반올림 (값은 시트 '설정' 탭)
   // 아래 값은 기본값이다. 관리자가 시트 '설정' 탭에서 바꾸면 사이트 설정(site-config)으로 받아 와서 덮어쓴다(applySitePrice).
   let PRICE_BASE = 30, PRICE_LONG_PCT = 20, TRIAL_PCT = 25, TRIAL_MIN = 5;
+  let 한마디제목 = 'hide';   // [한마디 영상] 위쪽 제목: 'hide' = 숨기기(기본, 0초) · 'show' = 보이기(비우면 AI 문구)
   let GN_SHORT_MIN = 5, ONE_LINE_MAX = 20;   // [한마디 영상] 일반 쇼츠 최소 초·한마디 기준 초(사이트 설정 limits 로 덮어씀 — applySiteShort, gnSnapLen)
   const MOTION_RATE = { '이미지 중심': 70, '혼합': 110, '모두 영상': 170 };
   const MOTION_LIST = ['이미지 중심', '혼합', '모두 영상'];
@@ -4681,7 +4687,25 @@ ${비율칸Html(kind, 상태)}</div>`;
     const 끌것 = [card, (document.getElementById('df-style') || {}).closest && document.getElementById('df-style').closest('.df-field'), (document.getElementById('df-directorNote') || {}).closest && document.getElementById('df-directorNote').closest('.df-field')].filter(Boolean);
     끌것.forEach(el => { el.classList.toggle('oneline-off', on); if (on) el.setAttribute('inert', ''); else el.removeAttribute('inert'); });
     if (card) { let n = document.getElementById('df-oneline-note'); if (!n) { n = document.createElement('p'); n.id = 'df-oneline-note'; n.className = 'oneline-note'; n.textContent = '한마디 영상은 위 한 문장만으로 만들어요. 대본·분위기·연출 칸은 쓰지 않아요.'; card.parentNode.insertBefore(n, card); } n.hidden = !on; }
+    // 제목 [숨기기 | 보이기] — 한 문장 칸 바로 아래. 한마디일 땐 '화면 상단 문구' 칸 대신 여기서 정한다
     const t = document.getElementById('df-topic'); if (!t) return;
+    let tb = document.getElementById('df-ol-title');
+    if (!tb && t.parentElement) {
+      tb = document.createElement('div'); tb.id = 'df-ol-title'; tb.className = 'ol-title';
+      tb.innerHTML = '<span class="ol-t-lab">제목</span><div class="ol-t-seg" role="group" aria-label="제목"><button type="button" data-v="hide">숨기기</button><button type="button" data-v="show">보이기</button></div><input type="text" id="df-ol-titleText" maxlength="18" placeholder="비워 두면 AI가 만들어요 · 18자"><p class="df-hint ol-t-hint"></p>';
+      t.parentElement.appendChild(tb);
+      tb.addEventListener('click', e => { const b = e.target.closest('button[data-v]'); if (!b) return; 한마디제목 = b.dataset.v; 한마디그리기(); });
+    }
+    if (tb) {
+      tb.hidden = !on;
+      tb.querySelectorAll('button[data-v]').forEach(b => { const 고름 = b.dataset.v === 한마디제목; b.classList.toggle('on', 고름); b.setAttribute('aria-pressed', 고름 ? 'true' : 'false'); });
+      const ti = document.getElementById('df-ol-titleText'); if (ti) ti.hidden = 한마디제목 !== 'show';
+      const h = tb.querySelector('.ol-t-hint'); if (h) h.textContent = 한마디제목 === 'show' ? '영상 맨 위에 계속 나와요.' : '영상에는 위 한 문장만 나와요.';
+    }
+    const hk = document.getElementById('df-hookText'), hkf = hk && hk.closest('.df-field');
+    if (hkf) { hkf.classList.toggle('oneline-off', on); if (on) hkf.setAttribute('inert', ''); else hkf.removeAttribute('inert'); }
+    const 제목형 = document.querySelector('input[name="df-layout"][value="제목고정형"]');
+    if (제목형) { const 막음 = on && 한마디제목 === 'hide'; 제목형.disabled = 막음; const op = 제목형.closest('.lp-opt'); if (op) op.classList.toggle('oneline-off', 막음); if (막음 && 제목형.checked) { const a = document.querySelector('input[name="df-layout"][value="자동"]'); if (a) { a.checked = true; a.dispatchEvent(new Event('change', { bubbles: true })); } } }
     const lab = t.parentElement && t.parentElement.querySelector('label');
     if (t.dataset.ph0 === undefined) { t.dataset.ph0 = t.placeholder; t.dataset.lb0 = lab ? lab.innerHTML : ''; }
     if (t.dataset.ml0 === undefined) t.dataset.ml0 = t.maxLength;
