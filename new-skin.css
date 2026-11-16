@@ -50,3 +50,15 @@ h1,h2,h3{letter-spacing:-0.02em}
 #df-fields .df-field input:focus,#df-fields .df-field textarea:focus,#df-fields .df-field select:focus,#df-fields .rf-in:focus{border-color:var(--mv-sel-bd)!important;box-shadow:0 0 0 2px color-mix(in srgb,var(--mv-sel-bd) 25%,transparent)!important}
 /* 진행 단계 바: 위 빛 표시 없앰 */
 .pw-st.cur::before,.pw-st.cur::after{box-shadow:none!important}
+/* 남은 파랑·금색 장식: 기본 버튼·카드·입력칸은 평평하게, 고른 것만 표시 */
+#df-fields button:not(.pw-next):not(.rf-go):not(.vp-chip),#df-fields .pimg-card,#df-fields .pimg-th,#df-fields .pimg-add,.df-tabs,#df-fields .df-sec-ico{
+ background:var(--bg-raised)!important;background-image:none!important;border-color:var(--line)!important;box-shadow:none!important}
+#df-fields input:not([type=range]):not([type=radio]):not([type=checkbox]),#df-fields select,#df-fields textarea{background:var(--bg-input,var(--bg-raised))!important;border-color:var(--line-strong)!important;box-shadow:none!important}
+#df-fields button[aria-pressed="true"]:not(.vp-chip),#df-fields button.on,#df-fields button.active,#df-fields .len-chips .len-chip.on{
+ background:var(--mv-sel-bg)!important;border:1.5px solid var(--mv-sel-bd)!important;color:var(--mv-head)!important;box-shadow:none!important}
+#df-fields .pimg-th,#df-fields .df-sec-ico{color:var(--mv-sub)!important}
+.pw-st.todo,.pw-st.todo b,.pw-st.todo small{color:var(--ink-faint)!important}
+.pw-holes{background-image:none!important;background-color:transparent!important}
+.df-price .amt,.df-price .amt .val{font-family:'Pretendard Variable',Pretendard,sans-serif!important;border-color:var(--line)!important;color:var(--mv-head)!important;font-weight:800}
+#df-fields .len-now{color:var(--mv-coral)!important;border-color:color-mix(in srgb,var(--mv-coral) 45%,transparent)!important;background:color-mix(in srgb,var(--mv-coral) 12%,transparent)!important}
+#df-fields input[type=range]{accent-color:var(--mv-coral)}
