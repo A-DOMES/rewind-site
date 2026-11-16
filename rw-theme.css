@@ -372,3 +372,4 @@ html:root[data-theme="dark"] #df-fields .vp-chip:not([aria-pressed="true"]):hove
 html:root[data-theme="dark"] #df-fields .vp-play{color:#f5f5f7!important}
 html:root[data-theme="dark"] #df-fields .vp-ticks span:not(.on){color:#a1a1aa!important}
 html:root[data-theme="dark"] #df-fields .vp-ticks span:not(.on)::before{background:#3a3a44!important}
+html:root[data-theme="dark"] .pw-nav .pw-next.is-blocked{background:#1a1a1f!important;background-image:none!important;color:#80808a!important;border-color:#26262c!important;box-shadow:none!important}
