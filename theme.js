@@ -81,7 +81,7 @@
     (document.head || document.documentElement).appendChild(s);
   }
 
-  function stored() { try { return localStorage.getItem(KEY) || 'system'; } catch (e) { return 'system'; } }
+  function stored() { try { return localStorage.getItem(KEY) || 'dark'; } catch (e) { return 'dark'; } }
   function systemIsLight() { try { return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches); } catch (e) { return false; } }
   /* 지금 화면에 실제로 보이는 테마 (기기 설정 따르기면 기기의 밝음/어두움) */
   function current() {
