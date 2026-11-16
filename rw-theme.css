@@ -337,7 +337,7 @@ html:root[data-theme="dark"] #df-fields .df-field select:focus,
 html:root[data-theme="dark"] #df-fields .rf-in:focus{border-color:#f5f5f7!important;box-shadow:0 0 0 2px color-mix(in srgb,#f5f5f7 25%,transparent)!important}
 html:root[data-theme="dark"] .pw-st.cur::before,
 html:root[data-theme="dark"] .pw-st.cur::after{box-shadow:none!important}
-html:root[data-theme="dark"] #df-fields button:not(.pw-next):not(.rf-go):not(.vp-chip):not(.kd):not(.sh-use):not(.sc-act),
+html:root[data-theme="dark"] #df-fields button:not(.pw-next):not(.rf-go):not(.vp-chip):not(.kd):not(.sh-use):not(.sc-act):not(.on):not(.active):not([aria-pressed="true"]),
 html:root[data-theme="dark"] #df-fields .pimg-card,
 html:root[data-theme="dark"] #df-fields .pimg-th,
 html:root[data-theme="dark"] #df-fields .pimg-add,
@@ -389,30 +389,28 @@ html:root[data-theme="light"] .pw-st.done{border-color:#d4d4d8!important}
 /* ═════════ 5. Moview 2차 정리 (2026-11-16 저녁) — 코랄은 아껴 쓰고, 상태 색은 뜻대로 ═════════
    규칙: 코랄 = 화면(카드 묶음)당 주 버튼 하나·단계 번호·필수 표시만.  할 일(승인 대기) = 금색, 진행 = 파랑, 완성 = 초록, 오류 = 분홍빨강.
    목록 줄마다 반복되는 버튼·표시는 회색 테두리(마우스를 올리면 코랄).  제작 방식 색: 이미지 중심 파랑 · 혼합 금색 · 모두 영상 보라. */
-html:root[data-theme="dark"]{--mv-todo:#ffb020;--mv-todo-wash:rgba(255,176,32,.07);--status-review:#ffb020;--mv-run:#5b9dff;--mv-ok:#34d399}
+html:root[data-theme]{--mv-todo:#ffb020;--mv-todo-wash:rgba(255,176,32,.07);--status-review:#ffb020;--mv-run:#5b9dff;--mv-ok:#34d399}
 html:root[data-theme="light"]{--mv-todo:#9a6700;--mv-todo-wash:rgba(154,103,0,.06);--status-review:#9a6700;--mv-run:#2f6fb3;--mv-ok:#3f7d34}
 /* ① 목록 줄 버튼: 대본 보관함 '영상 만들기' */
 .sh-item .sh-use{background:transparent!important;border:1px solid var(--line-strong)!important;color:var(--ink)!important}
 .sh-item .sh-use:hover{border-color:var(--amber)!important;color:var(--amber)!important;background:transparent!important}
 /* ① 상품 캘린더 '판매 시기': 줄마다 붉은 표시 → 회색 테두리 표시 */
 .cal-badge,html:root[data-theme="light"] .cal-badge{background:transparent!important;color:var(--ink)!important;border:1px solid var(--line-strong)!important;font-weight:600}
-.cal-item.is-open{border-color:var(--line-strong)!important}
+.cal-item.is-open{border-color:var(--ink-dim)!important}
 /* ② 할 일 알림 카드(대본·장면 확인): 금색, 버튼은 테두리형 */
 .nc-todo{--tone:var(--mv-todo)!important}
 .nc-todo .nc-btn{background:transparent!important;border-color:var(--mv-todo)!important;color:var(--mv-todo)!important}
 .nc-todo .nc-btn:hover{background:var(--mv-todo-wash)!important;filter:none!important}
-.nc-todo .nc-ico svg{stroke:#000!important}
-.nc-todo .nc-ico::after{background:var(--mv-todo)!important}
+html:root[data-theme="dark"] .nc-todo .nc-ico svg{stroke:#000!important}
+.nc-todo .nc-ico::after{background:var(--ink)!important}
 /* ② 내 프로젝트 목록: 승인 대기 줄 = 금색, 진행 = 파랑, 완성 = 초록 */
-.sum-chip.todo{border-color:color-mix(in srgb,var(--mv-todo) 50%,var(--line))!important;background:var(--mv-todo-wash)!important}
-.sum-chip.todo b{color:var(--mv-todo)!important}
 .reel-row[data-status="대본검수대기"],.reel-row[data-status="검수 대기"]{border-color:color-mix(in srgb,var(--mv-todo) 35%,var(--line))!important;background:var(--mv-todo-wash)!important}
 .reel-row[data-status="대본검수대기"] .status-chip,.reel-row[data-status="검수 대기"] .status-chip{color:var(--mv-todo)!important;border-color:color-mix(in srgb,var(--mv-todo) 40%,var(--line))!important}
 /* ⑤ 장식 정리: 별가루 배경, 대본 보관함 종류 카드의 형광 그림 */
 .direct-form-wrap{background-image:none!important}
 .kd::after{display:none!important}
 .kd:not(.off) .kd-t{color:var(--ink-dim)!important}
-.kd:hover{border-color:var(--ink-faint)!important}
+.kd:not(.off):hover{border-color:var(--ink-faint)!important}
 /* ④ 제작 방식 색(카드·가격 막대·요금표 같게) */
 .mc-img{--mc:#5b9dff!important}.mc-mix{--mc:#ffb020!important}.mc-all{--mc:#a78bfa!important}
 html:root[data-theme="light"] .mc-img{--mc:#2f6fb3!important}html:root[data-theme="light"] .mc-mix{--mc:#9a6700!important}html:root[data-theme="light"] .mc-all{--mc:#6d4fd1!important}
@@ -437,3 +435,92 @@ html:root[data-theme="light"] .kd[data-kd="yadam"]{--kc:#6d4fd1}html:root[data-t
 html:root[data-theme] .kd[data-kd]:not(.off) .kd-ic,html:root[data-theme] .kd[data-kd]:not(.off) .kd-ic svg{color:var(--kc,var(--ink-dim))!important;border-color:color-mix(in srgb,var(--kc,var(--line)) 45%,transparent)!important;background:color-mix(in srgb,var(--kc,transparent) 10%,transparent)!important}
 .sh-h,.sh-h h3{color:var(--ink)!important}
 .sh-h .hi{color:var(--ink-dim)!important;border-color:var(--line-strong)!important;background:transparent!important}
+
+/* ═════════ 6. 명함카드 3단계 (2026-11-16 밤) — 바탕 < 구역 카드 < 선택지 < 고른 것.  고른 것이 한눈에 보이게 ═════════ */
+html:root[data-theme="dark"] body #df-fields .df-sec,
+html:root[data-theme="dark"] body #df-fields .sc-card,
+html:root[data-theme="dark"] body .pw-bar{background:#111114!important;border:1px solid #2a2a30!important;box-shadow:none!important}
+html:root[data-theme="dark"] body #df-fields .df-sec-head,
+html:root[data-theme="dark"] body #df-fields .rf-head{border-bottom:1px solid #222227;padding-bottom:12px;margin-bottom:14px}
+html:root[data-theme="dark"] body #df-fields .tcard,
+html:root[data-theme="dark"] body #df-fields .ccard,
+html:root[data-theme="dark"] body #df-fields .mood-card,
+html:root[data-theme="dark"] body #df-fields .vp-card,
+html:root[data-theme="dark"] body #df-fields .vp-auto,
+html:root[data-theme="dark"] body #df-fields .lp-card,
+html:root[data-theme="dark"] body #df-fields .len-chip,
+html:root[data-theme="dark"] body #df-fields .vp-chip,
+html:root[data-theme="dark"] body #df-fields .sc-opts button,
+html:root[data-theme="dark"] body .pw-st,
+html:root[data-theme="dark"] body #df-fields .pimg-card,
+html:root[data-theme="dark"] body #df-fields .cz-entry,
+html:root[data-theme="dark"] body #df-fields .df-field input:not([type=range]):not([type=radio]):not([type=checkbox]),
+html:root[data-theme="dark"] body #df-fields .df-field textarea,
+html:root[data-theme="dark"] body #df-fields .df-field select{background:#1a1a1f!important;border:1px solid #34343c!important;box-shadow:none!important}
+html:root[data-theme="dark"] body #df-fields .tcard:hover,
+html:root[data-theme="dark"] body #df-fields .ccard:hover,
+html:root[data-theme="dark"] body #df-fields .mood-card:hover,
+html:root[data-theme="dark"] body #df-fields .vp-card:hover,
+html:root[data-theme="dark"] body #df-fields .vp-auto:hover,
+html:root[data-theme="dark"] body #df-fields .lp-opt .lp-card:hover,
+html:root[data-theme="dark"] body #df-fields .len-chip:hover,
+html:root[data-theme="dark"] body #df-fields .sc-opts button:hover,
+html:root[data-theme="dark"] body .pw-st:hover,
+html:root[data-theme="dark"] body #df-fields .cz-entry:hover{border-color:#8a8a94!important;transform:translateY(-1px)}
+html:root[data-theme="dark"] body #df-fields input:checked + .tcard,
+html:root[data-theme="dark"] body #df-fields input:checked + .ccard,
+html:root[data-theme="dark"] body #df-fields input:checked + .mood-card,
+html:root[data-theme="dark"] body #df-fields .lp-opt:not(.mc) input:checked + .lp-card,
+html:root[data-theme="dark"] body #df-fields .vp-card[aria-pressed="true"],
+html:root[data-theme="dark"] body #df-fields .vp-auto[aria-pressed="true"],
+html:root[data-theme="dark"] body #df-fields .len-chip.on,
+html:root[data-theme="dark"] body #df-fields .sc-opts button[aria-pressed="true"],
+html:root[data-theme="dark"] body .pw-st.cur,
+html:root[data-theme="dark"] body #df-fields button.on,
+html:root[data-theme="dark"] body #df-fields button.active,
+html:root[data-theme="dark"] body #df-fields button[aria-pressed="true"]:not(.vp-chip){background:#2a2a31!important;border:2px solid #f5f5f7!important;box-shadow:0 6px 18px -10px rgba(255,255,255,.35)!important;color:#fff!important}
+html:root[data-theme="dark"] body #df-fields .vp-chip[aria-pressed="true"]{background:#f5f5f7!important;color:#000!important;border:2px solid #f5f5f7!important}
+html:root[data-theme="light"] body #df-fields .df-sec,
+html:root[data-theme="light"] body #df-fields .sc-card,
+html:root[data-theme="light"] body .pw-bar{background:#ffffff!important;border:1px solid #e4e4e7!important;box-shadow:0 1px 3px rgba(0,0,0,.05)!important}
+html:root[data-theme="light"] body #df-fields .df-sec-head,
+html:root[data-theme="light"] body #df-fields .rf-head{border-bottom:1px solid #ececef;padding-bottom:12px;margin-bottom:14px}
+html:root[data-theme="light"] body #df-fields .tcard,
+html:root[data-theme="light"] body #df-fields .ccard,
+html:root[data-theme="light"] body #df-fields .mood-card,
+html:root[data-theme="light"] body #df-fields .vp-card,
+html:root[data-theme="light"] body #df-fields .vp-auto,
+html:root[data-theme="light"] body #df-fields .lp-card,
+html:root[data-theme="light"] body #df-fields .len-chip,
+html:root[data-theme="light"] body #df-fields .vp-chip,
+html:root[data-theme="light"] body #df-fields .sc-opts button,
+html:root[data-theme="light"] body .pw-st,
+html:root[data-theme="light"] body #df-fields .pimg-card,
+html:root[data-theme="light"] body #df-fields .cz-entry,
+html:root[data-theme="light"] body #df-fields .df-field input:not([type=range]):not([type=radio]):not([type=checkbox]),
+html:root[data-theme="light"] body #df-fields .df-field textarea,
+html:root[data-theme="light"] body #df-fields .df-field select{background:#f7f7f8!important;border:1px solid #d9d9de!important;box-shadow:none!important}
+html:root[data-theme="light"] body #df-fields .tcard:hover,
+html:root[data-theme="light"] body #df-fields .ccard:hover,
+html:root[data-theme="light"] body #df-fields .mood-card:hover,
+html:root[data-theme="light"] body #df-fields .vp-card:hover,
+html:root[data-theme="light"] body #df-fields .vp-auto:hover,
+html:root[data-theme="light"] body #df-fields .lp-opt .lp-card:hover,
+html:root[data-theme="light"] body #df-fields .len-chip:hover,
+html:root[data-theme="light"] body #df-fields .sc-opts button:hover,
+html:root[data-theme="light"] body .pw-st:hover,
+html:root[data-theme="light"] body #df-fields .cz-entry:hover{border-color:#71717a!important;transform:translateY(-1px)}
+html:root[data-theme="light"] body #df-fields input:checked + .tcard,
+html:root[data-theme="light"] body #df-fields input:checked + .ccard,
+html:root[data-theme="light"] body #df-fields input:checked + .mood-card,
+html:root[data-theme="light"] body #df-fields .lp-opt:not(.mc) input:checked + .lp-card,
+html:root[data-theme="light"] body #df-fields .vp-card[aria-pressed="true"],
+html:root[data-theme="light"] body #df-fields .vp-auto[aria-pressed="true"],
+html:root[data-theme="light"] body #df-fields .len-chip.on,
+html:root[data-theme="light"] body #df-fields .sc-opts button[aria-pressed="true"],
+html:root[data-theme="light"] body .pw-st.cur,
+html:root[data-theme="light"] body #df-fields button.on,
+html:root[data-theme="light"] body #df-fields button.active,
+html:root[data-theme="light"] body #df-fields button[aria-pressed="true"]:not(.vp-chip){background:#ffffff!important;border:2px solid #111114!important;box-shadow:0 6px 16px -10px rgba(0,0,0,.35)!important;color:#111114!important}
+html:root[data-theme="light"] body #df-fields .vp-chip[aria-pressed="true"]{background:#111114!important;color:#fff!important;border:2px solid #111114!important}
+html:root[data-theme="light"] body .direct-form-wrap,html:root[data-theme="light"] body #df-fields{background-color:#f4f4f5}
