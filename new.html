@@ -6117,7 +6117,12 @@ ${비율칸Html(kind, 상태)}</div>`;
       const 숨김 = gnHookShow === '0s' && !(document.querySelector('input[name="df-type"]:checked') || {}).value?.startsWith('상품');   // [제목 숨기기]
       box.innerHTML = pdPvSvg({ layout: 숨김 && (lay === '자동' || lay === '제목고정형' || lay === '가운데영상형') ? '전체화면형' : (lay === '자동' ? '제목고정형' : lay), /* 자동 = 렌더링 기본 제목고정형(일반 쇼츠) */ hook: 숨김 ? '' : hook, hookShow: 숨김 ? '0s' : 'all', pos: cap === '자동' ? '하단' : cap, size: vv.subtitleSize || '크게', sub: vv.subtitleStyle || '구절형', off: !!vv.subtitleOff }) + '<small>고른 화면 구성이에요. 모양·색·글자는 뒤의 꾸미기에서 바꿔요</small>';
     }
-    layoutSec.addEventListener('change', () => drawLayoutPv());
+    // [제목 보이기/숨기기] 마지막에 고른 것이 이긴다: 3단계에서 제목 띠가 있는 구성(제목고정형·가운데영상형)을 직접 누르면 '보이기', 5단계 버튼·6단계 꾸미기가 그 뒤에 바꿀 수 있다(아무것도 안 고르면 한마디는 숨기기)
+    layoutSec.addEventListener('change', e => {
+      const t = e.target;
+      if (e.isTrusted && t && t.name === 'df-layout' && (t.value === '제목고정형' || t.value === '가운데영상형') && gnHookShow === '0s') { gnHookTouched = true; gnHookShow = 'all'; if (typeof 한마디그리기 === 'function') 한마디그리기(); }
+      drawLayoutPv();
+    });
     let lastKind = null;
     function render() {
       const active = on();
