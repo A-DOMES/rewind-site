@@ -254,8 +254,9 @@
         .then(function (r) { return r.json().catch(function () { return null; }).then(function (d) { return { ok: r.ok, d: d }; }); })
         .then(function (r) {
           if (!r.ok || !r.d || !r.d.url) throw new Error((r.d && r.d.오류) || '목소리를 만들지 못했어요. 잠시 뒤 다시 눌러 주세요');
-          pvAudio = new Audio(r.d.url); pvAudio.onended = function () { if (note) note.textContent = '다시 들으려면 눌러 주세요 · 오늘 ' + r.d.남은횟수 + '번 남았어요'; };
-          if (note) note.textContent = '재생 중이에요';
+          var 읽은 = r.d.목소리 ? ((window.RWVoiceCatalog && RWVoiceCatalog.이름(r.d.목소리)) || r.d.목소리) : '';   // 서버가 실제로 읽은 목소리(확인용)
+          pvAudio = new Audio(r.d.url); pvAudio.onended = function () { if (note) note.textContent = (읽은 ? '「' + 읽은 + '」 목소리로 읽었어요 · ' : '') + '다시 들으려면 눌러 주세요 · 오늘 ' + r.d.남은횟수 + '번 남았어요'; };
+          if (note) note.textContent = 읽은 ? '「' + 읽은 + '」 목소리로 읽는 중이에요' : '재생 중이에요';
           return pvAudio.play();
         })
         .catch(function (e) { if (note) note.textContent = (e && e.message) || '재생하지 못했어요. 다시 눌러 주세요'; })
