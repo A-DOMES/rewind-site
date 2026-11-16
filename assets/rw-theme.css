@@ -524,3 +524,6 @@ html:root[data-theme="light"] body #df-fields#df-fields button.active,
 html:root[data-theme="light"] body #df-fields#df-fields button[aria-pressed="true"]:not(.vp-chip){background:#ffffff!important;border:2px solid #111114!important;box-shadow:0 6px 16px -10px rgba(0,0,0,.35)!important;color:#111114!important}
 html:root[data-theme="light"] body #df-fields#df-fields .vp-chip[aria-pressed="true"]{background:#111114!important;color:#fff!important;border:2px solid #111114!important}
 html:root[data-theme="light"] body .direct-form-wrap,html:root[data-theme="light"] body #df-fields{background-color:#f4f4f5}
+
+/* 한마디 영상(20초 이하 일반 쇼츠): 대본 고르기 카드 숨김 — new.html 한마디그리기() */
+.oneline-hide{display:none!important}
