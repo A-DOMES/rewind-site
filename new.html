@@ -361,7 +361,11 @@
   .summary-row:last-child { border-bottom: none; }
   .summary-row .k { color: var(--ink-faint); flex-shrink: 0; }
   .summary-row .v { color: var(--ink); text-align: right; }
-  .confirm-consent { display: flex; align-items: flex-start; gap: 8px; margin: 14px 0; font-size: 0.82rem; color: var(--ink-dim); }
+  .confirm-consent { display: flex; align-items: center; gap: 12px; margin: 14px 0; padding: 14px 16px; border: 2px solid var(--line-strong, #3a3a42); border-radius: 12px; font-size: 0.95rem; color: var(--ink); cursor: pointer; transition: border-color .15s, background .15s; }
+  .confirm-consent:hover { border-color: #8a8a94; }
+  .confirm-consent:has(#terms-consent:checked) { border-color: #34d399; background: rgba(52,211,153,.08); }
+  .confirm-consent #terms-consent { flex: 0 0 auto; width: 26px; height: 26px; margin: 0; accent-color: #34d399; cursor: pointer; }
+  .confirm-consent label { cursor: pointer; line-height: 1.5; }
   .confirm-consent a { color: var(--gold); }
   .confirm-actions { display: flex; gap: 10px; }
   .btn-gold-sm { flex: 1; background: var(--gold); color: var(--on-gold); border: none; border-radius: 6px; padding: 11px; font-size: 0.9rem; font-weight: 600; cursor: pointer; text-align: center; }
@@ -3638,7 +3642,7 @@ ${비율칸Html(kind, 상태)}</div>`;
     const consentWrap = document.createElement('div');
     consentWrap.className = 'confirm-consent';
     consentWrap.innerHTML = `
-      <input type="checkbox" id="terms-consent" style="margin-top:3px;">
+      <input type="checkbox" id="terms-consent">
       <label for="terms-consent"><a href="./tos.html" target="_blank">이용약관</a> 및 <a href="./terms.html" target="_blank">개인정보 처리방침</a>에 동의합니다.${mode === 'media' ? ' 업로드 원본은 구글 드라이브에 보관되며, 체험 후 24시간 안에 결제가 확인되지 않으면 시스템의 분석 정보는 자동 삭제됩니다.' : ''}</label>`;
     composer.appendChild(consentWrap);
 
@@ -5967,7 +5971,7 @@ ${비율칸Html(kind, 상태)}</div>`;
       const 썸네일 = paid ? (document.getElementById('df-thumbnail')?.checked ? 'AI 썸네일 3장 함께 만들기' : '만들지 않음') : '체험판은 제공하지 않아요';
       const 광고 = d.link && (gnSeller === 'affiliate' || (document.querySelector('input[name="gn-seller"]:checked') || {}).value === 'affiliate' || pdLooksAffiliate(d.link)) ? ' 대가가 있는 영상이라 제목 앞 "(광고)", 영상 안 "유료 광고 포함", 설명란 맨 앞 안내가 들어가요. 직접 올릴 때는 "유료 프로모션 포함"도 체크해 주세요.' : '';
       const 숨김 = gnHookShow === '0s', 고른 = document.querySelector('input[name="df-layout"]:checked')?.value || '자동';   // [제목 숨기기] 신청 때처럼 띠 있는 구성은 전체화면형·문구 없이
-      const 미리 = 롱폼 ? '' : pdPvSvg({ layout: 고른 === '자동' || (숨김 && (고른 === '제목고정형' || 고른 === '가운데영상형')) ? '전체화면형' : 고른, hook: 숨김 ? '' : gv('df-hookText'), hookShow: 숨김 ? '0s' : 'all', pos: (document.querySelector('input[name="df-captionPos"]:checked')?.value || '자동') === '자동' ? '하단' : document.querySelector('input[name="df-captionPos"]:checked').value, size: vv.subtitleSize || '크게', sub: vv.subtitleStyle || '구절형', off: !!vv.subtitleOff });
+      const 미리 = 롱폼 ? '' : pdPvSvg({ layout: 숨김 && (고른 === '자동' || 고른 === '제목고정형' || 고른 === '가운데영상형') ? '전체화면형' : (고른 === '자동' ? '제목고정형' : 고른), /* 자동 = 렌더링 기본 제목고정형(일반 쇼츠) */ hook: 숨김 ? '' : gv('df-hookText'), hookShow: 숨김 ? '0s' : 'all', pos: (document.querySelector('input[name="df-captionPos"]:checked')?.value || '자동') === '자동' ? '하단' : document.querySelector('input[name="df-captionPos"]:checked').value, size: vv.subtitleSize || '크게', sub: vv.subtitleStyle || '구절형', off: !!vv.subtitleOff });
       review.innerHTML = `<div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg></span><div><h3 data-n="${LAST + 1}">이대로 만들까요?</h3><p>고칠 곳이 있으면 "고치기"를 눌러 그 단계로 돌아가세요</p></div></div>` +
         (롱폼 ? '' : `<div class="pw-pv" role="img" aria-label="고른 화면 모양 미리보기">${미리}<small>${숨김 ? '고른 화면 모양이에요. 제목은 숨겨요' : gv('df-hookText') ? '고른 화면 모양이에요. 위쪽 문구는 "' + esc(gv('df-hookText')) + '"' : '고른 화면 모양이에요. 위쪽 문구가 비어 있으면 AI가 대본에서 정해요'}</small></div>`) +
         row('영상 형태', 롱폼 ? '롱폼 · 가로 16:9' : '쇼츠 · 세로 9:16', 0) + 참고줄 + (d.script ? row('내 대본', d.script.title + ' · ' + ((window.__rwGenChars ? window.__rwGenChars(d.script) : Number(d.script.chars)) || 0).toLocaleString('ko-KR') + '자', 3) : '') + row('주제', d.topic || (d.script ? '대본 제목을 써요' : '아직 비어 있어요'), 3) +
@@ -6110,7 +6114,7 @@ ${비율칸Html(kind, 상태)}</div>`;
       box.hidden = 롱폼; if (롱폼) { box.innerHTML = ''; return; }
       const vv = (window.RWVoice && RWVoice.value()) || {}, lay = (document.querySelector('input[name="df-layout"]:checked') || {}).value || '자동', cap = (document.querySelector('input[name="df-captionPos"]:checked') || {}).value || '자동', hook = ((document.getElementById('df-hookText') || {}).value || '').trim();
       const 숨김 = gnHookShow === '0s' && !(document.querySelector('input[name="df-type"]:checked') || {}).value?.startsWith('상품');   // [제목 숨기기]
-      box.innerHTML = pdPvSvg({ layout: lay === '자동' || (숨김 && (lay === '제목고정형' || lay === '가운데영상형')) ? '전체화면형' : lay, hook: 숨김 ? '' : hook, hookShow: 숨김 ? '0s' : 'all', pos: cap === '자동' ? '하단' : cap, size: vv.subtitleSize || '크게', sub: vv.subtitleStyle || '구절형', off: !!vv.subtitleOff }) + '<small>고른 화면 구성이에요. 모양·색·글자는 뒤의 꾸미기에서 바꿔요</small>';
+      box.innerHTML = pdPvSvg({ layout: 숨김 && (lay === '자동' || lay === '제목고정형' || lay === '가운데영상형') ? '전체화면형' : (lay === '자동' ? '제목고정형' : lay), /* 자동 = 렌더링 기본 제목고정형(일반 쇼츠) */ hook: 숨김 ? '' : hook, hookShow: 숨김 ? '0s' : 'all', pos: cap === '자동' ? '하단' : cap, size: vv.subtitleSize || '크게', sub: vv.subtitleStyle || '구절형', off: !!vv.subtitleOff }) + '<small>고른 화면 구성이에요. 모양·색·글자는 뒤의 꾸미기에서 바꿔요</small>';
     }
     layoutSec.addEventListener('change', () => drawLayoutPv());
     let lastKind = null;
