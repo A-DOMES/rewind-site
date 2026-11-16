@@ -604,7 +604,11 @@
   }
   function 만든시각글(p) { const d = 번호시각(p.id); return d ? 날짜시각글(d) : String(p.createdAt || ''); }
 
-  // [신규] 영상 파일 보관 기한: 완성 시각부터 7일 (렌더링 서버가 7일 뒤 파일을 지운다). 썸네일 편집 기한도 같다.
+  // [보관 2026-11-16] 영상 파일 보관: 정식 30일 · 체험 7일(관리자 설정). 남은 날은 내 프로젝트 목록(n8n v3.4)이 보관일·보관남은일로 알려 준다.
+  // 저장소 임시 주소는 7일이면 닫히므로, 우리 저장소 주소면 렌더 서버 GET /video 가 서명을 확인하고 새 주소로 넘겨 준다.
+  const 영상받기API = 'https://a-domes--rewind-render-upload-api.modal.run/video';
+  function 재생주소(u) { return /[?&]X-Amz-Signature=/.test(String(u || '')) ? 영상받기API + '?u=' + encodeURIComponent(String(u)) : String(u || ''); }
+  // 썸네일 편집 기한: 완성 시각부터 7일(편집 창이 영상에서 장면을 뽑는다). 영상 보관일과는 따로다.
   const 보관일수 = 7;
   function 보관기한(p) {
     const t = Date.parse(String(p.completedAt || ''));
@@ -618,6 +622,10 @@
   }
   function 짧은날짜(d) { return `${d.getMonth() + 1}월 ${d.getDate()}일 ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; }
   function 보관안내(p) {
+    if (Number(p.보관일) > 0) {   // [보관 2026-11-16] 서버가 알려 준 남은 날
+      const 남 = Math.max(0, Number(p.보관남은일) || 0);
+      return `<p class="video-note${남 <= 2 ? ' is-soon' : ''}"><strong>영상 파일 보관: ${남}일 남음</strong> (${p.planPaid ? '정식' : '체험'} 영상은 완성 후 ${Number(p.보관일)}일 보관)<br>그 뒤에는 자동으로 지워지니, 필요하면 기간 안에 받아 두세요.</p>`;
+    }
     const d = 보관기한(p);
     if (!d) return `<p class="video-note"><strong>렌더링 서버에는 최대 7일까지만 보관</strong>되니, 필요하시면 기간 안에 다운로드해 두세요.</p>`;
     const 남은 = 남은기간글(d);
@@ -656,7 +664,13 @@
     const 원래 = a.textContent;
     a.dataset.busy = '1'; a.textContent = '받는 중…';
     try {
-      const res = await fetch(a.href, { mode: 'cors' });
+      let 받을주소 = a.href;
+      if (받을주소.startsWith(영상받기API)) {   // [보관 2026-11-16] 우리 저장소 영상은 새 주소를 글로 받아서 받는다(302 를 따라가면 B2 가 막음)
+        const j = await (await fetch(받을주소 + '&json=1', { mode: 'cors' })).json();
+        if (!j || !j.ok || !j.url) throw new Error('video link');
+        받을주소 = j.url;
+      }
+      const res = await fetch(받을주소, { mode: 'cors' });
       if (!res.ok) throw new Error('status ' + res.status);
       const blob = await res.blob();
       const obj = URL.createObjectURL(blob);
@@ -665,7 +679,7 @@
       setTimeout(() => URL.revokeObjectURL(obj), 30000);
     } catch (err) {
       window.open(a.href, '_blank', 'noopener');
-      안내띄우기(/\.(mp4|mov|webm)(\?|$)/i.test(a.href)
+      안내띄우기((/\.(mp4|mov|webm)(\?|$)/i.test(a.href) || a.href.startsWith(영상받기API))
         ? '새 창에서 영상이 열렸어요. 영상 오른쪽 아래 ⋮ 버튼 → "다운로드"를 누르면 저장돼요.'
         : '새 창에서 이미지가 열렸어요. 이미지를 길게 누르거나 오른쪽 클릭 → "이미지 저장"을 눌러주세요.');
     } finally {
@@ -722,6 +736,13 @@
       if (!완성) { card.style.display = 'none'; card.innerHTML = ''; delete card.dataset.vkey; return; }
       card.style.display = 'block';
       delete card.dataset.vkey;
+      if (p.보관끝) {   // [보관 2026-11-16] 보관일이 지나 지워진 영상
+        card.innerHTML = `
+        <div class="mark">▶</div>
+        <h2>보관 기간이 끝났어요</h2>
+        <p>${p.planPaid ? '정식' : '체험'} 영상은 완성 후 ${Number(p.보관일) || (p.planPaid ? 30 : 7)}일 동안 보관하고 자동으로 지워요. 받아 두신 파일은 계속 쓰실 수 있어요.</p>`;
+        return;
+      }
       card.innerHTML = `
         <div class="mark">▶</div>
         <h2>영상은 완성됐어요</h2>
@@ -741,7 +762,7 @@
     const 플레이어 = ytMatch
       ? `<div class="video-frame ${비율}"><iframe src="https://www.youtube-nocookie.com/embed/${escapeHtml(ytMatch[1])}?rel=0&playsinline=1" title="${escapeHtml(p.title || '완성된 영상')}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen loading="lazy"></iframe></div>`
       // 체험판은 플레이어의 ⋮ 메뉴에서도 다운로드·원격 재생이 되지 않게 한다(막는 시늉이라 주소를 아는 사람까지 막지는 못한다)
-      : `<div class="video-frame ${비율}"><video controls playsinline preload="metadata" ${체험 ? 'controlsList="nodownload noremoteplayback" disablePictureInPicture oncontextmenu="return false"' : ''} src="${escapeHtml(url)}"></video></div>`;
+      : `<div class="video-frame ${비율}"><video controls playsinline preload="metadata" ${체험 ? 'controlsList="nodownload noremoteplayback" disablePictureInPicture oncontextmenu="return false"' : ''} src="${escapeHtml(재생주소(url))}"></video></div>`;
     const 칸키 = (체험 ? 't' : 'p') + '|' + 비율 + '|' + url;
     if (card.dataset.vkey !== 칸키 || !card.querySelector('[data-slot="player"]')) {
       card.innerHTML = '<div data-slot="head"></div><div data-slot="player"></div><div data-slot="rest"></div>';
@@ -753,7 +774,7 @@
       머리.innerHTML = `<h2>영상이 완성됐어요</h2>`;
       나머지.innerHTML = `
         <div class="video-actions">
-          <a class="btn-primary" href="${escapeHtml(url)}" target="_blank" rel="noopener" ${ytMatch ? '' : `data-dl="${escapeHtml(파일이름(p.title, '영상', url, 'mp4'))}"`}>${ytMatch ? '유튜브에서 보기' : '영상 다운로드'}</a>
+          <a class="btn-primary" href="${escapeHtml(재생주소(url))}" target="_blank" rel="noopener" ${ytMatch ? '' : `data-dl="${escapeHtml(파일이름(p.title, '영상', url, 'mp4'))}"`}>${ytMatch ? '유튜브에서 보기' : '영상 다운로드'}</a>
         </div>
         ${세로 ? '<p class="plat-note">세로(9:16) 영상이라 유튜브 쇼츠 · 인스타그램 릴스 · 틱톡에 같은 파일로 올릴 수 있어요.</p>' : '<p class="plat-note">가로(16:9) 영상은 인스타그램 릴스 · 틱톡에 올리면 위아래에 검은 띠가 생겨요.</p>'}
         ${thumbnailPicker(p)}
