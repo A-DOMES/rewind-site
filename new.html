@@ -5053,6 +5053,8 @@ ${비율칸Html(kind, 상태)}</div>`;
   function pdSnapLen(v) { const n = Number(v); if (!Number.isFinite(n) || n <= 0) return PD_LEN_DEFAULT; return Math.min(PD_LEN_MAX, Math.max(PD_LEN_MIN, Math.round(n))); }
   function pdTickLen(v) { const s = pdSnapLen(v), t = Math.round(s / PD_LEN_STEP) * PD_LEN_STEP; return Math.abs(s - t) <= 2 ? t : s; }   // 눈금 가까이에서는 눈금 값으로 붙는다
   const pdEsc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  // [출시 전 점검 ⑥] 약관 제7조가 '주문 화면에서 알린다'고 약속한 취소·환불 안내와 AI 결과 확인 안내(모든 확인 화면 공통)
+  const 신청안내HTML = '<p class="pw-note">포인트는 신청할 때 쓰여요. 제작이 시작되기 전(내 프로젝트의 확인 단계)에 취소하면 돌려드리고, 제작이 시작되면 취소할 수 없어요. 저희 쪽 문제로 만들지 못하면 전액 자동으로 돌려드려요. AI가 만든 결과라 손·얼굴·글자가 어색할 수 있으니 확인 단계에서 꼭 살펴봐 주세요.</p>';
   const PD_SELLER_LABEL = { own: '내 제품', affiliate: '대가 있음', none: '소개만' };
   // 주소 한 개를 접수 서버와 같은 규칙으로 미리 검사한다. 문제가 있으면 고객에게 보일 문장을, 괜찮으면 ''를 돌려준다.
   function pdUrlProblem(raw, kind) {   // kind: 'media' | 'link'
@@ -5871,13 +5873,13 @@ ${비율칸Html(kind, 상태)}</div>`;
         review.innerHTML = head + row('영상 구성', lab('df-comp'), 1) + row('이야기·분위기', gv('df-topic') || (대본 ? 대본제목(대본) : '아직 비어 있어요'), 3) +
           (읽기 && 대본 ? row('읽을 대본', 대본.title, 3) : '') + (말 === '내목소리' ? row('내 목소리 녹음', gv('df-voiceUrl').slice(0, 60) || '아직 비어 있어요', 1) : '') + row('영상 길이', 길이, 1) + row('품질 등급', lab('df-tier'), 1) + row('화면 움직임', lab('df-smode'), 1) + row('그림 방식', lab('df-img'), 1) +
           (소리칸 ? row('소리', 소리이름[현재소리()] || 현재소리(), 2) : '') + (말 === '목소리' && window.RWVoice ? row('목소리', RWVoice.summary() || '기본', 2) : '') + row('영상 꾸미기', (document.getElementById((MO() ? 'sl' : 'yd') + '-compose-sum') || {}).textContent || '기본 모양', 4) +
-          `<p class="pw-note">${planMode === 'paid' ? '' : '체험판은 3분 길이로 만들어요. '}AI 목소리나 AI 그림이 들어간 영상은 유튜브에 올릴 때 "변경된 콘텐츠" 표시를 확인해 주세요.${대본 && 대본.occ === '부고·추모' && 읽기 ? esc(' 부고·추모 영상이라 신청 직전에 성함·일시·장소를 한 번 더 확인해요.') : ''}</p>`;
+          `<p class="pw-note">${planMode === 'paid' ? '' : '체험판은 3분 길이로 만들어요. '}AI 목소리나 AI 그림이 들어간 영상은 유튜브에 올릴 때 "변경된 콘텐츠" 표시를 확인해 주세요.${대본 && 대본.occ === '부고·추모' && 읽기 ? esc(' 부고·추모 영상이라 신청 직전에 성함·일시·장소를 한 번 더 확인해요.') : ''}</p>` + 신청안내HTML;
       } else {
         const sr = (window.__rwScript && window.__rwScript.src === 'ready') ? window.__rwScript : null, long = 야담형식() === 'long';
         const 분 = planMode === 'paid' ? 롱폼길이분() : 3;
         review.innerHTML = head + row('이야기', sr ? 대본제목(sr) + ' (내 대본)' : (gv('df-topic') || '아직 비어 있어요'), 3) +
           row('영상 길이', planMode !== 'paid' ? '3분 (체험판)' : sr ? '대본 길이에 맞춰요 (약 ' + 분표시(sr.minutes) + ')' : 분표시(분), 1) + (long ? row('인트로 길이', 인트로초() > 0 ? 인트로초() + '초' : '없음', 1) : '') + row('품질 등급', lab('df-ytier'), 1) + row('이야기꾼 목소리', gv('df-yvoice'), 2) + row('영상 꾸미기', (document.getElementById((MO() ? 'sl' : 'yd') + '-compose-sum') || {}).textContent || '기본 모양', 4) +
-          `<p class="pw-note">AI 목소리와 AI 그림${long ? '·AI 영상 인트로' : ''}이 들어간 영상이에요. 유튜브에 올릴 때 "변경된 콘텐츠"(합성 콘텐츠) 표시를 확인해 주세요. 이야기는 창작이며 실존 인물·실제 사건은 넣지 않아요.</p>`;
+          `<p class="pw-note">AI 목소리와 AI 그림${long ? '·AI 영상 인트로' : ''}이 들어간 영상이에요. 유튜브에 올릴 때 "변경된 콘텐츠"(합성 콘텐츠) 표시를 확인해 주세요. 이야기는 창작이며 실존 인물·실제 사건은 넣지 않아요.</p>` + 신청안내HTML;
       }
     }
     // 일반 영상 요약: 고른 것을 한눈에 보고, 고칠 곳은 "고치기"로 그 단계에 돌아간다
@@ -5904,7 +5906,7 @@ ${비율칸Html(kind, 상태)}</div>`;
         (gv('df-directorNote') ? row('꼭 넣을 연출', gv('df-directorNote'), 3) : '') + row('내 사진·영상', (d.media && d.media.length) ? pdMediaSummary({ media: d.media }) + ' · 올린 순서대로 장면에 써요' + ((n => n > 0 && d.media.length > n ? ' · ⚠ 대본이 ' + n + '장면이라 ' + d.media.length + '개 중 앞에서부터 ' + n + '개만 쓰여요. 다 쓰려면 대본을 늘리거나 사진·영상을 줄여 주세요' : '')(d.script ? 대본장면수(d.script) : 0)) : 'AI가 장면 그림을 만들어요', 1) +
         row('영상 길이', lenLabel(분) + (parseFloat(d.len) > 0 ? '' : ' (기본)'), 1) + (롱폼 ? '' : row('화면 구성', document.querySelector('input[name="df-layout"]:checked')?.value || '자동', 'L')) + row('영상 제작 방식', 움직임 + (paid ? '' : ' (체험판)'), 'L') +
         row('목소리', 목소리, 2) + row('화면 꾸미기', 꾸밈, 4) + row('썸네일', 썸네일, 4) +
-        `<p class="pw-note">AI 목소리가 들어간 영상은 유튜브에 올릴 때 "변경된 콘텐츠" 표시를 확인해 주세요.${(!d.narrate && 움직임 !== '이미지 중심') ? esc(' AI 영상 장면이 있어서 "합성된 콘텐츠"로도 표시해야 하고, 완성된 영상에서 제품 모양·글자가 실제와 같은지 꼭 확인해 주세요.') : ''}${esc(광고)}</p>`;
+        `<p class="pw-note">AI 목소리가 들어간 영상은 유튜브에 올릴 때 "변경된 콘텐츠" 표시를 확인해 주세요.${(!d.narrate && 움직임 !== '이미지 중심') ? esc(' AI 영상 장면이 있어서 "합성된 콘텐츠"로도 표시해야 하고, 완성된 영상에서 제품 모양·글자가 실제와 같은지 꼭 확인해 주세요.') : ''}${esc(광고)}</p>` + 신청안내HTML;
     }
     // [출시 전 점검] 내 대본이 몇 장면으로 나뉘는지 — 소재목록_렌더링 '일반 대본 정리'와 같은 규칙(줄바꿈·문장 끝으로 나누고 48자까지 묶음)
     function 대본장면수(sc) {
@@ -5931,7 +5933,7 @@ ${비율칸Html(kind, 상태)}</div>`;
       review.innerHTML = `<div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg></span><div><h3 data-n="${LAST + 1}">이대로 만들까요?</h3><p>고칠 곳이 있으면 "고치기"를 눌러 돌아가세요. 고른 내용은 그대로 남아 있어요</p></div></div>` +
         `<div class="pw-pv" role="img" aria-label="고른 화면 모양 미리보기">${미리}<small>고른 화면 모양이에요</small></div>` +
         row('제품', d.name, 1) + row('제품 내용', 설명, 1) + row('링크·판매', 링크, 1) + row('사진·영상', pdMediaSummary(d), 2) + row('영상 길이', pdLenLabel(d.sec), 2) + row('영상 제작 방식', d.motion, 'L') + (window.RWVoice ? row('목소리', RWVoice.summary(), 3) : '') + row('대본', d.script ? ('내 대본 · ' + d.script.title) : 'AI가 제품 내용으로 써요', 4) + row('화면 구성', d.layout === '자동' ? '자동 (전체화면형)' : d.layout, 'L') + row('위쪽 문구', (d.hook || 'AI가 만들어요') + (d.hookShow === '3s' ? ' · 처음 3초만' : ' · 계속 보이기'), 5) + row('영상 꾸미기', composeSumText(true, composeKind === '상품' ? composeState : null).replace(/[<>&]/g, ''), 5) + row('썸네일', (planMode === 'paid' ? (document.getElementById('df-thumbnail')?.checked ? 'AI 썸네일 3장 함께 만들기' : '만들지 않음') : '체험판은 제공하지 않아요'), 5) + (window.RWVoice ? row('목소리 세부', 세부, 3) : '') +
-        `<p class="pw-note">AI 목소리가 들어간 영상은 유튜브에 올릴 때 "변경된 콘텐츠" 표시를 확인해 주세요.${d.motion !== '이미지 중심' ? esc(' AI 영상 장면이 있어서 "합성된 콘텐츠"로도 표시해야 하고, 완성된 영상에서 제품 모양·글자가 실제와 같은지 꼭 확인해 주세요.') : ''}${esc(광고)}</p>`;
+        `<p class="pw-note">AI 목소리가 들어간 영상은 유튜브에 올릴 때 "변경된 콘텐츠" 표시를 확인해 주세요.${d.motion !== '이미지 중심' ? esc(' AI 영상 장면이 있어서 "합성된 콘텐츠"로도 표시해야 하고, 완성된 영상에서 제품 모양·글자가 실제와 같은지 꼭 확인해 주세요.') : ''}${esc(광고)}</p>` + 신청안내HTML;
     }
     const filmIcon = d => `<svg viewBox="0 0 20 20" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg>`;
     const TAG = { done: '마침', cur: '지금', todo: '잠김', redo: '다시 확인' };
