@@ -4503,7 +4503,8 @@ ${비율칸Html(kind, 상태)}</div>`;
           if (res.제작방식) 고르기(제작이름, res.제작방식);
           if (composeState || res.위치바뀜) 고르기(이름들.자막, POS[res.자막위치]);
         }
-        if (sum) sum.textContent = composeSumText(상품, composeState);
+        const 숨김알림 = !상품 ? 숨김구성맞추기() : '';   // 꾸미기에서 숨겼으면 화면 구성도 결과와 같게
+        if (sum) sum.textContent = composeSumText(상품, composeState) + (숨김알림 ? ' · ' + 숨김알림 : '');
         saveChatState();
       } });
   });
@@ -4682,6 +4683,14 @@ ${비율칸Html(kind, 상태)}</div>`;
     return gnSnapLen(inp.value) <= ONE_LINE_MAX;
   }
   window.__rwOneLine = 한마디중;
+  // [제목 숨기기] 뒤 단계(5·6)에서 숨기면 3단계 선택도 결과와 같게: 띠 있는 구성(제목고정형·가운데영상형) → 전체화면형으로 옮기고 알린다
+  function 숨김구성맞추기() {
+    if (gnHookShow !== '0s') return '';
+    const 지금 = document.querySelector('input[name="df-layout"]:checked'), 전체 = document.querySelector('input[name="df-layout"][value="전체화면형"]');
+    if (!지금 || !전체 || (지금.value !== '제목고정형' && 지금.value !== '가운데영상형')) return '';
+    전체.checked = true; 전체.dispatchEvent(new Event('change', { bubbles: true }));   // 사람이 누른 것이 아니므로(isTrusted=false) 제목을 다시 켜지 않는다
+    return '제목을 숨겨서 화면 구성을 전체화면형으로 바꿨어요.';
+  }
   function 한마디그리기() {
     const on = 한마디중(), ff = document.getElementById('df-fields'); if (!ff) return;
     ff.dataset.oneline = on ? '1' : '';
@@ -4697,7 +4706,7 @@ ${비율칸Html(kind, 상태)}</div>`;
       tb = document.createElement('div'); tb.id = 'df-ol-title'; tb.className = 'ol-title';
       tb.innerHTML = '<span class="ol-t-lab">제목</span><div class="ol-t-seg" role="group" aria-label="제목"><button type="button" data-v="hide">숨기기</button><button type="button" data-v="show">보이기</button></div><input type="text" id="df-ol-titleText" maxlength="18" placeholder="비워 두면 AI가 만들어요 · 18자"><p class="df-hint ol-t-hint"></p>';
       t.parentElement.appendChild(tb);
-      tb.addEventListener('click', e => { const b = e.target.closest('button[data-v]'); if (!b) return; gnHookTouched = true; gnHookShow = b.dataset.v === 'hide' ? '0s' : 'all'; 한마디그리기(); b.dispatchEvent(new Event('change', { bubbles: true })); });   // 미리보기도 다시 그리게
+      tb.addEventListener('click', e => { const b = e.target.closest('button[data-v]'); if (!b) return; gnHookTouched = true; gnHookShow = b.dataset.v === 'hide' ? '0s' : 'all'; const 알림 = 숨김구성맞추기(); 한마디그리기(); if (알림) { const h = tb.querySelector('.ol-t-hint'); if (h) h.textContent = 알림; } b.dispatchEvent(new Event('change', { bubbles: true })); });   // 미리보기도 다시 그리게
       tb.querySelector('#df-ol-titleText').addEventListener('input', e => { const h = document.getElementById('df-hookText'); if (h) { h.value = e.target.value; h.dispatchEvent(new Event('input', { bubbles: true })); } });   // 제목은 '화면 상단 문구' 칸 하나에 모은다(꾸미기·미리보기·신청이 같은 칸을 읽음)
     }
     if (on && !gnHookTouched) gnHookShow = '0s'; else if (!on && !gnHookTouched && gnHookShow === '0s') gnHookShow = 'all';   // 한마디 영상은 제목 숨기기가 기본
