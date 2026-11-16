@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Moview — 주제 하나로 완성되는 영상</title>
+<link rel="icon" type="image/png" href="./리와인드_로고1_512px.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Black+Han+Sans&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #171412; --bg-raised: #1f1b18; --bg-deep: #0f0d0b; --line: #3a332c; --line-strong: #4a4038;
+    --ink: #fbf7f0; --ink-dim: #e0d7c8; --ink-faint: #b1a695;
+    --amber: #e2a23c; --amber-hover: #efb556; --amber-dim: #5a4222; --amber-wash: #251d14; --on-amber: #1a1410;
+    --pad: clamp(20px, 5vw, 80px);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 90px; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: 'IBM Plex Sans KR', -apple-system, sans-serif;
+    line-height: 1.65; word-break: keep-all; overflow-wrap: break-word;
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  h1, h2, h3 { margin: 0; letter-spacing: -0.03em; line-height: 1.2; }
+  p { margin: 0; }
+  a { color: inherit; text-decoration: none; }
+  img { max-width: 100%; display: block; }
+  :focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; border-radius: 6px; }
+  ::selection { background: var(--amber); color: var(--on-amber); }
+  .tc { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 0.78rem; letter-spacing: 0.04em; color: var(--ink-faint); }
+
+  /* ----- buttons ----- */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; padding: 0 28px; border-radius: 999px; font-weight: 600; font-size: 1rem; transition: background-color .15s, border-color .15s; }
+  .btn-amber { background: var(--amber); color: var(--on-amber); }
+  .btn-amber:hover { background: var(--amber-hover); }
+  .btn-line { border: 1px solid var(--line-strong); color: var(--ink); }
+  .btn-line:hover { border-color: var(--ink-faint); }
+  .btn svg { width: 18px; height: 18px; }
+
+  /* ----- header ----- */
+  header {
+    position: sticky; top: 0; z-index: 90;
+    padding: calc(14px + env(safe-area-inset-top, 0px)) var(--pad) 14px;
+    display: flex; align-items: center; justify-content: space-between; gap: 20px;
+    background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(10px);
+    border-bottom: 1px solid #2a241f;
+  }
+  .logo { display: flex; align-items: center; gap: 10px; font-size: 1.2rem; font-weight: 700; letter-spacing: -0.02em; }
+  .logo img { width: 30px; height: 30px; border-radius: 7px; }
+  header nav { display: flex; align-items: center; gap: 30px; font-size: 0.95rem; }
+  header nav a.plain { color: var(--ink-dim); white-space: nowrap; }
+  @media (max-width: 1100px) { header nav { gap: 18px; } header nav a.plain.hide-md { display: none; } }
+  header nav a.plain:hover { color: var(--ink); }
+  header .btn { min-height: 44px; padding: 0 20px; font-size: 0.92rem; }
+  .t-short { display: none; }
+  @media (max-width: 760px) { .t-full { display: none; } .t-short { display: inline; } header .btn { font-size: 1rem; padding: 0 16px; white-space: nowrap; } header nav { gap: 10px; } header nav a.plain.login-btn { min-height: 44px; display: inline-flex; align-items: center; padding: 0 16px; font-size: 1rem; } }
+  @media (max-width: 760px) { header nav a.plain.hide-sm { display: none; } header nav { gap: 18px; } }
+  header nav a.plain.login-btn { border: 1px solid var(--line-strong, var(--ink-dim)); color: var(--ink); padding: 7px 16px; border-radius: 999px; font-weight: 600; white-space: nowrap; }
+  header nav a.plain.login-btn:hover { border-color: var(--amber, var(--ink)); }
+
+  /* ----- hero ----- */
+  .hero { padding: clamp(56px, 9vw, 110px) var(--pad) clamp(64px, 9vw, 120px); display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 40px; align-items: center; max-width: 1440px; margin: 0 auto; }
+  .hero h1 { font-size: clamp(2.2rem, 4.6vw, 3.8rem); word-break: keep-all; font-weight: 700; line-height: 1.1; letter-spacing: -0.04em; }
+  .hero h1 .soft { color: var(--amber); }
+  .hero .lede { margin-top: 28px; max-width: 34em; font-size: clamp(1.02rem, 1.4vw, 1.18rem); color: var(--ink-dim); line-height: 1.8; }
+  .hero .ctas { margin-top: 36px; display: flex; gap: 12px; flex-wrap: wrap; }
+  .hero .aud { margin-top: 18px; font-size: clamp(1rem, 1.3vw, 1.1rem); font-weight: 600; color: var(--ink); line-height: 1.6; }
+  .hero .cta-note { margin-top: 16px; max-width: 34em; font-size: .92rem; color: var(--ink-faint); line-height: 1.6; }
+  /* 결과물 샘플 줄 */
+  .hero-samples { grid-column: 1 / -1; margin-top: clamp(8px, 2vw, 24px); padding-top: 28px; border-top: 1px solid #2a241f; }
+  .hero-samples h2 { margin: 0 0 16px; font-size: 1.15rem; font-weight: 700; letter-spacing: -0.02em; }
+  .hero-samples ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(10px, 1.6vw, 20px); }
+  .hero-samples li { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .hero-samples img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 12px; display: block; background: var(--bg-deep, #1a1612); margin-bottom: 8px; }
+  .hero-samples b { font-size: 1rem; }
+  .hero-samples span { font-size: .88rem; color: var(--ink-dim); line-height: 1.5; }
+  @media (max-width: 760px) { .hero-samples ul { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+  /* film + phone */
+  .stage { position: relative; height: 620px; display: flex; justify-content: center; }
+  .strip { position: absolute; left: 0; top: 36px; width: 150px; height: 540px; background: var(--bg-deep); border-radius: 6px; transform: rotate(-4deg); padding: 14px 24px; display: flex; flex-direction: column; justify-content: space-between; opacity: .85; }
+  .strip::before, .strip::after { content: ""; position: absolute; top: 10px; bottom: 10px; width: 8px; background: repeating-linear-gradient(to bottom, #2e2823 0 10px, transparent 10px 20px); }
+  .strip::before { left: 8px; } .strip::after { right: 8px; }
+  .strip .frame { height: 156px; background: #2b2520; border-radius: 3px; display: flex; align-items: flex-end; padding: 8px; }
+  .strip .frame .tc { font-size: 0.62rem; }
+  .phone { position: relative; margin-left: 110px; width: 310px; height: 620px; border-radius: 40px; background: #0a0908; padding: 12px; box-shadow: 0 40px 80px rgba(0,0,0,.55), 0 0 0 1px #3a322b; }
+  .screen { width: 100%; height: 100%; border-radius: 30px; background: #2f2822; overflow: hidden; position: relative; display: flex; flex-direction: column; }
+  .screen .title { background: #0f0d0b; padding: 28px 16px 18px; text-align: center; font-weight: 700; font-size: 1.35rem; line-height: 1.3; color: #fff; }
+  .screen .title span { display: block; color: #e2a23c; }
+  .screen .scene { flex: 1; display: flex; align-items: center; justify-content: center; }
+  .screen .scene svg { width: 90px; height: 90px; opacity: .35; }
+  .screen .sub { padding: 0 22px 40px; text-align: center; font-weight: 600; font-size: 1.05rem; line-height: 1.45; color: #fff; text-shadow: 0 0 2px #000, 0 0 2px #000; }
+  .screen .bar { position: absolute; left: 14px; right: 14px; bottom: 14px; height: 3px; border-radius: 2px; background: rgba(255,255,255,.2); overflow: hidden; }
+  .screen .bar i { display: block; width: 38%; height: 100%; background: #e2a23c; animation: play 9s linear infinite; }
+  @keyframes play { from { width: 4%; } to { width: 100%; } }
+  /* [샘플 영상] 휴대폰 화면에서 실제로 만든 영상을 번갈아 재생 */
+  .screen video.wide { object-fit: contain; }
+  .screen video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background: #0f0d0b; transition: opacity .35s ease; }
+  .screen video.is-fading { opacity: 0; }
+  .screen.has-video .bar i { animation: none; width: 0; transition: width .25s linear; }
+  .strip .frame { background-size: cover; background-position: center; position: relative; overflow: hidden; }
+  /* 필름 사진 크로스페이드: 새 사진 층이 이전 사진 위로 떠올라 3장이 한 번에 자연스럽게 바뀐다 */
+  .strip .frame .fnext { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity .7s ease; border-radius: inherit; }
+  .strip .frame .fnext.on { opacity: 1; }
+  .strip .frame .tc { position: relative; z-index: 1; background: rgba(0,0,0,.55); color: #f2e9da; padding: 1px 5px; border-radius: 3px; transition: opacity .35s ease; }
+  @media (prefers-reduced-motion: reduce) { .screen .bar i { animation: none; } }
+  .timecode { color: #f2e9da; position: absolute; right: -8px; bottom: 170px; background: #1f1a17; border: 1px solid #3a322b; border-radius: 14px; padding: 12px 16px; box-shadow: 0 20px 40px rgba(0,0,0,.4); }
+  .timecode b { display: block; font-family: 'IBM Plex Mono', monospace; font-weight: 500; font-size: 1.1rem; letter-spacing: .04em; }
+
+  @media (max-width: 980px) {
+    .hero { grid-template-columns: 1fr; }
+    .stage { height: 540px; }
+    .phone { width: 270px; height: 540px; margin-left: 60px; }
+    .strip { height: 470px; width: 130px; }
+    .strip .frame { height: 130px; }
+  }
+  @media (max-width: 480px) { .strip, .timecode { display: none; } .phone { margin-left: 0; } }
+
+  /* ----- sections ----- */
+  section.band { padding: clamp(72px, 9vw, 110px) var(--pad); }
+  section.alt { background: var(--bg-raised); border-top: 1px solid #2a241f; border-bottom: 1px solid #2a241f; }
+  .inner { max-width: 1280px; margin: 0 auto; }
+  .sec-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px 48px; flex-wrap: wrap; margin-bottom: 52px; }
+  .sec-head h2 { font-size: clamp(1.9rem, 3.6vw, 2.8rem); font-weight: 700; }
+  .sec-head p { max-width: 30em; color: var(--ink-faint); font-size: 1rem; }
+
+  /* process — 실제 순서가 있는 내용이라 번호 사용 */
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; counter-reset: s; }
+  .steps li { background: var(--bg); border: 1px solid var(--line); border-radius: 18px; padding: 28px 26px 30px; display: flex; flex-direction: column; gap: 14px; counter-increment: s; }
+  .steps li::before { content: counter(s, decimal-leading-zero); font-family: 'Fraunces', Georgia, serif; font-style: italic; font-size: 2.6rem; line-height: 1; color: var(--amber); }
+  .steps li.gate { border-color: var(--amber-dim); background: var(--amber-wash); }
+  .steps h3 { font-size: 1.2rem; font-weight: 700; }
+  .steps p { color: var(--ink-faint); font-size: 0.95rem; line-height: 1.7; }
+  .steps .who { font-size: 0.82rem; color: var(--amber); font-weight: 600; }
+  @media (max-width: 980px) { .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 560px) { .steps { grid-template-columns: 1fr; } }
+
+  /* ways to make */
+  .ways { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+  .way { display: flex; flex-direction: column; background: var(--bg-raised); border: 1px solid var(--line); border-radius: 22px; overflow: hidden; transition: border-color .15s; }
+  a.way:hover { border-color: var(--line-strong); }
+  .way .poster .ib { position: absolute; right: 14px; top: 14px; width: 60px; height: 60px; border-radius: 16px; background: color-mix(in srgb, var(--c) 18%, transparent); }
+  .way .poster { height: 200px; position: relative; display: flex; align-items: flex-end; justify-content: space-between; padding: 20px 22px; }
+  .way .poster svg { position: absolute; right: 22px; top: 22px; width: 44px; height: 44px; stroke: var(--c, var(--ink-dim)); fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .way .body { padding: 24px 24px 28px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+  .way h3 { font-size: 1.3rem; font-weight: 700; }
+  .way p { color: var(--ink-faint); font-size: 0.96rem; line-height: 1.7; }
+  .way .go { margin-top: auto; padding-top: 14px; color: var(--amber); font-weight: 600; font-size: 0.95rem; }
+  .way.soon { opacity: .9; }
+  .tag { font-size: 0.8rem; font-weight: 600; color: var(--on-amber); background: var(--ink-dim); border-radius: 999px; padding: 4px 12px; }
+  @media (max-width: 980px) { .ways { grid-template-columns: 1fr; } .way .poster { height: 140px; } }
+
+  .ways.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .way .uses { display: flex; flex-wrap: wrap; gap: 6px; }
+  .way .uses .use-chip { margin-left: 0; }
+  .way .poster.pic { background-size: cover; background-position: center; }
+  .way .poster.vid video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .way .poster.vid .tag { position: relative; z-index: 1; }
+  .tag.tag-dark { background: rgba(15,13,11,.62); color: #f1e9db; }
+  @media (max-width: 980px) { .ways.two { grid-template-columns: 1fr; } }
+
+  /* layouts */
+  .layouts { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 60px; align-items: center; }
+  .layouts h2 { font-size: clamp(1.9rem, 3.6vw, 2.8rem); font-weight: 700; }
+  .layouts p { margin-top: 18px; color: var(--ink-faint); line-height: 1.75; }
+  .lay-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+  .lay { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .lay .mini { width: 100%; max-width: 170px; aspect-ratio: 9 / 16; border-radius: 20px; border: 1px solid #3a322b; background: #2f2822; overflow: hidden; display: flex; flex-direction: column; }
+  .lay .mini .t { background: var(--bg-deep); height: 22%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+  .lay .mini i { display: block; height: 7px; border-radius: 4px; }
+  .lay .mini .fill { flex: 1; }
+  .lay .mini .s { height: 16%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 6px; }
+  .lay .mini.full { background: #3a3129; justify-content: flex-end; }
+  .lay b { font-size: 1rem; }
+  .lay small { color: var(--ink-faint); font-size: 0.85rem; text-align: center; margin-top: -8px; }
+  @media (max-width: 980px) { .layouts { grid-template-columns: 1fr; gap: 40px; } }
+
+  /* ----- 썸네일 소개 ----- */
+  .th-wrap { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 64px; align-items: center; }
+  .th-kick { display: inline-block; font-size: .82rem; font-weight: 600; color: var(--amber); background: var(--amber-wash); border: 1px solid var(--amber-dim); border-radius: 999px; padding: 4px 12px; margin-bottom: 18px; }
+  .th-copy h2 { font-size: clamp(1.9rem, 3.6vw, 2.8rem); font-weight: 700; }
+  .th-lede { margin-top: 18px; color: var(--ink-faint); line-height: 1.75; max-width: 30em; }
+  .th-points { list-style: none; padding: 0; margin: 30px 0 0; display: flex; flex-direction: column; gap: 18px; }
+  .th-points li { display: flex; gap: 14px; align-items: flex-start; }
+  .th-ic { flex: none; width: 42px; height: 42px; border-radius: 12px; background: var(--amber-wash); border: 1px solid var(--amber-dim); display: grid; place-items: center; }
+  .th-ic svg { width: 22px; height: 22px; fill: none; stroke: var(--amber); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .th-points b { font-size: 1.02rem; }
+  .th-points p { color: var(--ink-faint); font-size: .93rem; margin-top: 3px; }
+  .th-cta { margin-top: 32px; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+  .th-note { font-size: .88rem; color: var(--ink-faint); }
+  .th-show { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; align-items: center; }
+  .th-card { position: relative; aspect-ratio: 9 / 16; border-radius: 18px; overflow: hidden; background: #2f2822 center / cover no-repeat; border: 1px solid #3a322b; box-shadow: 0 24px 50px -20px rgba(0,0,0,.7); }
+  .th-card::after { content: ''; position: absolute; inset: 45% 0 0; background: linear-gradient(transparent, rgba(0,0,0,.62)); }
+  .th-card.is-edit { transform: translateY(-18px) scale(1.05); border-color: var(--amber); z-index: 1; }
+  .th-tag { position: absolute; left: 10px; top: 10px; z-index: 3; font-size: .7rem; font-weight: 600; color: #fff; background: rgba(0,0,0,.6); border-radius: 999px; padding: 3px 9px; }
+  .th-card.is-edit .th-tag { background: var(--amber); color: var(--on-amber); }
+  .th-tx { position: absolute; left: 0; right: 0; bottom: 16%; z-index: 2; text-align: center; font-family: 'Black Han Sans', 'IBM Plex Sans KR', sans-serif; font-size: clamp(1.25rem, 2.4vw, 2rem); line-height: 1.12; color: #fff; -webkit-text-stroke: 5px #111; paint-order: stroke fill; }
+  .th-tx em { font-style: normal; color: #ffe14d; }
+  .th-sel { left: 7%; right: 7%; padding: 4px 0; border: 1.5px solid var(--amber); border-radius: 4px; }
+  .th-small { position: absolute; left: 0; right: 0; top: 16%; z-index: 2; text-align: center; font-family: 'Black Han Sans', sans-serif; font-size: clamp(.8rem, 1.2vw, 1rem); color: #fff; -webkit-text-stroke: 3px #111; paint-order: stroke fill; }
+  .th-float { position: absolute; left: 50%; bottom: calc(100% + 8px); transform: translateX(-50%); z-index: 3; font-family: 'IBM Plex Sans KR', sans-serif; line-height: 1.3; -webkit-text-stroke: 0; display: flex; gap: 2px; padding: 3px; border-radius: 8px; background: #1e1e1e; border: 1px solid #3a3a3a; box-shadow: 0 8px 20px rgba(0,0,0,.5); font-size: clamp(.55rem, .8vw, .72rem); white-space: nowrap; }
+  .th-float span { padding: 3px 6px; border-radius: 5px; color: #ddd; }
+  .th-float span:first-child { background: #2c2415; color: #fff; }
+  .choice li.no { color: var(--ink-faint); }
+  .choice li.no svg { stroke: var(--ink-faint); }
+  @media (max-width: 980px) { .th-wrap { grid-template-columns: 1fr; gap: 44px; } .th-show { max-width: 560px; } }
+  @media (max-width: 520px) { .th-show { gap: 10px; } .th-tx { -webkit-text-stroke: 3.5px #111; } .th-float { display: none; } }
+
+  /* pricing choice */
+  .choice-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; max-width: 1000px; margin: 0 auto; }
+  .choice { border: 1px solid var(--line); background: var(--bg-raised); border-radius: 24px; padding: clamp(28px, 4vw, 40px); display: flex; flex-direction: column; gap: 22px; }
+  .choice.featured { border-color: var(--amber); background: #221c16; }
+  .choice .head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+  .choice h3 { font-size: 1.4rem; font-weight: 700; }
+  .choice .kick { color: var(--ink-faint); font-size: 0.9rem; }
+  .choice.featured .kick { color: var(--amber); }
+  .choice .big { font-family: 'Fraunces', Georgia, serif; font-size: 2.8rem; line-height: 1; font-weight: 400; }
+  .choice .big.txt { font-size: 2rem; line-height: 1.4; }
+  .choice .big.txt small { display: block; margin: 6px 0 0; }
+  .choice .big small { font-family: 'IBM Plex Sans KR', sans-serif; font-size: 1rem; color: var(--ink-faint); margin-left: 6px; }
+  .choice ul { list-style: none; margin: 0; padding: 22px 0 0; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 12px; color: var(--ink-dim); }
+  .choice li { display: flex; gap: 10px; align-items: flex-start; }
+  .choice li svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 4px; stroke: var(--amber); fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+  .choice .btn { margin-top: auto; }
+  .choice-note { text-align: center; margin-top: 24px; color: var(--ink-faint); font-size: 0.9rem; }
+  @media (max-width: 760px) { .choice-grid { grid-template-columns: 1fr; } }
+  .rate-wrap { max-width: 1000px; margin: 28px auto 0; border: 1px solid var(--line); background: var(--bg-raised); border-radius: 24px; padding: clamp(22px, 3.5vw, 34px); }
+  .rate-title { font-size: 1.15rem; font-weight: 700; margin: 0; }
+  .use-line { font-size: 0.88rem; color: var(--ink-dim); margin: 0 0 14px; line-height: 2; }
+  .use-line b { color: var(--ink); }
+  .use-chip { display: inline-block; margin-left: 6px; padding: 2px 11px; border-radius: 999px; border: 1px solid var(--line); font-size: 0.8rem; color: var(--ink-dim); }
+  .rate-sub { color: var(--ink-faint); font-size: 0.9rem; margin: 6px 0 16px; }
+  .rate-scroll { overflow-x: auto; }
+  .rate-table { width: 100%; border-collapse: collapse; font-size: 0.95rem; min-width: 440px; }
+  .rate-table th, .rate-table td { padding: 11px 10px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .rate-table th:not(:first-child), .rate-table td:not(:first-child) { text-align: center; }
+  .rate-table th:first-child, .rate-table td:first-child { text-align: left; }
+  .rate-table th { color: var(--ink-faint); font-weight: 500; font-size: 0.85rem; vertical-align: bottom; }
+  .rate-table th b { display: block; color: var(--ink); font-size: 0.95rem; }
+  .rate-table td { color: var(--amber); font-weight: 600; }
+  .rate-table td:first-child { color: var(--ink-dim); font-weight: 400; }
+  .rate-table .rec { background: color-mix(in srgb, var(--amber) 9%, transparent); }
+  /* 영상 제작 방식 색상 (new.html과 같은 색): 이미지 중심=파랑, 혼합=주황, 모두 영상=코랄 */
+  .rate-table .mc-img { --mc: #4a9be8; } .rate-table .mc-mix { --mc: #e2a23c; } .rate-table .mc-all { --mc: #f0694a; }
+  .rate-table th.mc { background: color-mix(in srgb, var(--mc) 18%, transparent); box-shadow: inset 0 3px 0 var(--mc); }
+  .rate-table td.mc { background: color-mix(in srgb, var(--mc) 7%, transparent); color: var(--ink); }
+  .rate-table th.rh { background: color-mix(in srgb, var(--ink-faint) 14%, transparent); box-shadow: inset 0 3px 0 var(--ink-faint); }
+  .rate-table th.mc b::before { content: ""; display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--mc); margin-right: 6px; vertical-align: 1px; }
+  @media (max-width: 560px) { .rate-table { min-width: 0; font-size: 0.82rem; } .rate-table th, .rate-table td { padding: 10px 5px; } .rate-table th .d { display: none; } .rate-table th b { font-size: 0.8rem; } }
+  .rate-note { color: var(--ink-faint); font-size: 0.82rem; margin: 14px 0 0; line-height: 1.6; }
+
+  /* footer */
+  footer { padding: 64px var(--pad) calc(40px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid #2a241f; }
+  .footer-grid { max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: 2fr repeat(4, 1fr); gap: 32px; }
+  .footer-brand p { color: var(--ink-faint); margin-top: 12px; font-size: 0.92rem; }
+  .footer-col h4 { margin: 0 0 14px; font-size: 0.88rem; color: var(--ink-dim); font-weight: 600; }
+  .footer-col a { display: block; color: var(--ink-faint); font-size: 0.9rem; padding: 4px 0; }
+  .footer-col a:hover { color: var(--ink); }
+  .footer-bottom { max-width: 1280px; margin: 48px auto 0; padding-top: 22px; border-top: 1px solid #2a241f; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; color: var(--ink-faint); font-size: 0.85rem; }
+  .footer-disclaimer { max-width: 1280px; margin: 16px auto 0; color: var(--ink-faint, #7d7366); font-size: 0.8rem; line-height: 1.7; }
+  @media (max-width: 860px) { .footer-grid { grid-template-columns: 1fr 1fr; } .footer-brand { grid-column: 1 / -1; } }
+
+  /* ===== 테마 전환 (시스템 / 밝게 / 어둡게) ===== */
+  .theme-switch { display: inline-flex; gap: 2px; padding: 3px; border: 1px solid var(--line); border-radius: 999px; background: var(--bg-raised); flex-shrink: 0; }
+  .theme-switch button { width: 36px; height: 36px; border: 0; border-radius: 50%; background: transparent; color: var(--ink-faint); display: grid; place-items: center; cursor: pointer; padding: 0; }
+  .theme-switch button:hover { color: var(--ink); }
+  .theme-switch button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+  .theme-switch svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  @media (max-width: 760px) { .hide-sm-switch { display: none; } }
+  .footer-theme { max-width: 1280px; margin: 20px auto 0; display: flex; align-items: center; gap: 12px; color: var(--ink-faint); font-size: 0.85rem; }
+
+  /* ===== 밝은 테마 ===== */
+  :root[data-theme="light"] { color-scheme: light; --bg: #f6f1e9; --bg-raised: #fffdf9; --bg-input: #efe8dc; --line: #e3d9c8; --line-strong: #cbbda6; --bg-deep: #0f0d0b;
+    --ink: #221a12; --ink-dim: #54473a; --ink-faint: #7a6c5c;
+    --amber: #9a600a; --amber-hover: #87540a; --amber-dim: #ead3a8; --amber-wash: #fbf0dc; --olive: #8a6d1f; --on-amber: #ffffff;
+    --gold: #9a600a; --gold-dim: #ead3a8; --on-gold: #ffffff;
+    --blue: #2f6fb3; --green: #3f7d34; --err: #b64532; --focus: #9a600a;
+    --status-plan: #2f6fb3; --status-making: #2f6fb3; --status-review: #9a600a; --status-final: #2f6fb3; --status-done: #3f7d34; --status-error: #b64532; }
+  @media (prefers-color-scheme: light) { :root[data-theme="system"] { color-scheme: light; --bg: #f6f1e9; --bg-raised: #fffdf9; --bg-input: #efe8dc; --line: #e3d9c8; --line-strong: #cbbda6; --bg-deep: #0f0d0b;
+    --ink: #221a12; --ink-dim: #54473a; --ink-faint: #7a6c5c;
+    --amber: #9a600a; --amber-hover: #87540a; --amber-dim: #ead3a8; --amber-wash: #fbf0dc; --olive: #8a6d1f; --on-amber: #ffffff;
+    --gold: #9a600a; --gold-dim: #ead3a8; --on-gold: #ffffff;
+    --blue: #2f6fb3; --green: #3f7d34; --err: #b64532; --focus: #9a600a;
+    --status-plan: #2f6fb3; --status-making: #2f6fb3; --status-review: #9a600a; --status-final: #2f6fb3; --status-done: #3f7d34; --status-error: #b64532; } }
+  :root[data-theme="light"] header { border-bottom: 1px solid #e3d9c8 }
+  :root[data-theme="light"] .hero-samples { border-top: 1px solid #e3d9c8 }
+  :root[data-theme="light"] section.alt { border-top: 1px solid #e3d9c8; border-bottom: 1px solid #e3d9c8 }
+  :root[data-theme="light"] .choice.featured { background: #fbf0dc }
+  :root[data-theme="light"] footer { border-top: 1px solid #e3d9c8 }
+  :root[data-theme="light"] .footer-bottom { border-top: 1px solid #e3d9c8 }
+  :root[data-theme="light"] .footer-disclaimer { color: #7a6c5c }
+  @media (prefers-color-scheme: light) {
+    :root[data-theme="system"] header { border-bottom: 1px solid #e3d9c8 }
+    :root[data-theme="system"] .hero-samples { border-top: 1px solid #e3d9c8 }
+    :root[data-theme="system"] section.alt { border-top: 1px solid #e3d9c8; border-bottom: 1px solid #e3d9c8 }
+    :root[data-theme="system"] .choice.featured { background: #fbf0dc }
+    :root[data-theme="system"] footer { border-top: 1px solid #e3d9c8 }
+    :root[data-theme="system"] .footer-bottom { border-top: 1px solid #e3d9c8 }
+    :root[data-theme="system"] .footer-disclaimer { color: #7a6c5c }
+  }
+  :root[data-theme="light"] .way .poster { background: color-mix(in srgb, var(--c) 16%, #fffdf9) !important; }
+  :root[data-theme="light"] .way .poster .tc { color: #54473a !important; }
+  :root[data-theme="light"] .way .poster svg { stroke: color-mix(in srgb, var(--c) 70%, #000); }
+  @media (prefers-color-scheme: light) {
+    :root[data-theme="system"] .way .poster { background: color-mix(in srgb, var(--c) 16%, #fffdf9) !important; }
+    :root[data-theme="system"] .way .poster .tc { color: #54473a !important; }
+    :root[data-theme="system"] .way .poster svg { stroke: color-mix(in srgb, var(--c) 70%, #000); }
+  }
+  /* 공지 띠: 테마별 색(나중에 테마가 늘면 아래 토큰만 더하면 된다). 글자는 오른쪽에서 왼쪽으로 흐른다. */
+  :root { --nt-bg: #1b2a4a; --nt-fg: #ffffff; }
+  :root[data-theme="light"] { --nt-bg: #9a600a; --nt-fg: #ffffff; }
+  @media (prefers-color-scheme: light) { :root[data-theme="system"] { --nt-bg: #9a600a; --nt-fg: #ffffff; } }
+  .rw-notice { z-index: 400; position: relative; overflow: hidden; background: var(--nt-bg); color: var(--nt-fg); padding: 10px 52px 10px 0; font-size: 1rem; font-weight: 600; line-height: 1.5; }
+  .rw-notice .nt-track { display: flex; width: max-content; animation: nt-run var(--nt-dur, 24s) linear infinite; will-change: transform; }
+  .rw-notice .nt-item { flex: none; white-space: nowrap; padding-right: 4rem; }
+  .rw-notice:hover .nt-track, .rw-notice:active .nt-track { animation-play-state: paused; }
+  @keyframes nt-run { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  .rw-notice button { position: absolute; right: 0; top: 0; bottom: 0; width: 48px; background: var(--nt-bg); box-shadow: -14px 0 12px var(--nt-bg); border: 0; color: inherit; font-size: 1.3rem; line-height: 1; cursor: pointer; padding: 0; }
+  .rw-notice button:hover { opacity: .75; }
+  @media (prefers-reduced-motion: reduce) { .rw-notice { padding-left: 16px; } .rw-notice .nt-track { animation: none; width: auto; justify-content: center; text-align: center; } .rw-notice .nt-item { white-space: normal; padding-right: 0; word-break: keep-all; } .rw-notice .nt-item[aria-hidden] { display: none; } }
+
+  /* 상품 영상 소개 · 요금 접기 */
+  .way .fine { font-size: 0.85rem; color: var(--ink-faint); line-height: 1.6; }
+  .way.soon .poster svg { opacity: .85; }
+  .rate-lead { max-width: 1000px; margin: 26px auto 0; text-align: center; color: var(--ink-dim); font-size: 0.95rem; }
+  .rate-fold { max-width: 1000px; margin: 14px auto 0; border: 1px solid var(--line); background: var(--bg-raised); border-radius: 24px; }
+  .rate-fold > summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px clamp(18px, 3vw, 28px); font-weight: 700; border-radius: 24px; }
+  .rate-fold > summary::-webkit-details-marker { display: none; }
+  .rate-fold > summary small { display: block; margin-top: 2px; font-weight: 400; font-size: 0.85rem; color: var(--ink-faint); }
+  .rate-fold > summary::after { content: ""; width: 10px; height: 10px; flex: none; border-right: 2px solid var(--ink-dim); border-bottom: 2px solid var(--ink-dim); transform: rotate(45deg); transition: transform .2s; margin-right: 4px; }
+  .rate-fold[open] > summary::after { transform: rotate(-135deg); }
+  .rate-fold > summary:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+  .rate-fold .rate-wrap { margin: 0 clamp(12px, 2vw, 18px) clamp(12px, 2vw, 18px); max-width: none; border-radius: 18px; background: transparent; }
+  @media (prefers-reduced-motion: reduce) { .rate-fold > summary::after { transition: none; } }
+
+  /* 상품 영상 소개: 세로 영상 틀 · 상품 캘린더 화면 예시 */
+  .way .poster.phone-poster { justify-content: center; align-items: center; }
+  .way .poster.phone-poster .tag { position: absolute; left: 20px; top: 18px; z-index: 1; }
+  .way .poster.phone-poster .ib { display: none; }
+  .way .poster.phone-poster, .way .poster.cal-poster { height: 304px; }
+  .way .poster.phone-poster { gap: 22px; padding-top: 58px; padding-bottom: 18px; align-items: center; }
+  .way .poster.phone-poster .pp-side { align-self: flex-end; }
+  .pp-side { display: flex; flex-direction: column; gap: 9px; width: 178px; flex: none; }
+  .pp-side .row { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 2px 8px; padding: 9px 11px; border-radius: 10px; background: rgba(255,255,255,.08); color: #f6e9e3; }
+  .pp-side .row b { font-size: .84rem; font-weight: 700; }
+  .pp-side .row i { font-style: normal; font-size: .72rem; opacity: .75; grid-column: 1; }
+  .pp-side .row svg { position: static; width: 44px; height: 22px; grid-column: 2; grid-row: 1 / 3; stroke: var(--c); stroke-width: 2; }
+  .pp-side.dim { opacity: .5; }
+  :root[data-theme="light"] .pp-side .row { background: rgba(255,255,255,.7); color: #3a2a22; }
+  :root[data-theme="light"] .pp-side .row svg { stroke: #d6452a; }
+  @media (prefers-color-scheme: light) { :root[data-theme="system"] .pp-side .row { background: rgba(255,255,255,.7); color: #3a2a22; } :root[data-theme="system"] .pp-side .row svg { stroke: #d6452a; } }
+  .pp-hot { margin: 0 0 12px; padding: 9px 12px; border-radius: 10px; font-weight: 700; font-size: 1rem; line-height: 1.45; color: var(--ink); background: color-mix(in srgb, #ff8f6b 16%, transparent); border-left: 3px solid #ff8f6b; }
+  .pp-frame { position: relative; height: 228px; aspect-ratio: 9 / 16; border-radius: 14px; overflow: hidden; border: 2px solid rgba(255,255,255,.28); background: #111; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+  .pp-frame video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .way .poster.cal-poster { align-items: center; justify-content: flex-start; padding-top: 58px; }
+  .way .poster.cal-poster .tag { position: absolute; left: 20px; top: 18px; }
+  .cal-mock { display: flex; flex-direction: column; gap: 12px; width: min(100%, 440px); }
+  .cm-tabs, .cm-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .cm-tabs span { padding: 5px 14px; border-radius: 999px; font-size: .85rem; font-weight: 600; color: #cfe8dc; border: 1px solid rgba(207,232,220,.28); }
+  .cm-tabs span.on { background: var(--c); border-color: var(--c); color: #0f1f17; }
+  .cm-chips span { padding: 6px 12px; border-radius: 10px; font-size: .85rem; color: #e8f3ec; background: rgba(255,255,255,.1); }
+  :root[data-theme="light"] .cm-tabs span { color: #2d5a45; border-color: rgba(45,90,69,.35); }
+  :root[data-theme="light"] .cm-tabs span.on { color: #fff; background: #2f9e6b; border-color: #2f9e6b; }
+  :root[data-theme="light"] .cm-chips span { color: #24483a; background: rgba(47,158,107,.14); }
+  @media (prefers-color-scheme: light) {
+    :root[data-theme="system"] .cm-tabs span { color: #2d5a45; border-color: rgba(45,90,69,.35); }
+    :root[data-theme="system"] .cm-tabs span.on { color: #fff; background: #2f9e6b; border-color: #2f9e6b; }
+    :root[data-theme="system"] .cm-chips span { color: #24483a; background: rgba(47,158,107,.14); }
+  }
+  @media (max-width: 1100px) { .pp-side { display: none; } }
+  @media (max-width: 980px) { .way .poster.phone-poster, .way .poster.cal-poster { height: 280px; } .pp-frame { height: 210px; } .way .poster.phone-poster { padding-top: 54px; padding-bottom: 16px; } .cal-mock { gap: 8px; } .cm-tabs span { padding: 4px 12px; } .cm-chips span { padding: 5px 10px; } .cal-extra { display: none; } .way .poster.cal-poster { padding-top: 56px; } }
+</style>
+<script src="./theme.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style id="moview-v2">
+/* Moview v2 시안: 원본 규칙은 그대로 두고 색·글꼴·로고만 덮어쓴다 */
+:root{--bg:#000;--bg-raised:#0e0e10;--bg-deep:#0a0a0b;--line:#26262c;--line-strong:#3a3a44;
+ --ink:#f5f5f7;--ink-dim:#c8c8d0;--ink-faint:#a1a1aa;
+ --amber:#ff5a3c;--amber-hover:#ff7558;--amber-dim:#5c2418;--amber-wash:#1d0f0b;--on-amber:#000}
+:root[data-theme="light"]{--bg:#fafafa;--bg-raised:#fff;--bg-input:#f2f2f4;--line:#e4e4e7;--line-strong:#d4d4d8;--bg-deep:#0a0a0b;
+ --ink:#111114;--ink-dim:#3f3f46;--ink-faint:#5f5f68;
+ --amber:#c8381c;--amber-hover:#b0301a;--amber-dim:#f6cdc2;--amber-wash:#fdf0ec;--on-amber:#fff;--gold:#c8381c;--gold-dim:#f6cdc2;--focus:#c8381c}
+@media (prefers-color-scheme: light){:root[data-theme="system"]{--bg:#fafafa;--bg-raised:#fff;--bg-input:#f2f2f4;--line:#e4e4e7;--line-strong:#d4d4d8;--bg-deep:#0a0a0b;
+ --ink:#111114;--ink-dim:#3f3f46;--ink-faint:#5f5f68;
+ --amber:#c8381c;--amber-hover:#b0301a;--amber-dim:#f6cdc2;--amber-wash:#fdf0ec;--on-amber:#fff;--gold:#c8381c;--gold-dim:#f6cdc2;--focus:#c8381c}}
+body,.th-float,.choice .big small{font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif}
+.steps li::before,.choice .big{font-family:'Pretendard Variable',Pretendard,sans-serif;font-style:normal;font-weight:800;letter-spacing:-0.03em}
+header,.hero-samples,section.alt,footer,.footer-bottom{border-color:var(--line)!important}
+.choice.featured{background:var(--amber-wash)}
+.timecode{display:none}
+.logo .mv-word{display:inline-flex;align-items:center;font-weight:800;font-size:1.35rem;letter-spacing:-0.04em;color:var(--ink)}
+.logo .mv-mark{width:1.05em;height:1.05em;margin:0 1px}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="./index.html" aria-label="Moview 홈"><span class="mv-word">M<svg class="mv-mark" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="3.2"/><circle cx="11" cy="12" r="3" fill="var(--amber)"/></svg>view</span></a>
+  <nav aria-label="주요 메뉴">
+    <a class="plain hide-sm" href="#how">만드는 과정</a>
+    <a class="plain hide-sm" href="#product">상품 영상</a>
+    <a class="plain hide-sm hide-md" href="#layouts">화면 구성</a>
+    <a class="plain hide-sm hide-md" href="#thumbs">썸네일</a>
+    <a class="plain hide-sm" href="#signup">요금</a>
+    <span class="hide-sm-switch"><div class="theme-switch" role="group" aria-label="화면 테마">
+      <button type="button" data-t="system" aria-label="기기 설정 따르기" title="기기 설정 따르기"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></button>
+      <button type="button" data-t="light" aria-label="밝게" title="밝게"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+      <button type="button" data-t="dark" aria-label="어둡게" title="어둡게"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></button>
+    </div></span>
+    <a class="plain login-btn" href="./new.html">로그인</a>
+    <a class="btn btn-amber" href="./new.html?mode=trial"><span class="t-full">체험으로 시작하기</span><span class="t-short">체험 시작</span></a>
+  </nav>
+</header>
+
+<main>
+<section class="hero">
+  <div>
+    <h1>세상의 모든 순간을<br><span class="soft">영상으로 담다</span></h1>
+    <p class="lede">주제 한 줄이면 AI가 대본, 목소리, 장면 구성까지 만들어요. 촬영도 편집도 필요 없고, 중요한 순간마다 직접 확인하고 승인해요.</p>
+    <p class="aud">상품을 소개하는 셀러, 정보를 전하는 채널, 추억을 남기는 누구나</p>
+    <div class="ctas">
+      <a class="btn btn-amber" href="./new.html?mode=trial"><span>가입하고 체험 포인트 <span data-grant>50</span>P 받기</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      <a class="btn btn-line" href="#how">만드는 과정 보기</a>
+    </div>
+    <p class="cta-note">체험 포인트로 먼저 만들어 보세요. 제작에 실패하면 포인트는 자동으로 돌아와요.</p>
+  </div>
+
+  <div class="stage" aria-hidden="true">
+    <div class="strip">
+      <div class="frame" style="background-image:url('./assets/strip-ai-1.jpg')"><span class="tc">00:00:01</span></div>
+      <div class="frame" style="background-image:url('./assets/strip-ai-2.jpg')"><span class="tc">00:00:04</span></div>
+      <div class="frame" style="background-image:url('./assets/strip-ai-3.jpg')"><span class="tc">00:00:07</span></div>
+    </div>
+    <div class="phone">
+      <div class="screen" id="hero-screen">
+        <div class="title">아직도 빨래 코스<span>고민하세요?</span></div>
+        <div class="scene"><svg viewBox="0 0 24 24" fill="none" stroke="#f2e9da" stroke-width="1.2"><rect x="4" y="3" width="16" height="18" rx="2"/><circle cx="12" cy="13" r="5"/><path d="M7 6h2M11 6h1"/></svg></div>
+        <div class="sub">버튼 하나로 이불 빨래까지 끝나요</div>
+        <div class="bar"><i></i></div>
+      </div>
+    </div>
+    <div class="timecode"><span class="tc" id="hero-tc-label">장면 3 / 8</span><b id="hero-tc">00:00:17:08</b></div>
+  </div>
+
+  <div class="hero-samples">
+    <h2>이렇게 완성돼요</h2>
+    <ul>
+      <li><img src="./assets/sample-info.jpg" alt="" loading="lazy"><b>쇼츠</b><span>주제 한 줄로 만든 정보 영상</span></li>
+      <li><img src="./assets/sample-product.jpg" alt="" loading="lazy"><b>상품 쇼츠</b><span>상품 사진으로 만든 소개 영상</span></li>
+      <li><img src="./assets/sample-yadam.jpg" alt="" loading="lazy"><b>야담</b><span>이야기를 길게 풀어낸 롱폼</span></li>
+      <li><img src="./assets/sample-mood.jpg" alt="" loading="lazy"><b>분위기 영상</b><span>소리와 풍경으로 채우는 긴 영상</span></li>
+    </ul>
+  </div>
+</section>
+
+<section class="band alt" id="how">
+  <div class="inner">
+    <div class="sec-head">
+      <h2>네 단계면 한 편이 완성돼요</h2>
+      <p>맡겨두기만 하는 게 아니라, 대본과 최종 장면을 직접 확인하고 승인한 뒤에 완성본을 만들어요.</p>
+    </div>
+    <ol class="steps">
+      <li><h3>대화로 설명하기</h3><p>만들고 싶은 영상을 편하게 말해주세요. 필요한 건 대화하면서 하나씩 여쭤볼게요. 직접 설정 화면에서 한 번에 고를 수도 있어요.</p></li>
+      <li class="gate"><span class="who">내가 확인</span><h3>대본 승인하기</h3><p>완성된 대본을 먼저 보여드려요. 그대로 승인하거나, 고치거나, 다시 써달라고 하시면 돼요.</p></li>
+      <li class="gate"><span class="who">내가 확인</span><h3>최종 장면 승인하기</h3><p>장면과 목소리가 만들어지면 전체 구성을 마지막으로 확인하고 제작을 승인해요.</p></li>
+      <li><h3>완성 영상 받기</h3><p>완성되면 이메일로 알려드려요. 내 프로젝트에서 받아보거나 유튜브에 바로 올릴 수 있어요. 정식 영상은 썸네일도 직접 만들고 고칠 수 있어요.</p></li>
+    </ol>
+  </div>
+</section>
+
+<section class="band">
+  <div class="inner">
+    <div class="sec-head">
+      <h2>어떻게 만들까요?</h2>
+      <p>같은 AI 엔진 위에서, 가진 재료에 맞게 방식을 골라보세요.</p>
+    </div>
+    <div class="ways">
+      <a class="way" href="./new.html">
+        <div class="poster" style="background:#33261a; --c:#e2a23c;"><span class="ib"></span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13 7l4 4"/></svg>
+          <span class="tc" style="color:#d8cdbb;">쇼츠 · 롱폼</span>
+        </div>
+        <div class="body">
+          <h3>주제로 만들기</h3>
+          <p>소개하고 싶은 제품이나 다루고 싶은 이야기를 한 줄로 전해주세요. 리서치, 대본, 나레이션, 장면 연출까지 새로 구성해요. 제품 홍보, 정보 콘텐츠, 리뷰 영상에 잘 맞아요.</p>
+          <span class="go">지금 시작하기</span>
+        </div>
+      </a>
+      <a class="way" href="./new.html">
+        <div class="poster" style="background:#22292a; --c:#7db4ec;"><span class="ib"></span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-8 8"/></svg>
+          <span class="tc" style="color:#d8cdbb;">구글 드라이브 링크</span>
+        </div>
+        <div class="body">
+          <h3>내 사진·영상으로 만들기</h3>
+          <p>갖고 계신 사진이나 영상을 구글 드라이브 링크 하나로 전해주세요. 여행 기록, 추억, 소장 자료를 순서와 분위기에 맞춰 한 편으로 엮어드려요.</p>
+          <span class="go">지금 시작하기</span>
+        </div>
+      </a>
+      <a class="way soon" href="mailto:mailsock9@gmail.com">
+        <div class="poster" style="background:#2b2430; --c:#b69cf0;"><span class="ib"></span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="7" width="16" height="13" rx="2"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M4 12h16"/></svg>
+          <span class="tag">준비 중</span>
+        </div>
+        <div class="body">
+          <h3>기업·파트너용</h3>
+          <p>대량 제작, 브랜드 가이드 반영, 전담 지원이 필요한 팀을 위한 방식이에요. 먼저 필요하시면 문의해주세요.</p>
+          <span class="go">문의하기</span>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="band alt" id="product">
+  <div class="inner">
+    <div class="sec-head">
+      <h2>판매 상품을 선정하고, 상품 영상을 제작하세요</h2>
+      <p>시기별 상품 목록으로 미리 준비하고, 상품 쇼츠로 영상을 제작할 수 있어요.</p>
+    </div>
+    <div class="ways two">
+      <a class="way" href="./new.html">
+        <div class="poster phone-poster" style="background:#33231f; --c:#ff8f6b;"><span class="ib"></span>
+          <div class="pp-side" aria-hidden="true"><div class="row"><b>핫팩</b><svg viewBox="0 0 44 22" aria-hidden="true"><path d="M2 18 L12 14 L22 15 L32 8 L42 3"/></svg><i>생활</i></div><div class="row"><b>전기장판</b><svg viewBox="0 0 44 22" aria-hidden="true"><path d="M2 19 L12 17 L22 11 L32 12 L42 4"/></svg><i>계절</i></div><div class="row"><b>방한 장갑</b><svg viewBox="0 0 44 22" aria-hidden="true"><path d="M2 17 L12 16 L22 12 L32 9 L42 6"/></svg><i>패션</i></div></div>
+          <div class="pp-frame"><video id="product-video" muted loop playsinline preload="metadata" poster="./assets/sample-product.jpg" aria-hidden="true">
+            <source src="./assets/sample-product.webm" type="video/webm"><source src="./assets/sample-product.mp4" type="video/mp4">
+          </video></div>
+          <div class="pp-side dim" aria-hidden="true"><div class="row"><b>김장 매트</b><svg viewBox="0 0 44 22" aria-hidden="true"><path d="M2 17 L12 16 L22 12 L32 9 L42 6"/></svg><i>주방</i></div><div class="row"><b>손난로</b><svg viewBox="0 0 44 22" aria-hidden="true"><path d="M2 18 L12 14 L22 15 L32 8 L42 3"/></svg><i>생활</i></div><div class="row"><b>수면 양말</b><svg viewBox="0 0 44 22" aria-hidden="true"><path d="M2 19 L12 17 L22 11 L32 12 L42 4"/></svg><i>패션</i></div></div>
+          <span class="tag tag-dark">상품 소개 쇼츠 · 샘플</span>
+        </div>
+        <div class="body">
+          <h3>상품 쇼츠</h3>
+          <p class="pp-hot">조회수가 급등하는 상품을 한눈에 확인하고, 바로 쇼츠로 제작하세요.</p>
+          <p>상품 사진과 영상을 올리면 상품 소개 쇼츠를 만들어 드려요. 영상 길이, 움직임 방식, 위쪽에 보일 문구, 화면 구성을 직접 고를 수 있어요.</p>
+          <div class="uses"><span class="use-chip">제목 고정형</span><span class="use-chip">전체화면형</span><span class="use-chip">가운데영상형</span></div>
+          <p class="fine">급등 상품은 조회 추이를 보여 주는 참고 자료예요(화면 예시). 광고 규정에 맞지 않는 과장·가격 표현은 자동으로 막아요. 건강기능식품·화장품·의료기기는 직접 쓴 대본으로만 만들 수 있어요.</p>
+          <span class="go">상품 쇼츠 만들기</span>
+        </div>
+      </a>
+      <a class="way" href="./new.html">
+        <div class="poster cal-poster" style="background:#1f2c25; --c:#4fd6a0;">
+          <div class="cal-mock" aria-hidden="true">
+            <div class="cm-tabs"><span>10월</span><span class="on">11월</span><span>12월</span><span class="cal-extra">1월</span></div>
+            <div class="cm-chips"><span>핫팩</span><span>전기장판</span><span>방한 장갑</span><span>김장 매트·김장 비닐</span><span class="cal-extra">수능 응원 선물</span><span class="cal-extra">크리스마스 트리·장식</span></div>
+          </div>
+          <span class="tag">화면 예시</span>
+        </div>
+        <div class="body">
+          <h3>상품 캘린더</h3>
+          <p>월별·계절별로 수요가 늘어나는 상품 목록을 미리 알려 드려요. 판매 시기에 앞서 다룰 상품을 선정하고, 선정한 상품으로 바로 상품 쇼츠를 제작할 수 있어요.</p>
+          <div class="uses"><span class="use-chip">월별</span><span class="use-chip">계절별</span><span class="use-chip">기념일·선물</span><span class="use-chip">필수 상품</span><span class="use-chip">상황별</span></div>
+          <p class="fine">상품을 고를 때 참고하는 목록이에요. 판매 결과를 보장하지 않아요.</p>
+          <span class="go">상품 캘린더 보기</span>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+<section class="band" id="layouts">
+  <div class="inner layouts">
+    <div>
+      <h2>화면 구성과 자막 위치도 직접 고르세요</h2>
+      <p>채널 분위기에 맞게 세 가지 화면 구성 중에서 고를 수 있어요. 따로 정하지 않으면 영상 내용에 맞춰 골라드려요.</p>
+    </div>
+    <div class="lay-row">
+      <div class="lay">
+        <div class="mini"><div class="t"><i style="width:62%;background:#f2e9da"></i><i style="width:44%;background:#e2a23c"></i></div><div class="fill"></div><div class="s"><i style="width:66%;background:#fff"></i></div></div>
+        <b>제목고정형</b><small>위쪽에 제목이 계속 보여요</small>
+      </div>
+      <div class="lay">
+        <div class="mini full"><div class="s" style="height:auto;padding-bottom:26%;"><i style="width:72%;background:#fff"></i><i style="width:50%;background:#fff"></i></div></div>
+        <b>전체화면형</b><small>장면을 화면 가득 보여줘요</small>
+      </div>
+      <div class="lay">
+        <div class="mini" style="background:#15110e"><div class="t"><i style="width:62%;background:#f2e9da"></i><i style="width:44%;background:#e2a23c"></i></div><div style="height:6%"></div><div class="fill" style="flex:0 0 34%;background:#3a3129"></div><div class="fill"></div></div>
+        <b>가운데영상형</b><small>영상은 가운데에, 위에는 제목</small>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band alt" id="thumbs">
+  <div class="inner th-wrap">
+    <div class="th-copy">
+      <span class="th-kick">정식 영상 전용</span>
+      <h2>썸네일 제작까지,<br>한 번에</h2>
+      <p class="th-lede">신청할 때 선택하면 AI가 썸네일 3장을 함께 만들어요. 선택하지 않아도 완성된 영상에서 원하는 장면을 골라 직접 만들 수 있어요.</p>
+      <ul class="th-points">
+        <li><span class="th-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg></span><div><b>AI가 3가지 문구로 (선택)</b><p>궁금증·결과·경고형 문구를 장마다 다르게 쓰고, 얼굴은 가리지 않게 배치해요.</p></div></li>
+        <li><span class="th-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13 7l4 4"/></svg></span><div><b>내 마음대로 직접 편집</b><p>영상에서 원하는 순간을 골라 네모 상자로 잘라 쓰고, 문구와 글씨 상자는 원하는 곳에 색·크기도 자유롭게 정해요.</p></div></li>
+        <li><span class="th-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg></span><div><b>기기로 바로 받기</b><p>완성 후 7일 동안 고칠 수 있고, 완성본은 PNG로 바로 저장돼요.</p></div></li>
+      </ul>
+      <div class="th-cta">
+        <a class="btn btn-amber" href="./new.html?mode=paid">정식으로 만들기<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        <span class="th-note">체험판에서는 썸네일을 제공하지 않아요</span>
+      </div>
+    </div>
+    <div class="th-show" aria-hidden="true">
+      <div class="th-card" style="background-image:url('./assets/strip-product-1.jpg')"><span class="th-tag">AI 추천 · 궁금증</span><div class="th-tx">이 버튼<br><em>하나로?</em></div></div>
+      <div class="th-card is-edit" style="background-image:url('./assets/strip-product-2.jpg')"><span class="th-tag">직접 편집 중</span>
+        <div class="th-small">실사용 후기</div>
+        <div class="th-tx th-sel"><div class="th-float"><span>✎ 문구</span><span>A+</span><span>● 강조색</span></div>빨래 시간<br><em>절반</em></div>
+      </div>
+      <div class="th-card" style="background-image:url('./assets/strip-product-3.jpg')"><span class="th-tag">AI 추천 · 경고</span><div class="th-tx">모르면<br><em>손해</em></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="long">
+  <div class="inner">
+    <div class="sec-head">
+      <h2>쇼츠 말고,<br>긴 영상도 만들어요</h2>
+      <p>한 가지 분위기나 이야기를 길게 이어 가는 영상이에요. 길이와 분위기만 정하면 장면과 소리는 AI가 만들어요.</p>
+    </div>
+    <div class="ways two">
+      <a class="way" href="./new.html">
+        <div class="poster pic vid" style="background-image:url('./assets/sample-mood.jpg'); --c:#8fd4d0;">
+          <video id="mood-video" muted loop playsinline preload="metadata" poster="./assets/sample-mood.jpg" aria-hidden="true">
+            <source src="./assets/sample-mood.webm" type="video/webm"><source src="./assets/sample-mood.mp4" type="video/mp4">
+          </video>
+          <span class="tag tag-dark">비 오는 꽃밭 · 샘플</span>
+        </div>
+        <div class="body">
+          <h3>분위기 영상</h3>
+          <p>수면·집중·힐링 영상부터 생일·결혼 축하, 감사, 추억 영상까지, 사진과 소리로 분위기를 담아 길게 이어 가는 영상이에요. 원하는 소리와 장면을 직접 골라요.</p>
+          <div class="uses"><span class="use-chip">수면</span><span class="use-chip">공부·집중</span><span class="use-chip">힐링</span><span class="use-chip">생일·결혼 축하</span><span class="use-chip">감사·추억</span></div>
+          <span class="go">직접 설정하기에서 만들기</span>
+        </div>
+      </a>
+      <a class="way" href="./new.html">
+        <div class="poster pic" style="background-image:linear-gradient(0deg,rgba(15,13,11,.55),rgba(15,13,11,.05)),url('./assets/sample-yadam.jpg'); --c:#e2a23c;">
+          <span class="tag">샘플</span>
+        </div>
+        <div class="body">
+          <h3>야담</h3>
+          <p>옛이야기를 목소리로 읽어 주고 장면을 그림으로 보여 주는 영상이에요. 30분 이상 길게 들려주는 이야기 콘텐츠에 알맞아요.</p>
+          <div class="uses"><span class="use-chip">옛이야기</span><span class="use-chip">민담</span></div>
+          <span class="go">직접 설정하기에서 만들기</span>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="band alt" id="signup">
+  <div class="inner">
+    <div class="sec-head" style="justify-content:center; text-align:center;">
+      <div>
+        <h2>먼저 써보고 결정하세요</h2>
+        <p style="margin:12px auto 0;">가볍게 체험해보셔도 좋고, 바로 정식으로 시작하셔도 좋아요.</p>
+      </div>
+    </div>
+    <div class="choice-grid">
+      <div class="choice">
+        <div class="head"><h3>체험</h3><span class="kick">가입 시 <span data-grant>50</span>P</span></div>
+        <div class="big"><span data-grant>50</span>P<small>가입하면 체험 포인트</small></div>
+        <ul>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>결제 없이 체험 포인트로 쇼츠 1분 체험을 <span data-trial-count>2</span>번까지</li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>완성된 영상을 그대로 확인</li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>마음에 들면 그때 정식으로 전환</li>
+          <li class="no"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>체험판에서는 썸네일을 제공하지 않아요</li>
+        </ul>
+        <a class="btn btn-line" href="./new.html?mode=trial">체험으로 시작하기</a>
+      </div>
+      <div class="choice featured">
+        <div class="head"><h3>정식 이용</h3><span class="kick">포인트로 결제</span></div>
+        <div class="big txt">포인트 충전<small>필요한 만큼 충전해서 사용하세요</small></div>
+        <ul>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>영상 제작 방식을 직접 선택 (이미지 중심 · 혼합 · 모두 영상)</li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>워터마크 없는 정식 화질</li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>더 빠른 처리 우선순위</li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>다운로드, 유튜브 업로드까지</li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>썸네일 직접 편집하기 + AI 썸네일 3장(선택)</li>
+        </ul>
+        <a class="btn btn-amber" href="./new.html?mode=paid">정식으로 신청하기</a>
+      </div>
+    </div>
+    <p class="rate-lead">영상 길이와 방식에 따라 포인트가 차감돼요. 정확한 포인트는 신청 화면에서 길이를 넣으면 바로 보여요.</p>
+    <details class="rate-fold" id="rates">
+      <summary><span>요금 자세히 보기<small>영상 길이와 방식별 포인트 예시</small></span></summary>
+    <div class="rate-wrap">
+      <h3 class="rate-title">쇼츠·일반 롱폼 요금 예시</h3>
+      <p class="rate-sub">예시예요. 정확한 포인트는 신청 화면에서 길이를 넣으면 바로 나와요. 장면이 자주 바뀌고 움직임이 많아서 길이(분)로 계산돼요.</p>
+      <div class="rate-scroll"><table class="rate-table" id="rate-table"></table></div>
+      <p class="rate-note" id="rate-note">기본 30P + 영상 길이(분) × 분당 포인트 (이미지 중심 70P · 혼합 110P · 모두 영상 170P), 1P 단위 반올림. 60분 초과 시 20% 추가. 포인트는 충전해서 쓰고, 영상을 만들 때 필요한 만큼 차감돼요.</p>
+    </div>
+    <div class="rate-wrap">
+      <h3 class="rate-title">롱폼 요금 · 분위기 영상 / 야담</h3>
+      <p class="rate-sub">예시예요. 한 장면을 길게 보여주는 영상이라 길어도 요금 부담이 크지 않아요. 길이를 바꾸면 요금도 함께 달라져요.</p>
+      <p class="use-line"><b>분위기 영상</b>은 이런 영상에 써요 <span class="use-chip">수면</span><span class="use-chip">공부·집중</span><span class="use-chip">힐링·명상</span><span class="use-chip">카페 분위기</span><span class="use-chip">빗소리·자연음</span><span class="use-chip">생일·결혼 축하</span><span class="use-chip">감사·추억 영상</span></p>
+      <div class="rate-scroll"><table class="rate-table" id="rate-table-long"></table></div>
+      <p class="rate-note" id="rate-long-example"></p>
+      <p class="rate-note">야담은 등급에 따라 경제형 30초·표준형 18초·고급형 10초마다 그림이 바뀌어요(인트로 영상은 15초부터, 1초당 0.6P가 따로 더해져요). 체험은 3분 · 그림 6장 · 인트로 5초로 만들어지고, 정식 모드에서는 고른 길이·등급대로 만들어져요. 정확한 요금은 신청 화면의 직접 설정하기나 챗봇에서 길이·등급을 넣으면 바로 계산돼요(분위기 영상 최대 8시간, 야담 최대 <span data-yd-max>8시간</span>). 분위기 영상은 수면·휴식·집중·카페 같은 긴 소리 영상이에요. 둘 다 지금 신청할 수 있어요.</p>
+    </div>
+    </details>
+    <p class="choice-note">두 경우 모두 구글 계정으로 30초면 신청할 수 있어요.</p>
+  </div>
+</section>
+</main>
+<script>
+(() => {
+  // 기본값. 관리자가 시트 '설정' 탭에서 바꾸면 사이트 설정에서 받아 와 덮어쓴다(window.__rwApplyPrice). 받지 못하면 이 값 그대로 보인다.
+  let BASE = 30, LONG_PCT = 20;
+  const RATE = { '이미지 중심': 70, '혼합': 110, '모두 영상': 170 };
+  const DESC = { '이미지 중심': '이미지+카메라 움직임', '혼합': '핵심 장면만 영상 · 추천', '모두 영상': '모든 장면 움직임' };
+  const price = (len, m) => Math.round((BASE + len * RATE[m]) * (len > 60 ? (100 + LONG_PCT) / 100 : 1));   // 모든 요금은 포인트(P) 단위
+  const rows = [['쇼츠 30초', 0.5], ['쇼츠 45초', 0.75], ['쇼츠 1분', 1], ['쇼츠 2분', 2], ['롱폼 3분', 3], ['롱폼 5분', 5], ['롱폼 10분', 10]];
+  const ms = Object.keys(RATE);
+  const CLS = { '이미지 중심': 'mc mc-img', '혼합': 'mc mc-mix', '모두 영상': 'mc mc-all' };
+  const t = document.getElementById('rate-table');
+  if (!t) return;
+  function renderShort() {
+  t.innerHTML = '<tr><th class="rh"><b>형태 · 길이</b><span class="d">(예시 비용)</span></th>' + ms.map(m => `<th class="${CLS[m]}"><b>${m}</b><span class="d">${DESC[m]}</span></th>`).join('') + '</tr>' +
+    rows.map(([l, len]) => `<tr><td>${l}</td>` + ms.map(m => `<td class="${CLS[m]}">${price(len, m).toLocaleString('ko-KR')}P</td>`).join('') + '</tr>').join('');
+    const note = document.getElementById('rate-note');
+    if (note) note.textContent = `기본 ${BASE}P + 영상 길이(분) × 분당 포인트 (${ms.map(m => m + ' ' + RATE[m] + 'P').join(' · ')}), 1P 단위 반올림. 60분 초과 시 ${LONG_PCT}% 추가. 포인트는 충전해서 쓰고, 영상을 만들 때 필요한 만큼 차감돼요.`;
+  }
+  renderShort();
+  window.__rwApplyPrice = function (p) {
+    if (!p || typeof p !== 'object') return null;
+    const ok = (v, lo, hi) => isFinite(v) && v >= lo && v <= hi;
+    const base = Number(p.base), lp2 = Number(p.longPct), tp = Number(p.trialPct), tm = Number(p.trialMin), r = p.rate || {};
+    if (!(ok(base, 0, 500) && ok(lp2, 0, 100) && ok(tp, 5, 100) && ok(tm, 1, 100))) return null;
+    for (let i = 0; i < ms.length; i++) if (!ok(Number(r[ms[i]]), 10, 1000)) return null;
+    BASE = base; LONG_PCT = lp2; ms.forEach(m => { RATE[m] = Number(r[m]); });
+    renderShort();
+    return Math.max(tm, Math.round(price(1, '이미지 중심') * tp / 100));   // 체험 쇼츠 1분(이미지 중심)의 체험 포인트
+  };
+  // [롱폼 요금표(포인트)] 접수 워크플로(v3.9)의 요금 공식과 같은 값 - 기본 + 길이 × 등급별 포인트, 1P 단위 반올림, 최소 9P
+  const LONG = { '경제형': { 수면음악: [40, 15], 야담: [50, 6] }, '표준형': { 수면음악: [60, 20], 야담: [60, 9] }, '고급형': { 수면음악: [90, 35], 야담: [80, 13] } };
+  let LONG_MIN = 9;   // 최소 요금. 위 값과 함께 시트 '설정' 탭 값으로 덮어쓴다(window.__rwApplyLong)
+  const lp = (tier, kind, min) => { const [b, r] = LONG[tier][kind]; return Math.max(LONG_MIN, Math.round(b + (kind === '수면음악' ? (min / 60) * r : min * r))); };
+  // [야담 · 인트로 영상 + 긴 이야기] new.html·접수 서버·전체 상담 Agent와 같은 공식: 기본 + (시간 + 장면) , 인트로는 따로(이 표는 인트로 제외)
+  const YL = { 기본: 10, 분당: 1.5, 장면당: 1.6, 간격: { '경제형': 30, '표준형': 18, '고급형': 10 } };   // 장편 할인 없음 (new.html·접수 서버·전체 상담 Agent와 같은 공식)
+  const ylp = (tier, min) => {
+    const m = Math.max(0.25, min), 장면 = Math.max(1, Math.round(m * 60 / YL.간격[tier]));
+    return Math.max(LONG_MIN, Math.round(YL.기본 + m * YL.분당 + 장면 * YL.장면당));
+  };
+  const fmt = n => n.toLocaleString('ko-KR') + 'P';
+  const tiers = Object.keys(LONG);
+  const lt = document.getElementById('rate-table-long');
+  const ex = document.getElementById('rate-long-example');
+  function renderLong() {
+  if (lt) {
+    const row = (label, f) => `<tr><td>${label}</td>` + tiers.map(k => `<td>${f(k)}</td>`).join('') + '</tr>';
+    const lab = { 수면음악: '분위기 영상', 야담: '야담(인트로 영상 + 긴 이야기)' };
+    const cases = [['수면음악', 30], ['수면음악', 60], ['수면음악', 180], ['수면음악', 480], ['야담', 30], ['야담', 60], ['야담', 180], ['야담', 480]];
+    const hl = m => m < 60 ? m + '분' : (m % 60 ? Math.floor(m / 60) + '시간 ' + (m % 60) + '분' : m / 60 + '시간');
+    lt.innerHTML = '<tr><th><b>유형 · 길이</b></th>' + tiers.map(k => `<th><b>${k}</b></th>`).join('') + '</tr>' +
+      cases.map(([kind, m]) => row((lab[kind] || kind) + ' ' + hl(m), k => '약 ' + fmt(kind === '야담' ? ylp(k, m) : lp(k, kind, m)))).join('');
+  }
+  if (ex) ex.textContent = `예) 표준형 야담 1시간 30분 약 ${fmt(ylp('표준형', 90))} · 표준형 분위기 영상 2시간 30분 약 ${fmt(lp('표준형', '수면음악', 150))}`;
+  }
+  renderLong();
+  window.__rwApplyLong = function (l) {
+    if (!l || typeof l !== 'object') return false;
+    const ok = (v, lo, hi) => isFinite(v) && v >= lo && v <= hi;
+    const mood = {}, yad = {};
+    for (let i = 0; i < tiers.length; i++) {
+      const t = tiers[i], m = l.mood && l.mood[t], y = l.yadam && l.yadam[t];
+      if (!Array.isArray(m) || !Array.isArray(y) || !ok(Number(m[0]), 0, 1000) || !ok(Number(m[1]), 0, 3000) || !ok(Number(y[0]), 0, 1000) || !ok(Number(y[1]), 0, 300)) return false;
+      mood[t] = [Number(m[0]), Number(m[1])]; yad[t] = [Number(y[0]), Number(y[1])];
+    }
+    const mp = Number(l.minPrice); if (!ok(mp, 0, 200)) return false;
+    tiers.forEach(function (t) { LONG[t].수면음악 = mood[t]; LONG[t].야담 = yad[t]; });
+    LONG_MIN = mp; renderLong(); return true;
+  };
+})();
+</script>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="logo"><span class="mv-word">M<svg class="mv-mark" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="3.2"/><circle cx="11" cy="12" r="3" fill="var(--amber)"/></svg>view</span></div>
+      <p>소재 하나로 시작하는 세로형 영상 제작.</p>
+    </div>
+    <div class="footer-col">
+      <h4>제품</h4>
+      <a href="./new.html">주제로 만들기</a>
+      <a href="./new.html">내 자료로 만들기</a>
+      <a href="#rates" data-open-rates>가격</a>
+      <a href="mailto:mailsock9@gmail.com">기업용 (준비 중)</a>
+    </div>
+    <div class="footer-col">
+      <h4>계정</h4>
+      <a href="./dashboard.html">내 프로젝트</a>
+      <a href="./new.html">새 영상 만들기</a>
+      <a href="./new.html">로그인</a>
+    </div>
+    <div class="footer-col">
+      <h4>고객지원</h4>
+      <a href="./tos.html">이용약관</a>
+      <a href="./terms.html">개인정보 처리방침</a>
+      <a href="mailto:mailsock9@gmail.com">문의하기</a>
+    </div>
+    <div class="footer-col">
+      <h4>회사</h4>
+      <a href="mailto:mailsock9@gmail.com">소개 (준비 중)</a>
+      <a href="mailto:mailsock9@gmail.com">문의</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>&copy; 2026 Moview</span>
+    <span>서비스명: Moview · 운영자: Moview · <a href="mailto:mailsock9@gmail.com">mailsock9@gmail.com</a></span>
+  </div>
+  <div class="footer-theme"><span>화면 테마</span><div class="theme-switch" role="group" aria-label="화면 테마">
+      <button type="button" data-t="system" aria-label="기기 설정 따르기" title="기기 설정 따르기"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></button>
+      <button type="button" data-t="light" aria-label="밝게" title="밝게"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+      <button type="button" data-t="dark" aria-label="어둡게" title="어둡게"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></button>
+    </div></div>
+  <p class="footer-disclaimer">AI가 생성한 정보성 콘텐츠는 사실과 다를 수 있습니다. 중요한 정보는 별도로 확인해주세요. 본 서비스로 제작된 영상에는 관련 법령에 따라 AI 생성·합성 콘텐츠임을 표시할 수 있습니다.</p>
+</footer>
+
+<script>
+// [샘플 영상] 리와인드로 실제 만든 영상을 휴대폰 화면에서 번갈아 재생 (소리 없음).
+// 움직임 줄이기 설정이거나 영상을 못 불러오면 기존 그림 화면을 그대로 둔다.
+(() => {
+  const screen = document.getElementById('hero-screen');
+  if (!screen) return;
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const clips = [
+    // strip = 왼쪽 필름 사진 3장 (지금 재생 중인 영상의 장면으로 함께 바뀜), tc = 그 장면의 시간
+    { src: './assets/sample-ai.mp4', poster: './assets/sample-ai.jpg', kind: 'AI·미래 기술 쇼츠', scenes: 4,
+      strip: ['strip-ai-1.jpg', 'strip-ai-2.jpg', 'strip-ai-3.jpg'], tc: ['00:00:01', '00:00:04', '00:00:07'] },
+    { src: './assets/sample-product.mp4', poster: './assets/sample-product.jpg', kind: '상품 소개 쇼츠', scenes: 2,
+      strip: ['strip-product-1.jpg', 'strip-product-2.jpg', 'strip-product-3.jpg'], tc: ['00:00:01', '00:00:06', '00:00:11'] },
+    { src: './assets/sample-yadam.mp4', poster: './assets/sample-yadam.jpg', kind: '야담 영상 · 롱폼', scenes: 3, wide: true,
+      strip: ['strip-yadam-1.jpg', 'strip-yadam-2.jpg', 'strip-yadam-3.jpg'], tc: ['00:00:02', '00:00:09', '00:00:16'] },
+    { src: './assets/sample-space.mp4', poster: './assets/sample-space.jpg', kind: '교양·과학 쇼츠', scenes: 2,
+      strip: ['strip-space-1.jpg', 'strip-space-2.jpg', 'strip-space-3.jpg'], tc: ['00:00:02', '00:00:06', '00:00:10'] }
+  ];
+  const v = document.createElement('video');
+  v.muted = true; v.playsInline = true; v.autoplay = true; v.preload = 'auto';
+  v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); v.setAttribute('aria-hidden', 'true');
+  const bar = screen.querySelector('.bar i');
+  const tc = document.getElementById('hero-tc');
+  const tcLabel = document.getElementById('hero-tc-label');
+  let i = 0, 시작됨 = false;
+  const pad = n => String(Math.floor(n)).padStart(2, '0');
+  const 필름칸 = [...document.querySelectorAll('.strip .frame')];
+  // 다음 영상의 필름 사진을 미리 받아둬서 바뀔 때 깜빡이지 않게
+  clips.forEach(c => (c.strip || []).forEach(f => { const im = new Image(); im.src = './assets/' + f; }));
+  let 필름현재 = 0; // 지금 필름에 보이는 영상 번호 (처음엔 AI)
+  function 필름바꾸기(n) {
+    const c = clips[n];
+    if (!c.strip || n === 필름현재) return;
+    필름현재 = n;
+    // 3장을 동시에: 새 사진 층을 위에 깔고 0.7초 동안 떠오르게 한 뒤, 바탕을 새 사진으로 바꾸고 층을 치운다
+    필름칸.forEach((el, k) => {
+      const 층 = document.createElement('div');
+      층.className = 'fnext';
+      층.style.backgroundImage = `url('./assets/${c.strip[k]}')`;
+      el.insertBefore(층, el.firstChild);
+      const t = el.querySelector('.tc');
+      if (t) t.style.opacity = '0';
+      requestAnimationFrame(() => requestAnimationFrame(() => 층.classList.add('on')));
+      setTimeout(() => {
+        el.style.backgroundImage = `url('./assets/${c.strip[k]}')`;
+        층.remove();
+        if (t) { if (c.tc) t.textContent = c.tc[k]; t.style.opacity = '1'; }
+      }, 750);
+    });
+  }
+  function load(n) {
+    const c = clips[n];
+    필름바꾸기(n); // 이미 바뀌어 있으면 아무것도 안 함
+    v.poster = c.poster;
+    v.classList.toggle('wide', !!c.wide); // 가로 영상은 잘리지 않게 전체를 보여준다
+    // 대부분 브라우저는 mp4, 일부(H.264 미지원 환경)는 webm
+    v.src = v.canPlayType('video/mp4; codecs="avc1.4D401E"') ? c.src : c.src.replace(/\.mp4$/, '.webm');
+    const p = v.play(); if (p && p.catch) p.catch(() => {});
+  }
+  v.addEventListener('playing', () => {
+    if (!시작됨) { 시작됨 = true; screen.classList.add('has-video'); screen.insertBefore(v, screen.querySelector('.bar')); }
+    v.classList.remove('is-fading');
+  });
+  v.addEventListener('timeupdate', () => {
+    if (!v.duration) return;
+    const r = v.currentTime / v.duration;
+    if (bar) bar.style.width = (r * 100).toFixed(1) + '%';
+    if (tc) tc.textContent = `00:00:${pad(v.currentTime)}:${pad((v.currentTime % 1) * 24)}`;
+    if (tcLabel) { const c = clips[i]; tcLabel.textContent = `${c.kind} · 장면 ${Math.min(c.scenes, Math.floor(r * c.scenes) + 1)} / ${c.scenes}`; }
+  });
+  // 영상이 끝나면 휴대폰 화면이 흐려지는 것과 '같은 순간'에 필름 사진 3장도 함께 바뀌기 시작한다
+  v.addEventListener('ended', () => { const 다음 = (i + 1) % clips.length; v.classList.add('is-fading'); 필름바꾸기(다음); setTimeout(() => { i = 다음; load(i); }, 350); });
+  v.addEventListener('error', () => { if (!시작됨) return; i = (i + 1) % clips.length; load(i); });
+  // 화면에 보일 때만 재생 (배터리·데이터 절약)
+  const io = 'IntersectionObserver' in window ? new IntersectionObserver(es => {
+    es.forEach(e => { if (e.isIntersecting) { if (!v.src) load(i); else v.play().catch(() => {}); } else v.pause(); });
+  }, { threshold: 0.2 }) : null;
+  if (io) io.observe(screen); else load(0);
+})();
+</script>
+<script>
+// [샘플 영상] 카드 안에서 소리 없이 반복 재생(분위기 영상 · 상품 쇼츠). 움직임 줄이기 설정이면 멈춘 그림만 보여준다.
+(() => {
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  ['mood-video', 'product-video'].forEach(id => {
+    const v = document.getElementById(id);
+    if (!v) return;
+    const play = () => { const p = v.play(); if (p && p.catch) p.catch(() => {}); };
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(es => es.forEach(e => e.isIntersecting ? play() : v.pause()), { threshold: 0.3 }).observe(v);
+    } else play();
+  });
+})();
+</script>
+<script>
+/* 가입 지급 포인트는 관리자가 시트 '설정' 탭에서 바꾸므로, 받아 와서 화면에 반영한다. 받지 못하면 적어 둔 기본값 그대로 보인다. */
+(function () {
+  var URL_ = 'https://bald-buffalo.pikapod.net/webhook/site-config', KEY = 'rw_site_cfg_v1', TTL = 5 * 60 * 1000;
+  var TRIAL_SHORT_PRICE = 25; // 체험 쇼츠 1분(이미지 중심)의 체험 포인트 기본값. 사이트 설정(price)을 받으면 거기서 계산한 값으로 바뀐다.
+  function noticeLayout(bar, text) {
+    var track = bar.querySelector('.nt-track'); if (!track) return;
+    track.innerHTML = '';
+    var probe = document.createElement('span'); probe.className = 'nt-item'; probe.textContent = text; track.appendChild(probe);
+    var iw = probe.getBoundingClientRect().width || 1, w = bar.clientWidth || 360;
+    var per = Math.max(1, Math.ceil(w / iw));
+    for (var i = 1; i < per * 2; i++) { var c = document.createElement('span'); c.className = 'nt-item'; c.textContent = text; c.setAttribute('aria-hidden', 'true'); track.appendChild(c); }
+    bar.style.setProperty('--nt-dur', Math.max(8, Math.round(per * iw / 55)) + 's');
+  }
+  function showNotice(n) {
+    var old = document.getElementById('rw-notice'); if (old) old.parentNode.removeChild(old);
+    var dismissed = ''; try { dismissed = sessionStorage.getItem('rw_notice_closed') || ''; } catch (e) {}
+    if (!n || !n.on || !n.text || dismissed === n.text) return;
+    var bar = document.createElement('div'); bar.id = 'rw-notice'; bar.className = 'rw-notice'; bar.setAttribute('role', 'status');
+    var track = document.createElement('div'); track.className = 'nt-track';
+    var x = document.createElement('button'); x.type = 'button'; x.setAttribute('aria-label', '공지 닫기'); x.textContent = '\u00d7';
+    x.addEventListener('click', function () { try { sessionStorage.setItem('rw_notice_closed', n.text); } catch (e) {} if (bar.parentNode) bar.parentNode.removeChild(bar); });
+    bar.appendChild(track); bar.appendChild(x); document.body.insertBefore(bar, document.body.firstChild);
+    noticeLayout(bar, n.text);
+    var rt; window.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(function () { var b = document.getElementById('rw-notice'); if (b) noticeLayout(b, n.text); }, 150); });
+  }
+  function apply(c) {
+    if (!c || c.ok !== true) return;
+    showNotice(c.notice);
+    if (typeof window.__rwApplyLong === 'function') window.__rwApplyLong(c.long);
+    try { var lm = c.limits && Number(c.limits.yl || c.limits.yadam);   /* 인트로 영상 + 긴 이야기 한도(없으면 기존 야담 한도) */ if (lm >= 30 && lm <= 720) { var tx = Math.floor(lm / 60) ? Math.floor(lm / 60) + '시간' + (lm % 60 ? ' ' + (lm % 60) + '분' : '') : lm + '분'; document.querySelectorAll('[data-yd-max]').forEach(function (e) { e.textContent = tx; }); } } catch (e) {}
+    if (typeof window.__rwApplyPrice === 'function') { var tp = window.__rwApplyPrice(c.price); if (tp !== null && tp > 0) TRIAL_SHORT_PRICE = tp; }
+    var g = Number(c.signupGrant);
+    if (!isFinite(g) || g < 0) return;
+    g = Math.round(g);
+    [].forEach.call(document.querySelectorAll('[data-grant]'), function (el) { el.textContent = String(g); });
+    [].forEach.call(document.querySelectorAll('[data-trial-count]'), function (el) { el.textContent = String(Math.floor(g / TRIAL_SHORT_PRICE)); });
+  }
+  var cached = null;
+  try { cached = JSON.parse(sessionStorage.getItem(KEY) || 'null'); } catch (e) {}
+  if (cached && cached.at && Date.now() - cached.at < TTL) { apply(cached.cfg); return; }
+  fetch(URL_).then(function (r) { return r.ok ? r.json() : null; }).then(function (cfg) {
+    if (!cfg || cfg.ok !== true) return;
+    try { sessionStorage.setItem(KEY, JSON.stringify({ at: Date.now(), cfg: cfg })); } catch (e) {}
+    apply(cfg);
+  }).catch(function () {});
+})();
+</script>
+<script>
+// 결제로 충전한 적이 있는 계정(정식 계정)은 '체험' 버튼을 눌러도 정식 모드로 들어가고, 문구도 '영상 만들기'로 바꾼다.
+// (new.html 이 포인트 조회 결과를 localStorage 'rw_full_account' 로 남긴다. 서버가 다시 확인하므로 이 표시만으로 권한이 생기지는 않는다)
+(function () {
+  var full = false; try { full = localStorage.getItem('rw_full_account') === '1'; } catch (e) {}
+  if (!full) return;
+  [].forEach.call(document.querySelectorAll('a[href="./new.html?mode=trial"]'), function (a) {
+    a.setAttribute('href', './new.html?mode=paid');
+    var f = a.querySelector('.t-full'), sh = a.querySelector('.t-short');
+    if (f && sh) { f.textContent = '영상 만들기'; sh.textContent = '만들기'; return; }
+    var sp = a.querySelector('span'); if (sp) { sp.textContent = '영상 만들기'; return; }
+    a.textContent = '영상 만들기';
+  });
+  var card = document.querySelector('.choice-grid .choice'); if (card) card.style.opacity = '.75';   // 체험 안내 카드는 흐리게
+})();
+</script>
+<script>
+// 푸터의 '가격' 링크와 #rates 주소로 들어오면 접힌 요금을 펼친다
+(() => {
+  const open = () => { const d = document.getElementById('rates'); if (d) d.open = true; };
+  document.querySelectorAll('[data-open-rates]').forEach(a => a.addEventListener('click', open));
+  if (location.hash === '#rates') { open(); const d = document.getElementById('rates'); if (d) d.scrollIntoView(); }
+  window.addEventListener('hashchange', () => { if (location.hash === '#rates') open(); });
+})();
+</script>
+</body>
+</html>
