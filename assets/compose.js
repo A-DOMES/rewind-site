@@ -163,7 +163,7 @@
     function 화면가능(v) { return 화면목록.some(function (x) { return x.값 === v && !x.꺼짐; }); }
     var 제작방식 = opt.제작방식 || null, 제작값 = 제작방식 ? 제작방식.값 : '', 제작바꿈 = false;
     var 화면바꿈 = false; var 선택 = Object.assign({}, opt.값 || {}); var 자막위치 = opt.자막위치 || '아래'; var 처음위치 = 자막위치, 위치바꿈 = false, 초기화함 = false; var 가이드켜짐 = true;
-    var 샘플 = String(opt.샘플 || '').trim() || 샘플기본; var 자막방식 = ['구절형', '문장형', '단어형'].indexOf(opt.자막방식) >= 0 ? opt.자막방식 : '구절형', 자막방식바꿈 = false; var 시간받음 = /^(\d+(?:\.\d+)?)s$/.exec(String(opt.문구시간 || '')), 문구시간 = 시간받음 ? '초' : 'all', 문구초 = 시간받음 ? Math.min(60, Number(시간받음[1])) : 3, 문구시간쓰기 = opt.문구시간 !== undefined;   // 문구가 보이는 시간은 상품쇼츠만: 계속 보이기 / 처음 N초만(0이면 안 보임). 예전 값 '3s' 도 받는다
+    var 샘플 = String(opt.샘플 || '').trim() || 샘플기본; var 자막방식 = ['구절형', '문장형', '단어형'].indexOf(opt.자막방식) >= 0 ? opt.자막방식 : '구절형', 자막방식바꿈 = false; var 시간받음 = /^(\d+(?:\.\d+)?)s$/.exec(String(opt.문구시간 || '')), 문구시간 = 시간받음 ? (Number(시간받음[1]) > 0 || 종류 === '상품쇼츠' ? '초' : 'hide') : 'all', 문구초 = 시간받음 ? Math.min(60, Number(시간받음[1])) : 3, 문구시간쓰기 = opt.문구시간 !== undefined;   // 문구가 보이는 시간은 상품쇼츠만: 계속 보이기 / 처음 N초만(0이면 안 보임). 예전 값 '3s' 도 받는다
     // 재생 위치가 장면을 넘어가면 그 장면의 사진과 대본 문장으로 바꾼다(실제 영상이 이렇게 이어진다는 것을 보여 주는 근사치: 대본을 장면 수만큼 문장 단위로 나눈다)
     var 샘플원본 = 샘플, 대본문장 = (String(opt.대본 || '').match(/[^.!?。！？]+[.!?。！？]*/g) || []).map(function (x) { return x.trim(); }).filter(Boolean), 지난장 = 0;
     function 장면대본(장, 수) { var 고 = 선택.장면별 && 선택.장면별[장] && 선택.장면별[장].대본; if (typeof 고 === 'string') return 고 || ' '; if (!대본문장.length) return 샘플원본; var a = Math.floor((장 - 1) * 대본문장.length / 수), b = Math.max(a + 1, Math.floor(장 * 대본문장.length / 수)); return 대본문장.slice(a, b).join(' ') || 샘플원본; }
@@ -216,7 +216,9 @@
         if (움직임 && 효과.indexOf('튀') >= 0) { sp.style.display = 'inline-block'; sp.style.transformOrigin = '50% 100%'; sp.style.transform = 'scale(1.04,1.24)'; }
       });
     }
-    function 문구초값() { return 문구시간쓰기 && 문구시간 === '초' ? 문구초 : null; }   // null = 계속
+    function 문구초값() { return 문구시간쓰기 && 문구시간 === 'hide' ? 0 : (문구시간쓰기 && 문구시간 === '초' ? 문구초 : null); }
+    // 제목 숨기기 + 띠 있는 화면 구성 → 빈 띠 없이 전체화면형으로 만든다(new.html 이 신청 때 같은 규칙으로 바꿔 보냄)
+    function 보일화면() { return 문구시간쓰기 && 종류 !== '상품쇼츠' && 문구시간 === 'hide' && !가로 && (화면 === '제목고정형' || 화면 === '가운데영상형') ? '전체화면형' : 화면; }   // null = 계속
     글꼴불러오기();
     var 이전포커스 = document.activeElement;
     var W = 가로 ? 1920 : 1080, H = 가로 ? 1080 : 1920;
@@ -350,7 +352,9 @@
     if (저장.독 > 0) dlg.style.setProperty('--dock-h', Math.max(130, Math.min(저장.독, Math.round(window.innerHeight * 0.4))) + 'px');
     컨트롤놓기();
 
+    function 제목숨기기() { 문구시간 = 'hide'; 갱신(); 타임라인그리기(); }   // 타임라인 제목 조각 ✕·Delete = 제목 설정의 '숨기기'
     function 그리기미리보기() {
+      var 화면 = 보일화면();
       var m = 합치기(선택, 종류), v = m.값;
       var 제목형 = !가로 && (화면 === '제목고정형' || 화면 === '가운데영상형'), 띠형 = !가로 && 화면 === '자막바형', 가운데형 = !가로 && 화면 === '가운데영상형';
       ttl.style.display = 제목형 || 가운데형 ? 'block' : 'none';
@@ -445,7 +449,7 @@
     // 선택 = { 종류, 번호 }. 미리보기 요소는 값을 바꿀 때마다 다시 그려지므로 요소가 아니라 '이름표'로 기억하고, 그릴 때마다 테두리를 다시 입힌다.
     // 선택해도 값은 하나도 바뀌지 않는다: 해당 탭으로 옮기고 그 요소의 색 휠을 열어 줄 뿐이다. 모든 설정은 탭에서 그대로 할 수 있다.
     var 고름 = null, 탭이동 = function () {}, 장면쪽으로 = function () {}, 문구열기훅 = function () {}, 선택줄칩 = {}, 선택알림 = null;
-    var 띠있음 = function () { return !가로 && (화면 === '제목고정형' || 화면 === '가운데영상형'); };
+    var 띠있음 = function () { var 보 = 보일화면(); return !가로 && (보 === '제목고정형' || 보 === '가운데영상형'); };
     var 대상표 = {
       '제목띠': { 이름: '제목 띠', 탭: '제목', 가능: function () { return 띠있음(); } },
       '제목글자': { 이름: '제목 글자', 탭: '제목', 가능: function () { return 띠있음(); } },
@@ -1059,9 +1063,9 @@
         if (이동중) { var a = 눌린클립, 도착 = 슬롯 > a ? 슬롯 - 1 : 슬롯; 이동끝내기(); 눌린클립 = -1; 끌고있음 = false; if (도착 !== a && 장면옮기기) { 편집장 = 도착 + 1; 장면옮기기(a, 도착); 알리기('순서를 바꿨어요 · 장면 ' + (a + 1) + ' → ' + (도착 + 1)); } return; }
         if (눌린클립 >= 0 && !끌고있음) { 장면쪽으로(); 편집고르기(눌린클립 + 1); } 눌린클립 = -1; 끌고있음 = false; });   // 장면을 누르면 속성 칸이 장면 속성으로
       달기('pointercancel', function () { if (끌문장) { 끌문장.조각.style.transform = ''; 끌문장 = null; } 끌넣은 = null; 눌린효과 = 0; 이동끝내기(); 눌린클립 = -1; 끌고있음 = false; });
-      var 문구있음 = !!String(opt.문구 || '').trim(), 제목끝 = 문구초값() !== null ? Math.min(문구초값(), 길이) : 길이, 구성 = 화면 === '자동' ? '전체화면형' : 화면;
+      var 문구있음 = !!String(opt.문구 || '').trim(), 제목끝 = 문구초값() !== null ? Math.min(문구초값(), 길이) : 길이, 구성 = 보일화면() === '자동' ? '전체화면형' : 보일화면();
       if (영상종류 === '쇼츠' && !가로) {
-        var 제 = 트랙줄('제목'); if ((문구있음 || 구성 === '제목고정형' || 구성 === '가운데영상형') && 제목끝 > 0) 조각(제, 0, 제목끝, 길이, 문구있음 ? String(opt.문구).trim() : '제목', 'cz-t-title'); else 제.appendChild(el('em', 'cz-empty', '제목 없음'));
+        var 제 = 트랙줄('제목'); if ((문구있음 || 구성 === '제목고정형' || 구성 === '가운데영상형') && 제목끝 > 0) { var 제조각 = 조각(제, 0, 제목끝, 길이, 문구있음 ? String(opt.문구).trim() : '제목', 'cz-t-title'); if (문구시간쓰기 && 종류 !== '상품쇼츠') { var 지움 = el('button', 'cz-t-del', '✕'); 지움.type = 'button'; 지움.title = '제목 숨기기 (Delete)'; 지움.setAttribute('aria-label', '제목 숨기기'); 지움.addEventListener('pointerdown', function (e) { e.stopPropagation(); }); 지움.addEventListener('click', function (e) { e.stopPropagation(); 제목숨기기(); }); 제조각.appendChild(지움); 제조각.tabIndex = 0; 제조각.addEventListener('keydown', function (e) { if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); e.stopPropagation(); 제목숨기기(); } }); } } else 제.appendChild(el('em', 'cz-empty', '제목 없음'));
       }
       var 수 = Math.max(1, Number(T.사진수) || Number(T.장면수) || (긴 ? Math.min(24, Math.max(3, Math.round(길이 / 300))) : Math.min(12, Math.max(3, Math.round(길이 / 5))))), 영 = 트랙줄(영상종류 === '쇼츠' ? '영상' : '장면'), 썸 = T.사진 || [];
       클립목록 = []; for (var i = 0; i < 수; i++) 클립목록.push(조각(영, 길이 * i / 수, 길이 * (i + 1) / 수, 길이, 썸[i] ? '' : String(i + 1), 'cz-t-clip', /^(blob:|https:\/\/|data:image\/)/.test(썸[i] || '') ? 썸[i] : ''));
@@ -1189,12 +1193,12 @@
       if (문구시간쓰기) {
         var c1c = 카드('문구가 보이는 시간', '화면 위쪽 문구가 나오는 시간', '제목');
         var 시간줄 = el('div', 'cz-chips'); c1c.appendChild(시간줄);
-        칩묶음(시간줄, [['all', '계속 보이기'], ['초', '처음 N초만']], function () { return 문구시간; }, function (v) { if (v === '초' && (화면 === '제목고정형' || 화면 === '가운데영상형')) return; 문구시간 = v; }, '문구가 보이는 시간');
+        칩묶음(시간줄, [['all', '계속 보이기'], ['초', '처음 N초만']].concat(종류 !== '상품쇼츠' ? [['hide', '숨기기']] : [])   /* 상품쇼츠는 신청 때 제목고정형이면 항상 보이므로 예전처럼 처음 N초 → 0 */, function () { return 문구시간; }, function (v) { if (v === '초' && (화면 === '제목고정형' || 화면 === '가운데영상형')) return; 문구시간 = v; 타임라인그리기(); }, '문구가 보이는 시간');
         var 초줄 = el('div', 'cz-secrow'), 초칸 = el('input', 'cz-secin'); 초칸.type = 'number'; 초칸.min = '0'; 초칸.max = '60'; 초칸.step = '1'; 초칸.inputMode = 'numeric'; 초칸.setAttribute('aria-label', '문구가 보이는 초'); 초칸.value = String(문구초); 초줄.appendChild(초칸); 초줄.appendChild(el('span', '', '초')); c1c.appendChild(초줄);
         초칸.addEventListener('input', function () { if (초칸.value === '') return; var n = Number(초칸.value); if (!(n >= 0)) return; 문구초 = Math.min(60, Math.round(n)); 문구시간 = '초'; 갱신(); 타임라인그리기(); });
         초칸.addEventListener('blur', function () { 초칸.value = String(문구초); });
         var 시간글 = el('p', 'cz-hint', ''); c1c.appendChild(시간글);
-        눌림목록.push(function () { var 띠 = 화면 === '제목고정형' || 화면 === '가운데영상형'; if (띠 && 문구시간 === '초') 문구시간 = 'all'; 초줄.style.display = !띠 && 문구시간 === '초' ? '' : 'none'; 시간글.textContent = 띠 ? (화면 === '제목고정형' ? '제목고정형' : '가운데영상형') + '은 위 띠가 계속 있어서 문구도 계속 보여요.' : (문구시간 === '초' ? (문구초 > 0 ? '영상이 시작하고 ' + 문구초 + '초 동안 보이다 서서히 사라져요.' : '0초로 두면 문구가 나오지 않아요.') : ''); });
+        눌림목록.push(function () { var 띠 = 화면 === '제목고정형' || 화면 === '가운데영상형'; if (띠 && 문구시간 === '초') 문구시간 = 'all'; 초줄.style.display = !띠 && 문구시간 === '초' ? '' : 'none'; 시간글.textContent = 문구시간 === 'hide' ? (띠 ? '제목을 숨기면 띠 없이 화면 가득 만들어요.' : '영상에 제목이 나오지 않아요.') : 띠 ? (화면 === '제목고정형' ? '제목고정형' : '가운데영상형') + '은 위 띠가 계속 있어서 문구도 계속 보여요.' : (문구시간 === '초' ? (문구초 > 0 ? '영상이 시작하고 ' + 문구초 + '초 동안 보이다 서서히 사라져요.' : '0초로 두면 문구가 나오지 않아요.') : ''); });
       }
       if (opt.자막방식 !== undefined) {   // 자막 방식은 상품쇼츠만(렌더 서버가 한 줄씩·문장째·한두 단어씩을 그린다)
         var c1d = 카드('자막 방식', '한 번에 나오는 글자 양', '자막');
@@ -1538,7 +1542,7 @@
       if (선택.블록) { 선택.블록 = 선택.블록.filter(function (b) { return String(b.글 || '').trim(); }).map(function (b) { return Object.assign({ 글: String(b.글).trim(), 위치: b.위치, 크기: b.크기, 모양: b.모양, 글꼴: b.글꼴 }, 헥스.test(b.색 || '') ? { 색: b.색 } : {}, Array.isArray(b.장면) ? { 장면: b.장면.slice() } : {}); }); if (!선택.블록.length) delete 선택.블록; }
       if (선택.자막크기 !== undefined) 선택.자막크기 = Math.round(선택.자막크기); if (선택.줄길이 !== undefined) 선택.줄길이 = Math.round(선택.줄길이 * 100) / 100; if (선택.자막거리 !== undefined) 선택.자막거리 = Math.round(선택.자막거리 * 100) / 100;   /* 페이더로 만든 소수는 여기서 정리한다 */
       if (대본고정됨()) { var 수끝 = Math.max(1, 클립목록.length || 1); for (var 끝n = 1; 끝n <= 수끝; 끝n++) { 선택.장면별 = 선택.장면별 || {}; if (typeof (선택.장면별[끝n] || {}).대본 !== 'string') 선택.장면별[끝n] = Object.assign({}, 선택.장면별[끝n] || {}, { 대본: '' }); } }   // 고정했으면 대본 없는 장면은 말 없음(서버가 다른 나레이션을 쓰지 않게)
-      var m = 합치기(선택, 종류); 닫기({ compose: Object.assign({}, 선택), 문구시간: 문구시간쓰기 ? (문구시간 === '초' ? 문구초 + 's' : 'all') : undefined, 자막방식: opt.자막방식 !== undefined ? 자막방식 : undefined, 자막위치: 자막위치, 화면구성: 화면바꿈 ? 화면 : (opt.화면구성 || 화면), 제작방식: 제작바꿈 ? 제작값 : undefined, 위치바뀜: 자막위치 !== 처음위치, 초기화: 초기화함 && !Object.keys(선택).length && 자막위치 === '아래' }); });
+      var m = 합치기(선택, 종류); 닫기({ compose: Object.assign({}, 선택), 문구시간: 문구시간쓰기 ? (문구시간 === 'hide' ? '0s' : 문구시간 === '초' ? 문구초 + 's' : 'all') : undefined, 자막방식: opt.자막방식 !== undefined ? 자막방식 : undefined, 자막위치: 자막위치, 화면구성: 화면바꿈 ? 화면 : (opt.화면구성 || 화면), 제작방식: 제작바꿈 ? 제작값 : undefined, 위치바뀜: 자막위치 !== 처음위치, 초기화: 초기화함 && !Object.keys(선택).length && 자막위치 === '아래' }); });
     document.addEventListener('keydown', 키);
     var 이전스크롤 = document.body.style.overflow; document.body.style.overflow = 'hidden'; dlg.tabIndex = -1;
     document.body.appendChild(ov); dlg.focus();

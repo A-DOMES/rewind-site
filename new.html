@@ -2089,12 +2089,12 @@
 <script src="./assets/voice-picker.js?v=20261104a"></script>
 <link rel="stylesheet" href="./assets/guide.css?v=20261025">
 <script src="./assets/guide.js?v=20261108b"></script>
-<link rel="stylesheet" href="./assets/compose.css?v=20261108b">
+<link rel="stylesheet" href="./assets/compose.css?v=20261116a">
 <script src="./assets/shared/layout.js?v=20261027"></script>
 <script src="./assets/shared/phrase.js?v=20261026"></script>
-<script src="./assets/compose.js?v=20261109a"></script>
+<script src="./assets/compose.js?v=20261116a"></script>
 <script src="./assets/rw-consent.js"></script>
-<link rel="stylesheet" href="./assets/rw-theme.css?v=20261116g">
+<link rel="stylesheet" href="./assets/rw-theme.css?v=20261116h">
 <link rel="stylesheet" href="./assets/screens.css?v=20261108c">
 </head>
 <body>
@@ -3798,11 +3798,8 @@ ${비율칸Html(kind, 상태)}</div>`;
       delete payload.motion;
     }
     if (answers.hookText && !(answers.productShort && productExtra)) payload.hookText = answers.hookText;
-    // [한마디 영상] 제목 숨기기 = 위쪽 문구 0초·제목 띠 없는 전체화면형 / 보이기 = 적은 제목(비우면 AI 문구)
-    if (payload.script && !answers.productShort && payload.form !== '롱폼' && Number(answers.videoLength) > 0 && Math.round(Number(answers.videoLength) * 60) <= ONE_LINE_MAX) {
-      if (한마디제목 === 'hide') { payload.hookShow = '0초'; delete payload.hookText; if (!payload.layout || payload.layout === '제목고정형') payload.layout = '전체화면형'; }
-      else { const 제목 = String((document.getElementById('df-ol-titleText') || {}).value || '').trim().slice(0, 18); if (제목) payload.hookText = 제목; else delete payload.hookText; }
-    }
+    // [제목 숨기기] 일반 쇼츠 제목 숨기기(0초) = 문구 없이, 띠 있는 화면 구성(자동 포함)은 빈 띠가 남지 않게 전체화면형으로 (렌더링은 띠 있는 구성에서 0초를 무시하므로)
+    if (gnHookShow === '0s' && !answers.productShort && payload.form !== '롱폼') { payload.hookShow = '0초'; delete payload.hookText; if (!payload.layout || payload.layout === '제목고정형' || payload.layout === '가운데영상형') payload.layout = '전체화면형'; }
     if (answers.sceneCount) payload.sceneCount = answers.sceneCount;
     if (answers.videoLength) payload.videoLength = answers.videoLength;
     await 최신가격받기(); 견적다시계산();   // 가격이 막 바뀐 경우를 반영 (차감은 서버가 정확히 다시 계산)
@@ -3887,7 +3884,7 @@ ${비율칸Html(kind, 상태)}</div>`;
 
   function startFreshChat(skipPendingCheck) {
     gnSeller = '';   // 앞 신청의 판매 유형이 다음 신청에 남지 않게
-    gnHookShow = 'all';
+    gnHookShow = 'all'; gnHookTouched = false;
     주제찾기열림 = false;
     mode = null; answers = {}; history = [];
     clearChatState();
@@ -3970,7 +3967,7 @@ ${비율칸Html(kind, 상태)}</div>`;
   // 기본료 + 영상 길이(분) × 영상 제작 방식별 분당 포인트, 60분 넘으면 가산율만큼 추가, 1P 단위 반올림 (값은 시트 '설정' 탭)
   // 아래 값은 기본값이다. 관리자가 시트 '설정' 탭에서 바꾸면 사이트 설정(site-config)으로 받아 와서 덮어쓴다(applySitePrice).
   let PRICE_BASE = 30, PRICE_LONG_PCT = 20, TRIAL_PCT = 25, TRIAL_MIN = 5;
-  let 한마디제목 = 'hide';   // [한마디 영상] 위쪽 제목: 'hide' = 숨기기(기본, 0초) · 'show' = 보이기(비우면 AI 문구)
+  let gnHookTouched = false;   // [제목 숨기기] 고객이 제목 보이기/숨기기를 직접 고른 적 있는지(없으면 한마디 영상은 숨기기가 기본)
   let GN_SHORT_MIN = 5, ONE_LINE_MAX = 20;   // [한마디 영상] 일반 쇼츠 최소 초·한마디 기준 초(사이트 설정 limits 로 덮어씀 — applySiteShort, gnSnapLen)
   const MOTION_RATE = { '이미지 중심': 70, '혼합': 110, '모두 영상': 170 };
   const MOTION_LIST = ['이미지 중심', '혼합', '모두 영상'];
@@ -4493,7 +4490,7 @@ ${비율칸Html(kind, 상태)}</div>`;
         const 고르기 = (name, v) => { const r = [...document.querySelectorAll(`input[name="${name}"]`)].find(x => x.value === v); if (r && !r.disabled) { r.checked = true; r.dispatchEvent(new Event('change', { bubbles: true })); } };
         if (상품 && window.RWVoice && res.자막방식) RWVoice.setExtra(Object.assign({}, RWVoice.getExtra(), { subtitleStyle: res.자막방식 }));
         if (상품 && res.문구시간) { const 초값 = /^(\d+(?:\.\d+)?)s$/.exec(res.문구시간), si = document.getElementById('pd-hooksec'); if (si) si.value = 초값 ? 초값[1] : '3'; const hs = document.querySelector(`input[name="pd-hookshow"][value="${초값 ? '3s' : 'all'}"]`); if (hs) { hs.checked = true; hs.dispatchEvent(new Event('change', { bubbles: true })); } }
-        if (!상품 && res.문구시간) gnHookShow = res.문구시간;   // 일반 쇼츠도 위쪽 문구를 처음 N초만(0초 = 안 보임)
+        if (!상품 && res.문구시간) { if (res.문구시간 !== gnHookShow) gnHookTouched = true; gnHookShow = res.문구시간; 한마디그리기(); }   // 일반 쇼츠도 위쪽 문구를 처음 N초만(0초 = 안 보임)
         if (res.초기화) { 고르기(이름들.구성, '자동'); if (!상품) 고르기(이름들.자막, '자동'); }   // 상품쇼츠의 자막 위치는 '자동'이 따로 없어 그대로 둔다
         else {
           if (res.화면구성) 고르기(이름들.구성, res.화면구성);
@@ -4694,18 +4691,19 @@ ${비율칸Html(kind, 상태)}</div>`;
       tb = document.createElement('div'); tb.id = 'df-ol-title'; tb.className = 'ol-title';
       tb.innerHTML = '<span class="ol-t-lab">제목</span><div class="ol-t-seg" role="group" aria-label="제목"><button type="button" data-v="hide">숨기기</button><button type="button" data-v="show">보이기</button></div><input type="text" id="df-ol-titleText" maxlength="18" placeholder="비워 두면 AI가 만들어요 · 18자"><p class="df-hint ol-t-hint"></p>';
       t.parentElement.appendChild(tb);
-      tb.addEventListener('click', e => { const b = e.target.closest('button[data-v]'); if (!b) return; 한마디제목 = b.dataset.v; 한마디그리기(); });
+      tb.addEventListener('click', e => { const b = e.target.closest('button[data-v]'); if (!b) return; gnHookTouched = true; gnHookShow = b.dataset.v === 'hide' ? '0s' : 'all'; 한마디그리기(); b.dispatchEvent(new Event('change', { bubbles: true })); });   // 미리보기도 다시 그리게
+      tb.querySelector('#df-ol-titleText').addEventListener('input', e => { const h = document.getElementById('df-hookText'); if (h) { h.value = e.target.value; h.dispatchEvent(new Event('input', { bubbles: true })); } });   // 제목은 '화면 상단 문구' 칸 하나에 모은다(꾸미기·미리보기·신청이 같은 칸을 읽음)
     }
+    if (on && !gnHookTouched) gnHookShow = '0s'; else if (!on && !gnHookTouched && gnHookShow === '0s') gnHookShow = 'all';   // 한마디 영상은 제목 숨기기가 기본
+    const 한마디제목 = gnHookShow === '0s' ? 'hide' : 'show';
     if (tb) {
       tb.hidden = !on;
       tb.querySelectorAll('button[data-v]').forEach(b => { const 고름 = b.dataset.v === 한마디제목; b.classList.toggle('on', 고름); b.setAttribute('aria-pressed', 고름 ? 'true' : 'false'); });
-      const ti = document.getElementById('df-ol-titleText'); if (ti) ti.hidden = 한마디제목 !== 'show';
-      const h = tb.querySelector('.ol-t-hint'); if (h) h.textContent = 한마디제목 === 'show' ? '영상 맨 위에 계속 나와요.' : '영상에는 위 한 문장만 나와요.';
+      const ti = document.getElementById('df-ol-titleText'); if (ti) { ti.hidden = 한마디제목 !== 'show'; const hv = (document.getElementById('df-hookText') || {}).value || ''; if (document.activeElement !== ti) ti.value = hv; }
+      const h = tb.querySelector('.ol-t-hint'); if (h) h.textContent = 한마디제목 === 'show' ? '영상 맨 위에 나와요. 보이는 시간은 영상 꾸미기에서 바꿀 수 있어요.' : '영상에는 위 한 문장만 나와요. 제목고정형을 골라도 띠 없이 화면 가득 만들어요.';
     }
     const hk = document.getElementById('df-hookText'), hkf = hk && hk.closest('.df-field');
     if (hkf) { hkf.classList.toggle('oneline-off', on); if (on) hkf.setAttribute('inert', ''); else hkf.removeAttribute('inert'); }
-    const 제목형 = document.querySelector('input[name="df-layout"][value="제목고정형"]');
-    if (제목형) { const 막음 = on && 한마디제목 === 'hide'; 제목형.disabled = 막음; const op = 제목형.closest('.lp-opt'); if (op) op.classList.toggle('oneline-off', 막음); if (막음 && 제목형.checked) { const a = document.querySelector('input[name="df-layout"][value="자동"]'); if (a) { a.checked = true; a.dispatchEvent(new Event('change', { bubbles: true })); } } }
     const lab = t.parentElement && t.parentElement.querySelector('label');
     if (t.dataset.ph0 === undefined) { t.dataset.ph0 = t.placeholder; t.dataset.lb0 = lab ? lab.innerHTML : ''; }
     if (t.dataset.ml0 === undefined) t.dataset.ml0 = t.maxLength;
@@ -5964,12 +5962,13 @@ ${비율칸Html(kind, 상태)}</div>`;
       const 움직임 = d.narrate ? '낭독형 (목소리가 읽고 그림이 천천히 바뀜)' : paid ? motionOf(현재움직임() === '자동' ? '혼합' : 현재움직임()) : '이미지 중심';
       const 제품 = [d.link && '링크 ' + d.link.slice(0, 40), d.img && '사진 주소 입력함'].filter(Boolean).join(' · ') || '없음';
       const 목소리 = (window.RWVoice && RWVoice.summary()) || [gv('df-voiceGender'), gv('df-voiceAge')].filter(Boolean).join(' · ') || '자동';
-      const 꾸밈 = [gv('df-hookText') ? '문구 "' + gv('df-hookText') + '"' : '문구 자동', '자막 ' + (document.querySelector('input[name="df-captionPos"]:checked')?.value || '자동')].filter(Boolean).join(' · ');
+      const 꾸밈 = [gnHookShow === '0s' ? '제목 숨김' : gv('df-hookText') ? '문구 "' + gv('df-hookText') + '"' : '문구 자동', '자막 ' + (document.querySelector('input[name="df-captionPos"]:checked')?.value || '자동')].filter(Boolean).join(' · ');
       const 썸네일 = paid ? (document.getElementById('df-thumbnail')?.checked ? 'AI 썸네일 3장 함께 만들기' : '만들지 않음') : '체험판은 제공하지 않아요';
       const 광고 = d.link && (gnSeller === 'affiliate' || (document.querySelector('input[name="gn-seller"]:checked') || {}).value === 'affiliate' || pdLooksAffiliate(d.link)) ? ' 대가가 있는 영상이라 제목 앞 "(광고)", 영상 안 "유료 광고 포함", 설명란 맨 앞 안내가 들어가요. 직접 올릴 때는 "유료 프로모션 포함"도 체크해 주세요.' : '';
-      const 미리 = 롱폼 ? '' : pdPvSvg({ layout: (document.querySelector('input[name="df-layout"]:checked')?.value || '자동') === '자동' ? '전체화면형' : document.querySelector('input[name="df-layout"]:checked').value, hook: gv('df-hookText'), hookShow: 'all', pos: (document.querySelector('input[name="df-captionPos"]:checked')?.value || '자동') === '자동' ? '하단' : document.querySelector('input[name="df-captionPos"]:checked').value, size: vv.subtitleSize || '크게', sub: vv.subtitleStyle || '구절형', off: !!vv.subtitleOff });
+      const 숨김 = gnHookShow === '0s', 고른 = document.querySelector('input[name="df-layout"]:checked')?.value || '자동';   // [제목 숨기기] 신청 때처럼 띠 있는 구성은 전체화면형·문구 없이
+      const 미리 = 롱폼 ? '' : pdPvSvg({ layout: 고른 === '자동' || (숨김 && (고른 === '제목고정형' || 고른 === '가운데영상형')) ? '전체화면형' : 고른, hook: 숨김 ? '' : gv('df-hookText'), hookShow: 숨김 ? '0s' : 'all', pos: (document.querySelector('input[name="df-captionPos"]:checked')?.value || '자동') === '자동' ? '하단' : document.querySelector('input[name="df-captionPos"]:checked').value, size: vv.subtitleSize || '크게', sub: vv.subtitleStyle || '구절형', off: !!vv.subtitleOff });
       review.innerHTML = `<div class="df-sec-head"><span class="df-sec-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg></span><div><h3 data-n="${LAST + 1}">이대로 만들까요?</h3><p>고칠 곳이 있으면 "고치기"를 눌러 그 단계로 돌아가세요</p></div></div>` +
-        (롱폼 ? '' : `<div class="pw-pv" role="img" aria-label="고른 화면 모양 미리보기">${미리}<small>${gv('df-hookText') ? '고른 화면 모양이에요. 위쪽 문구는 "' + esc(gv('df-hookText')) + '"' : '고른 화면 모양이에요. 위쪽 문구가 비어 있으면 AI가 대본에서 정해요'}</small></div>`) +
+        (롱폼 ? '' : `<div class="pw-pv" role="img" aria-label="고른 화면 모양 미리보기">${미리}<small>${숨김 ? '고른 화면 모양이에요. 제목은 숨겨요' : gv('df-hookText') ? '고른 화면 모양이에요. 위쪽 문구는 "' + esc(gv('df-hookText')) + '"' : '고른 화면 모양이에요. 위쪽 문구가 비어 있으면 AI가 대본에서 정해요'}</small></div>`) +
         row('영상 형태', 롱폼 ? '롱폼 · 가로 16:9' : '쇼츠 · 세로 9:16', 0) + 참고줄 + (d.script ? row('내 대본', d.script.title + ' · ' + ((window.__rwGenChars ? window.__rwGenChars(d.script) : Number(d.script.chars)) || 0).toLocaleString('ko-KR') + '자', 3) : '') + row('주제', d.topic || (d.script ? '대본 제목을 써요' : '아직 비어 있어요'), 3) +
         (gv('df-style') ? row('만드는 방향', gv('df-style'), 3) : '') + (document.getElementById('df-characterUse')?.checked ? row('캐릭터', '영상 내내 같은 캐릭터', 3) : '') +
         (gv('df-directorNote') ? row('꼭 넣을 연출', gv('df-directorNote'), 3) : '') + row('내 사진·영상', (d.media && d.media.length) ? pdMediaSummary({ media: d.media }) + ' · 올린 순서대로 장면에 써요' + ((n => n > 0 && d.media.length > n ? ' · ⚠ 대본이 ' + n + '장면이라 ' + d.media.length + '개 중 앞에서부터 ' + n + '개만 쓰여요. 다 쓰려면 대본을 늘리거나 사진·영상을 줄여 주세요' : '')(d.script ? 대본장면수(d.script) : 0)) : 'AI가 장면 그림을 만들어요', 1) +
@@ -6109,7 +6108,8 @@ ${비율칸Html(kind, 상태)}</div>`;
       const 롱폼 = (document.getElementById('df-form') || {}).value === '롱폼' && GN();
       box.hidden = 롱폼; if (롱폼) { box.innerHTML = ''; return; }
       const vv = (window.RWVoice && RWVoice.value()) || {}, lay = (document.querySelector('input[name="df-layout"]:checked') || {}).value || '자동', cap = (document.querySelector('input[name="df-captionPos"]:checked') || {}).value || '자동', hook = ((document.getElementById('df-hookText') || {}).value || '').trim();
-      box.innerHTML = pdPvSvg({ layout: lay === '자동' ? '전체화면형' : lay, hook: hook, hookShow: 'all', pos: cap === '자동' ? '하단' : cap, size: vv.subtitleSize || '크게', sub: vv.subtitleStyle || '구절형', off: !!vv.subtitleOff }) + '<small>고른 화면 구성이에요. 모양·색·글자는 뒤의 꾸미기에서 바꿔요</small>';
+      const 숨김 = gnHookShow === '0s' && !(document.querySelector('input[name="df-type"]:checked') || {}).value?.startsWith('상품');   // [제목 숨기기]
+      box.innerHTML = pdPvSvg({ layout: lay === '자동' || (숨김 && (lay === '제목고정형' || lay === '가운데영상형')) ? '전체화면형' : lay, hook: 숨김 ? '' : hook, hookShow: 숨김 ? '0s' : 'all', pos: cap === '자동' ? '하단' : cap, size: vv.subtitleSize || '크게', sub: vv.subtitleStyle || '구절형', off: !!vv.subtitleOff }) + '<small>고른 화면 구성이에요. 모양·색·글자는 뒤의 꾸미기에서 바꿔요</small>';
     }
     layoutSec.addEventListener('change', () => drawLayoutPv());
     let lastKind = null;
