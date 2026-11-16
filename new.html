@@ -2595,7 +2595,7 @@
     if (planMode !== 'paid') {
       const 체험길이 = (() => { const li = document.getElementById('df-videoLength'), f = document.getElementById('df-form'); const v = li && parseFloat(li.value) > 0 ? parseFloat(li.value) : defaultLen(f && f.value === '롱폼' ? '롱폼' : '쇼츠'); return v; })();
       const 체험가 = trialPriceShort(체험길이);
-      const 부족2 = pointLine(체험가); priceBox.innerHTML = `<div class="amt" id="df-price-amt"><span class="lab">예상 지출 포인트 :</span> <b class="val">${pt(체험가)}</b></div><p>이미지 중심의 ${window.__rwGenScript ? lenLabel(Math.min(체험길이, 3)) : '3분'} 길이 영상으로 만들어져요</p>${/short/.test(부족2) ? 부족2 : ''}`;
+      const 부족2 = pointLine(체험가); priceBox.innerHTML = `<div class="amt" id="df-price-amt"><span class="lab">예상 지출 포인트 :</span> <b class="val">${pt(체험가)}</b></div><p>이미지 중심의 ${window.__rwGenScript || (window.__rwOneLine && window.__rwOneLine()) ? lenLabel(Math.min(체험길이, 3)) : '3분'} 길이 영상으로 만들어져요</p>${/short/.test(부족2) ? 부족2 : ''}`;
       return;
     }
     const form = document.getElementById('df-form');
