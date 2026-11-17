@@ -249,7 +249,8 @@
       if (!token) { if (note) note.textContent = '로그인한 뒤에 들어 볼 수 있어요'; return; }
       if (pvAudio) { try { pvAudio.pause(); } catch (e) {} pvAudio = null; }
       b.disabled = true; if (note) note.textContent = '목소리를 만드는 중이에요… (몇 초 걸려요)';
-      var body = { idToken: token, speed: speedValue(), pitch: pitchValue(), tone: checked('vp-tone') || '보통', voiceId: host.voiceId ? host.voiceId() : '', gender: host.gender ? host.gender() : '', age: host.age ? host.age() : '', text: host.text ? host.text() : '' };
+      var body = { idToken: token, speed: speedValue(), pitch: pitchValue(), tone: checked('vp-tone') || '보통', voiceId: host.voiceId ? host.voiceId() : '', gender: host.gender ? host.gender() : '', age: host.age ? host.age() : '', text: host.text ? host.text() : '',
+        engine: window.RWVoiceEngine === 'gemini' ? 'gemini' : 'minimax', model: window.RWVoiceModel || '' };   // 관리자 설정 목소리엔진(new.html applySiteVoice)
       fetch(PREVIEW_API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
         .then(function (r) { return r.json().catch(function () { return null; }).then(function (d) { return { ok: r.ok, d: d }; }); })
         .then(function (r) {

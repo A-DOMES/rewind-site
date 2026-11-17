@@ -72,6 +72,12 @@
     분위기:   { 남: 'Korean_GentleBoss', 여: 'Korean_SoothingLady' },
     _:        { 남: 'Korean_IntellectualMan', 여: 'Korean_ThoughtfulWoman' }
   };
+  // [Gemini] 관리자 설정 목소리엔진 = gemini 일 때의 자동 추천: 쇼츠는 밝은 목소리(목소리엔진_설계서 §6). 없는 종류는 위 표
+  const 추천_gemini = {
+    쇼츠: { 남: 'Korean_CheerfulBoyfriend', 여: 'Korean_ChildhoodFriendGirl' },
+    _:    { 남: 'Korean_CheerfulBoyfriend', 여: 'Korean_ChildhoodFriendGirl' }
+  };
+  const 엔진 = () => (global.RWVoiceEngine === 'gemini' ? 'gemini' : 'minimax');   // new.html 이 사이트 설정(voice)을 받아 정한다
 
   // 화면에 보일 이름 붙이기: 같은 성별·분위기끼리 1, 2, 3 …
   const 세는판 = {};
@@ -79,11 +85,12 @@
     const 키 = 성별 + 분;
     세는판[키] = (세는판[키] || 0) + 1;
     return { id, 성별, 나이, 나이대: 나이표[나이] || '', 분위기: 분, 이름: 분위기[분].이름 + ' ' + (성별 === '남' ? '남자' : '여자') + ' ' + 세는판[키],
-      설명: 설명 || (분위기[분].설명 + ' · ' + (나이표[나이] || '')), 샘플: './assets/voice-samples/' + id + '.mp3' };
+      설명: 설명 || (분위기[분].설명 + ' · ' + (나이표[나이] || '')),
+      get 샘플() { return './assets/voice-samples/' + (엔진() === 'gemini' ? 'gemini/' : '') + id + '.mp3'; } };   // 엔진에 맞는 미리 듣기 파일
   });
 
   function 찾기(id) { return 목록.find(v => v.id === id) || null; }
-  function 추천값(종류, 성별) { const t = 추천[종류] || 추천._; return t[성별 === '여' ? '여' : '남']; }
+  function 추천값(종류, 성별) { const 표 = 엔진() === 'gemini' ? 추천_gemini : 추천; const t = 표[종류] || (엔진() === 'gemini' && 추천[종류]) || 표._; return t[성별 === '여' ? '여' : '남']; }
 
   global.RWVoiceCatalog = { 목록, 분위기, 찾기, 추천값, 이름: id => { const v = 찾기(id); return v ? v.이름 : ''; } };
 })(window);
