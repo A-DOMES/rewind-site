@@ -560,8 +560,8 @@ html:root[data-theme="light"]{--pick:#8a6914}
 #df-fields .ol-t-seg{display:grid;grid-template-columns:repeat(2,minmax(0,140px));gap:10px}
 html:root[data-theme] #df-fields .ol-t-seg button{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 8px!important;border:1px solid var(--line-strong)!important;border-radius:10px!important;background:transparent!important;color:inherit!important;opacity:1!important;cursor:pointer;transition:border-color .15s,background .15s,transform .15s}
 html:root[data-theme] #df-fields .ol-t-seg button:not(.on):hover{border-color:currentColor!important;transform:translateY(-1px)}
-#df-fields .ol-t-seg button b{font-weight:700;font-size:1rem}
-#df-fields .ol-t-seg button small{font-size:.8rem;opacity:.7}
+#df-fields .ol-t-seg button b{font-weight:700;font-size:.88rem}
+#df-fields .ol-t-seg button small{font-size:.72rem;opacity:.65}
 #df-fields .ol-ck{position:absolute;top:6px;right:6px;width:18px;height:18px;border-radius:50%;display:none;align-items:center;justify-content:center;background:var(--pick);color:#000}
 html:root[data-theme="light"] #df-fields .ol-ck{color:#fff}
 #df-fields .ol-t-seg button.on .ol-ck{display:flex}
@@ -674,5 +674,6 @@ html:root[data-theme] body #df-fields#df-fields .pw-hint b{color:var(--stc,#ff5a
 #df-fields .ol-est{margin:6px 0 0;font-size:.86rem;color:#a1a1aa}
 #df-fields .ol-est[hidden]{display:none}
 #df-fields .ol-est b{color:#ffb020;font-weight:700}
-/* 2026-11-17 민구 님: 코랄 바탕 글씨는 모두 흰색(검정은 잘 안 보임) · 단계 이동 버튼 글씨 조금 크게 */
-html:root[data-theme] .pw-nav .pw-next,html:root[data-theme] .pw-nav .pw-prev{font-size:1.08rem!important}
+/* 2026-11-17 민구 님: 코랄 바탕 글씨는 모두 흰색(검정은 잘 안 보임) · 코랄 버튼 글씨만 한 단계 크게(보조·회색 버튼은 그대로) */
+html:root[data-theme] .pw-nav .pw-next:not(.is-blocked){font-size:1.08rem!important}
+html:root[data-theme] .btn.gold,html:root[data-theme] .proceed-btn,html:root[data-theme] .tpv-go,html:root[data-theme] .sh-go,html:root[data-theme] .pd-kindgo,html:root[data-theme] #df-fields .rf-go,html:root[data-theme] .vp-btn:not(:disabled),html:root[data-theme] #guide-hub .gd-btn,html:root[data-theme] .banner .acts button.go,html:root[data-theme] .askai .aigo .reqs button.main{font-size:1.04rem!important}
