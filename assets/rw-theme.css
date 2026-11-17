@@ -33,8 +33,8 @@ html:root[data-theme="dark"] body {   /* body 에도 둔다: 편집기(editor)�
   --bg: #000; --bg-raised: #09090a; --bg-input: #101012; --bg-deep: #000; --film: #000; --stage: #050506;
   --line: #1f1f23; --line-strong: #2c2c31;
   --ink: #f4f4f5; --ink-dim: #b6b6bd; --ink-faint: #7e7e87;
-  --amber: #ff5a3c; --amber-hover: #ff7558; --amber-dim: #5c2418; --amber-wash: #1d0f0b; --on-amber: #000;
-  --gold: #ff5a3c; --gold-dim: #5c2418; --on-gold: #000; --olive: #c9a86a; --focus: #ff5a3c;
+  --amber: #ff5a3c; --amber-hover: #ff7558; --amber-dim: #5c2418; --amber-wash: #1d0f0b; --on-amber: #fff;
+  --gold: #ff5a3c; --gold-dim: #5c2418; --on-gold: #fff; --olive: #c9a86a; --focus: #ff5a3c;
   --blue: #86b4f0; --green: #a3cf92; --err: #ff7a9c; --ok: #86c872; --done: #86c872;
   --status-plan: #86b4f0; --status-making: #86b4f0; --status-review: #ff5a3c; --status-final: #86b4f0; --status-done: #86c872; --status-error: #ff7a9c;
   --card-shadow: none;
@@ -49,7 +49,7 @@ html:root[data-theme="dark"] body {   /* body 에도 둔다: 편집기(editor)�
 
 /* ───────── 2. 바탕·글자 기본 ───────── */
 html:root[data-theme="dark"] body { background: #000; color: var(--rw-ink); }
-html:root[data-theme="dark"] ::selection { background: var(--rw-accent); color: #000; }
+html:root[data-theme="dark"] ::selection { background: var(--rw-accent); color: #fff; }
 html:root[data-theme="dark"] :focus-visible { outline-color: var(--rw-accent); }
 html:root[data-theme="dark"] ::-webkit-scrollbar { width: 10px; height: 10px; }
 html:root[data-theme="dark"] ::-webkit-scrollbar-thumb { background: #232327; border-radius: 10px; border: 2px solid #000; }
@@ -105,7 +105,7 @@ html:root[data-theme="dark"] .pm-x:hover { background: #17171a; border-color: #3
 html:root[data-theme="dark"] .pm-tabs { border-bottom-color: #17171a; }
 html:root[data-theme="dark"] .pm-tabs button { border-color: #26262b; background: #0c0c0e; color: var(--rw-ink-2); transition: background-color .15s, color .15s, border-color .15s; }
 html:root[data-theme="dark"] .pm-tabs button:hover { border-color: #3b3b42; color: var(--rw-ink); }
-html:root[data-theme="dark"] .pm-tabs button[aria-selected=true] { background: var(--rw-accent); border-color: var(--rw-accent); color: #000; }
+html:root[data-theme="dark"] .pm-tabs button[aria-selected=true] { background: var(--rw-accent); border-color: var(--rw-accent); color: #fff; }
 html:root[data-theme="dark"] .price-modal .sub { color: var(--rw-ink-3); }
 html:root[data-theme="dark"] .price-modal .ml-item { background: var(--rw-card); border-color: #1f1f23; box-shadow: var(--rw-edge); }
 html:root[data-theme="dark"] .price-modal .ml-item.mc { background: var(--rw-card); border-color: #232327; box-shadow: var(--rw-edge), inset 0 3px 0 var(--mc); }
@@ -138,7 +138,7 @@ html:root[data-theme="dark"] .nc-list .nc-ico { background: #121214; box-shadow:
 html:root[data-theme="dark"] .nc-list .nc-todo .nc-ico { background: var(--rw-accent); box-shadow: none; }
 html:root[data-theme="dark"] .nc-btn { border-color: #34343a; color: var(--rw-ink); background: #0e0e10; transition: background-color .15s, border-color .15s; }
 html:root[data-theme="dark"] .nc-btn:hover { background: #17171a; border-color: #4a4a52; }
-html:root[data-theme="dark"] .nc-todo .nc-btn { background: var(--rw-accent); border-color: var(--rw-accent); color: #000; }
+html:root[data-theme="dark"] .nc-todo .nc-btn { background: var(--rw-accent); border-color: var(--rw-accent); color: #fff; }
 html:root[data-theme="dark"] .nc-todo .nc-btn:hover { background: var(--rw-accent-hi); border-color: var(--rw-accent-hi); filter: none; }
 html:root[data-theme="dark"] .nc-bad .nc-btn { color: var(--rw-ink); }
 html:root[data-theme="dark"] .nc-more { border-color: #26262b; }
@@ -202,7 +202,7 @@ html:root[data-theme="dark"] .example-chip:hover { border-color: #3b3b42; transf
 html:root[data-theme="dark"] .example-row .example-chip svg { background: #121214 !important; stroke: var(--rw-accent) !important; box-shadow: inset 0 0 0 1px #26262b; }
 html:root[data-theme="dark"] .chat-text-row { background: var(--rw-card); border-color: #26262b; border-radius: 22px; box-shadow: var(--rw-edge); transition: border-color .15s, box-shadow .15s; }
 html:root[data-theme="dark"] .chat-text-row:focus-within { border-color: #5c2418; box-shadow: var(--rw-edge), 0 0 0 4px rgba(255, 90, 60, .10); }
-html:root[data-theme="dark"] .chat-send-btn:not(:disabled) { background: var(--rw-accent); color: #000; }
+html:root[data-theme="dark"] .chat-send-btn:not(:disabled) { background: var(--rw-accent); color: #fff; }
 html:root[data-theme="dark"] .chat-send-btn:not(:disabled):hover { background: var(--rw-accent-hi); }
 html:root[data-theme="dark"] .msg.user .bubble { background: #111113; border: 1px solid #1f1f23; }
 
@@ -318,7 +318,7 @@ html:root[data-theme="dark"] #df-fields .df-types .tcard small,
 html:root[data-theme="dark"] #df-fields .df-chipset .tcard small,
 html:root[data-theme="dark"] #df-fields .mood-card small,
 html:root[data-theme="dark"] #df-fields .mood-card span{color:#c8c8d0!important}
-html:root[data-theme="dark"] #df-fields.pw-on .df-sec-head h3[data-n]::before{background:var(--rw-accent)!important;color:#000!important;box-shadow:none!important}
+html:root[data-theme="dark"] #df-fields.pw-on .df-sec-head h3[data-n]::before{background:var(--rw-accent)!important;color:#fff!important;box-shadow:none!important}
 html:root[data-theme="dark"] .pw-hint b,
 html:root[data-theme="dark"] .pw-hint .pw-left,
 html:root[data-theme="dark"] #df-fields.pw-on .vp-now,
@@ -329,7 +329,7 @@ html:root[data-theme="dark"] #df-fields .df-field .req{background:color-mix(in s
 html:root[data-theme="dark"] #df-fields > .sc-card.gn-script .sc-hint{background:var(--bg-raised)!important;color:#c8c8d0!important;border:1px solid var(--line)!important}
 html:root[data-theme="dark"] .df-price .amt .val{color:#f5f5f7!important;text-shadow:none!important}
 html:root[data-theme="dark"] .pw-nav .pw-next:not(.is-blocked),
-html:root[data-theme="dark"] #df-fields .rf-go{background:var(--rw-accent)!important;color:#000!important;box-shadow:none!important}
+html:root[data-theme="dark"] #df-fields .rf-go{background:var(--rw-accent)!important;color:#fff!important;box-shadow:none!important}
 html:root[data-theme="dark"] .pw-nav .pw-next:not(.is-blocked):hover{filter:brightness(1.08);box-shadow:none!important}
 html:root[data-theme="dark"] #df-fields .df-field input:focus,
 html:root[data-theme="dark"] #df-fields .df-field textarea:focus,
@@ -421,7 +421,7 @@ html:root[data-theme="light"] .mc-img{--mc:#2f6fb3!important}html:root[data-them
 #df-fields.pw-on .df-types label:has(> input[value="야담"]){--tc:#a78bfa!important}
 /* ③ 영상 꾸미기 창: UI 강조만 코랄(타임라인 줄 색은 구분용이라 유지) */
 .cz-ov{--rz-ac:#ff5a3c!important;--rz-ac-soft:rgba(255,90,60,.14)!important}
-.cz-btn.cz-main{background:#ff5a3c!important;border-color:#ff5a3c!important;color:#000!important}
+.cz-btn.cz-main{background:#ff5a3c!important;border-color:#ff5a3c!important;color:#fff!important}
 .cz-insp-tab[aria-selected="true"]{color:#f5f5f7!important;box-shadow:inset 0 -2px 0 #ff5a3c!important}
 .cz-t-clip.cz-t-sel,.cz-t-sfx.cz-t-sel{outline-color:var(--pick)!important}
 .cz-insp-tg.on,.cz-insp-play.on,.cz-insp-mbtn[aria-expanded="true"]{border-color:var(--pick)!important;color:#f5f5f7!important}
@@ -533,12 +533,12 @@ html:root[data-theme="light"] body .direct-form-wrap,html:root[data-theme="light
 .oneline-off{opacity:.35!important;filter:grayscale(.7);pointer-events:none!important}
 .oneline-note{margin:0 0 10px;padding:10px 14px;border-radius:12px;border:1px solid var(--line-strong);background:var(--bg-raised);color:var(--ink);font-size:.88rem}
 /* 내 컴퓨터에서 올리기 '사진·영상 고르기' 버튼: 글자가 안 보이던 문제 → 코랄 바탕 + 검은 굵은 글자 */
-html:root[data-theme] #df-fields .mm-pick{background:var(--rw-accent,#ff5a3c)!important;border-color:var(--rw-accent,#ff5a3c)!important;color:#000!important;font-weight:700!important}
+html:root[data-theme] #df-fields .mm-pick{background:var(--rw-accent,#ff5a3c)!important;border-color:var(--rw-accent,#ff5a3c)!important;color:#fff!important;font-weight:700!important}
 html:root[data-theme="light"] #df-fields .mm-pick{background:#b0301a!important;border-color:#b0301a!important;color:#fff!important}
 /* 코랄 글자는 더 밝은 코랄 + 굵게(검은 바탕에서 또렷하게). 코랄 바탕 위 글자는 검정 굵게 */
 html:root[data-theme="dark"] .pw-hint b,html:root[data-theme="dark"] #df-fields .len-now,html:root[data-theme="dark"] #df-fields .req,html:root[data-theme="dark"] #df-fields.pw-on .vp-now,html:root[data-theme="dark"] .pw-bar .pw-pos em{color:#ff9a82!important;font-weight:700!important}
 html:root[data-theme="dark"] #df-fields .len-now,html:root[data-theme="dark"] #df-fields .req{background:rgba(255,90,60,.16)!important;border-color:rgba(255,154,130,.45)!important}
-html:root[data-theme="dark"] #df-fields.pw-on .df-sec-head h3[data-n]::before,html:root[data-theme="dark"] .pw-nav .pw-next:not(.is-blocked),html:root[data-theme="dark"] #df-fields .rf-go{color:#000!important;font-weight:800!important}
+html:root[data-theme="dark"] #df-fields.pw-on .df-sec-head h3[data-n]::before,html:root[data-theme="dark"] .pw-nav .pw-next:not(.is-blocked),html:root[data-theme="dark"] #df-fields .rf-go{color:#fff!important;font-weight:800!important}
 /* 영상 제작 방식: 고른 카드 표시(흰 2px 테두리) */
 html:root[data-theme="dark"] body #df-fields#df-fields .lp-opt.mc input:checked + .lp-card{border:2px solid var(--pick)!important;background:#2a2a31!important;box-shadow:0 6px 18px -10px rgba(255,255,255,.35)!important}
 html:root[data-theme="light"] body #df-fields#df-fields .lp-opt.mc input:checked + .lp-card{border:2px solid var(--pick)!important;background:#fff!important}
@@ -560,8 +560,8 @@ html:root[data-theme="light"]{--pick:#8a6914}
 #df-fields .ol-t-seg{display:grid;grid-template-columns:repeat(2,minmax(0,140px));gap:10px}
 html:root[data-theme] #df-fields .ol-t-seg button{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 8px!important;border:1px solid var(--line-strong)!important;border-radius:10px!important;background:transparent!important;color:inherit!important;opacity:1!important;cursor:pointer;transition:border-color .15s,background .15s,transform .15s}
 html:root[data-theme] #df-fields .ol-t-seg button:not(.on):hover{border-color:currentColor!important;transform:translateY(-1px)}
-#df-fields .ol-t-seg button b{font-weight:700;font-size:.88rem}
-#df-fields .ol-t-seg button small{font-size:.72rem;opacity:.65}
+#df-fields .ol-t-seg button b{font-weight:700;font-size:1rem}
+#df-fields .ol-t-seg button small{font-size:.8rem;opacity:.7}
 #df-fields .ol-ck{position:absolute;top:6px;right:6px;width:18px;height:18px;border-radius:50%;display:none;align-items:center;justify-content:center;background:var(--pick);color:#000}
 html:root[data-theme="light"] #df-fields .ol-ck{color:#fff}
 #df-fields .ol-t-seg button.on .ol-ck{display:flex}
@@ -596,7 +596,7 @@ html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-auto{position:relati
 html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-auto::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:#ff5a3c}
 html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-auto:hover{border-color:#55555e!important}
 html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-auto[aria-pressed="true"]{border:2px solid var(--pick)!important;background:#2a2a31!important;box-shadow:none!important}
-.rwvp .vp-badge{font-style:normal;font-size:.7rem;font-weight:800;margin-left:6px;padding:2px 8px;border-radius:999px;background:#ff5a3c;color:#000;vertical-align:2px}
+.rwvp .vp-badge{font-style:normal;font-size:.7rem;font-weight:800;margin-left:6px;padding:2px 8px;border-radius:999px;background:#ff5a3c;color:#fff;vertical-align:2px}
 /* 남자 | 여자: 한 덩어리 두 칸 */
 html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-seg{display:inline-flex!important;gap:0!important;border:1px solid #2c2c33;border-radius:12px;overflow:hidden;width:max-content}
 html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-seg .vp-chip{border:0!important;border-radius:0!important;background:#1a1a1f!important;color:#c8c8d0!important;padding:8px 26px!important;font-weight:600}
@@ -640,7 +640,7 @@ html:root[data-theme] body :is(#df-fields#df-fields,*) .pw-st.cur svg{stroke:#00
 html:root[data-theme] body :is(#df-fields#df-fields,*) .pw-st.cur b,html:root[data-theme] body :is(#df-fields#df-fields,*) .pw-st.cur small{color:#000!important;font-weight:800!important}
 html:root[data-theme] body :is(#df-fields#df-fields,*) .pw-st.done:hover{filter:brightness(1.15)}
 /* 단계 제목 번호 동그라미 = 지금 단계 색 */
-html:root[data-theme] #df-fields#df-fields.pw-on .df-sec-head h3[data-n]::before{background:var(--stc,#ff5a3c)!important;color:#000!important}
+html:root[data-theme] #df-fields#df-fields.pw-on .df-sec-head h3[data-n]::before{background:var(--stc,#ff5a3c)!important;color:#fff!important}
 /* 확인 목록: 줄마다 단계 색 점, 고치기에 올리면 단계 색 테두리 */
 html:root[data-theme] body :is(#df-fields#df-fields,*) .pw-row .pw-k{display:inline-flex;align-items:center;gap:8px}
 html:root[data-theme] body :is(#df-fields#df-fields,*) .pw-row .pw-k::before{content:"";flex:0 0 10px;width:10px;height:10px;border-radius:50%;background:var(--sc,#8a8a94);box-shadow:0 0 0 3px color-mix(in srgb,var(--sc,#8a8a94) 22%,transparent)}
@@ -674,3 +674,5 @@ html:root[data-theme] body #df-fields#df-fields .pw-hint b{color:var(--stc,#ff5a
 #df-fields .ol-est{margin:6px 0 0;font-size:.86rem;color:#a1a1aa}
 #df-fields .ol-est[hidden]{display:none}
 #df-fields .ol-est b{color:#ffb020;font-weight:700}
+/* 2026-11-17 민구 님: 코랄 바탕 글씨는 모두 흰색(검정은 잘 안 보임) · 단계 이동 버튼 글씨 조금 크게 */
+html:root[data-theme] .pw-nav .pw-next,html:root[data-theme] .pw-nav .pw-prev{font-size:1.08rem!important}
