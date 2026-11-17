@@ -294,11 +294,11 @@ html:root[data-theme="dark"] #df-fields.pw-on .df-voice .df-comp input:checked +
 html:root[data-theme="dark"] #df-fields.pw-on .len-chips .len-chip.on,
 html:root[data-theme="dark"] .df-tabs .df-tab.active,
 html:root[data-theme="dark"] .df-tab.active,
-html:root[data-theme="dark"] .pw-st.cur{background:#16161a!important;border:1.5px solid #f5f5f7!important;box-shadow:none!important;color:#f5f5f7!important}
+html:root[data-theme="dark"] .pw-st.cur{background:#16161a!important;border:1.5px solid var(--pick)!important;box-shadow:none!important;color:#f5f5f7!important}
 html:root[data-theme="dark"] #df-fields input:checked + .tcard b,
 html:root[data-theme="dark"] #df-fields input:checked + .ccard b{color:#f5f5f7!important}
-html:root[data-theme="dark"] #df-fields.pw-on .vp-card[aria-pressed="true"]::after{background:#f5f5f7!important;color:var(--bg)!important}
-html:root[data-theme="dark"] #df-fields.pw-on .vp-chip[aria-pressed="true"]{background:#f5f5f7!important;border-color:#f5f5f7!important;color:var(--bg)!important;box-shadow:none!important}
+html:root[data-theme="dark"] #df-fields.pw-on .vp-card[aria-pressed="true"]::after{background:var(--pick)!important;color:var(--bg)!important}
+html:root[data-theme="dark"] #df-fields.pw-on .vp-chip[aria-pressed="true"]{background:var(--pick)!important;border-color:var(--pick)!important;color:var(--bg)!important;box-shadow:none!important}
 html:root[data-theme="dark"] #df-fields.pw-on .df-types input:checked + .tcard .ti{box-shadow:none!important}
 html:root[data-theme="dark"] .pw-st.done svg{color:#c8c8d0!important}
 html:root[data-theme="dark"] .pw-title b,
@@ -349,7 +349,7 @@ html:root[data-theme="dark"] #df-fields textarea{background:var(--bg-input,var(-
 html:root[data-theme="dark"] #df-fields button[aria-pressed="true"]:not(.vp-chip),
 html:root[data-theme="dark"] #df-fields button.on,
 html:root[data-theme="dark"] #df-fields button.active,
-html:root[data-theme="dark"] #df-fields .len-chips .len-chip.on{background:#16161a!important;border:1.5px solid #f5f5f7!important;color:#f5f5f7!important;box-shadow:none!important}
+html:root[data-theme="dark"] #df-fields .len-chips .len-chip.on{background:#16161a!important;border:1.5px solid var(--pick)!important;color:#f5f5f7!important;box-shadow:none!important}
 html:root[data-theme="dark"] #df-fields .pimg-th,
 html:root[data-theme="dark"] #df-fields .df-sec-ico{color:#c8c8d0!important}
 html:root[data-theme="dark"] .pw-st.todo,
@@ -363,9 +363,9 @@ html:root[data-theme="dark"] #df-fields input[type=range]{accent-color:var(--rw-
 html:root[data-theme="dark"] .df-tab{color:var(--rw-ink-2)!important}
 html:root[data-theme="dark"] .df-tab.active{color:#f5f5f7!important}
 html:root[data-theme="dark"] .pw-nav .pw-prev,html:root[data-theme="dark"] .df-price{border-color:var(--line-strong)!important;box-shadow:none!important;background-image:none!important}
-html:root[data-theme="dark"] .pw-st.cur::before{background:#f5f5f7!important;box-shadow:none!important}
+html:root[data-theme="dark"] .pw-st.cur::before{background:var(--pick)!important;box-shadow:none!important}
 html:root[data-theme="dark"] .lp-opt:hover .lp-card{border-color:#80808a!important}
-html:root[data-theme="dark"] .lp-opt:not(.mc) input:checked + .lp-card{border:1.5px solid #f5f5f7!important;background:#16161a!important;box-shadow:none!important}
+html:root[data-theme="dark"] .lp-opt:not(.mc) input:checked + .lp-card{border:1.5px solid var(--pick)!important;background:#16161a!important;box-shadow:none!important}
 html:root[data-theme="dark"] #df-fields .vp-speed,html:root[data-theme="dark"] #df-fields .vp-more,html:root[data-theme="dark"] #df-fields .vp-play,html:root[data-theme="dark"] #df-fields .vp-note,html:root[data-theme="dark"] #df-fields .vp-chip:not([aria-pressed="true"]){background:var(--bg-raised)!important;background-image:none!important;border-color:var(--line)!important;box-shadow:none!important}
 html:root[data-theme="dark"] #df-fields .vp-chip:not([aria-pressed="true"]),html:root[data-theme="dark"] #df-fields .vp-chip:not([aria-pressed="true"]) small,html:root[data-theme="dark"] #df-fields .vp-note{color:#c8c8d0!important}
 html:root[data-theme="dark"] #df-fields .vp-chip:not([aria-pressed="true"]):hover{border-color:#80808a!important}
@@ -423,8 +423,8 @@ html:root[data-theme="light"] .mc-img{--mc:#2f6fb3!important}html:root[data-them
 .cz-ov{--rz-ac:#ff5a3c!important;--rz-ac-soft:rgba(255,90,60,.14)!important}
 .cz-btn.cz-main{background:#ff5a3c!important;border-color:#ff5a3c!important;color:#000!important}
 .cz-insp-tab[aria-selected="true"]{color:#f5f5f7!important;box-shadow:inset 0 -2px 0 #ff5a3c!important}
-.cz-t-clip.cz-t-sel,.cz-t-sfx.cz-t-sel{outline-color:#f5f5f7!important}
-.cz-insp-tg.on,.cz-insp-play.on,.cz-insp-mbtn[aria-expanded="true"]{border-color:#f5f5f7!important;color:#f5f5f7!important}
+.cz-t-clip.cz-t-sel,.cz-t-sfx.cz-t-sel{outline-color:var(--pick)!important}
+.cz-insp-tg.on,.cz-insp-play.on,.cz-insp-mbtn[aria-expanded="true"]{border-color:var(--pick)!important;color:#f5f5f7!important}
 .cz-insp-tg:hover,.cz-insp-play:hover:not(:disabled),.cz-insp-btn:hover,.cz-mix .cz-rst:hover:not(:disabled){border-color:#80808a!important}
 .cz-tfk{border-color:#ff5a3c!important}.cz-tfk:hover{background:#ff5a3c!important}
 .cz-insp-txt:focus,.cz-mix .cz-row input[type=range].cz-bi:focus-visible{outline-color:#f5f5f7!important}
@@ -478,8 +478,8 @@ html:root[data-theme="dark"] body #df-fields#df-fields .sc-opts button[aria-pres
 html:root[data-theme="dark"] body .pw-st.cur,
 html:root[data-theme="dark"] body #df-fields#df-fields button.on,
 html:root[data-theme="dark"] body #df-fields#df-fields button.active,
-html:root[data-theme="dark"] body #df-fields#df-fields button[aria-pressed="true"]:not(.vp-chip){background:#2a2a31!important;border:2px solid #f5f5f7!important;box-shadow:0 6px 18px -10px rgba(255,255,255,.35)!important;color:#fff!important}
-html:root[data-theme="dark"] body #df-fields#df-fields .vp-chip[aria-pressed="true"]{background:#f5f5f7!important;color:#000!important;border:2px solid #f5f5f7!important}
+html:root[data-theme="dark"] body #df-fields#df-fields button[aria-pressed="true"]:not(.vp-chip){background:#2a2a31!important;border:2px solid var(--pick)!important;box-shadow:0 6px 18px -10px rgba(255,255,255,.35)!important;color:#fff!important}
+html:root[data-theme="dark"] body #df-fields#df-fields .vp-chip[aria-pressed="true"]{background:var(--pick)!important;color:#000!important;border:2px solid var(--pick)!important}
 html:root[data-theme="light"] body #df-fields#df-fields .df-sec,
 html:root[data-theme="light"] body #df-fields#df-fields .sc-card,
 html:root[data-theme="light"] body .pw-bar{background:#ffffff!important;border:1px solid #e4e4e7!important;box-shadow:0 1px 3px rgba(0,0,0,.05)!important}
@@ -521,8 +521,8 @@ html:root[data-theme="light"] body #df-fields#df-fields .sc-opts button[aria-pre
 html:root[data-theme="light"] body .pw-st.cur,
 html:root[data-theme="light"] body #df-fields#df-fields button.on,
 html:root[data-theme="light"] body #df-fields#df-fields button.active,
-html:root[data-theme="light"] body #df-fields#df-fields button[aria-pressed="true"]:not(.vp-chip){background:#ffffff!important;border:2px solid #111114!important;box-shadow:0 6px 16px -10px rgba(0,0,0,.35)!important;color:#111114!important}
-html:root[data-theme="light"] body #df-fields#df-fields .vp-chip[aria-pressed="true"]{background:#111114!important;color:#fff!important;border:2px solid #111114!important}
+html:root[data-theme="light"] body #df-fields#df-fields button[aria-pressed="true"]:not(.vp-chip){background:#ffffff!important;border:2px solid var(--pick)!important;box-shadow:0 6px 16px -10px rgba(0,0,0,.35)!important;color:#111114!important}
+html:root[data-theme="light"] body #df-fields#df-fields .vp-chip[aria-pressed="true"]{background:var(--pick)!important;color:#fff!important;border:2px solid var(--pick)!important}
 html:root[data-theme="light"] body .direct-form-wrap,html:root[data-theme="light"] body #df-fields{background-color:#f4f4f5}
 
 /* 한마디 영상(20초 이하 일반 쇼츠): 대본 고르기 카드 숨김 — new.html 한마디그리기() */
@@ -540,8 +540,8 @@ html:root[data-theme="dark"] .pw-hint b,html:root[data-theme="dark"] #df-fields 
 html:root[data-theme="dark"] #df-fields .len-now,html:root[data-theme="dark"] #df-fields .req{background:rgba(255,90,60,.16)!important;border-color:rgba(255,154,130,.45)!important}
 html:root[data-theme="dark"] #df-fields.pw-on .df-sec-head h3[data-n]::before,html:root[data-theme="dark"] .pw-nav .pw-next:not(.is-blocked),html:root[data-theme="dark"] #df-fields .rf-go{color:#000!important;font-weight:800!important}
 /* 영상 제작 방식: 고른 카드 표시(흰 2px 테두리) */
-html:root[data-theme="dark"] body #df-fields#df-fields .lp-opt.mc input:checked + .lp-card{border:2px solid #f5f5f7!important;background:#2a2a31!important;box-shadow:0 6px 18px -10px rgba(255,255,255,.35)!important}
-html:root[data-theme="light"] body #df-fields#df-fields .lp-opt.mc input:checked + .lp-card{border:2px solid #111114!important;background:#fff!important}
+html:root[data-theme="dark"] body #df-fields#df-fields .lp-opt.mc input:checked + .lp-card{border:2px solid var(--pick)!important;background:#2a2a31!important;box-shadow:0 6px 18px -10px rgba(255,255,255,.35)!important}
+html:root[data-theme="light"] body #df-fields#df-fields .lp-opt.mc input:checked + .lp-card{border:2px solid var(--pick)!important;background:#fff!important}
 html:root[data-theme] body #df-fields#df-fields .lp-opt.mc:hover .lp-card{border-color:#8a8a94!important}
 /* 화면 구성: 4개를 한 줄로, 미리보기(휴대폰 그림)는 화면 구성 바로 아래 → 그다음 영상 제작 방식 */
 #df-fields .gn-layout .gl-lay .lp-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:8px!important}
@@ -551,7 +551,10 @@ html:root[data-theme] body #df-fields#df-fields .lp-opt.mc:hover .lp-card{border
 /* 한마디 영상 제목 [숨기기 | 보이기] */
 #df-fields .ol-title{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin-top:10px}
 #df-fields .ol-title[hidden],#df-fields .ol-title input[hidden]{display:none!important}
-/* [제목 카드] 숨기기·보이기 = 휴대폰 미리보기 두 칸(명함카드). 고른 칸은 사이트 공통 선택 모양(검정 테마 흰 테두리 · 밝은 테마 검정 테두리) + 체크 */
+/* 선택 표시 색(사이트 공통, 2026-11-17 민구 님: 금색). 고른 카드·칩·단계의 테두리·체크·채움에 쓴다 */
+:root,html:root[data-theme]{--pick:#c9a24a}
+html:root[data-theme="light"]{--pick:#8a6914}
+/* [제목 카드] 숨기기·보이기 = 휴대폰 미리보기 두 칸(명함카드). 고른 칸은 사이트 공통 선택 모양(--pick 금색 테두리) + 체크 */
 #df-fields .ol-t-card{flex:1 1 100%;border:1px solid var(--line-strong);border-radius:12px;padding:12px}
 #df-fields .ol-t-lab{display:block;font-weight:700;font-size:.9rem;margin:0 0 10px}
 #df-fields .ol-t-seg{display:grid;grid-template-columns:repeat(2,minmax(0,140px));gap:10px}
@@ -559,16 +562,18 @@ html:root[data-theme] #df-fields .ol-t-seg button{position:relative;display:flex
 html:root[data-theme] #df-fields .ol-t-seg button:not(.on):hover{border-color:currentColor!important;transform:translateY(-1px)}
 #df-fields .ol-t-seg button b{font-weight:700;font-size:.88rem}
 #df-fields .ol-t-seg button small{font-size:.72rem;opacity:.65}
-#df-fields .ol-ck{position:absolute;top:6px;right:6px;width:18px;height:18px;border-radius:50%;display:none;align-items:center;justify-content:center;background:#f5f5f7;color:#000}
-html:root[data-theme="light"] #df-fields .ol-ck{background:#111114;color:#fff}
+#df-fields .ol-ck{position:absolute;top:6px;right:6px;width:18px;height:18px;border-radius:50%;display:none;align-items:center;justify-content:center;background:var(--pick);color:#000}
+html:root[data-theme="light"] #df-fields .ol-ck{color:#fff}
 #df-fields .ol-t-seg button.on .ol-ck{display:flex}
 #df-fields .ol-ph{position:relative;width:40px;height:70px;border-radius:7px;border:1.5px solid var(--line-strong);background:rgba(127,127,140,.12);overflow:hidden}
-#df-fields .ol-t-seg button.on .ol-ph{border-color:currentColor}
-#df-fields .ol-ph-tb{position:absolute;left:0;right:0;top:0;height:14px;background:#f5f5f7;color:#000;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center}
-html:root[data-theme="light"] #df-fields .ol-ph-tb{background:#111114;color:#fff}
+#df-fields .ol-t-seg button.on .ol-ph{border-color:var(--pick)}
+#df-fields .ol-ph-tb{position:absolute;left:0;right:0;top:0;height:14px;background:var(--pick);color:#000;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center}
+html:root[data-theme="light"] #df-fields .ol-ph-tb{color:#fff}
 #df-fields .ol-ph-img{position:absolute;left:4px;right:4px;top:18px;bottom:18px;border-radius:3px;background:rgba(127,127,140,.35)}
 #df-fields .ol-ph.full .ol-ph-img{top:4px}
 #df-fields .ol-ph-sb{position:absolute;left:8px;right:8px;bottom:9px;height:4px;border-radius:2px;background:currentColor;opacity:.75}
+html:root[data-theme] body #df-fields#df-fields .ol-t-seg button.on{border:2px solid var(--pick)!important;background:rgba(201,162,74,.08)!important;box-shadow:none!important}
+html:root[data-theme] body #df-fields#df-fields .ol-ck,html:root[data-theme] body #df-fields#df-fields .ol-ph-tb{background:var(--pick)!important}
 #df-fields .ol-title input{flex:1 1 220px;min-width:0}
 #df-fields .ol-t-hint{flex-basis:100%;margin:0}
 
@@ -584,22 +589,22 @@ html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-card b{color:#f5f5f7
 html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-card small{display:flex!important;align-items:center;gap:6px;color:#a1a1aa!important;margin-top:3px}
 .rwvp .vp-tag{font-style:normal;font-size:.72rem;font-weight:700;padding:1px 7px;border-radius:999px;color:var(--tn);background:color-mix(in srgb,var(--tn) 16%,transparent);border:1px solid color-mix(in srgb,var(--tn) 45%,transparent)}
 .rwvp .vp-check{position:absolute;top:8px;right:10px;width:20px;height:20px;border-radius:50%;background:#f5f5f7;color:#000;font-size:.75rem;font-weight:800;display:none;place-items:center}
-html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-card[aria-pressed="true"]{border:2px solid #f5f5f7!important;background:#2a2a31!important;box-shadow:none!important}
+html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-card[aria-pressed="true"]{border:2px solid var(--pick)!important;background:#2a2a31!important;box-shadow:none!important}
 .rwvp .vp-card[aria-pressed="true"] .vp-check{display:grid}
 /* 자동 추천 카드: 코랄 띠 + 추천 표시 */
 html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-auto{position:relative;overflow:hidden;padding:16px 16px 16px 20px!important;border:1px solid #2c2c33!important;background:#1a1a1f!important;border-radius:14px!important}
 html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-auto::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:#ff5a3c}
 html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-auto:hover{border-color:#55555e!important}
-html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-auto[aria-pressed="true"]{border:2px solid #f5f5f7!important;background:#2a2a31!important;box-shadow:none!important}
+html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-auto[aria-pressed="true"]{border:2px solid var(--pick)!important;background:#2a2a31!important;box-shadow:none!important}
 .rwvp .vp-badge{font-style:normal;font-size:.7rem;font-weight:800;margin-left:6px;padding:2px 8px;border-radius:999px;background:#ff5a3c;color:#000;vertical-align:2px}
 /* 남자 | 여자: 한 덩어리 두 칸 */
 html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-seg{display:inline-flex!important;gap:0!important;border:1px solid #2c2c33;border-radius:12px;overflow:hidden;width:max-content}
 html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-seg .vp-chip{border:0!important;border-radius:0!important;background:#1a1a1f!important;color:#c8c8d0!important;padding:8px 26px!important;font-weight:600}
 html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-seg .vp-chip:hover{background:#24242a!important;color:#fff!important}
-html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-seg .vp-chip[aria-pressed="true"]{background:#f5f5f7!important;color:#000!important}
+html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-seg .vp-chip[aria-pressed="true"]{background:var(--pick)!important;color:#000!important}
 /* 분위기 필터: 카드와 같은 색 점 */
 .rwvp .vp-chip[data-tone]:not([data-tone="all"])::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--tn);margin-right:7px;vertical-align:1px}
-html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-chip[data-tone][aria-pressed="true"]{background:#2a2a31!important;border-color:#f5f5f7!important;color:#fff!important}
+html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-chip[data-tone][aria-pressed="true"]{background:#2a2a31!important;border-color:var(--pick)!important;color:#fff!important}
 html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-chip[data-tone]:hover{border-color:#8a8a94!important}
 /* 목소리 분위기(보통·기쁘게…): 아이콘을 색 원 안에 */
 .ccard:has(.ci){--tn:#8a8a94}
@@ -608,15 +613,15 @@ html:root[data-theme] :is(#df-fields#df-fields,*) input[name="vp-tone"] + .ccard
 html:root[data-theme] :is(#df-fields#df-fields,*) input[name="vp-tone"] + .ccard .ci svg{stroke:var(--tn)!important}
 html:root[data-theme] :is(#df-fields#df-fields,*) input[name="vp-tone"] + .ccard{background:#1a1a1f!important;border:1px solid #2c2c33!important;transition:transform .15s,border-color .15s}
 html:root[data-theme] :is(#df-fields#df-fields,*) input[name="vp-tone"] + .ccard:hover{transform:translateY(-2px);border-color:#55555e!important}
-html:root[data-theme] :is(#df-fields#df-fields,*) input[name="vp-tone"]:checked + .ccard{border:2px solid #f5f5f7!important;background:#2a2a31!important}
+html:root[data-theme] :is(#df-fields#df-fields,*) input[name="vp-tone"]:checked + .ccard{border:2px solid var(--pick)!important;background:#2a2a31!important}
 /* 밝은 화면 */
 html:root[data-theme="light"] :is(#df-fields#df-fields,*) .rwvp .vp-card,html:root[data-theme="light"] :is(#df-fields#df-fields,*) .rwvp .vp-auto,html:root[data-theme="light"] :is(#df-fields#df-fields,*) input[name="vp-tone"] + .ccard{background:#fff!important;border-color:#d4d4d8!important}
 html:root[data-theme="light"] :is(#df-fields#df-fields,*) .rwvp .vp-card b{color:#111114!important}
-html:root[data-theme="light"] :is(#df-fields#df-fields,*) .rwvp .vp-card[aria-pressed="true"],html:root[data-theme="light"] :is(#df-fields#df-fields,*) .rwvp .vp-auto[aria-pressed="true"],html:root[data-theme="light"] :is(#df-fields#df-fields,*) input[name="vp-tone"]:checked + .ccard{border:2px solid #111114!important;background:#f4f4f5!important}
+html:root[data-theme="light"] :is(#df-fields#df-fields,*) .rwvp .vp-card[aria-pressed="true"],html:root[data-theme="light"] :is(#df-fields#df-fields,*) .rwvp .vp-auto[aria-pressed="true"],html:root[data-theme="light"] :is(#df-fields#df-fields,*) input[name="vp-tone"]:checked + .ccard{border:2px solid var(--pick)!important;background:#f4f4f5!important}
 html:root[data-theme="light"] :is(#df-fields#df-fields,*) .rwvp .vp-check{background:#111114;color:#fff}
 html:root[data-theme="light"] :is(#df-fields#df-fields,*) .rwvp .vp-seg .vp-chip{background:#fff!important;color:#444!important}
-html:root[data-theme="light"] :is(#df-fields#df-fields,*) .rwvp .vp-seg .vp-chip[aria-pressed="true"]{background:#111114!important;color:#fff!important}
-html:root[data-theme="light"] :is(#df-fields#df-fields,*) .rwvp .vp-chip[data-tone][aria-pressed="true"]{background:#f4f4f5!important;border-color:#111114!important;color:#111114!important}
+html:root[data-theme="light"] :is(#df-fields#df-fields,*) .rwvp .vp-seg .vp-chip[aria-pressed="true"]{background:var(--pick)!important;color:#fff!important}
+html:root[data-theme="light"] :is(#df-fields#df-fields,*) .rwvp .vp-chip[data-tone][aria-pressed="true"]{background:#f4f4f5!important;border-color:var(--pick)!important;color:#111114!important}
 html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-card small{white-space:nowrap}
 html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-card[aria-pressed="true"] .vp-play{background:var(--tn,#ff5a3c)!important}
 html:root[data-theme] :is(#df-fields#df-fields,*) .rwvp .vp-card{padding-right:28px!important}
