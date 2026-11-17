@@ -3972,7 +3972,8 @@ ${비율칸Html(kind, 상태)}</div>`;
   // 아래 값은 기본값이다. 관리자가 시트 '설정' 탭에서 바꾸면 사이트 설정(site-config)으로 받아 와서 덮어쓴다(applySitePrice).
   let PRICE_BASE = 30, PRICE_LONG_PCT = 20, TRIAL_PCT = 25, TRIAL_MIN = 5;
   let gnHookTouched = false;   // [제목 숨기기] 고객이 제목 보이기/숨기기를 직접 고른 적 있는지(없으면 한마디 영상은 숨기기가 기본)
-  let GN_SHORT_MIN = 5, ONE_LINE_MAX = 20, ONE_LINE_SCALE = 1.25;   // ONE_LINE_SCALE: 한마디 영상 기본 글자 배율(설정 '한마디_자막배율' — 사이트설정 limits.oneLineScale 로 덮어씀)   // [한마디 영상] 일반 쇼츠 최소 초·한마디 기준 초(사이트 설정 limits 로 덮어씀 — applySiteShort, gnSnapLen)
+  let GN_SHORT_MIN = 5, ONE_LINE_MAX = 20, ONE_LINE_SCALE = 1.25, ONE_LINE_CPS = 6.05;   // ONE_LINE_CPS: 한마디 글자 상한용 읽기 속도(사이트설정 voice.cps = 설정 초당글자_gemini, 접수 v3.100 과 같은 식). 설정을 못 받으면 더 엄격한 6.05
+    // ONE_LINE_SCALE: 한마디 영상 기본 글자 배율(설정 '한마디_자막배율' — 사이트설정 limits.oneLineScale 로 덮어씀)   // [한마디 영상] 일반 쇼츠 최소 초·한마디 기준 초(사이트 설정 limits 로 덮어씀 — applySiteShort, gnSnapLen)
   const MOTION_RATE = { '이미지 중심': 70, '혼합': 110, '모두 영상': 170 };
   const MOTION_LIST = ['이미지 중심', '혼합', '모두 영상'];
   const MOTION_DESC = {
@@ -4221,7 +4222,7 @@ ${비율칸Html(kind, 상태)}</div>`;
   let SITE_SFX = null;
   function applySiteSfx(x) { if (x && typeof x === 'object' && !Array.isArray(x)) SITE_SFX = x; }
   // 나레이션 엔진(관리자 설정 목소리엔진, 사이트설정_조회 v12 voice): 목소리 미리 듣기 샘플·자동 추천·미리 듣기 엔진이 따른다(voice-catalog.js·voice-panel.js). 받지 못하면 minimax
-  function applySiteVoice(v) { if (v && (v.engine === 'gemini' || v.engine === 'minimax')) { window.RWVoiceEngine = v.engine; window.RWVoiceModel = typeof v.model === 'string' ? v.model : ''; } }
+  function applySiteVoice(v) { if (v && (v.engine === 'gemini' || v.engine === 'minimax')) { window.RWVoiceEngine = v.engine; window.RWVoiceModel = typeof v.model === 'string' ? v.model : ''; const cps = Number(v.cps); if (Number.isFinite(cps) && cps >= 3 && cps <= 12) ONE_LINE_CPS = cps; } }
   async function 최신가격받기() {
     try {
       const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), 3000);
@@ -4739,7 +4740,7 @@ ${비율칸Html(kind, 상태)}</div>`;
     const lab = t.parentElement && t.parentElement.querySelector('label');
     if (t.dataset.ph0 === undefined) { t.dataset.ph0 = t.placeholder; t.dataset.lb0 = lab ? lab.innerHTML : ''; }
     if (t.dataset.ml0 === undefined) t.dataset.ml0 = t.maxLength;
-    t.maxLength = on ? gnSnapLen(document.getElementById('df-gnLen').value) * 6 + 10 : Number(t.dataset.ml0) || 300;   // 접수 v3.98 과 같은 상한(초당 약 6자)
+    t.maxLength = on ? Math.floor(gnSnapLen(document.getElementById('df-gnLen').value) * ONE_LINE_CPS) : Number(t.dataset.ml0) || 300;   // 접수 v3.100 과 같은 상한(초 × 실제 읽기 속도)
     if (on) { const 자 = Math.max(8, Math.round(gnSnapLen(document.getElementById('df-gnLen').value) * 5)); t.placeholder = '예: 오늘도 넌 충분히 잘하고 있어'; if (lab) lab.innerHTML = '화면에 나올 한 문장 <em class="req">*</em> <span class="opt">' + ONE_LINE_MAX + '초 이하 한마디 영상 · 약 ' + 자 + '자</span>'; }
     else { t.placeholder = t.dataset.ph0; if (lab) lab.innerHTML = t.dataset.lb0; }
   }
