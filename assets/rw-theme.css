@@ -551,13 +551,24 @@ html:root[data-theme] body #df-fields#df-fields .lp-opt.mc:hover .lp-card{border
 /* 한마디 영상 제목 [숨기기 | 보이기] */
 #df-fields .ol-title{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin-top:10px}
 #df-fields .ol-title[hidden],#df-fields .ol-title input[hidden]{display:none!important}
-#df-fields .ol-t-lab{font-weight:700;font-size:.9rem}
-#df-fields .ol-t-seg{display:inline-flex;border:1px solid var(--line-strong);border-radius:10px;overflow:hidden}
-html:root[data-theme] #df-fields .ol-t-seg button{background:#1a1a1f!important;color:#c8c8d0!important;border:0!important;padding:7px 16px;font-weight:600;cursor:pointer}
-html:root[data-theme] #df-fields .ol-t-seg button:hover{background:#24242a!important;color:#fff!important}
-html:root[data-theme] #df-fields .ol-t-seg button.on{background:#f5f5f7!important;color:#000!important}
-html:root[data-theme="light"] #df-fields .ol-t-seg button{background:#fff!important;color:#444!important}
-html:root[data-theme="light"] #df-fields .ol-t-seg button.on{background:#111114!important;color:#fff!important}
+/* [제목 카드] 숨기기·보이기 = 휴대폰 미리보기 두 칸(명함카드). 고른 칸은 사이트 공통 선택 모양(검정 테마 흰 테두리 · 밝은 테마 검정 테두리) + 체크 */
+#df-fields .ol-t-card{flex:1 1 100%;border:1px solid var(--line-strong);border-radius:12px;padding:12px}
+#df-fields .ol-t-lab{display:block;font-weight:700;font-size:.9rem;margin:0 0 10px}
+#df-fields .ol-t-seg{display:grid;grid-template-columns:repeat(2,minmax(0,140px));gap:10px}
+html:root[data-theme] #df-fields .ol-t-seg button{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 8px!important;border:1px solid var(--line-strong)!important;border-radius:10px!important;background:transparent!important;color:inherit!important;opacity:1!important;cursor:pointer;transition:border-color .15s,background .15s,transform .15s}
+html:root[data-theme] #df-fields .ol-t-seg button:not(.on):hover{border-color:currentColor!important;transform:translateY(-1px)}
+#df-fields .ol-t-seg button b{font-weight:700;font-size:.88rem}
+#df-fields .ol-t-seg button small{font-size:.72rem;opacity:.65}
+#df-fields .ol-ck{position:absolute;top:6px;right:6px;width:18px;height:18px;border-radius:50%;display:none;align-items:center;justify-content:center;background:#f5f5f7;color:#000}
+html:root[data-theme="light"] #df-fields .ol-ck{background:#111114;color:#fff}
+#df-fields .ol-t-seg button.on .ol-ck{display:flex}
+#df-fields .ol-ph{position:relative;width:40px;height:70px;border-radius:7px;border:1.5px solid var(--line-strong);background:rgba(127,127,140,.12);overflow:hidden}
+#df-fields .ol-t-seg button.on .ol-ph{border-color:currentColor}
+#df-fields .ol-ph-tb{position:absolute;left:0;right:0;top:0;height:14px;background:#f5f5f7;color:#000;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center}
+html:root[data-theme="light"] #df-fields .ol-ph-tb{background:#111114;color:#fff}
+#df-fields .ol-ph-img{position:absolute;left:4px;right:4px;top:18px;bottom:18px;border-radius:3px;background:rgba(127,127,140,.35)}
+#df-fields .ol-ph.full .ol-ph-img{top:4px}
+#df-fields .ol-ph-sb{position:absolute;left:8px;right:8px;bottom:9px;height:4px;border-radius:2px;background:currentColor;opacity:.75}
 #df-fields .ol-title input{flex:1 1 220px;min-width:0}
 #df-fields .ol-t-hint{flex-basis:100%;margin:0}
 
