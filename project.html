@@ -208,6 +208,9 @@
   .rv-alt { background: transparent; color: var(--ink); border: 1px solid var(--amber); }
   @media (max-width: 520px) { .sv-paper { padding: 16px 14px 12px; } .sv-line { font-size: 1rem; padding-left: 30px; } }
   .review-status.ok { color: var(--olive); }
+  /* [2026-11-19] 민구 님: 승인 뒤 '진행 중' 글이 작아 다시 누르게 됨 → 크고 노랗게(보내는 중·보냄) */
+  .review-status.busy, .review-status.ok { font-size: 1.05rem; font-weight: 700; color: #FFD400; background: rgba(255, 212, 0, .1); border: 1px solid rgba(255, 212, 0, .55); border-radius: 10px; padding: 10px 14px; }
+  :root[data-theme="light"] .review-status.busy, :root[data-theme="light"] .review-status.ok { color: #7a5600; background: #fff4c2; border-color: #e0b400; }
   .review-status.err { color: var(--err); }
 
   .upgrade-card { border: 1px solid color-mix(in srgb, var(--amber) 35%, var(--line)); border-radius: 10px; background: linear-gradient(160deg, color-mix(in srgb, var(--amber) 9%, var(--bg-raised)), var(--bg-raised)); padding: 22px; margin-bottom: 20px; text-align: center; }
@@ -912,6 +915,7 @@
     }
     renderWaitNote(p);
     renderReviewCard(p);
+    보냄적용(p);
     renderUpgradeCard(p);
     setupAgentChat(p);
 
@@ -1046,7 +1050,7 @@
       ${!정식 && !재작성가능 ? '<p class="review-status" style="color:var(--ink-faint);">이미 한 번 다시 만들어보셨어요 - 이번엔 이대로 승인하시거나 직접 고쳐주세요.</p>' : ''}
       <p class="review-status" id="rv-status"></p>`;
 
-    card.querySelectorAll('.sv-tab').forEach(b => b.addEventListener('click', () => { 대본보기탭 = b.dataset.tab; 대본화면서명 = ''; renderScriptGate(currentProject, card, 재작성가능); }));
+    card.querySelectorAll('.sv-tab').forEach(b => b.addEventListener('click', () => { 대본보기탭 = b.dataset.tab; 대본화면서명 = ''; renderScriptGate(currentProject, card, 재작성가능); 보냄적용(currentProject); }));
     document.getElementById('rv-approve').addEventListener('click', () => {
       if (alt && 대본보기탭 === 'alt' && !confirm('지금 보고 계신 건 비교용 버전이에요. 이 버전을 쓰려면 먼저 "이 버전으로 바꾸기"를 눌러주세요.\n\n그대로 "지금 대본"으로 승인할까요?')) return;
       submitReview('approve');
@@ -1153,7 +1157,8 @@
     const status = document.getElementById('rv-status');
     const buttons = document.querySelectorAll('.review-actions button');
     buttons.forEach(b => b.disabled = true);
-    status.textContent = '처리하고 있어요…'; status.className = 'review-status';
+    const 승인단추 = document.getElementById('rv-approve'); if (승인단추 && action === 'approve') { 승인단추.dataset.글 = 승인단추.textContent; 승인단추.textContent = '보내는 중…'; }
+    status.textContent = action === 'approve' ? '승인을 보내고 있어요… 잠시만 기다려 주세요. 다시 누르지 않으셔도 돼요.' : '처리하고 있어요…'; status.className = 'review-status busy';
 
     const payload = { idToken: currentIdToken, id: currentProject.id, action };
     if (action === 'edit_save') {
@@ -1167,8 +1172,9 @@
       });
       const data = await res.json().catch(() => null);
       if (!res.ok || !data || data.ok === false) throw new Error((data && data.message) || '처리에 실패했어요.');
-      status.textContent = action === 'approve' ? '승인됐어요! 제작이 이어서 진행돼요.' : action === 'retry_script' ? '다시 만들도록 요청했어요.' : '수정 내용을 저장했어요.';
+      status.textContent = action === 'approve' ? '✓ 승인됐어요! 제작이 이어서 진행돼요. 다시 누르지 않으셔도 돼요.' : action === 'retry_script' ? '✓ 다시 만들도록 요청했어요.' : '수정 내용을 저장했어요.';
       status.className = 'review-status ok';
+      if (action === 'approve' || action === 'retry_script') 보냄기록(action);   // [2026-11-19] 새로고침·자동 새로고침 뒤에도 같은 단계에서는 다시 못 누르게
       if (action === 'edit_save') { 대본고치는중 = false; 대본화면서명 = ''; }
       if (action === 'retry_script') {
         addAgentMsg('bot', (currentProject && currentProject.ownScript) ? '쓰신 대본 그대로 장면 구성을 다시 만들고 있어요! 5분 정도 기다려주시면, 새 장면 구성이 뜰 거예요. 이 프로젝트에서는 다시 만들기를 한 번만 쓸 수 있어서, 이번이 마지막 기회였어요 - 다음엔 이대로 승인해주셔야 해요.' : '대본을 처음부터 다시 만들고 있어요! 5분 정도 기다려주시면, 새 대본이 뜰 거예요. 이 프로젝트에서는 재작성을 한 번만 쓸 수 있어서, 이번이 마지막 기회였어요 - 다음엔 이대로 승인하시거나 직접 수정해주셔야 해요.');
@@ -1178,7 +1184,19 @@
       status.textContent = e.message || '처리 중 문제가 생겼어요.';
       status.className = 'review-status err';
       buttons.forEach(b => b.disabled = false);
+      const 승인단추 = document.getElementById('rv-approve'); if (승인단추 && action === 'approve') 승인단추.textContent = 승인단추.dataset.글 || 승인단추.textContent;
     }
+  }
+  // [2026-11-19] 승인·다시 만들기를 보낸 단계(프로젝트·상태)는 다시 누를 수 없게: 기록은 이 브라우저에 30분(상태가 바뀌면 자동으로 풀림)
+  const 보냄키 = 'rw-review-sent';
+  function 보냄기록(action) { try { localStorage.setItem(보냄키, JSON.stringify({ id: currentProject.id, status: currentProject.status, action, t: Date.now() })); } catch (e) {} }
+  function 보냄적용(p) {
+    let r = null; try { r = JSON.parse(localStorage.getItem(보냄키) || 'null'); } catch (e) {}
+    if (!r || !p || r.id !== p.id || r.status !== p.status || Date.now() - r.t > 30 * 60 * 1000) return;
+    const card = document.getElementById('review-card'); if (!card || card.style.display === 'none') return;
+    card.querySelectorAll('.review-actions button, #sv-actions button').forEach(b => b.disabled = true);
+    const st = document.getElementById('rv-status');
+    if (st) { st.textContent = r.action === 'approve' ? '✓ 승인됐어요! 제작이 이어서 진행돼요. 다시 누르지 않으셔도 돼요.' : '✓ 다시 만들도록 요청했어요. 새 내용이 오면 여기에 떠요.'; st.className = 'review-status ok'; }
   }
 
   function agentEscapeHtml(s) { return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
