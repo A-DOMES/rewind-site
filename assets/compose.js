@@ -367,7 +367,7 @@
       ttx.style.fontSize = (상자.크기 * 0.66 / W * 100) + 'cqw'; ttx.style.lineHeight = (상자.크기 / W * 100) + 'cqw';   // ASS 의 크기는 줄 높이, 한글 폭은 그 0.66배(서버 render.js 글자폭과 같음)
        ttx.style.left = (상자.x / W * 100) + '%'; ttx.style.top = ((상자.위 !== null ? 상자.위 : H * 0.133) / H * 100) + '%';
       if (가운데형) {   // 영상 칸: 위는 문구 아래(서버와 같은 식), 아래 끝은 꾸미기에서 정한 값(없으면 화면 아래 안전선 78% — 유튜브 설명·채널 칸이 시작되는 자리)
-        var 위비 = Math.max(0.235, 상자.띠 / H + 0.012), 아래비 = typeof v.가운데아래 === 'number' ? Math.max(위비 + 0.12, Math.min(0.9, v.가운데아래)) : Math.max(위비 + 0.12, 0.78);
+        var 위비 = 상자.띠 / H,   /* [2026-11-19] 제목 띠 바로 아래(서버 render.js 가운데칸과 같음) */ 아래비 = typeof v.가운데아래 === 'number' ? Math.max(위비 + 0.12, Math.min(0.9, v.가운데아래)) : Math.max(위비 + 0.12, 0.78);
         칸상태 = { 위: 위비, 아래: 아래비 }; ctr.style.top = (위비 * 100) + '%'; ctr.style.height = ((아래비 - 위비) * 100) + '%'; 칸손잡이.style.top = (아래비 * 100) + '%';
       }
       칸손잡이.style.display = 가운데형 ? 'block' : 'none';
@@ -378,7 +378,7 @@
       bg.style.left = 줄음 ? ((1 - 줄비) / 2 * 100) + '%' : ''; bg.style.width = 줄음 ? (줄비 * 100) + '%' : '';
       var 변 = 변형css(편집장); ctr.style.transform = 가운데형 ? 변 : '';
       if (편집영상) 편집영상.style.transform = 변; var 변있음 = !!변 || !!(변형값(편집장) && (변형값(편집장).왼 || 변형값(편집장).오 || 변형값(편집장).위 || 변형값(편집장).아래)); 줄음 = 줄음 || (변있음 && !가운데형); var 칸흐림 = 가운데형 && 변있음; ctrb.style.display = 칸흐림 ? 'block' : 'none'; if (칸흐림) { var cs2 = getComputedStyle(ctr); ctrb.style.top = ctr.style.top || cs2.top; ctrb.style.height = ctr.style.height || cs2.height; ctrb.style.background = ctr.style.background; } bgb.style.display = 줄음 ? 'block' : 'none'; if (줄음) { bgb.style.top = bg.style.top || '0'; bgb.style.height = bg.style.height || '100%'; bgb.style.background = bg.style.background; }   // 변형·자르기가 있으면 빈 곳에 흐린 같은 그림
-      ctr.style.display = 가운데형 ? 'block' : 'none'; var 띠 = 가운데형 && 헥스.test(v.가운데색 || '') ? v.가운데색 : ''; bg.style.filter = 가운데형 && !띠 ? 'blur(5px) brightness(.7)' : ''; bg.style.visibility = 띠 ? 'hidden' : ''; phone.style.background = 띠 || ''; bg.style.transform = 가운데형 ? 'scale(1.12)' : 변형css(편집장); 편집영상맞춤(); 변형틀맞춤(); bg.style.clipPath = 가운데형 ? '' : 변형클립(편집장, bg); ctr.style.clipPath = 가운데형 ? 변형클립(편집장, ctr) : ''; if (편집영상) 편집영상.style.clipPath = 변형클립(편집장, 편집영상);   // 칸 표시가 정해진 뒤에 맞춘다
+      ctr.style.display = 가운데형 ? 'block' : 'none'; var 띠 = 가운데형 ? (헥스.test(v.가운데색 || '') ? v.가운데색 : '#000000') : '';   /* [2026-11-19] 빈 곳 기본 = 검정(서버와 같음) */ bg.style.filter = 가운데형 && !띠 ? 'blur(5px) brightness(.7)' : ''; bg.style.visibility = 띠 ? 'hidden' : ''; phone.style.background = 띠 || ''; bg.style.transform = 가운데형 ? 'scale(1.12)' : 변형css(편집장); 편집영상맞춤(); 변형틀맞춤(); bg.style.clipPath = 가운데형 ? '' : 변형클립(편집장, bg); ctr.style.clipPath = 가운데형 ? 변형클립(편집장, ctr) : ''; if (편집영상) 편집영상.style.clipPath = 변형클립(편집장, 편집영상);   // 칸 표시가 정해진 뒤에 맞춘다
       var box = RWLayout.자막상자(W, H, { 위치: 자막위치, 크기: v.자막크기 * Math.min(W, H) / 1080, 줄수: v.줄수, 줄길이: v.줄길이, 거리: v.자막거리, 가로: v.자막가로, 안전영역: !가로 });
       sub.style.cssText = 'left:' + ((box.x + box.w / 2) / W * 100) + '%;top:' + (box.y / H * 100) + '%;width:' + (box.w / W * 100) + '%;height:' + (box.h / H * 100) + '%;font-size:' + (v.자막크기 * 0.8 / 1080 * 100 * (가로 ? 0.5625 : 1)) + 'cqw;display:' + (v.자막끄기 ? 'none' : 'flex') + ';flex-direction:column;justify-content:flex-end;overflow:hidden;';   // 줄 칸을 잡고 글은 아래 칸부터 채운다
       if (가운데형 && !v.자막끄기) {   // 가운데영상형: 서버(render.js)와 같은 식 — 자막은 영상 칸 안(위·가운데·아래 끝)에 놓이고, 아래는 화면 아래 안전선(78%)을 넘지 않는다
@@ -1448,7 +1448,7 @@
       var 제글칸 = 색칸('제목 글자색', '제목글자색', '#fff200', 값읽기('제목글자색', '#fff200'));
       var 자기본 = function () { return 모양겉(합치기(선택, 종류).값.자막모양).c.replace(/^#fff$/i, '#FFFFFF'); };
       색칸('자막 글자색', '자막색', 자기본, 값읽기('자막색', ''));
-      var 빈곳칸 = 색칸('위·아래 빈 곳', '가운데색', '', 값읽기('가운데색', ''), '↺ 로 되돌리면 흐리게 보여요');
+      var 빈곳칸 = 색칸('위·아래 빈 곳', '가운데색', '', 값읽기('가운데색', ''), '↺ 로 되돌리면 검게 보여요');
       var 단어칸 = 색칸('단어 색', '핵심색', '', function () { return 이름색(합치기(선택, 종류).값.핵심색) || ''; }, '대본에서 중요한 단어에 칠해져요. ↺ 는 모양의 기본값으로 돌려요');
       var 단어없음 = el('button', 'cz-btn', '칠하지 않음'); 단어없음.type = 'button'; 단어없음.addEventListener('click', function () { 선택.핵심색 = '없음'; 갱신(); }); 단어칸.appendChild(단어없음);
       눌림목록.push(function () { 단어없음.setAttribute('aria-pressed', String(합치기(선택, 종류).값.핵심색 === '없음')); });
