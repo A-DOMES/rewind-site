@@ -7088,6 +7088,7 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
   function curForm(){if(isProd())return '쇼츠';var f=document.getElementById('df-form');return f&&f.value==='롱폼'?'롱폼':'쇼츠'}
   function isGen(){var k=kindVal();return k==='일반'||k==='상품쇼츠'}
   window.__rwGenMin=useMin;
+  window.__rwPlanBrief=function(){var v=function(id){var e=document.getElementById(id);return e?String(e.value||'').trim():''};return{상품:isProd(),주제:v('df-topic'),분위기:v('df-style'),연출요청:v('df-directorNote'),사진수:(window.__rwGenMedia?window.__rwGenMedia():[]).length}};   /* [기획 단계 ③] 대본 작업실 '같이 기획하고 쓰기'가 앞 단계 값을 읽음(같은 출처) */
   /* 대본 만들기를 열 때 넘겨 줄 목표 길이(초). 2단계 길이 칸 값, 비었으면 0(대본 만들기 기본값) */
   window.__rwGenTargetSec=function(form){if(!isGen())return 0;if(isProd()){var p=document.getElementById('df-prodLen');var ps=p?parseFloat(p.value):0;return ps>0?Math.round(ps):0}var li=document.getElementById('df-videoLength');var m=li?parseFloat(li.value):0;if(!(m>0))return 0;return Math.round(m*60)};
   window.__rwNarrateOn=function(){var g=window.__rwGenScript;return !!(g&&g.mode==='read'&&g.form==='롱폼'&&isGen())};
