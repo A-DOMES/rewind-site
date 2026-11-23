@@ -467,6 +467,8 @@
 
   @media (max-width: 760px) { .sidebar { display: none; } }
   body.studio-open #studio-frame { display: block !important; }
+  /* [2026-11-23] 협업 대본 쓰기 창: 대본 작업실 iframe 을 화면 전체로(민구 님 '화면이 너무 작아') */
+  body.plan-full #studio-frame { position: fixed !important; inset: 0 !important; width: 100vw !important; height: 100vh !important; max-width: none !important; z-index: 2000 !important; border: 0 !important; border-radius: 0 !important; }
   body.studio-open .split-row { display: none !important; }
   body.studio-focus .sidebar { display: none !important; }
   @media (max-width: 760px) { body.studio-open .top-mode-bar { display: none; } }
@@ -2087,7 +2089,7 @@
   }
 </style>
 <script src="./theme.js"></script>
-<script src="./assets/voice-panel.js?v=20261117a"></script>
+<script src="./assets/voice-panel.js?v=20261123"></script>
 <script src="./assets/media-input.js?v=20261107a"></script>
 <script src="./assets/voice-catalog.js?v=20261025"></script>
 <script src="./assets/voice-picker.js?v=20261116a"></script>
@@ -6931,7 +6933,7 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
   function esc(t){return String(t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
   function crumb(t,link,act){if(back)back.hidden=false;if(sep)sep.hidden=false;if(here){here.hidden=false;if(link)here.innerHTML='<button type="button" class="cb-link" data-cb="'+act+'" title="'+link+'(으)로 돌아가기">'+link+'</button>'+t.slice(link.length);else here.textContent=t}if(root)root.classList.remove('is-here')}
   function active(on){document.querySelectorAll('.side-item').forEach(function(b){b.classList.toggle('active',on&&b===btn)})}
-  function openFrame(type,src,from,load,kind,form,narrate){
+  function openFrame(type,src,from,load,kind,form,narrate){document.body.classList.remove('plan-full');
     ret=from||null;kind=kind==='mood'?'mood':kind==='gen'?'gen':'yadam';form=form==='롱폼'?'롱폼':'쇼츠';
     var tsec=0;if(kind==='gen'){try{tsec=window.__rwGenTargetSec?window.__rwGenTargetSec(form):0}catch(e){tsec=0}}   /* 2단계에서 고른 영상 길이를 대본 만들기의 길이로 이어 준다 */
     fr.setAttribute('src','./script.html?type=long&src=mine&mode=pre&lite=1&kind='+kind+(kind==='gen'?'&form='+encodeURIComponent(form)+(tsec?'&sec='+tsec:''):'')+'&t='+Date.now());
@@ -6970,10 +6972,10 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
     hub.querySelectorAll('[data-open]').forEach(function(b){b.onclick=function(){var x=lib()[+b.dataset.open];openFrame('long','mine',null,{title:x.title,chapters:x.chapters,meta:x.meta},x.kind,x.form,typeof x.narrate==='boolean'?x.narrate:undefined)}});
     hub.querySelectorAll('[data-del]').forEach(function(b){b.onclick=function(){var x=lib()[+b.dataset.del];saveLib(cache.filter(function(y){return y!==x}));if(window.__rwScript&&x&&window.__rwScript.id===x.id)window.__rwScript=null;if(window.__rwGenScript&&x&&window.__rwGenScript.id===x.id)window.__rwGenScript=null;renderHub()}});
   }
-  function openHub(){loadLib(renderHub);renderHub();document.body.classList.remove('studio-focus');document.body.classList.add('studio-open','hub-open');crumb('대본 만들기');active(true)}
+  function openHub(){loadLib(renderHub);renderHub();document.body.classList.remove('studio-focus','plan-full');document.body.classList.add('studio-open','hub-open');crumb('대본 만들기');active(true)}
   function close(){ window.__rwSpecialGo=null;
     if(!document.body.classList.contains('studio-open'))return;
-    document.body.classList.remove('studio-open','studio-focus','hub-open');
+    document.body.classList.remove('studio-open','studio-focus','hub-open','plan-full');
     active(false);
     if(window.갱신위치표시)window.갱신위치표시();
   }
@@ -6992,6 +6994,7 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
   window.addEventListener('message',function(e){
     if(e.source!==fr.contentWindow)return;var d=e.data||{};
     if(d.type==='rw-studio-focus')document.body.classList.toggle('studio-focus',!!d.on);
+    if(d.type==='rw-plan-full')document.body.classList.toggle('plan-full',!!d.on);
     if(d.type==='rw-studio-approve')close();
     if(d.type==='rw-script-confirm'){
       var kd=d.kind==='mood'?'mood':d.kind==='gen'?'gen':'yadam';var gf=d.form==='롱폼'?'롱폼':'쇼츠';var a=lib();a.unshift({id:d.scriptId,title:d.title,type:'long',kind:kd,form:kd==='gen'?gf:'',occ:d.occ||'',src:'mine',imported:!!d.imported,chapters:d.chapters,meta:(kd==='gen'&&d.meta&&typeof d.meta==='object')?d.meta:undefined,chars:d.chars,minutes:d.minutes,prod:d.prod,narrate:(kd==='gen'&&gf==='롱폼'&&typeof d.narrate==='boolean')?d.narrate:undefined,at:Date.now()});saveLib(a);

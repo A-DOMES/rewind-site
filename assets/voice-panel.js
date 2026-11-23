@@ -147,7 +147,7 @@
       card('vp-subKey', '분홍', '분홍', '*별표*로 감싼 말만', I.fxColor, d.subKey === '분홍') +
       card('vp-subKey', '노랑', '노랑', '*별표*로 감싼 말만', I.fxColor, d.subKey === '노랑') +
       card('vp-subKey', '초록', '초록', '*별표*로 감싼 말만', I.fxColor, d.subKey === '초록'), '대본에서 강조할 말을 *별표*로 감싸면 그 말만 색이 칠해져요. 별표는 화면과 음성에 나오지 않아요. 제목이 두 줄이면 둘째 줄도 이 색이에요.');
-    var style = opts.showStyle ? group('말투', 'vp-style',
+    var style = opts.showStyle ? group('문장 끝 억양', 'vp-style',   // [2026-11-23] 대본의 '말투'(글)와 헷갈리지 않게 — 이건 목소리 끝맺음
       card('vp-style', '', '기본', '', I.flat, true) +
       card('vp-style', '또렷하게', '또렷하게 끝맺기', '', I.short, false) +
       card('vp-style', '부드럽게', '부드럽게 올리기', '', I.smile, false) +
