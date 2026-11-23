@@ -20,5 +20,13 @@ function 블록금지됨(글, 규칙) {
   const 붙임 = 글.replace(/[\s·.\-_~!?,'"“”‘’()\[\]{}<>|\/\\:;]+/g, '');
   return !글 || 문구금지됨(글, 규칙) || 블록추가금지.test(글) || 블록추가금지.test(붙임);
 }
-const 문구내보내기 = { 문구금지됨, 블록글정리, 블록금지됨, 블록글최대 };
+// [2026-11-23] 위쪽 문구 자르기(서버·사이트·n8n 공용 기준 — 92행 '…오기 전, 딱 한'): 18글자 안 마지막 쉼표·물음표·느낌표·마침표 앞, 없으면 마지막 띄어쓰기에서
+function 문구자르기(t, n = 18) {
+  const ch = [...String(t || '')]; if (ch.length <= n) return ch.join('').trim();
+  let 끊 = -1; for (let i = Math.min(n, ch.length - 1); i >= 4; i--) if (/[,?!.…]/.test(ch[i]) && !(/[.,]/.test(ch[i]) && /\d/.test(ch[i - 1] || '') && /\d/.test(ch[i + 1] || ''))) {   // 2.5배·1,000포기 같은 숫자 속 점·쉼표는 건너뜀
+    끊 = /[?!]/.test(ch[i]) ? i + 1 : i; break; }
+  if (끊 < 0) for (let i = Math.min(n, ch.length - 1); i >= 4; i--) if (ch[i] === ' ') { 끊 = i; break; }
+  return ch.slice(0, 끊 > 0 ? Math.min(끊, n) : n).join('').replace(/[,\s]+$/, '').trim();
+}
+const 문구내보내기 = { 문구금지됨, 블록글정리, 블록금지됨, 블록글최대, 문구자르기 };
 if (typeof module !== 'undefined' && module.exports) module.exports = 문구내보내기; else this.RWPhrase = 문구내보내기;

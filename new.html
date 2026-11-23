@@ -2095,7 +2095,7 @@
 <script src="./assets/guide.js?v=20261108b"></script>
 <link rel="stylesheet" href="./assets/compose.css?v=20261116a">
 <script src="./assets/shared/layout.js?v=20261027"></script>
-<script src="./assets/shared/phrase.js?v=20261026"></script>
+<script src="./assets/shared/phrase.js?v=20261123"></script>
 <script src="./assets/compose.js?v=20261117a"></script>
 <script src="./assets/rw-consent.js"></script>
 <link rel="stylesheet" href="./assets/rw-theme.css?v=20261117f">
@@ -6133,7 +6133,7 @@ ${비율칸Html(kind, 상태)}</div>`;
       if (!note) { note = document.createElement('p'); note.id = 'df-hook-note'; note.className = 'df-hint'; h.insertAdjacentElement('afterend', note); }
       if (t && (!h.value.trim() || h.value === auto)) {
         let v = t.slice(0, 18);
-        if (t.length > 18) { const sp = v.lastIndexOf(' '); if (sp >= 8) v = v.slice(0, sp); }
+        if (t.length > 18) { if (window.RWPhrase && RWPhrase.문구자르기) v = RWPhrase.문구자르기(t, 18); else { const sp = v.lastIndexOf(' '); if (sp >= 8) v = v.slice(0, sp); } }   /* [2026-11-23] 쉼표 앞에서 먼저 자름(렌더 서버 phrase.js 와 같은 규칙) */
         h.value = v; h.dataset.autoTitle = v; h.dispatchEvent(new Event('input', { bubbles: true }));
         note.textContent = '대본 제목에서 가져왔어요' + (t.length > v.length ? ' (18자까지만 들어가요)' : '') + ' · 마음대로 고칠 수 있어요. 영상 꾸미기의 제목 띠에도 같은 글이 쓰여요.';
       } else if (!t && auto && h.value === auto) { h.value = ''; delete h.dataset.autoTitle; note.textContent = ''; h.dispatchEvent(new Event('input', { bubbles: true })); }
