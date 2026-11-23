@@ -6005,11 +6005,11 @@ ${비율칸Html(kind, 상태)}</div>`;
         (롱폼 ? '' : `<div class="pw-pv" role="img" aria-label="고른 화면 모양 미리보기">${미리}<small>${숨김 ? '고른 화면 모양이에요. 제목은 숨겨요' : gv('df-hookText') ? '고른 화면 모양이에요. 위쪽 문구는 "' + esc(gv('df-hookText')) + '"' : '고른 화면 모양이에요. 위쪽 문구가 비어 있으면 AI가 대본에서 정해요'}</small></div>`) +
         row('영상 형태', 롱폼 ? '롱폼 · 가로 16:9' : '쇼츠 · 세로 9:16', 0) + 참고줄 + (d.script ? row('내 대본', d.script.title + ' · ' + ((window.__rwGenChars ? window.__rwGenChars(d.script) : Number(d.script.chars)) || 0).toLocaleString('ko-KR') + '자', 3) : '') + row('주제', d.topic || (d.script ? '대본 제목을 써요' : '아직 비어 있어요'), 3) +
         (gv('df-style') ? row('만드는 방향', gv('df-style'), 3) : '') + (document.getElementById('df-characterUse')?.checked ? row('캐릭터', '영상 내내 같은 캐릭터', 3) : '') +
-        (gv('df-directorNote') ? row('꼭 넣을 연출', gv('df-directorNote'), 3) + (d.script ? '<div id="dj-box" class="dj" aria-live="polite"></div>' : '') : '') + row('내 사진·영상', (d.media && d.media.length) ? pdMediaSummary({ media: d.media }) + ' · 올린 순서대로 장면에 써요' + ((n => n > 0 && d.media.length > n ? ' · ⚠ 대본이 ' + n + '장면이라 ' + d.media.length + '개 중 앞에서부터 ' + n + '개만 쓰여요. 다 쓰려면 대본을 늘리거나 사진·영상을 줄여 주세요' : '')(d.script ? 대본장면수(d.script) : 0)) : 'AI가 장면 그림을 만들어요', 1) +
+        (gv('df-directorNote') ? row('꼭 넣을 연출', gv('df-directorNote'), 3) + (d.script || d.topic ? '<div id="dj-box" class="dj" aria-live="polite"></div>' : '') : '') + row('내 사진·영상', (d.media && d.media.length) ? pdMediaSummary({ media: d.media }) + ' · 올린 순서대로 장면에 써요' + ((n => n > 0 && d.media.length > n ? ' · ⚠ 대본이 ' + n + '장면이라 ' + d.media.length + '개 중 앞에서부터 ' + n + '개만 쓰여요. 다 쓰려면 대본을 늘리거나 사진·영상을 줄여 주세요' : '')(d.script ? 대본장면수(d.script) : 0)) : 'AI가 장면 그림을 만들어요', 1) +
         row('영상 길이', lenLabel(분) + (parseFloat(d.len) > 0 ? '' : ' (기본)'), 1) + (롱폼 ? '' : row('화면 구성', document.querySelector('input[name="df-layout"]:checked')?.value || '자동', 'L')) + row('영상 제작 방식', 움직임 + (paid ? '' : ' (체험판)'), 'L') +
         row('목소리', 목소리, 2) + row('화면 꾸미기', 꾸밈, 4) + row('썸네일', 썸네일, 4) +
         `<p class="pw-note">AI 목소리가 들어간 영상은 유튜브에 올릴 때 "변경된 콘텐츠" 표시를 확인해 주세요.${(!d.narrate && 움직임 !== '이미지 중심') ? esc(' AI 영상 장면이 있어서 "합성된 콘텐츠"로도 표시해야 하고, 완성된 영상에서 제품 모양·글자가 실제와 같은지 꼭 확인해 주세요.') : ''}${esc(광고)}</p>` + 신청안내HTML;
-      if (d.script && gv('df-directorNote') && window.__rwJudgeRun) window.__rwJudgeRun(d.script, gv('df-directorNote'), { 형식: d.form, 초: Math.round(분 * 60), 주제: d.topic || '', 분위기: gv('df-style'), 사진수: (d.media || []).length, 미디어단계: 새번호(1) });   // [기획 단계 ②] 연출 요청 판정
+      if ((d.script || d.topic) && gv('df-directorNote') && window.__rwJudgeRun) window.__rwJudgeRun(d.script || window.__rwTopicScript(d.topic), gv('df-directorNote'), { 형식: d.form, 초: Math.round(분 * 60), 주제: d.topic || '', 분위기: gv('df-style'), 사진수: (d.media || []).length, 미디어단계: 새번호(1), 대본단계: 새번호(3) });   // 주제만 적기(AI가 나중에 씀)도 주제 기준으로 판정   // [기획 단계 ②] 연출 요청 판정
     }
     // [출시 전 점검] 내 대본이 몇 장면으로 나뉘는지 — 소재목록_렌더링 '일반 대본 정리'와 같은 규칙(줄바꿈·문장 끝으로 나누고 48자까지 묶음)
     function 대본장면수(sc) {
@@ -6632,7 +6632,7 @@ ${비율칸Html(kind, 상태)}</div>`;
         formPin = !answers.productShort ? { videoLength: answers.videoLength || '', form: answers.form } : null;   // 첫 상담 답이 길이·형태를 바꿔 돌려줘도 입력 화면 값을 따른다(한 번만 — 그 뒤 고객이 채팅으로 바꾸는 것은 허용)
         if (answers.genScriptId && window.__rwGenMin) { const gx = window.__rwGenLib().find(x => x.id === answers.genScriptId); if (gx) answers.videoLength = String(window.__rwGenMin(gx, { narrate: answers.narrate === true, paid: planMode === 'paid', speed: answers.voice && answers.voice.speed })); }   // 길이는 대본 글자 수에 맞춘다
         if (!answers.productShort && val('df-sceneCount')) answers.sceneCount = val('df-sceneCount');
-        if (val('df-directorNote')) answers.directorNote = window.__rwJudgedNote ? window.__rwJudgedNote(val('df-directorNote'), answers.genScriptId) : val('df-directorNote');   // [기획 단계 ②] 판정 결과(대본·원문이 같을 때만)
+        if (val('df-directorNote')) answers.directorNote = window.__rwJudgedNote ? window.__rwJudgedNote(val('df-directorNote'), answers.genScriptId, val('df-topic')) : val('df-directorNote');   // [기획 단계 ②] 판정 결과(대본·원문이 같을 때만)
         if (!answers.directorNote) delete answers.directorNote;
         if (planMode === 'paid') answers.thumbnail = document.getElementById('df-thumbnail')?.checked ? 'TRUE' : 'FALSE';   // 끈 것도 분명히 보내서 챗봇이 다시 묻지 않게 한다
         // [화면 구성·자막 위치] '자동'이면 보내지 않는다(서버·렌더링이 기본값 처리). 롱폼은 화면 구성이 항상 전체화면형이라 보내지 않음.
@@ -7272,7 +7272,8 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
       var no=x.판정==='불가',on=!no&&!S.off[i];
       return '<div class="dj-i'+(no?' dj-no':'')+'">'+(no?'<span class="dj-cb dj-cb-x" aria-hidden="true"></span>':'<button type="button" class="dj-cb'+(on?' on':'')+'" role="checkbox" aria-checked="'+on+'" data-i="'+i+'" aria-label="'+esc(x.요청)+' 넣기">'+(on?'✓':'')+'</button>')+
         '<div><span class="dj-tag dj-'+TAG[x.판정]+'">'+esc(x.판정)+'</span> '+esc(x.요청)+(x.판정==='조정'&&x.바꾼안?'<small>→ '+esc(x.바꾼안)+'</small>':'')+(no&&x.이유?'<small>'+esc(x.이유)+'</small>':'')+
-        (no&&x.다음==='내미디어'&&S.opt&&S.opt.미디어단계!=null?'<button type="button" class="pw-fix dj-go" data-go="'+S.opt.미디어단계+'">내 사진·영상 올리기 →</button>':'')+'</div></div>'}).join('');
+        (no&&x.다음==='내미디어'&&S.opt&&S.opt.미디어단계!=null?'<button type="button" class="pw-fix dj-go" data-go="'+S.opt.미디어단계+'">내 사진·영상 올리기 →</button>':'')+'</div></div>'}).join('')+
+      (S.opt&&S.opt.대본단계!=null?'<div class="dj-foot">여기서는 연출만 바꿔요. 대본·기획을 다시 잡으려면 <button type="button" class="pw-fix dj-go" data-go="'+S.opt.대본단계+'">대본 단계로 →</button></div>':'');
   }
   function run(){
     if(S.st==='loading')return;   /* 연타 막기(비판자 5) */
@@ -7293,8 +7294,9 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
     if(S.key===k){draw();return}   /* 같은 대본·같은 요청이면 다시 부르지 않음(숨긴 상태 포함) */
     S={key:k,st:'',items:[],off:{},opt:opt||{},sc:sc,note:String(note).trim()};run();
   };
-  window.__rwJudgedNote=function(raw,id){
-    var sc=(window.__rwGenLib?window.__rwGenLib():[]).filter(function(y){return y.id===id})[0];
+  window.__rwTopicScript=function(t){return{id:'topic:'+String(t||'').trim(),chapters:[]}};   /* 대본 없이 주제만: 주제가 바뀌면 판정을 버림 */
+  window.__rwJudgedNote=function(raw,id,topic){
+    var sc=id?(window.__rwGenLib?window.__rwGenLib():[]).filter(function(y){return y.id===id})[0]:(topic?window.__rwTopicScript(topic):null);
     if(S.st!=='done'||!sc||S.key!==keyOf(sc,raw))return raw;
     var t=S.items.map(function(x,i){return x.판정==='불가'||S.off[i]?'':(x.판정==='조정'&&x.바꾼안?x.바꾼안:x.요청)}).filter(Boolean).map(function(v){return v.replace(/[.\s]+$/,'')+'.'}).join(' ');
     return 자르기(t,500);
@@ -7310,6 +7312,7 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
   .dj-cb{flex:none;width:18px;height:18px;margin-top:2px;border:1px solid #666;border-radius:4px;background:transparent;color:var(--gold,#e8b84a);font-size:12px;line-height:16px;padding:0;cursor:pointer;transition:border-color .15s}
   .dj-cb:hover{border-color:var(--gold,#e8b84a)}.dj-cb.on{border-color:var(--gold,#e8b84a)}.dj-cb-x{visibility:hidden}
   .dj-tag{font-size:11px;border-radius:6px;padding:1px 7px}.dj-ok{background:#123a24;color:#6fd49b}.dj-adj{background:#3a2e10;color:#f0c25c}.dj-no .dj-tag,.dj-tag.dj-no{background:#262626;color:#a8a8a8}
+    .dj-foot{border-top:1px solid var(--line);padding-top:8px;font-size:12px;color:var(--muted,#b4b4b4)}
   .dj-go,.dj-retry{margin-top:4px;background:none;border:0;padding:0;color:var(--gold,#e8b84a);font:inherit;font-size:12px;cursor:pointer}.dj-go:hover,.dj-retry:hover{text-decoration:underline}
 </style>
 </body>
