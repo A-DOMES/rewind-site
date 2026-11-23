@@ -2098,6 +2098,7 @@
 <link rel="stylesheet" href="./assets/compose.css?v=20261116a">
 <script src="./assets/shared/layout.js?v=20261027"></script>
 <script src="./assets/shared/phrase.js?v=20261123"></script>
+<script src="./assets/shared/pace.js?v=20261123"></script>
 <script src="./assets/compose.js?v=20261117a"></script>
 <script src="./assets/rw-consent.js"></script>
 <link rel="stylesheet" href="./assets/rw-theme.css?v=20261117f">
@@ -4224,7 +4225,7 @@ ${비율칸Html(kind, 상태)}</div>`;
   let SITE_SFX = null;
   function applySiteSfx(x) { if (x && typeof x === 'object' && !Array.isArray(x)) SITE_SFX = x; }
   // 나레이션 엔진(관리자 설정 목소리엔진, 사이트설정_조회 v12 voice): 목소리 미리 듣기 샘플·자동 추천·미리 듣기 엔진이 따른다(voice-catalog.js·voice-panel.js). 받지 못하면 minimax
-  function applySiteVoice(v) { if (v && (v.engine === 'gemini' || v.engine === 'minimax')) { window.RWVoiceEngine = v.engine; window.RWVoiceModel = typeof v.model === 'string' ? v.model : ''; const cps = Number(v.cps); if (Number.isFinite(cps) && cps >= 3 && cps <= 12) ONE_LINE_CPS = cps; } }
+  function applySiteVoice(v) { if (v && (v.engine === 'gemini' || v.engine === 'minimax')) { window.RWVoiceEngine = v.engine; window.RWVoiceModel = typeof v.model === 'string' ? v.model : ''; const cps = Number(v.cps); if (Number.isFinite(cps) && cps >= 3 && cps <= 12) { ONE_LINE_CPS = cps; window.__rwCps = cps; try { const f = document.getElementById('studio-frame'); if (f && f.contentWindow) f.contentWindow.postMessage({ type: 'rw-cps', cps }, '*'); } catch (e) {} } } }   /* [2026-11-23] 말 속도 한 곳: 대본 길이·대본 만들기(script.html)도 이 값 */
   async function 최신가격받기() {
     try {
       const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), 3000);
@@ -6963,7 +6964,7 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
     hub.innerHTML='<div class="sh-in"><div class="sh-top"><h2>어떤 영상의 대본인가요?</h2><p class="sub">고르면 그 영상에 맞는 입력 칸이 열려요.</p>'+
     '<div class="sh-priv"><span class="pi">'+IC.lock+'</span><p>대본은 <b>이 브라우저의 보관함</b>에만 저장돼요. 영상 제작을 시작할 때만 서버로 전달돼요. 야담·분위기 영상은 제작이 끝나면 서버의 대본이 지워지고, 쇼츠·롱폼 대본은 프로젝트와 함께 보관돼요. 브라우저 데이터를 지우면 보관함이 사라지니 필요한 대본은 파일로 내려받아 두세요.</p></div></div>'+
     '<div>'+hd(IC.grid,'영상 종류')+'<div class="kd-grid">'+kinds.map(function(k){return'<button type="button" class="kd'+(k[4]?'':' off')+'" data-kd="'+k[0]+'" aria-disabled="'+(!k[4])+'"><span class="kd-ic">'+IC[k[0]]+'</span>'+(k[4]?'':'<em class="kd-badge">준비 중</em>')+'<b>'+k[1]+'</b><span class="kd-t">'+(k[4]?k[2]:'곧 열려요')+'</span><span class="kd-d">'+k[3]+'</span></button>'}).join('')+'</div></div>'+
-    '<div>'+hd(IC.box,'보관함',L.length?'<span class="sh-cnt">'+L.length+'</span>':'')+'<div class="sh-lib">'+(L.length?L.map(function(x,i){var m=x.kind==='mood',g=x.kind==='gen';return'<div class="sh-item"><span class="sh-ic'+(m?' mood':g?(x.form==='롱폼'?' long':' short'):' yadam')+'">'+(m?IC.mood:g?(x.form==='롱폼'?IC.long:IC.short):IC.yadam)+'</span><span class="sh-tx"><b>'+esc(x.title)+'</b><small><i class="kd-tag'+(m?' mood':g?(x.form==='롱폼'?' long':' short'):' yadam')+'">'+(m?'분위기 영상':g?esc(x.form||'쇼츠')+(g&&x.form==='롱폼'&&typeof x.narrate==='boolean'?' · '+(x.narrate?'낭독형':'AI 영상형'):''):'야담')+'</i>'+(m?'약 '+Math.round((x.minutes||0)*60)+'초':g?(x.form==='롱폼'?'약 '+(Math.round((x.chars||0)/360*10)/10)+'분':(function(){var sec=Math.round(Math.max(0.25,Math.round((x.chars||0)/360*10)/10)*60);return '약 '+(sec<60?sec+'초':(sec%60?Math.floor(sec/60)+'분 '+(sec%60)+'초':(sec/60)+'분'))})()):'약 '+x.minutes+'분')+'</small></span><span class="sh-act">'+(m?(window.__rwGoMood?'<button class="sh-use" data-mm="'+i+'">영상 만들기</button>':'<button disabled title="곧 열려요">영상 만들기 · 곧</button>'):g?'<button class="sh-use" data-mg="'+i+'">영상 만들기</button>':'<button class="sh-use" data-mk="'+i+'">야담 만들기</button>')+'<button data-open="'+i+'">열기</button><button class="sh-del" data-del="'+i+'">삭제</button></span></div>'}).join(''):'<div class="sh-empty"><span class="pi">'+IC.box+'</span><span class="sh-et"><b>아직 보관된 대본이 없어요</b><small>위에서 영상 종류를 골라 대본을 쓰고 확정하면 여기에 저장돼요.</small></span></div>')+'</div></div>'+
+    '<div>'+hd(IC.box,'보관함',L.length?'<span class="sh-cnt">'+L.length+'</span>':'')+'<div class="sh-lib">'+(L.length?L.map(function(x,i){var m=x.kind==='mood',g=x.kind==='gen';return'<div class="sh-item"><span class="sh-ic'+(m?' mood':g?(x.form==='롱폼'?' long':' short'):' yadam')+'">'+(m?IC.mood:g?(x.form==='롱폼'?IC.long:IC.short):IC.yadam)+'</span><span class="sh-tx"><b>'+esc(x.title)+'</b><small><i class="kd-tag'+(m?' mood':g?(x.form==='롱폼'?' long':' short'):' yadam')+'">'+(m?'분위기 영상':g?esc(x.form||'쇼츠')+(g&&x.form==='롱폼'&&typeof x.narrate==='boolean'?' · '+(x.narrate?'낭독형':'AI 영상형'):''):'야담')+'</i>'+(m?'약 '+Math.round((x.minutes||0)*60)+'초':g?(x.form==='롱폼'?'약 '+(Math.round(RWPace.영상분(x.chars||0,window.__rwCps||6.05,1)*10)/10)+'분':(function(){var sec=Math.round(RWPace.영상분(x.chars||0,window.__rwCps||6.05,1)*60);return '약 '+(sec<60?sec+'초':(sec%60?Math.floor(sec/60)+'분 '+(sec%60)+'초':(sec/60)+'분'))})()):'약 '+x.minutes+'분')+'</small></span><span class="sh-act">'+(m?(window.__rwGoMood?'<button class="sh-use" data-mm="'+i+'">영상 만들기</button>':'<button disabled title="곧 열려요">영상 만들기 · 곧</button>'):g?'<button class="sh-use" data-mg="'+i+'">영상 만들기</button>':'<button class="sh-use" data-mk="'+i+'">야담 만들기</button>')+'<button data-open="'+i+'">열기</button><button class="sh-del" data-del="'+i+'">삭제</button></span></div>'}).join(''):'<div class="sh-empty"><span class="pi">'+IC.box+'</span><span class="sh-et"><b>아직 보관된 대본이 없어요</b><small>위에서 영상 종류를 골라 대본을 쓰고 확정하면 여기에 저장돼요.</small></span></div>')+'</div></div>'+
     '<div>'+hd(IC.steps,'이 대본으로 영상 만드는 법')+'<ol class="sh-steps"><li><span class="st-i">'+IC.write+'</span><span>대본을 쓰고 <b>확정</b>하면 보관함에 저장돼요.</span></li><li><span class="st-i">'+IC.click+'</span><span>왼쪽 <b>직접 설정하기</b>를 누르고 같은 종류의 영상을 골라요.</span></li><li><span class="st-i">'+IC.card+'</span><span><b>내 대본</b> 카드에서 저장한 대본을 눌러요.</span></li></ol></div></div>';
     hub.querySelectorAll('[data-kd]').forEach(function(b){b.onclick=function(){var k=b.dataset.kd;if(k==='yadam'||k==='mood')openFrame('long','mine',null,null,k);else openFrame('long','mine',null,null,'gen',k==='long'?'롱폼':'쇼츠')}});
     hub.querySelectorAll('[data-mk]').forEach(function(b){b.onclick=function(){var x=lib()[+b.dataset.mk];window.__rwScript={id:x.id,title:x.title,type:'long',src:'ready',imported:x.imported,minutes:x.minutes};close();if(window.__rwGoYadam)window.__rwGoYadam()}});
@@ -7068,7 +7069,7 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
 })();
 
 /* 직접 설정하기(일반 영상) '내 대본' 카드: 주제만 적어 AI가 쓰게 하거나 / 대본 만들기에서 쓴 쇼츠·롱폼 대본을 불러온다.
-   대본을 고르면 영상 길이는 대본 글자 수에 맞춰 정해진다(서버와 같은 식: 분 = max(0.25, 반올림(글자수/360, 0.1))) */
+   대본을 고르면 영상 길이는 대본 글자 수에 맞춰 정해진다(서버와 같은 식: assets/shared/pace.js 영상분 = 글자 ÷ (설정 초당글자 × 말속도), 초 반올림) */
 (function(){
   var mode='skip',note='';
   function esc(t){return String(t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
@@ -7076,13 +7077,14 @@ new MutationObserver(upd).observe(log,{childList:true,subtree:false});if(row)new
   /* 서버와 같은 방식으로 본문에서 다시 센다: \r 제거, 빈 줄 3개 이상→2개, 장별 앞뒤 공백 제거, 빈 장 제외, 장 사이 빈 줄 하나 */
   function charsOf(x){if(!x||!x.chapters||!x.chapters.length)return x&&x.chars||0;return x.chapters.map(function(c){return String(c.text||'').replace(/\r/g,'').replace(/\n{3,}/g,'\n\n').trim()}).filter(Boolean).join('\n\n').length}
   window.__rwGenChars=charsOf;
-  function minOf(x){return Math.max(0.25,Math.round(charsOf(x)/360*10)/10)}
+  function cpsNow(){return window.__rwCps||6.05}   /* [2026-11-23] 사이트설정 voice.cps(= 설정 초당글자_gemini). 접수 v3.102 와 같은 값·같은 식(assets/shared/pace.js) */
+  function minOf(x){return RWPace.영상분(charsOf(x),cpsNow(),1)}
   /* 낭독형은 말속도에 따라 영상 길이가 달라진다 (분 = 글자수/360/말속도). 서버(접수 v3.40)와 같은 식. 말속도를 안 건드렸으면 1.0 */
   function narSpeed(){if(!(window.__rwAI&&window.__rwAI.mode&&window.__rwAI.mode()==='paid'))return 1;var v=window.RWVoice&&RWVoice.value&&RWVoice.value();var s=v&&v.speed>0?v.speed:1;return Math.min(2,Math.max(0.5,Math.round(s*100)/100))}
   /* opt 가 있으면(신청 직전·새로고침 뒤) 화면 상태 대신 신청 값(answers)의 낭독 여부·말속도를 쓴다. 서버로 가는 값과 같아야 가격이 어긋나지 않는다 */
   function useMin(x,opt){
-    if(opt){var sp=opt.paid&&opt.speed>0?Math.min(2,Math.max(0.5,Math.round(opt.speed*100)/100)):1;return Math.max(0.25,Math.round(charsOf(x)/360/sp*10)/10)}
-    return Math.max(0.25,Math.round(charsOf(x)/360/narSpeed()*10)/10)}   /* [2026-11-07] 낭독형만이 아니라 모든 내 대본에 말속도를 반영한다(빠르게 읽으면 영상이 짧아진다). 접수 v3.90 과 같은 식 */
+    if(opt){var sp=opt.paid&&opt.speed>0?Math.min(2,Math.max(0.5,Math.round(opt.speed*100)/100)):1;return RWPace.영상분(charsOf(x),cpsNow(),sp)}
+    return RWPace.영상분(charsOf(x),cpsNow(),narSpeed())}   /* [2026-11-07] 낭독형만이 아니라 모든 내 대본에 말속도를 반영한다(빠르게 읽으면 영상이 짧아진다). 접수 v3.90 과 같은 식 */
   window.__rwNarSpeed=narSpeed;
   document.addEventListener('input',function(e){if(e.target&&e.target.id==='vp-speed'){if(window.__rwGenScript)render()}});
   function lenText(x){var um=useMin(x);if(x.form==='롱폼')return '약 '+um+'분';var sec=Math.round(um*60);return '약 '+(sec<60?sec+'초':(sec%60?Math.floor(sec/60)+'분 '+(sec%60)+'초':(sec/60)+'분'))}

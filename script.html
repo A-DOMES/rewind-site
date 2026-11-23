@@ -990,7 +990,8 @@ var $=function(i){return document.getElementById(i)};
 var PACE=350;
 /* 일반 영상(gen) 대본의 말 속도: 정식 모드에서 고른 목소리 속도(부모 화면). 영상 길이 = 글자 수 ÷ (360×속도) 분 (접수 서버와 같은 식) */
 function genSpeed(){var v=1;try{var f=window.parent&&window.parent!==window?window.parent.__rwNarSpeed:null;if(typeof f==='function')v=+f()||1}catch(e){}return Math.min(2,Math.max(0.5,Math.round(v*100)/100))}
-function setPace(){PACE=cfg.kind==='gen'?360*genSpeed():350}
+function cpsNow(){var c=0;try{c=window.parent&&window.parent!==window?Number(window.parent.__rwCps):0}catch(e){}return c>=3&&c<=12?c:6.05}   /* [2026-11-23] 말 속도 한 곳: 설정 초당글자(사이트설정 voice.cps) */
+function setPace(){PACE=cfg.kind==='gen'?60*cpsNow()*genSpeed():350}
 var GEN_MAX={'쇼츠':1080,'롱폼':45000},GEN_MIN=50,GEN_AI_LONG=3600;   /* [일반 영상 대본] 접수 서버(v3.37)의 한도와 같은 값: 쇼츠 3분 · 롱폼은 AI 영상형 10분(3,600자) / 낭독형 약 125분(45,000자) */
 var RATE={long:{base:6000,per:900},short:{base:3000,per:7000}};
 var REWRITE={long:200,short:100};
@@ -1005,7 +1006,8 @@ if(!inFrame)document.documentElement.classList.add('top-level');
 try{var th=localStorage.getItem('rw_theme');if(th&&th!=='system')document.documentElement.setAttribute('data-theme',th)}catch(e){}
 try{showPts=localStorage.getItem('ls_pts')==='1'}catch(e){}
 try{var sv=localStorage.getItem('ls_rail');if(sv)railMode=sv;var sw=+localStorage.getItem('ls_w');if(sw>=260&&sw<=560)lpW=sw}catch(e){}
-window.addEventListener('message',function(e){var d=e.data||{};if(d.type==='rw-theme'&&d.theme)document.documentElement.setAttribute('data-theme',d.theme);if(d.type==='rw-script-init')init(d.cfg||{})});
+window.addEventListener('message',function(e){var d=e.data||{};if(d.type==='rw-cps'){setPace();if(typeof renderBrief==='function'&&$('brief'))try{renderBrief()}catch(x){}try{stats()}catch(x){}}   /* [2026-11-23] 말 속도 설정이 늦게 와도 다시 계산(비판자 6) */
+if(d.type==='rw-theme'&&d.theme)document.documentElement.setAttribute('data-theme',d.theme);if(d.type==='rw-script-init')init(d.cfg||{})});
 function tell(o){if(inFrame){try{parent.postMessage(o,'*')}catch(e){}}}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function P(n){return Math.round(n).toLocaleString('ko-KR')+'P'}
@@ -1219,7 +1221,7 @@ function stats(){
     var gmax=GEN_MAX[cfg.form],gover=n>gmax,gshort=n>0&&n<GEN_MIN;
     $('ptsLbl').textContent='영상 제작 요금';$('pts').textContent='신청할 때 안내';$('mPt').textContent='';
     if(!gover&&!gshort&&cfg.form==='롱폼'&&n>GEN_AI_LONG){v.className='verdict';v.textContent='3,600자(약 10분)가 넘어서 신청할 때 "낭독형"으로 만들 수 있어요.'}
-    if(gover||gshort){v.className='verdict bad';v.textContent=gover?cfg.form+' 대본은 약 '+Math.round(gmax/360*10)/10+'분('+gmax.toLocaleString('ko-KR')+'자)까지예요. '+(n-gmax).toLocaleString('ko-KR')+'자 줄여 주세요.':'대본이 너무 짧아요 ('+GEN_MIN+'자 이상 필요해요).';$('approve').disabled=true}
+    if(gover||gshort){v.className='verdict bad';v.textContent=gover?cfg.form+' 대본은 약 '+Math.round(gmax/(60*cpsNow())*10)/10+'분('+gmax.toLocaleString('ko-KR')+'자)까지예요. '+(n-gmax).toLocaleString('ko-KR')+'자 줄여 주세요.':'대본이 너무 짧아요 ('+GEN_MIN+'자 이상 필요해요).';$('approve').disabled=true}
   }
   return {n:n,m:m,ok:ok,prod:prod,base:base,hasT:hasT};
 }
